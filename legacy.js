@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.62 - BUILD 20260306-footer-css-fix
-        var BP_VERSION = 'v4.46.62';
+        // BLUEPRINT v4.46.63 - BUILD 20260312-jdc-ai-skill-extraction
+        var BP_VERSION = 'v4.46.63';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format

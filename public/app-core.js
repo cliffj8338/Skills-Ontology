@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.62 - BUILD 20260306-footer-css-fix
-        var BP_VERSION = 'v4.46.62';
+        // BLUEPRINT v4.46.63 - BUILD 20260312-jdc-ai-skill-extraction
+        var BP_VERSION = 'v4.46.63';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3497,6 +3497,7 @@
                         { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
                         { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' },
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
+                        { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -6478,9 +6479,9 @@
                 html += '<div style="margin-bottom:20px;">'
                     + '<textarea id="jdcInput" placeholder="Paste a job description here..." style="width:100%; box-sizing:border-box; min-height:180px; padding:14px; border:1px solid var(--c-surface-5); border-radius:10px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; line-height:1.6; resize:vertical; font-family:inherit;">' + escapeHtml((_jdcResult ? _jdcResult._rawJD : '') || '') + '</textarea>'
                     + '<div style="display:flex; gap:12px; margin-top:12px; align-items:center; flex-wrap:wrap;">'
-                    + '<button onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                    + '<button id="jdcConvertBtn" onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                     + bpIcon('zap',14) + ' Convert to Work Blueprint</button>'
-                    + '<span style="font-size:0.78em; color:var(--c-faint);">Deterministic engine: O*NET crosswalk + BLS wages. No AI API calls.</span>'
+                    + '<span id="jdcConvertStatus" style="font-size:0.78em; color:var(--c-faint);">AI-powered extraction when signed in. Falls back to local parser.</span>'
                     + '</div></div>';
             } else if (_jdcInputMode === 'url') {
                 html += '<div style="margin-bottom:20px;">'
@@ -6551,21 +6552,84 @@
             el.innerHTML = html;
         }
 
-        function runJDConverter() {
+        // ===== ASYNC JDC WRAPPER — AI skill extraction (Phase 3) =====
+        // Uses parseJobWithAPI for skill extraction when user is signed in.
+        // Falls back to convertJDToBlueprint (local regex) if AI unavailable or fails.
+        async function convertJDToBlueprintAsync(jdText) {
+            var hasProxy = !!(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+            var local = convertJDToBlueprint(jdText);
+            if (!hasProxy) return local;
+
+            try {
+                var apiParsed = await parseJobWithAPI(jdText, null);
+                var tierImportance = { 'required': 80, 'preferred': 65, 'nice-to-have': 50 };
+                var apiSkills = (apiParsed.skills || []).map(function(s) {
+                    var importance = (tierImportance[s.tier] || 60) - (s.source === 'inferred' ? 10 : 0);
+                    return {
+                        name: s.name,
+                        importance: importance,
+                        blueprintLevel: s.proficiency || _jdcInferProficiency(s.name, jdText, local.seniority),
+                        source: 'jd',
+                        category: s.category || 'skill',
+                        outcome: _jdcGenerateOutcome(s.name, s.category || 'skill', local.seniority, local.title),
+                        compValue: 0,
+                        selected: true
+                    };
+                });
+
+                // Quality filter — same as all other skill paths
+                apiSkills = _wbSkillQualityFilter(apiSkills);
+                apiSkills.sort(function(a, b) { return b.importance - a.importance; });
+                apiSkills = apiSkills.slice(0, WB_SKILL_CAP);
+
+                // Recompute comp values against BLS if available
+                if (local.bls && local.bls.median && apiSkills.length) {
+                    var premMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
+                    var pool = Math.round(local.bls.median * 0.15);
+                    var qualSkills = apiSkills.filter(function(s) { return premMults[s.blueprintLevel]; });
+                    var totalW = qualSkills.reduce(function(sum, s) {
+                        return sum + (s.importance * (premMults[s.blueprintLevel] || 0));
+                    }, 0);
+                    apiSkills.forEach(function(s) {
+                        if (!premMults[s.blueprintLevel]) { s.compValue = 0; return; }
+                        s.compValue = Math.round(pool * (s.importance * premMults[s.blueprintLevel]) / (totalW || 1));
+                    });
+                }
+
+                local.skills = apiSkills;
+                local._extractionMethod = 'api';
+                return local;
+            } catch(e) {
+                console.warn('[JDC] AI extraction failed, using local parser:', e.message);
+                local._extractionMethod = 'local';
+                return local;
+            }
+        }
+
+        async function runJDConverter() {
             var raw = (document.getElementById('jdcInput') || {}).value || '';
             if (!raw || raw.trim().length < 50) {
                 showToast('Paste a job description with at least a few sentences.', 'warning');
                 return;
             }
-            _jdcResult = convertJDToBlueprint(raw.trim());
-            logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '' });
-            _jdcCompMode = 'without';
-            _jdcBulkResults = [];
-            _jdcBulkViewIdx = -1;
-            _jdcEditMode = true;
-            _jdcFromRepo = false;
-            renderAdminJDConverter(document.getElementById('adminTabContent'));
-            _jdcShowStats(_jdcResult);
+            var btn = document.getElementById('jdcConvertBtn');
+            var statusEl = document.getElementById('jdcConvertStatus');
+            if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+            if (statusEl) statusEl.innerHTML = bpIcon('loader', 12) + ' Extracting skills with AI...';
+
+            try {
+                _jdcResult = await convertJDToBlueprintAsync(raw.trim());
+                logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', method: _jdcResult._extractionMethod || 'local' });
+                _jdcCompMode = 'without';
+                _jdcBulkResults = [];
+                _jdcBulkViewIdx = -1;
+                _jdcEditMode = true;
+                _jdcFromRepo = false;
+                renderAdminJDConverter(document.getElementById('adminTabContent'));
+                _jdcShowStats(_jdcResult);
+            } finally {
+                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+            }
         }
         window.runJDConverter = runJDConverter;
 
@@ -6613,8 +6677,12 @@
                 .then(function(html) {
                     var text = _jdcExtractTextFromHTML(html);
                     if (text.length < 50) throw new Error('Could not extract meaningful text from the page.');
-                    _jdcResult = convertJDToBlueprint(text);
-                    logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url' });
+                    if (statusEl) statusEl.innerHTML = '<span style="color:var(--accent);">' + bpIcon('loader',14) + ' Extracting skills with AI...</span>';
+                    return convertJDToBlueprintAsync(text);
+                })
+                .then(function(result) {
+                    _jdcResult = result;
+                    logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url', method: _jdcResult._extractionMethod || 'local' });
                     _jdcCompMode = 'without';
                     _jdcBulkResults = [];
                     _jdcBulkViewIdx = -1;
