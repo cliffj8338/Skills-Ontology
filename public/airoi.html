@@ -1137,6 +1137,14 @@
 </div>
 
 <div class="citations-mobile">
+
+  <!-- Live usage counter — mobile -->
+  <div id="usage-counter-box-mobile" class="constants-box" style="margin-bottom:10px; text-align:center; padding:12px 10px;">
+    <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:5px;">&#9679; Live</div>
+    <div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.8em; color:var(--emerald); letter-spacing:-0.02em; line-height:1;" id="usage-count-display-mobile">—</div>
+    <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:10.5px; color:var(--slate2); margin-top:4px; line-height:1.4;">executives have run this<br>calculator</div>
+  </div>
+
   <div class="constants-box">
     <div class="section-label" style="margin-bottom:10px; color:var(--slate2);">&#9432; Sources &amp; Citations</div>
     <div style="font-family:Calibri,'Segoe UI',monospace; font-size:10px; color:var(--slate2); line-height:1.5; margin-bottom:10px;">Model constants and benchmarks are grounded in published research. Interrogate the inputs.</div>
@@ -1442,7 +1450,7 @@ function update() {
   if (_consumRow && _consumVal) {
     if (consumptionPerAdopter > 0) {
       _consumRow.style.display = 'flex';
-      const decayNote = consumptionDecay ? '<span style="white-space:nowrap;"> (decay adj.)</span>' : '';
+      const decayNote = consumptionDecay ? ' <span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);font-family:Georgia,serif;font-style:italic;font-size:9px;color:var(--emerald);cursor:default;vertical-align:middle;position:relative;" title="Decay adjustment: AI tool value erodes ~20%/yr as workflows normalize and novelty fades. This figure reflects year-1 realized value net of that decay.">i</span>' : '';
       _consumVal.innerHTML = fmt(consumptionCost) + decayNote;
     } else {
       _consumRow.style.display = 'none';
@@ -2319,6 +2327,8 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
         var total = snap.data().total || 0;
         var el = document.getElementById('usage-count-display');
         if (el && total > 0) animateCount(el, total);
+        var elMobile = document.getElementById('usage-count-display-mobile');
+        if (elMobile && total > 0) animateCount(elMobile, total);
       }).catch(function() {});
     })();
 
