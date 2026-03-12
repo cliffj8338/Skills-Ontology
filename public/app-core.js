@@ -7794,6 +7794,7 @@
             // Premium pool = 15% of BLS median. Only Advanced/Expert/Mastery qualify.
             (function() {
                 var renderBls = data.bls;
+                console.log('[WB Comp Recompute] bls:', JSON.stringify(renderBls), '| skill[0].compValue:', data.skills && data.skills[0] ? data.skills[0].compValue : 'n/a', '| level:', data.skills && data.skills[0] ? data.skills[0].blueprintLevel : 'n/a');
                 if (renderBls && renderBls.median) {
                     var renderPremMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
                     var renderPool = Math.round(renderBls.median * 0.15);
