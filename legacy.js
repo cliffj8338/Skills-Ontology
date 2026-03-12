@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.66 - BUILD 20260312-nanfix-comp-panel
-        var BP_VERSION = 'v4.46.66';
+        // BLUEPRINT v4.46.67 - BUILD 20260312-onclick-escaping
+        var BP_VERSION = 'v4.46.67';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -7870,8 +7870,8 @@
                 html += '<input id="wbActiveCompRange" type="text" value="' + escapeHtml(activeRange) + '" placeholder="e.g. $180,000 \u2013 $220,000" style="flex:1; min-width:180px; padding:6px 10px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-text); font-size:0.82em; font-family:inherit;" oninput="wbUpdateActiveCompRange(this.value)">';
                 if (jdRange || bpSuggestedRange) {
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
-                    if (jdRange) html += '<button onclick="wbSetCompRange(' + JSON.stringify(jdRange) + ')" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:5px; background:transparent; color:#60a5fa; cursor:pointer; font-weight:600;">Use JD Range</button>';
-                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(' + JSON.stringify(bpSuggestedRange) + ')" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(16,185,129,0.3); border-radius:5px; background:transparent; color:#10b981; cursor:pointer; font-weight:600;">Use Blueprint</button>';
+                    if (jdRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(jdRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:5px; background:transparent; color:#60a5fa; cursor:pointer; font-weight:600;">Use JD Range</button>';
+                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(bpSuggestedRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(16,185,129,0.3); border-radius:5px; background:transparent; color:#10b981; cursor:pointer; font-weight:600;">Use Blueprint</button>';
                     html += '</div>';
                 }
                 html += '</div>'; // end active range row
