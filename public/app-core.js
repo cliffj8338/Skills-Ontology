@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.63 - BUILD 20260309-mobile-ui-fixes
-        var BP_VERSION = 'v4.46.63';
+        // BLUEPRINT v4.46.62 - BUILD 20260306-footer-css-fix
+        var BP_VERSION = 'v4.46.62';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -5259,6 +5259,7 @@
         // ===== JD → WORK BLUEPRINT CONVERTER =====
         var _jdcResult = null;
         var _jdcCompMode = 'without'; // 'without' or 'with'
+        var _wbGeo = { val: 1.0, label: 'National' }; // geo multiplier for comp display
         
         var _jdcInputMode = 'paste';
         var _jdcBulkResults = [];
@@ -6563,6 +6564,13 @@
         }
         window.runJDConverter = runJDConverter;
 
+        function wbSetGeo(val) {
+            var labels = { '1.0': 'National', '1.22': 'Major Metro', '1.35': 'High COL', '0.82': 'Low COL' };
+            _wbGeo = { val: parseFloat(val), label: labels[val] || 'National' };
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+        }
+        window.wbSetGeo = wbSetGeo;
+
         function _jdcShowStats(result) {
             var statParts = [result.skills.length + ' skills'];
             if (result.certifications && result.certifications.length) statParts.push(result.certifications.length + ' certs');
@@ -7743,9 +7751,15 @@
                 + '</div>';
 
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
-                + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
+                + '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:16px; flex-wrap:wrap;">'
+                + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<span style="color:' + accentColor + ';">' + bpIcon('skills',18) + '</span>'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">1) Skills / Outcomes / Proficiency</span></div>'
+                + (!opts.hideButtons ? '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:8px; padding:2px;">'
+                    + '<button onclick="_jdcCompMode=\'without\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (!showComp ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">Base Only</button>'
+                    + '<button onclick="_jdcCompMode=\'with\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (showComp ? 'background:#10b981; color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">' + bpIcon('money',12) + ' + Skill Premiums</button>'
+                    + '</div>' : '')
+                + '</div>'
                 + '<div style="overflow-x:auto;">'
                 + '<table style="width:100%; border-collapse:collapse; font-size:0.85em;">'
                 + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
@@ -7753,7 +7767,7 @@
                 + '<th style="text-align:center; padding:8px 10px; color:' + accentColor + '; font-weight:700; width:70px;">Source</th>'
                 + '<th style="text-align:left; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Expected Outcome</th>'
                 + '<th style="text-align:center; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Proficiency</th>'
-                + (showComp ? '<th style="text-align:right; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Comp Value (USD)</th>' : '')
+                + (showComp ? '<th style="text-align:right; padding:8px 10px; color:#10b981; font-weight:700;">Skill Premium</th>' : '')
                 + '</tr></thead><tbody>';
 
             var totalComp = 0;
@@ -7774,8 +7788,8 @@
             });
             if (showComp) {
                 html += '<tr style="border-top:2px solid ' + borderColor + '; background:rgba(16,185,129,0.06);">'
-                    + '<td colspan="4" style="padding:10px; font-weight:700; text-align:right; color:' + headingColor + ';">Total Estimated Compensation</td>'
-                    + '<td style="padding:10px; text-align:right; font-weight:800; color:#10b981; font-size:1.05em;">$' + totalComp.toLocaleString() + '</td></tr>';
+                    + '<td colspan="4" style="padding:10px; font-weight:700; text-align:right; color:' + headingColor + ';">Total Skill Premiums</td>'
+                    + '<td style="padding:10px; text-align:right; font-weight:800; color:#10b981; font-size:1.05em;">+$' + totalComp.toLocaleString() + '</td></tr>';
             }
             html += '</tbody></table></div></div>';
 
@@ -7831,45 +7845,155 @@
             }
 
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
-                + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
+                + '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:18px; flex-wrap:wrap;">'
+                + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<span style="color:#10b981;">' + bpIcon('money',18) + '</span>'
-                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">3) Regional Compensation Overview</span></div>';
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">3) Compensation Intelligence</span></div>'
+                + (!opts.hideButtons ? '<div style="display:flex; align-items:center; gap:6px;">'
+                    + '<span style="font-size:0.75em; color:var(--c-muted);">Market:</span>'
+                    + '<select onchange="wbSetGeo(this.value)" style="font-size:0.78em; padding:4px 8px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-heading-bold); cursor:pointer;">'
+                    + '<option value="1.0"' + (_wbGeo.val === 1.0 ? ' selected' : '') + '>National</option>'
+                    + '<option value="1.22"' + (_wbGeo.val === 1.22 ? ' selected' : '') + '>Major Metro (+22%)</option>'
+                    + '<option value="1.35"' + (_wbGeo.val === 1.35 ? ' selected' : '') + '>High COL (+35%)</option>'
+                    + '<option value="0.82"' + (_wbGeo.val === 0.82 ? ' selected' : '') + '>Low COL (-18%)</option>'
+                    + '</select></div>' : '')
+                + '</div>';
 
             if (data.bls) {
+                var geo = _wbGeo.val;
+                var geoLabel = _wbGeo.label;
+                var bls = data.bls;
                 var showBlindCol = !opts.hideButtons && !opts.isExport;
-                html += '<table style="width:100%; border-collapse:collapse; font-size:0.85em; max-width:800px;">'
+                var isExportMode = opts.isExport || false;
+                var hiddenPcts = (data.hiddenCompRows || []);
+
+                // Seniority → target percentile mapping
+                var seniority = (data.seniority || 'mid').toLowerCase();
+                var seniorityPctKey = 'median';
+                var seniorityLabel = '50th';
+                if (seniority === 'entry' || seniority === 'junior') { seniorityPctKey = 'pct25'; seniorityLabel = '25th'; }
+                else if (seniority === 'mid' || seniority === 'associate') { seniorityPctKey = 'median'; seniorityLabel = '50th'; }
+                else if (seniority === 'senior' || seniority === 'lead' || seniority === 'staff') { seniorityPctKey = 'pct75'; seniorityLabel = '75th'; }
+                else if (seniority === 'director' || seniority === 'principal') { seniorityPctKey = 'pct75'; seniorityLabel = '75th'; }
+                else if (seniority === 'executive' || seniority === 'vp' || seniority === 'c-suite') { seniorityPctKey = 'pct90'; seniorityLabel = '90th'; }
+
+                var blsBase = Math.round((bls[seniorityPctKey] || bls.median || 0) * geo);
+                var blsMedian = Math.round((bls.median || 0) * geo);
+
+                // ── Total comp summary box ──────────────────────────────────
+                var totalJustified = blsBase + (showComp ? totalComp : 0);
+                html += '<div style="display:grid; grid-template-columns:1fr 1fr' + (showComp ? ' 1fr' : '') + '; gap:10px; margin-bottom:20px;">';
+
+                html += '<div style="padding:14px 16px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:10px;">'
+                    + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#10b981; font-weight:700; margin-bottom:4px;">Minimum Market Value</div>'
+                    + '<div style="font-size:1.3em; font-weight:800; color:#10b981;">$' + Math.round((bls.pct25 || 0) * geo).toLocaleString() + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">25th pct \u00B7 BLS floor' + (geo !== 1.0 ? ' \u00B7 ' + geoLabel : '') + '</div></div>';
+
+                html += '<div style="padding:14px 16px; background:rgba(96,165,250,0.07); border:1px solid rgba(96,165,250,0.2); border-radius:10px;">'
+                    + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; font-weight:700; margin-bottom:4px;">Seniority Target</div>'
+                    + '<div style="font-size:1.3em; font-weight:800; color:#60a5fa;">$' + blsBase.toLocaleString() + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">' + seniorityLabel + ' pct \u00B7 ' + (data.seniority ? data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) : 'Mid') + ' level</div></div>';
+
+                if (showComp) {
+                    html += '<div style="padding:14px 16px; background:rgba(251,191,36,0.07); border:1px solid rgba(251,191,36,0.25); border-radius:10px;">'
+                        + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#fbbf24; font-weight:700; margin-bottom:4px;">Justified Value</div>'
+                        + '<div style="font-size:1.3em; font-weight:800; color:#fbbf24;">$' + totalJustified.toLocaleString() + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">BLS base + skill premiums</div></div>';
+                }
+                html += '</div>';
+
+                // ── Visual percentile band bar ──────────────────────────────
+                var pctBandData = [
+                    { key: 'pct10', label: '10th', val: bls.pct10 },
+                    { key: 'pct25', label: '25th', val: bls.pct25 },
+                    { key: 'median', label: '50th', val: bls.median },
+                    { key: 'pct75', label: '75th', val: bls.pct75 },
+                    { key: 'pct90', label: '90th', val: bls.pct90 }
+                ];
+                var minVal = bls.pct10 || 0;
+                var maxVal = bls.pct90 || 1;
+                var range = maxVal - minVal || 1;
+                var targetVal = bls[seniorityPctKey] || bls.median || 0;
+                var markerPct = Math.round(((targetVal - minVal) / range) * 100);
+
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">BLS Salary Band' + (geo !== 1.0 ? ' \u00B7 ' + geoLabel + ' adj.' : '') + '</div>'
+                    + '<div style="position:relative; height:10px; border-radius:5px; background:linear-gradient(to right, #1e3a2f, #10b981 50%, #fbbf24); margin-bottom:6px;">'
+                    + '<div style="position:absolute; top:-4px; left:' + markerPct + '%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:#60a5fa; border:2px solid var(--c-surface-1); box-shadow:0 0 0 2px #60a5fa44;" title="' + seniorityLabel + ' target"></div>'
+                    + '</div>'
+                    + '<div style="display:flex; justify-content:space-between;">';
+                pctBandData.forEach(function(p) {
+                    var v = Math.round((p.val || 0) * geo);
+                    var isTarget = p.key === seniorityPctKey;
+                    html += '<div style="text-align:center; flex:1;">'
+                        + '<div style="font-size:0.68em; color:' + (isTarget ? '#60a5fa' : 'var(--c-faint)') + '; font-weight:' + (isTarget ? '700' : '500') + ';">' + p.label + '</div>'
+                        + '<div style="font-size:0.72em; color:' + (isTarget ? '#60a5fa' : 'var(--c-muted)') + '; font-weight:' + (isTarget ? '700' : '500') + ';">$' + Math.round(v / 1000) + 'K</div>'
+                        + '</div>';
+                });
+                html += '</div>'
+                    + '<div style="margin-top:8px; font-size:0.72em; color:var(--c-faint);">'
+                    + bpIcon('map-pin',11) + ' Blue marker = target for <strong>' + (data.seniority ? data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) : 'Mid') + '</strong> seniority</div>'
+                    + '</div>';
+
+                // ── Full BLS table ──────────────────────────────────────────
+                html += '<table style="width:100%; border-collapse:collapse; font-size:0.85em; margin-bottom:12px;">'
                     + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
                     + '<th style="text-align:left; padding:8px 10px; color:#10b981; font-weight:700;">Percentile</th>'
                     + '<th style="text-align:right; padding:8px 10px; color:#10b981; font-weight:700;">Annual (USD)</th>'
-                    + '<th style="text-align:left; padding:8px 10px; color:#10b981; font-weight:700;">Notes</th>'
-                    + (showBlindCol ? '<th style="text-align:center; padding:8px 10px; color:#10b981; font-weight:700; width:80px;">Export</th>' : '')
+                    + '<th style="text-align:left; padding:8px 10px; color:#10b981; font-weight:700;">Profile</th>'
+                    + (showBlindCol ? '<th style="text-align:center; padding:8px 10px; color:#10b981; font-weight:700; width:70px;">Export</th>' : '')
                     + '</tr></thead><tbody>';
-                var hiddenPcts = (data.hiddenCompRows || []);
-                var pctData = [
-                    { key: 'pct10', label: '10th (Entry Floor)', val: data.bls.pct10, note: 'Entry-level, limited experience' },
-                    { key: 'pct25', label: '25th', val: data.bls.pct25, note: 'Below median, developing' },
-                    { key: 'median', label: '50th (Median)', val: data.bls.median, note: 'National median for this occupation' },
-                    { key: 'pct75', label: '75th', val: data.bls.pct75, note: 'Experienced, strong market position' },
-                    { key: 'pct90', label: '90th (Top Tier)', val: data.bls.pct90, note: 'Top performers, premium markets' }
+
+                var pctDataFull = [
+                    { key: 'pct10', label: '10th', val: bls.pct10, note: 'Entry-level, limited experience' },
+                    { key: 'pct25', label: '25th', val: bls.pct25, note: 'Below median, developing' },
+                    { key: 'median', label: '50th \u2014 Median', val: bls.median, note: 'National median for this occupation' },
+                    { key: 'pct75', label: '75th', val: bls.pct75, note: 'Experienced, strong market position' },
+                    { key: 'pct90', label: '90th', val: bls.pct90, note: 'Top performers, premium markets' }
                 ];
-                var isExportMode = opts.isExport || false;
-                pctData.forEach(function(p, i) {
+                pctDataFull.forEach(function(p, i) {
                     var isHidden = hiddenPcts.indexOf(p.key) !== -1;
                     if (isExportMode && isHidden) return;
                     var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
-                    var isMedian = p.label.indexOf('Median') !== -1;
+                    var isTarget = p.key === seniorityPctKey;
+                    var displayVal = Math.round((p.val || 0) * geo);
                     var eyeIcon = isHidden ? bpIcon('eye-off',14) : bpIcon('eye',14);
                     var toggleColor = isHidden ? '#ef4444' : '#10b981';
-                    var toggleTitle = isHidden ? 'Hidden on export — click to show' : 'Visible on export — click to hide';
-                    html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isMedian ? 'font-weight:700;' : '') + (isHidden ? ' opacity:0.45;' : '') + '">'
-                        + '<td style="padding:8px 10px; color:' + headingColor + ';">' + p.label + '</td>'
-                        + '<td style="padding:8px 10px; text-align:right; color:#10b981; font-weight:600;">' + (isHidden ? '<s style="opacity:0.5;">$' + (p.val || 0).toLocaleString() + '</s>' : '$' + (p.val || 0).toLocaleString()) + '</td>'
-                        + '<td style="padding:8px 10px; color:' + mutedColor + '; font-size:0.9em;">' + p.note + '</td>'
-                        + (showBlindCol ? '<td style="text-align:center; padding:8px 4px;"><button onclick="toggleCompBlinding(\'' + p.key + '\')" title="' + toggleTitle + '" style="background:none; border:1px solid ' + toggleColor + '44; border-radius:6px; padding:4px 8px; cursor:pointer; color:' + toggleColor + '; font-size:0.8em;">' + eyeIcon + '</button></td>' : '')
+                    html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isTarget ? 'font-weight:700;' : '') + (isHidden ? ' opacity:0.45;' : '') + '">'
+                        + '<td style="padding:8px 10px; color:' + headingColor + ';">'
+                        + (isTarget ? '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#60a5fa; margin-right:6px; vertical-align:middle;"></span>' : '<span style="display:inline-block; width:6px; margin-right:6px;"></span>')
+                        + p.label + '</td>'
+                        + '<td style="padding:8px 10px; text-align:right; color:' + (isTarget ? '#60a5fa' : '#10b981') + '; font-weight:600;">' + (isHidden ? '<s style="opacity:0.5;">$' + displayVal.toLocaleString() + '</s>' : '$' + displayVal.toLocaleString()) + '</td>'
+                        + '<td style="padding:8px 10px; color:' + mutedColor + '; font-size:0.9em;">' + p.note + (isTarget ? ' <span style="color:#60a5fa; font-weight:600;">\u2190 target</span>' : '') + '</td>'
+                        + (showBlindCol ? '<td style="text-align:center; padding:8px 4px;"><button onclick="toggleCompBlinding(\'' + p.key + '\')" title="' + (isHidden ? 'Hidden on export' : 'Visible on export') + '" style="background:none; border:1px solid ' + toggleColor + '44; border-radius:6px; padding:4px 8px; cursor:pointer; color:' + toggleColor + '; font-size:0.8em;">' + eyeIcon + '</button></td>' : '')
                         + '</tr>';
                 });
-                html += '</tbody></table>'
-                    + '<div style="margin-top:12px; font-size:0.78em; color:var(--c-faint);">Source: BLS OEWS ' + (data.bls.source || 'May 2024') + ' \u00B7 SOC: ' + escapeHtml(data.bls.soc || '') + ' \u00B7 ' + escapeHtml(data.bls.title || '') + '</div>';
+                html += '</tbody></table>';
+
+                // ── Skill premium leaderboard (only when comp model on) ─────
+                if (showComp && data.skills && data.skills.length > 0) {
+                    var topSkills = data.skills.slice().filter(function(s) { return (s.compValue || 0) > 0; })
+                        .sort(function(a, b) { return (b.compValue || 0) - (a.compValue || 0); }).slice(0, 5);
+                    var maxPremium = topSkills.length > 0 ? (topSkills[0].compValue || 1) : 1;
+                    if (topSkills.length > 0) {
+                        html += '<div style="margin-top:16px; padding-top:14px; border-top:1px solid ' + borderColor + ';">'
+                            + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">' + bpIcon('trending-up',12) + ' Top Skill Premiums</div>'
+                            + '<div style="display:grid; gap:6px;">';
+                        topSkills.forEach(function(s) {
+                            var pct = Math.round(((s.compValue || 0) / maxPremium) * 100);
+                            var lc = { 'Mastery': '#10b981', 'Expert': '#fb923c', 'Advanced': '#a78bfa', 'Proficient': '#60a5fa', 'Foundational': '#94a3b8' }[s.blueprintLevel] || '#6b7280';
+                            html += '<div style="display:flex; align-items:center; gap:8px;">'
+                                + '<div style="flex:0 0 120px; font-size:0.8em; color:' + headingColor + '; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(s.name) + '</div>'
+                                + '<div style="flex:1; height:6px; border-radius:3px; background:var(--c-surface-2); overflow:hidden;">'
+                                + '<div style="width:' + pct + '%; height:100%; border-radius:3px; background:' + lc + ';"></div></div>'
+                                + '<div style="flex:0 0 56px; text-align:right; font-size:0.8em; font-weight:700; color:#fbbf24;">+$' + (s.compValue || 0).toLocaleString() + '</div>'
+                                + '</div>';
+                        });
+                        html += '</div></div>';
+                    }
+                }
+
+                html += '<div style="margin-top:12px; font-size:0.78em; color:var(--c-faint);">Source: BLS OEWS ' + escapeHtml(bls.source || 'May 2024') + ' \u00B7 SOC: ' + escapeHtml(bls.soc || '') + ' \u00B7 ' + escapeHtml(bls.title || '') + (geo !== 1.0 ? ' \u00B7 ' + geoLabel + ' (' + (geo > 1 ? '+' : '') + Math.round((geo - 1) * 100) + '%)' : '') + '</div>';
             } else {
                 html += '<div style="color:' + mutedColor + '; font-size:0.9em;">No BLS wage data matched for this title. Try a more standard job title.</div>';
             }
@@ -39881,9 +40005,9 @@ body {
                             html += '<div id="wh-card-' + idx + '" style="padding:8px 12px 8px 20px; border-top:1px solid var(--c-surface-4); display:flex; align-items:center; gap:8px;'
                                 + (isHidden ? ' opacity:0.45;' : '') + '">'
                                 + '<div style="width:5px; height:5px; border-radius:50%; background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; flex-shrink:0;"></div>'
-                                + '<div style="flex:1; min-width:0; overflow:hidden;">'
-                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '500') + '; color:var(--c-text-alt); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; max-width:100%;">' + escapeHtml(job.title||'Untitled') + '</span>'
-                                + '<span style="font-size:0.75em; color:var(--c-muted); white-space:nowrap;">' + escapeHtml(dateRange) + '</span>'
+                                + '<div style="flex:1; min-width:0;">'
+                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '500') + '; color:var(--c-text-alt);">' + escapeHtml(job.title||'Untitled') + '</span>'
+                                + '<span style="font-size:0.75em; color:var(--c-muted); margin-left:8px;">' + escapeHtml(dateRange) + '</span>'
                                 + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b; margin-left:6px;">Hidden</span>' : '')
                                 + '</div>'
                                 + '<div style="display:flex; gap:2px; flex-shrink:0;">'
@@ -39907,10 +40031,10 @@ body {
                         html += '<div id="wh-card-' + idx + '" style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;'
                             + (isHidden ? ' opacity:0.45;' : '') + '">'
                             + '<div style="flex:1; min-width:0;">'
-                            + '<div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; overflow:hidden;">'
-                            + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' + escapeHtml(job.title||'Untitled Role') + '</span>'
-                            + '<span style="font-size:0.75em; color:var(--c-accent); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</span>'
-                            + '<span style="font-size:0.72em; color:var(--c-muted); white-space:nowrap; flex-shrink:0;">' + escapeHtml(dateRange) + '</span>'
+                            + '<div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">'
+                            + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); white-space:nowrap;">' + escapeHtml(job.title||'Untitled Role') + '</span>'
+                            + '<span style="font-size:0.75em; color:var(--c-accent);">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</span>'
+                            + '<span style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(dateRange) + '</span>'
                             + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b;">Hidden</span>' : '')
                             + '</div>'
                             + (job.description ? '<div style="font-size:0.76em; color:var(--c-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">' + escapeHtml(job.description.substring(0,120)) + (job.description.length > 120 ? '\u2026' : '') + '</div>' : '')
