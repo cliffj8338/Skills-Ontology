@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.63 - BUILD 20260312-jdc-ai-skill-extraction
-        var BP_VERSION = 'v4.46.63';
+        // BLUEPRINT v4.46.64 - BUILD 20260312-comp-context-hybrid-schedule
+        var BP_VERSION = 'v4.46.64';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
