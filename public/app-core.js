@@ -7891,7 +7891,9 @@
                 var blsMedian = Math.round((bls.median || 0) * geo);
 
                 // ── Total comp summary box ──────────────────────────────────
-                var totalJustified = blsBase + (showComp ? totalComp : 0);
+                var justifiedBase75 = Math.round((bls.pct75 || bls.median || 0) * geo);
+                var totalJustified = justifiedBase75 + (showComp ? totalComp : 0);
+                var justifiedMax = Math.round((bls.pct90 || bls.pct75 || 0) * geo) + (showComp ? totalComp : 0);
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr' + (showComp ? ' 1fr' : '') + '; gap:10px; margin-bottom:20px;">';
 
                 html += '<div style="padding:14px 16px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:10px;">'
@@ -7908,7 +7910,8 @@
                     html += '<div style="padding:14px 16px; background:rgba(251,191,36,0.07); border:1px solid rgba(251,191,36,0.25); border-radius:10px;">'
                         + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#fbbf24; font-weight:700; margin-bottom:4px;">Justified Value</div>'
                         + '<div style="font-size:1.3em; font-weight:800; color:#fbbf24;">$' + totalJustified.toLocaleString() + '</div>'
-                        + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">BLS base + skill premiums</div></div>';
+                        + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">75th pct \u00B7 BLS base + skill premiums</div>'
+                        + '<div style="font-size:0.68em; color:var(--c-faint); margin-top:5px; padding-top:5px; border-top:1px solid rgba(251,191,36,0.12);">Max justifiable: <span style="color:rgba(251,191,36,0.6); font-weight:600;">$' + justifiedMax.toLocaleString() + '</span></div></div>';
                 }
                 html += '</div>';
 

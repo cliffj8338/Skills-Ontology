@@ -783,10 +783,10 @@
       <div class="slider-sub">Consumption beyond seat fees: inference, API calls, compute. Light use: $200&ndash;500 &middot; Deep/agentic: $1,500&ndash;3,000. Default $0 if bundled.</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-consumption"></div>
-        <input type="range" id="consumption" min="0" max="3000" step="50" value="0" oninput="update()">
+        <input type="range" id="consumption" min="0" max="3000" step="50" value="200" oninput="update()">
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
-        <input type="checkbox" id="consumption-decay" onchange="update()" style="accent-color:var(--emerald);width:13px;height:13px;cursor:pointer;">
+        <input type="checkbox" id="consumption-decay" onchange="update()" checked style="accent-color:var(--emerald);width:13px;height:13px;cursor:pointer;">
         <label for="consumption-decay" style="font-family:Calibri,'Segoe UI',sans-serif;font-size:11px;color:var(--dim);cursor:pointer;line-height:1.4;">Apply 20%/yr cost decay (inference prices historically declining ~80% over 18 mo.)</label>
       </div>
     </div>
