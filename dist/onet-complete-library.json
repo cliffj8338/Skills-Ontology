@@ -1,0 +1,1482 @@
+{
+  "version": "2.0.0",
+  "source": "O*NET OnLine by U.S. Department of Labor, Employment and Training Administration. Licensed CC-BY 4.0.",
+  "scraped": "2026-02-18",
+  "totalEntries": 181,
+  "taxonomy": {
+    "basicSkills": {
+      "count": 10,
+      "code": "2.A"
+    },
+    "crossFunctionalSkills": {
+      "count": 25,
+      "code": "2.B"
+    },
+    "knowledge": {
+      "count": 33,
+      "code": "2.C"
+    },
+    "workActivities": {
+      "count": 41,
+      "code": "4.A"
+    },
+    "workStyles": {
+      "count": 21,
+      "code": "1.D"
+    },
+    "abilities": {
+      "count": 52,
+      "code": "1.A"
+    }
+  },
+  "skills": [
+    {
+      "name": "Reading Comprehension",
+      "description": "Understanding written sentences and paragraphs in work-related documents.",
+      "onetCode": "2.A.1.a",
+      "onetGroup": "Content Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Active Listening",
+      "description": "Giving full attention to what other people are saying, taking time to understand the points being made, asking questions as appropriate, and not interrupting at inappropriate times.",
+      "onetCode": "2.A.1.b",
+      "onetGroup": "Content Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Writing",
+      "description": "Communicating effectively in writing as appropriate for the needs of the audience.",
+      "onetCode": "2.A.1.c",
+      "onetGroup": "Content Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Speaking",
+      "description": "Talking to others to convey information effectively.",
+      "onetCode": "2.A.1.d",
+      "onetGroup": "Content Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Mathematics",
+      "description": "Using mathematics to solve problems.",
+      "onetCode": "2.A.1.e",
+      "onetGroup": "Content Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Science",
+      "description": "Using scientific rules and methods to solve problems.",
+      "onetCode": "2.A.1.f",
+      "onetGroup": "Content Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Critical Thinking",
+      "description": "Using logic and reasoning to identify the strengths and weaknesses of alternative solutions, conclusions, or approaches to problems.",
+      "onetCode": "2.A.2.a",
+      "onetGroup": "Process Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Active Learning",
+      "description": "Understanding the implications of new information for both current and future problem-solving and decision-making.",
+      "onetCode": "2.A.2.b",
+      "onetGroup": "Process Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Learning Strategies",
+      "description": "Selecting and using training/instructional methods and procedures appropriate for the situation when learning or teaching new things.",
+      "onetCode": "2.A.2.c",
+      "onetGroup": "Process Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Monitoring",
+      "description": "Assessing performance of yourself, other individuals, or organizations to make improvements or take corrective action.",
+      "onetCode": "2.A.2.d",
+      "onetGroup": "Process Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Complex Problem Solving",
+      "description": "Identifying complex problems and reviewing related information to develop and evaluate options and implement solutions.",
+      "onetCode": "2.B.2.i",
+      "onetGroup": "Complex Problem Solving Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Management of Financial Resources",
+      "description": "Determining how money will be spent to get the work done, and accounting for these expenditures.",
+      "onetCode": "2.B.5.b",
+      "onetGroup": "Resource Management Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Management of Material Resources",
+      "description": "Obtaining and seeing to the appropriate use of equipment, facilities, and materials needed to do certain work.",
+      "onetCode": "2.B.5.c",
+      "onetGroup": "Resource Management Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Management of Personnel Resources",
+      "description": "Motivating, developing, and directing people as they work, identifying the best people for the job.",
+      "onetCode": "2.B.5.d",
+      "onetGroup": "Resource Management Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Time Management",
+      "description": "Managing one's own time and the time of others.",
+      "onetCode": "2.B.5.a",
+      "onetGroup": "Resource Management Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Coordination",
+      "description": "Adjusting actions in relation to others' actions.",
+      "onetCode": "2.B.1.b",
+      "onetGroup": "Social Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Instructing",
+      "description": "Teaching others how to do something.",
+      "onetCode": "2.B.1.e",
+      "onetGroup": "Social Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Negotiation",
+      "description": "Bringing others together and trying to reconcile differences.",
+      "onetCode": "2.B.1.d",
+      "onetGroup": "Social Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Persuasion",
+      "description": "Persuading others to change their minds or behavior.",
+      "onetCode": "2.B.1.c",
+      "onetGroup": "Social Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Service Orientation",
+      "description": "Actively looking for ways to help people.",
+      "onetCode": "2.B.1.f",
+      "onetGroup": "Social Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Social Perceptiveness",
+      "description": "Being aware of others' reactions and understanding why they react as they do.",
+      "onetCode": "2.B.1.a",
+      "onetGroup": "Social Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "description": "Considering the relative costs and benefits of potential actions to choose the most appropriate one.",
+      "onetCode": "2.B.4.e",
+      "onetGroup": "Systems Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Systems Analysis",
+      "description": "Determining how a system should work and how changes in conditions, operations, and the environment will affect outcomes.",
+      "onetCode": "2.B.4.g",
+      "onetGroup": "Systems Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Systems Evaluation",
+      "description": "Identifying measures or indicators of system performance and the actions needed to improve or correct performance, relative to the goals of the system.",
+      "onetCode": "2.B.4.h",
+      "onetGroup": "Systems Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Equipment Maintenance",
+      "description": "Performing routine maintenance on equipment and determining when and what kind of maintenance is needed.",
+      "onetCode": "2.B.3.j",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Equipment Selection",
+      "description": "Determining the kind of tools and equipment needed to do a job.",
+      "onetCode": "2.B.3.c",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Installation",
+      "description": "Installing equipment, machines, wiring, or programs to meet specifications.",
+      "onetCode": "2.B.3.d",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Operation and Control",
+      "description": "Controlling operations of equipment or systems.",
+      "onetCode": "2.B.3.h",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Operations Analysis",
+      "description": "Analyzing needs and product requirements to create a design.",
+      "onetCode": "2.B.3.a",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Operations Monitoring",
+      "description": "Watching gauges, dials, or other indicators to make sure a machine is working properly.",
+      "onetCode": "2.B.3.g",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Programming",
+      "description": "Writing computer programs for various purposes.",
+      "onetCode": "2.B.3.e",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Quality Control Analysis",
+      "description": "Conducting tests and inspections of products, services, or processes to evaluate quality or performance.",
+      "onetCode": "2.B.3.m",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Repairing",
+      "description": "Repairing machines or systems using the needed tools.",
+      "onetCode": "2.B.3.l",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Technology Design",
+      "description": "Generating or adapting equipment and technology to serve user needs.",
+      "onetCode": "2.B.3.b",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "Troubleshooting",
+      "description": "Determining causes of operating errors and deciding what to do about it.",
+      "onetCode": "2.B.3.k",
+      "onetGroup": "Technical Skills",
+      "category": "skill",
+      "source": "O*NET"
+    },
+    {
+      "name": "English Language",
+      "description": "Knowledge of the structure and content of the English language including the meaning and spelling of words, and rules of composition and grammar.",
+      "onetCode": "2.C.7.a",
+      "onetGroup": "Arts and Humanities",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Fine Arts",
+      "description": "Knowledge of the theory and techniques required to compose, produce, and perform works of music, dance, visual arts, drama, and sculpture.",
+      "onetCode": "2.C.7.c",
+      "onetGroup": "Arts and Humanities",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Foreign Language",
+      "description": "Knowledge of the structure and content of a foreign (non-English) language including the meaning and spelling of words, rules of composition and grammar, and pronunciation.",
+      "onetCode": "2.C.7.b",
+      "onetGroup": "Arts and Humanities",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "History and Archeology",
+      "description": "Knowledge of historical events and their causes, indicators, and effects on civilizations and cultures.",
+      "onetCode": "2.C.7.d",
+      "onetGroup": "Arts and Humanities",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Philosophy and Theology",
+      "description": "Knowledge of different philosophical systems and religions. This includes their basic principles, values, ethics, ways of thinking, customs, practices, and their impact on human culture.",
+      "onetCode": "2.C.7.e",
+      "onetGroup": "Arts and Humanities",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Administration and Management",
+      "description": "Knowledge of business and management principles involved in strategic planning, resource allocation, human resources modeling, leadership technique, production methods, and coordination of people and resources.",
+      "onetCode": "2.C.1.a",
+      "onetGroup": "Business and Management",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Administrative",
+      "description": "Knowledge of administrative and office procedures and systems such as word processing, managing files and records, stenography and transcription, designing forms, and workplace terminology.",
+      "onetCode": "2.C.1.b",
+      "onetGroup": "Business and Management",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Customer and Personal Service",
+      "description": "Knowledge of principles and processes for providing customer and personal services. This includes customer needs assessment, meeting quality standards for services, and evaluation of customer satisfaction.",
+      "onetCode": "2.C.1.e",
+      "onetGroup": "Business and Management",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Economics and Accounting",
+      "description": "Knowledge of economic and accounting principles and practices, the financial markets, banking, and the analysis and reporting of financial data.",
+      "onetCode": "2.C.1.c",
+      "onetGroup": "Business and Management",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Personnel and Human Resources",
+      "description": "Knowledge of principles and procedures for personnel recruitment, selection, training, compensation and benefits, labor relations and negotiation, and personnel information systems.",
+      "onetCode": "2.C.1.f",
+      "onetGroup": "Business and Management",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Sales and Marketing",
+      "description": "Knowledge of principles and methods for showing, promoting, and selling products or services. This includes marketing strategy and tactics, product demonstration, sales techniques, and sales control systems.",
+      "onetCode": "2.C.1.d",
+      "onetGroup": "Business and Management",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Communications and Media",
+      "description": "Knowledge of media production, communication, and dissemination techniques and methods. This includes alternative ways to inform and entertain via written, oral, and visual media.",
+      "onetCode": "2.C.9.b",
+      "onetGroup": "Communications",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Telecommunications",
+      "description": "Knowledge of transmission, broadcasting, switching, control, and operation of telecommunications systems.",
+      "onetCode": "2.C.9.a",
+      "onetGroup": "Communications",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Education and Training",
+      "description": "Knowledge of principles and methods for curriculum and training design, teaching and instruction for individuals and groups, and the measurement of training effects.",
+      "onetCode": "2.C.6",
+      "onetGroup": "Education and Training",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Building and Construction",
+      "description": "Knowledge of materials, methods, and the tools involved in the construction or repair of houses, buildings, or other structures such as highways and roads.",
+      "onetCode": "2.C.3.d",
+      "onetGroup": "Engineering and Technology",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Computers and Electronics",
+      "description": "Knowledge of circuit boards, processors, chips, electronic equipment, and computer hardware and software, including applications and programming.",
+      "onetCode": "2.C.3.a",
+      "onetGroup": "Engineering and Technology",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Design",
+      "description": "Knowledge of design techniques, tools, and principles involved in production of precision technical plans, blueprints, drawings, and models.",
+      "onetCode": "2.C.3.c",
+      "onetGroup": "Engineering and Technology",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Engineering and Technology",
+      "description": "Knowledge of the practical application of engineering science and technology. This includes applying principles, techniques, procedures, and equipment to the design and production of various goods and services.",
+      "onetCode": "2.C.3.b",
+      "onetGroup": "Engineering and Technology",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Mechanical",
+      "description": "Knowledge of machines and tools, including their designs, uses, repair, and maintenance.",
+      "onetCode": "2.C.3.e",
+      "onetGroup": "Engineering and Technology",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Medicine and Dentistry",
+      "description": "Knowledge of the information and techniques needed to diagnose and treat human injuries, diseases, and deformities. This includes symptoms, treatment alternatives, drug properties and interactions, and preventive health-care measures.",
+      "onetCode": "2.C.5.a",
+      "onetGroup": "Health Services",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Therapy and Counseling",
+      "description": "Knowledge of principles, methods, and procedures for diagnosis, treatment, and rehabilitation of physical and mental dysfunctions, and for career counseling and guidance.",
+      "onetCode": "2.C.5.b",
+      "onetGroup": "Health Services",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Law and Government",
+      "description": "Knowledge of laws, legal codes, court procedures, precedents, government regulations, executive orders, agency rules, and the democratic political process.",
+      "onetCode": "2.C.8.b",
+      "onetGroup": "Law and Public Safety",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Public Safety and Security",
+      "description": "Knowledge of relevant equipment, policies, procedures, and strategies to promote effective local, state, or national security operations for the protection of people, data, property, and institutions.",
+      "onetCode": "2.C.8.a",
+      "onetGroup": "Law and Public Safety",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Food Production",
+      "description": "Knowledge of techniques and equipment for planting, growing, and harvesting food products (both plant and animal) for consumption, including storage/handling techniques.",
+      "onetCode": "2.C.2.b",
+      "onetGroup": "Manufacturing and Production",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Production and Processing",
+      "description": "Knowledge of raw materials, production processes, quality control, costs, and other techniques for maximizing the effective manufacture and distribution of goods.",
+      "onetCode": "2.C.2.a",
+      "onetGroup": "Manufacturing and Production",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Biology",
+      "description": "Knowledge of plant and animal organisms, their tissues, cells, functions, interdependencies, and interactions with each other and the environment.",
+      "onetCode": "2.C.4.d",
+      "onetGroup": "Mathematics and Science",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Chemistry",
+      "description": "Knowledge of the chemical composition, structure, and properties of substances and of the chemical processes and transformations that they undergo. This includes uses of chemicals and their interactions, danger signs, production techniques, and disposal methods.",
+      "onetCode": "2.C.4.c",
+      "onetGroup": "Mathematics and Science",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Geography",
+      "description": "Knowledge of principles and methods for describing the features of land, sea, and air masses, including their physical characteristics, locations, interrelationships, and distribution of plant, animal, and human life.",
+      "onetCode": "2.C.4.g",
+      "onetGroup": "Mathematics and Science",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Physics",
+      "description": "Knowledge and prediction of physical principles, laws, their interrelationships, and applications to understanding fluid, material, and atmospheric dynamics, and mechanical, electrical, atomic and sub-atomic structures and processes.",
+      "onetCode": "2.C.4.b",
+      "onetGroup": "Mathematics and Science",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Psychology",
+      "description": "Knowledge of human behavior and performance; individual differences in ability, personality, and interests; learning and motivation; psychological research methods; and the assessment and treatment of behavioral and affective disorders.",
+      "onetCode": "2.C.4.e",
+      "onetGroup": "Mathematics and Science",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Sociology and Anthropology",
+      "description": "Knowledge of group behavior and dynamics, societal trends and influences, human migrations, ethnicity, cultures, and their history and origins.",
+      "onetCode": "2.C.4.f",
+      "onetGroup": "Mathematics and Science",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Transportation",
+      "description": "Knowledge of principles and methods for moving people or goods by air, rail, sea, or road, including the relative costs and benefits.",
+      "onetCode": "2.C.10",
+      "onetGroup": "Transportation",
+      "category": "knowledge",
+      "source": "O*NET"
+    },
+    {
+      "name": "Estimating the Quantifiable Characteristics of Products, Events, or Information",
+      "description": "Estimating sizes, distances, and quantities; or determining time, costs, resources, or materials needed to perform a work activity.",
+      "onetCode": "4.A.1.b.3",
+      "onetGroup": "Information Input",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Identifying Objects, Actions, and Events",
+      "description": "Identifying information by categorizing, estimating, recognizing differences or similarities, and detecting changes in circumstances or events.",
+      "onetCode": "4.A.1.b.1",
+      "onetGroup": "Information Input",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Inspecting Equipment, Structures, or Materials",
+      "description": "Inspecting equipment, structures, or materials to identify the cause of errors or other problems or defects.",
+      "onetCode": "4.A.1.b.2",
+      "onetGroup": "Information Input",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Getting Information",
+      "description": "Observing, receiving, and otherwise obtaining information from all relevant sources.",
+      "onetCode": "4.A.1.a.1",
+      "onetGroup": "Information Input",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Monitoring Processes, Materials, or Surroundings",
+      "description": "Monitoring and reviewing information from materials, events, or the environment, to detect or assess problems.",
+      "onetCode": "4.A.1.a.2",
+      "onetGroup": "Information Input",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Monitoring and Controlling Resources",
+      "description": "Monitoring and controlling resources and overseeing the spending of money.",
+      "onetCode": "4.A.4.c.3",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Performing Administrative Activities",
+      "description": "Performing day-to-day administrative tasks such as maintaining information files and processing paperwork.",
+      "onetCode": "4.A.4.c.1",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Staffing Organizational Units",
+      "description": "Recruiting, interviewing, selecting, hiring, and promoting employees in an organization.",
+      "onetCode": "4.A.4.c.2",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Assisting and Caring for Others",
+      "description": "Providing personal assistance, medical attention, emotional support, or other personal care to others such as coworkers, customers, or patients.",
+      "onetCode": "4.A.4.a.5",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Communicating with People Outside the Organization",
+      "description": "Communicating with people outside the organization, representing the organization to customers, the public, government, and other external sources.",
+      "onetCode": "4.A.4.a.3",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Communicating with Supervisors, Peers, or Subordinates",
+      "description": "Providing information to supervisors, co-workers, and subordinates by telephone, in written form, e-mail, or in person.",
+      "onetCode": "4.A.4.a.2",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Establishing and Maintaining Interpersonal Relationships",
+      "description": "Developing constructive and cooperative working relationships with others, and maintaining them over time.",
+      "onetCode": "4.A.4.a.4",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Interpreting the Meaning of Information for Others",
+      "description": "Translating or explaining what information means and how it can be used.",
+      "onetCode": "4.A.4.a.1",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Performing for or Working Directly with the Public",
+      "description": "Performing for people or dealing directly with the public. This includes serving customers in restaurants and stores, and receiving clients or guests.",
+      "onetCode": "4.A.4.a.8",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Resolving Conflicts and Negotiating with Others",
+      "description": "Handling complaints, settling disputes, and resolving grievances and conflicts, or otherwise negotiating with others.",
+      "onetCode": "4.A.4.a.7",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Selling or Influencing Others",
+      "description": "Convincing others to buy merchandise/goods or to otherwise change their minds or actions.",
+      "onetCode": "4.A.4.a.6",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Coaching and Developing Others",
+      "description": "Identifying the developmental needs of others and coaching, mentoring, or otherwise helping others to improve their knowledge or skills.",
+      "onetCode": "4.A.4.b.5",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Coordinating the Work and Activities of Others",
+      "description": "Getting members of a group to work together to accomplish tasks.",
+      "onetCode": "4.A.4.b.1",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Developing and Building Teams",
+      "description": "Encouraging and building mutual trust, respect, and cooperation among team members.",
+      "onetCode": "4.A.4.b.2",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Guiding, Directing, and Motivating Subordinates",
+      "description": "Providing guidance and direction to subordinates, including setting performance standards and monitoring performance.",
+      "onetCode": "4.A.4.b.4",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Providing Consultation and Advice to Others",
+      "description": "Providing guidance and expert advice to management or other groups on technical, systems-, or process-related topics.",
+      "onetCode": "4.A.4.b.6",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Training and Teaching Others",
+      "description": "Identifying the educational needs of others, developing formal educational or training programs or classes, and teaching or instructing others.",
+      "onetCode": "4.A.4.b.3",
+      "onetGroup": "Interacting With Others",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Analyzing Data or Information",
+      "description": "Identifying the underlying principles, reasons, or facts of information by breaking down information or data into separate parts.",
+      "onetCode": "4.A.2.a.4",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Evaluating Information to Determine Compliance with Standards",
+      "description": "Using relevant information and individual judgment to determine whether events or processes comply with laws, regulations, or standards.",
+      "onetCode": "4.A.2.a.3",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Judging the Qualities of Objects, Services, or People",
+      "description": "Assessing the value, importance, or quality of things or people.",
+      "onetCode": "4.A.2.a.1",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Processing Information",
+      "description": "Compiling, coding, categorizing, calculating, tabulating, auditing, or verifying information or data.",
+      "onetCode": "4.A.2.a.2",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Developing Objectives and Strategies",
+      "description": "Establishing long-range objectives and specifying the strategies and actions to achieve them.",
+      "onetCode": "4.A.2.b.4",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Making Decisions and Solving Problems",
+      "description": "Analyzing information and evaluating results to choose the best solution and solve problems.",
+      "onetCode": "4.A.2.b.1",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Organizing, Planning, and Prioritizing Work",
+      "description": "Developing specific goals and plans to prioritize, organize, and accomplish your work.",
+      "onetCode": "4.A.2.b.6",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Scheduling Work and Activities",
+      "description": "Scheduling events, programs, and activities, as well as the work of others.",
+      "onetCode": "4.A.2.b.5",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Thinking Creatively",
+      "description": "Developing, designing, or creating new applications, ideas, relationships, systems, or products, including artistic contributions.",
+      "onetCode": "4.A.2.b.2",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Updating and Using Relevant Knowledge",
+      "description": "Keeping up-to-date technically and applying new knowledge to your job.",
+      "onetCode": "4.A.2.b.3",
+      "onetGroup": "Mental Processes",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Documenting/Recording Information",
+      "description": "Entering, transcribing, recording, storing, or maintaining information in written or electronic/magnetic form.",
+      "onetCode": "4.A.3.b.6",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Drafting, Laying Out, and Specifying Technical Devices, Parts, and Equipment",
+      "description": "Providing documentation, detailed instructions, drawings, or specifications to tell others about how devices, parts, equipment, or structures are to be fabricated, constructed, assembled, modified, maintained, or used.",
+      "onetCode": "4.A.3.b.2",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Repairing and Maintaining Electronic Equipment",
+      "description": "Servicing, repairing, calibrating, regulating, fine-tuning, or testing machines, devices, and equipment that operate primarily on the basis of electrical or electronic (not mechanical) principles.",
+      "onetCode": "4.A.3.b.5",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Repairing and Maintaining Mechanical Equipment",
+      "description": "Servicing, repairing, adjusting, and testing machines, devices, moving parts, and equipment that operate primarily on the basis of mechanical (not electronic) principles.",
+      "onetCode": "4.A.3.b.4",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Working with Computers",
+      "description": "Using computers and computer systems (including hardware and software) to program, write software, set up functions, enter data, or process information.",
+      "onetCode": "4.A.3.b.1",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Controlling Machines and Processes",
+      "description": "Using either control mechanisms or direct physical activity to operate machines or processes (not including computers or vehicles).",
+      "onetCode": "4.A.3.a.3",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Handling and Moving Objects",
+      "description": "Using hands and arms in handling, installing, positioning, and moving materials, and manipulating things.",
+      "onetCode": "4.A.3.a.2",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Operating Vehicles, Mechanized Devices, or Equipment",
+      "description": "Running, maneuvering, navigating, or driving vehicles or mechanized equipment, such as forklifts, passenger vehicles, aircraft, or watercraft.",
+      "onetCode": "4.A.3.a.4",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Performing General Physical Activities",
+      "description": "Performing general physical activities includes doing activities that require considerable use of your arms and legs and moving your whole body, such as climbing, lifting, balancing, walking, stooping, and handling materials.",
+      "onetCode": "4.A.3.a.1",
+      "onetGroup": "Work Output",
+      "category": "workactivity",
+      "source": "O*NET"
+    },
+    {
+      "name": "Attention to Detail",
+      "description": "A tendency to be detail-oriented, organized, and thorough in completing work.",
+      "onetCode": "1.D.3.b",
+      "onetGroup": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Cautiousness",
+      "description": "A tendency to be careful, deliberate, and risk-avoidant when making work-related decisions or doing work.",
+      "onetCode": "1.D.3.a",
+      "onetGroup": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Dependability",
+      "description": "A tendency to be reliable, responsible, and consistent in meeting work-related obligations.",
+      "onetCode": "1.D.3.c",
+      "onetGroup": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Integrity",
+      "description": "A tendency to be honest and ethical at work.",
+      "onetCode": "1.D.3.d",
+      "onetGroup": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Self-Control",
+      "description": "A tendency to remain calm and composed and to manage emotions effectively in response to criticism or difficult situations at work.",
+      "onetCode": "1.D.4.b",
+      "onetGroup": "Emotionally Resilient",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Stress Tolerance",
+      "description": "A tendency to cope and function effectively in stressful situations at work.",
+      "onetCode": "1.D.4.a",
+      "onetGroup": "Emotionally Resilient",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Cooperation",
+      "description": "A tendency to be pleasant, helpful, and willing to assist others at work.",
+      "onetCode": "1.D.2.d",
+      "onetGroup": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Empathy",
+      "description": "A tendency to show concern for others and be sensitive to others' needs and feelings at work.",
+      "onetCode": "1.D.2.c",
+      "onetGroup": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Humility",
+      "description": "A tendency to be modest and humble when interacting with others at work.",
+      "onetCode": "1.D.2.a",
+      "onetGroup": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Optimism",
+      "description": "A tendency to exhibit a positive attitude and positive emotions at work, even under difficult circumstances.",
+      "onetCode": "1.D.2.e",
+      "onetGroup": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Sincerity",
+      "description": "A tendency to be genuine and sincere in interactions with others at work, without concern for personal gain or self-interest.",
+      "onetCode": "1.D.2.b",
+      "onetGroup": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Social Orientation",
+      "description": "A tendency to seek out, enjoy, and be energized by social interaction at work.",
+      "onetCode": "1.D.2.f",
+      "onetGroup": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Achievement Orientation",
+      "description": "A tendency to establish and maintain personally challenging work-related goals, set high work-related standards, and exert high effort toward meeting those goals and standards.",
+      "onetCode": "1.D.1.b",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Adaptability",
+      "description": "A tendency to be open to and comfortable with change, new experiences, or ideas at work.",
+      "onetCode": "1.D.1.f",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Initiative",
+      "description": "A tendency to be proactive and take on extra responsibilities and tasks that may fall outside of one's required work role.",
+      "onetCode": "1.D.1.e",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Innovation",
+      "description": "A tendency to be inventive, to be imaginative, and to adopt new perspectives on ways to accomplish work.",
+      "onetCode": "1.D.1.a",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Intellectual Curiosity",
+      "description": "A tendency to seek out and acquire new work-related knowledge and obtain a deep understanding of work-related subjects.",
+      "onetCode": "1.D.1.c",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Leadership Orientation",
+      "description": "A tendency to lead, take charge, offer opinions, and provide direction at work.",
+      "onetCode": "1.D.1.i",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Perseverance",
+      "description": "A tendency to exhibit determination and resolve to perform or complete tasks in the face of difficult circumstances or obstacles at work.",
+      "onetCode": "1.D.1.h",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Self-Confidence",
+      "description": "A tendency to believe in one's work-related capabilities and ability to control one's work-related outcomes.",
+      "onetCode": "1.D.1.g",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Tolerance for Ambiguity",
+      "description": "A tendency to be comfortable with ambiguity and uncertainty at work.",
+      "onetCode": "1.D.1.d",
+      "onetGroup": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Selective Attention",
+      "description": "The ability to concentrate on a task over a period of time without being distracted.",
+      "onetCode": "1.A.1.g.1",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Time Sharing",
+      "description": "The ability to shift back and forth between two or more activities or sources of information.",
+      "onetCode": "1.A.1.g.2",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Category Flexibility",
+      "description": "The ability to generate or use different sets of rules for combining or grouping things in different ways.",
+      "onetCode": "1.A.1.b.7",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Deductive Reasoning",
+      "description": "The ability to apply general rules to specific problems to produce answers that make sense.",
+      "onetCode": "1.A.1.b.4",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Fluency of Ideas",
+      "description": "The ability to come up with a number of ideas about a topic (the number of ideas is important, not their quality, correctness, or creativity).",
+      "onetCode": "1.A.1.b.1",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Inductive Reasoning",
+      "description": "The ability to combine pieces of information to form general rules or conclusions (includes finding a relationship among seemingly unrelated events).",
+      "onetCode": "1.A.1.b.5",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Information Ordering",
+      "description": "The ability to arrange things or actions in a certain order or pattern according to a specific rule or set of rules.",
+      "onetCode": "1.A.1.b.6",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Originality",
+      "description": "The ability to come up with unusual or clever ideas about a given topic or situation, or to develop creative ways to solve a problem.",
+      "onetCode": "1.A.1.b.2",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Problem Sensitivity",
+      "description": "The ability to tell when something is wrong or is likely to go wrong. It does not involve solving the problem, only recognizing that there is a problem.",
+      "onetCode": "1.A.1.b.3",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Memorization",
+      "description": "The ability to remember information such as words, numbers, pictures, and procedures.",
+      "onetCode": "1.A.1.d.1",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Flexibility of Closure",
+      "description": "The ability to identify or detect a known pattern (a figure, object, word, or sound) that is hidden in other distracting material.",
+      "onetCode": "1.A.1.e.2",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Perceptual Speed",
+      "description": "The ability to quickly and accurately compare similarities and differences among sets of letters, numbers, objects, pictures, or patterns.",
+      "onetCode": "1.A.1.e.3",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Speed of Closure",
+      "description": "The ability to quickly make sense of, combine, and organize information into meaningful patterns.",
+      "onetCode": "1.A.1.e.1",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Mathematical Reasoning",
+      "description": "The ability to choose the right mathematical methods or formulas to solve a problem.",
+      "onetCode": "1.A.1.c.1",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Number Facility",
+      "description": "The ability to add, subtract, multiply, or divide quickly and correctly.",
+      "onetCode": "1.A.1.c.2",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Spatial Orientation",
+      "description": "The ability to know your location in relation to the environment or to know where other objects are in relation to you.",
+      "onetCode": "1.A.1.f.1",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Visualization",
+      "description": "The ability to imagine how something will look after it is moved around or when its parts are moved or rearranged.",
+      "onetCode": "1.A.1.f.2",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Oral Comprehension",
+      "description": "The ability to listen to and understand information and ideas presented through spoken words and sentences.",
+      "onetCode": "1.A.1.a.1",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Oral Expression",
+      "description": "The ability to communicate information and ideas in speaking so others will understand.",
+      "onetCode": "1.A.1.a.3",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Written Comprehension",
+      "description": "The ability to read and understand information and ideas presented in writing.",
+      "onetCode": "1.A.1.a.2",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Written Expression",
+      "description": "The ability to communicate information and ideas in writing so others will understand.",
+      "onetCode": "1.A.1.a.4",
+      "onetGroup": "Cognitive Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Stamina",
+      "description": "The ability to exert yourself physically over long periods of time without getting winded or out of breath.",
+      "onetCode": "1.A.3.b.1",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Dynamic Flexibility",
+      "description": "The ability to quickly and repeatedly bend, stretch, twist, or reach out with your body, arms, and/or legs.",
+      "onetCode": "1.A.3.c.2",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Extent Flexibility",
+      "description": "The ability to bend, stretch, twist, or reach with your body, arms, and/or legs.",
+      "onetCode": "1.A.3.c.1",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Gross Body Coordination",
+      "description": "The ability to coordinate the movement of your arms, legs, and torso together when the whole body is in motion.",
+      "onetCode": "1.A.3.c.3",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Gross Body Equilibrium",
+      "description": "The ability to keep or regain your body balance or stay upright when in an unstable position.",
+      "onetCode": "1.A.3.c.4",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Dynamic Strength",
+      "description": "The ability to exert muscle force repeatedly or continuously over time. This involves muscular endurance and resistance to muscle fatigue.",
+      "onetCode": "1.A.3.a.3",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Explosive Strength",
+      "description": "The ability to use short bursts of muscle force to propel oneself (as in jumping or sprinting), or to throw an object.",
+      "onetCode": "1.A.3.a.2",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Static Strength",
+      "description": "The ability to exert maximum muscle force to lift, push, pull, or carry objects.",
+      "onetCode": "1.A.3.a.1",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Trunk Strength",
+      "description": "The ability to use your abdominal and lower back muscles to support part of the body repeatedly or continuously over time without giving out or fatiguing.",
+      "onetCode": "1.A.3.a.4",
+      "onetGroup": "Physical Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Control Precision",
+      "description": "The ability to quickly and repeatedly adjust the controls of a machine or a vehicle to exact positions.",
+      "onetCode": "1.A.2.b.1",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Multilimb Coordination",
+      "description": "The ability to coordinate two or more limbs while sitting, standing, or lying down.",
+      "onetCode": "1.A.2.b.2",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Rate Control",
+      "description": "The ability to time your movements or the movement of a piece of equipment in anticipation of changes in the speed and/or direction of a moving object or scene.",
+      "onetCode": "1.A.2.b.4",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Response Orientation",
+      "description": "The ability to choose quickly between two or more movements in response to two or more different signals (lights, sounds, pictures).",
+      "onetCode": "1.A.2.b.3",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Arm-Hand Steadiness",
+      "description": "The ability to keep your hand and arm steady while moving your arm or while holding your arm and hand in one position.",
+      "onetCode": "1.A.2.a.1",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Finger Dexterity",
+      "description": "The ability to make precisely coordinated movements of the fingers of one or both hands to grasp, manipulate, or assemble very small objects.",
+      "onetCode": "1.A.2.a.3",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Manual Dexterity",
+      "description": "The ability to quickly move your hand, your hand together with your arm, or your two hands to grasp, manipulate, or assemble objects.",
+      "onetCode": "1.A.2.a.2",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Reaction Time",
+      "description": "The ability to quickly respond (with the hand, finger, or foot) to a signal (sound, light, picture) when it appears.",
+      "onetCode": "1.A.2.c.1",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Speed of Limb Movement",
+      "description": "The ability to quickly move the arms and legs.",
+      "onetCode": "1.A.2.c.3",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Wrist-Finger Speed",
+      "description": "The ability to make fast, simple, repeated movements of the fingers, hands, and wrists.",
+      "onetCode": "1.A.2.c.2",
+      "onetGroup": "Psychomotor Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Auditory Attention",
+      "description": "The ability to focus on a single source of sound in the presence of other distracting sounds.",
+      "onetCode": "1.A.4.b.2",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Hearing Sensitivity",
+      "description": "The ability to detect or tell the differences between sounds that vary in pitch and loudness.",
+      "onetCode": "1.A.4.b.1",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Sound Localization",
+      "description": "The ability to tell the direction from which a sound originated.",
+      "onetCode": "1.A.4.b.3",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Speech Clarity",
+      "description": "The ability to speak clearly so others can understand you.",
+      "onetCode": "1.A.4.b.5",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Speech Recognition",
+      "description": "The ability to identify and understand the speech of another person.",
+      "onetCode": "1.A.4.b.4",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Depth Perception",
+      "description": "The ability to judge which of several objects is closer or farther away from you, or to judge the distance between you and an object.",
+      "onetCode": "1.A.4.a.6",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Far Vision",
+      "description": "The ability to see details at a distance.",
+      "onetCode": "1.A.4.a.2",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Glare Sensitivity",
+      "description": "The ability to see objects in the presence of a glare or bright lighting.",
+      "onetCode": "1.A.4.a.7",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Near Vision",
+      "description": "The ability to see details at close range (within a few feet of the observer).",
+      "onetCode": "1.A.4.a.1",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Night Vision",
+      "description": "The ability to see under low-light conditions.",
+      "onetCode": "1.A.4.a.4",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Peripheral Vision",
+      "description": "The ability to see objects or movement of objects to one's side when the eyes are looking ahead.",
+      "onetCode": "1.A.4.a.5",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    },
+    {
+      "name": "Visual Color Discrimination",
+      "description": "The ability to match or detect differences between colors, including shades of color and brightness.",
+      "onetCode": "1.A.4.a.3",
+      "onetGroup": "Sensory Abilities",
+      "category": "ability",
+      "source": "O*NET"
+    }
+  ]
+}

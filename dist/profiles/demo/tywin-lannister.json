@@ -1,0 +1,541 @@
+{
+  "templateId": "tywin-lannister",
+  "profile": {
+    "name": "Tywin Lannister",
+    "currentTitle": "Hand of the King & Warden of the West",
+    "location": "Casterly Rock, The Westerlands",
+    "roleLevel": "C-Suite",
+    "email": "",
+    "summary": "The most powerful man in Westeros for four decades. Rebuilt House Lannister from near-ruin into the wealthiest and most feared dynasty on the continent. Served as Hand of the King for 20 years under Aerys Targaryen, making the realm function while the king descended into madness. Commanded the Lannister armies, managed the realm's finances, and installed his family on the Iron Throne. The gold standard — literally and figuratively — of executive leadership in Westeros."
+  },
+  "roles": [
+    {
+      "id": "executive-leadership",
+      "name": "Executive Leadership",
+      "color": "#B8860B"
+    },
+    {
+      "id": "military-command",
+      "name": "Military Command",
+      "color": "#8B0000"
+    },
+    {
+      "id": "financial-empire",
+      "name": "Financial Empire",
+      "color": "#228B22"
+    },
+    {
+      "id": "dynasty-management",
+      "name": "Dynasty & Succession",
+      "color": "#6A0DAD"
+    },
+    {
+      "id": "governance",
+      "name": "Governance & Administration",
+      "color": "#4169E1"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Executive Leadership",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Served as Hand of the King for 20 years under Aerys II — effectively governing the Seven Kingdoms while the monarch was incapacitated",
+          "description": "Served as Hand of the King for 20 years under Aerys II — effectively governing the Seven Kingdoms while the monarch was incapacitated"
+        },
+        {
+          "outcome": "Rebuilt House Lannister from a position of weakness into the dominant political and economic force in Westeros",
+          "description": "Rebuilt House Lannister from a position of weakness into the dominant political and economic force in Westeros"
+        },
+        {
+          "outcome": "Commanded respect from every lord, general, and monarch in the realm through demonstrated competence and ruthless consistency",
+          "description": "Commanded respect from every lord, general, and monarch in the realm through demonstrated competence and ruthless consistency"
+        }
+      ],
+      "roles": [
+        "executive-leadership"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Strategic Planning",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Orchestrated the Red Wedding — a single event that ended the Northern rebellion, killed its leadership, and broke its military capacity",
+          "description": "Orchestrated the Red Wedding — a single event that ended the Northern rebellion, killed its leadership, and broke its military capacity"
+        },
+        {
+          "outcome": "Planned the Lannister succession strategy spanning decades — positioning children in marriages of maximum political value",
+          "description": "Planned the Lannister succession strategy spanning decades — positioning children in marriages of maximum political value"
+        },
+        {
+          "outcome": "Designed the military campaign that defeated Stannis, contained Robb Stark, and secured the Iron Throne for House Lannister",
+          "description": "Designed the military campaign that defeated Stannis, contained Robb Stark, and secured the Iron Throne for House Lannister"
+        }
+      ],
+      "roles": [
+        "executive-leadership"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Military Command",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Commanded Lannister forces during the War of the Five Kings — managing multiple fronts simultaneously",
+          "description": "Commanded Lannister forces during the War of the Five Kings — managing multiple fronts simultaneously"
+        },
+        {
+          "outcome": "Crushed the Reyne-Tarbeck rebellion as a young lord — eliminating two noble houses so completely the act became a warning song",
+          "description": "Crushed the Reyne-Tarbeck rebellion as a young lord — eliminating two noble houses so completely the act became a warning song"
+        },
+        {
+          "outcome": "Executed decisive military action at the Battle of Blackwater — arriving with Tyrell forces to save King's Landing",
+          "description": "Executed decisive military action at the Battle of Blackwater — arriving with Tyrell forces to save King's Landing"
+        },
+        {
+          "outcome": "Ordered the sack of King's Landing during Robert's Rebellion, delivering the capital to the new regime and ensuring Lannister relevance",
+          "description": "Waited until the outcome was certain, then marched on King's Landing under false pretenses of allegiance to the Mad King, seizing the city for Robert Baratheon"
+        }
+      ],
+      "roles": [
+        "military-command"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Army Logistics",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Maintained supply lines for Lannister armies operating across the Riverlands, Crownlands, and Westerlands simultaneously",
+          "description": "Maintained supply lines for Lannister armies operating across the Riverlands, Crownlands, and Westerlands simultaneously"
+        },
+        {
+          "outcome": "Coordinated the movement and supply of 60,000 Lannister troops across the largest theater of war in a generation",
+          "description": "Coordinated the movement and supply of 60,000 Lannister troops across the largest theater of war in a generation"
+        },
+        {
+          "outcome": "Managed the logistics of the combined Lannister-Tyrell relief force that marched to King's Landing for the Battle of Blackwater",
+          "description": "Managed the logistics of the combined Lannister-Tyrell relief force that marched to King's Landing for the Battle of Blackwater"
+        }
+      ],
+      "roles": [
+        "military-command"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Financial Management",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Controlled the gold mines of Casterly Rock — the primary source of wealth in the Seven Kingdoms",
+          "description": "Controlled the gold mines of Casterly Rock — the primary source of wealth in the Seven Kingdoms"
+        },
+        {
+          "outcome": "Managed Lannister wealth across investments, lending, and strategic expenditure over four decades",
+          "description": "Managed Lannister wealth across investments, lending, and strategic expenditure over four decades"
+        },
+        {
+          "outcome": "Used financial power as primary instrument of political control — 'a Lannister always pays his debts' became geopolitical doctrine",
+          "description": "Used financial power as primary instrument of political control — 'a Lannister always pays his debts' became geopolitical doctrine"
+        }
+      ],
+      "roles": [
+        "financial-empire"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Wealth Preservation",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Maintained the Lannister fortune through multiple wars, political transitions, and economic disruptions",
+          "description": "Maintained the Lannister fortune through multiple wars, political transitions, and economic disruptions"
+        },
+        {
+          "outcome": "Understood that the perception of wealth is as powerful as wealth itself — maintaining the illusion even as mines began to fail",
+          "description": "Understood that the perception of wealth is as powerful as wealth itself — maintaining the illusion even as mines began to fail"
+        },
+        {
+          "outcome": "Diversified Lannister economic interests beyond gold mining into trade, lending, and political rents",
+          "description": "Diversified Lannister economic interests beyond gold mining into trade, lending, and political rents"
+        },
+        {
+          "outcome": "Rebuilt Casterly Rock's wealth after Tytos Lannister nearly bankrupted the house through weakness and poor lending",
+          "description": "Called in debts, crushed vassal rebellions, and restored the Lannister gold mines to full production, transforming the house from a joke into the wealthiest family in Westeros"
+        }
+      ],
+      "roles": [
+        "financial-empire"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Alliance Architecture",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Engineered the Lannister-Tyrell alliance that provided the military and financial resources to win the War of the Five Kings",
+          "description": "Engineered the Lannister-Tyrell alliance that provided the military and financial resources to win the War of the Five Kings"
+        },
+        {
+          "outcome": "Arranged strategic marriages for all three children to maximize political leverage — Cersei to Robert, attempted Tyrion to Sansa",
+          "description": "Arranged strategic marriages for all three children to maximize political leverage — Cersei to Robert, attempted Tyrion to Sansa"
+        },
+        {
+          "outcome": "Built the Frey-Bolton alliance that executed the Red Wedding — reshaping the political map of Westeros in a single night",
+          "description": "Built the Frey-Bolton alliance that executed the Red Wedding — reshaping the political map of Westeros in a single night"
+        },
+        {
+          "outcome": "Orchestrated the Red Wedding through alliance with Freys and Boltons, destroying the Stark-Tully rebellion without risking Lannister forces",
+          "description": "Engineered the massacre at the Twins by exploiting Walder Frey's grievance and Roose Bolton's ambition, ending the war in a single night at zero military cost to House Lannister"
+        }
+      ],
+      "roles": [
+        "dynasty-management"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Succession Planning",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Spent decades positioning House Lannister for multi-generational dominance of Westerosi politics",
+          "description": "Spent decades positioning House Lannister for multi-generational dominance of Westerosi politics"
+        },
+        {
+          "outcome": "Placed his daughter as Queen, his grandson on the throne, and himself as Hand — controlling all levers of power",
+          "description": "Placed his daughter as Queen, his grandson on the throne, and himself as Hand — controlling all levers of power"
+        },
+        {
+          "outcome": "Understood that legacy is measured in generations, not years — every decision optimized for dynastic continuity",
+          "description": "Understood that legacy is measured in generations, not years — every decision optimized for dynastic continuity"
+        }
+      ],
+      "roles": [
+        "dynasty-management"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Governance Administration",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Administered the Seven Kingdoms as Hand for two decades — the longest and most effective tenure in living memory",
+          "description": "Administered the Seven Kingdoms as Hand for two decades — the longest and most effective tenure in living memory"
+        },
+        {
+          "outcome": "Managed the Small Council, Crown finances, and military apparatus with systematic efficiency",
+          "description": "Managed the Small Council, Crown finances, and military apparatus with systematic efficiency"
+        },
+        {
+          "outcome": "Governed the Westerlands as Warden of the West — maintaining order, collecting taxes, and resolving disputes across dozens of lordships",
+          "description": "Governed the Westerlands as Warden of the West — maintaining order, collecting taxes, and resolving disputes across dozens of lordships"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Talent Management",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Appointed effective administrators and military commanders based on competence — Kevan Lannister, Gregor Clegane, the Mountain's Men",
+          "description": "Appointed effective administrators and military commanders based on competence — Kevan Lannister, Gregor Clegane, the Mountain's Men"
+        },
+        {
+          "outcome": "Identified Tyrion's administrative talent and assigned him appropriate roles despite personal animosity",
+          "description": "Identified Tyrion's administrative talent and assigned him appropriate roles despite personal animosity"
+        },
+        {
+          "outcome": "Maintained loyalty from bannermen through a combination of reward, obligation, and fear",
+          "description": "Maintained loyalty from bannermen through a combination of reward, obligation, and fear"
+        },
+        {
+          "outcome": "Appointed Tyrion as acting Hand of the King, recognizing his political talent despite deep personal contempt",
+          "description": "Set aside animosity to place the most capable family member in the role when the situation demanded competence over sentiment"
+        }
+      ],
+      "roles": [
+        "executive-leadership"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Intimidation & Deterrence",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "The destruction of Houses Reyne and Tarbeck became the song 'The Rains of Castamere' — a deterrent so effective it prevented rebellion for 40 years",
+          "description": "The destruction of Houses Reyne and Tarbeck became the song 'The Rains of Castamere' — a deterrent so effective it prevented rebellion for 40 years"
+        },
+        {
+          "outcome": "Used reputation for ruthlessness as a strategic asset — reducing the need for actual military action",
+          "description": "Used reputation for ruthlessness as a strategic asset — reducing the need for actual military action"
+        },
+        {
+          "outcome": "The mere presence of Lannister forces was sufficient to secure compliance from most opponents",
+          "description": "The mere presence of Lannister forces was sufficient to secure compliance from most opponents"
+        }
+      ],
+      "roles": [
+        "executive-leadership"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Negotiation",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Negotiated the Lannister-Tyrell alliance under extreme time pressure during the Battle of Blackwater",
+          "description": "Negotiated the Lannister-Tyrell alliance under extreme time pressure during the Battle of Blackwater"
+        },
+        {
+          "outcome": "Structured the Red Wedding agreement with Walder Frey and Roose Bolton — balancing competing interests of treacherous allies",
+          "description": "Structured the Red Wedding agreement with Walder Frey and Roose Bolton — balancing competing interests of treacherous allies"
+        },
+        {
+          "outcome": "Negotiated the terms of the Iron Throne's relationship with the Iron Bank of Braavos",
+          "description": "Negotiated the terms of the Iron Throne's relationship with the Iron Bank of Braavos"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Crisis Management",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Rescued the Lannister position after Jaime's capture by Robb Stark's forces",
+          "description": "Rescued the Lannister position after Jaime's capture by Robb Stark's forces"
+        },
+        {
+          "outcome": "Managed the succession crisis after Joffrey's assassination — installing Tommen and maintaining governmental continuity",
+          "description": "Managed the succession crisis after Joffrey's assassination — installing Tommen and maintaining governmental continuity"
+        },
+        {
+          "outcome": "Redirected the war effort after Robb Stark's initial military victories threatened Lannister control",
+          "description": "Redirected the war effort after Robb Stark's initial military victories threatened Lannister control"
+        }
+      ],
+      "roles": [
+        "executive-leadership"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Organizational Restructuring",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Rebuilt House Lannister from a position where minor lords openly defied its authority to the dominant house in Westeros",
+          "description": "Rebuilt House Lannister from a position where minor lords openly defied its authority to the dominant house in Westeros"
+        },
+        {
+          "outcome": "Restructured the Small Council after becoming Hand under Joffrey — removing incompetent appointees",
+          "description": "Restructured the Small Council after becoming Hand under Joffrey — removing incompetent appointees"
+        },
+        {
+          "outcome": "Reorganized Lannister military command structure to fight a multi-front war effectively",
+          "description": "Reorganized Lannister military command structure to fight a multi-front war effectively"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Legacy Building",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Built a family legacy that dominated Westerosi politics for a generation — the Lannister name became synonymous with power",
+          "description": "Built a family legacy that dominated Westerosi politics for a generation — the Lannister name became synonymous with power"
+        },
+        {
+          "outcome": "Invested in infrastructure, alliances, and institutional positions to ensure Lannister influence outlasted any individual",
+          "description": "Invested in infrastructure, alliances, and institutional positions to ensure Lannister influence outlasted any individual"
+        },
+        {
+          "outcome": "Understood that reputation is a compounding asset — every victory made the next one easier",
+          "description": "Understood that reputation is a compounding asset — every victory made the next one easier"
+        }
+      ],
+      "roles": [
+        "dynasty-management"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Delegation",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Delegated military command effectively — trusting field commanders while maintaining strategic oversight",
+          "description": "Delegated military command effectively — trusting field commanders while maintaining strategic oversight"
+        },
+        {
+          "outcome": "Empowered Kevan Lannister as trusted second-in-command across multiple domains",
+          "description": "Empowered Kevan Lannister as trusted second-in-command across multiple domains"
+        },
+        {
+          "outcome": "Assigned Tyrion to King's Landing as acting Hand — correctly assessing he would manage the crisis competently",
+          "description": "Assigned Tyrion to King's Landing as acting Hand — correctly assessing he would manage the crisis competently"
+        }
+      ],
+      "roles": [
+        "executive-leadership"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Political Judgment",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Correctly assessed that Robert's Rebellion would succeed and switched allegiance at the decisive moment",
+          "description": "Correctly assessed that Robert's Rebellion would succeed and switched allegiance at the decisive moment"
+        },
+        {
+          "outcome": "Understood that Aerys's madness made continued service untenable — resigned as Hand before the dynasty fell",
+          "description": "Understood that Aerys's madness made continued service untenable — resigned as Hand before the dynasty fell"
+        },
+        {
+          "outcome": "Recognized the strategic value of the Red Wedding — ending a war that conventional military action could not resolve cleanly",
+          "description": "Recognized the strategic value of the Red Wedding — ending a war that conventional military action could not resolve cleanly"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Supply Chain Management",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Managed gold mining, smelting, and distribution operations at Casterly Rock",
+          "description": "Managed gold mining, smelting, and distribution operations at Casterly Rock"
+        },
+        {
+          "outcome": "Organized food, arms, and material supply for extended military campaigns",
+          "description": "Organized food, arms, and material supply for extended military campaigns"
+        },
+        {
+          "outcome": "Understood the relationship between economic production and military capability at a strategic level",
+          "description": "Understood the relationship between economic production and military capability at a strategic level"
+        }
+      ],
+      "roles": [
+        "military-command"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Institutional Design",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Built governance structures at Casterly Rock that functioned effectively in his absence",
+          "description": "Built governance structures at Casterly Rock that functioned effectively in his absence"
+        },
+        {
+          "outcome": "Designed the administrative framework that allowed him to govern the Seven Kingdoms while simultaneously commanding armies in the field",
+          "description": "Designed the administrative framework that allowed him to govern the Seven Kingdoms while simultaneously commanding armies in the field"
+        },
+        {
+          "outcome": "Created institutional incentives that aligned bannermen interests with Lannister objectives",
+          "description": "Created institutional incentives that aligned bannermen interests with Lannister objectives"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    }
+  ],
+  "values": [
+    {
+      "name": "Excellence",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Strategic Thinking",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Bias Toward Action",
+      "selected": true
+    },
+    {
+      "name": "Legacy is the Only Currency",
+      "selected": true,
+      "custom": true
+    }
+  ],
+  "purpose": "A lion does not concern himself with the opinions of sheep. Legacy is the only currency that compounds after death — and a Lannister always pays his debts.",
+  "workHistory": [
+    {
+      "title": "Hand of the King",
+      "company": "The Crown — King Joffrey I / Tommen I",
+      "startDate": "2012-06",
+      "endDate": "2014-06",
+      "description": "Returned as Hand to manage the War of the Five Kings. Orchestrated the Red Wedding, brokered the Tyrell alliance, and secured the Iron Throne for his grandson. Governed the realm while commanding military operations."
+    },
+    {
+      "title": "Warden of the West",
+      "company": "House Lannister — Casterly Rock",
+      "startDate": "1966-01",
+      "endDate": "2014-06",
+      "description": "48 years as head of House Lannister. Rebuilt the house from weakness to dominance. Managed gold mining operations, bannerman relations, and military forces. The longest and most successful lordship in the Westerlands' history."
+    },
+    {
+      "title": "Hand of the King",
+      "company": "The Crown — King Aerys II Targaryen",
+      "startDate": "1975-01",
+      "endDate": "1994-01",
+      "description": "Twenty years as Hand — the longest effective tenure in modern Westerosi history. Governed the Seven Kingdoms while Aerys descended into madness. Built the administrative infrastructure that kept the realm functioning. Resigned when the king's instability became unmanageable."
+    },
+    {
+      "title": "Lord of Casterly Rock (Inherited)",
+      "company": "House Lannister",
+      "startDate": "1966-01",
+      "endDate": "1975-01",
+      "description": "Inherited lordship after father's ineffective rule nearly destroyed House Lannister's standing. Immediately crushed the Reyne-Tarbeck rebellion, re-established authority, and began rebuilding the family's political and financial power."
+    }
+  ],
+  "education": [
+    {
+      "degree": "Noble Education & Court Service",
+      "institution": "King's Landing — Court of Aerys II",
+      "year": "1965",
+      "field": "Governance, Military Strategy, Finance, Diplomacy"
+    }
+  ],
+  "certifications": []
+}

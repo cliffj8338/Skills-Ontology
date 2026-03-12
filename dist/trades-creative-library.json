@@ -1,0 +1,814 @@
+{
+  "version": "1.0.0",
+  "source": "Trades, Creative & Hands-On Skills Library \u2014 Work Blueprint",
+  "description": "Skilled trades, creative arts, culinary, and hands-on competencies. Valuable both professionally and as skill adjacencies (spatial reasoning, precision, project management, material science, design thinking).",
+  "created": "2026-02-18",
+  "count": 64,
+  "categories": {
+    "woodworking_construction": {
+      "name": "Woodworking & Construction",
+      "skills": [
+        {
+          "id": "tc-001",
+          "name": "Carpentry",
+          "definition": "Cutting, shaping, and assembling wood structures and furnishings to precise specifications. Develops spatial reasoning, measurement, and project planning.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "precision",
+            "project management",
+            "materials knowledge"
+          ]
+        },
+        {
+          "id": "tc-002",
+          "name": "Cabinet Making",
+          "definition": "Designing and constructing storage units, furniture, and built-ins. Requires advanced joinery, finishing, and exacting tolerances.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "design",
+            "materials knowledge",
+            "problem solving"
+          ]
+        },
+        {
+          "id": "tc-003",
+          "name": "Furniture Restoration",
+          "definition": "Assessing, repairing, and refinishing antique or damaged furniture. Combines materials science, historical knowledge, and craft.",
+          "category": "unique",
+          "adjacencies": [
+            "attention to detail",
+            "materials knowledge",
+            "problem solving"
+          ]
+        },
+        {
+          "id": "tc-004",
+          "name": "Framing",
+          "definition": "Constructing the structural frame of buildings including walls, floors, and roofs according to architectural plans.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "blueprint reading",
+            "structural analysis"
+          ]
+        },
+        {
+          "id": "tc-005",
+          "name": "Finish Carpentry",
+          "definition": "Installing trim, molding, doors, and detail woodwork that requires high precision and aesthetic judgment.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "attention to detail",
+            "aesthetic judgment"
+          ]
+        },
+        {
+          "id": "tc-006",
+          "name": "Blueprint Reading",
+          "definition": "Interpreting architectural and engineering drawings, schematics, and technical plans to guide construction or fabrication.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "analytical thinking",
+            "technical comprehension"
+          ]
+        },
+        {
+          "id": "tc-007",
+          "name": "Masonry",
+          "definition": "Working with brick, stone, block, and concrete to construct walls, walkways, and structural elements.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "precision",
+            "physical endurance",
+            "structural knowledge"
+          ]
+        },
+        {
+          "id": "tc-008",
+          "name": "Concrete Work",
+          "definition": "Mixing, pouring, finishing, and curing concrete for foundations, slabs, and structural elements.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "physical coordination",
+            "materials knowledge"
+          ]
+        },
+        {
+          "id": "tc-009",
+          "name": "Drywall Installation",
+          "definition": "Hanging, taping, mudding, and finishing drywall panels to create smooth interior wall surfaces.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "physical coordination",
+            "materials knowledge"
+          ]
+        },
+        {
+          "id": "tc-010",
+          "name": "Flooring Installation",
+          "definition": "Installing hardwood, tile, laminate, carpet, or vinyl flooring including sub-floor preparation.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "spatial reasoning",
+            "materials knowledge"
+          ]
+        },
+        {
+          "id": "tc-011",
+          "name": "Roofing",
+          "definition": "Installing, repairing, and maintaining roofing systems including shingles, metal, and membrane materials.",
+          "category": "unique",
+          "adjacencies": [
+            "physical endurance",
+            "safety awareness",
+            "materials knowledge"
+          ]
+        }
+      ]
+    },
+    "electrical_plumbing": {
+      "name": "Electrical, Plumbing & Mechanical",
+      "skills": [
+        {
+          "id": "tc-020",
+          "name": "Electrical Wiring",
+          "definition": "Installing and maintaining electrical circuits, panels, outlets, and fixtures following code requirements and safety standards.",
+          "category": "unique",
+          "adjacencies": [
+            "systems thinking",
+            "troubleshooting",
+            "safety protocols",
+            "technical reading"
+          ]
+        },
+        {
+          "id": "tc-021",
+          "name": "Plumbing",
+          "definition": "Installing and repairing water supply, drainage, and gas systems in residential and commercial structures.",
+          "category": "unique",
+          "adjacencies": [
+            "systems thinking",
+            "troubleshooting",
+            "spatial reasoning",
+            "code compliance"
+          ]
+        },
+        {
+          "id": "tc-022",
+          "name": "HVAC/Refrigeration",
+          "definition": "Installing, maintaining, and repairing heating, ventilation, air conditioning, and refrigeration systems.",
+          "category": "unique",
+          "adjacencies": [
+            "systems thinking",
+            "troubleshooting",
+            "thermodynamics",
+            "mechanical aptitude"
+          ]
+        },
+        {
+          "id": "tc-023",
+          "name": "Welding",
+          "definition": "Joining metals using heat and filler material (MIG, TIG, stick, or oxy-acetylene processes). Requires metallurgical knowledge and precision hand control.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "materials science",
+            "safety",
+            "physical coordination"
+          ]
+        },
+        {
+          "id": "tc-024",
+          "name": "Metal Fabrication",
+          "definition": "Cutting, bending, and assembling metal components to specifications using tools including plasma cutters, brakes, and grinders.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "blueprint reading",
+            "materials science",
+            "spatial reasoning"
+          ]
+        },
+        {
+          "id": "tc-025",
+          "name": "Automotive Repair",
+          "definition": "Diagnosing and repairing mechanical, electrical, and electronic systems in vehicles.",
+          "category": "unique",
+          "adjacencies": [
+            "systems thinking",
+            "diagnostic reasoning",
+            "mechanical aptitude",
+            "troubleshooting"
+          ]
+        },
+        {
+          "id": "tc-026",
+          "name": "Small Engine Repair",
+          "definition": "Servicing and repairing small gasoline and diesel engines in lawn equipment, generators, and power tools.",
+          "category": "unique",
+          "adjacencies": [
+            "mechanical aptitude",
+            "troubleshooting",
+            "precision",
+            "diagnostic reasoning"
+          ]
+        },
+        {
+          "id": "tc-027",
+          "name": "CNC Machining",
+          "definition": "Programming and operating computer numerically controlled machines to produce precision metal and plastic parts.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "programming",
+            "spatial reasoning",
+            "mathematics"
+          ]
+        },
+        {
+          "id": "tc-028",
+          "name": "3D Printing / Additive Manufacturing",
+          "definition": "Designing for and operating FDM, SLA, or SLS printers; understanding material properties and post-processing.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "design",
+            "prototyping",
+            "materials science"
+          ]
+        }
+      ]
+    },
+    "painting_finishing": {
+      "name": "Painting, Finishing & Decoration",
+      "skills": [
+        {
+          "id": "tc-030",
+          "name": "Interior Painting",
+          "definition": "Preparing surfaces and applying paint, stain, or specialty coatings to interior walls, ceilings, and trim.",
+          "category": "unique",
+          "adjacencies": [
+            "attention to detail",
+            "color theory",
+            "surface preparation",
+            "physical endurance"
+          ]
+        },
+        {
+          "id": "tc-031",
+          "name": "Exterior Painting",
+          "definition": "Preparing and coating exterior surfaces of buildings including siding, trim, and masonry.",
+          "category": "unique",
+          "adjacencies": [
+            "attention to detail",
+            "weather awareness",
+            "surface preparation",
+            "safety"
+          ]
+        },
+        {
+          "id": "tc-032",
+          "name": "Decorative Painting",
+          "definition": "Applying specialty finishes including faux textures, murals, stenciling, and color washing to create artistic wall treatments.",
+          "category": "unique",
+          "adjacencies": [
+            "artistic ability",
+            "color theory",
+            "precision",
+            "creativity"
+          ]
+        },
+        {
+          "id": "tc-033",
+          "name": "Auto Body / Refinishing",
+          "definition": "Repairing vehicle body panels and applying paint systems to achieve factory-quality finish.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "color matching",
+            "surface preparation",
+            "materials science"
+          ]
+        },
+        {
+          "id": "tc-034",
+          "name": "Powder Coating",
+          "definition": "Applying electrostatically charged dry powder to metal surfaces and curing in an oven for durable protective finish.",
+          "category": "unique",
+          "adjacencies": [
+            "materials science",
+            "precision",
+            "quality control",
+            "safety"
+          ]
+        },
+        {
+          "id": "tc-035",
+          "name": "Wallpapering / Wall Covering",
+          "definition": "Measuring, cutting, and applying wallpaper and decorative wall coverings requiring pattern matching and surface prep.",
+          "category": "unique",
+          "adjacencies": [
+            "attention to detail",
+            "precision",
+            "spatial reasoning",
+            "color sense"
+          ]
+        }
+      ]
+    },
+    "culinary": {
+      "name": "Culinary & Food Arts",
+      "skills": [
+        {
+          "id": "tc-040",
+          "name": "Culinary Arts",
+          "definition": "Professional cooking techniques encompassing knife skills, heat control, flavor development, and kitchen management.",
+          "category": "unique",
+          "adjacencies": [
+            "multitasking",
+            "time management",
+            "creativity",
+            "attention to detail"
+          ]
+        },
+        {
+          "id": "tc-041",
+          "name": "Baking & Pastry",
+          "definition": "Applying precise measurements and techniques to produce breads, pastries, and confections requiring chemistry-level precision.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "chemistry",
+            "creativity",
+            "time management"
+          ]
+        },
+        {
+          "id": "tc-042",
+          "name": "Fermentation & Brewing",
+          "definition": "Managing biological fermentation processes for beer, wine, bread, kombucha, cheese, or fermented foods.",
+          "category": "unique",
+          "adjacencies": [
+            "chemistry",
+            "microbiology",
+            "process management",
+            "patience"
+          ]
+        },
+        {
+          "id": "tc-043",
+          "name": "Food Safety & HACCP",
+          "definition": "Implementing and managing hazard analysis and critical control point food safety systems.",
+          "category": "unique",
+          "adjacencies": [
+            "regulatory compliance",
+            "process management",
+            "risk assessment",
+            "documentation"
+          ]
+        },
+        {
+          "id": "tc-044",
+          "name": "Menu Development",
+          "definition": "Creating menus that balance nutrition, cost, seasonality, and culinary technique for target audiences.",
+          "category": "unique",
+          "adjacencies": [
+            "creativity",
+            "cost management",
+            "nutrition",
+            "customer focus"
+          ]
+        },
+        {
+          "id": "tc-045",
+          "name": "Knife Skills",
+          "definition": "Precision cutting, dicing, julienning, and chiffonade techniques demonstrating fine motor control and speed.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "fine motor control",
+            "safety",
+            "efficiency"
+          ]
+        }
+      ]
+    },
+    "visual_arts": {
+      "name": "Visual Arts & Design",
+      "skills": [
+        {
+          "id": "tc-050",
+          "name": "Drawing & Illustration",
+          "definition": "Creating representational and conceptual artwork using pencil, ink, charcoal, or digital tools.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "attention to detail",
+            "creativity",
+            "visual communication"
+          ]
+        },
+        {
+          "id": "tc-051",
+          "name": "Oil Painting",
+          "definition": "Working with oil-based paints on canvas or board, including color mixing, glazing, impasto, and layering techniques.",
+          "category": "unique",
+          "adjacencies": [
+            "color theory",
+            "patience",
+            "creativity",
+            "attention to detail"
+          ]
+        },
+        {
+          "id": "tc-052",
+          "name": "Watercolor Painting",
+          "definition": "Applying transparent washes and wet-on-wet techniques in water-based media requiring fluid control and planning.",
+          "category": "unique",
+          "adjacencies": [
+            "color theory",
+            "creativity",
+            "planning",
+            "technical control"
+          ]
+        },
+        {
+          "id": "tc-053",
+          "name": "Digital Illustration",
+          "definition": "Creating artwork using software (Procreate, Illustrator, Photoshop) with drawing tablets and digital tools.",
+          "category": "unique",
+          "adjacencies": [
+            "color theory",
+            "design software",
+            "creativity",
+            "visual communication"
+          ]
+        },
+        {
+          "id": "tc-054",
+          "name": "Sculpture",
+          "definition": "Creating three-dimensional forms in clay, stone, metal, wood, or found materials through additive or subtractive processes.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "materials knowledge",
+            "creativity",
+            "fine motor control"
+          ]
+        },
+        {
+          "id": "tc-055",
+          "name": "Ceramics / Pottery",
+          "definition": "Forming clay by hand building or wheel throwing, then firing to create functional or decorative ceramic objects.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "patience",
+            "fine motor control",
+            "materials science"
+          ]
+        },
+        {
+          "id": "tc-056",
+          "name": "Printmaking",
+          "definition": "Creating multiples using relief, intaglio, screen printing, or lithography processes.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "process management",
+            "creativity",
+            "technical execution"
+          ]
+        },
+        {
+          "id": "tc-057",
+          "name": "Photography",
+          "definition": "Composing and capturing images with knowledge of exposure, lighting, lens optics, and post-processing.",
+          "category": "unique",
+          "adjacencies": [
+            "visual composition",
+            "technical knowledge",
+            "storytelling",
+            "attention to detail"
+          ]
+        },
+        {
+          "id": "tc-058",
+          "name": "Video Production",
+          "definition": "Planning, filming, and editing video content including cinematography, sound recording, and post-production.",
+          "category": "unique",
+          "adjacencies": [
+            "storytelling",
+            "technical knowledge",
+            "project management",
+            "communication"
+          ]
+        },
+        {
+          "id": "tc-059",
+          "name": "Graphic Design",
+          "definition": "Creating visual communications using typography, layout, and imagery for print or digital media.",
+          "category": "unique",
+          "adjacencies": [
+            "visual communication",
+            "typography",
+            "color theory",
+            "software proficiency"
+          ]
+        },
+        {
+          "id": "tc-060",
+          "name": "Screen Printing",
+          "definition": "Creating and applying stencil-based prints to fabric or paper using squeegees and ink.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "color theory",
+            "process management",
+            "physical coordination"
+          ]
+        },
+        {
+          "id": "tc-061",
+          "name": "Color Theory",
+          "definition": "Understanding and applying principles of hue, value, saturation, and color relationships in visual work.",
+          "category": "unique",
+          "adjacencies": [
+            "visual communication",
+            "design",
+            "perception",
+            "creativity"
+          ]
+        }
+      ]
+    },
+    "fiber_textile": {
+      "name": "Fiber, Textile & Needlework",
+      "skills": [
+        {
+          "id": "tc-065",
+          "name": "Sewing & Tailoring",
+          "definition": "Cutting, fitting, and assembling fabric into garments or soft goods with precision seaming and finishing.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "pattern reading",
+            "spatial reasoning",
+            "attention to detail"
+          ]
+        },
+        {
+          "id": "tc-066",
+          "name": "Knitting / Crochet",
+          "definition": "Creating textiles through interlocking loops of yarn using needles or hooks following written patterns.",
+          "category": "unique",
+          "adjacencies": [
+            "pattern reading",
+            "fine motor control",
+            "mathematics",
+            "patience"
+          ]
+        },
+        {
+          "id": "tc-067",
+          "name": "Weaving",
+          "definition": "Interlacing warp and weft threads on a loom to create cloth with specific patterns and structures.",
+          "category": "unique",
+          "adjacencies": [
+            "pattern recognition",
+            "mathematics",
+            "spatial reasoning",
+            "systematic thinking"
+          ]
+        },
+        {
+          "id": "tc-068",
+          "name": "Leatherworking",
+          "definition": "Cutting, tooling, stitching, and finishing leather to create goods such as bags, belts, and footwear.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "fine motor control",
+            "design",
+            "materials knowledge"
+          ]
+        },
+        {
+          "id": "tc-069",
+          "name": "Upholstery",
+          "definition": "Repairing or creating cushioned furniture by attaching fabric and padding to frames.",
+          "category": "unique",
+          "adjacencies": [
+            "precision",
+            "spatial reasoning",
+            "materials knowledge",
+            "hand tools"
+          ]
+        }
+      ]
+    },
+    "performing_arts": {
+      "name": "Performing Arts",
+      "skills": [
+        {
+          "id": "tc-070",
+          "name": "Acting",
+          "definition": "Embodying characters through voice, body, and emotional access for stage, film, or broadcast performance.",
+          "category": "unique",
+          "adjacencies": [
+            "emotional intelligence",
+            "communication",
+            "empathy",
+            "memorization"
+          ]
+        },
+        {
+          "id": "tc-071",
+          "name": "Dance",
+          "definition": "Performing choreographed or improvisational movement forms including ballet, contemporary, or social dance.",
+          "category": "unique",
+          "adjacencies": [
+            "physical coordination",
+            "memorization",
+            "discipline",
+            "musicality"
+          ]
+        },
+        {
+          "id": "tc-072",
+          "name": "Stage Management",
+          "definition": "Coordinating all production elements of a theatrical show including scheduling, calling cues, and managing personnel.",
+          "category": "unique",
+          "adjacencies": [
+            "project management",
+            "communication",
+            "problem solving",
+            "leadership"
+          ]
+        },
+        {
+          "id": "tc-073",
+          "name": "Sound Design",
+          "definition": "Creating and curating sound environments for theater, film, or installations using synthesis, recording, and mixing.",
+          "category": "unique",
+          "adjacencies": [
+            "technical knowledge",
+            "creativity",
+            "listening",
+            "systems thinking"
+          ]
+        },
+        {
+          "id": "tc-074",
+          "name": "Lighting Design",
+          "definition": "Designing and programming theatrical or architectural lighting to communicate mood, focus, and narrative.",
+          "category": "unique",
+          "adjacencies": [
+            "color theory",
+            "technical knowledge",
+            "creativity",
+            "systems thinking"
+          ]
+        }
+      ]
+    },
+    "outdoor_land": {
+      "name": "Outdoor, Land & Agriculture",
+      "skills": [
+        {
+          "id": "tc-080",
+          "name": "Landscaping / Horticulture",
+          "definition": "Designing, installing, and maintaining outdoor spaces including plant selection, grading, and irrigation.",
+          "category": "unique",
+          "adjacencies": [
+            "design",
+            "biology",
+            "project planning",
+            "physical labor"
+          ]
+        },
+        {
+          "id": "tc-081",
+          "name": "Organic Gardening",
+          "definition": "Growing vegetables, fruits, and flowers without synthetic inputs using soil management, companion planting, and integrated pest management.",
+          "category": "unique",
+          "adjacencies": [
+            "biology",
+            "systems thinking",
+            "patience",
+            "planning"
+          ]
+        },
+        {
+          "id": "tc-082",
+          "name": "Beekeeping",
+          "definition": "Managing honey bee colonies for pollination or honey production, requiring knowledge of insect biology and hive health.",
+          "category": "unique",
+          "adjacencies": [
+            "biology",
+            "observation",
+            "patience",
+            "systems thinking"
+          ]
+        },
+        {
+          "id": "tc-083",
+          "name": "Arboriculture / Tree Care",
+          "definition": "Pruning, treating, cabling, and removing trees safely using climbing techniques and aerial equipment.",
+          "category": "unique",
+          "adjacencies": [
+            "safety",
+            "biology",
+            "physical skill",
+            "risk assessment"
+          ]
+        },
+        {
+          "id": "tc-084",
+          "name": "Animal Husbandry",
+          "definition": "Raising livestock or poultry including feeding, health monitoring, breeding, and facility management.",
+          "category": "unique",
+          "adjacencies": [
+            "biology",
+            "observation",
+            "responsibility",
+            "systems management"
+          ]
+        }
+      ]
+    },
+    "technology_maker": {
+      "name": "Technology & Making",
+      "skills": [
+        {
+          "id": "tc-088",
+          "name": "Electronics / Soldering",
+          "definition": "Building, repairing, and modifying electronic circuits by soldering components and reading schematics.",
+          "category": "unique",
+          "adjacencies": [
+            "technical reading",
+            "precision",
+            "systems thinking",
+            "troubleshooting"
+          ]
+        },
+        {
+          "id": "tc-089",
+          "name": "Arduino / Raspberry Pi",
+          "definition": "Programming and building physical computing projects using microcontrollers and single-board computers.",
+          "category": "unique",
+          "adjacencies": [
+            "programming",
+            "electronics",
+            "systems thinking",
+            "problem solving"
+          ]
+        },
+        {
+          "id": "tc-090",
+          "name": "Ham Radio / Amateur Radio",
+          "definition": "Operating licensed amateur radio stations for communication, emergency services, or experimental purposes.",
+          "category": "unique",
+          "adjacencies": [
+            "electronics",
+            "communication",
+            "technical knowledge",
+            "emergency management"
+          ]
+        },
+        {
+          "id": "tc-091",
+          "name": "Drone Operation",
+          "definition": "Flying and maintaining unmanned aerial systems for photography, inspection, agriculture, or recreation.",
+          "category": "unique",
+          "adjacencies": [
+            "spatial reasoning",
+            "technical skill",
+            "regulatory knowledge",
+            "aviation awareness"
+          ]
+        },
+        {
+          "id": "tc-092",
+          "name": "Lock Sport / Physical Security",
+          "definition": "Understanding and demonstrating physical security vulnerabilities through lock picking, bypass, and security assessment.",
+          "category": "unique",
+          "adjacencies": [
+            "analytical thinking",
+            "fine motor control",
+            "security knowledge",
+            "problem solving"
+          ]
+        }
+      ]
+    }
+  }
+}

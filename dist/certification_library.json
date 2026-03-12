@@ -1,0 +1,2110 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-02-19",
+  "totalCredentials": 191,
+  "tiers": {
+    "1": {
+      "label": "Foundation",
+      "floor": "Proficient",
+      "description": "Proven competence in core skills"
+    },
+    "2": {
+      "label": "Advanced",
+      "floor": "Advanced",
+      "description": "Expert-level depth and judgment"
+    }
+  },
+  "credentials": [
+    {
+      "category": "University Degrees",
+      "name": "High School Diploma / GED",
+      "abbr": "HS/GED",
+      "type": "Degree",
+      "description": "Secondary education completion",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Associate of Arts",
+      "abbr": "AA",
+      "type": "Degree",
+      "description": "2-year undergraduate degree in liberal arts",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Associate of Science",
+      "abbr": "AS",
+      "type": "Degree",
+      "description": "2-year undergraduate degree in sciences",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Associate of Applied Science",
+      "abbr": "AAS",
+      "type": "Degree",
+      "description": "2-year undergraduate degree in applied/technical fields",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Bachelor of Arts",
+      "abbr": "BA",
+      "type": "Degree",
+      "description": "4-year undergraduate degree in liberal arts",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Bachelor of Science",
+      "abbr": "BS",
+      "type": "Degree",
+      "description": "4-year undergraduate degree in sciences",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Bachelor of Business Administration",
+      "abbr": "BBA",
+      "type": "Degree",
+      "description": "4-year undergraduate degree in business",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Bachelor of Fine Arts",
+      "abbr": "BFA",
+      "type": "Degree",
+      "description": "4-year undergraduate degree in fine/visual arts",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Bachelor of Science in Nursing",
+      "abbr": "BSN",
+      "type": "Degree",
+      "description": "4-year undergraduate degree in nursing",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Bachelor of Engineering",
+      "abbr": "BEng",
+      "type": "Degree",
+      "description": "4-year undergraduate degree in engineering",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Bachelor of Education",
+      "abbr": "BEd",
+      "type": "Degree",
+      "description": "4-year undergraduate degree in education",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Arts",
+      "abbr": "MA",
+      "type": "Degree",
+      "description": "Graduate degree in liberal arts",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Science",
+      "abbr": "MS",
+      "type": "Degree",
+      "description": "Graduate degree in sciences",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Business Administration",
+      "abbr": "MBA",
+      "type": "Degree",
+      "description": "Graduate degree in business administration",
+      "tier": 2,
+      "skills": [
+        "Business Strategy",
+        "Financial Analysis",
+        "Leadership",
+        "Organizational Management",
+        "Strategic Planning",
+        "Marketing"
+      ]
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Fine Arts",
+      "abbr": "MFA",
+      "type": "Degree",
+      "description": "Graduate terminal degree in fine arts",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Education",
+      "abbr": "MEd",
+      "type": "Degree",
+      "description": "Graduate degree in education",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Public Administration",
+      "abbr": "MPA",
+      "type": "Degree",
+      "description": "Graduate degree in public administration",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Public Health",
+      "abbr": "MPH",
+      "type": "Degree",
+      "description": "Graduate degree in public health",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Science in Nursing",
+      "abbr": "MSN",
+      "type": "Degree",
+      "description": "Graduate degree in nursing",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Social Work",
+      "abbr": "MSW",
+      "type": "Degree",
+      "description": "Graduate degree in social work",
+      "tier": 1
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Engineering",
+      "abbr": "MEng",
+      "type": "Degree",
+      "description": "Graduate degree in engineering",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Master of Laws",
+      "abbr": "LLM",
+      "type": "Degree",
+      "description": "Graduate degree in law (post-JD)",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Philosophy",
+      "abbr": "PhD",
+      "type": "Degree",
+      "description": "Doctoral research degree",
+      "tier": 2,
+      "skills": [
+        "Research Methodology",
+        "Data Analysis",
+        "Critical Thinking",
+        "Technical Writing",
+        "Subject Matter Expertise"
+      ]
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Education",
+      "abbr": "EdD",
+      "type": "Degree",
+      "description": "Doctoral degree in education",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Business Administration",
+      "abbr": "DBA",
+      "type": "Degree",
+      "description": "Doctoral degree in business",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Medicine",
+      "abbr": "MD",
+      "type": "Degree",
+      "description": "Professional doctoral degree in medicine",
+      "tier": 2,
+      "skills": [
+        "Clinical Medicine",
+        "Diagnosis",
+        "Patient Care",
+        "Medical Research",
+        "Clinical Decision Making"
+      ]
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Osteopathic Medicine",
+      "abbr": "DO",
+      "type": "Degree",
+      "description": "Professional doctoral degree in osteopathic medicine",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Juris Doctor",
+      "abbr": "JD",
+      "type": "Degree",
+      "description": "Professional doctoral degree in law",
+      "tier": 2,
+      "skills": [
+        "Legal Analysis",
+        "Contract Law",
+        "Regulatory Compliance",
+        "Negotiation",
+        "Critical Thinking",
+        "Legal Writing"
+      ]
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Dental Surgery",
+      "abbr": "DDS",
+      "type": "Degree",
+      "description": "Professional doctoral degree in dentistry",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Dental Medicine",
+      "abbr": "DMD",
+      "type": "Degree",
+      "description": "Professional doctoral degree in dentistry",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Veterinary Medicine",
+      "abbr": "DVM",
+      "type": "Degree",
+      "description": "Professional doctoral degree in veterinary medicine",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Pharmacy",
+      "abbr": "PharmD",
+      "type": "Degree",
+      "description": "Professional doctoral degree in pharmacy",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Psychology",
+      "abbr": "PsyD",
+      "type": "Degree",
+      "description": "Professional doctoral degree in psychology",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Doctor of Nursing Practice",
+      "abbr": "DNP",
+      "type": "Degree",
+      "description": "Professional doctoral degree in nursing",
+      "tier": 2
+    },
+    {
+      "category": "University Degrees",
+      "name": "Post-Doctoral Fellowship",
+      "abbr": "Post-Doc",
+      "type": "Degree",
+      "description": "Post-doctoral research appointment",
+      "tier": 2
+    },
+    {
+      "category": "Healthcare",
+      "name": "Registered Nurse",
+      "abbr": "RN",
+      "type": "License",
+      "description": "State nursing license for registered nurses",
+      "tier": 1,
+      "skills": [
+        "Patient Care",
+        "Clinical Assessment",
+        "Medication Administration",
+        "Patient Education",
+        "Documentation"
+      ]
+    },
+    {
+      "category": "Healthcare",
+      "name": "Licensed Practical Nurse",
+      "abbr": "LPN",
+      "type": "License",
+      "description": "State nursing license for practical nurses",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Licensed Vocational Nurse",
+      "abbr": "LVN",
+      "type": "License",
+      "description": "State nursing license for vocational nurses (CA/TX)",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Certified Nursing Assistant",
+      "abbr": "CNA",
+      "type": "Certification",
+      "description": "Entry-level nursing support certification",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Advanced Practice Registered Nurse",
+      "abbr": "APRN",
+      "type": "License",
+      "description": "Advanced nursing practice license",
+      "tier": 2
+    },
+    {
+      "category": "Healthcare",
+      "name": "Nurse Practitioner",
+      "abbr": "NP",
+      "type": "License",
+      "description": "Advanced practice nursing with prescriptive authority",
+      "tier": 2,
+      "skills": [
+        "Advanced Clinical Assessment",
+        "Diagnosis",
+        "Prescriptive Authority",
+        "Patient Management",
+        "Clinical Leadership"
+      ]
+    },
+    {
+      "category": "Healthcare",
+      "name": "Physician Assistant Certified",
+      "abbr": "PA-C",
+      "type": "Certification",
+      "description": "National certification for physician assistants",
+      "tier": 2,
+      "skills": [
+        "Clinical Assessment",
+        "Diagnosis",
+        "Treatment Planning",
+        "Patient Management",
+        "Medical Procedures"
+      ]
+    },
+    {
+      "category": "Healthcare",
+      "name": "Emergency Medical Technician - Basic",
+      "abbr": "EMT-B",
+      "type": "Certification",
+      "description": "Basic emergency medical services certification",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Emergency Medical Technician - Paramedic",
+      "abbr": "EMT-P",
+      "type": "Certification",
+      "description": "Advanced emergency medical services certification",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Basic Life Support",
+      "abbr": "BLS",
+      "type": "Certification",
+      "description": "CPR and basic life support for healthcare providers",
+      "tier": 1,
+      "skills": [
+        "Emergency Response",
+        "CPR",
+        "Basic Life Support",
+        "Patient Assessment"
+      ]
+    },
+    {
+      "category": "Healthcare",
+      "name": "Advanced Cardiac Life Support",
+      "abbr": "ACLS",
+      "type": "Certification",
+      "description": "Advanced cardiac emergency protocols",
+      "tier": 1,
+      "skills": [
+        "Advanced Cardiac Care",
+        "Emergency Response",
+        "Critical Care",
+        "Pharmacology"
+      ]
+    },
+    {
+      "category": "Healthcare",
+      "name": "Pediatric Advanced Life Support",
+      "abbr": "PALS",
+      "type": "Certification",
+      "description": "Pediatric emergency protocols",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Certified Professional Coder",
+      "abbr": "CPC",
+      "type": "Certification",
+      "description": "Medical coding certification (AAPC)",
+      "tier": 1,
+      "skills": [
+        "Medical Coding",
+        "Healthcare Compliance",
+        "Revenue Cycle Management",
+        "Documentation"
+      ]
+    },
+    {
+      "category": "Healthcare",
+      "name": "Registered Health Information Technician",
+      "abbr": "RHIT",
+      "type": "Certification",
+      "description": "Health information management certification",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Certified Medical Assistant",
+      "abbr": "CMA",
+      "type": "Certification",
+      "description": "Medical assisting certification (AAMA)",
+      "tier": 2,
+      "skills": [
+        "Management Accounting",
+        "Financial Strategy",
+        "Cost Management",
+        "Performance Management",
+        "Decision Analysis"
+      ]
+    },
+    {
+      "category": "Healthcare",
+      "name": "Certified Registered Nurse Anesthetist",
+      "abbr": "CRNA",
+      "type": "Certification",
+      "description": "Advanced practice nurse anesthesia certification",
+      "tier": 2
+    },
+    {
+      "category": "Healthcare",
+      "name": "Certified Nurse Midwife",
+      "abbr": "CNM",
+      "type": "Certification",
+      "description": "Advanced practice nurse midwifery certification",
+      "tier": 2
+    },
+    {
+      "category": "Healthcare",
+      "name": "Licensed Clinical Social Worker",
+      "abbr": "LCSW",
+      "type": "License",
+      "description": "Clinical social work practice license",
+      "tier": 2
+    },
+    {
+      "category": "Healthcare",
+      "name": "Licensed Professional Counselor",
+      "abbr": "LPC",
+      "type": "License",
+      "description": "Professional counseling license",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Registered Dietitian",
+      "abbr": "RD",
+      "type": "Certification",
+      "description": "Nutrition and dietetics credential",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Certified Occupational Therapy Assistant",
+      "abbr": "COTA",
+      "type": "Certification",
+      "description": "Occupational therapy assistant credential",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Physical Therapist License",
+      "abbr": "PT",
+      "type": "License",
+      "description": "State license for physical therapy practice",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Occupational Therapist License",
+      "abbr": "OT",
+      "type": "License",
+      "description": "State license for occupational therapy practice",
+      "tier": 1
+    },
+    {
+      "category": "Healthcare",
+      "name": "Certified Radiologic Technologist",
+      "abbr": "RT",
+      "type": "Certification",
+      "description": "Radiologic imaging certification (ARRT)",
+      "tier": 1
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Commercial Driver License Class A",
+      "abbr": "CDL-A",
+      "type": "License",
+      "description": "Tractor-trailers and combination vehicles over 26001 lbs",
+      "tier": 1
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Commercial Driver License Class B",
+      "abbr": "CDL-B",
+      "type": "License",
+      "description": "Single vehicles over 26001 lbs",
+      "tier": 1
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Commercial Driver License Class C",
+      "abbr": "CDL-C",
+      "type": "License",
+      "description": "Vehicles carrying hazmat or 16+ passengers",
+      "tier": 1
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "HAZMAT Endorsement",
+      "abbr": "HAZMAT",
+      "type": "Endorsement",
+      "description": "Endorsement for transporting hazardous materials",
+      "tier": 1
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Transportation Worker Identification Credential",
+      "abbr": "TWIC",
+      "type": "Credential",
+      "description": "Biometric security credential for port/vessel access",
+      "tier": 1
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Airline Transport Pilot",
+      "abbr": "ATP",
+      "type": "Certificate",
+      "description": "Highest level of aircraft pilot certification (FAA)",
+      "tier": 2,
+      "skills": [
+        "Instrument Flight Rules",
+        "Crew Resource Management",
+        "Risk Assessment",
+        "Decision Making Under Pressure",
+        "Leadership",
+        "Systems Management",
+        "Emergency Procedures"
+      ]
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Commercial Pilot License",
+      "abbr": "CPL",
+      "type": "Certificate",
+      "description": "Commercial flight operations certification (FAA)",
+      "tier": 1,
+      "skills": [
+        "Visual Flight Rules",
+        "Instrument Flight Rules",
+        "Navigation",
+        "Crew Resource Management",
+        "Risk Assessment",
+        "Commercial Aviation Operations"
+      ]
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Private Pilot License",
+      "abbr": "PPL",
+      "type": "Certificate",
+      "description": "Private flight operations certification (FAA)",
+      "tier": 1,
+      "skills": [
+        "Visual Flight Rules",
+        "Navigation",
+        "Weather Assessment",
+        "Radio Communications",
+        "Aeronautical Decision Making"
+      ]
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Instrument Flight Rules Rating",
+      "abbr": "IFR",
+      "type": "Rating",
+      "description": "Instrument flight rating for IMC operations",
+      "tier": 1,
+      "skills": [
+        "Instrument Flight Rules",
+        "Risk Assessment",
+        "Decision Making Under Pressure",
+        "Navigation",
+        "Weather Assessment"
+      ]
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Certified Flight Instructor",
+      "abbr": "CFI",
+      "type": "Certificate",
+      "description": "Authorization to provide flight instruction",
+      "tier": 1,
+      "skills": [
+        "Instruction",
+        "Communication",
+        "Flight Training",
+        "Aeronautical Decision Making",
+        "Mentoring"
+      ]
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Certified Flight Instructor - Instrument",
+      "abbr": "CFII",
+      "type": "Certificate",
+      "description": "Authorization to provide instrument flight instruction",
+      "tier": 2,
+      "skills": [
+        "Instrument Flight Rules",
+        "Instruction",
+        "Communication",
+        "Advanced Navigation",
+        "Mentoring"
+      ]
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Airframe & Powerplant Mechanic",
+      "abbr": "A&P",
+      "type": "Certificate",
+      "description": "FAA aircraft maintenance certification",
+      "tier": 2,
+      "skills": [
+        "Aircraft Maintenance",
+        "Systems Diagnostics",
+        "Mechanical Engineering",
+        "Safety Compliance",
+        "Technical Documentation"
+      ]
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Flight Engineer",
+      "abbr": "FE",
+      "type": "Certificate",
+      "description": "FAA flight engineer certificate",
+      "tier": 2
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "FAA Aircraft Dispatcher",
+      "abbr": "ADX",
+      "type": "Certificate",
+      "description": "FAA aircraft dispatch certification",
+      "tier": 2
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "USCG Merchant Mariner Credential",
+      "abbr": "MMC",
+      "type": "License",
+      "description": "Captain's license for commercial vessel operation",
+      "tier": 1
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Forklift Operator Certification",
+      "abbr": "Forklift",
+      "type": "Certification",
+      "description": "OSHA-compliant powered industrial truck certification",
+      "tier": 1
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Multi-Engine Rating",
+      "abbr": "ME",
+      "type": "Rating",
+      "description": "Rating for multi-engine aircraft operations",
+      "tier": 1,
+      "skills": [
+        "Multi-Engine Operations",
+        "Systems Management",
+        "Risk Assessment"
+      ]
+    },
+    {
+      "category": "Transportation & Logistics",
+      "name": "Type Rating",
+      "abbr": "Type",
+      "type": "Rating",
+      "description": "Aircraft type-specific certification for complex aircraft",
+      "tier": 1
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "CompTIA A+",
+      "abbr": "A+",
+      "type": "Certification",
+      "description": "Entry-level IT support and troubleshooting",
+      "tier": 1,
+      "skills": [
+        "IT Support",
+        "Hardware Troubleshooting",
+        "Operating Systems",
+        "Networking Basics"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "CompTIA Network+",
+      "abbr": "Network+",
+      "type": "Certification",
+      "description": "Networking fundamentals and infrastructure",
+      "tier": 1,
+      "skills": [
+        "Network Administration",
+        "Network Security",
+        "Infrastructure Management",
+        "Troubleshooting"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "CompTIA Security+",
+      "abbr": "Security+",
+      "type": "Certification",
+      "description": "Baseline cybersecurity skills and knowledge",
+      "tier": 1,
+      "skills": [
+        "Cybersecurity",
+        "Network Security",
+        "Risk Assessment",
+        "Security Operations"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Certified Information Systems Security Professional",
+      "abbr": "CISSP",
+      "type": "Certification",
+      "description": "Advanced information security management",
+      "tier": 2,
+      "skills": [
+        "Information Security",
+        "Security Architecture",
+        "Risk Management",
+        "Security Operations",
+        "Identity Management",
+        "Security Assessment"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Certified Information Security Manager",
+      "abbr": "CISM",
+      "type": "Certification",
+      "description": "Information security governance and management",
+      "tier": 2,
+      "skills": [
+        "Information Security Management",
+        "Risk Management",
+        "Incident Response",
+        "Security Governance",
+        "Program Development"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Certified Ethical Hacker",
+      "abbr": "CEH",
+      "type": "Certification",
+      "description": "Ethical hacking and penetration testing",
+      "tier": 1,
+      "skills": [
+        "Penetration Testing",
+        "Vulnerability Assessment",
+        "Network Security",
+        "Ethical Hacking"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "AWS Solutions Architect Associate",
+      "abbr": "AWS SAA",
+      "type": "Certification",
+      "description": "Amazon Web Services cloud architecture (associate)",
+      "tier": 1,
+      "skills": [
+        "Cloud Architecture",
+        "AWS Services",
+        "Infrastructure Design",
+        "Cost Optimization"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "AWS Solutions Architect Professional",
+      "abbr": "AWS SAP",
+      "type": "Certification",
+      "description": "Amazon Web Services cloud architecture (professional)",
+      "tier": 2,
+      "skills": [
+        "Cloud Architecture",
+        "AWS Services",
+        "Enterprise Architecture",
+        "Migration Strategy",
+        "Cost Optimization",
+        "Security Architecture"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Azure Administrator Associate",
+      "abbr": "AZ-104",
+      "type": "Certification",
+      "description": "Microsoft Azure administration",
+      "tier": 1,
+      "skills": [
+        "Cloud Administration",
+        "Azure Services",
+        "Identity Management",
+        "Infrastructure Management"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Azure Solutions Architect Expert",
+      "abbr": "AZ-305",
+      "type": "Certification",
+      "description": "Microsoft Azure architecture design",
+      "tier": 2,
+      "skills": [
+        "Cloud Architecture",
+        "Azure Services",
+        "Enterprise Architecture",
+        "Solution Design",
+        "Security Architecture"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Google Cloud Professional Cloud Architect",
+      "abbr": "GCP PCA",
+      "type": "Certification",
+      "description": "Google Cloud infrastructure architecture",
+      "tier": 2,
+      "skills": [
+        "Cloud Architecture",
+        "Google Cloud Services",
+        "Enterprise Architecture",
+        "Solution Design"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Cisco Certified Network Associate",
+      "abbr": "CCNA",
+      "type": "Certification",
+      "description": "Cisco networking fundamentals",
+      "tier": 1,
+      "skills": [
+        "Network Administration",
+        "Routing and Switching",
+        "Network Security",
+        "Infrastructure Management"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Cisco Certified Network Professional",
+      "abbr": "CCNP",
+      "type": "Certification",
+      "description": "Advanced Cisco networking",
+      "tier": 2,
+      "skills": [
+        "Advanced Networking",
+        "Network Architecture",
+        "Network Security",
+        "Infrastructure Design",
+        "Troubleshooting"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Project Management Professional",
+      "abbr": "PMP",
+      "type": "Certification",
+      "description": "Project management methodology and leadership (PMI)",
+      "tier": 2,
+      "skills": [
+        "Project Management",
+        "Risk Management",
+        "Stakeholder Management",
+        "Budget Management",
+        "Strategic Planning",
+        "Team Leadership"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Certified ScrumMaster",
+      "abbr": "CSM",
+      "type": "Certification",
+      "description": "Scrum framework and agile project management",
+      "tier": 1,
+      "skills": [
+        "Agile Methodology",
+        "Scrum Framework",
+        "Team Facilitation",
+        "Product Development"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "SAFe Agilist",
+      "abbr": "SA",
+      "type": "Certification",
+      "description": "Scaled Agile Framework leadership",
+      "tier": 1,
+      "skills": [
+        "Agile Methodology",
+        "Scaled Agile Framework",
+        "Enterprise Agile",
+        "Change Management",
+        "Strategic Planning"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "ITIL Foundation",
+      "abbr": "ITIL",
+      "type": "Certification",
+      "description": "IT service management framework",
+      "tier": 1,
+      "skills": [
+        "IT Service Management",
+        "Service Delivery",
+        "Process Improvement",
+        "Change Management"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Kubernetes Administrator",
+      "abbr": "CKA",
+      "type": "Certification",
+      "description": "Kubernetes cluster administration",
+      "tier": 1,
+      "skills": [
+        "Kubernetes Administration",
+        "Container Orchestration",
+        "DevOps",
+        "Infrastructure Automation"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Kubernetes Application Developer",
+      "abbr": "CKAD",
+      "type": "Certification",
+      "description": "Kubernetes application development",
+      "tier": 1
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Certified Data Professional",
+      "abbr": "CDP",
+      "type": "Certification",
+      "description": "Data management across multiple disciplines",
+      "tier": 1
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Certified Analytics Professional",
+      "abbr": "CAP",
+      "type": "Certification",
+      "description": "Analytics end-to-end process certification",
+      "tier": 1
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Certified Information Systems Auditor",
+      "abbr": "CISA",
+      "type": "Certification",
+      "description": "IS audit and control",
+      "tier": 2,
+      "skills": [
+        "Information Systems Auditing",
+        "IT Governance",
+        "Risk Management",
+        "Compliance"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Certified Cloud Security Professional",
+      "abbr": "CCSP",
+      "type": "Certification",
+      "description": "Cloud security architecture and operations",
+      "tier": 2,
+      "skills": [
+        "Cloud Security",
+        "Security Architecture",
+        "Risk Management",
+        "Compliance",
+        "Data Security"
+      ]
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Microsoft Certified: Data Engineer Associate",
+      "abbr": "DP-203",
+      "type": "Certification",
+      "description": "Azure data engineering",
+      "tier": 1
+    },
+    {
+      "category": "Technology & Cybersecurity",
+      "name": "Terraform Associate",
+      "abbr": "Terraform",
+      "type": "Certification",
+      "description": "HashiCorp infrastructure as code",
+      "tier": 1,
+      "skills": [
+        "Infrastructure as Code",
+        "Cloud Infrastructure",
+        "DevOps",
+        "Automation"
+      ]
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Certified Public Accountant",
+      "abbr": "CPA",
+      "type": "License",
+      "description": "Public accounting practice license",
+      "tier": 2,
+      "skills": [
+        "Accounting",
+        "Financial Reporting",
+        "Tax Strategy",
+        "Audit",
+        "Compliance",
+        "Financial Analysis"
+      ]
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Chartered Financial Analyst",
+      "abbr": "CFA",
+      "type": "Certification",
+      "description": "Investment analysis and portfolio management",
+      "tier": 2,
+      "skills": [
+        "Investment Analysis",
+        "Portfolio Management",
+        "Financial Modeling",
+        "Risk Assessment",
+        "Economics",
+        "Quantitative Analysis"
+      ]
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Certified Financial Planner",
+      "abbr": "CFP",
+      "type": "Certification",
+      "description": "Comprehensive financial planning",
+      "tier": 1,
+      "skills": [
+        "Financial Planning",
+        "Wealth Management",
+        "Tax Planning",
+        "Estate Planning",
+        "Retirement Planning"
+      ]
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Certified Management Accountant",
+      "abbr": "CMA",
+      "type": "Certification",
+      "description": "Management accounting and financial strategy",
+      "tier": 2,
+      "skills": [
+        "Management Accounting",
+        "Financial Strategy",
+        "Cost Management",
+        "Performance Management",
+        "Decision Analysis"
+      ]
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "FINRA Series 7",
+      "abbr": "Series 7",
+      "type": "License",
+      "description": "General securities representative license",
+      "tier": 1,
+      "skills": [
+        "Securities Trading",
+        "Investment Products",
+        "Regulatory Compliance",
+        "Client Advisory"
+      ]
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "FINRA Series 63",
+      "abbr": "Series 63",
+      "type": "License",
+      "description": "Uniform securities agent state law license",
+      "tier": 1
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "FINRA Series 66",
+      "abbr": "Series 66",
+      "type": "License",
+      "description": "Uniform combined state law license",
+      "tier": 1
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Enrolled Agent",
+      "abbr": "EA",
+      "type": "License",
+      "description": "IRS-authorized tax practitioner",
+      "tier": 1
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Chartered Alternative Investment Analyst",
+      "abbr": "CAIA",
+      "type": "Certification",
+      "description": "Alternative investment analysis",
+      "tier": 2
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Financial Risk Manager",
+      "abbr": "FRM",
+      "type": "Certification",
+      "description": "Financial risk assessment and management",
+      "tier": 2,
+      "skills": [
+        "Financial Risk Management",
+        "Risk Modeling",
+        "Market Risk",
+        "Credit Risk",
+        "Quantitative Analysis"
+      ]
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Certified Internal Auditor",
+      "abbr": "CIA",
+      "type": "Certification",
+      "description": "Internal audit practice",
+      "tier": 2
+    },
+    {
+      "category": "Finance & Accounting",
+      "name": "Certified Fraud Examiner",
+      "abbr": "CFE",
+      "type": "Certification",
+      "description": "Fraud prevention and detection",
+      "tier": 2
+    },
+    {
+      "category": "Human Resources",
+      "name": "Professional in Human Resources",
+      "abbr": "PHR",
+      "type": "Certification",
+      "description": "HR operational and technical knowledge",
+      "tier": 1,
+      "skills": [
+        "HR Operations",
+        "Employee Relations",
+        "Talent Acquisition",
+        "Benefits Administration",
+        "Compliance"
+      ]
+    },
+    {
+      "category": "Human Resources",
+      "name": "Senior Professional in Human Resources",
+      "abbr": "SPHR",
+      "type": "Certification",
+      "description": "Strategic HR leadership and policy",
+      "tier": 2,
+      "skills": [
+        "HR Strategy",
+        "Organizational Development",
+        "Workforce Planning",
+        "Leadership Development",
+        "Change Management",
+        "Labor Relations"
+      ]
+    },
+    {
+      "category": "Human Resources",
+      "name": "SHRM Certified Professional",
+      "abbr": "SHRM-CP",
+      "type": "Certification",
+      "description": "HR competency-based certification (operational)",
+      "tier": 1,
+      "skills": [
+        "HR Operations",
+        "Employee Relations",
+        "Talent Acquisition",
+        "HR Technology",
+        "Compliance"
+      ]
+    },
+    {
+      "category": "Human Resources",
+      "name": "SHRM Senior Certified Professional",
+      "abbr": "SHRM-SCP",
+      "type": "Certification",
+      "description": "HR competency-based certification (strategic)",
+      "tier": 2,
+      "skills": [
+        "HR Strategy",
+        "Organizational Development",
+        "Workforce Planning",
+        "Leadership Development",
+        "Change Management",
+        "Business Acumen"
+      ]
+    },
+    {
+      "category": "Human Resources",
+      "name": "Certified Compensation Professional",
+      "abbr": "CCP",
+      "type": "Certification",
+      "description": "Compensation program design and management",
+      "tier": 1,
+      "skills": [
+        "Compensation Design",
+        "Total Rewards",
+        "Market Analysis",
+        "Pay Equity",
+        "Benefits Strategy"
+      ]
+    },
+    {
+      "category": "Human Resources",
+      "name": "Certified Employee Benefits Specialist",
+      "abbr": "CEBS",
+      "type": "Certification",
+      "description": "Employee benefits design and administration",
+      "tier": 1
+    },
+    {
+      "category": "Human Resources",
+      "name": "Associate Professional in Talent Development",
+      "abbr": "APTD",
+      "type": "Certification",
+      "description": "Talent development fundamentals (ATD)",
+      "tier": 1,
+      "skills": [
+        "Talent Development",
+        "Learning Design",
+        "Training Delivery",
+        "Performance Improvement"
+      ]
+    },
+    {
+      "category": "Human Resources",
+      "name": "Certified Professional in Talent Development",
+      "abbr": "CPTD",
+      "type": "Certification",
+      "description": "Advanced talent development (ATD)",
+      "tier": 2,
+      "skills": [
+        "Talent Development",
+        "Organizational Development",
+        "Learning Strategy",
+        "Performance Consulting",
+        "Change Management"
+      ]
+    },
+    {
+      "category": "Legal",
+      "name": "State Bar Admission",
+      "abbr": "Bar",
+      "type": "License",
+      "description": "Authorization to practice law in a given state",
+      "tier": 2,
+      "skills": [
+        "Legal Practice",
+        "Legal Research",
+        "Client Advocacy",
+        "Contract Law",
+        "Regulatory Compliance",
+        "Litigation"
+      ]
+    },
+    {
+      "category": "Legal",
+      "name": "Certified Paralegal",
+      "abbr": "CP",
+      "type": "Certification",
+      "description": "Paralegal professional certification (NALA)",
+      "tier": 1,
+      "skills": [
+        "Legal Research",
+        "Document Preparation",
+        "Case Management",
+        "Legal Writing"
+      ]
+    },
+    {
+      "category": "Legal",
+      "name": "Notary Public",
+      "abbr": "Notary",
+      "type": "Commission",
+      "description": "Authorization to witness and certify documents",
+      "tier": 1
+    },
+    {
+      "category": "Legal",
+      "name": "Certified Legal Manager",
+      "abbr": "CLM",
+      "type": "Certification",
+      "description": "Legal management and administration",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Master Electrician License",
+      "abbr": "Master Electrician",
+      "type": "License",
+      "description": "Highest-level electrical work authorization",
+      "tier": 2,
+      "skills": [
+        "Electrical Systems",
+        "Code Compliance",
+        "System Design",
+        "Safety Management",
+        "Team Supervision"
+      ]
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Journeyman Electrician License",
+      "abbr": "Journeyman Electrician",
+      "type": "License",
+      "description": "Mid-level electrical work authorization",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Apprentice Electrician",
+      "abbr": "Apprentice Electrician",
+      "type": "License",
+      "description": "Entry-level supervised electrical work",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Master Plumber License",
+      "abbr": "Master Plumber",
+      "type": "License",
+      "description": "Highest-level plumbing work authorization",
+      "tier": 2,
+      "skills": [
+        "Plumbing Systems",
+        "Code Compliance",
+        "System Design",
+        "Safety Management",
+        "Team Supervision"
+      ]
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Journeyman Plumber License",
+      "abbr": "Journeyman Plumber",
+      "type": "License",
+      "description": "Mid-level plumbing work authorization",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "HVAC EPA 608 Certification",
+      "abbr": "EPA 608",
+      "type": "Certification",
+      "description": "Refrigerant handling authorization",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "OSHA 10-Hour Safety",
+      "abbr": "OSHA 10",
+      "type": "Certification",
+      "description": "Entry-level occupational safety and health",
+      "tier": 1,
+      "skills": [
+        "Workplace Safety",
+        "Hazard Recognition",
+        "Safety Compliance"
+      ]
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "OSHA 30-Hour Safety",
+      "abbr": "OSHA 30",
+      "type": "Certification",
+      "description": "Supervisory occupational safety and health",
+      "tier": 1,
+      "skills": [
+        "Safety Management",
+        "Hazard Assessment",
+        "Safety Training",
+        "Regulatory Compliance",
+        "Incident Investigation"
+      ]
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "AWS Certified Welder",
+      "abbr": "AWS CW",
+      "type": "Certification",
+      "description": "Welding performance qualification (various codes)",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Certified Welding Inspector",
+      "abbr": "CWI",
+      "type": "Certification",
+      "description": "Welding inspection and quality assurance",
+      "tier": 2
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "NCCCO Crane Operator",
+      "abbr": "NCCCO",
+      "type": "Certification",
+      "description": "Mobile and tower crane operation",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Professional Engineer",
+      "abbr": "PE",
+      "type": "License",
+      "description": "State engineering practice license",
+      "tier": 2,
+      "skills": [
+        "Engineering Design",
+        "Technical Leadership",
+        "Project Management",
+        "Safety Compliance",
+        "Regulatory Compliance"
+      ]
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Fundamentals of Engineering",
+      "abbr": "FE/EIT",
+      "type": "Certification",
+      "description": "Engineer-in-training qualification exam",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Professional Land Surveyor",
+      "abbr": "PLS",
+      "type": "License",
+      "description": "State land surveying practice license",
+      "tier": 2
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "General Contractor License",
+      "abbr": "GC",
+      "type": "License",
+      "description": "State authorization for general contracting",
+      "tier": 1
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Certified Construction Manager",
+      "abbr": "CCM",
+      "type": "Certification",
+      "description": "Construction management professional certification",
+      "tier": 2,
+      "skills": [
+        "Construction Management",
+        "Project Management",
+        "Budget Management",
+        "Contract Management",
+        "Safety Management"
+      ]
+    },
+    {
+      "category": "Trades & Construction",
+      "name": "Registered Architect",
+      "abbr": "RA",
+      "type": "License",
+      "description": "State architectural practice license",
+      "tier": 2,
+      "skills": [
+        "Architectural Design",
+        "Building Codes",
+        "Project Management",
+        "Client Relations",
+        "Design Leadership"
+      ]
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "Real Estate Salesperson License",
+      "abbr": "RE Sales",
+      "type": "License",
+      "description": "Entry-level real estate sales authorization",
+      "tier": 1,
+      "skills": [
+        "Real Estate Sales",
+        "Client Relations",
+        "Market Analysis",
+        "Negotiation"
+      ]
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "Real Estate Broker License",
+      "abbr": "RE Broker",
+      "type": "License",
+      "description": "Brokerage-level real estate authorization",
+      "tier": 2,
+      "skills": [
+        "Real Estate Brokerage",
+        "Business Management",
+        "Market Analysis",
+        "Negotiation",
+        "Team Leadership",
+        "Compliance"
+      ]
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "Certified Commercial Investment Member",
+      "abbr": "CCIM",
+      "type": "Certification",
+      "description": "Commercial real estate investment analysis",
+      "tier": 2,
+      "skills": [
+        "Commercial Real Estate",
+        "Investment Analysis",
+        "Financial Analysis",
+        "Market Analysis",
+        "Negotiation"
+      ]
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "Property & Casualty Insurance License",
+      "abbr": "P&C",
+      "type": "License",
+      "description": "Property and casualty insurance sales authorization",
+      "tier": 1
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "Life & Health Insurance License",
+      "abbr": "L&H",
+      "type": "License",
+      "description": "Life and health insurance sales authorization",
+      "tier": 1
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "Chartered Life Underwriter",
+      "abbr": "CLU",
+      "type": "Certification",
+      "description": "Advanced life insurance and estate planning",
+      "tier": 2
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "Chartered Property Casualty Underwriter",
+      "abbr": "CPCU",
+      "type": "Certification",
+      "description": "Advanced property and casualty insurance",
+      "tier": 2
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "Certified Residential Appraiser",
+      "abbr": "CRA",
+      "type": "License",
+      "description": "Residential property appraisal authorization",
+      "tier": 1
+    },
+    {
+      "category": "Real Estate & Insurance",
+      "name": "MAI Designation",
+      "abbr": "MAI",
+      "type": "Certification",
+      "description": "Advanced real estate appraisal (Appraisal Institute)",
+      "tier": 2
+    },
+    {
+      "category": "Education",
+      "name": "State Teaching Certificate",
+      "abbr": "Teaching Cert",
+      "type": "License",
+      "description": "State authorization to teach K-12",
+      "tier": 1,
+      "skills": [
+        "Curriculum Development",
+        "Classroom Management",
+        "Student Assessment",
+        "Instructional Design"
+      ]
+    },
+    {
+      "category": "Education",
+      "name": "TESOL Certification",
+      "abbr": "TESOL",
+      "type": "Certification",
+      "description": "Teaching English to speakers of other languages",
+      "tier": 1,
+      "skills": [
+        "English Language Teaching",
+        "Cross-Cultural Communication",
+        "Curriculum Development",
+        "Student Assessment"
+      ]
+    },
+    {
+      "category": "Education",
+      "name": "TEFL Certification",
+      "abbr": "TEFL",
+      "type": "Certification",
+      "description": "Teaching English as a foreign language",
+      "tier": 1
+    },
+    {
+      "category": "Education",
+      "name": "National Board Certification",
+      "abbr": "NBPTS",
+      "type": "Certification",
+      "description": "Advanced teaching certification (National Board)",
+      "tier": 2,
+      "skills": [
+        "Advanced Teaching",
+        "Curriculum Design",
+        "Educational Leadership",
+        "Student Assessment",
+        "Professional Development"
+      ]
+    },
+    {
+      "category": "Education",
+      "name": "School Administrator License",
+      "abbr": "Admin License",
+      "type": "License",
+      "description": "State authorization for school administration",
+      "tier": 2
+    },
+    {
+      "category": "Education",
+      "name": "School Counselor License",
+      "abbr": "School Counselor",
+      "type": "License",
+      "description": "State authorization for school counseling",
+      "tier": 1
+    },
+    {
+      "category": "Food & Hospitality",
+      "name": "ServSafe Food Handler",
+      "abbr": "ServSafe Handler",
+      "type": "Certification",
+      "description": "Basic food safety and handling",
+      "tier": 1
+    },
+    {
+      "category": "Food & Hospitality",
+      "name": "ServSafe Food Manager",
+      "abbr": "ServSafe Manager",
+      "type": "Certification",
+      "description": "Food safety management and supervision",
+      "tier": 1,
+      "skills": [
+        "Food Safety Management",
+        "Health Compliance",
+        "Staff Training",
+        "Quality Control"
+      ]
+    },
+    {
+      "category": "Food & Hospitality",
+      "name": "Certified Sommelier",
+      "abbr": "CS",
+      "type": "Certification",
+      "description": "Wine service and knowledge (Court of Master Sommeliers)",
+      "tier": 1,
+      "skills": [
+        "Wine Knowledge",
+        "Beverage Service",
+        "Customer Service",
+        "Hospitality"
+      ]
+    },
+    {
+      "category": "Food & Hospitality",
+      "name": "Advanced Sommelier",
+      "abbr": "AS",
+      "type": "Certification",
+      "description": "Advanced wine expertise (Court of Master Sommeliers)",
+      "tier": 2
+    },
+    {
+      "category": "Food & Hospitality",
+      "name": "Cicerone Certified Beer Server",
+      "abbr": "CBS",
+      "type": "Certification",
+      "description": "Beer service and knowledge",
+      "tier": 1
+    },
+    {
+      "category": "Food & Hospitality",
+      "name": "Certified Cicerone",
+      "abbr": "CC",
+      "type": "Certification",
+      "description": "Advanced beer expertise",
+      "tier": 1
+    },
+    {
+      "category": "Food & Hospitality",
+      "name": "TIPS Certification",
+      "abbr": "TIPS",
+      "type": "Certification",
+      "description": "Responsible alcohol service training",
+      "tier": 1
+    },
+    {
+      "category": "Food & Hospitality",
+      "name": "Certified Hospitality Administrator",
+      "abbr": "CHA",
+      "type": "Certification",
+      "description": "Hotel and hospitality management",
+      "tier": 1
+    },
+    {
+      "category": "Manufacturing & Quality",
+      "name": "Six Sigma Green Belt",
+      "abbr": "SSGB",
+      "type": "Certification",
+      "description": "Process improvement methodology (intermediate)",
+      "tier": 1,
+      "skills": [
+        "Process Improvement",
+        "Statistical Analysis",
+        "Quality Management",
+        "Data Analysis"
+      ]
+    },
+    {
+      "category": "Manufacturing & Quality",
+      "name": "Six Sigma Black Belt",
+      "abbr": "SSBB",
+      "type": "Certification",
+      "description": "Process improvement methodology (advanced)",
+      "tier": 2,
+      "skills": [
+        "Process Improvement",
+        "Statistical Analysis",
+        "Quality Management",
+        "Change Management",
+        "Project Leadership",
+        "Data Analysis"
+      ]
+    },
+    {
+      "category": "Manufacturing & Quality",
+      "name": "Six Sigma Master Black Belt",
+      "abbr": "SSMBB",
+      "type": "Certification",
+      "description": "Process improvement methodology (expert)",
+      "tier": 2,
+      "skills": [
+        "Process Improvement",
+        "Organizational Transformation",
+        "Statistical Analysis",
+        "Strategic Quality Management",
+        "Mentoring",
+        "Change Management"
+      ]
+    },
+    {
+      "category": "Manufacturing & Quality",
+      "name": "Lean Manufacturing Certification",
+      "abbr": "Lean",
+      "type": "Certification",
+      "description": "Lean production principles and waste elimination",
+      "tier": 1,
+      "skills": [
+        "Lean Manufacturing",
+        "Process Improvement",
+        "Waste Elimination",
+        "Continuous Improvement"
+      ]
+    },
+    {
+      "category": "Manufacturing & Quality",
+      "name": "Certified Quality Engineer",
+      "abbr": "CQE",
+      "type": "Certification",
+      "description": "Quality engineering and management (ASQ)",
+      "tier": 2
+    },
+    {
+      "category": "Manufacturing & Quality",
+      "name": "Certified Quality Auditor",
+      "abbr": "CQA",
+      "type": "Certification",
+      "description": "Quality auditing processes (ASQ)",
+      "tier": 1
+    },
+    {
+      "category": "Manufacturing & Quality",
+      "name": "Certified Supply Chain Professional",
+      "abbr": "CSCP",
+      "type": "Certification",
+      "description": "End-to-end supply chain management (APICS)",
+      "tier": 2,
+      "skills": [
+        "Supply Chain Management",
+        "Operations Management",
+        "Logistics",
+        "Inventory Management",
+        "Strategic Planning"
+      ]
+    },
+    {
+      "category": "Manufacturing & Quality",
+      "name": "Certified in Production and Inventory Management",
+      "abbr": "CPIM",
+      "type": "Certification",
+      "description": "Production and inventory control (APICS)",
+      "tier": 1
+    },
+    {
+      "category": "Marketing & Sales",
+      "name": "Google Ads Certification",
+      "abbr": "Google Ads",
+      "type": "Certification",
+      "description": "Google advertising platform proficiency",
+      "tier": 1,
+      "skills": [
+        "Digital Advertising",
+        "PPC Management",
+        "Analytics",
+        "Campaign Optimization"
+      ]
+    },
+    {
+      "category": "Marketing & Sales",
+      "name": "HubSpot Inbound Marketing",
+      "abbr": "HubSpot Inbound",
+      "type": "Certification",
+      "description": "Inbound marketing methodology",
+      "tier": 1,
+      "skills": [
+        "Inbound Marketing",
+        "Content Strategy",
+        "Lead Generation",
+        "Marketing Automation"
+      ]
+    },
+    {
+      "category": "Marketing & Sales",
+      "name": "HubSpot Content Marketing",
+      "abbr": "HubSpot Content",
+      "type": "Certification",
+      "description": "Content marketing strategy",
+      "tier": 1
+    },
+    {
+      "category": "Marketing & Sales",
+      "name": "Salesforce Administrator",
+      "abbr": "SF Admin",
+      "type": "Certification",
+      "description": "Salesforce CRM administration",
+      "tier": 1,
+      "skills": [
+        "Salesforce Administration",
+        "CRM Management",
+        "Data Management",
+        "Business Process Automation"
+      ]
+    },
+    {
+      "category": "Marketing & Sales",
+      "name": "Salesforce Architect",
+      "abbr": "SF Architect",
+      "type": "Certification",
+      "description": "Salesforce platform architecture",
+      "tier": 2,
+      "skills": [
+        "Salesforce Architecture",
+        "Enterprise Architecture",
+        "Solution Design",
+        "Integration Strategy",
+        "Technical Leadership"
+      ]
+    },
+    {
+      "category": "Marketing & Sales",
+      "name": "Meta Blueprint Certification",
+      "abbr": "Meta Blueprint",
+      "type": "Certification",
+      "description": "Meta/Facebook advertising proficiency",
+      "tier": 1
+    },
+    {
+      "category": "Marketing & Sales",
+      "name": "Certified Digital Marketing Professional",
+      "abbr": "CDMP",
+      "type": "Certification",
+      "description": "Comprehensive digital marketing (DMI)",
+      "tier": 1,
+      "skills": [
+        "Digital Marketing",
+        "SEO",
+        "Content Marketing",
+        "Social Media Marketing",
+        "Analytics"
+      ]
+    },
+    {
+      "category": "Security & Law Enforcement",
+      "name": "Peace Officer Standards and Training",
+      "abbr": "POST",
+      "type": "Certification",
+      "description": "Law enforcement officer certification",
+      "tier": 1
+    },
+    {
+      "category": "Security & Law Enforcement",
+      "name": "Armed Security Guard License",
+      "abbr": "Armed Guard",
+      "type": "License",
+      "description": "Armed private security authorization",
+      "tier": 1
+    },
+    {
+      "category": "Security & Law Enforcement",
+      "name": "Unarmed Security Guard License",
+      "abbr": "Unarmed Guard",
+      "type": "License",
+      "description": "Unarmed private security authorization",
+      "tier": 1
+    },
+    {
+      "category": "Security & Law Enforcement",
+      "name": "Certified Protection Professional",
+      "abbr": "CPP",
+      "type": "Certification",
+      "description": "Security management (ASIS International)",
+      "tier": 2,
+      "skills": [
+        "Security Management",
+        "Risk Assessment",
+        "Physical Security",
+        "Business Continuity",
+        "Crisis Management"
+      ]
+    },
+    {
+      "category": "Security & Law Enforcement",
+      "name": "Physical Security Professional",
+      "abbr": "PSP",
+      "type": "Certification",
+      "description": "Physical security assessment (ASIS International)",
+      "tier": 1
+    },
+    {
+      "category": "Environmental & Safety",
+      "name": "Certified Safety Professional",
+      "abbr": "CSP",
+      "type": "Certification",
+      "description": "Occupational safety and health management",
+      "tier": 2,
+      "skills": [
+        "Occupational Safety",
+        "Risk Management",
+        "Safety Program Management",
+        "Regulatory Compliance",
+        "Incident Investigation"
+      ]
+    },
+    {
+      "category": "Environmental & Safety",
+      "name": "Certified Industrial Hygienist",
+      "abbr": "CIH",
+      "type": "Certification",
+      "description": "Industrial hygiene and exposure assessment",
+      "tier": 2
+    },
+    {
+      "category": "Environmental & Safety",
+      "name": "LEED Accredited Professional",
+      "abbr": "LEED AP",
+      "type": "Certification",
+      "description": "Green building design and construction",
+      "tier": 1,
+      "skills": [
+        "Green Building Design",
+        "Sustainability",
+        "Energy Efficiency",
+        "Environmental Compliance"
+      ]
+    },
+    {
+      "category": "Environmental & Safety",
+      "name": "Certified Hazardous Materials Manager",
+      "abbr": "CHMM",
+      "type": "Certification",
+      "description": "Hazardous materials and waste management",
+      "tier": 1
+    },
+    {
+      "category": "Environmental & Safety",
+      "name": "PE Environmental",
+      "abbr": "PE Env",
+      "type": "License",
+      "description": "Professional engineer license in environmental specialty",
+      "tier": 2
+    }
+  ]
+}

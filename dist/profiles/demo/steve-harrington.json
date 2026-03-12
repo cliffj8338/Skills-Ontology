@@ -1,0 +1,347 @@
+{
+  "templateId": "steve-harrington",
+  "profile": {
+    "name": "Steve Harrington",
+    "currentTitle": "Shift Manager, Family Video / Former Scoops Ahoy Associate",
+    "location": "Hawkins, IN",
+    "roleLevel": "Early-Career",
+    "headline": "Retail team leader and accidental crisis responder who has survived more existential threats than most military veterans. Known for stepping up when it matters, mentoring younger team members, and delivering surprisingly effective customer service.",
+    "executiveSummary": "Former high school athlete turned retail professional who discovered unexpected leadership abilities during a series of extreme crisis events in Hawkins, Indiana. While his resume might look like standard retail experience, Steve has repeatedly demonstrated crisis leadership, protective instincts, and team coordination skills that belie his job title. Currently managing shifts at Family Video while serving as de facto team leader for an ad hoc crisis response group."
+  },
+  "roles": [
+    {
+      "name": "Retail & Customer Service",
+      "id": "retail"
+    },
+    {
+      "name": "Crisis Response",
+      "id": "crisis"
+    },
+    {
+      "name": "Team Leadership",
+      "id": "leadership"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Customer Service",
+      "level": "Proficient",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "retail"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained positive customer satisfaction ratings across two retail positions",
+          "description": "Provided friendly, knowledgeable service at Scoops Ahoy and Family Video despite unconventional work disruptions"
+        },
+        {
+          "outcome": "Developed product knowledge enabling personalized movie recommendations at Family Video",
+          "description": "Built expertise in film catalog to provide tailored recommendations driving repeat customer visits"
+        }
+      ]
+    },
+    {
+      "name": "Crisis Leadership",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Led civilian defense during 4 existential threat events with zero casualties among team members",
+          "description": "Organized and directed untrained group of teenagers through situations that would challenge trained military personnel"
+        },
+        {
+          "outcome": "Coordinated tactical response at Starcourt Mall under extreme duress",
+          "description": "Directed team movement, resource allocation, and defensive positioning during sustained threat engagement"
+        },
+        {
+          "outcome": "Led the group through the underground Russian base beneath Starcourt Mall while evading armed military personnel",
+          "description": "Directed civilian teenagers through a hostile military facility, making tactical decisions about movement and concealment under active threat"
+        }
+      ]
+    },
+    {
+      "name": "Team Mentoring",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "leadership"
+      ],
+      "evidence": [
+        {
+          "outcome": "Mentored Dustin Henderson through personal development and crisis situations",
+          "description": "Provided guidance, emotional support, and practical life advice to younger team member across multiple years"
+        },
+        {
+          "outcome": "Served as protective role model for group of 6 younger team members",
+          "description": "Stepped into de facto big brother role providing leadership, protection, and emotional stability"
+        },
+        {
+          "outcome": "Coached Dustin through personal confidence issues and social skills development across multiple years",
+          "description": "Provided ongoing mentorship on topics from dating advice to self-worth, filling a gap left by Dustin's absent father"
+        }
+      ]
+    },
+    {
+      "name": "Physical Combat",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Engaged and survived hand-to-hand combat against both human and non-human threats",
+          "description": "Applied athletic ability and improvised weapons effectively in multiple physical confrontations"
+        },
+        {
+          "outcome": "Fought the Demogorgon at the Byers house using a nail-studded baseball bat, buying time for Jonathan and Nancy to execute their trap",
+          "description": "Engaged an interdimensional predator in hand-to-hand combat using an improvised weapon, demonstrating instinctive combat effectiveness with zero training"
+        }
+      ]
+    },
+    {
+      "name": "Cash Register & POS Operations",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "retail"
+      ],
+      "evidence": [
+        {
+          "outcome": "Managed daily cash operations with 100% accuracy at two retail locations",
+          "description": "Handled cash transactions, daily reconciliation, and deposit preparation"
+        }
+      ]
+    },
+    {
+      "name": "Inventory Management",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "retail"
+      ],
+      "evidence": [
+        {
+          "outcome": "Managed video inventory of 5,000+ titles at Family Video",
+          "description": "Tracked inventory, processed returns, managed late fees, and maintained shelf organization"
+        }
+      ]
+    },
+    {
+      "name": "Food Service",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "retail"
+      ],
+      "evidence": [
+        {
+          "outcome": "Operated ice cream service counter at Scoops Ahoy in Starcourt Mall",
+          "description": "Prepared ice cream products, maintained food safety standards, and managed customer queue"
+        },
+        {
+          "outcome": "Maintained full Scoops Ahoy service operations while simultaneously investigating Russian code transmissions from the mall",
+          "description": "Balanced ice cream counter duties with covert intelligence work, using the shop as a base of operations for the Starcourt investigation"
+        }
+      ]
+    },
+    {
+      "name": "Vehicle Operation",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Served as primary driver/logistics for crisis response team across 4 events",
+          "description": "Provided reliable transportation under dangerous conditions including high-speed pursuit scenarios"
+        },
+        {
+          "outcome": "Drove the stolen Winnebago through the Starcourt parking lot under fire to extract the team during the Russian base escape",
+          "description": "Performed evasive driving maneuvers in an unfamiliar oversized vehicle while under pursuit, ensuring safe extraction of all team members"
+        }
+      ]
+    },
+    {
+      "name": "First Aid",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Provided basic first aid to team members during and after crisis events",
+          "description": "Applied wound care, stabilization, and recovery support for injured team members"
+        }
+      ]
+    },
+    {
+      "name": "Athletic Skills",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Former varsity basketball player applying athleticism to crisis response situations",
+          "description": "Leveraged athletic conditioning, coordination, and competitive instincts in physical confrontations"
+        }
+      ]
+    },
+    {
+      "name": "Protective Leadership",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": [
+        "crisis",
+        "leadership"
+      ],
+      "evidence": [
+        {
+          "outcome": "Consistently placed himself between threats and younger team members",
+          "description": "Made instinctive decisions to protect others at personal risk across all crisis events"
+        }
+      ]
+    },
+    {
+      "name": "Courage",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Volunteered for most dangerous assignments despite having no obligation or training",
+          "description": "Stepped up repeatedly when he could have walked away, facing threats far beyond his experience level"
+        }
+      ]
+    },
+    {
+      "name": "Humility",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": [
+        "leadership",
+        "retail"
+      ],
+      "evidence": [
+        {
+          "outcome": "Transitioned from popular athlete to retail worker without ego or bitterness",
+          "description": "Accepted changed circumstances with grace, finding purpose in service and mentoring rather than status"
+        }
+      ]
+    },
+    {
+      "name": "Reliability",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": [
+        "leadership"
+      ],
+      "evidence": [
+        {
+          "outcome": "100% attendance when team needed support during crisis events",
+          "description": "Never failed to show up when friends needed help, regardless of personal risk or inconvenience"
+        }
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Adapted from normal teenage life to repeated crisis response without psychological breakdown",
+          "description": "Demonstrated remarkable ability to process extreme experiences and continue functioning"
+        }
+      ]
+    },
+    {
+      "name": "Communication Skills",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "retail",
+        "leadership"
+      ],
+      "evidence": [
+        {
+          "outcome": "Provided clear, calm direction to team members during high-stress situations",
+          "description": "Communicated effectively under pressure, keeping team informed and coordinated"
+        }
+      ]
+    }
+  ],
+  "values": [
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Trust",
+      "selected": true
+    },
+    {
+      "name": "Servant Leadership",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Authenticity",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    }
+  ],
+  "workHistory": [
+    {
+      "title": "Shift Manager",
+      "company": "Family Video",
+      "startYear": 1986,
+      "endYear": null,
+      "current": true,
+      "description": "Managing shifts, customer service, and inventory at video rental store. Providing movie recommendations and maintaining store operations."
+    },
+    {
+      "title": "Associate",
+      "company": "Scoops Ahoy — Starcourt Mall",
+      "startYear": 1985,
+      "endYear": 1985,
+      "description": "Ice cream counter service. Position ended when Starcourt Mall was destroyed in an incident officially attributed to a fire."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Hawkins High School",
+      "degree": "High School Diploma",
+      "year": 1985
+    }
+  ],
+  "certifications": [],
+  "purpose": "I'm not the hero type. But when the kids need someone? I grab the bat."
+}

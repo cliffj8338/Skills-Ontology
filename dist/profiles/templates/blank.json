@@ -1,0 +1,19 @@
+{
+  "templateId": "blank",
+  "profile": {
+    "name": "",
+    "title": "",
+    "location": "",
+    "currentCompany": "",
+    "email": "",
+    "phone": "",
+    "linkedinUrl": ""
+  },
+  "roles": [],
+  "skills": [],
+  "values": [],
+  "workHistory": [],
+  "education": [],
+  "certifications": [],
+  "purpose": ""
+}

@@ -1,0 +1,365 @@
+{
+  "templateId": "joyce-byers",
+  "profile": {
+    "name": "Joyce Byers",
+    "currentTitle": "Retail Associate, Melvald's General Store",
+    "location": "Hawkins, IN → Lenora Hills, CA",
+    "roleLevel": "Mid-Career",
+    "headline": "Single mother and retail professional who has demonstrated investigative tenacity, crisis leadership, and protective determination that would put most federal agents to shame. When institutions failed, she didn't.",
+    "executiveSummary": "A retail worker and single mother whose professional resume barely hints at her true capabilities. When her son disappeared and every authority said he was dead, Joyce refused to accept it and conducted her own investigation that proved correct. She has since navigated government conspiracies, traveled to Soviet Russia, and rescued people from interdimensional threats — all while working retail and raising two boys alone."
+  },
+  "roles": [
+    {
+      "name": "Retail Operations",
+      "id": "retail"
+    },
+    {
+      "name": "Investigation & Research",
+      "id": "investigation"
+    },
+    {
+      "name": "Crisis Response",
+      "id": "crisis"
+    },
+    {
+      "name": "Family Management",
+      "id": "family"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Investigative Tenacity",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "investigation"
+      ],
+      "evidence": [
+        {
+          "outcome": "Located missing child when police, state investigators, and federal agents all declared him dead",
+          "description": "Pursued independent investigation against unanimous institutional conclusions, proving that Will was alive in an alternate dimension"
+        },
+        {
+          "outcome": "Identified electromagnetic anomalies in Hawkins before any scientist or government agency",
+          "description": "Connected seemingly random compass and magnet behavior to larger pattern indicating dimensional breach"
+        }
+      ]
+    },
+    {
+      "name": "Crisis Decision Making",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Made life-or-death decisions for family across 4 crisis events with consistently right judgment",
+          "description": "Assessed threats accurately and chose correct course of action when stakes were highest and information was minimal"
+        },
+        {
+          "outcome": "Decided to relocate family across country to protect children from government surveillance",
+          "description": "Made difficult strategic decision to uproot family when staying put posed unacceptable risk"
+        }
+      ]
+    },
+    {
+      "name": "Resourcefulness",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "crisis",
+        "investigation"
+      ],
+      "evidence": [
+        {
+          "outcome": "Built interdimensional communication system using Christmas lights and alphabet",
+          "description": "Improvised functional communication channel to contact son in alternate dimension using household materials"
+        },
+        {
+          "outcome": "Traveled to Soviet Union and infiltrated military prison to rescue Jim Hopper",
+          "description": "Organized and executed international rescue mission without government support, military training, or resources"
+        }
+      ]
+    },
+    {
+      "name": "Customer Service",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "retail"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained reliable customer service at Melvald's through extraordinary personal circumstances",
+          "description": "Continued to show up and perform retail duties while managing crises that would have incapacitated most people"
+        },
+        {
+          "outcome": "Maintained enough workplace reliability at Melvald's to keep her job despite repeated unexplained absences during crisis events",
+          "description": "Balanced catastrophic personal circumstances with sufficient retail performance to remain employed, leveraging Bob Newby's support and employer goodwill"
+        }
+      ]
+    },
+    {
+      "name": "Retail Operations",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "retail"
+      ],
+      "evidence": [
+        {
+          "outcome": "Managed daily operations at Melvald's General Store for 8+ years",
+          "description": "Handled inventory, customer service, cash management, and store opening/closing procedures reliably"
+        }
+      ]
+    },
+    {
+      "name": "Pattern Recognition",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "investigation"
+      ],
+      "evidence": [
+        {
+          "outcome": "Connected electromagnetic anomalies to dimensional gate activity before scientists did",
+          "description": "Noticed magnets falling off refrigerator and traced the pattern to its source, identifying threat when trained professionals missed it"
+        },
+        {
+          "outcome": "Noticed all magnets in Hawkins simultaneously losing magnetism and traced the anomaly to a new dimensional breach",
+          "description": "Connected a seemingly mundane household observation to a pattern of electromagnetic interference, identifying the Season 3 threat before anyone else"
+        }
+      ]
+    },
+    {
+      "name": "Household Management",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": [
+        "family"
+      ],
+      "evidence": [
+        {
+          "outcome": "Raised two sons as single parent on retail worker salary",
+          "description": "Managed household finances, childcare, and domestic operations with minimal resources and no partner support"
+        }
+      ]
+    },
+    {
+      "name": "Budget Management",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "family",
+        "retail"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained household on single retail income for 10+ years",
+          "description": "Stretched limited budget across rent, food, utilities, and children's needs without external support"
+        }
+      ]
+    },
+    {
+      "name": "First Aid",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "crisis",
+        "family"
+      ],
+      "evidence": [
+        {
+          "outcome": "Provided emergency medical care to children and adults during crisis events",
+          "description": "Applied basic medical knowledge to treat injuries when professional medical help was unavailable"
+        },
+        {
+          "outcome": "Performed emergency heat treatment on Will to expel the Mind Flayer's influence from his body",
+          "description": "Applied extreme heat sources in a coordinated effort to drive out the interdimensional parasite possessing her son, making real-time medical judgments with no precedent"
+        }
+      ]
+    },
+    {
+      "name": "Driving & Navigation",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Served as driver and navigator during multiple crisis response operations",
+          "description": "Provided reliable transportation under stressful and dangerous conditions"
+        }
+      ]
+    },
+    {
+      "name": "International Travel",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Traveled to Soviet Union and navigated foreign country without language skills or preparation",
+          "description": "Managed international travel logistics in hostile foreign environment to execute rescue mission"
+        },
+        {
+          "outcome": "Navigated Soviet Russia with Murray Bauman, infiltrating a military prison using forged documents and improvised cover stories",
+          "description": "Operated in hostile foreign territory with no training, adapting to checkpoints, language barriers, and military security to reach Hopper"
+        }
+      ]
+    },
+    {
+      "name": "Protective Determination",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": [
+        "crisis",
+        "family"
+      ],
+      "evidence": [
+        {
+          "outcome": "Fought interdimensional threats, government conspiracies, and Soviet military to protect her children",
+          "description": "No force — natural or supernatural — has ever stopped Joyce Byers from protecting the people she loves"
+        }
+      ]
+    },
+    {
+      "name": "Intuition",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": [
+        "investigation"
+      ],
+      "evidence": [
+        {
+          "outcome": "Trusted maternal instinct when every authority figure told her she was wrong — and was right every time",
+          "description": "Followed gut feeling that Will was alive, that magnets meant something, that Hopper was alive, proving correct each time"
+        }
+      ]
+    },
+    {
+      "name": "Resilience",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": [
+        "crisis",
+        "family"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained family stability through 4 existential crises, divorce, poverty, and relocation",
+          "description": "Kept functioning as parent, employee, and crisis responder through sustained adversity that would break most people"
+        }
+      ]
+    },
+    {
+      "name": "Courage",
+      "level": "Expert",
+      "category": "work style",
+      "roles": [
+        "crisis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Entered alternate dimension to rescue her son with no training, equipment, or backup",
+          "description": "Walked into the Upside Down armed with nothing but determination and an axe"
+        }
+      ]
+    },
+    {
+      "name": "Empathy",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": [
+        "family"
+      ],
+      "evidence": [
+        {
+          "outcome": "Took in Eleven providing maternal care and stability to traumatized child",
+          "description": "Extended protective instinct beyond biological children to provide home and family to a child who had never known either"
+        }
+      ]
+    },
+    {
+      "name": "Persistence",
+      "level": "Expert",
+      "category": "work style",
+      "roles": [
+        "investigation"
+      ],
+      "evidence": [
+        {
+          "outcome": "Continued investigation for weeks when everyone including her own son told her to stop",
+          "description": "Maintained belief and effort when completely alone in her conviction, sustaining investigation against unanimous opposition"
+        }
+      ]
+    }
+  ],
+  "values": [
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Resourcefulness",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    },
+    {
+      "name": "Trust",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Purpose Over Profit",
+      "selected": true
+    }
+  ],
+  "workHistory": [
+    {
+      "title": "Retail Associate",
+      "company": "Melvald's General Store",
+      "startYear": 1978,
+      "endYear": 1985,
+      "description": "Customer service, inventory management, and daily store operations at Hawkins general store for 8 years."
+    },
+    {
+      "title": "Retail Associate",
+      "company": "Various — Lenora Hills, CA",
+      "startYear": 1986,
+      "endYear": null,
+      "current": true,
+      "description": "Continued retail work after relocating family to California for safety."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Hawkins High School",
+      "degree": "High School Diploma",
+      "year": 1974
+    }
+  ],
+  "certifications": [],
+  "purpose": "Don't tell me what's possible. I found my son in another dimension with Christmas lights. I know what's possible."
+}

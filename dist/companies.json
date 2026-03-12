@@ -1,0 +1,524 @@
+{
+    "ServiceNow": {
+        "industry": "Enterprise Software",
+        "values": {
+            "primary": ["Excellence", "Bias Toward Action", "Strategic Thinking"],
+            "secondary": ["Collaboration", "Continuous Improvement"],
+            "tensions": ["Work-Life Boundaries", "Authenticity"],
+            "story": "Engineering-led enterprise culture that rewards speed-to-market and operational rigor. High performance expectations with a 'win together' ethos that can blur into always-on intensity."
+        }
+    },
+    "Deloitte": {
+        "industry": "Professional Services / Consulting",
+        "values": {
+            "primary": ["Excellence", "Collaboration", "Strategic Thinking"],
+            "secondary": ["Accountability", "Integrity", "Empowerment"],
+            "tensions": ["Bias Toward Action", "Authenticity"],
+            "story": "Prestige-driven consulting culture built on intellectual rigor and client service. Strong mentorship infrastructure, but consensus-heavy processes can frustrate those who prefer to ship fast."
+        }
+    },
+    "Palantir": {
+        "industry": "Data Analytics / Defense Technology",
+        "values": {
+            "primary": ["Strategic Thinking", "Craftsmanship", "Courage"],
+            "secondary": ["Excellence", "Intellectual Honesty", "Resourcefulness"],
+            "tensions": ["Transparency", "Work-Life Boundaries", "Inclusion"],
+            "story": "Mission-driven and intensely technical. Values conviction over consensus — you are expected to defend your position with data. Not for those who need work-life separation."
+        }
+    },
+    "Datadog": {
+        "industry": "Cloud Monitoring / DevOps",
+        "values": {
+            "primary": ["Bias Toward Action", "Excellence", "Craftsmanship"],
+            "secondary": ["Collaboration", "Curiosity", "Continuous Improvement"],
+            "tensions": ["Work-Life Boundaries", "Servant Leadership"],
+            "story": "High-velocity engineering culture that ships relentlessly. Technically excellent with strong ownership expectations. Moves fast enough that process can feel secondary to output."
+        }
+    },
+    "Figma": {
+        "industry": "Design Software",
+        "values": {
+            "primary": ["Collaboration", "Craftsmanship", "Empathy"],
+            "secondary": ["Curiosity", "Inclusion", "Continuous Improvement"],
+            "tensions": ["Courage", "Bias Toward Action"],
+            "story": "Design-forward culture that genuinely practices the collaboration it preaches. Inclusive and empathetic, but consensus-seeking can slow bold moves."
+        }
+    },
+    "McKinsey": {
+        "industry": "Management Consulting",
+        "values": {
+            "primary": ["Excellence", "Intellectual Honesty", "Strategic Thinking"],
+            "secondary": ["Accountability", "Evidence-Based Decision Making", "Courage"],
+            "tensions": ["Empathy", "Work-Life Boundaries", "Authenticity"],
+            "story": "Elite meritocracy that selects for analytical brilliance and structured problem-solving. Prestige and rigor define the culture — warmth and vulnerability are not the currency here."
+        }
+    },
+    "Notion": {
+        "industry": "Productivity Software",
+        "values": {
+            "primary": ["Craftsmanship", "Curiosity", "Empowerment"],
+            "secondary": ["Collaboration", "Continuous Improvement", "Empathy"],
+            "tensions": ["Bias Toward Action", "Courage"],
+            "story": "Thoughtful product culture that values elegant solutions over fast ones. Deep craft orientation with genuine intellectual curiosity. Can be deliberate to the point of slow."
+        }
+    },
+    "Stripe": {
+        "industry": "Financial Technology / Payments",
+        "values": {
+            "primary": ["Excellence", "Intellectual Honesty", "Craftsmanship"],
+            "secondary": ["Strategic Thinking", "Curiosity", "Accountability"],
+            "tensions": ["Empathy", "Servant Leadership"],
+            "story": "Writing-culture company that rewards clear thinking and technical depth. Meritocratic and intellectually demanding. Expects you to be right and to prove it in writing."
+        }
+    },
+    "Scale AI": {
+        "industry": "Artificial Intelligence / Data Infrastructure",
+        "values": {
+            "primary": ["Bias Toward Action", "Resourcefulness", "Strategic Thinking"],
+            "secondary": ["Excellence", "Courage", "Systems Thinking"],
+            "tensions": ["Work-Life Boundaries", "Collaboration", "Empathy"],
+            "story": "Aggressive growth-stage AI company that prioritizes speed and market position. Rewards those who operate in ambiguity and outpace competitors. Not a culture that waits for consensus."
+        }
+    },
+    "Cloudflare": {
+        "industry": "Internet Infrastructure / Security",
+        "values": {
+            "primary": ["Curiosity", "Craftsmanship", "Systems Thinking"],
+            "secondary": ["Excellence", "Transparency", "Bias Toward Action"],
+            "tensions": ["Servant Leadership", "Work-Life Boundaries"],
+            "story": "Infrastructure-obsessed culture where technical depth is the primary currency. Open and transparent internally, with genuine intellectual curiosity about hard problems at scale."
+        }
+    },
+    "Anthropic": {
+        "industry": "Artificial Intelligence / AI Safety",
+        "values": {
+            "primary": ["Intellectual Honesty", "Integrity", "Purpose Over Profit"],
+            "secondary": ["Curiosity", "Collaboration", "Evidence-Based Decision Making"],
+            "tensions": ["Bias Toward Action", "Resourcefulness"],
+            "story": "Safety-first AI research lab that genuinely prioritizes getting it right over getting it first. Deep intellectual culture with mission-driven hiring. Deliberate pace frustrates those who want to ship now."
+        }
+    },
+    "Target": {
+        "industry": "Retail",
+        "values": {
+            "primary": ["Collaboration", "Inclusion", "Empathy"],
+            "secondary": ["Accountability", "Continuous Improvement", "Trust"],
+            "tensions": ["Strategic Thinking", "Craftsmanship"],
+            "story": "Team-oriented retail culture that emphasizes guest experience and inclusivity. Strong community values with clear expectations, but strategic autonomy is limited at associate level."
+        }
+    },
+    "Starbucks": {
+        "industry": "Food & Beverage / Retail",
+        "values": {
+            "primary": ["Empathy", "Inclusion", "Servant Leadership"],
+            "secondary": ["Collaboration", "Trust", "Continuous Improvement"],
+            "tensions": ["Bias Toward Action", "Courage", "Excellence"],
+            "story": "Partner-centered culture built on empathy and community connection. Genuinely values servant leadership, though operational speed and corporate mandates can conflict with that ethos."
+        }
+    },
+    "Nordstrom": {
+        "industry": "Luxury Retail",
+        "values": {
+            "primary": ["Excellence", "Empathy", "Trust"],
+            "secondary": ["Accountability", "Empowerment", "Continuous Improvement"],
+            "tensions": ["Resourcefulness", "Bias Toward Action"],
+            "story": "Legendary customer service culture where empowerment is real — associates have genuine autonomy to serve. High standards balanced with trust."
+        }
+    },
+    "Great Clips": {
+        "industry": "Personal Care / Salon Services",
+        "values": {
+            "primary": ["Collaboration", "Accountability", "Continuous Improvement"],
+            "secondary": ["Empathy", "Trust", "Bias Toward Action"],
+            "tensions": ["Craftsmanship", "Strategic Thinking", "Excellence"],
+            "story": "Volume-focused salon chain that values consistency and teamwork. Reliable and supportive, but creative expression and artisanal craft take a backseat to throughput."
+        }
+    },
+    "Aveda Salon": {
+        "industry": "Beauty / Personal Care",
+        "values": {
+            "primary": ["Craftsmanship", "Purpose Over Profit", "Continuous Improvement"],
+            "secondary": ["Empathy", "Authenticity", "Excellence"],
+            "tensions": ["Bias Toward Action", "Resourcefulness"],
+            "story": "Mission-driven beauty brand rooted in sustainability and artistry. Values craft development and environmental consciousness. Deliberate culture where rushing is antithetical to the brand."
+        }
+    },
+    "Ulta Beauty": {
+        "industry": "Beauty Retail",
+        "values": {
+            "primary": ["Empowerment", "Accountability", "Bias Toward Action"],
+            "secondary": ["Collaboration", "Continuous Improvement", "Excellence"],
+            "tensions": ["Craftsmanship", "Work-Life Boundaries"],
+            "story": "Results-oriented beauty retailer that rewards initiative and ownership. Fast-paced with real growth opportunities, but pressure to hit targets can compromise craft and personal boundaries."
+        }
+    },
+    "MIT Lincoln Laboratory": {
+        "industry": "Defense Research / National Security",
+        "values": {
+            "primary": ["Excellence", "Curiosity", "Systems Thinking"],
+            "secondary": ["Integrity", "Evidence-Based Decision Making", "Collaboration"],
+            "tensions": ["Transparency", "Bias Toward Action"],
+            "story": "Federally-funded R&D center where intellectual rigor meets national defense mission. Research autonomy is real but constrained by classification requirements and deliberate validation processes."
+        }
+    },
+    "NSA": {
+        "industry": "National Security / Intelligence",
+        "values": {
+            "primary": ["Integrity", "Excellence", "Accountability"],
+            "secondary": ["Systems Thinking", "Resilience", "Strategic Thinking"],
+            "tensions": ["Transparency", "Authenticity", "Empowerment"],
+            "story": "Mission-above-self intelligence culture built on extraordinary technical capability and absolute discretion. Rewards loyalty and precision. Individual expression is subordinate to institutional purpose."
+        }
+    },
+    "Smithsonian Institution": {
+        "industry": "Museums / Cultural Heritage / Research",
+        "values": {
+            "primary": ["Curiosity", "Purpose Over Profit", "Inclusion"],
+            "secondary": ["Collaboration", "Craftsmanship", "Evidence-Based Decision Making"],
+            "tensions": ["Bias Toward Action", "Resourcefulness", "Courage"],
+            "story": "The world's largest museum and research complex, driven by genuine intellectual curiosity and public service. Bureaucratic processes protect collections but can frustrate those who want to move quickly."
+        }
+    },
+    "Johns Hopkins University": {
+        "industry": "Higher Education / Research",
+        "values": {
+            "primary": ["Excellence", "Evidence-Based Decision Making", "Curiosity"],
+            "secondary": ["Integrity", "Collaboration", "Purpose Over Profit"],
+            "tensions": ["Bias Toward Action", "Resourcefulness"],
+            "story": "World-class research institution where evidence and rigor are non-negotiable. Strong academic freedom coexists with institutional bureaucracy. Impact is measured in decades, not quarters."
+        }
+    },
+    "SAMHSA": {
+        "industry": "Federal Government / Public Health",
+        "values": {
+            "primary": ["Empathy", "Purpose Over Profit", "Servant Leadership"],
+            "secondary": ["Inclusion", "Evidence-Based Decision Making", "Accountability"],
+            "tensions": ["Bias Toward Action", "Resourcefulness", "Courage"],
+            "story": "Federal agency dedicated to reducing substance abuse and mental illness impact. Mission-driven workforce with deep compassion, but government pace and bureaucracy can feel at odds with urgency of the crisis."
+        }
+    },
+    "Yum! Brands": {
+        "industry": "Quick-Service Restaurants / Franchising",
+        "values": {
+            "primary": ["Accountability", "Bias Toward Action", "Empowerment"],
+            "secondary": ["Collaboration", "Continuous Improvement", "Strategic Thinking"],
+            "tensions": ["Craftsmanship", "Purpose Over Profit", "Work-Life Boundaries"],
+            "story": "Global restaurant franchisor that runs on metrics, speed, and franchisee empowerment. Results-first culture that rewards operators who hit their numbers. Not a place for deliberation over execution."
+        }
+    },
+    "Sysco": {
+        "industry": "Food Distribution / Supply Chain",
+        "values": {
+            "primary": ["Accountability", "Excellence", "Systems Thinking"],
+            "secondary": ["Collaboration", "Continuous Improvement", "Trust"],
+            "tensions": ["Curiosity", "Craftsmanship", "Empathy"],
+            "story": "Massive food distribution network built on operational precision and reliability. The machine runs on logistics discipline and relationship-based selling. Innovation is incremental, not disruptive."
+        }
+    },
+    "Chipotle": {
+        "industry": "Fast-Casual Restaurants",
+        "values": {
+            "primary": ["Integrity", "Empowerment", "Continuous Improvement"],
+            "secondary": ["Accountability", "Authenticity", "Purpose Over Profit"],
+            "tensions": ["Work-Life Boundaries", "Strategic Thinking"],
+            "story": "Food-with-integrity brand that promotes from within and genuinely invests in crew development. Strong operational culture with real advancement paths, but restaurant pace is relentless."
+        }
+    },
+    "Amazon": {
+        "industry": "Technology / E-Commerce / Cloud",
+        "values": {
+            "primary": ["Bias Toward Action", "Excellence", "Accountability"],
+            "secondary": ["Curiosity", "Strategic Thinking", "Resourcefulness"],
+            "tensions": ["Work-Life Boundaries", "Empathy", "Collaboration"],
+            "story": "Leadership Principles define everything — customer obsession, ownership, and high bar are not slogans but operating doctrine. Rewards builders who thrive under pressure. Empathy for colleagues is secondary to outcomes."
+        }
+    },
+    "DHS": {
+        "industry": "Federal Government / Homeland Security",
+        "values": {
+            "primary": ["Accountability", "Integrity", "Resilience"],
+            "secondary": ["Collaboration", "Systems Thinking", "Courage"],
+            "tensions": ["Transparency", "Empowerment", "Bias Toward Action"],
+            "story": "Post-9/11 agency built on vigilance and interagency coordination. Chain-of-command culture where accountability is absolute. Individual initiative exists within rigid operational frameworks."
+        }
+    },
+    "Walmart": {
+        "industry": "Retail / E-Commerce",
+        "values": {
+            "primary": ["Accountability", "Servant Leadership", "Resourcefulness"],
+            "secondary": ["Collaboration", "Continuous Improvement", "Trust"],
+            "tensions": ["Craftsmanship", "Work-Life Boundaries", "Empowerment"],
+            "story": "Sam Walton's frugality ethos still permeates — efficiency over elegance, always. Servant leadership is real at its best, but scale creates bureaucracy and associate-level autonomy is constrained."
+        }
+    },
+    "West Elm": {
+        "industry": "Home Furnishings / Retail Design",
+        "values": {
+            "primary": ["Craftsmanship", "Authenticity", "Empathy"],
+            "secondary": ["Collaboration", "Curiosity", "Inclusion"],
+            "tensions": ["Bias Toward Action", "Excellence"],
+            "story": "Design-driven retail brand that celebrates makers and artisans. Collaborative and aesthetically intentional culture. Commercial pressures can sometimes compete with the craft-first identity."
+        }
+    },
+    "Snap-on": {
+        "industry": "Industrial Tools / Manufacturing",
+        "values": {
+            "primary": ["Craftsmanship", "Excellence", "Accountability"],
+            "secondary": ["Continuous Improvement", "Trust", "Resourcefulness"],
+            "tensions": ["Inclusion", "Empathy", "Curiosity"],
+            "story": "Premium tool manufacturer where quality is religion and skilled trades are respected. Old-school meritocracy that values precision and reliability. Innovation happens within tradition, not against it."
+        }
+    },
+    "Boys & Girls Clubs of America": {
+        "industry": "Nonprofit / Youth Development",
+        "values": {
+            "primary": ["Servant Leadership", "Empathy", "Inclusion"],
+            "secondary": ["Collaboration", "Purpose Over Profit", "Trust"],
+            "tensions": ["Excellence", "Strategic Thinking", "Resourcefulness"],
+            "story": "Mission-driven youth organization where showing up matters more than credentials. Heart-first culture that genuinely believes in every young person's potential. Resources are perpetually stretched."
+        }
+    },
+    "FEMA": {
+        "industry": "Federal Government / Emergency Management",
+        "values": {
+            "primary": ["Resilience", "Accountability", "Servant Leadership"],
+            "secondary": ["Collaboration", "Courage", "Systems Thinking"],
+            "tensions": ["Work-Life Boundaries", "Empowerment", "Transparency"],
+            "story": "Disaster response agency where crisis is the operating norm. At its best, extraordinary people doing impossible work under pressure. Bureaucratic overhead and political exposure create friction with the mission."
+        }
+    },
+    "Tesla": {
+        "industry": "Electric Vehicles / Clean Energy",
+        "values": {
+            "primary": ["Bias Toward Action", "Courage", "Resourcefulness"],
+            "secondary": ["Excellence", "Strategic Thinking", "Continuous Improvement"],
+            "tensions": ["Work-Life Boundaries", "Collaboration", "Empathy"],
+            "story": "Move-fast-and-break-things culture applied to physical manufacturing. Rewards missionaries who will work through walls to hit impossible timelines. Burnout is common; impact is undeniable."
+        }
+    },
+    "Monroe County": {
+        "industry": "Local Government / Public Safety",
+        "values": {
+            "primary": ["Accountability", "Servant Leadership", "Integrity"],
+            "secondary": ["Collaboration", "Trust", "Resilience"],
+            "tensions": ["Bias Toward Action", "Resourcefulness", "Strategic Thinking"],
+            "story": "Small-government culture where public service is personal — you serve your neighbors. Stable and community-rooted, but resource constraints and bureaucratic processes limit what individuals can accomplish."
+        }
+    },
+    "NCMEC": {
+        "industry": "Nonprofit / Child Safety",
+        "values": {
+            "primary": ["Purpose Over Profit", "Courage", "Resilience"],
+            "secondary": ["Empathy", "Accountability", "Collaboration"],
+            "tensions": ["Work-Life Boundaries", "Authenticity"],
+            "story": "National Center for Missing & Exploited Children operates with urgent moral clarity. The mission is emotionally demanding and the work is life-and-death. Burnout risk is real, but the purpose is unambiguous."
+        }
+    },
+    "Ace Hardware": {
+        "industry": "Retail / Hardware / Cooperative",
+        "values": {
+            "primary": ["Servant Leadership", "Trust", "Collaboration"],
+            "secondary": ["Accountability", "Empathy", "Continuous Improvement"],
+            "tensions": ["Strategic Thinking", "Excellence", "Courage"],
+            "story": "Co-op model where local ownership creates genuine community investment. The helpful place is more than a tagline — associates build real relationships. Limited scale ambitions keep things grounded but constrained."
+        }
+    },
+    "Paramount Global": {
+        "industry": "Media & Entertainment",
+        "values": {
+            "primary": ["Strategic Thinking", "Courage", "Craftsmanship"],
+            "secondary": ["Collaboration", "Resilience", "Empowerment"],
+            "tensions": ["Accountability", "Transparency", "Continuous Improvement"],
+            "story": "Legacy media company navigating digital transformation while protecting storied brands. Creative ambition meets corporate complexity. Political savvy matters as much as talent in the executive ranks."
+        }
+    },
+    "Goldman Sachs": {
+        "industry": "Investment Banking / Financial Services",
+        "values": {
+            "primary": ["Excellence", "Strategic Thinking", "Accountability"],
+            "secondary": ["Intellectual Honesty", "Courage", "Integrity"],
+            "tensions": ["Work-Life Boundaries", "Empathy", "Inclusion"],
+            "story": "Relentlessly meritocratic culture where intellectual horsepower and deal execution define your standing. Prestige is real and earned through performance. The hours are exactly what you've heard."
+        }
+    },
+    "a16z": {
+        "industry": "Venture Capital / Technology Investment",
+        "values": {
+            "primary": ["Courage", "Strategic Thinking", "Bias Toward Action"],
+            "secondary": ["Curiosity", "Resourcefulness", "Candor"],
+            "tensions": ["Collaboration", "Empathy", "Work-Life Boundaries"],
+            "story": "Thesis-driven VC firm that bets on builders and defends contrarian positions publicly. High-conviction culture that rewards bold thinking and operator-level engagement. Consensus is not the goal."
+        }
+    },
+    "Warner Bros. Discovery": {
+        "industry": "Media & Entertainment",
+        "values": {
+            "primary": ["Strategic Thinking", "Resilience", "Resourcefulness"],
+            "secondary": ["Accountability", "Craftsmanship", "Courage"],
+            "tensions": ["Trust", "Inclusion", "Empathy"],
+            "story": "Post-merger media giant in perpetual transformation. Cost discipline meets creative legacy. Survival-mode leadership can create volatility, but the IP portfolio is unmatched and rewards those who can navigate ambiguity."
+        }
+    },
+    "Apollo Global Management": {
+        "industry": "Private Equity / Alternative Investments",
+        "values": {
+            "primary": ["Excellence", "Accountability", "Courage"],
+            "secondary": ["Strategic Thinking", "Resourcefulness", "Candor"],
+            "tensions": ["Empathy", "Collaboration", "Work-Life Boundaries"],
+            "story": "Hard-charging PE firm known for contrarian investing and operational intensity. Performance is the only currency. Direct and demanding — the culture is not for everyone, and that's by design."
+        }
+    },
+    "News Corp": {
+        "industry": "Media / Publishing",
+        "values": {
+            "primary": ["Courage", "Candor", "Strategic Thinking"],
+            "secondary": ["Accountability", "Resilience", "Resourcefulness"],
+            "tensions": ["Inclusion", "Empathy", "Transparency"],
+            "story": "Murdoch-built media empire where editorial conviction and commercial instinct coexist. Rewards loyalty and boldness. The culture is polarizing by design — you're either aligned with the mission or you're not."
+        }
+    },
+    "Netflix": {
+        "industry": "Streaming / Entertainment",
+        "values": {
+            "primary": ["Candor", "Excellence", "Courage"],
+            "secondary": ["Accountability", "Curiosity", "Empowerment"],
+            "tensions": ["Collaboration", "Empathy", "Work-Life Boundaries"],
+            "story": "Radical transparency culture where the keeper test is real — every role is earned continuously. Freedom and responsibility in equal measure. High performers thrive; the rest are generously shown the door."
+        }
+    },
+    "Universal Pictures": {
+        "industry": "Film / Entertainment",
+        "values": {
+            "primary": ["Craftsmanship", "Strategic Thinking", "Collaboration"],
+            "secondary": ["Excellence", "Courage", "Resilience"],
+            "tensions": ["Transparency", "Accountability", "Candor"],
+            "story": "Studio culture built on franchise management and creative risk-taking within commercial guardrails. Relationships and political capital matter enormously. Great content gets made despite the machinery, not because of it."
+        }
+    },
+    "Spotify": {
+        "industry": "Music Streaming / Technology",
+        "values": {
+            "primary": ["Curiosity", "Collaboration", "Bias Toward Action"],
+            "secondary": ["Inclusion", "Empowerment", "Continuous Improvement"],
+            "tensions": ["Excellence", "Accountability"],
+            "story": "Scandinavian-rooted tech culture that genuinely values autonomy and experimentation. Squad model gives teams real ownership. Can feel chaotic when alignment breaks down across autonomous units."
+        }
+    },
+    "Morgan & Morgan": {
+        "industry": "Legal Services / Personal Injury Law",
+        "values": {
+            "primary": ["Courage", "Empathy", "Accountability"],
+            "secondary": ["Bias Toward Action", "Resourcefulness", "Resilience"],
+            "tensions": ["Craftsmanship", "Strategic Thinking", "Intellectual Honesty"],
+            "story": "America's largest personal injury firm — high volume, high visibility, and unapologetically aggressive client advocacy. Marketing muscle meets courtroom tenacity. Quality is measured in settlements, not precedent."
+        }
+    },
+    "Edelman": {
+        "industry": "Public Relations / Communications",
+        "values": {
+            "primary": ["Strategic Thinking", "Collaboration", "Trust"],
+            "secondary": ["Curiosity", "Empathy", "Continuous Improvement"],
+            "tensions": ["Authenticity", "Candor", "Purpose Over Profit"],
+            "story": "World's largest independent PR firm built on the Edelman Trust Barometer philosophy. Client service culture with genuine strategic depth. Navigating between client interests and public trust creates inherent tension."
+        }
+    },
+    "Dollar Shave Club": {
+        "industry": "Consumer Products / DTC",
+        "values": {
+            "primary": ["Authenticity", "Resourcefulness", "Bias Toward Action"],
+            "secondary": ["Courage", "Curiosity", "Empowerment"],
+            "tensions": ["Excellence", "Strategic Thinking", "Systems Thinking"],
+            "story": "Disruptor-DNA brand that built a billion-dollar exit on irreverent marketing and direct-to-consumer guts. Scrappy and fast-moving. Post-acquisition corporate overlay can clash with the startup spirit."
+        }
+    },
+    "Disney": {
+        "industry": "Media & Entertainment / Theme Parks",
+        "values": {
+            "primary": ["Craftsmanship", "Excellence", "Collaboration"],
+            "secondary": ["Empathy", "Inclusion", "Strategic Thinking"],
+            "tensions": ["Candor", "Transparency", "Courage"],
+            "story": "The magic is manufactured by an extraordinary machine of creative talent and operational discipline. Brand reverence is genuine and protective. Internal politics are real, but so is the pride of contributing to a cultural institution."
+        }
+    },
+    "Meta": {
+        "industry": "Social Media / Technology",
+        "values": {
+            "primary": ["Bias Toward Action", "Courage", "Excellence"],
+            "secondary": ["Strategic Thinking", "Resourcefulness", "Continuous Improvement"],
+            "tensions": ["Integrity", "Empathy", "Work-Life Boundaries"],
+            "story": "Move-fast culture that has matured but not mellowed. Engineering-driven with real meritocracy at the IC level. Mission shifts create whiplash, and public scrutiny weighs on those who care about social impact."
+        }
+    },
+    "YMCA": {
+        "industry": "Nonprofit / Community Services",
+        "values": {
+            "primary": ["Servant Leadership", "Inclusion", "Empathy"],
+            "secondary": ["Collaboration", "Trust", "Purpose Over Profit"],
+            "tensions": ["Excellence", "Strategic Thinking", "Bias Toward Action"],
+            "story": "Community-first organization where youth development and social responsibility are the mission. Volunteers and staff work side by side. Resources are thin but commitment runs deep."
+        }
+    },
+    "Camp Tecumseh": {
+        "industry": "Nonprofit / Youth Development / Outdoor Recreation",
+        "values": {
+            "primary": ["Servant Leadership", "Authenticity", "Empathy"],
+            "secondary": ["Collaboration", "Trust", "Courage"],
+            "tensions": ["Excellence", "Strategic Thinking", "Accountability"],
+            "story": "YMCA camp where character development happens through outdoor adventure and genuine human connection. Seasonal intensity builds lifelong bonds. Informal and heart-driven — structure is secondary to impact."
+        }
+    },
+    "iHeartMedia": {
+        "industry": "Media / Broadcasting / Audio",
+        "values": {
+            "primary": ["Bias Toward Action", "Resourcefulness", "Strategic Thinking"],
+            "secondary": ["Accountability", "Resilience", "Courage"],
+            "tensions": ["Craftsmanship", "Empathy", "Work-Life Boundaries"],
+            "story": "Post-bankruptcy media company running America's largest radio portfolio on efficiency and scale. Sales-driven culture that rewards revenue generation above all. Content quality competes with commercial imperatives."
+        }
+    },
+    "Fox Corporation": {
+        "industry": "Media / Broadcasting / News",
+        "values": {
+            "primary": ["Courage", "Accountability", "Resilience"],
+            "secondary": ["Strategic Thinking", "Candor", "Resourcefulness"],
+            "tensions": ["Inclusion", "Empathy", "Transparency"],
+            "story": "Ideologically-anchored media company where editorial conviction drives culture. Rewards loyalty and audience instinct. You know what you're signing up for — the mission is clear and the expectations are absolute."
+        }
+    },
+    "CNN": {
+        "industry": "Media / News / Broadcasting",
+        "values": {
+            "primary": ["Courage", "Integrity", "Accountability"],
+            "secondary": ["Resilience", "Collaboration", "Curiosity"],
+            "tensions": ["Work-Life Boundaries", "Strategic Thinking", "Empathy"],
+            "story": "24-hour news culture where breaking stories define the rhythm. Journalistic integrity remains core even through ownership transitions and audience shifts. The pace is relentless and the stakes feel personal."
+        }
+    },
+    "University of New Mexico": {
+        "industry": "Higher Education / Research",
+        "values": {
+            "primary": ["Inclusion", "Purpose Over Profit", "Collaboration"],
+            "secondary": ["Curiosity", "Evidence-Based Decision Making", "Empathy"],
+            "tensions": ["Excellence", "Bias Toward Action", "Accountability"],
+            "story": "Hispanic-Serving Institution with deep roots in New Mexico's diverse communities. Research and teaching coexist with genuine social mission. Academic bureaucracy and budget constraints limit agility."
+        }
+    },
+    "Pfizer": {
+        "industry": "Pharmaceuticals / Life Sciences",
+        "values": {
+            "primary": ["Excellence", "Integrity", "Evidence-Based Decision Making"],
+            "secondary": ["Courage", "Accountability", "Collaboration"],
+            "tensions": ["Bias Toward Action", "Resourcefulness", "Transparency"],
+            "story": "Global pharma giant where scientific rigor and regulatory discipline define the pace. Breakthroughs happen but timelines are measured in years. The mission is genuine; the bureaucracy is proportional to the stakes."
+        }
+    },
+    "Self-Employed": {
+        "industry": "Independent / Freelance",
+        "values": {
+            "primary": ["Resourcefulness", "Courage", "Authenticity"],
+            "secondary": ["Accountability", "Bias Toward Action", "Resilience"],
+            "tensions": ["Collaboration", "Systems Thinking"],
+            "story": "Solo practitioners who trade institutional support for autonomy and self-determination. Every value is self-defined and self-enforced. Freedom is the reward; isolation is the cost."
+        }
+    }
+}

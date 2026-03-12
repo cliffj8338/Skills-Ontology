@@ -1,0 +1,154 @@
+{
+    "values": [
+        {
+            "name": "Integrity",
+            "description": "Do the right thing, always. Build trust through honest actions and transparent communication.",
+            "category": "Core"
+        },
+        {
+            "name": "Customer Obsession",
+            "description": "Start with customer needs and work backwards. Earn and keep customer trust.",
+            "category": "Core"
+        },
+        {
+            "name": "Innovation",
+            "description": "Invent and simplify. Look for new ideas from everywhere and find ways to simplify.",
+            "category": "Core"
+        },
+        {
+            "name": "Excellence",
+            "description": "Never settle for good enough. Raise the bar with every project and hire the best.",
+            "category": "Core"
+        },
+        {
+            "name": "Collaboration",
+            "description": "Work together to achieve more. Listen, respect, and build on each other's strengths.",
+            "category": "Core"
+        },
+        {
+            "name": "Intellectual Integrity",
+            "description": "Pursue truth over confirmation. Evidence-based decisions, always.",
+            "category": "Strategic"
+        },
+        {
+            "name": "Strategic Foresight",
+            "description": "Anticipate market shifts early. Lead change, don't follow it.",
+            "category": "Strategic"
+        },
+        {
+            "name": "Radical Transparency",
+            "description": "Share hard truths directly and kindly. Reality-based planning wins.",
+            "category": "Strategic"
+        },
+        {
+            "name": "Outcome-Focused Excellence",
+            "description": "Judge by impact delivered, not activity performed. Results drive everything.",
+            "category": "Strategic"
+        },
+        {
+            "name": "Elegant Simplicity",
+            "description": "Distill complexity into clarity. Deep understanding enables simple solutions.",
+            "category": "Strategic"
+        },
+        {
+            "name": "Authentic Leadership",
+            "description": "Lead with vulnerability and truth. Strength through self-awareness.",
+            "category": "Leadership"
+        },
+        {
+            "name": "Bias for Action",
+            "description": "Speed matters. Decide with 70% certainty, adjust as you learn.",
+            "category": "Leadership"
+        },
+        {
+            "name": "Ownership",
+            "description": "Act on behalf of the entire organization. Never say 'that's not my job.'",
+            "category": "Leadership"
+        },
+        {
+            "name": "Think Big",
+            "description": "Bold direction inspires results. Think differently and find ways to serve customers.",
+            "category": "Innovation"
+        },
+        {
+            "name": "Learn and Be Curious",
+            "description": "Never stop learning. Be curious about new possibilities.",
+            "category": "Growth"
+        },
+        {
+            "name": "Hire and Develop the Best",
+            "description": "Raise the bar with every hire. Develop leaders and take coaching seriously.",
+            "category": "Leadership"
+        },
+        {
+            "name": "Insist on Highest Standards",
+            "description": "Leaders have relentlessly high standards. Deliver quality products and services.",
+            "category": "Core"
+        },
+        {
+            "name": "Dive Deep",
+            "description": "Operate at all levels. No task is beneath them. Stay connected to details.",
+            "category": "Execution"
+        },
+        {
+            "name": "Have Backbone; Disagree and Commit",
+            "description": "Challenge decisions when you disagree. Once decided, commit fully.",
+            "category": "Leadership"
+        },
+        {
+            "name": "Deliver Results",
+            "description": "Focus on key inputs and deliver them with the right quality and in a timely fashion.",
+            "category": "Execution"
+        },
+        {
+            "name": "Frugality",
+            "description": "Accomplish more with less. Constraints breed resourcefulness and innovation.",
+            "category": "Execution"
+        },
+        {
+            "name": "Earn Trust",
+            "description": "Listen attentively, speak candidly, and treat others respectfully.",
+            "category": "Core"
+        },
+        {
+            "name": "Courage",
+            "description": "Make tough decisions. Stand up for what's right even when it's uncomfortable.",
+            "category": "Leadership"
+        },
+        {
+            "name": "Respect",
+            "description": "Treat everyone with dignity. Value diverse perspectives and experiences.",
+            "category": "Core"
+        },
+        {
+            "name": "Accountability",
+            "description": "Take responsibility for actions and outcomes. Fix problems, not blame.",
+            "category": "Leadership"
+        },
+        {
+            "name": "Continuous Improvement",
+            "description": "Always look for ways to do better. Embrace feedback and iterate.",
+            "category": "Growth"
+        },
+        {
+            "name": "Data-Driven Decision Making",
+            "description": "Let evidence guide choices. Measure what matters and act on insights.",
+            "category": "Strategic"
+        },
+        {
+            "name": "Customer First",
+            "description": "Put customer needs at the center of every decision.",
+            "category": "Core"
+        },
+        {
+            "name": "Diversity & Inclusion",
+            "description": "Seek and value different perspectives. Build belonging for all.",
+            "category": "Culture"
+        },
+        {
+            "name": "Sustainability",
+            "description": "Build for the long term. Balance profit with planet and people.",
+            "category": "Culture"
+        }
+    ]
+}

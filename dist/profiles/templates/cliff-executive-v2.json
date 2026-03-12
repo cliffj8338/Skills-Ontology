@@ -1,0 +1,439 @@
+{
+    "templateId": "cliff-executive-strategy",
+    "templateName": "Executive Strategy Professional",
+    "templateDescription": "VP-level strategy executive with 20 O*NET standard skills + 15 unique differentiators",
+    "profile": {
+        "name": "Cliff Jones",
+        "location": "Philadelphia, Pennsylvania, US",
+        "roleLevel": "Executive",
+        "currentTitle": "VP Global Strategy, GM Customer Advisory",
+        "yearsExperience": 25
+    },
+    "roles": [
+        {
+            "id": "strategy",
+            "name": "VP Global Strategy",
+            "icon": "\ud83c\udfaf",
+            "color": "#ef4444"
+        },
+        {
+            "id": "futurist",
+            "name": "Futurist & Evangelist",
+            "icon": "\ud83d\udd2e",
+            "color": "#f59e0b"
+        },
+        {
+            "id": "tech",
+            "name": "Technology Strategist",
+            "icon": "\u2699\ufe0f",
+            "color": "#06b6d4"
+        },
+        {
+            "id": "advocate",
+            "name": "Recovery Advocate",
+            "icon": "\ud83d\udc9a",
+            "color": "#10b981"
+        }
+    ],
+    "skills": [
+        {
+            "name": "Critical Thinking",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": true,
+            "category": "onet",
+            "onetId": "critical-thinking"
+        },
+        {
+            "name": "Complex Problem Solving",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": true,
+            "category": "onet",
+            "onetId": "complex-problem-solving"
+        },
+        {
+            "name": "Judgment and Decision Making",
+            "level": "Mastery",
+            "roles": [
+                "strategy"
+            ],
+            "key": true,
+            "category": "onet",
+            "onetId": "judgment-and-decision-making"
+        },
+        {
+            "name": "Active Learning",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "active-learning"
+        },
+        {
+            "name": "Systems Analysis",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "tech"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "systems-analysis"
+        },
+        {
+            "name": "Speaking",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "speaking"
+        },
+        {
+            "name": "Writing",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "writing"
+        },
+        {
+            "name": "Active Listening",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "advocate"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "active-listening"
+        },
+        {
+            "name": "Persuasion",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "persuasion"
+        },
+        {
+            "name": "Negotiation",
+            "level": "Advanced",
+            "roles": [
+                "strategy"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "negotiation"
+        },
+        {
+            "name": "Social Perceptiveness",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "advocate"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "social-perceptiveness"
+        },
+        {
+            "name": "Coordination",
+            "level": "Mastery",
+            "roles": [
+                "strategy"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "coordination"
+        },
+        {
+            "name": "Instructing",
+            "level": "Advanced",
+            "roles": [
+                "strategy",
+                "advocate"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "instructing"
+        },
+        {
+            "name": "Management of Personnel Resources",
+            "level": "Advanced",
+            "roles": [
+                "strategy"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "management-of-personnel-resources"
+        },
+        {
+            "name": "Time Management",
+            "level": "Advanced",
+            "roles": [
+                "strategy"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "time-management"
+        },
+        {
+            "name": "Service Orientation",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "advocate"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "service-orientation"
+        },
+        {
+            "name": "Systems Evaluation",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "tech"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "systems-evaluation"
+        },
+        {
+            "name": "Operations Analysis",
+            "level": "Advanced",
+            "roles": [
+                "strategy",
+                "tech"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "operations-analysis"
+        },
+        {
+            "name": "Learning Strategies",
+            "level": "Advanced",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "learning-strategies"
+        },
+        {
+            "name": "Reading Comprehension",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": false,
+            "category": "onet",
+            "onetId": "reading-comprehension"
+        },
+        {
+            "name": "Enterprise AI Strategy",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist",
+                "tech"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "AI/ML Product Strategy",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "tech",
+                "futurist"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Strategic Foresight & Market Prediction",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Predictive Framework Development",
+            "level": "Mastery",
+            "roles": [
+                "futurist",
+                "strategy"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Weak Signal Detection & Trend Recognition",
+            "level": "Mastery",
+            "roles": [
+                "futurist",
+                "strategy"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Human-AI Collaboration Model Design",
+            "level": "Mastery",
+            "roles": [
+                "futurist",
+                "strategy"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Technical Concept Translation",
+            "level": "Mastery",
+            "roles": [
+                "futurist",
+                "tech",
+                "strategy"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Research Synthesis & Pattern Recognition",
+            "level": "Mastery",
+            "roles": [
+                "futurist",
+                "strategy"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "HR Technology Market Intelligence",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": false,
+            "category": "unique"
+        },
+        {
+            "name": "Candidate Experience Architecture",
+            "level": "Mastery",
+            "roles": [
+                "strategy"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "C-Suite Advisory & Influence",
+            "level": "Advanced",
+            "roles": [
+                "strategy",
+                "futurist"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Crisis Leadership & Decision Making",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "advocate"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Emergency Airmanship",
+            "level": "Mastery",
+            "roles": [
+                "strategy"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Spatial Reasoning & 3D Problem Solving",
+            "level": "Mastery",
+            "roles": [
+                "strategy",
+                "tech"
+            ],
+            "key": true,
+            "category": "unique"
+        },
+        {
+            "name": "Authentic Leadership & Trust Building",
+            "level": "Mastery",
+            "roles": [
+                "advocate",
+                "futurist"
+            ],
+            "key": true,
+            "category": "unique"
+        }
+    ],
+    "values": [
+        {
+            "name": "Intellectual Integrity",
+            "description": "Pursue truth over confirmation. Evidence-based decisions, always. Challenge assumptions before accepting conclusions.",
+            "selected": true
+        },
+        {
+            "name": "Strategic Foresight Over Reaction",
+            "description": "Anticipate market shifts 18-24 months early. Lead change, don't follow it. 85-95% predictive accuracy through pattern recognition.",
+            "selected": true
+        },
+        {
+            "name": "Radical Transparency",
+            "description": "Share hard truths directly and kindly. Reality-based planning wins. Confront problems early, not late.",
+            "selected": true
+        },
+        {
+            "name": "Outcome-Focused Excellence",
+            "description": "Judge by impact delivered, not activity performed. Results drive everything. Measure outcomes, not effort.",
+            "selected": true
+        },
+        {
+            "name": "Elegant Simplicity",
+            "description": "Distill complexity into clarity. Deep understanding enables simple solutions. Make sophisticated insights accessible.",
+            "selected": true
+        },
+        {
+            "name": "Authentic, Human Leadership",
+            "description": "Lead with vulnerability and truth. Strength through self-awareness. Use personal experience to build trust and reduce stigma.",
+            "selected": true
+        }
+    ],
+    "purpose": "I help organizations navigate transformation through strategic foresight and evidence-based decision making. Using pattern recognition and predictive frameworks, I enable leaders to see market shifts 18-24 months early and make proactive choices. I lead with authenticity and transparency, using personal experience to build trust that enables honest discourse about complex challenges."
+}

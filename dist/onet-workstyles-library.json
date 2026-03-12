@@ -1,0 +1,175 @@
+{
+  "version": "2.0.0",
+  "source": "O*NET 1.D Work Styles Taxonomy (updated Dec 2025)",
+  "count": 21,
+  "workStyles": [
+    {
+      "name": "Attention to Detail",
+      "description": "A tendency to be detail-oriented, organized, and thorough in completing work.",
+      "onetCode": "1.D.3.b",
+      "group": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Cautiousness",
+      "description": "A tendency to be careful, deliberate, and risk-avoidant when making work-related decisions or doing work.",
+      "onetCode": "1.D.3.a",
+      "group": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Dependability",
+      "description": "A tendency to be reliable, responsible, and consistent in meeting work-related obligations.",
+      "onetCode": "1.D.3.c",
+      "group": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Integrity",
+      "description": "A tendency to be honest and ethical at work.",
+      "onetCode": "1.D.3.d",
+      "group": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Self-Control",
+      "description": "A tendency to remain calm and composed and to manage emotions effectively in response to criticism or difficult situations at work.",
+      "onetCode": "1.D.4.b",
+      "group": "Emotionally Resilient",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Stress Tolerance",
+      "description": "A tendency to cope and function effectively in stressful situations at work.",
+      "onetCode": "1.D.4.a",
+      "group": "Emotionally Resilient",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Cooperation",
+      "description": "A tendency to be pleasant, helpful, and willing to assist others at work.",
+      "onetCode": "1.D.2.d",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Empathy",
+      "description": "A tendency to show concern for others and be sensitive to others' needs and feelings at work.",
+      "onetCode": "1.D.2.c",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Humility",
+      "description": "A tendency to be modest and humble when interacting with others at work.",
+      "onetCode": "1.D.2.a",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Optimism",
+      "description": "A tendency to exhibit a positive attitude and positive emotions at work, even under difficult circumstances.",
+      "onetCode": "1.D.2.e",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Sincerity",
+      "description": "A tendency to be genuine and sincere in interactions with others at work, without concern for personal gain or self-interest.",
+      "onetCode": "1.D.2.b",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Social Orientation",
+      "description": "A tendency to seek out, enjoy, and be energized by social interaction at work.",
+      "onetCode": "1.D.2.f",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Achievement Orientation",
+      "description": "A tendency to establish and maintain personally challenging work-related goals, set high work-related standards, and exert high effort toward meeting those goals and standards.",
+      "onetCode": "1.D.1.b",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Adaptability",
+      "description": "A tendency to be open to and comfortable with change, new experiences, or ideas at work.",
+      "onetCode": "1.D.1.f",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Initiative",
+      "description": "A tendency to be proactive and take on extra responsibilities and tasks that may fall outside of one's required work role.",
+      "onetCode": "1.D.1.e",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Innovation",
+      "description": "A tendency to be inventive, to be imaginative, and to adopt new perspectives on ways to accomplish work.",
+      "onetCode": "1.D.1.a",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Intellectual Curiosity",
+      "description": "A tendency to seek out and acquire new work-related knowledge and obtain a deep understanding of work-related subjects.",
+      "onetCode": "1.D.1.c",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Leadership Orientation",
+      "description": "A tendency to lead, take charge, offer opinions, and provide direction at work.",
+      "onetCode": "1.D.1.i",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Perseverance",
+      "description": "A tendency to exhibit determination and resolve to perform or complete tasks in the face of difficult circumstances or obstacles at work.",
+      "onetCode": "1.D.1.h",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Self-Confidence",
+      "description": "A tendency to believe in one's work-related capabilities and ability to control one's work-related outcomes.",
+      "onetCode": "1.D.1.g",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Tolerance for Ambiguity",
+      "description": "A tendency to be comfortable with ambiguity and uncertainty at work.",
+      "onetCode": "1.D.1.d",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    }
+  ]
+}

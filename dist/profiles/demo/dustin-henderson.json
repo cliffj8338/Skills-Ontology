@@ -1,0 +1,349 @@
+{
+  "templateId": "dustin-henderson",
+  "profile": {
+    "name": "Dustin Henderson",
+    "currentTitle": "Student & Amateur Radio Operator",
+    "location": "Hawkins, IN",
+    "roleLevel": "Early-Career",
+    "headline": "STEM-gifted problem solver with exceptional communication skills. Built long-range radio communication system, decoded Russian military transmissions, and consistently provides the critical intellectual breakthrough when teams are stuck.",
+    "executiveSummary": "A natural engineer and communicator who combines deep STEM curiosity with unusual social intelligence for someone his age. Known for building functional technology solutions from available components, decoding complex patterns, and maintaining team morale during crisis situations. Winner of regional science fair for work on electromagnetism. Currently the youngest licensed amateur radio operator in Hawkins County."
+  },
+  "roles": [
+    {
+      "name": "STEM & Engineering",
+      "id": "stem"
+    },
+    {
+      "name": "Communications & Radio",
+      "id": "communications"
+    },
+    {
+      "name": "Problem Solving & Analysis",
+      "id": "analysis"
+    },
+    {
+      "name": "Team Coordination",
+      "id": "team"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Electrical Engineering",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "stem"
+      ],
+      "evidence": [
+        {
+          "outcome": "Built long-range radio transmitter 'Cerebro' capable of intercontinental communication",
+          "description": "Designed and constructed radio system powerful enough to reach girlfriend in Utah from Indiana using salvaged and purchased components"
+        },
+        {
+          "outcome": "Won Hawkins Middle School Science Fair with electromagnetic research project",
+          "description": "Demonstrated understanding of electromagnetism through original research and practical demonstration"
+        }
+      ]
+    },
+    {
+      "name": "Radio Communications",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "communications"
+      ],
+      "evidence": [
+        {
+          "outcome": "Established and maintained reliable radio communication network for crisis response team",
+          "description": "Provided critical communication infrastructure when conventional systems were unavailable or compromised"
+        },
+        {
+          "outcome": "Intercepted and decoded Russian military radio transmissions revealing secret operation",
+          "description": "Identified anomalous radio signals, recorded transmissions, and coordinated translation effort"
+        }
+      ]
+    },
+    {
+      "name": "Pattern Recognition & Cryptanalysis",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "analysis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Identified repeating pattern in intercepted Russian transmissions enabling translation",
+          "description": "Applied analytical skills to recognize encoded communication pattern that adults had missed"
+        },
+        {
+          "outcome": "Decoded compass anomaly revealing electromagnetic interference from alternate dimension",
+          "description": "Connected apparently random compass behavior to underlying electromagnetic phenomenon"
+        }
+      ]
+    },
+    {
+      "name": "Scientific Method",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "stem"
+      ],
+      "evidence": [
+        {
+          "outcome": "Applied systematic hypothesis testing to understand interdimensional phenomena",
+          "description": "Used scientific methodology to develop and test theories about events that defied conventional explanation"
+        },
+        {
+          "outcome": "Hypothesized that the Mind Flayer operated through a hive-mind structure, leading the team to target the central node",
+          "description": "Applied systems thinking to propose that destroying the gate would sever the psychic connection controlling all entities on the surface"
+        }
+      ]
+    },
+    {
+      "name": "Team Coordination",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "team"
+      ],
+      "evidence": [
+        {
+          "outcome": "Coordinated multi-team operations across 3 simultaneous mission groups",
+          "description": "Served as communications hub and tactical coordinator for dispersed teams during crisis events"
+        },
+        {
+          "outcome": "Coordinated the Planck's constant relay with Suzie via Cerebro radio during the Starcourt crisis, delivering critical information under time pressure",
+          "description": "Maintained composure during life-or-death countdown to relay a scientific value needed to crack a Russian security code"
+        }
+      ]
+    },
+    {
+      "name": "Technology Troubleshooting",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": [
+        "stem"
+      ],
+      "evidence": [
+        {
+          "outcome": "Diagnosed and repaired electronic equipment under field conditions",
+          "description": "Applied technical knowledge to troubleshoot and fix communication and electronic equipment during operations"
+        }
+      ]
+    },
+    {
+      "name": "Biology & Zoology",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "stem"
+      ],
+      "evidence": [
+        {
+          "outcome": "Identified and cared for unknown species (D'Artagnan) conducting behavioral observation",
+          "description": "Applied scientific curiosity and care to study unknown organism, documenting behavioral patterns"
+        },
+        {
+          "outcome": "Raised and studied interdimensional organism D'Artagnan from larval stage, documenting growth and feeding patterns",
+          "description": "Kept and observed a creature from the Upside Down, gathering behavioral data before the organism's true nature became apparent"
+        }
+      ]
+    },
+    {
+      "name": "Map Reading & Navigation",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "analysis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Navigated underground tunnel system using compass and topographic mapping",
+          "description": "Applied orienteering skills to navigate dangerous unknown terrain"
+        },
+        {
+          "outcome": "Used compass anomalies to map the geographic center of electromagnetic interference in Hawkins",
+          "description": "Tracked compass deviations across multiple locations to triangulate the source of dimensional disturbance"
+        }
+      ]
+    },
+    {
+      "name": "Presentation & Teaching",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "team"
+      ],
+      "evidence": [
+        {
+          "outcome": "Explained complex scientific concepts to non-technical team members enabling collective problem-solving",
+          "description": "Translated electromagnetism, radio theory, and dimensional physics into understandable terms"
+        },
+        {
+          "outcome": "Explained the concept of an interdimensional gate to adults using the analogy of the flea and the acrobat on a tightrope",
+          "description": "Made a complex theoretical physics concept accessible to non-scientists, enabling the group to develop a shared mental model for planning"
+        }
+      ]
+    },
+    {
+      "name": "First Aid",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [
+        "team"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Intellectual Curiosity",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": [
+        "stem"
+      ],
+      "evidence": [
+        {
+          "outcome": "Self-taught radio engineering, cryptanalysis, and advanced electromagnetism before high school",
+          "description": "Pursued deep learning in technical subjects driven by genuine curiosity rather than external requirements"
+        }
+      ]
+    },
+    {
+      "name": "Creative Problem Solving",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": [
+        "analysis"
+      ],
+      "evidence": [
+        {
+          "outcome": "Provided critical breakthrough insight in 4 out of 4 crisis events",
+          "description": "Consistently identified the key connection or solution that moved the team from stuck to actionable"
+        }
+      ]
+    },
+    {
+      "name": "Optimism & Morale",
+      "level": "Advanced",
+      "category": "work style",
+      "key": true,
+      "roles": [
+        "team"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained team morale and humor during life-threatening situations",
+          "description": "Provided emotional resilience and levity that kept team functioning when stress was highest"
+        }
+      ]
+    },
+    {
+      "name": "Loyalty",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": [
+        "team"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained unwavering loyalty to friends across 4 crisis events spanning 3 years",
+          "description": "Never abandoned teammates regardless of personal risk or pressure"
+        }
+      ]
+    },
+    {
+      "name": "Communication Skills",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": [
+        "team",
+        "communications"
+      ],
+      "evidence": [
+        {
+          "outcome": "Served as primary communicator and diplomat for the group across all crisis events",
+          "description": "Applied natural verbal skills to negotiate, persuade, and coordinate across different personality types"
+        }
+      ]
+    },
+    {
+      "name": "Persistence",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": [
+        "stem"
+      ],
+      "evidence": [
+        {
+          "outcome": "Spent 3 months building Cerebro radio through trial, error, and iterative improvement",
+          "description": "Demonstrated sustained effort on complex technical project despite multiple failures and setbacks"
+        }
+      ]
+    }
+  ],
+  "values": [
+    {
+      "name": "Curiosity",
+      "selected": true
+    },
+    {
+      "name": "Resourcefulness",
+      "selected": true
+    },
+    {
+      "name": "Collaboration",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Continuous Improvement",
+      "selected": true
+    },
+    {
+      "name": "Systems Thinking",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    }
+  ],
+  "workHistory": [
+    {
+      "title": "Student",
+      "company": "Hawkins High School",
+      "startYear": 1984,
+      "endYear": null,
+      "current": true,
+      "description": "Honor roll student with focus on science and mathematics. Science fair winner. Active in AV Club and amateur radio."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Hawkins High School",
+      "degree": "In Progress",
+      "year": null
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Amateur Radio License (General Class)",
+      "issuer": "FCC"
+    },
+    {
+      "name": "Hawkins Science Fair — 1st Place, Electromagnetism",
+      "issuer": "Hawkins Middle School"
+    }
+  ],
+  "purpose": "Science isn't just about knowing stuff. It's about figuring stuff out when nobody else can. That's what I do."
+}

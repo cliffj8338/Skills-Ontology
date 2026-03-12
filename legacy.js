@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.69 - BUILD 20260312-actionbar-close
-        var BP_VERSION = 'v4.46.69';
+        // BLUEPRINT v4.46.70 - BUILD 20260312-close-icon-fix
+        var BP_VERSION = 'v4.46.70';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -7802,7 +7802,7 @@
             // Close button — rightmost, with unsaved warning
             h += '<div style="margin-left:auto;">'
                 + '<button onclick="jdcCloseBlueprint()" style="padding:7px 14px; background:var(--c-surface-3); color:' + (isSaved ? 'var(--c-muted)' : '#ef4444') + '; border:1px solid ' + (isSaved ? borderColor : 'rgba(239,68,68,0.35)') + '; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;" title="' + (isSaved ? 'Close blueprint' : 'Unsaved changes') + '">'
-                + bpIcon('close',13) + ' Close</button>'
+                + bpIcon('x',13) + ' Close</button>'
                 + '</div>';
 
             h += '</div>';

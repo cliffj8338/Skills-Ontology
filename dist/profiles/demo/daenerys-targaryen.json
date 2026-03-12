@@ -1,0 +1,566 @@
+{
+  "templateId": "daenerys-targaryen",
+  "profile": {
+    "name": "Daenerys Targaryen",
+    "currentTitle": "Queen of the Andals, the Rhoynar, and the First Men",
+    "location": "Dragonstone, Westeros",
+    "roleLevel": "C-Suite",
+    "email": "",
+    "summary": "From stateless refugee to sovereign of the largest military force in the known world. Built an empire from zero assets through liberation movements, strategic conquests, and an unshakable vision of a better world. Commanded three dragons, an army of formerly enslaved soldiers, and a Dothraki horde — scaling from nothing to continental power in under eight years. The ultimate founder story."
+  },
+  "roles": [
+    {
+      "id": "empire-building",
+      "name": "Empire Building & Vision",
+      "color": "#8B0000"
+    },
+    {
+      "id": "military-command",
+      "name": "Military Command",
+      "color": "#2F4F4F"
+    },
+    {
+      "id": "liberation",
+      "name": "Liberation & Social Transformation",
+      "color": "#B8860B"
+    },
+    {
+      "id": "diplomacy",
+      "name": "Diplomacy & Alliance Building",
+      "color": "#4169E1"
+    },
+    {
+      "id": "governance",
+      "name": "Governance",
+      "color": "#6A0DAD"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Visionary Leadership",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Articulated a compelling vision of liberation that recruited armies, advisors, and entire cities to her cause",
+          "description": "Articulated a compelling vision of liberation that recruited armies, advisors, and entire cities to her cause"
+        },
+        {
+          "outcome": "Maintained strategic direction across an 8-year campaign spanning two continents and dozens of military engagements",
+          "description": "Maintained strategic direction across an 8-year campaign spanning two continents and dozens of military engagements"
+        },
+        {
+          "outcome": "Inspired loyalty from culturally diverse followers — Dothraki, Unsullied, Essosi freedmen, and Westerosi lords — through shared purpose",
+          "description": "Inspired loyalty from culturally diverse followers — Dothraki, Unsullied, Essosi freedmen, and Westerosi lords — through shared purpose"
+        }
+      ],
+      "roles": [
+        "empire-building"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Scaling Operations",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Grew from a single khalasar to commanding the largest combined military force in known history",
+          "description": "Grew from a single khalasar to commanding the largest combined military force in known history"
+        },
+        {
+          "outcome": "Scaled governance from a single city (Meereen) to preparation for continental rule",
+          "description": "Scaled governance from a single city (Meereen) to preparation for continental rule"
+        },
+        {
+          "outcome": "Built organizational infrastructure — advisors, commanders, supply chains — to support exponential growth",
+          "description": "Built organizational infrastructure — advisors, commanders, supply chains — to support exponential growth"
+        }
+      ],
+      "roles": [
+        "empire-building"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Military Strategy",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Conquered three slave cities (Astapor, Yunkai, Meereen) through distinct tactical approaches — deception, siege, and infiltration",
+          "description": "Conquered three slave cities (Astapor, Yunkai, Meereen) through distinct tactical approaches — deception, siege, and infiltration"
+        },
+        {
+          "outcome": "Unified Dothraki khalasars under single command — the first leader to do so since Khal Menin",
+          "description": "Unified Dothraki khalasars under single command — the first leader to do so since Khal Menin"
+        },
+        {
+          "outcome": "Executed combined-arms warfare integrating dragon air power, cavalry, and infantry at the Battle of the Goldroad",
+          "description": "Executed combined-arms warfare integrating dragon air power, cavalry, and infantry at the Battle of the Goldroad"
+        }
+      ],
+      "roles": [
+        "military-command"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Force Projection",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Deployed three dragons as strategic weapons — fundamentally changing the military calculus of every engagement",
+          "description": "Deployed three dragons as strategic weapons — fundamentally changing the military calculus of every engagement"
+        },
+        {
+          "outcome": "Used dragon demonstrations as diplomatic leverage — the threat of force as substitute for its use",
+          "description": "Used dragon demonstrations as diplomatic leverage — the threat of force as substitute for its use"
+        },
+        {
+          "outcome": "Projected military power across the Narrow Sea through naval logistics and alliance with Yara Greyjoy's Iron Fleet",
+          "description": "Projected military power across the Narrow Sea through naval logistics and alliance with Yara Greyjoy's Iron Fleet"
+        }
+      ],
+      "roles": [
+        "military-command"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Liberation Strategy",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Freed the Unsullied of Astapor through a tactical deception that simultaneously acquired an army and destroyed a slave market",
+          "description": "Freed the Unsullied of Astapor through a tactical deception that simultaneously acquired an army and destroyed a slave market"
+        },
+        {
+          "outcome": "Liberated Meereen through alliance with enslaved populations who opened the city from within",
+          "description": "Liberated Meereen through alliance with enslaved populations who opened the city from within"
+        },
+        {
+          "outcome": "Built a political movement around abolition that attracted followers from across Essos",
+          "description": "Built a political movement around abolition that attracted followers from across Essos"
+        }
+      ],
+      "roles": [
+        "liberation"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Social Transformation",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Abolished slavery across Slaver's Bay — restructuring an entire regional economy",
+          "description": "Abolished slavery across Slaver's Bay — restructuring an entire regional economy"
+        },
+        {
+          "outcome": "Attempted to build new social institutions in Meereen including courts, labor systems, and civil governance",
+          "description": "Attempted to build new social institutions in Meereen including courts, labor systems, and civil governance"
+        },
+        {
+          "outcome": "Navigated the backlash of economic disruption from abolition including insurgency, economic collapse, and foreign intervention",
+          "description": "Navigated the backlash of economic disruption from abolition including insurgency, economic collapse, and foreign intervention"
+        }
+      ],
+      "roles": [
+        "liberation"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Coalition Building",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "United the Unsullied, Dothraki, Dornish, Greyjoy, and Tyrell forces under a single command structure",
+          "description": "United the Unsullied, Dothraki, Dornish, Greyjoy, and Tyrell forces under a single command structure"
+        },
+        {
+          "outcome": "Secured alliance with Jon Snow and the North through negotiation, mutual respect, and shared threat assessment",
+          "description": "Secured alliance with Jon Snow and the North through negotiation, mutual respect, and shared threat assessment"
+        },
+        {
+          "outcome": "Built advisor corps spanning multiple cultures — Tyrion (Westerosi), Missandei (Naathi), Grey Worm (Astapori), Jorah (Northern)",
+          "description": "Built advisor corps spanning multiple cultures — Tyrion (Westerosi), Missandei (Naathi), Grey Worm (Astapori), Jorah (Northern)"
+        },
+        {
+          "outcome": "Acquired 8,000 Unsullied soldiers through tactical deception at Astapor, freeing them and earning voluntary loyalty",
+          "description": "Traded a dragon as payment, then ordered the dragon to burn the slave masters, liberating the Unsullied who chose to follow her freely"
+        }
+      ],
+      "roles": [
+        "diplomacy"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Diplomatic Communication",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Negotiated with the Masters of Yunkai, the leaders of Qarth, and Westerosi lords across multiple diplomatic contexts",
+          "description": "Negotiated with the Masters of Yunkai, the leaders of Qarth, and Westerosi lords across multiple diplomatic contexts"
+        },
+        {
+          "outcome": "Used titles and ceremony as diplomatic tools — projecting legitimate authority before it was fully established",
+          "description": "Used titles and ceremony as diplomatic tools — projecting legitimate authority before it was fully established"
+        },
+        {
+          "outcome": "Communicated in Dothraki, High Valyrian, and Common Tongue — adapting language and register to audience",
+          "description": "Communicated in Dothraki, High Valyrian, and Common Tongue — adapting language and register to audience"
+        }
+      ],
+      "roles": [
+        "diplomacy"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Crisis Leadership",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Survived the destruction of her khalasar, assassination attempts, and military defeats without losing strategic coherence",
+          "description": "Survived the destruction of her khalasar, assassination attempts, and military defeats without losing strategic coherence"
+        },
+        {
+          "outcome": "Led the defense of Winterfell against the Army of the Dead — committing her forces to an existential fight not her own",
+          "description": "Led the defense of Winterfell against the Army of the Dead — committing her forces to an existential fight not her own"
+        },
+        {
+          "outcome": "Made real-time tactical decisions during the Battle of King's Landing including deployment of Drogon against fortified defenses",
+          "description": "Made real-time tactical decisions during the Battle of King's Landing including deployment of Drogon against fortified defenses"
+        },
+        {
+          "outcome": "Burned the Dothraki khals in the Temple of the Dosh Khaleen, uniting all khalasars under single command",
+          "description": "Trapped rival khals in the temple, set it ablaze, and emerged unburned, gaining the loyalty of every Dothraki warrior present"
+        }
+      ],
+      "roles": [
+        "military-command"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Talent Identification",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Recognized Jorah Mormont's value despite his betrayal — ultimately accepting him back after he proved his loyalty",
+          "description": "Recognized Jorah Mormont's value despite his betrayal — ultimately accepting him back after he proved his loyalty"
+        },
+        {
+          "outcome": "Appointed Tyrion Lannister as Hand despite his family being her sworn enemies — correctly assessing his strategic value",
+          "description": "Appointed Tyrion Lannister as Hand despite his family being her sworn enemies — correctly assessing his strategic value"
+        },
+        {
+          "outcome": "Identified Missandei's diplomatic and linguistic capabilities and elevated her from translator to chief advisor",
+          "description": "Identified Missandei's diplomatic and linguistic capabilities and elevated her from translator to chief advisor"
+        }
+      ],
+      "roles": [
+        "empire-building"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Brand Building",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Built 'Breaker of Chains' brand that preceded her — cities opened their gates based on reputation alone",
+          "description": "Built 'Breaker of Chains' brand that preceded her — cities opened their gates based on reputation alone"
+        },
+        {
+          "outcome": "Used dragon imagery, ceremony, and spectacle to project power beyond her actual military reach",
+          "description": "Used dragon imagery, ceremony, and spectacle to project power beyond her actual military reach"
+        },
+        {
+          "outcome": "Created a personal brand so compelling that people crossed continents to serve her cause",
+          "description": "Created a personal brand so compelling that people crossed continents to serve her cause"
+        }
+      ],
+      "roles": [
+        "empire-building"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Insurgency Management",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Fought the Sons of the Harpy insurgency in Meereen through combined military and political approaches",
+          "description": "Fought the Sons of the Harpy insurgency in Meereen through combined military and political approaches"
+        },
+        {
+          "outcome": "Learned that military conquest without institutional governance creates power vacuums that breed resistance",
+          "description": "Learned that military conquest without institutional governance creates power vacuums that breed resistance"
+        },
+        {
+          "outcome": "Adapted counterinsurgency strategy from pure force to political compromise — opening fighting pits as concession",
+          "description": "Adapted counterinsurgency strategy from pure force to political compromise — opening fighting pits as concession"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Resource Acquisition",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Acquired the Unsullied army through tactical deception costing zero gold",
+          "description": "Acquired the Unsullied army through tactical deception costing zero gold"
+        },
+        {
+          "outcome": "United all Dothraki khalasars by demonstrating power through fire — converting rivals into followers",
+          "description": "United all Dothraki khalasars by demonstrating power through fire — converting rivals into followers"
+        },
+        {
+          "outcome": "Secured ships, supplies, and allies through a combination of negotiation, demonstration, and strategic marriage",
+          "description": "Secured ships, supplies, and allies through a combination of negotiation, demonstration, and strategic marriage"
+        }
+      ],
+      "roles": [
+        "empire-building"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Public Speaking",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Delivered speeches in multiple languages that moved crowds of thousands to immediate action",
+          "description": "Delivered speeches in multiple languages that moved crowds of thousands to immediate action"
+        },
+        {
+          "outcome": "Used rhetoric of liberation and justice to build loyalty more durable than any political arrangement",
+          "description": "Used rhetoric of liberation and justice to build loyalty more durable than any political arrangement"
+        },
+        {
+          "outcome": "Spoke to the Dothraki in their language about their destiny — earning respect that previous leaders demanded through combat",
+          "description": "Spoke to the Dothraki in their language about their destiny — earning respect that previous leaders demanded through combat"
+        }
+      ],
+      "roles": [
+        "liberation"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Governance Design",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Attempted to design new economic and social systems for post-slavery Meereen",
+          "description": "Attempted to design new economic and social systems for post-slavery Meereen"
+        },
+        {
+          "outcome": "Established courts, appointed administrators, and created civil infrastructure in conquered cities",
+          "description": "Established courts, appointed administrators, and created civil infrastructure in conquered cities"
+        },
+        {
+          "outcome": "Struggled with the gap between revolutionary vision and institutional governance — a common founder challenge",
+          "description": "Struggled with the gap between revolutionary vision and institutional governance — a common founder challenge"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Naval Strategy",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Coordinated naval transport of 100,000+ troops across the Narrow Sea",
+          "description": "Coordinated naval transport of 100,000+ troops across the Narrow Sea"
+        },
+        {
+          "outcome": "Secured Greyjoy fleet alliance providing naval superiority for the Westeros campaign",
+          "description": "Secured Greyjoy fleet alliance providing naval superiority for the Westeros campaign"
+        },
+        {
+          "outcome": "Understood the strategic importance of Dragonstone as naval staging point for continental invasion",
+          "description": "Understood the strategic importance of Dragonstone as naval staging point for continental invasion"
+        }
+      ],
+      "roles": [
+        "military-command"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Cross-Cultural Leadership",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Led organizations spanning Dothraki, Unsullied, Westerosi, Naathi, and other cultures simultaneously",
+          "description": "Led organizations spanning Dothraki, Unsullied, Westerosi, Naathi, and other cultures simultaneously"
+        },
+        {
+          "outcome": "Adapted leadership style from Dothraki warrior-queen to Meereenese ruler to Westerosi sovereign",
+          "description": "Adapted leadership style from Dothraki warrior-queen to Meereenese ruler to Westerosi sovereign"
+        },
+        {
+          "outcome": "Built trust across cultural boundaries through shared mission rather than shared heritage",
+          "description": "Built trust across cultural boundaries through shared mission rather than shared heritage"
+        }
+      ],
+      "roles": [
+        "diplomacy"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Supply Chain Management",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Managed logistics for continental-scale military campaigns including food, arms, and transport",
+          "description": "Managed logistics for continental-scale military campaigns including food, arms, and transport"
+        },
+        {
+          "outcome": "Organized the feeding and supply of a combined army of Dothraki and Unsullied during the march North",
+          "description": "Organized the feeding and supply of a combined army of Dothraki and Unsullied during the march North"
+        },
+        {
+          "outcome": "Dealt with supply disruption when Euron Greyjoy destroyed her fleet — adapting logistics in real-time",
+          "description": "Dealt with supply disruption when Euron Greyjoy destroyed her fleet — adapting logistics in real-time"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    },
+    {
+      "name": "Resilience",
+      "level": "Expert",
+      "evidence": [
+        {
+          "outcome": "Survived assassination by the warlocks of Qarth, the Sons of the Harpy, and multiple military defeats",
+          "description": "Survived assassination by the warlocks of Qarth, the Sons of the Harpy, and multiple military defeats"
+        },
+        {
+          "outcome": "Rebuilt her power base from near-zero after being separated from her army and stranded in the Dothraki Sea",
+          "description": "Rebuilt her power base from near-zero after being separated from her army and stranded in the Dothraki Sea"
+        },
+        {
+          "outcome": "Lost her husband, two of her dragons, her closest advisor, and her claim to the throne — continuing forward each time",
+          "description": "Lost her husband, two of her dragons, her closest advisor, and her claim to the throne — continuing forward each time"
+        },
+        {
+          "outcome": "Walked into Khal Drogo's funeral pyre and emerged unburned with three hatched dragons",
+          "description": "Entered fire that killed Mirri Maz Duur, surviving through apparent magical immunity and hatching the first dragons seen in over a century"
+        }
+      ],
+      "roles": [
+        "empire-building"
+      ],
+      "category": "work style"
+    },
+    {
+      "name": "Succession & Legacy Planning",
+      "level": "Proficient",
+      "evidence": [
+        {
+          "outcome": "Struggled to define succession plan given her belief in her own inability to bear heirs",
+          "description": "Struggled to define succession plan given her belief in her own inability to bear heirs"
+        },
+        {
+          "outcome": "Failed to build institutional structures that could outlast her personal rule",
+          "description": "Failed to build institutional structures that could outlast her personal rule"
+        },
+        {
+          "outcome": "Acknowledged the limitation — 'break the wheel' vision was about systems, not dynasties — but implementation lagged",
+          "description": "Acknowledged the limitation — 'break the wheel' vision was about systems, not dynasties — but implementation lagged"
+        }
+      ],
+      "roles": [
+        "governance"
+      ],
+      "category": "skill"
+    }
+  ],
+  "values": [
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Purpose Over Profit",
+      "selected": true
+    },
+    {
+      "name": "Empowerment",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Bias Toward Action",
+      "selected": true
+    },
+    {
+      "name": "Liberation Through Domination",
+      "selected": true,
+      "custom": true
+    }
+  ],
+  "purpose": "To break the wheel of power that crushes the people beneath it — building a world where no one is property and everyone has a voice.",
+  "workHistory": [
+    {
+      "title": "Queen of the Seven Kingdoms",
+      "company": "Targaryen Restoration — Dragonstone",
+      "startDate": "2017-07",
+      "endDate": "2019-05",
+      "description": "Led invasion of Westeros. United forces against the Night King at the Battle of Winterfell. Conquered King's Landing."
+    },
+    {
+      "title": "Queen of Meereen",
+      "company": "Bay of Dragons — Meereen",
+      "startDate": "2014-01",
+      "endDate": "2017-07",
+      "description": "Governed Meereen after liberation. Abolished slavery, fought Sons of the Harpy insurgency, established civil institutions. Built combined military force for Westeros campaign."
+    },
+    {
+      "title": "Liberator & Conqueror",
+      "company": "Slaver's Bay Campaign",
+      "startDate": "2012-06",
+      "endDate": "2014-01",
+      "description": "Conquered Astapor, Yunkai, and Meereen. Freed hundreds of thousands of enslaved people. Acquired the Unsullied army and built a liberation movement that reshaped the region."
+    },
+    {
+      "title": "Khaleesi",
+      "company": "Dothraki — Khal Drogo's Khalasar",
+      "startDate": "2011-01",
+      "endDate": "2012-06",
+      "description": "Rose from political marriage to leadership of a 40,000-strong Dothraki khalasar. Hatched three dragons — the first in over 150 years. Began building the coalition that would conquer a continent."
+    },
+    {
+      "title": "Exile",
+      "company": "House Targaryen — In Exile",
+      "startDate": "1991-01",
+      "endDate": "2011-01",
+      "description": "Stateless refugee, sheltered by allies in the Free Cities. Survived assassination attempts, political manipulation, and the psychological abuse of her brother Viserys."
+    }
+  ],
+  "education": [
+    {
+      "degree": "Self-Directed Education",
+      "institution": "Free Cities & Campaign Experience",
+      "year": "2011",
+      "field": "Military Strategy, Governance, Languages, Dragon Husbandry"
+    }
+  ],
+  "certifications": []
+}
