@@ -908,6 +908,14 @@
     </div>
 
     <div class="citations-desktop">
+
+    <!-- Live usage counter -->
+    <div id="usage-counter-box" class="constants-box" style="margin-bottom:10px; text-align:center; padding:12px 10px;">
+      <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:5px;">&#9679; Live</div>
+      <div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.6em; color:var(--emerald); letter-spacing:-0.02em; line-height:1;" id="usage-count-display">—</div>
+      <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:10.5px; color:var(--slate2); margin-top:4px; line-height:1.4;">executives have run this<br>calculator</div>
+    </div>
+
     <div class="constants-box" style="margin-top:10px;">
       <div class="section-label" style="margin-bottom:10px; color:var(--slate2);">&#9432; Sources &amp; Citations</div>
       <div style="font-family:Calibri,'Segoe UI',monospace; font-size:10px; color:var(--slate2); line-height:1.5; margin-bottom:10px;">Model constants and benchmarks are grounded in published research. Interrogate the inputs.</div>
@@ -2282,6 +2290,28 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
     window._airoiTrackExport = function() {
       try { ref.set({ exports: INC }, { merge: true }).catch(function() {}); } catch(e) {}
     };
+
+    // Live usage counter — fetch total, animate rollup
+    (function() {
+      function animateCount(el, target) {
+        var dur = 1200, startTs = null;
+        function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+        function step(ts) {
+          if (!startTs) startTs = ts;
+          var p = Math.min((ts - startTs) / dur, 1);
+          el.textContent = Math.round(easeOut(p) * target).toLocaleString();
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+      ref.get().then(function(snap) {
+        if (!snap.exists) return;
+        var total = snap.data().total || 0;
+        var el = document.getElementById('usage-count-display');
+        if (el && total > 0) animateCount(el, total);
+      }).catch(function() {});
+    })();
+
   } catch(e) {}
 })();
 </script>
