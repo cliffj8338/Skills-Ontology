@@ -5579,13 +5579,18 @@
                 var bls = typeof matchJobToBLS === 'function' ? matchJobToBLS(resolved.title, '') : null;
                 _wbw.bls = bls;
                 if (bls && bls.median) {
-                    var levelMults = { 'Awareness': 0.6, 'Foundational': 0.75, 'Proficient': 1.0, 'Advanced': 1.2, 'Expert': 1.4, 'Mastery': 1.6 };
-                    var totalW = skills.filter(function(s) { return s.selected; }).reduce(function(sum, s) {
-                        return sum + (s.importance * (levelMults[s.blueprintLevel] || 1.0));
+                    // Premiums = marginal value ABOVE baseline proficiency (already priced into BLS wage).
+                    // Cap total premium pool at 15% of median. Only Advanced+ levels qualify.
+                    var premLevelMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
+                    var premiumPool = Math.round(bls.median * 0.15);
+                    var qualSkills = skills.filter(function(s) { return s.selected && premLevelMults[s.blueprintLevel]; });
+                    var totalPremW = qualSkills.reduce(function(sum, s) {
+                        return sum + (s.importance * (premLevelMults[s.blueprintLevel] || 0));
                     }, 0);
                     skills.forEach(function(s) {
-                        var w = (s.importance * (levelMults[s.blueprintLevel] || 1.0)) / (totalW || 1);
-                        s.compValue = Math.round(bls.median * w);
+                        if (!s.selected || !premLevelMults[s.blueprintLevel]) { s.compValue = 0; return; }
+                        var w = (s.importance * premLevelMults[s.blueprintLevel]) / (totalPremW || 1);
+                        s.compValue = Math.round(premiumPool * w);
                     });
                 }
             }
@@ -6852,13 +6857,18 @@
             }
 
             if (bls && bls.median) {
-                var levelMultipliers = { 'Awareness': 0.6, 'Foundational': 0.75, 'Proficient': 1.0, 'Advanced': 1.2, 'Expert': 1.4, 'Mastery': 1.6 };
-                var totalWeighted = skills.reduce(function(sum, s) {
-                    return sum + (s.importance * (levelMultipliers[s.blueprintLevel] || 1.0));
+                // Premiums = marginal value ABOVE baseline proficiency (already priced into BLS wage).
+                // Cap total premium pool at 15% of median. Only Advanced+ levels qualify.
+                var premLevelMultipliers = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
+                var jdcPremiumPool = Math.round(bls.median * 0.15);
+                var jdcQualSkills = skills.filter(function(s) { return premLevelMultipliers[s.blueprintLevel]; });
+                var jdcTotalPremW = jdcQualSkills.reduce(function(sum, s) {
+                    return sum + (s.importance * (premLevelMultipliers[s.blueprintLevel] || 0));
                 }, 0);
                 skills.forEach(function(s) {
-                    var weight = (s.importance * (levelMultipliers[s.blueprintLevel] || 1.0)) / totalWeighted;
-                    s.compValue = Math.round(bls.median * weight);
+                    if (!premLevelMultipliers[s.blueprintLevel]) { s.compValue = 0; return; }
+                    var weight = (s.importance * premLevelMultipliers[s.blueprintLevel]) / (jdcTotalPremW || 1);
+                    s.compValue = Math.round(jdcPremiumPool * weight);
                 });
             }
 
