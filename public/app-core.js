@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.64 - BUILD 20260312-comp-context-hybrid-schedule
-        var BP_VERSION = 'v4.46.64';
+        // BLUEPRINT v4.46.65 - BUILD 20260312-jdc-comp-range-location-fix
+        var BP_VERSION = 'v4.46.65';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3499,6 +3499,7 @@
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.65: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -6655,6 +6656,21 @@
         }
         window.wbToggleComp = wbToggleComp;
 
+        function wbUpdateActiveCompRange(val) {
+            // Live-update the activeCompRange on the current JDC result without re-rendering
+            if (_jdcResult) _jdcResult.activeCompRange = val;
+        }
+        window.wbUpdateActiveCompRange = wbUpdateActiveCompRange;
+
+        function wbSetCompRange(val) {
+            if (_jdcResult) {
+                _jdcResult.activeCompRange = val;
+                var inp = document.getElementById('wbActiveCompRange');
+                if (inp) { inp.value = val; inp.dispatchEvent(new Event('input')); }
+            }
+        }
+        window.wbSetCompRange = wbSetCompRange;
+
         function wbSetGeo(val) {
             var labels = { '1.0': 'National', '1.22': 'Major Metro', '1.35': 'High COL', '0.82': 'Low COL' };
             _wbGeo = { val: parseFloat(val), label: labels[val] || 'National' };
@@ -7058,14 +7074,16 @@
 
         function _jdcExtractLocation(jdText) {
             var patterns = [
-                /(?:location|office|based in|located in|headquarters|hq)\s*[:;\-\u2013\u2014]?\s*([^\n,]{3,60})/i,
+                /(?:location|based in|located in|headquarters|hq)\s*[:;\-\u2013\u2014]?\s*([^\n,]{3,60})/i,
                 /\b((?:[A-Z][a-z]+(?:\s[A-Z][a-z]+)?),\s*(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC))\b/
             ];
+            // Reject schedule/days-in-office text masquerading as location
+            var scheduleJunk = /^\d\s*days|per\s+week|hybrid|remote|on[-\s]?site|in[-\s]?office|in[-\s]?person|work\s+from/i;
             for (var i = 0; i < patterns.length; i++) {
                 var m = jdText.match(patterns[i]);
                 if (m) {
                     var loc = m[1].trim().replace(/[,\.\;]+$/, '').trim();
-                    if (loc.length >= 3 && loc.length <= 60) return loc;
+                    if (loc.length >= 3 && loc.length <= 60 && !scheduleJunk.test(loc)) return loc;
                 }
             }
             var hasRemote = /\bremote\b/i.test(jdText);
@@ -7260,12 +7278,32 @@
 
         function _jdcExtractCompensation(jdText) {
             var comp = { range: '', bonus: '', notes: '' };
-            var rangeMatch = jdText.match(/(?:compensation|salary|pay\s+range|base\s+(?:salary|pay))\s*[:;\-\u2013\u2014]?\s*\$?([\d,]+(?:\.\d{2})?)\s*[-\u2013\u2014to]+\s*\$?([\d,]+(?:\.\d{2})?)/i);
-            if (rangeMatch) {
-                comp.range = '$' + rangeMatch[1].replace(/,/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' - $' + rangeMatch[2].replace(/,/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            } else {
-                var singleMatch = jdText.match(/(?:compensation|salary|pay\s+range|base\s+(?:salary|pay))\s*[:;\-\u2013\u2014]?\s*\$?([\d,]+(?:\.\d{2})?)/i);
-                if (singleMatch) comp.range = '$' + singleMatch[1].replace(/,/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            function fmt(n) { return '$' + n.replace(/,/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+            // Pattern 1: Keyword immediately before range (e.g. "Salary: $100,000 - $150,000")
+            var m = jdText.match(/(?:compensation|salary|pay\s+range|base\s+(?:salary|pay))\s*[:;\-\u2013\u2014]?\s*\$?([\d,]+(?:\.\d{2})?)\s*[-\u2013\u2014to]+\s*\$?([\d,]+(?:\.\d{2})?)/i);
+            if (m) { comp.range = fmt(m[1]) + ' - ' + fmt(m[2]); }
+            // Pattern 2: Narrative form — "typical base salary range for this position is $X - $Y"
+            if (!comp.range) {
+                var m2 = jdText.match(/(?:typical|expected|anticipated)?\s*(?:base\s+)?salary\s+range\s+(?:for\s+(?:this|the)\s+(?:role|position|job))?\s+is\s+\$?([\d,]+(?:\.\d{2})?)\s*[-\u2013\u2014to]+\s*\$?([\d,]+(?:\.\d{2})?)/i);
+                if (m2) { comp.range = fmt(m2[1]) + ' - ' + fmt(m2[2]); }
+            }
+            // Pattern 3: "The range is $X to $Y annually" / "pay range: $X–$Y"
+            if (!comp.range) {
+                var m3 = jdText.match(/(?:pay|salary|compensation|base)\s+(?:range|band)\s*(?:is|:)?\s*\$?([\d,]+(?:\.\d{2})?)\s*[-\u2013\u2014to]+\s*\$?([\d,]+(?:\.\d{2})?)/i);
+                if (m3) { comp.range = fmt(m3[1]) + ' - ' + fmt(m3[2]); }
+            }
+            // Pattern 4: Fallback — any adjacent dollar-amount pair over $50K in the JD (likely a salary range)
+            if (!comp.range) {
+                var m4 = jdText.match(/\$(1[0-9]\d|[2-9]\d\d),\d{3}(?:\.\d{2})?\s*[-\u2013\u2014to]+\s*\$([1-9]\d\d),\d{3}(?:\.\d{2})?/);
+                if (m4) { comp.range = fmt(m4[1] + ',' + m4[0].split(',')[1].substring(0,3)) + ' - ' + fmt(m4[2] + ',' + m4[0].split(/[-\u2013\u2014to]+\s*\$/)[1].split(',')[1]); }
+            }
+            // Simpler fallback for Pattern 4
+            if (!comp.range) {
+                var m5 = jdText.match(/\$([\d,]{6,10})\s*[-\u2013\u2014]+\s*\$([\d,]{6,10})/);
+                if (m5) {
+                    var lo = parseInt(m5[1].replace(/,/g,'')), hi = parseInt(m5[2].replace(/,/g,''));
+                    if (lo >= 30000 && hi > lo) { comp.range = fmt(m5[1]) + ' - ' + fmt(m5[2]); }
+                }
             }
             var bonusMatch = jdText.match(/(?:plus|with|includes?|and)\s+(bonus|commission|incentive|variable\s+(?:pay|comp))[^.]{0,60}/i);
             if (bonusMatch) comp.bonus = bonusMatch[0].trim();
@@ -7851,22 +7889,23 @@
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="font-size:0.78em; text-transform:uppercase; letter-spacing:1.5px; color:' + accentColor + '; margin-bottom:6px; font-weight:600;">Work Blueprint' + (showComp ? ' (With Skills Comp Model)' : '') + '</div>'
                 + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:' + headingColor + '; margin-bottom:4px;">' + escapeHtml(data.title) + '</div>';
+            // ── Subtitle line ───────────────────────────────────────
             var subtitle = [];
             if (data.company) subtitle.push(escapeHtml(data.company));
-            subtitle.push(escapeHtml(data.location));
+            var locDisplay = data.location && data.location !== 'Not specified' ? data.location : '';
+            if (locDisplay) subtitle.push(escapeHtml(locDisplay));
             if (data.employmentType) subtitle.push(escapeHtml(data.employmentType));
             html += '<div style="font-size:0.9em; color:' + mutedColor + ';">' + subtitle.join(' \u00B7 ') + '</div>';
             if (data.soc) html += '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">O*NET: ' + escapeHtml(data.socTitle || data.soc) + ' (' + escapeHtml(data.soc) + ')' + (data.industry ? ' \u00B7 Industry: ' + escapeHtml(data.industry) : '') + '</div>';
             else if (data.industry) html += '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">Industry: ' + escapeHtml(data.industry) + '</div>';
 
+            // ── Logistics badges (no Compensation — handled separately below) ──
             var logistics = [];
             if (data.department) logistics.push({ label: 'Department', value: data.department });
             if (data.reportsTo) logistics.push({ label: 'Reports To', value: data.reportsTo });
             if (data.schedule) logistics.push({ label: 'Schedule', value: data.schedule });
             if (data.travel) logistics.push({ label: 'Travel', value: data.travel });
             if (data.seniority) logistics.push({ label: 'Level', value: data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) });
-            var compDisplay = (data.compensation && data.compensation.range) ? data.compensation.range : (data.compensationRange || '');
-            if (compDisplay) logistics.push({ label: 'Compensation', value: compDisplay });
             if (data.customFields && data.customFields.length > 0) {
                 data.customFields.forEach(function(cf) {
                     if (cf.key && cf.value) logistics.push({ label: cf.key, value: cf.value });
@@ -7878,6 +7917,73 @@
                     html += '<span style="font-size:0.78em; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:' + mutedColor + ';"><strong style="color:' + headingColor + ';">' + escapeHtml(l.label) + ':</strong> ' + escapeHtml(l.value) + '</span>';
                 });
                 html += '</div>';
+            }
+
+            // ── Compensation Range Panel ─────────────────────────────
+            // Shows: JD posted range (if found) + Blueprint calculated range, with editable override
+            if (!opts.hideCompPanel) {
+                var jdRange = (data.compensation && data.compensation.range) ? data.compensation.range : (data.compensationRange || '');
+                // Calculate Blueprint suggested range from BLS + comp context
+                var bpSuggestedRange = '';
+                if (data.bls) {
+                    var _compCtxP = data.compContext || (typeof _jdcDetectCompContext === 'function' ? _jdcDetectCompContext(data.company, data.industry, data._rawJD || '') : null);
+                    var _ctxMultP = (_compCtxP && _compCtxP.multiplier > 1.0) ? _compCtxP.multiplier : 1.0;
+                    var _sen = (data.seniority || 'mid').toLowerCase();
+                    var _senKey = (_sen === 'entry' || _sen === 'junior') ? 'pct25' : (_sen === 'senior' || _sen === 'lead' || _sen === 'staff' || _sen === 'director' || _sen === 'principal') ? 'pct75' : (_sen === 'executive' || _sen === 'vp') ? 'pct90' : 'median';
+                    var _geoMult = data._geoMult || 1.0;
+                    var _lo = Math.round((data.bls.pct25 || data.bls.median || 0) * _geoMult * _ctxMultP);
+                    var _hi = Math.round((data.bls[_senKey] || data.bls.median || 0) * _geoMult * _ctxMultP);
+                    if (_lo > 0 && _hi > 0) bpSuggestedRange = '$' + Math.round(_lo/1000)*1000..toLocaleString() + ' \u2013 $' + Math.round(_hi/1000)*1000..toLocaleString();
+                }
+                var activeRange = data.activeCompRange || jdRange || bpSuggestedRange || '';
+                var wbDataId = data._wbId || '';
+
+                html += '<div style="margin-top:16px; padding:14px 16px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.18); border-radius:10px;">';
+                html += '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; font-weight:700; margin-bottom:10px;">' + bpIcon('money',11) + ' Compensation Range</div>';
+                html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">';
+
+                // JD Posted Range
+                html += '<div style="padding:10px 12px; background:var(--c-surface-2); border-radius:8px; border:1px solid var(--c-surface-5);">';
+                html += '<div style="font-size:0.68em; color:var(--c-faint); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Posted in JD</div>';
+                if (jdRange) {
+                    html += '<div style="font-size:1.05em; font-weight:700; color:var(--c-heading-bold);">' + escapeHtml(jdRange) + '</div>';
+                    if (data.compensation && data.compensation.bonus) {
+                        html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:3px;">' + escapeHtml(data.compensation.bonus) + '</div>';
+                    }
+                    html += '<div style="font-size:0.67em; color:var(--c-faint); margin-top:3px;">Base salary only \u00B7 from job description</div>';
+                } else {
+                    html += '<div style="font-size:0.85em; color:var(--c-faint); font-style:italic;">Not posted in JD</div>';
+                }
+                html += '</div>';
+
+                // Blueprint Calculated Range
+                html += '<div style="padding:10px 12px; background:rgba(16,185,129,0.05); border-radius:8px; border:1px solid rgba(16,185,129,0.2);">';
+                html += '<div style="font-size:0.68em; color:#10b981; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Blueprint Calculated</div>';
+                if (bpSuggestedRange) {
+                    html += '<div style="font-size:1.05em; font-weight:700; color:#10b981;">' + escapeHtml(bpSuggestedRange) + '</div>';
+                    if (_compCtxP && _compCtxP.active) {
+                        html += '<div style="font-size:0.67em; color:var(--c-faint); margin-top:3px;">BLS + ' + Math.round((_ctxMultP-1)*100) + '% market adj. \u00B7 ' + escapeHtml(_compCtxP.industryLabel || '') + '</div>';
+                    } else {
+                        html += '<div style="font-size:0.67em; color:var(--c-faint); margin-top:3px;">BLS OEWS baseline \u00B7 ' + escapeHtml((data.seniority || 'Mid').charAt(0).toUpperCase() + (data.seniority || 'mid').slice(1)) + ' level</div>';
+                    }
+                } else {
+                    html += '<div style="font-size:0.85em; color:var(--c-faint); font-style:italic;">No BLS match</div>';
+                }
+                html += '</div>';
+                html += '</div>'; // end grid
+
+                // Active/override range — editable
+                html += '<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">';
+                html += '<div style="font-size:0.72em; color:var(--c-muted); font-weight:600; white-space:nowrap;">Use for this Blueprint:</div>';
+                html += '<input id="wbActiveCompRange" type="text" value="' + escapeHtml(activeRange) + '" placeholder="e.g. $180,000 \u2013 $220,000" style="flex:1; min-width:180px; padding:6px 10px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-text); font-size:0.82em; font-family:inherit;" oninput="wbUpdateActiveCompRange(this.value)">';
+                if (jdRange || bpSuggestedRange) {
+                    html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
+                    if (jdRange) html += '<button onclick="wbSetCompRange(' + JSON.stringify(jdRange) + ')" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:5px; background:transparent; color:#60a5fa; cursor:pointer; font-weight:600;">Use JD Range</button>';
+                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(' + JSON.stringify(bpSuggestedRange) + ')" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(16,185,129,0.3); border-radius:5px; background:transparent; color:#10b981; cursor:pointer; font-weight:600;">Use Blueprint</button>';
+                    html += '</div>';
+                }
+                html += '</div>'; // end active range row
+                html += '</div>'; // end comp panel
             }
 
             html += '<div style="margin-top:14px; font-size:0.9em; color:var(--text-secondary); line-height:1.7;"><strong style="color:' + headingColor + ';">Work Summary:</strong> ' + escapeHtml(data.summary) + '</div>'
@@ -8744,6 +8850,9 @@
                 if (!d.compensation) d.compensation = {};
                 d.compensation.range = compRange;
             }
+            // Persist recruiter's active comp range choice
+            var activeCompRangeVal = g('wbActiveCompRange');
+            if (activeCompRangeVal !== null) d.activeCompRange = activeCompRangeVal;
             d.yearsRequired = [];
             for (var yi = 0; yi < 10; yi++) {
                 var yr = g('jdcEditYearsRange' + yi);
