@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.80 - BUILD 20260312-exp-full-tile
-        var BP_VERSION = 'v4.46.82';
+        // BLUEPRINT v4.46.83 - BUILD 20260313-values-guard
+        var BP_VERSION = 'v4.46.83';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -24146,10 +24146,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 initCardView();
                 
                 // Auto-save every 60 seconds (Firestore + localStorage)
-                setInterval(() => {
-                    saveUserData();
-                    if (fbUser && fbDb) debouncedSave(500);
-                }, 60000);
+                // Guard: initializeMainApp() is called from 5+ paths — only register once.
+                // Without this, every re-init stacks a new interval.
+                if (!window._autoSaveInterval) {
+                    window._autoSaveInterval = setInterval(function() {
+                        saveUserData();
+                        if (fbUser && fbDb) debouncedSave(500);
+                    }, 60000);
+                }
             }
             
             // Navigate to the target view
