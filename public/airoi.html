@@ -2360,29 +2360,49 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
         var elMobile = document.getElementById('usage-count-display-mobile');
         if (elMobile) animateCount(elMobile, total);
       }
-      // Primary: Firestore REST API — no SDK cache
-      fetch('https://firestore.googleapis.com/v1/projects/work-blueprint/databases/(default)/documents/analytics/airoi_public')
-        .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
-        .then(function(data) {
-          var f = data.fields || {};
-          // Prefer unique count; fall back to total for legacy data
-          var unique = parseInt(f.unique ? (f.unique.integerValue || f.unique.doubleValue || 0) : 0, 10);
-          var total  = parseInt(f.total  ? (f.total.integerValue  || f.total.doubleValue  || 0) : 0, 10);
-          showCount(unique || total);
-        })
-        .catch(function() {
-          // Fallback: onSnapshot, skip cache-only snapshots
-          var unsub = db.collection('analytics').doc('airoi_public').onSnapshot(
-            { includeMetadataChanges: true },
-            function(snap) {
-              if (snap.metadata.fromCache) return;
-              unsub();
-              var d = snap.data() || {};
-              showCount(d.unique || d.total || 0);
-            },
-            function() { unsub(); }
-          );
-        });
+      // Primary: read airoi_public via REST (no SDK cache)
+      // If unique field missing or zero, fall back to airoi main doc
+      function fetchAndShow() {
+        fetch('https://firestore.googleapis.com/v1/projects/work-blueprint/databases/(default)/documents/analytics/airoi_public')
+          .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+          .then(function(data) {
+            var f = data.fields || {};
+            var unique = parseInt(f.unique ? (f.unique.integerValue || f.unique.doubleValue || 0) : 0, 10);
+            var total  = parseInt(f.total  ? (f.total.integerValue  || f.total.doubleValue  || 0) : 0, 10);
+            var val = unique || total;
+            if (val >= 2) { showCount(val); return; }
+            // unique not seeded yet — read from main airoi doc as fallback
+            return fetch('https://firestore.googleapis.com/v1/projects/work-blueprint/databases/(default)/documents/analytics/airoi')
+              .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+              .then(function(d2) {
+                var f2 = d2.fields || {};
+                var u2 = parseInt(f2.unique ? (f2.unique.integerValue || f2.unique.doubleValue || 0) : 0, 10);
+                var t2 = parseInt(f2.total  ? (f2.total.integerValue  || f2.total.doubleValue  || 0) : 0, 10);
+                showCount(u2 || t2);
+              });
+          })
+          .catch(function() {
+            // SDK fallback — try airoi_public, then airoi
+            var unsub = db.collection('analytics').doc('airoi_public').onSnapshot(
+              { includeMetadataChanges: true },
+              function(snap) {
+                if (snap.metadata.fromCache) return;
+                unsub();
+                var d = snap.data() || {};
+                var val = d.unique || d.total || 0;
+                if (val >= 2) { showCount(val); return; }
+                // seed not set — read main doc
+                db.collection('analytics').doc('airoi').get({ source: 'server' })
+                  .then(function(s) {
+                    var d2 = s.data() || {};
+                    showCount(d2.unique || d2.total || 0);
+                  }).catch(function() {});
+              },
+              function() { unsub(); }
+            );
+          });
+      }
+      fetchAndShow();
     })();
 
   } catch(e) {}
