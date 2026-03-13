@@ -2296,11 +2296,20 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
     var existingUID = null;
     try { existingUID = localStorage.getItem('airoi_uid'); } catch(e) {}
 
-    const isNewVisitor = !existingUID;
+    // Secondary rate-limit gate: even if UUID is missing, don't write more than
+    // once per 30-minute window from this browser. Prevents accidental re-fires
+    // from localStorage.clear() followed immediately by a page reload.
+    var _lastWrite = null;
+    try { _lastWrite = parseInt(localStorage.getItem('airoi_last_write') || '0', 10); } catch(e) {}
+    var _writeWindowMs = 30 * 60 * 1000; // 30 minutes
+    var _tooSoon = _lastWrite && (Date.now() - _lastWrite < _writeWindowMs);
+
+    const isNewVisitor = !existingUID && !_tooSoon;
 
     if (isNewVisitor) {
       var uid = genUUID();
       try { localStorage.setItem('airoi_uid', uid); } catch(e) {}
+      try { localStorage.setItem('airoi_last_write', Date.now().toString()); } catch(e) {}
 
       // Clean up old daily keys if present
       try {
