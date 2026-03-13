@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.83 - BUILD 20260313-values-guard
-        var BP_VERSION = 'v4.46.83';
+        // BLUEPRINT v4.46.84 - BUILD 20260313-title-extract
+        var BP_VERSION = 'v4.46.84';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3554,7 +3554,7 @@
                         { id: 's13', name: 'XSS fix — negotiation modal location field', status: 'done', category: 'security', priority: 'high', notes: 'v4.46.43: userData.profile.location was rendered unescaped in two template literal positions inside showNegotiationGuide() which assigns to modalContent.innerHTML — a real XSS surface. Both instances wrapped in escapeHtml(userData.profile.location || \'\').' },
                         { id: 'p2-7m', name: 'Jobs tab bar mobile overflow fix', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.44: Jobs subtab bar was clipping \'Tracker\' tab on narrow mobile viewports. Container now uses overflow-x:auto, flex-wrap:nowrap, -webkit-overflow-scrolling:touch, scrollbar-width:none. Each button gets flex-shrink:0 and white-space:nowrap. Scrolls horizontally instead of clipping.' },
                         { id: 'p2-7n', name: 'Dashboard hero grid mobile responsiveness', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.44: Dashboard 3-box hero changed from rigid grid-template-columns:1fr 1fr 1fr to repeat(auto-fit, minmax(180px, 1fr)). Stacks to single column on narrow viewports. Jobs container padding reduced from 24px all sides to 16px 12px 80px for mobile breathing room.' },
-                        { id: 'p2-7o', name: 'Job Schema v2.0 Phase 3/4 bug fixes', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.45 (Phase 3): Three bugs fixed: title trailing noise strip, BLS category order/pattern fixes, skill gap quality filter in matchJobToProfile. v4.46.48 (Phase 4): Four additional fixes: (1) inferJobProficiency parameter order bug in admin-approved skills pass (args were (approved, seniority, jdText) — should be (jdText, approved, seniority)). (2) parseJobLocally seniority detection missing Director level — director titles were mapping to Senior. Now: Senior Director→Executive, Director/Principal/Sr Manager→Director, Senior/Lead/Staff→Senior. (3) inferJobProficiency fallback missing Director case — fell through to Proficient default. Now returns Advanced for Director seniority. (4) badTitles regex in analyzeJob expanded from 13 to 30+ patterns — adds position/role/job overview, what you\'ll bring/need, who you are, key responsibilities, minimum/basic/preferred qualifications, about the position/company/team, equal opportunity, why join us, compensation and benefits.' }
+                        { id: 'p2-7o', name: 'Job Schema v2.0 Phase 3/4 bug fixes', status: 'in-progress', category: 'infrastructure', priority: 'critical', notes: 'v4.46.45 (Phase 3): Three bugs fixed: title trailing noise strip, BLS category order/pattern fixes, skill gap quality filter in matchJobToProfile. v4.46.48 (Phase 4): Four additional fixes: (1) inferJobProficiency parameter order bug in admin-approved skills pass (args were (approved, seniority, jdText) — should be (jdText, approved, seniority)). (2) parseJobLocally seniority detection missing Director level — director titles were mapping to Senior. Now: Senior Director→Executive, Director/Principal/Sr Manager→Director, Senior/Lead/Staff→Senior. (3) inferJobProficiency fallback missing Director case — fell through to Proficient default. Now returns Advanced for Director seniority. (4) badTitles regex in analyzeJob expanded from 13 to 30+ patterns — adds position/role/job overview, what you\'ll bring/need, who you are, key responsibilities, minimum/basic/preferred qualifications, about the position/company/team, equal opportunity, why join us, compensation and benefits. v4.46.84: Two title extraction bugs fixed. (1) _jdcExtractTextFromHTML() now grabs <h1>/<h2> before DOM strip and prepends as "Job Title: {text}" — ATS pages (Greenhouse, Lever) put the role name in h1 which was lost in textContent flatten. (2) _jdcExtractTitle() skipWords extended to block metadata field prefixes (location, reports to, leads, department, posted, level, classification, team, function, division). Added colon-guard in line scan: lines matching "ShortLabel: value" (colon within 25 chars, ≤3-word label) are skipped as ATS field rows. Also synced legacy.js _jdcExtractTextFromHTML with cookie-stripping it was missing since v4.46.64. Remaining: BLS alias gap for revenue operations titles, soft-skill tier-downgrade list.' }
                     ]
                 },
                 {
@@ -6741,13 +6741,32 @@
         function _jdcExtractTextFromHTML(html) {
             var tmp = document.createElement('div');
             tmp.innerHTML = html;
+            // Extract h1/h2 title hint before stripping DOM — ATS pages (Greenhouse, Lever, Workday)
+            // put the job title in <h1> which gets lost when we flatten to textContent below.
+            // Prepending as "Job Title: ..." lets _jdcExtractTitle's label pattern catch it first.
+            var h1TitleHint = '';
+            var h1El = tmp.querySelector('h1, h2');
+            if (h1El) {
+                var h1Text = (h1El.textContent || '').trim().replace(/\s+/g, ' ');
+                // Sanity check: must look like a job title, not a page header or company name
+                var h1BadPatterns = /^(careers at|jobs at|current openings|welcome|search|apply|create alert|job alert|about us|powered by)/i;
+                if (h1Text.length >= 5 && h1Text.length <= 120 && !h1BadPatterns.test(h1Text)) {
+                    h1TitleHint = h1Text;
+                }
+            }
+            // Remove boilerplate structural elements
             ['script','style','nav','header','footer','noscript','iframe','svg'].forEach(function(tag) {
                 var els = tmp.querySelectorAll(tag);
                 for (var i = 0; i < els.length; i++) els[i].remove();
             });
             var text = (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+            // Strip surviving cookie consent sentences
+            text = text.replace(/By clicking [""]?Accept[^.]{0,120}\./gi, '');
+            text = text.replace(/We (?:use|may) cookies[^.]{0,200}\./gi, '');
+            text = text.replace(/This (?:site|website) uses? cookies[^.]{0,200}\./gi, '');
+            text = text.replace(/(?:Accept|Reject) (?:All|Cookies)[^.]{0,80}\.?/gi, '');
             var lines = text.split(/\.\s+/).map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 10; });
-            return lines.join('.\n');
+            return (h1TitleHint ? 'Job Title: ' + h1TitleHint + '\n' : '') + lines.join('.\n');
         }
 
         function runJDConverterBulk() {
@@ -7029,12 +7048,21 @@
                     if (t.length >= 5 && t.length <= 120) return t;
                 }
             }
-            var skipWords = /^(about|we |our |the company|description|overview|who we are|what you|why |join |apply|equal|eoe|disclaimer|benefits|perks|compensation|salary|requirements|responsibilities|qualifications|duties|summary|introduction|company\s)/i;
+            var skipWords = /^(about|we |our |the company|description|overview|who we are|what you|why |join |apply|equal|eoe|disclaimer|benefits|perks|compensation|salary|requirements|responsibilities|qualifications|duties|summary|introduction|company\s|location|reports\s+to|leads|department|posted|level|classification|team|function|division)/i;
             var bulletRx = /^[\u2022\u2023\u25E6\u25AA\u25AB\-\*\>]\s*/;
             for (var li = 0; li < Math.min(8, lines.length); li++) {
                 var ln = lines[li].replace(bulletRx, '');
                 if (ln.length >= 5 && ln.length <= 120 && !/^\d+\./.test(ln) && !skipWords.test(ln)) {
-                    if (/[a-z]/i.test(ln) && !/^https?:/.test(ln)) return ln;
+                    if (/[a-z]/i.test(ln) && !/^https?:/.test(ln)) {
+                        // Skip ATS metadata field lines: "Location: Bay Area", "Reports to: VP, People"
+                        // Pattern: short label (≤25 chars, ≤3 words) followed by colon + value
+                        var colonIdx = ln.indexOf(':');
+                        if (colonIdx > 0 && colonIdx <= 25) {
+                            var label = ln.slice(0, colonIdx).trim();
+                            if (label.split(/\s+/).length <= 3) continue;
+                        }
+                        return ln;
+                    }
                 }
             }
             return lines[0] || 'Unknown Role';
@@ -10054,6 +10082,36 @@
                 }
                 return true;
             });
+
+            // Soft-skill downgrade pass — downgrade to 'Nice to Have' regardless of AI extraction.
+            var softSkillPhrases = {
+                'cross-functional collaboration': 1, 'cross functional collaboration': 1,
+                'verbal and written communication': 1, 'written and verbal communication': 1,
+                'communication skills': 1, 'interpersonal skills': 1,
+                'active listening skills': 1, 'active listening': 1,
+                'attention to detail': 1, 'detail oriented': 1, 'detail-oriented': 1,
+                'exceptional judgment': 1, 'sound judgment': 1, 'good judgment': 1,
+                'growth mindset': 1, 'growth-oriented mindset': 1, 'learner\'s mindset': 1,
+                'leading through ambiguity': 1, 'comfortable with ambiguity': 1,
+                'systems thinker': 1, 'systems thinking': 1,
+                'stakeholder management': 1, 'executive presence': 1,
+                'collaborative': 1, 'team player': 1, 'self-starter': 1, 'self starter': 1,
+                'results oriented': 1, 'results-oriented': 1, 'outcome oriented': 1,
+                'strategic thinking': 1, 'critical thinking': 1, 'analytical thinking': 1,
+                'problem solving': 1, 'problem-solving': 1,
+                'emotional intelligence': 1, 'empathy': 1,
+                'time management': 1, 'prioritization': 1, 'organizational skills': 1,
+                'adaptability': 1, 'flexibility': 1, 'resilience': 1,
+                'collaboration': 1, 'teamwork': 1, 'communication': 1
+            };
+            return skills.map(function(s) {
+                var lower = (s.name || '').toLowerCase().trim();
+                var normalized = lower.replace(/\s+(skills?|abilities?|competenc(?:y|ies))$/i, '').trim();
+                if (softSkillPhrases[lower] || softSkillPhrases[normalized]) {
+                    return Object.assign({}, s, { requirement: 'Nice to Have' });
+                }
+                return s;
+            });
         }
 
         function _wbCompareStructuredMatch(workBlueprint, candidateProfile) {
@@ -10101,7 +10159,9 @@
                                 var oName = oSkill.name;
                                 var oLower = oName.toLowerCase();
                                 // Skip generic abilities that match everything
-                                if (ENRICHMENT_BLOCKLIST[oLower]) return;
+                                // Normalize trailing "skills/abilities" so "active listening skills" hits the blocklist
+                                var oLowerNorm = oLower.replace(/\s+(skills?|abilities?|competenc(?:y|ies))$/i, '').trim();
+                                if (ENRICHMENT_BLOCKLIST[oLower] || ENRICHMENT_BLOCKLIST[oLowerNorm]) return;
                                 if (!existingNames[oLower]) {
                                     existingNames[oLower] = true;
                                     wbSkills.push({
@@ -18600,6 +18660,27 @@
             if (window.onetCrosswalk) return;
             fetch('onet-crosswalk.json').then(function(r) { return r.json(); }).then(function(data) {
                 window.onetCrosswalk = data;
+                // Inject custom aliases missing from O*NET — modern job titles not in the 2019 SOC system.
+                var customAliases = {
+                    'revenue operations': ['11-2022'], 'revenue ops': ['11-2022'],
+                    'revops': ['11-2022'], 'director of revenue operations': ['11-2022'],
+                    'vp of revenue operations': ['11-2022'], 'head of revenue operations': ['11-2022'],
+                    'total rewards': ['11-3111'], 'director of total rewards': ['11-3111'],
+                    'vp of total rewards': ['11-3111'], 'total rewards and people operations': ['11-3111'],
+                    'director total rewards people operations': ['11-3111'],
+                    'people operations': ['11-3121'], 'head of people operations': ['11-3121'],
+                    'vp of people operations': ['11-3121'],
+                    'go to market': ['11-2021'], 'gtm strategy': ['11-2021'], 'head of gtm': ['11-2021'],
+                    'talent intelligence': ['11-3121'], 'talent strategy': ['11-3121'],
+                    'head of talent intelligence': ['11-3121'],
+                    'ai strategy': ['11-3021'], 'head of ai': ['11-3021'], 'vp of ai': ['11-3021']
+                };
+                if (data.aliases && data.occupations) {
+                    Object.keys(customAliases).forEach(function(alias) {
+                        var socs = customAliases[alias].filter(function(s) { return data.occupations[s]; });
+                        if (socs.length > 0 && !data.aliases[alias]) data.aliases[alias] = socs;
+                    });
+                }
                 var occCount = Object.keys(data.occupations || {}).length;
                 var aliasCount = Object.keys(data.aliases || {}).length;
                 console.log('✅ O*NET Crosswalk loaded (deferred): ' + occCount + ' occupations, ' + aliasCount + ' aliases');
@@ -36688,6 +36769,32 @@ body {
                 var socs = cw.aliases[strippedKeepOf];
                 var r = buildResult(socs[0], 0.95, socs.slice(1));
                 if (r) return r;
+            }
+
+            // Step 2b: Hybrid title split — titles with "&", "/", or "and" often have two functions.
+            // Try each segment independently. First segment wins (it's the primary function).
+            // e.g. "director total rewards people operations" → try "director total rewards" first
+            var splitChars = /\s*[&\/]\s*|\s+and\s+/;
+            if (splitChars.test(norm)) {
+                var segments = norm.split(splitChars).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 3; });
+                for (var si = 0; si < segments.length; si++) {
+                    var seg = segments[si];
+                    if (cw.aliases[seg]) {
+                        var socs = cw.aliases[seg];
+                        var r = buildResult(socs[0], 0.9, socs.slice(1));
+                        if (r) return r;
+                    }
+                    var segStripped = seg;
+                    qualifiers.forEach(function(q) {
+                        segStripped = segStripped.replace(new RegExp('\\b' + q + '\\b', 'g'), '');
+                    });
+                    segStripped = segStripped.replace(/\b(of|and|the|for|in)\b/g, '').replace(/\s+/g, ' ').trim();
+                    if (segStripped !== seg && segStripped.length >= 3 && cw.aliases[segStripped]) {
+                        var socs = cw.aliases[segStripped];
+                        var r = buildResult(socs[0], 0.88, socs.slice(1));
+                        if (r) return r;
+                    }
+                }
             }
 
             // Step 3: Partial substring match
