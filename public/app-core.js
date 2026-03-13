@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.73 - BUILD 20260312-impact-color-fix
-        var BP_VERSION = 'v4.46.73';
+        // BLUEPRINT v4.46.75 - BUILD 20260312-exp-grid-layout
+        var BP_VERSION = 'v4.46.75';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1277,7 +1277,8 @@
                     return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
-                values: blueprintData.values || [],
+                // Belt-and-suspenders: empty array is truthy so || won't help; use length check
+                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values : (userData.values || []),
                 purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
@@ -1533,6 +1534,15 @@
                         skillsData.roles = data.roles || [];
                     }
                     
+                    // CRITICAL: Sync blueprintData BEFORE any dedup/migration saves fire.
+                    // saveToFirestore() reads blueprintData.values — if this sync happens after
+                    // the dedup/migration save, blueprintData.values is still [] and wipes Firestore.
+                    if (typeof blueprintData !== 'undefined') {
+                        blueprintData.purpose = data.purpose || '';
+                        blueprintData.values = data.values && data.values.length > 0 ? data.values : (blueprintData.values && blueprintData.values.length > 0 ? blueprintData.values : []);
+                        blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
+                    }
+                    
                     // Deduplicate skills on load
                     if (typeof deduplicateSkills === 'function') {
                         var dupes = deduplicateSkills();
@@ -1588,13 +1598,9 @@
                         console.log('✓ Demo data cleared. Profile reset to clean state.');
                     }
                     
-                    // Sync blueprintData from Firestore before initializeMainApp
-                    // prevents stale localStorage wbPurpose overwriting Firestore value
-                    if (typeof blueprintData !== 'undefined') {
-                        blueprintData.purpose = data.purpose || '';
-                        blueprintData.values = data.values || blueprintData.values;
-                        blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
-                    }
+                    // blueprintData already synced above (before dedup) to prevent race condition
+                    // where saveToFirestore() reads empty blueprintData.values and wipes Firestore.
+                    // This block kept as a no-op for safety — values/purpose already correct.
                     // Also persist outcomes into userData so completeness checks can read it
                     userData.outcomes = data.outcomes || [];
                     // Clear localStorage purpose — Firestore is authoritative for signed-in users
@@ -3527,7 +3533,7 @@
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
-                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.73: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.75: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -40731,10 +40737,10 @@ body {
 
             var html = '';
 
-            // ── LinkedIn Banner ──────────────────────────────────────────────
+            // LinkedIn Banner
             var lastMerge    = (userData.importStats || {}).lastMerge;
             var lastMergeStr = lastMerge ? new Date(lastMerge).toLocaleDateString() : null;
-            html += '<div style="padding:11px 16px; margin-bottom:16px; background:linear-gradient(135deg,rgba(10,102,194,0.07),rgba(10,102,194,0.02)); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
+            html += '<div style="padding:11px 16px; margin-bottom:20px; background:linear-gradient(135deg,rgba(10,102,194,0.07),rgba(10,102,194,0.02)); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
                 + '<div style="display:flex; align-items:center; gap:10px;">'
                 + '<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
                 + '<div><div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">Update from LinkedIn</div>'
@@ -40747,7 +40753,7 @@ body {
                 + '<div id="liMergeStatus" style="display:none; font-size:0.8em; color:var(--accent); margin-top:8px; padding:6px 10px; background:var(--c-surface-2); border-radius:6px;">' + bpIcon('settings',12) + ' Processing...</div>'
                 + '<div id="liMergeResult" style="display:none; margin-top:8px; padding:8px 10px; background:var(--c-surface-2); border-radius:6px;"></div>';
 
-            // ── Work History ─────────────────────────────────────────────────
+            // Work History
             var hiddenCount = whItems.filter(function(j) { return j.hidden; }).length;
 
             // Build company groups
@@ -40764,8 +40770,7 @@ body {
                 return bR - aR;
             });
 
-            // Section header
-            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<span style="color:var(--c-accent);">' + bpIcon('briefcase',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Work History</span>'
@@ -40776,9 +40781,9 @@ body {
                 + '</div>';
 
             if (whItems.length === 0) {
-                html += '<div style="padding:20px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No work history added yet.</div>';
+                html += '<div style="padding:20px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No work history added yet.</div>';
             } else {
-                html += '<div style="display:grid; gap:6px; margin-bottom:16px;">';
+                html += '<div style="display:grid; gap:12px; margin-bottom:24px;">';
 
                 groupArr.forEach(function(group) {
                     group.sort(function(a,b){
@@ -40789,7 +40794,7 @@ body {
                     var isGroup = group.length > 1;
 
                     if (isGroup) {
-                        var coName    = group[0].job.company || 'Company';
+                        var coName     = group[0].job.company || 'Company';
                         var firstStart = group[0].job.startDate || '';
                         var lastEntry  = group[group.length - 1].job;
                         var lastEnd    = lastEntry.current ? 'Present' : (lastEntry.endDate || '');
@@ -40797,14 +40802,12 @@ body {
                         var lastYear   = lastEnd === 'Present' ? new Date().getFullYear() : (parseInt((lastEnd||'').split(' ').pop()) || 0);
                         var tenure     = lastYear && firstYear ? lastYear - firstYear : 0;
 
-                        // Group container
-                        html += '<div style="border:1px solid var(--c-surface-5b); border-left:3px solid var(--c-accent); border-radius:10px; overflow:hidden;">';
+                        html += '<div style="border:1px solid var(--c-accent-border-4b); border-top:3px solid var(--c-accent); border-radius:10px; overflow:hidden;">';
 
-                        // Group header row — compact
-                        html += '<div style="padding:9px 12px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center;">'
+                        html += '<div style="padding:10px 14px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--c-surface-4);">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
-                            + '<span style="font-weight:700; color:var(--c-accent); font-size:0.88em;">' + escapeHtml(coName) + '</span>'
-                            + '<span style="font-size:0.68em; padding:2px 7px; border-radius:4px; background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
+                            + '<span style="font-weight:700; color:var(--c-accent); font-size:0.9em;">' + escapeHtml(coName) + '</span>'
+                            + '<span style="font-size:0.65em; padding:2px 7px; border-radius:4px; background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
                             + '</div>'
                             + '<span style="font-size:0.72em; color:var(--c-faint);">'
                             + (firstStart ? formatWorkDate(firstStart) + ' \u2013 ' + (lastEnd === 'Present' ? 'Present' : formatWorkDate(lastEnd)) : '')
@@ -40812,69 +40815,72 @@ body {
                             + '</span>'
                             + '</div>';
 
-                        // Positions within group — compact rows
                         var rev = group.slice().reverse();
+                        html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:8px; padding:10px;">';
                         rev.forEach(function(entry, gIdx) {
-                            var job     = entry.job;
-                            var idx     = entry.idx;
+                            var job      = entry.job;
+                            var idx      = entry.idx;
                             var isLatest = gIdx === 0;
                             var isHidden = job.hidden === true;
                             var dateRange = formatWorkDate(job.startDate||'?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate||'?'));
 
-                            html += '<div id="wh-card-' + idx + '" style="padding:8px 12px 8px 20px; border-top:1px solid var(--c-surface-4); display:flex; align-items:center; gap:8px;'
-                                + (isHidden ? ' opacity:0.45;' : '') + '">'
-                                + '<div style="width:5px; height:5px; border-radius:50%; background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; flex-shrink:0;"></div>'
-                                + '<div style="flex:1; min-width:0;">'
-                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '500') + '; color:var(--c-text-alt);">' + escapeHtml(job.title||'Untitled') + '</span>'
-                                + '<span style="font-size:0.75em; color:var(--c-muted); margin-left:8px;">' + escapeHtml(dateRange) + '</span>'
-                                + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b; margin-left:6px;">Hidden</span>' : '')
+                            html += '<div id="wh-card-' + idx + '" style="background:var(--c-surface-2); border:1px solid ' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; border-radius:8px; padding:11px 12px;'
+                                + (isHidden ? ' opacity:0.5;' : '') + '">'
+                                + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:6px;">'
+                                + '<div style="display:flex; align-items:center; gap:5px; min-width:0;">'
+                                + '<div style="width:6px; height:6px; border-radius:50%; flex-shrink:0; background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + ';"></div>'
+                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '600') + '; color:var(--c-text-alt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title||'Untitled') + '</span>'
                                 + '</div>'
-                                + '<div style="display:flex; gap:2px; flex-shrink:0;">'
-                                + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + '; font-size:0.8em;">' + bpIcon('eye',12) + '</button>'
-                                + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
-                                + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
+                                + '<div style="display:flex; gap:1px; flex-shrink:0;">'
+                                + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + '; line-height:1;">' + bpIcon('eye',11) + '</button>'
+                                + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                                + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                                 + '</div>'
+                                + '</div>'
+                                + '<div style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(dateRange) + '</div>'
+                                + (isHidden ? '<div style="font-size:0.65em; color:#f59e0b; margin-top:3px;">Hidden</div>' : '')
+                                + (job.description ? '<div style="font-size:0.72em; color:var(--c-faint); margin-top:5px; line-height:1.4; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">' + escapeHtml(job.description.substring(0,120)) + (job.description.length > 120 ? '\u2026' : '') + '</div>' : '')
                                 + '</div>';
                         });
-
-                        html += '</div>'; // end group card
+                        html += '</div></div>';
 
                     } else {
-                        // Single position — compact row card
                         var entry    = group[0];
                         var job      = entry.job;
                         var idx      = entry.idx;
                         var isHidden = job.hidden === true;
                         var dateRange = formatWorkDate(job.startDate||'?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate||'?'));
 
-                        html += '<div id="wh-card-' + idx + '" style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;'
-                            + (isHidden ? ' opacity:0.45;' : '') + '">'
-                            + '<div style="flex:1; min-width:0;">'
-                            + '<div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">'
-                            + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); white-space:nowrap;">' + escapeHtml(job.title||'Untitled Role') + '</span>'
-                            + '<span style="font-size:0.75em; color:var(--c-accent);">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</span>'
-                            + '<span style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(dateRange) + '</span>'
-                            + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b;">Hidden</span>' : '')
+                        html += '<div id="wh-card-' + idx + '" style="background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px;'
+                            + (isHidden ? ' opacity:0.5;' : '') + '">'
+                            + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:6px;">'
+                            + '<div style="min-width:0; flex:1;">'
+                            + '<div style="font-size:0.92em; font-weight:700; color:var(--c-text-alt); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title||'Untitled Role') + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--c-accent); font-weight:600;">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
                             + '</div>'
-                            + (job.description ? '<div style="font-size:0.76em; color:var(--c-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">' + escapeHtml(job.description.substring(0,120)) + (job.description.length > 120 ? '\u2026' : '') + '</div>' : '')
-                            + '</div>'
-                            + '<div style="display:flex; gap:2px; flex-shrink:0;">'
+                            + '<div style="display:flex; gap:1px; flex-shrink:0;">'
                             + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + ';">' + bpIcon('eye',12) + '</button>'
                             + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
                             + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                             + '</div>'
+                            + '</div>'
+                            + '<div style="display:flex; align-items:center; gap:8px; font-size:0.73em; color:var(--c-muted);">'
+                            + '<span>' + escapeHtml(dateRange) + '</span>'
+                            + (isHidden ? '<span style="color:#f59e0b;">Hidden</span>' : '')
+                            + '</div>'
+                            + (job.description ? '<div style="font-size:0.76em; color:var(--c-faint); margin-top:6px; line-height:1.5; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">' + escapeHtml(job.description.substring(0,160)) + (job.description.length > 160 ? '\u2026' : '') + '</div>' : '')
                             + '</div>';
                     }
                 });
 
-                html += '</div>'; // end work history grid
+                html += '</div>'; // end work history outer grid
             }
 
-            // ── Education ────────────────────────────────────────────────────
+            // Education
             var edTypeIcons  = { degree:'\uD83C\uDF93', cert:'\uD83D\uDCDC', trade:'\uD83D\uDD27', bootcamp:'\u26A1', profdev:'\uD83D\uDCCA', military:'\uD83C\uDF96\uFE0F' };
             var edTypeLabels = { degree:'Degree', cert:'Certificate', trade:'Trade', bootcamp:'Bootcamp', profdev:'Prof Dev', military:'Military' };
 
-            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<span style="color:var(--c-accent);">' + bpIcon('graduation',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Education</span>'
@@ -40884,37 +40890,37 @@ body {
                 + '</div>';
 
             if (edItems.length === 0) {
-                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No education entries yet.</div>';
+                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No education entries yet.</div>';
             } else {
-                html += '<div style="display:grid; gap:5px; margin-bottom:16px;">';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px; margin-bottom:24px;">';
                 edItems.forEach(function(ed, idx) {
-                    var edType   = ed.type || 'degree';
-                    var icon     = edTypeIcons[edType] || '\uD83C\uDF93';
+                    var edType    = ed.type || 'degree';
+                    var icon      = edTypeIcons[edType] || '\uD83C\uDF93';
                     var typeLabel = edTypeLabels[edType] || 'Degree';
-                    var dateStr  = '';
+                    var dateStr   = '';
                     if (ed.startYear && (ed.endYear || ed.currentlyEnrolled)) {
                         dateStr = ed.startYear + ' \u2013 ' + (ed.currentlyEnrolled ? 'Present' : ed.endYear);
                     } else if (ed.year) { dateStr = ed.year; }
                     var mainLine = (ed.degree || '') + (ed.field ? ' in ' + ed.field : '');
                     var subLine  = (ed.school || '') + (ed.issuingAuthority ? ' \u00B7 ' + ed.issuingAuthority : '') + (dateStr ? ' \u00B7 ' + dateStr : '');
 
-                    html += '<div style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;">'
-                        + '<span style="font-size:0.75em; padding:2px 7px; border-radius:8px; background:var(--c-surface-4a); color:var(--c-muted); white-space:nowrap; flex-shrink:0;">' + icon + ' ' + typeLabel + '</span>'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(mainLine) + '</div>'
-                        + (subLine ? '<div style="font-size:0.74em; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(subLine) + '</div>' : '')
+                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px;">'
+                        + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:8px;">'
+                        + '<span style="font-size:0.68em; padding:3px 8px; border-radius:8px; background:var(--c-surface-4a); color:var(--c-muted); white-space:nowrap; flex-shrink:0;">' + icon + ' ' + typeLabel + '</span>'
+                        + '<div style="display:flex; gap:1px; flex-shrink:0;">'
+                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div>'
-                        + '<div style="display:flex; gap:2px; flex-shrink:0;">'
-                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
-                        + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div>'
+                        + '<div style="font-size:0.88em; font-weight:700; color:var(--c-text-alt); margin-bottom:4px; line-height:1.3;">' + escapeHtml(mainLine || 'Untitled') + '</div>'
+                        + (subLine ? '<div style="font-size:0.74em; color:var(--c-muted); line-height:1.4;">' + escapeHtml(subLine) + '</div>' : '')
                         + '</div>';
                 });
                 html += '</div>';
             }
 
-            // ── Certifications ───────────────────────────────────────────────
-            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+            // Certifications
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<span style="color:var(--c-accent);">' + bpIcon('award',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Certifications & Licenses</span>'
@@ -40924,9 +40930,9 @@ body {
                 + '</div>';
 
             if (certItems.length === 0) {
-                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No credentials yet.</div>';
+                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No credentials yet.</div>';
             } else {
-                html += '<div style="display:grid; gap:5px; margin-bottom:16px;">';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:8px; margin-bottom:24px;">';
                 certItems.forEach(function(cert, idx) {
                     var tierColor = cert.tier >= 2 ? '#f59e0b' : '#10b981';
                     var tierTag   = cert.tier >= 2 ? 'ADV' : 'PRO';
@@ -40934,33 +40940,33 @@ body {
                     var libSkills   = cert.libraryMatch ? (findCertInLibrary(cert.libraryMatch) || {}).skills : null;
                     var totalLinks  = linkedCount + (libSkills ? libSkills.length : 0);
 
-                    html += '<div style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;">'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
-                        + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt);">' + escapeHtml(cert.name||'') + (cert.abbr ? ' <span style="color:var(--c-accent); font-size:0.85em;">(' + cert.abbr + ')</span>' : '') + '</span>'
-                        + (cert.tier ? '<span style="font-size:0.65em; padding:1px 5px; border-radius:4px; background:rgba(' + (cert.tier >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + '; font-weight:700;">' + tierTag + '</span>' : '')
-                        + (totalLinks > 0 ? '<span style="font-size:0.7em; color:var(--c-purple-light);">\uD83D\uDD17 ' + totalLinks + '</span>' : '')
+                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px;">'
+                        + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:8px;">'
+                        + '<div style="display:flex; gap:4px; flex-wrap:wrap; flex:1; min-width:0;">'
+                        + (cert.tier ? '<span style="font-size:0.65em; padding:2px 6px; border-radius:5px; background:rgba(' + (cert.tier >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + '; font-weight:700; flex-shrink:0;">' + tierTag + '</span>' : '')
+                        + (totalLinks > 0 ? '<span style="font-size:0.7em; color:var(--c-purple-light); flex-shrink:0;">\uD83D\uDD17 ' + totalLinks + '</span>' : '')
                         + '</div>'
+                        + '<div style="display:flex; gap:1px; flex-shrink:0;">'
+                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="removeCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
+                        + '</div>'
+                        + '</div>'
+                        + '<div style="font-size:0.88em; font-weight:700; color:var(--c-text-alt); margin-bottom:4px; line-height:1.3;">' + escapeHtml(cert.name||'Untitled') + (cert.abbr ? ' <span style="color:var(--c-accent); font-size:0.82em; font-weight:400;">(' + escapeHtml(cert.abbr) + ')</span>' : '') + '</div>'
                         + '<div style="font-size:0.74em; color:var(--c-muted);">' + escapeHtml((cert.issuer||'') + (cert.year ? ' \u00B7 ' + cert.year : '')) + '</div>'
-                        + '</div>'
-                        + '<div style="display:flex; gap:2px; flex-shrink:0;">'
-                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
-                        + '<button onclick="removeCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
-                        + '</div>'
                         + '</div>';
                 });
                 html += '</div>';
             }
 
-            // Save button
-            html += '<div style="margin-top:16px;">'
+            html += '<div style="margin-top:8px;">'
                 + '<button onclick="saveAll(); showToast(\'Experience saved.\', \'success\')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">Save All Changes</button>'
                 + '</div>';
 
             return html;
         }
 
-        // --- Work History CRUD ---
+
+                // --- Work History CRUD ---
         function addWorkHistoryItem() {
             if (readOnlyGuard()) return;
             openWorkHistoryModal(-1);
