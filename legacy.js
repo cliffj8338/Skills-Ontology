@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.75 - BUILD 20260312-exp-grid-layout
-        var BP_VERSION = 'v4.46.75';
+        // BLUEPRINT v4.46.76 - BUILD 20260312-exp-full-tile
+        var BP_VERSION = 'v4.46.76';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -40588,7 +40588,7 @@ body {
             if (whItems.length === 0) {
                 html += '<div style="padding:20px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No work history added yet.</div>';
             } else {
-                html += '<div style="display:grid; gap:12px; margin-bottom:24px;">';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-bottom:24px; align-items:start;">';
 
                 groupArr.forEach(function(group) {
                     group.sort(function(a,b){
@@ -40607,7 +40607,7 @@ body {
                         var lastYear   = lastEnd === 'Present' ? new Date().getFullYear() : (parseInt((lastEnd||'').split(' ').pop()) || 0);
                         var tenure     = lastYear && firstYear ? lastYear - firstYear : 0;
 
-                        html += '<div style="border:1px solid var(--c-accent-border-4b); border-top:3px solid var(--c-accent); border-radius:10px; overflow:hidden;">';
+                        html += '<div style="border:1px solid var(--c-accent-border-4b); border-top:3px solid var(--c-accent); border-radius:10px; overflow:hidden; grid-column:1/-1;">';
 
                         html += '<div style="padding:10px 14px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--c-surface-4);">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
