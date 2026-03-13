@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.77 - BUILD 20260312-exp-full-tile
-        var BP_VERSION = 'v4.46.77';
+        // BLUEPRINT v4.46.78 - BUILD 20260312-exp-full-tile
+        var BP_VERSION = 'v4.46.78';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
