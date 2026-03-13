@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.78 - BUILD 20260312-exp-full-tile
-        var BP_VERSION = 'v4.46.78';
+        // BLUEPRINT v4.46.79 - BUILD 20260312-exp-full-tile
+        var BP_VERSION = 'v4.46.79';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -30139,23 +30139,37 @@ body {
                     // Post-render approach: polls SVG circles and recolors by __data__ category
                     var patchColors = '<script>'
                         + '(function() {'
+                        // Category colors match getCategoryColor() exactly
+                        // Type colors match the main app skill type palette
+                        // Level colors match the main app proficiency palette
                         + '  var bpColors = {'
-                        + '    skill:"#60a5fa", ability:"#a78bfa", workstyle:"#f59e0b",'
-                        + '    knowledge:"#10b981", workactivity:"#ec4899",'
-                        + '    unique:"#fbbf24", trade:"#f97316",'
-                        + '    "General Professional":"#60a5fa", Technology:"#818cf8",'
-                        + '    "Business & Management":"#f59e0b", "Marketing & Sales":"#ec4899",'
-                        + '    "Finance & Accounting":"#10b981", "HR & Talent":"#a78bfa",'
-                        + '    "Healthcare":"#06b6d4", Engineering:"#8b5cf6",'
-                        + '    Legal:"#f97316", "Creative & Design":"#f472b6",'
-                        + '    Transversal:"#94a3b8"'
+                        + '    Technology:"#3b82f6",'
+                        + '    "Business & Management":"#8b5cf6",'
+                        + '    "Finance & Accounting":"#10b981",'
+                        + '    "Marketing & Sales":"#f59e0b",'
+                        + '    "Human Resources":"#ec4899",'
+                        + '    "Healthcare & Medical":"#14b8a6",'
+                        + '    "Engineering & Manufacturing":"#6366f1",'
+                        + '    "Legal & Compliance":"#78716c",'
+                        + '    "Creative & Design":"#f97316",'
+                        + '    "General Professional":"#64748b",'
+                        + '    skill:"#60a5fa", ability:"#a78bfa",'
+                        + '    workstyle:"#10b981", unique:"#fbbf24",'
+                        + '    knowledge:"#06b6d4", workactivity:"#ec4899",'
+                        + '    trade:"#f97316", Transversal:"#94a3b8"'
+                        + '  };'
+                        // Level → color for nodes that expose proficiency instead of category
+                        + '  var lvColors = {'
+                        + '    Mastery:"#10b981", Expert:"#fb923c",'
+                        + '    Advanced:"#a78bfa", Proficient:"#60a5fa", Novice:"#94a3b8"'
                         + '  };'
                         + '  function recolorNetwork() {'
                         + '    document.querySelectorAll("svg circle").forEach(function(c) {'
                         + '      var d = c.__data__;'
                         + '      if (!d) return;'
                         + '      var cat = d.category || d.cat || d.type || d.group || "";'
-                        + '      var color = bpColors[cat] || (cat.toLowerCase ? bpColors[cat.toLowerCase()] : null);'
+                        + '      var lv  = d.level || d.proficiency || "";'
+                        + '      var color = bpColors[cat] || bpColors[cat.toLowerCase ? cat.toLowerCase() : cat] || lvColors[lv] || null;'
                         + '      if (color) { c.setAttribute("fill", color); c.style.fill = color; }'
                         + '      if (d.isRole || d.type === "role" || d.nodeType === "role") {'
                         + '        c.setAttribute("fill", "rgba(255,255,255,0.06)");'
@@ -30223,19 +30237,32 @@ body {
                         + '      document.querySelectorAll("svg line").forEach(function(l) { l.style.display = ""; });'
                         + '    }'
                         + '  }'
+                        // Run immediately once (catches any synchronously-rendered nodes)
+                        + '  recolorNetwork(); filterJobMatch();'
+                        // MutationObserver: fires recolorNetwork the instant D3 adds SVG nodes
+                        // This eliminates the color flash — no waiting for a poll tick
+                        + '  var _obs = new MutationObserver(function(muts) {'
+                        + '    var hasSVG = muts.some(function(m) {'
+                        + '      return Array.from(m.addedNodes).some(function(n) {'
+                        + '        return n.nodeType === 1 && (n.tagName === "circle" || n.tagName === "line" || n.tagName === "g" || (n.querySelector && n.querySelector("circle")));'
+                        + '      });'
+                        + '    });'
+                        + '    if (hasSVG) { recolorNetwork(); filterJobMatch(); }'
+                        + '  });'
+                        + '  _obs.observe(document.body || document.documentElement, { childList: true, subtree: true });'
+                        // Safety net: fast polling for first 3s, then disconnect observer
                         + '  var n = 0;'
                         + '  var iv = setInterval(function() {'
-                        + '    recolorNetwork();'
-                        + '    filterJobMatch();'
-                        + '    if (++n > 25) clearInterval(iv);'
-                        + '  }, 400);'
+                        + '    recolorNetwork(); filterJobMatch();'
+                        + '    if (++n > 15) { clearInterval(iv); _obs.disconnect(); }'
+                        + '  }, 200);'
                         + '  document.addEventListener("DOMContentLoaded", function() {'
-                        + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
-                        // Re-filter when tabs are clicked
+                        + '    [500,1200,2500].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
+                        // Re-apply on tab/button clicks
                         + '    document.addEventListener("click", function(e) {'
                         + '      if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
-                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 300);'
-                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 800);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 150);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 600);'
                         + '      }'
                         + '    });'
                         + '  });'

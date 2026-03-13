@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.78 - BUILD 20260312-exp-full-tile
-        var BP_VERSION = 'v4.46.78';
+        // BLUEPRINT v4.46.79 - BUILD 20260312-exp-full-tile
+        var BP_VERSION = 'v4.46.79';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3533,7 +3533,7 @@
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
-                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.78: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.79: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -30269,23 +30269,37 @@ body {
                     // Post-render approach: polls SVG circles and recolors by __data__ category
                     var patchColors = '<script>'
                         + '(function() {'
+                        // Category colors match getCategoryColor() exactly
+                        // Type colors match the main app skill type palette
+                        // Level colors match the main app proficiency palette
                         + '  var bpColors = {'
-                        + '    skill:"#60a5fa", ability:"#a78bfa", workstyle:"#f59e0b",'
-                        + '    knowledge:"#10b981", workactivity:"#ec4899",'
-                        + '    unique:"#fbbf24", trade:"#f97316",'
-                        + '    "General Professional":"#60a5fa", Technology:"#818cf8",'
-                        + '    "Business & Management":"#f59e0b", "Marketing & Sales":"#ec4899",'
-                        + '    "Finance & Accounting":"#10b981", "HR & Talent":"#a78bfa",'
-                        + '    "Healthcare":"#06b6d4", Engineering:"#8b5cf6",'
-                        + '    Legal:"#f97316", "Creative & Design":"#f472b6",'
-                        + '    Transversal:"#94a3b8"'
+                        + '    Technology:"#3b82f6",'
+                        + '    "Business & Management":"#8b5cf6",'
+                        + '    "Finance & Accounting":"#10b981",'
+                        + '    "Marketing & Sales":"#f59e0b",'
+                        + '    "Human Resources":"#ec4899",'
+                        + '    "Healthcare & Medical":"#14b8a6",'
+                        + '    "Engineering & Manufacturing":"#6366f1",'
+                        + '    "Legal & Compliance":"#78716c",'
+                        + '    "Creative & Design":"#f97316",'
+                        + '    "General Professional":"#64748b",'
+                        + '    skill:"#60a5fa", ability:"#a78bfa",'
+                        + '    workstyle:"#10b981", unique:"#fbbf24",'
+                        + '    knowledge:"#06b6d4", workactivity:"#ec4899",'
+                        + '    trade:"#f97316", Transversal:"#94a3b8"'
+                        + '  };'
+                        // Level → color for nodes that expose proficiency instead of category
+                        + '  var lvColors = {'
+                        + '    Mastery:"#10b981", Expert:"#fb923c",'
+                        + '    Advanced:"#a78bfa", Proficient:"#60a5fa", Novice:"#94a3b8"'
                         + '  };'
                         + '  function recolorNetwork() {'
                         + '    document.querySelectorAll("svg circle").forEach(function(c) {'
                         + '      var d = c.__data__;'
                         + '      if (!d) return;'
                         + '      var cat = d.category || d.cat || d.type || d.group || "";'
-                        + '      var color = bpColors[cat] || (cat.toLowerCase ? bpColors[cat.toLowerCase()] : null);'
+                        + '      var lv  = d.level || d.proficiency || "";'
+                        + '      var color = bpColors[cat] || bpColors[cat.toLowerCase ? cat.toLowerCase() : cat] || lvColors[lv] || null;'
                         + '      if (color) { c.setAttribute("fill", color); c.style.fill = color; }'
                         + '      if (d.isRole || d.type === "role" || d.nodeType === "role") {'
                         + '        c.setAttribute("fill", "rgba(255,255,255,0.06)");'
@@ -30353,19 +30367,32 @@ body {
                         + '      document.querySelectorAll("svg line").forEach(function(l) { l.style.display = ""; });'
                         + '    }'
                         + '  }'
+                        // Run immediately once (catches any synchronously-rendered nodes)
+                        + '  recolorNetwork(); filterJobMatch();'
+                        // MutationObserver: fires recolorNetwork the instant D3 adds SVG nodes
+                        // This eliminates the color flash — no waiting for a poll tick
+                        + '  var _obs = new MutationObserver(function(muts) {'
+                        + '    var hasSVG = muts.some(function(m) {'
+                        + '      return Array.from(m.addedNodes).some(function(n) {'
+                        + '        return n.nodeType === 1 && (n.tagName === "circle" || n.tagName === "line" || n.tagName === "g" || (n.querySelector && n.querySelector("circle")));'
+                        + '      });'
+                        + '    });'
+                        + '    if (hasSVG) { recolorNetwork(); filterJobMatch(); }'
+                        + '  });'
+                        + '  _obs.observe(document.body || document.documentElement, { childList: true, subtree: true });'
+                        // Safety net: fast polling for first 3s, then disconnect observer
                         + '  var n = 0;'
                         + '  var iv = setInterval(function() {'
-                        + '    recolorNetwork();'
-                        + '    filterJobMatch();'
-                        + '    if (++n > 25) clearInterval(iv);'
-                        + '  }, 400);'
+                        + '    recolorNetwork(); filterJobMatch();'
+                        + '    if (++n > 15) { clearInterval(iv); _obs.disconnect(); }'
+                        + '  }, 200);'
                         + '  document.addEventListener("DOMContentLoaded", function() {'
-                        + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
-                        // Re-filter when tabs are clicked
+                        + '    [500,1200,2500].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
+                        // Re-apply on tab/button clicks
                         + '    document.addEventListener("click", function(e) {'
                         + '      if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
-                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 300);'
-                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 800);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 150);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 600);'
                         + '      }'
                         + '    });'
                         + '  });'
