@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.85 - BUILD 20260313-internal-mobility
-        var BP_VERSION = 'v4.46.85';
+        // BLUEPRINT v4.46.86 - BUILD 20260313-neg-guide-v2
+        var BP_VERSION = 'v4.46.86';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3634,7 +3634,7 @@
                     icon: 'users',
                     items: [
                         { id: 'ex1-1', name: 'EX mode architecture', status: 'planned', category: 'feature', priority: 'critical', notes: 'Distinct application mode for employees at companies that license Blueprint. Entry point: company-provisioned invite or SSO. Profile data is owned by the employee (portable), but employer gets aggregate/anonymized views. Core tension resolved: employee keeps their Blueprint forever, employer gets skill intelligence only while relationship is active. Shares all core infrastructure: skill ontology, BLS, matching engine, scouting reports.' },
-                        { id: 'ex1-2', name: 'Compensation intelligence for reviews', status: 'planned', category: 'feature', priority: 'critical', notes: 'Employee uses Minimum Market Value + Justified Value data to prepare for annual or mid-year comp review. Blueprint surfaces the delta between current comp and justified value, pre-built talking points, compa-ratio context, and negotiation range. Positions the employee to have a data-backed conversation rather than an emotional one. High-leverage use case: most employees are underprepared for comp discussions.' },
+                        { id: 'ex1-2', name: 'Compensation intelligence for reviews', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.46.86: Shipped as part of Negotiation Guide V2. showNegotiationGuideV2() replaces the old static showNegotiationGuide() with an AI-powered, role-aware modal. Three modes: External Offer, Internal Move, Performance Review. Role picker pulls from Pipeline (savedJobs) and Internal Opportunities (_internalRolesCache). One Claude Sonnet API call assembles the full guide: opening move, the ask with 3-step justification chain, 3 strengths with evidence hooks and conversation lines, 3 weakness neutralizations with reframe + scripted bridge line, 1-3 blind spots with mitigation, 3 counter-offer playbook scenarios with scripted responses, value connections, and 2-3 questions to reveal budget flexibility. Comp snapshot (Conservative/Standard/Competitive) shown inline. Dashboard panel gets Build My Negotiation Guide button. Back button returns to role picker without closing modal.' },
                         { id: 'ex1-3', name: 'Internal mobility matching', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.46.85: Shipped as Option C — personal mode, no employer provisioning required. New "Internal" subtab in Jobs section (alongside Pipeline, Find Jobs, Fit For Me, Tracker). Firestore: users/{uid}/internal_roles collection, same WB shape. Functions: _internalLoadRoles(), _internalSaveRole(), _internalDeleteRole(), _internalConvertAndSave() (reuses convertJDToBlueprintAsync), _internalRunMatch() (reuses matchJobToProfile 6-pass engine), _internalSaveCurrentComp() (writes to userData.preferences.currentComp). Three outputs per role: (1) readiness score + label (Ready Now/Near Ready/Developing/Gap Heavy), (2) skill gaps to close (critical only, Nice to Have filtered), (3) comp delta = BLS median minus currentComp with directional badge. Comp strip at top lets user set/update currentComp inline. Migrates cleanly to employer-provisioned EX mode (ex1-1) when that ships — data shape is identical, collection path just moves.' },
                         { id: 'ex1-4', name: 'Promotion readiness tracker', status: 'planned', category: 'feature', priority: 'high', notes: 'Employee maps their current profile against the skill and outcome expectations for the next level (defined by manager or pulled from internal JD). Blueprint shows readiness score, specific gaps, and what evidence already exists. Progress tracked over time. Turns vague "you need to show more leadership" feedback into a specific, measurable gap list. Manager and employee aligned on the same rubric.' },
                         { id: 'ex1-5', name: 'Performance review prep mode', status: 'planned', category: 'feature', priority: 'high', notes: 'Outcome tab repurposed as a structured achievement log in EX context. Employee documents results with STAR-style metadata (Situation, Task, Action, Result with metric). Blueprint surfaces the strongest outcomes by impact tier ahead of review season. Generates a shareable evidence summary for the review conversation. Replaces the annual panic of trying to remember what you accomplished 11 months ago.' },
@@ -27879,6 +27879,9 @@ body {
                         + '</div>';
                 }
 
+                html += '<button onclick="showNegotiationGuideV2()" style="margin-top:10px; width:100%; padding:8px 12px; background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(245,158,11,0.08)); border:1px solid rgba(251,191,36,0.3); border-radius:8px; color:#fbbf24; font-size:0.78em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">'
+                    + bpIcon('target',13) + ' Build My Negotiation Guide</button>';
+
                 html += '</div></div>'; // end right col
                 html += '</div></div>'; // end 2-col body + card
 
@@ -44433,169 +44436,361 @@ body {
         }
         window.showCompReviewGuide = showCompReviewGuide;
         
-        function showNegotiationGuide() {
+        function showNegotiationGuide() { showNegotiationGuideV2(); }
+
+        // ── Negotiation Guide V2 — AI-powered, role-aware ─────────────────────
+        function showNegotiationGuideV2(preselectedMode, preselectedRole) {
             if (isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
-            logAnalyticsEvent('negotiation_guide', {});
-            const totalValue = getEffectiveComp();
-            const negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
-            const displayFormatted = formatCompValue(totalValue.displayComp);
-            
-            const modal = document.getElementById('exportModal');
-            const modalContent = modal.querySelector('.modal-content');
-            
-            modalContent.innerHTML = `
-                <div class="modal-header">
-                    <div class="modal-header-left">
-                        <h2 class="modal-title">${bpIcon("briefcase",18)} Salary Negotiation Strategy</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">Compa-ratio based negotiation guidance</p>
-                    </div>
-                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
-                </div>
-                <div class="modal-body" style="padding: 30px; max-height: 70vh; overflow-y: auto;">
-                    <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <div style="color: #10b981; font-weight: 600; margin-bottom: 10px;">${totalValue.compLabel}</div>
-                        <div style="font-size: 2em; font-weight: 700; color: #e0e0e0;">
-                            ${displayFormatted}/yr
-                        </div>
-                        <div style="color: #9ca3af; margin-top: 8px;">
-                            ${totalValue.roleLevel} • ${totalValue.compSource === 'algorithm' ? totalValue.compaRatio + '% compa-ratio • ' : ''}${escapeHtml(userData.profile.location || '')}
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">${bpIcon("bar-chart",14)} Understanding Compa-Ratios</h3>
-                        <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.7;">
-                            <strong>Compa-ratio</strong> = Your salary ÷ Market median × 100%
-                            <br><br>
-                            <strong>How Companies Use This:</strong>
-                            <br>• <strong>80-120%</strong> = Acceptable range
-                            <br>• <strong>100%</strong> = Exactly at market median
-                            <br>• <strong>&lt;80%</strong> = Underpaid (flight risk)
-                            <br>• <strong>&gt;120%</strong> = Overpaid for role
-                            <br><br>
-                            <strong>Market Rate (50th percentile):</strong> $${totalValue.marketRate.toLocaleString()}
-                            <br><strong>Your Worth (with premiums):</strong> $${totalValue.yourWorth.toLocaleString()} (${totalValue.compaRatio}%)
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 25px;">
-                        <h3 style="color: #fbbf24; margin-bottom: 15px;">${bpIcon("dollar",14)} Expected Offer Ranges</h3>
-                        <div style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">
-                            Companies typically offer <strong>75-95%</strong> of your market worth. Here's what to expect:
-                        </div>
-                        
-                        <div style="background: rgba(107, 114, 128, 0.2); padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #9ca3af;">
-                            <div style="color: #9ca3af; font-weight: 600; margin-bottom: 5px;">Conservative Offer (75%)</div>
-                            <div style="font-size: 1.3em; color: #e0e0e0; font-weight: 600;">
-                                $${totalValue.conservativeOffer.toLocaleString()}
-                            </div>
-                            <div style="color: #9ca3af; font-size: 0.9em; margin-top: 5px;">
-                                Budget-constrained companies • Startups • Non-profits
-                            </div>
-                        </div>
-                        
-                        <div style="background: rgba(96, 165, 250, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #60a5fa;">
-                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Standard Offer (85%) ← Most Common</div>
-                            <div style="font-size: 1.3em; color: #e0e0e0; font-weight: 600;">
-                                $${totalValue.standardOffer.toLocaleString()}
-                            </div>
-                            <div style="color: #9ca3af; font-size: 0.9em; margin-top: 5px;">
-                                Typical initial offers • Room to negotiate up
-                            </div>
-                        </div>
-                        
-                        <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #10b981;">
-                            <div style="color: #10b981; font-weight: 600; margin-bottom: 5px;">Competitive Offer (95%)</div>
-                            <div style="font-size: 1.3em; color: #e0e0e0; font-weight: 600;">
-                                $${totalValue.competitiveOffer.toLocaleString()}
-                            </div>
-                            <div style="color: #9ca3af; font-size: 0.9em; margin-top: 5px;">
-                                High-demand roles • Top-tier companies • Multiple offers
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 15px; padding: 15px; background: rgba(251, 191, 36, 0.2); border-radius: 8px;">
-                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 5px;">${bpIcon('lightbulb',14)} Your Negotiation Gap</div>
-                            <div style="color: #d1d5db; font-size: 0.95em;">
-                                <strong>$${negotiationGap.toLocaleString()}</strong> between standard offer and your worth
-                                <br>This is your leverage. Start at your worth ($${totalValue.yourWorth.toLocaleString()}) and negotiate down to competitive range ($${totalValue.competitiveOffer.toLocaleString()}+).
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(251, 191, 36, 0.1); padding: 20px; border-radius: 8px; border-left: 3px solid #fbbf24; margin-bottom: 25px;">
-                        <h3 style="color: #fbbf24; margin-bottom: 15px;">${bpIcon('target',16)} Your Talking Points</h3>
-                        <div style="color: #d1d5db; line-height: 1.8;">
-                            <p style="margin-bottom: 15px;">
-                                <strong style="color: #fbbf24;">1. Lead with Your Worth:</strong><br>
-                                "Based on my skill profile and market analysis, my value is in the $${Math.round(totalValue.yourWorth * 0.95 / 1000) * 1000}-$${Math.round(totalValue.yourWorth * 1.05 / 1000) * 1000} range for ${totalValue.roleLevel} roles in ${escapeHtml(userData.profile.location || '')}."
-                            </p>
-                            <p style="margin-bottom: 15px;">
-                                <strong style="color: #fbbf24;">2. Reference Your Top 10 Skills:</strong><br>
-                                "I bring ${totalValue.top10Skills.filter(s => s.level === 'Mastery').length} mastery-level skills including ${totalValue.top10Skills.slice(0, 3).map(s => s.skill).join(', ')}. These command premiums in the current market."
-                            </p>
-                            <p style="margin-bottom: 15px;">
-                                <strong style="color: #fbbf24;">3. Show the Data:</strong><br>
-                                "The market rate for ${totalValue.roleLevel} is $${totalValue.marketRate.toLocaleString()}. My critical and high-impact skills justify a ${Math.round(((totalValue.yourWorth - totalValue.marketRate) / totalValue.marketRate) * 100)}% premium."
-                            </p>
-                            <p style="margin-bottom: 15px;">
-                                <strong style="color: #fbbf24;">4. Use Your Outcomes:</strong><br>
-                                "I've consistently delivered [cite 2-3 quantified outcomes from your Blueprint]. This track record supports my valuation."
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">${bpIcon("clipboard",14)} Negotiation Script</h3>
-                        <div style="color: #d1d5db; line-height: 1.8; font-size: 0.95em;">
-                            <strong>When they ask for salary expectations:</strong>
-                            <br><br>
-                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; margin: 10px 0; font-style: italic;">
-                            "I appreciate you asking. Based on my research and skill profile, I'm looking at the $${Math.round(totalValue.competitiveOffer / 1000) * 1000}-$${Math.round(totalValue.yourWorth / 1000) * 1000} range. But I'm flexible depending on the total compensation package, including equity and benefits. What range were you considering?"
-                            </div>
-                            <br>
-                            <strong>When they give a low offer ($${totalValue.conservativeOffer.toLocaleString()}):</strong>
-                            <br><br>
-                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; margin: 10px 0; font-style: italic;">
-                            "I appreciate the offer. Based on market data for ${totalValue.roleLevel} roles with my skill set${totalValue.top10Skills.length > 0 ? '—particularly my ' + totalValue.top10Skills[0].skill + ' expertise' : ''}—the range is typically closer to $${totalValue.standardOffer.toLocaleString()}-$${totalValue.competitiveOffer.toLocaleString()}. Can we explore options in that range?"
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">✓ Best Practices</h3>
-                        <div style="color: #d1d5db; line-height: 1.8;">
-                            <div style="margin-bottom: 15px;">
-                                <strong style="color: #10b981;">DO:</strong>
-                                <ul style="margin-left: 20px; margin-top: 8px;">
-                                    <li>Start at your worth ($${totalValue.yourWorth.toLocaleString()})</li>
-                                    <li>Reference the $${negotiationGap.toLocaleString()} gap as your leverage</li>
-                                    <li>Cite your top 10 skills as justification</li>
-                                    <li>Ask about total comp (equity, bonus, benefits)</li>
-                                    <li>Get offers in writing before negotiating</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <strong style="color: #ef4444;">DON'T:</strong>
-                                <ul style="margin-left: 20px; margin-top: 8px;">
-                                    <li>Accept the first offer—they expect negotiation</li>
-                                    <li>Give a range first—make them lead</li>
-                                    <li>Focus only on base salary</li>
-                                    <li>Negotiate without data</li>
-                                    <li>Accept below $${totalValue.conservativeOffer.toLocaleString()} (75%)</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="export-btn-large" onclick="closeExportModal()" style="width: 100%; margin-top: 25px;">
-                        Close Guide
-                    </button>
-                </div>
-            `;
-            
-            history.pushState({ modal: true }, ''); modal.classList.add('active');
+
+            var modal    = document.getElementById('exportModal');
+            var mContent = modal.querySelector('.modal-content');
+            if (!modal || !mContent) return;
+
+            var tv       = getEffectiveComp();
+            var pipeline = (userData.savedJobs || []).slice(0, 10);
+            var internal = (_internalRolesCache || []).slice(0, 10);
+            var hasComp  = tv && tv.total > 0;
+
+            function openModal(html) {
+                mContent.innerHTML = html;
+                history.pushState({ modal: true }, '');
+                modal.classList.add('active');
+            }
+
+            // ── If role/mode passed directly, skip picker ──────────────────
+            if (preselectedMode && preselectedRole) {
+                _buildNegGuideWithAI(preselectedMode, preselectedRole, tv, openModal);
+                return;
+            }
+
+            // ── Role picker UI ─────────────────────────────────────────────
+            var pickerHtml = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2>'
+                + '<p style="color:var(--c-muted); margin-top:5px; font-size:0.85em;">AI-powered coaching for salary, internal moves, and review conversations</p>'
+                + '</div>'
+                + '<button class="modal-close" aria-label="Close" onclick="closeExportModal()">×</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px 28px; max-height:72vh; overflow-y:auto;">';
+
+            // Mode cards
+            var modes = [
+                { id: 'external', icon: 'briefcase', color: '#60a5fa', label: 'External Offer', sub: 'Negotiating a new job offer', roles: pipeline, roleLabel: 'pipeline job' },
+                { id: 'internal', icon: 'compass',   color: '#a78bfa', label: 'Internal Move',  sub: 'Advocating for a role change or promotion', roles: internal, roleLabel: 'internal role' },
+                { id: 'review',   icon: 'target',    color: '#10b981', label: 'Performance Review', sub: 'Annual or mid-year comp conversation', roles: [], roleLabel: '' }
+            ];
+
+            pickerHtml += '<div style="display:grid; gap:10px; margin-bottom:20px;">';
+            modes.forEach(function(m) {
+                var hasRoles = m.roles.length > 0 || m.id === 'review';
+                pickerHtml += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:14px 16px; cursor:pointer; transition:border-color 0.15s;" '
+                    + 'onmouseenter="this.style.borderColor='' + m.color + ''" onmouseleave="this.style.borderColor='var(--c-surface-5)'">'
+                    + '<div style="font-weight:700; font-size:0.95em; color:' + m.color + '; margin-bottom:4px;">' + bpIcon(m.icon,14) + ' ' + m.label + '</div>'
+                    + '<div style="font-size:0.8em; color:var(--c-muted); margin-bottom:10px;">' + m.sub + '</div>';
+
+                if (m.id === 'review') {
+                    pickerHtml += '<button onclick="_negGuideSelectMode(\'review\', null)" style="padding:7px 16px; background:' + m.color + '; color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">Build Review Guide</button>';
+                } else if (m.roles.length === 0) {
+                    pickerHtml += '<div style="font-size:0.78em; color:var(--c-faint); font-style:italic;">No ' + m.roleLabel + 's saved yet — add some in the ' + (m.id === 'external' ? 'Pipeline' : 'Internal') + ' tab.</div>';
+                } else {
+                    pickerHtml += '<div style="display:grid; gap:6px;">';
+                    m.roles.forEach(function(r, idx) {
+                        var roleTitle = escapeHtml(r.title || 'Untitled');
+                        var roleCo    = r.company ? ' · ' + escapeHtml(r.company) : '';
+                        pickerHtml += '<button onclick="_negGuideSelectMode(\''+m.id+'\', '+idx+')" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
+                            + '<span style="color:' + m.color + '; font-weight:700;">' + roleTitle + '</span>'
+                            + '<span style="color:var(--c-muted);">' + roleCo + '</span></button>';
+                    });
+                    pickerHtml += '</div>';
+                }
+
+                pickerHtml += '</div>';
+            });
+            pickerHtml += '</div></div>';
+
+            openModal(pickerHtml);
+
+            // Store refs for picker callback
+            window._negGuidePipelineRoles = pipeline;
+            window._negGuideInternalRoles = internal;
+            window._negGuideTv            = tv;
         }
+        window.showNegotiationGuideV2 = showNegotiationGuideV2;
+
+        function _negGuideSelectMode(mode, roleIdx) {
+            var role = null;
+            if (mode === 'external') role = (window._negGuidePipelineRoles || [])[roleIdx] || null;
+            if (mode === 'internal') role = (window._negGuideInternalRoles || [])[roleIdx] || null;
+            var tv   = window._negGuideTv || getEffectiveComp();
+            var modal = document.getElementById('exportModal');
+            var mContent = modal ? modal.querySelector('.modal-content') : null;
+            if (!mContent) return;
+            function openModal(html) { mContent.innerHTML = html; }
+            _buildNegGuideWithAI(mode, role, tv, openModal);
+        }
+        window._negGuideSelectMode = _negGuideSelectMode;
+
+        async function _buildNegGuideWithAI(mode, role, tv, renderFn) {
+            // ── Loading state ──────────────────────────────────────────────
+            renderFn('<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Building Your Guide…</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">×</button></div>'
+                + '<div class="modal-body" style="padding:40px 28px; text-align:center;">'
+                + '<div style="opacity:0.5; margin-bottom:16px;">' + bpIcon('loader',36) + '</div>'
+                + '<p style="color:var(--c-muted); font-size:0.9em;">Analyzing your profile, strengths, and comp data…</p></div>');
+
+            logAnalyticsEvent('negotiation_guide', { mode: mode, hasRole: !!role });
+
+            // ── Assemble context ───────────────────────────────────────────
+            var allSkills   = (skillsData && skillsData.skills) || userData.skills || [];
+            var topSkills   = allSkills.filter(function(s) { return ['Mastery','Expert','Advanced'].indexOf(s.level) > -1; })
+                                .slice(0, 12).map(function(s) { return s.level + ': ' + s.name; });
+            var outcomes    = (blueprintData.outcomes || userData.outcomes || []).slice(0, 6)
+                                .map(function(o) { return (o.title || '') + (o.metric ? ' — ' + o.metric : '') + (o.description ? '. ' + o.description : ''); });
+            var values      = (blueprintData.values || []).filter(function(v) { return v.selected; }).slice(0, 5)
+                                .map(function(v) { return v.name; });
+            var userTitle   = (userData.profile && userData.profile.currentTitle) || '';
+            var userCo      = (userData.profile && userData.profile.currentCompany) || '';
+            var currentComp = tv ? (tv.reportedComp || 0) : 0;
+            var justified   = tv ? (tv.yourWorth || tv.total || 0) : 0;
+            var conservative= tv ? (tv.conservativeOffer || 0) : 0;
+            var standard    = tv ? (tv.standardOffer || 0) : 0;
+            var competitive = tv ? (tv.competitiveOffer || 0) : 0;
+            var marketRate  = tv ? (tv.marketRate || 0) : 0;
+            var compaRatio  = (marketRate > 0 && currentComp > 0) ? Math.round((currentComp / marketRate) * 100) : 0;
+            var roleTitle   = role ? (role.title || '') : userTitle;
+            var roleCo      = role ? (role.company || userCo) : userCo;
+            var roleGaps    = role && role.skills ? (role.skills.filter(function(s) { return s.requirement === 'Required' || s.requirement === 'Nice to Have'; }).slice(0, 6).map(function(s) { return s.name; })) : [];
+            var roleMatchSc = role && role._lastMatchScore ? role._lastMatchScore : null;
+            var modeLabel   = mode === 'external' ? 'external offer negotiation' : mode === 'internal' ? 'internal role move / promotion' : 'performance review / comp discussion';
+
+            var prompt = 'You are a senior career coach helping someone prepare for a ' + modeLabel + '.
+
+'
+                + 'CANDIDATE PROFILE:
+'
+                + 'Current title: ' + (userTitle || 'Not specified') + '
+'
+                + 'Current employer: ' + (userCo || 'Not specified') + '
+'
+                + 'Target role: ' + (roleTitle || 'Not specified') + '
+'
+                + 'Target company: ' + (roleCo || 'Not specified') + '
+'
+                + 'Top skills: ' + (topSkills.join(', ') || 'Not specified') + '
+'
+                + 'Key outcomes: ' + (outcomes.join(' | ') || 'None recorded') + '
+'
+                + 'Core values: ' + (values.join(', ') || 'Not specified') + '
+
+'
+                + 'COMPENSATION CONTEXT:
+'
+                + 'Current comp: $' + currentComp.toLocaleString() + '
+'
+                + 'Market rate (BLS): $' + marketRate.toLocaleString() + '
+'
+                + 'Justified value: $' + justified.toLocaleString() + '
+'
+                + 'Conservative offer: $' + conservative.toLocaleString() + '
+'
+                + 'Standard offer: $' + standard.toLocaleString() + '
+'
+                + 'Competitive offer: $' + competitive.toLocaleString() + '
+'
+                + 'Compa-ratio: ' + compaRatio + '%
+'
+                + (roleGaps.length ? 'Role skill gaps: ' + roleGaps.join(', ') + '
+' : '')
+                + (roleMatchSc ? 'Match score: ' + roleMatchSc + '%
+' : '') + '
+'
+                + 'Return ONLY a JSON object with this exact structure (no markdown, no explanation):
+'
+                + '{
+'
+                + '  "mode": "' + mode + '",
+'
+                + '  "roleTitle": "string",
+'
+                + '  "openingMove": "string — one sentence to open the comp conversation, specific and confident",
+'
+                + '  "theAsk": { "number": number, "justification": ["step1", "step2", "step3"] },
+'
+                + '  "strengths": [{ "title": "string", "evidence": "string", "hook": "string — how to say it in conversation" }],
+'
+                + '  "weaknessNeutralizations": [{ "weakness": "string", "reframe": "string — development narrative, not admission", "bridgeLine": "string — actual sentence to say" }],
+'
+                + '  "blindSpots": [{ "risk": "string", "why": "string", "mitigation": "string" }],
+'
+                + '  "counterOfferPlaybook": [{ "scenario": "string", "response": "string — scripted" }],
+'
+                + '  "valueConnections": [{ "value": "string", "connection": "string — tie to role/company" }],
+'
+                + '  "questionsToAsk": ["string", "string", "string"]
+'
+                + '}
+'
+                + 'Rules: exactly 3 strengths, exactly 3 weakness neutralizations, 1-3 blind spots, exactly 3 counter-offer scenarios, 2-3 value connections, 2-3 questions. Make everything specific to the candidate data provided. No generic advice.';
+
+            try {
+                var response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1800,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+                var data = await response.json();
+                var raw  = (data.content || []).map(function(b) { return b.text || ''; }).join('');
+                raw = raw.replace(/```json|```/g, '').trim();
+                var guide = JSON.parse(raw);
+                _renderNegGuide(guide, tv, currentComp, mode, renderFn);
+            } catch(e) {
+                console.warn('[NegGuide] AI call failed:', e);
+                _renderNegGuideError(renderFn);
+            }
+        }
+        window._buildNegGuideWithAI = _buildNegGuideWithAI;
+
+        function _renderNegGuideError(renderFn) {
+            renderFn('<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('alert',18) + ' Guide Unavailable</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">×</button></div>'
+                + '<div class="modal-body" style="padding:32px 28px; text-align:center;">'
+                + '<p style="color:var(--c-muted);">Could not generate your guide — please check your connection and try again.</p>'
+                + '<button onclick="closeExportModal()" style="margin-top:20px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Close</button>'
+                + '</div>');
+        }
+
+        function _renderNegGuide(g, tv, currentComp, mode, renderFn) {
+            var conservative = tv ? (tv.conservativeOffer || 0) : 0;
+            var standard     = tv ? (tv.standardOffer || 0) : 0;
+            var competitive  = tv ? (tv.competitiveOffer || 0) : 0;
+            var justified    = tv ? (tv.yourWorth || tv.total || 0) : 0;
+            var modeColor    = mode === 'external' ? '#60a5fa' : mode === 'internal' ? '#a78bfa' : '#10b981';
+            var modeLabel    = mode === 'external' ? 'External Offer' : mode === 'internal' ? 'Internal Move' : 'Performance Review';
+
+            function section(title, color, content) {
+                return '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px 18px; margin-bottom:12px;">'
+                    + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:' + color + '; margin-bottom:10px;">' + title + '</div>'
+                    + content + '</div>';
+            }
+            function pill(text, color) {
+                return '<span style="display:inline-block; background:' + color + '22; color:' + color + '; border-radius:5px; padding:2px 8px; font-size:0.72em; font-weight:700; margin-right:4px;">' + escapeHtml(text) + '</span>';
+            }
+
+            var html = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2>'
+                + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.83em;">' + pill(modeLabel, modeColor) + (g.roleTitle ? escapeHtml(g.roleTitle) : '') + '</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">×</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:20px 24px; max-height:74vh; overflow-y:auto;">';
+
+            // ── Comp snapshot ──
+            var compRows = [
+                { label: 'Conservative', val: conservative, color: '#94a3b8' },
+                { label: 'Standard',     val: standard,     color: '#60a5fa' },
+                { label: 'Competitive',  val: competitive,  color: '#10b981' }
+            ];
+            var compHtml = '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;">';
+            compRows.forEach(function(r) {
+                compHtml += '<div style="text-align:center; padding:10px 8px; background:var(--c-surface-2); border-radius:8px; border-top:2px solid ' + r.color + ';">'
+                    + '<div style="font-size:0.68em; color:' + r.color + '; font-weight:700; margin-bottom:4px;">' + r.label + '</div>'
+                    + '<div style="font-size:0.95em; font-weight:800; color:var(--c-heading);">$' + Math.round(r.val / 1000) + 'K</div>'
+                    + '</div>';
+            });
+            compHtml += '</div>';
+            if (g.theAsk && g.theAsk.number) {
+                compHtml += '<div style="padding:10px 14px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); border-radius:8px;">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:#fbbf24; margin-bottom:4px;">' + bpIcon('target',12) + ' YOUR ASK: $' + Math.round(g.theAsk.number).toLocaleString() + '</div>'
+                    + (g.theAsk.justification || []).map(function(j, i) {
+                        return '<div style="font-size:0.76em; color:var(--c-muted); margin-top:3px;">' + (i+1) + '. ' + escapeHtml(j) + '</div>';
+                    }).join('') + '</div>';
+            }
+            html += section(bpIcon('dollar',12) + ' Compensation', '#fbbf24', compHtml);
+
+            // ── Opening move ──
+            if (g.openingMove) {
+                html += section(bpIcon('activity',12) + ' Opening Move', '#60a5fa',
+                    '<div style="font-style:italic; font-size:0.88em; color:var(--c-text); line-height:1.6; padding:10px 14px; background:rgba(96,165,250,0.06); border-left:3px solid #60a5fa; border-radius:0 8px 8px 0;">'
+                    + '"' + escapeHtml(g.openingMove) + '"</div>');
+            }
+
+            // ── Strengths ──
+            var strHtml = '<div style="display:grid; gap:8px;">';
+            (g.strengths || []).forEach(function(s) {
+                strHtml += '<div style="padding:10px 14px; background:rgba(16,185,129,0.06); border-radius:8px; border-left:3px solid #10b981;">'
+                    + '<div style="font-size:0.84em; font-weight:700; color:#10b981; margin-bottom:3px;">' + escapeHtml(s.title || '') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(s.evidence || '') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(s.hook || '') + '"</div>'
+                    + '</div>';
+            });
+            strHtml += '</div>';
+            html += section(bpIcon('check',12) + ' Your Strengths', '#10b981', strHtml);
+
+            // ── Weakness neutralizations ──
+            var weakHtml = '<div style="display:grid; gap:8px;">';
+            (g.weaknessNeutralizations || []).forEach(function(w) {
+                weakHtml += '<div style="padding:10px 14px; background:rgba(251,191,36,0.05); border-radius:8px; border-left:3px solid #fbbf24;">'
+                    + '<div style="font-size:0.76em; font-weight:700; color:var(--c-muted); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Potential Concern</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-text); margin-bottom:5px;">' + escapeHtml(w.weakness || '') + '</div>'
+                    + '<div style="font-size:0.76em; font-weight:700; color:#fbbf24; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Reframe As</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(w.reframe || '') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic; border-top:1px solid rgba(251,191,36,0.15); padding-top:5px; margin-top:3px;">"' + escapeHtml(w.bridgeLine || '') + '"</div>'
+                    + '</div>';
+            });
+            weakHtml += '</div>';
+            html += section(bpIcon('alert',12) + ' Weaknesses → Reframed', '#fbbf24', weakHtml);
+
+            // ── Blind spots ──
+            var bsHtml = '<div style="display:grid; gap:8px;">';
+            (g.blindSpots || []).forEach(function(b) {
+                bsHtml += '<div style="padding:10px 14px; background:rgba(239,68,68,0.06); border-radius:8px; border-left:3px solid #ef4444;">'
+                    + '<div style="font-size:0.84em; font-weight:700; color:#ef4444; margin-bottom:3px;">' + escapeHtml(b.risk || '') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:4px;">' + escapeHtml(b.why || '') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-text);">Mitigation: ' + escapeHtml(b.mitigation || '') + '</div>'
+                    + '</div>';
+            });
+            bsHtml += '</div>';
+            html += section(bpIcon('eye',12) + ' Blind Spots', '#ef4444', bsHtml);
+
+            // ── Counter-offer playbook ──
+            var coHtml = '<div style="display:grid; gap:8px;">';
+            (g.counterOfferPlaybook || []).forEach(function(c) {
+                coHtml += '<div style="padding:10px 14px; background:rgba(167,139,250,0.06); border-radius:8px; border-left:3px solid #a78bfa;">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:#a78bfa; margin-bottom:4px;">' + escapeHtml(c.scenario || '') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(c.response || '') + '"</div>'
+                    + '</div>';
+            });
+            coHtml += '</div>';
+            html += section(bpIcon('shield',12) + ' Counter-Offer Playbook', '#a78bfa', coHtml);
+
+            // ── Value connections + Questions ──
+            var valHtml = '<div style="display:grid; gap:6px; margin-bottom:10px;">';
+            (g.valueConnections || []).forEach(function(v) {
+                valHtml += '<div style="font-size:0.82em; padding:7px 12px; background:var(--c-surface-2); border-radius:7px;">'
+                    + '<strong style="color:var(--c-text);">' + escapeHtml(v.value || '') + ':</strong> '
+                    + '<span style="color:var(--c-muted);">' + escapeHtml(v.connection || '') + '</span></div>';
+            });
+            valHtml += '</div>';
+            valHtml += '<div style="font-size:0.75em; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Questions to Ask</div>'
+                + '<div style="display:grid; gap:5px;">';
+            (g.questionsToAsk || []).forEach(function(q) {
+                valHtml += '<div style="font-size:0.81em; color:var(--c-text); padding:6px 12px; background:var(--c-surface-2); border-radius:7px;">' + escapeHtml(q) + '</div>';
+            });
+            valHtml += '</div>';
+            html += section(bpIcon('star',12) + ' Values & Questions', '#fb923c', valHtml);
+
+            html += '<button onclick="showNegotiationGuideV2()" style="width:100%; margin-top:4px; padding:10px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; color:var(--c-muted); font-size:0.82em; cursor:pointer;">← Back to Role Picker</button>';
+            html += '</div>'; // end modal-body
+
+            renderFn(html);
+        }
+        window._renderNegGuide = _renderNegGuide;
+
         
         // ===== IMPACT RATING ENGINE =====
         
