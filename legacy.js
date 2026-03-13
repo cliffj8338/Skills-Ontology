@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.79 - BUILD 20260312-exp-full-tile
-        var BP_VERSION = 'v4.46.79';
+        // BLUEPRINT v4.46.80 - BUILD 20260312-exp-full-tile
+        var BP_VERSION = 'v4.46.80';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -834,7 +834,7 @@
         // URL: myblueprint.work?showcase=KEY
         // Loads admin profile read-only with full admin UI visible
         var SHOWCASE_CONFIG = {
-            key: 'blueprint-demo-2026',           // URL param value (change this to your own secret)
+            key: 'bp-aKqWMR8AJli-tFPr8p3IJA32',           // URL param value (change this to your own secret)
             sourceUid: '',                         // Set to your Firebase UID (run fbUser.uid in console)
             bannerText: 'Showcase Mode — All features visible, editing disabled'
         };
@@ -3477,7 +3477,7 @@
                         { id: 'p2-4a', name: 'Parallel profile loading + deferred crosswalk', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.44.39: Sequential profile loading replaced with Promise.allSettled() for all 24 demos + 9 data libraries. O*NET crosswalk (4.6MB) deferred until after initial render. Significant load time improvement.' },
                         { id: 'p2-4b', name: 'Mobile network layout optimization', status: 'done', category: 'ux', priority: 'high', notes: 'v4.44.40-42: Hub/name nodes repositioned to upper-right on mobile across all 4 views. Match view: name and job hubs fully separated (upper-right vs upper-left). You view: forces tightened, height accounts for match toggle row. Desktop unchanged.' },
                         { id: 'p2-4c', name: 'Verification API deployment', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.44.29: Serverless /api/verify.js deployed to Vercel with Firebase Admin SDK env vars. GET returns pending records, POST writes verifier response. Token-based auth, no sign-in required for verifiers.' },
-                        { id: 'p2-4d', name: 'Showcase profile export + deploy', status: 'planned', category: 'feature', priority: 'high', notes: 'Run export-showcase.js in browser console while signed in. Place downloaded JSON at profiles/showcase/admin-demo.json. Verify ?showcase=blueprint-demo-2026 URL works end-to-end.' },
+                        { id: 'p2-4d', name: 'Showcase profile export + deploy', status: 'planned', category: 'feature', priority: 'high', notes: 'Run export-showcase.js in browser console while signed in. Place downloaded JSON at profiles/showcase/admin-demo.json. Verify ?showcase=bp-aKqWMR8AJli-tFPr8p3IJA32 URL works end-to-end.' },
                         { id: 'p2-4e', name: 'Verifier email notifications', status: 'planned', category: 'feature', priority: 'medium', notes: 'Send email when verification is completed. Requires email provider decision (SendGrid, Resend, etc.) and serverless function update.' },
                         { id: 'p2-4f', name: 'Expanded profile completeness (7 items)', status: 'done', category: 'feature', priority: 'low', notes: 'v4.44.52: Dashboard readiness ring expanded from 5→7 items. Added work history and education tracking alongside skills, outcomes, values, purpose, and jobs.' },
                         { id: 'p2-4g', name: 'Keyboard shortcuts', status: 'done', category: 'feature', priority: 'low', notes: 'v4.44.52: Global keyboard navigation. 1-5 for nav tabs (Skills/Jobs/Blueprint/Reports/Settings), ? for help. Disabled in inputs, modals, and during tours.' },
@@ -3524,7 +3524,7 @@
                         { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
                         { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' },
                         { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
-                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'in-progress', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched from monkey-patching getCategoryColor/getColor (template uses inline colors, not named functions) to post-render SVG recoloring. Polls SVG circles every 400ms for 10s, reads __data__.category from D3 bound data, applies main app color palette. Also recolors links (subtle white) and text. CSS override for dark network backgrounds. Template file still needs native color update for full parity.' },
+                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'done', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched to post-render SVG recoloring via injected script. Polls SVG circles, reads __data__.category, applies main app palette. v4.46.80: MutationObserver replaces blind polling — fires recolorNetwork() instantly as D3 appends SVG nodes, eliminating color flash. bpColors map realigned to getCategoryColor() exactly. Added lvColors proficiency fallback. Safety net polling runs at 200ms for 3s then disconnects. base.html template also updated natively: levelColor, levelColorLight, renderProfGrid cols, and profGrid hardcoded HTML all corrected to main app palette (Mastery=#10b981, Expert=#fb923c, Advanced=#a78bfa, Proficient=#60a5fa, Novice=#94a3b8).' },
                         { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73-74: Dedup guards on all 8 push paths. Startup deduplicateSkills(). Hard cap: PROFILE_SKILL_CAP=50, WB_SKILL_CAP=20. canAddSkill() central guard. Over-cap triage overlay (showSkillCapTriage) auto-triggers on load if over 50 after dedup. Scores skills by verification/evidence/proficiency, pre-selects lowest for removal. Over-cap banner with Manage button on Blueprint view. Prevent philosophy: never allow over-cap, force triage.' },
                         { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
                         { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' },
@@ -8060,7 +8060,6 @@
             // Premium pool = 15% of BLS median. Only Advanced/Expert/Mastery qualify.
             (function() {
                 var renderBls = data.bls;
-                console.log('[WB Comp Recompute] bls:', JSON.stringify(renderBls), '| skill[0].compValue:', data.skills && data.skills[0] ? data.skills[0].compValue : 'n/a', '| level:', data.skills && data.skills[0] ? data.skills[0].blueprintLevel : 'n/a');
                 if (renderBls && renderBls.median) {
                     var renderPremMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
                     var renderPool = Math.round(renderBls.median * 0.15);
@@ -15973,7 +15972,7 @@
         }
         
         // ===== ADMIN SHOWCASE MODE (v4.44.36) =====
-        // URL: myblueprint.work?showcase=blueprint-demo-2026
+        // URL: myblueprint.work?showcase=bp-aKqWMR8AJli-tFPr8p3IJA32
         // Loads admin profile as read-only with full admin UI, no auth required
         // Sensitive data (emails, API keys, user PII) redacted
         function checkShowcaseMode() {
