@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.80 - BUILD 20260312-exp-full-tile
-        var BP_VERSION = 'v4.46.80';
+        var BP_VERSION = 'v4.46.81';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3515,7 +3515,7 @@
                         { id: 'p2-6e', name: 'Firestore data pipeline fix (new field persistence)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.63: _buildFirestoreData() whitelist was silently dropping all LinkedIn-derived fields. Added linkedinContent, contentVisibility, companyTenures, importStats to save builder. Added endorsements count and endorsementBoosted flag to skill serializer. Added all four fields to Firestore load path. Without this fix, merge data would not survive page refresh.' },
                         { id: 'p2-6g', name: 'Wizard overwrite safety gate', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: wizardOverwriteGuard() intercepts all three fresh-start wizard paths (Upload Resume, LinkedIn Import, Start Fresh) when user has existing profile data. Shows warning screen with: profile inventory (skills, positions, education, certs, outcomes counts), Download Backup button (wizardQuickExport() exports full profile JSON including linkedinContent/companyTenures/contentVisibility), Update from LinkedIn redirect (merge flow instead of overwrite), Go Back button, and red "I understand, start fresh" confirmation. No data lost without explicit user consent. Import Saved Blueprint path is not gated (additive by nature).' },
                         { id: 'p2-6h', name: 'Position visibility (full ripple)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: Hide/show toggles on every work history position. getVisibleRoles() filters roles by matching workHistory hidden flags. Wired to: network graph (role nodes + links), match network, card view, role filter chips, scouting reports (data + role groups), PDF exports (standalone + job), skills management, dashboard stats. Role info card has Hide Role button triggering network rebuild. toggleWorkHistoryHidden invalidates networkInitialized for lazy rebuild.' },
-                        { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'in-progress', category: 'feature', priority: 'high', notes: 'v4.46.18: Firestore comparison persistence. Comparisons stored at users/{uid}/comparisons/ with in-memory cache, optimistic UI, localStorage fallback, one-time migration, cache reset on sign-out. v4.46.19: Comparison sharing via URL tokens. Share button on step 4 and saved comparison modal. Writes sanitized copy to shared_comparisons/{id} (public read). URL: ?comp={id}&token={token}. Page load detects param, fetches doc, validates token, renders read-only modal. Re-share re-uses existing token. Remaining: batch comparison mode, WB template library, WB diff view, WB versioning/history, WB-to-scouting-report pipeline.' },
+                        { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'in-progress', category: 'feature', priority: 'high', notes: 'v4.46.18: Firestore comparison persistence. v4.46.19: Comparison URL token sharing. v4.46.81: WB→Scouting Report pipeline complete. buildReportDataFromWB() runs 6-pass matchJobToProfile() against WB skills, builds identical REPORT_DATA shape, resolves company values, applies comp context multipliers from wb.bls, and feeds showReportOverlay(). generateScoutingReportFromWB(idx) orchestrates blind settings, privacy audit log, and analytics. Scouting Report button added to WB repo expanded card. Share flow handles WB-sourced reports (job._sourceWB sentinel) identically to pipeline reports. Remaining: batch comparison mode, WB template library, WB diff view, WB versioning/history.' },
                         { id: 'p2-6i', name: 'User Flows tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.63: Admin → System → User Flows. 12 workflow categories mapped with step-by-step function chains: Onboarding, LinkedIn Merge, Skill Mgmt, Work History, Job Pipeline, Network Viz, Reports, Values/Outcomes, Content/Evidence, Settings, Education/Certs, Auth/Persistence. Clickable tiles open horizontal flow diagrams. Each step shows function name, description, downstream connections. Phase 2: export flows as PNG/PDF/mermaid.' },
                         { id: 'p2-6j', name: 'User Flows export (phase 2)', status: 'planned', category: 'feature', priority: 'low', notes: 'Export user flow diagrams as PNG, PDF, or Mermaid markdown. Add print stylesheet for flow diagrams. Consider SVG export for vector quality.' },
                         { id: 'p2-6k', name: 'Dev time comparison tile', status: 'done', category: 'feature', priority: 'low', notes: 'v4.45.65: Admin Overview tile comparing AI vibe-coding velocity vs traditional solo dev. Computes: speed multiplier, cost multiplier, LOC/hr efficiency. Stats grid shows lines of code, features shipped, deploys, AI sessions, hours, first commit date. Side-by-side comparison with progress bars for calendar time, work hours, work days, total cost. Editable stats modal with Firestore persistence. Traditional dev baseline: $175K/yr loaded, 100 LOC/day for complex SPA.' },
@@ -9651,6 +9651,7 @@
                     + '<button onclick="wbRepoEditModal(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('edit',14) + ' Edit</button>'
                     + '<button onclick="wbRepoClone(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--accent, #60a5fa); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('copy',14) + ' Clone</button>'
                     + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:linear-gradient(135deg, #10b981, #3b82f6); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
+                    + '<button onclick="generateScoutingReportFromWB(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:linear-gradient(135deg, #8b5cf6, #3b82f6); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(139,92,246,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('file-text',14) + ' Scouting Report</button>'
                     + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, _jdcCompMode === 'with');
@@ -11002,7 +11003,247 @@
                 showToast('Comparison failed: ' + err.message, 'error');
             }
         }
-        window.wbRepoCompare = wbRepoCompare;
+        // ── WB → Scouting Report Pipeline ────────────────────────────────────
+        // Builds the identical REPORT_DATA shape as buildReportData(jobIdx),
+        // but sourced from a Work Blueprint instead of a pipeline job.
+        function buildReportDataFromWB(wb) {
+            if (!wb) return null;
+            var profile      = userData.profile || {};
+            var allSkills    = skillsData.skills || [];
+            var allRoles     = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (skillsData.roles || []);
+            var userValues   = blueprintData.values || [];
+            var userOutcomes = blueprintData.outcomes || [];
+            var userPurpose  = blueprintData.purpose || '';
+            var userEdu      = userData.education || [];
+            var userCerts    = userData.certifications || [];
+
+            // Run 6-pass ontology matcher against WB skills
+            var wbSkills = wb.skills || [];
+            var matchData = (typeof matchJobToProfile === 'function') ? matchJobToProfile(wbSkills) : { score: 0, matched: [], gaps: [], surplus: [] };
+            var matched   = matchData.matched || [];
+            var gaps      = matchData.gaps || [];
+
+            // Values alignment
+            var companyVals = wb._resolvedCompanyValues || getCompanyValues(wb.company || '', wb.sourceJD || '');
+            var valAlign    = computeValuesAlignment(userValues, companyVals);
+
+            // Role / domain data (same logic as buildReportData)
+            var roleColors = ['#60a5fa','#a855f7','#10b981','#f59e0b','#ec4899','#06b6d4','#fb923c','#38bdf8','#84cc16'];
+            var activeRoleIds = new Set();
+            var roleNameToId  = {};
+            allRoles.forEach(function(r) { roleNameToId[r.name] = r.id; });
+            allSkills.forEach(function(s) {
+                if (!s.roles && s.role) s.roles = [roleNameToId[s.role] || s.role];
+                (s.roles || []).forEach(function(r) { activeRoleIds.add(r); });
+            });
+            var roles = allRoles.filter(function(r) { return activeRoleIds.has(r.id); }).map(function(r, i) {
+                return { id: r.id, name: r.name, color: r.color || roleColors[i % roleColors.length] };
+            });
+            var validRoleIds = new Set(roles.map(function(r) { return r.id; }));
+            var connectedSkills = allSkills.filter(function(s) {
+                return (s.roles || []).some(function(rid) { return validRoleIds.has(rid); });
+            });
+
+            // Required WB skill names (for k=1 tagging)
+            var jobRequiredNames = wbSkills.filter(function(s) {
+                var tier = s.tier || 'required';
+                return tier === 'required' || tier === 'Required';
+            }).map(function(s) { return s.name; });
+            var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
+
+            // Build reportSkills (same shape as buildReportData)
+            var reportSkills = allSkills.map(function(s) {
+                var sk = { n: s.name, l: s.level || 'Proficient', r: (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); }) };
+                var isMatched = matched.some(function(m) { return m.userSkill.toLowerCase() === s.name.toLowerCase(); });
+                var isRequired = jobRequiredSet.has(s.name.toLowerCase()) || isMatched;
+                if (isRequired) sk.k = 1;
+                sk._key   = !!s.key;
+                sk._level = s.level || 'Proficient';
+                var ev = (s.evidence || []).map(function(e) {
+                    return typeof e === 'string' ? e : ((e.outcome || '') + ' ' + (e.description || '')).trim();
+                }).filter(Boolean).join(' ');
+                if (ev) sk.ev = ev.substring(0, 300);
+                var certMatch = userCerts.find(function(c) { return (c.skills || []).some(function(cs) { return cs.toLowerCase() === s.name.toLowerCase(); }); });
+                var eduMatch  = userEdu.find(function(e) { return (e.skills || []).some(function(es) { return es.toLowerCase() === s.name.toLowerCase(); }); });
+                if (certMatch) { sk.vf = 'cert'; sk.vfLabel = certMatch.name; }
+                else if (eduMatch) { sk.vf = 'edu'; sk.vfLabel = eduMatch.name; }
+                else if (isRequired && ev) { sk.vf = 'verified'; }
+                return sk;
+            });
+
+            // Preset filtering (honour sharing preset)
+            var activePreset = (typeof currentPreset !== 'undefined') ? currentPreset : 'custom';
+            if (activePreset !== 'full' && activePreset !== 'custom') {
+                var levelRank = { 'Mastery':5,'Expert':4,'Advanced':3,'Proficient':2,'Novice':1 };
+                reportSkills = reportSkills.filter(function(sk) {
+                    if (sk.k) return true;
+                    if (activePreset === 'executive') return true;
+                    if (activePreset === 'advisory') return sk._key;
+                    if (activePreset === 'board') return sk._key || sk._level === 'Mastery';
+                    return true;
+                });
+                if (activePreset === 'executive') {
+                    var jm = reportSkills.filter(function(sk) { return sk.k; });
+                    var sp = reportSkills.filter(function(sk) { return !sk.k; });
+                    sp.sort(function(a,b) { return (levelRank[b._level]||0)-(levelRank[a._level]||0); });
+                    reportSkills = jm.concat(sp.slice(0,20));
+                }
+            }
+            reportSkills.forEach(function(sk) { delete sk._key; delete sk._level; });
+
+            // Gaps
+            var reportGaps = gaps.map(function(g) {
+                var adj = connectedSkills.filter(function(s) {
+                    var words = g.name.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
+                    return words.some(function(w) { return s.name.toLowerCase().indexOf(w) !== -1; });
+                }).slice(0,3).map(function(s) { return s.name; });
+                return { n: g.name, rq: g.requirement || 'Required',
+                    br: adj.length > 0 ? 'Adjacent skills (' + adj.join(', ') + ') suggest a bridgeable gap.' : 'Targeted upskilling recommended.',
+                    adj: adj };
+            });
+
+            // Values
+            var candidateValues = userValues.filter(function(v) { return v.selected; }).map(function(v) {
+                var isAligned = valAlign && valAlign.aligned && valAlign.aligned.some(function(a) { return a.name === v.name; });
+                return { n: v.name, s: isAligned ? 'aligned' : 'yours' };
+            });
+            var companyValuesList = [];
+            if (companyVals) {
+                (companyVals.primary   || []).forEach(function(v) { companyValuesList.push({ n:v, t:'primary',   s: candidateValues.some(function(cv){return cv.n===v&&cv.s==='aligned';}) ? 'aligned':'theirs' }); });
+                (companyVals.secondary || []).forEach(function(v) { companyValuesList.push({ n:v, t:'secondary', s: candidateValues.some(function(cv){return cv.n===v&&cv.s==='aligned';}) ? 'aligned':'theirs' }); });
+            }
+
+            // Outcomes
+            var reportOutcomes = userOutcomes.filter(function(o) { return o.shared !== false; });
+            if (activePreset === 'advisory') reportOutcomes = reportOutcomes.filter(function(o) { return o.category === 'Strategic Foresight' || o.category === 'Thought Leadership' || o.category === 'Business Impact'; });
+            else if (activePreset === 'board') reportOutcomes = reportOutcomes.filter(function(o) { return o.category === 'Business Impact' || o.category === 'Crisis Leadership' || o.category === 'Entrepreneurial'; });
+            reportOutcomes = reportOutcomes.slice(0,6).map(function(o) {
+                var text = o.text || o.outcome || '';
+                return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi,'[Company]') };
+            });
+
+            // Narrative — driven by WB match
+            var topMatched  = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0,3);
+            var topNames    = topMatched.map(function(m) { return m.userSkill; }).join(', ');
+            var narrative   = (profile.name || 'This candidate') + ' brings ';
+            if (topNames) narrative += 'demonstrated expertise in ' + topNames + ' — ';
+            narrative += matched.length + ' of ' + (matched.length + gaps.length) + ' required competencies matched';
+            narrative += gaps.length > 0 ? ' with ' + gaps.length + ' gap' + (gaps.length!==1?'s':'') + ' identified.' : ' with no significant gaps.';
+
+            // Domains
+            var reportDomains = roles.map(function(role, i) {
+                var c = connectedSkills.filter(function(s) { return (s.roles||[]).indexOf(role.id)!==-1; }).length;
+                return { n: role.name, c: c, m: connectedSkills.length, cl: role.color };
+            }).filter(function(d) { return d.c > 0; });
+
+            // Proficiency
+            var proficiency = { Mastery:0, Expert:0, Advanced:0, Proficient:0, Novice:0 };
+            allSkills.forEach(function(s) { var lv = s.level||'Proficient'; if (proficiency.hasOwnProperty(lv)) proficiency[lv]++; });
+
+            // Comp — use WB's own bls data if available, else profile comp
+            var compData = null;
+            if (wb.bls) {
+                var bls = wb.bls;
+                var ctx = wb.compContext || {};
+                var mult = (ctx.industryMult || 1) * (ctx.companyMult || 1);
+                var median = bls.median ? Math.round(bls.median * mult) : 0;
+                if (median > 0) {
+                    compData = {
+                        marketRate:        median,
+                        conservativeOffer: Math.round(median * 0.90),
+                        standardOffer:     Math.round(median * 1.00),
+                        competitiveOffer:  Math.round(median * 1.10),
+                        roleLevel:         wb.seniority || 'Mid',
+                        compSource:        'work-blueprint',
+                        compLabel:         'Work Blueprint Estimate',
+                        reportedComp:      (profile.reportedComp || 0)
+                    };
+                }
+            }
+            if (!compData && typeof getEffectiveComp === 'function') {
+                var c = getEffectiveComp();
+                if (c) compData = { marketRate: c.marketRate||0, conservativeOffer: c.conservativeOffer||0, standardOffer: c.standardOffer||0, competitiveOffer: c.competitiveOffer||0, roleLevel: c.roleLevel||'Mid', compSource: c.compSource||'algorithm', compLabel: c.compLabel||'Market Estimate', reportedComp: (profile.reportedComp||0) };
+            }
+
+            return {
+                candidate: {
+                    name:      profile.name || 'Anonymous Candidate',
+                    photo:     (profile.name || 'A').charAt(0).toUpperCase(),
+                    title:     profile.currentTitle || profile.title || '',
+                    location:  profile.location || 'Location undisclosed',
+                    contact:   profile.email || 'Available upon request',
+                    phone:     profile.phone || '',
+                    linkedin:  profile.linkedin || profile.linkedinUrl || '',
+                    purpose:   userPurpose,
+                    blindTitle:(profile.currentTitle || 'Professional').replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi,'')
+                },
+                workHistory: getVisibleWorkHistory().slice(0,5).map(function(w) {
+                    var dates = w.dates || w.years || '';
+                    if (!dates) { var st = w.startYear||(w.startDate?w.startDate.split('-')[0]:''); var en = w.current?'Present':(w.endYear||(w.endDate==='Present'?'Present':(w.endDate?w.endDate.split('-')[0]:''))); if (st||en) dates=[st,en].filter(Boolean).join('-'); }
+                    return { title: w.title||w.role||'', company: w.company||w.organization||'', dates: dates, description: w.description||'' };
+                }),
+                job: {
+                    title:   wb.title   || 'Work Blueprint',
+                    company: wb.company || 'Undisclosed',
+                    date:    new Date().toLocaleDateString('en-US',{ month:'short', day:'numeric', year:'numeric' }),
+                    _sourceWB: true  // sentinel: report was generated from a WB, not a pipeline job
+                },
+                match: { percentage: matchData.score || 0, narrative: narrative },
+                roles:             roles,
+                skills:            reportSkills,
+                networkSkills:     reportSkills.filter(function(sk){ return (sk.r&&sk.r.length>0)||sk.k===1; }),
+                jobMatchSkills:    reportSkills.filter(function(sk){ return sk.k===1; }),
+                totalSkillCount:   allSkills.length,
+                sharingPreset:     activePreset,
+                jobRequired:       jobRequiredNames,
+                gaps:              reportGaps,
+                values: { score: valAlign?valAlign.score:0, narrative: 'Cultural Fit Signal — '+((valAlign?(valAlign.aligned||[]).length:0))+' shared values identified.', candidate: candidateValues, company: companyValuesList },
+                outcomes:          reportOutcomes,
+                education:  userEdu.map(function(e){ return { name:e.institution||e.name||'', desc:(e.degree||'')+(e.field?' — '+e.field:''), location:e.location||'', dates:e.dates||e.year||'', vf:'edu',  skills:e.skills||[] }; }),
+                certifications: userCerts.map(function(c){ return { name:c.name||'', vf:'cert', vfLabel:c.issuer||c.name||'', desc:c.description||c.issuer||'', dates:c.dates||c.year||'', status:c.status||'', skills:c.skills||[] }; }),
+                domains:           reportDomains,
+                proficiency:       proficiency,
+                comp:              compData
+            };
+        }
+        window.buildReportDataFromWB = buildReportDataFromWB;
+
+        // Generates and displays an HTML scouting report directly from a saved WB.
+        function generateScoutingReportFromWB(idx) {
+            if (!_wbRepoCache || !_wbRepoCache[idx]) { showToast('Work Blueprint not found.', 'error'); return; }
+            var wb = _wbRepoCache[idx];
+
+            // Pre-resolve company values if needed
+            var doGenerate = function() {
+                showToast('Generating scouting report from Work Blueprint…', 'info', 2500);
+                logAnalyticsEvent('scouting_report_html', { company: wb.company||'', title: wb.title||'', source:'wb' });
+
+                var reportData = buildReportDataFromWB(wb);
+                if (!reportData) { showToast('Failed to build report data.', 'error'); return; }
+
+                var blindSettings = (typeof getActiveBlindSettings==='function') ? getActiveBlindSettings() : {};
+                var overridden    = (typeof hasOverrides==='function') ? hasOverrides() : false;
+                if (typeof applyBlindSettings==='function') applyBlindSettings(reportData, blindSettings);
+                if (typeof logPrivacyEvent==='function') logPrivacyEvent('html', wb.title||'', wb.company||'', blindSettings, overridden);
+                if (typeof _blindOverrides !== 'undefined') _blindOverrides = null;
+
+                // showReportOverlay with null jobIdx (WB-sourced) — share flow handles sentinel
+                showReportOverlay(reportData, null);
+            };
+
+            // Resolve company values before generating if possible
+            if (wb.company && typeof ensureCompanyValues === 'function') {
+                ensureCompanyValues(wb.company).then(function(resolved) {
+                    if (resolved && resolved.primary && resolved.primary.length > 0) {
+                        wb._resolvedCompanyValues = resolved;
+                    }
+                    doGenerate();
+                }).catch(doGenerate);
+            } else {
+                doGenerate();
+            }
+        }
+        window.generateScoutingReportFromWB = generateScoutingReportFromWB;
 
         var _wbCompWizStep = 1;
         var _wbCompWizData = { wb: null, rawJD: '', candidateId: '', candidate: null };
@@ -30332,6 +30573,8 @@ body {
             if (btn) { btn.disabled = true; btn.innerHTML = bpIcon('clock',14) + ' Sharing…'; }
             
             var reportData = overlay._reportData;
+            // WB-sourced reports (reportData.job._sourceWB) share identically to pipeline reports.
+            // The _sourceWB flag is carried in reportData.job but stripped on the Firestore write below.
             
             // Generate secure report ID: timestamp + crypto-random hex (128-bit entropy)
             var cryptoBytes = new Uint8Array(16);
