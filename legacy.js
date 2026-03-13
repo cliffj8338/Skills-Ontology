@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.80 - BUILD 20260312-exp-full-tile
-        var BP_VERSION = 'v4.46.81';
+        var BP_VERSION = 'v4.46.82';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3541,6 +3541,7 @@
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
                         { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
+                        { id: 'p2-7t', name: 'Values persistence: inferValues guard + note preservation', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.82: Two-part fix. (1) inferValues() now guards: if blueprintData.values already has selected values (loaded from Firestore), it returns immediately without overwriting — calls _inferPurposeOnly() instead. Previously, inferValues() called from the dashboard completeness check and initValuesNetwork would clobber already-loaded values. (2) inferValues() STEP 2 (userData.values path) now preserves the .note field — previously the map() only returned {name,selected,inferred,custom}, silently dropping any personal notes. _inferPurposeOnly() extracted as a separate function so the guard path still gets purpose inference.' },
                         { id: 'p2-7s', name: 'Purpose persistence v3: inferValues circuit breaker + sessionStorage', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.54: inferValues() now uses _lastKnownPurpose as final fallback before blanking purpose — prevents the blank-purpose-then-save race. _lastKnownPurpose backed to sessionStorage so it survives hard reload. updatePurpose() also writes to sessionStorage. This is the deepest fix yet: even if userData.purpose and blueprintData.purpose are both transiently empty (which CAN happen on rapid navigation), the circuit breaker restores from sessionStorage before any save can fire.' },
                         { id: 'p2-7r', name: 'CMD+K Command Palette', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.53: Global CMD+K / CTRL+K command palette. Searches skills, outcomes, saved jobs, work history in real time. Static actions list (Add Skill, New Report, Generate Purpose, Export, Bulk Import, Comp Review). Navigation shortcuts with keyboard badges. Arrow key navigation, Enter to execute, Esc to close. Search icon injected into header. Analytics event on open. CSS injected once on first open.' },
                         { id: 'p2-7q', name: 'Outcomes tab UX redesign: search, category grouping, collapsible sections', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.52: 128-outcome scroll problem solved. Added search bar + category filter + shared-only toggle at top of outcomes tab. Outcomes grouped by category with collapsible sections (auto-collapsed when >5 items). Add button moved to header. Coaching tip + reflection prompts collapsed into Tips & Prompts accordion. Fixed SENSITIVE badge template literal bug. Fixed footer overlapping reports view by adding padding-bottom:80px to report container.' },
@@ -27173,6 +27174,14 @@ body {
         window.saveValueNote = saveValueNote;
 
         function inferValues() {
+            // GUARD: If blueprintData already has selected values, do NOT overwrite them.
+            // inferValues() is called from multiple render paths (dashboard, content tab, values network)
+            // and must not clobber values already loaded from Firestore.
+            if (blueprintData.values && blueprintData.values.length > 0
+                    && blueprintData.values.some(function(v) { return v.selected; })) {
+                _inferPurposeOnly();
+                return;
+            }
             // Restore circuit breaker from sessionStorage if lost (e.g. hard reload)
             if (!window._lastKnownPurpose) {
                 try {
@@ -27185,7 +27194,7 @@ body {
             if (saved && saved.length > 0) {
                 blueprintData.values = saved;
             } else {
-                // STEP 2: Use profile values if they exist
+                // STEP 2: Use profile values if they exist — preserve .note field
                 var profileValues = userData.values || [];
                 if (profileValues.length > 0) {
                     blueprintData.values = profileValues.map(function(v) {
@@ -27193,7 +27202,8 @@ body {
                             name: v.name,
                             selected: v.selected !== undefined ? v.selected : true,
                             inferred: v.inferred || false,
-                            custom: false
+                            custom: false,
+                            note: v.note || ''
                         };
                     });
                 } else {
@@ -27218,6 +27228,16 @@ body {
                 }
             }
             
+            _inferPurposeOnly();
+            
+            // Enforce max 10 values
+            if (blueprintData.values.length > 10) {
+                blueprintData.values = blueprintData.values.slice(0, 10);
+            }
+        }
+
+        // Separated so the guard path in inferValues() can still run purpose logic.
+        function _inferPurposeOnly() {
             // Purpose — Firestore is authoritative for signed-in users.
             // wbPurpose localStorage is only used when not signed in.
             var savedPurpose = null;
@@ -27228,20 +27248,12 @@ body {
             } else if (userData.purpose && userData.purpose.trim().length > 0) {
                 blueprintData.purpose = userData.purpose;
             } else if (blueprintData.purpose && blueprintData.purpose.trim().length > 0) {
-                // Keep existing in-memory value — userData may be stale but blueprintData is current
-                userData.purpose = blueprintData.purpose; // sync back
+                userData.purpose = blueprintData.purpose;
             } else if (window._lastKnownPurpose && window._lastKnownPurpose.trim().length > 0) {
-                // Circuit breaker: Firestore last-known value prevents inferValues from erasing purpose
                 blueprintData.purpose = window._lastKnownPurpose;
                 userData.purpose = window._lastKnownPurpose;
-                console.log('\u26a0 inferValues: restored purpose from _lastKnownPurpose circuit breaker');
             } else {
                 blueprintData.purpose = "";
-            }
-            
-            // Enforce max 10 values
-            if (blueprintData.values.length > 10) {
-                blueprintData.values = blueprintData.values.slice(0, 10);
             }
         }
 
