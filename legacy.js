@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.73 - BUILD 20260312-impact-color-fix
-        var BP_VERSION = 'v4.46.73';
+        // BLUEPRINT v4.46.74 - BUILD 20260312-values-race-fix
+        var BP_VERSION = 'v4.46.74';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1277,7 +1277,8 @@
                     return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
-                values: blueprintData.values || [],
+                // Belt-and-suspenders: empty array is truthy so || won't help; use length check
+                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values : (userData.values || []),
                 purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
@@ -1531,6 +1532,15 @@
                         skillsData.roles = data.roles || [];
                     }
                     
+                    // CRITICAL: Sync blueprintData BEFORE any dedup/migration saves fire.
+                    // saveToFirestore() reads blueprintData.values — if this sync happens after
+                    // the dedup/migration save, blueprintData.values is still [] and wipes Firestore.
+                    if (typeof blueprintData !== 'undefined') {
+                        blueprintData.purpose = data.purpose || '';
+                        blueprintData.values = data.values && data.values.length > 0 ? data.values : (blueprintData.values && blueprintData.values.length > 0 ? blueprintData.values : []);
+                        blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
+                    }
+                    
                     // Deduplicate skills on load
                     if (typeof deduplicateSkills === 'function') {
                         var dupes = deduplicateSkills();
@@ -1586,13 +1596,9 @@
                         console.log('✓ Demo data cleared. Profile reset to clean state.');
                     }
                     
-                    // Sync blueprintData from Firestore before initializeMainApp
-                    // prevents stale localStorage wbPurpose overwriting Firestore value
-                    if (typeof blueprintData !== 'undefined') {
-                        blueprintData.purpose = data.purpose || '';
-                        blueprintData.values = data.values || blueprintData.values;
-                        blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
-                    }
+                    // blueprintData already synced above (before dedup) to prevent race condition
+                    // where saveToFirestore() reads empty blueprintData.values and wipes Firestore.
+                    // This block kept as a no-op for safety — values/purpose already correct.
                     // Also persist outcomes into userData so completeness checks can read it
                     userData.outcomes = data.outcomes || [];
                     // Clear localStorage purpose — Firestore is authoritative for signed-in users

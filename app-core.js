@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.66 - BUILD 20260312-nanfix-comp-panel
-        var BP_VERSION = 'v4.46.66';
+        // BLUEPRINT v4.46.74 - BUILD 20260312-values-race-fix
+        var BP_VERSION = 'v4.46.74';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -353,6 +353,17 @@
             var div = document.createElement('div');
             div.appendChild(document.createTextNode(String(str)));
             return div.innerHTML;
+        }
+
+        // escapeAttr: use inside HTML attribute values (encodes " in addition to <>&)
+        function escapeAttr(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function decodeHtmlEntities(str) {
@@ -1266,7 +1277,8 @@
                     return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
-                values: blueprintData.values || [],
+                // Belt-and-suspenders: empty array is truthy so || won't help; use length check
+                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values : (userData.values || []),
                 purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
@@ -1306,7 +1318,22 @@
             try {
                 var backup = JSON.parse(JSON.stringify(data));
                 delete backup.updatedAt;
-                localStorage.setItem(_saveBackupKey, JSON.stringify({ ts: Date.now(), data: backup }));
+                // Trim heavy fields if payload is large to avoid localStorage quota errors
+                var payload = { ts: Date.now(), data: backup };
+                var serialized = JSON.stringify(payload);
+                if (serialized.length > 800000) {
+                    // Drop large optional arrays to get under limit
+                    delete backup.verifications;
+                    delete backup.outcomes;
+                    serialized = JSON.stringify({ ts: Date.now(), data: backup });
+                }
+                if (serialized.length > 1500000) {
+                    // Trim skills and work history as last resort
+                    if (backup.skills) backup.skills = backup.skills.slice(0, 100);
+                    if (backup.workHistory) backup.workHistory = backup.workHistory.slice(0, 20);
+                    serialized = JSON.stringify({ ts: Date.now(), data: backup });
+                }
+                localStorage.setItem(_saveBackupKey, serialized);
             } catch(e) { console.warn('localStorage backup failed:', e.message); }
         }
         function _clearSaveBackup() {
@@ -1507,6 +1534,15 @@
                         skillsData.roles = data.roles || [];
                     }
                     
+                    // CRITICAL: Sync blueprintData BEFORE any dedup/migration saves fire.
+                    // saveToFirestore() reads blueprintData.values — if this sync happens after
+                    // the dedup/migration save, blueprintData.values is still [] and wipes Firestore.
+                    if (typeof blueprintData !== 'undefined') {
+                        blueprintData.purpose = data.purpose || '';
+                        blueprintData.values = data.values && data.values.length > 0 ? data.values : (blueprintData.values && blueprintData.values.length > 0 ? blueprintData.values : []);
+                        blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
+                    }
+                    
                     // Deduplicate skills on load
                     if (typeof deduplicateSkills === 'function') {
                         var dupes = deduplicateSkills();
@@ -1562,13 +1598,9 @@
                         console.log('✓ Demo data cleared. Profile reset to clean state.');
                     }
                     
-                    // Sync blueprintData from Firestore before initializeMainApp
-                    // prevents stale localStorage wbPurpose overwriting Firestore value
-                    if (typeof blueprintData !== 'undefined') {
-                        blueprintData.purpose = data.purpose || '';
-                        blueprintData.values = data.values || blueprintData.values;
-                        blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
-                    }
+                    // blueprintData already synced above (before dedup) to prevent race condition
+                    // where saveToFirestore() reads empty blueprintData.values and wipes Firestore.
+                    // This block kept as a no-op for safety — values/purpose already correct.
                     // Also persist outcomes into userData so completeness checks can read it
                     userData.outcomes = data.outcomes || [];
                     // Clear localStorage purpose — Firestore is authoritative for signed-in users
@@ -1887,7 +1919,8 @@
                     + _adminSidebarBtn('wbwizard', 'blueprint', 'Wizard')
                     + _adminSidebarBtn('wbrepo', 'folder', 'Repository')
                     + _adminSidebarBtn('wbcompare', 'trending-up', 'Compare')
-                    + _adminSidebarBtn('parseaudit', 'activity', 'Parse Audit'))
+                    + _adminSidebarBtn('parseaudit', 'activity', 'Parse Audit')
+                    + _adminSidebarBtn('wbabout', 'info', 'About'))
                 + _adminSidebarGroup('sys', 'System',
                     _adminSidebarBtn('config', 'settings', 'Config')
                     + _adminSidebarBtn('status', 'shield', 'Status')
@@ -1927,6 +1960,7 @@
             else if (adminSubTab === 'wbrepo') renderAdminWBRepo(el);
             else if (adminSubTab === 'wbcompare') renderWBCompareWizard(el);
             else if (adminSubTab === 'parseaudit') renderParseAudit(el);
+            else if (adminSubTab === 'wbabout') renderAdminWBAbout(el);
             else if (adminSubTab === 'userflows') renderAdminUserFlows(el);
         }
         
@@ -2418,7 +2452,7 @@
                 + '<div style="display:flex; align-items:flex-end; gap:2px; height:50px;">';
             s.dailySessions.slice(-Math.min(days, 30)).forEach(function(d) {
                 var h = Math.max((d.count / sMax) * 100, 3);
-                html += '<div title="' + escapeHtml(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(96,165,250,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
+                html += '<div title="' + escapeAttr(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(96,165,250,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
             });
             html += '</div></div>';
             
@@ -2429,7 +2463,7 @@
                 + '<div style="display:flex; align-items:flex-end; gap:2px; height:50px;">';
             s.dailyPV.slice(-Math.min(days, 30)).forEach(function(d) {
                 var h = Math.max((d.count / pvMax) * 100, 3);
-                html += '<div title="' + escapeHtml(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(139,92,246,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
+                html += '<div title="' + escapeAttr(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(139,92,246,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
             });
             html += '</div></div>';
             html += '</div>';
@@ -3000,16 +3034,16 @@
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="display:grid; gap:16px;">'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Name</label>'
-                + '<input type="text" id="editSampleName" class="settings-input" value="' + escapeHtml(template.profile.name || '') + '"></div>'
+                + '<input type="text" id="editSampleName" class="settings-input" value="' + escapeAttr(template.profile.name || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Title</label>'
-                + '<input type="text" id="editSampleTitle" class="settings-input" value="' + escapeHtml(template.profile.currentTitle || '') + '"></div>'
+                + '<input type="text" id="editSampleTitle" class="settings-input" value="' + escapeAttr(template.profile.currentTitle || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Description</label>'
                 + '<textarea id="editSampleDesc" class="settings-input" rows="3" style="resize:vertical;">' + escapeHtml(meta.description || '') + '</textarea></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Location</label>'
-                + '<input type="text" id="editSampleLocation" class="settings-input" value="' + escapeHtml(template.profile.location || '') + '"></div>'
+                + '<input type="text" id="editSampleLocation" class="settings-input" value="' + escapeAttr(template.profile.location || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Role Level</label>'
-                + '<input type="text" id="editSampleLevel" class="settings-input" value="' + escapeHtml(template.profile.roleLevel || '') + '"></div>'
+                + '<input type="text" id="editSampleLevel" class="settings-input" value="' + escapeAttr(template.profile.roleLevel || '') + '"></div>'
                 + '</div>'
                 + '<div style="padding:14px; background:var(--c-surface-2); border-radius:8px; font-size:0.85em; color:var(--text-muted);">'
                 + '<strong style="color:var(--text-secondary);">Profile Contents:</strong> ' + skillCount + ' skills \u00B7 ' + roleCount + ' roles \u00B7 ' + outcomeCount + ' outcomes'
@@ -3281,7 +3315,7 @@
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna App ID'
                 + (_adzId ? ' <span style="color:#10b981; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzId)) + ')</span>' : '') + '</label>'
-                + '<input type="text" id="cfgAdzunaAppId" value="' + escapeHtml(_adzId) + '" placeholder="Register at developer.adzuna.com" '
+                + '<input type="text" id="cfgAdzunaAppId" value="' + escapeAttr(_adzId) + '" placeholder="Register at developer.adzuna.com" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzId ? '#10b981' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://developer.adzuna.com/" target="_blank" rel="noopener" style="color:var(--accent);">Get free Adzuna credentials \u2192</a></div>'
                 + '</div>'
@@ -3289,7 +3323,7 @@
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna API Key'
                 + (_adzKey ? ' <span style="color:#10b981; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzKey)) + ')</span>' : '') + '</label>'
-                + '<input type="password" id="cfgAdzunaAppKey" value="' + escapeHtml(_adzKey) + '" placeholder="Your Adzuna app_key" '
+                + '<input type="password" id="cfgAdzunaAppKey" value="' + escapeAttr(_adzKey) + '" placeholder="Your Adzuna app_key" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzKey ? '#10b981' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '</div>'
                 
@@ -3297,7 +3331,7 @@
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">The Muse API Key <span style="color:var(--text-muted); font-weight:400;">(optional)</span>'
                 + (_musKey ? ' <span style="color:#10b981; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_musKey)) + ')</span>' : '') + '</label>'
-                + '<input type="text" id="cfgMuseApiKey" value="' + escapeHtml(_musKey) + '" placeholder="Works without key (lower rate limit)" '
+                + '<input type="text" id="cfgMuseApiKey" value="' + escapeAttr(_musKey) + '" placeholder="Works without key (lower rate limit)" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_musKey ? '#10b981' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://www.themuse.com/developers/api/v2" target="_blank" rel="noopener" style="color:var(--accent);">Register for higher rate limit \u2192</a> (3600/hr vs 500/hr)</div>'
                 + '</div>'
@@ -3499,7 +3533,7 @@
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
-                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.66: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.74: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -3783,7 +3817,7 @@
                 // Name
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Name</label>'
-                + '<input type="text" id="rmEditName" value="' + escapeHtml(item.name) + '" style="' + selectStyle + '">'
+                + '<input type="text" id="rmEditName" value="' + escapeAttr(item.name) + '" style="' + selectStyle + '">'
                 + '</div>'
                 
                 // Status + Priority + Category row
@@ -3978,7 +4012,7 @@
                         + '<span style="font-size:0.62em; padding:1px 6px; border-radius:6px; background:var(--c-surface-4b); color:var(--c-faint); font-family:monospace; font-weight:500; letter-spacing:0.02em;">' + escapeHtml(item.id) + '</span>'
                         + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + sc.bg + '; color:' + sc.text + '; font-weight:600;">' + sc.label + '</span>'
                         + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + pc + '15; color:' + pc + '; font-weight:600; border:1px solid ' + pc + '30;">' + item.priority + '</span>'
-                        + '<span style="font-size:0.72em; color:var(--text-muted);" title="' + escapeHtml(item.category) + '">' + bpIcon(ci, 13) + '</span>'
+                        + '<span style="font-size:0.72em; color:var(--text-muted);" title="' + escapeAttr(item.category) + '">' + bpIcon(ci, 13) + '</span>'
                         + '</div>'
                         + (item.notes ? '<div style="font-size:0.8em; color:var(--text-muted); margin-top:4px; line-height:1.5;">' + escapeHtml(item.notes) + '</div>' : '')
                         + '</div>'
@@ -5323,15 +5357,15 @@
 
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
             html += '<div><label style="' + _wbwLabelStyle + '">Company Name</label>'
-                + '<input id="wbwCompany" type="text" value="' + escapeHtml(s.company) + '" placeholder="e.g. Phenom" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwCompany" type="text" value="' + escapeAttr(s.company) + '" placeholder="e.g. Phenom" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Role Title</label>'
-                + '<input id="wbwTitle" type="text" value="' + escapeHtml(s.title) + '" placeholder="e.g. Director of Strategy" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwTitle" type="text" value="' + escapeAttr(s.title) + '" placeholder="e.g. Director of Strategy" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Location</label>'
-                + '<input id="wbwLocation" type="text" value="' + escapeHtml(s.location) + '" placeholder="e.g. New York, NY" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwLocation" type="text" value="' + escapeAttr(s.location) + '" placeholder="e.g. New York, NY" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Department</label>'
-                + '<input id="wbwDepartment" type="text" value="' + escapeHtml(s.department) + '" placeholder="e.g. Strategy" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwDepartment" type="text" value="' + escapeAttr(s.department) + '" placeholder="e.g. Strategy" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Reports To</label>'
-                + '<input id="wbwReportsTo" type="text" value="' + escapeHtml(s.reportsTo) + '" placeholder="e.g. Chief Strategy Officer" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwReportsTo" type="text" value="' + escapeAttr(s.reportsTo) + '" placeholder="e.g. Chief Strategy Officer" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Employment Type</label>'
                 + '<select id="wbwEmploymentType" style="' + _wbwFieldStyle + '">';
             ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'].forEach(function(t) {
@@ -5363,7 +5397,7 @@
             if (s.industry && !indMatched) html += '<option selected>' + escapeHtml(s.industry) + '</option>';
             html += '</select></div>';
             html += '<div style="grid-column:1/-1;"><label style="' + _wbwLabelStyle + '">Compensation (optional)</label>'
-                + '<input id="wbwCompensation" type="text" value="' + escapeHtml(s.compensationRange || '') + '" placeholder="e.g. $100,000 - $120,000 plus bonus" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwCompensation" type="text" value="' + escapeAttr(s.compensationRange || '') + '" placeholder="e.g. $100,000 - $120,000 plus bonus" style="' + _wbwFieldStyle + '" /></div>';
             html += '</div>';
 
             html += '<div style="margin-top:4px; margin-bottom:16px;"><label style="' + _wbwLabelStyle + '">Work Summary (optional)</label>'
@@ -5374,8 +5408,8 @@
                 + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:8px;">Add any additional metadata not covered above.</div>';
             (s.customFields || []).forEach(function(cf, i) {
                 html += '<div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">'
-                    + '<input id="wbwCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + _wbwFieldStyle + ' max-width:180px;" />'
-                    + '<input id="wbwCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + _wbwFieldStyle + '" />'
+                    + '<input id="wbwCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + _wbwFieldStyle + ' max-width:180px;" />'
+                    + '<input id="wbwCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + _wbwFieldStyle + '" />'
                     + '<button onclick="wbwRemoveCustomField(' + i + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:4px 8px;">&times;</button>'
                     + '</div>';
             });
@@ -5494,7 +5528,8 @@
 
                 var text = aiRes.content[0].text;
                 var jsonMatch = text.match(/\{[\s\S]*\}/);
-                var research = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+                var research = {};
+                if (jsonMatch) { try { research = JSON.parse(jsonMatch[0]); } catch(e) { console.warn('[WBW] Research JSON parse failed:', e.message); } }
 
                 _wbw.companyResearch = research;
                 if (research.suggestedIndustry && !_wbw.industry) _wbw.industry = research.suggestedIndustry;
@@ -5758,8 +5793,8 @@
                 + '<label style="' + _wbwLabelStyle + '">Years of Experience</label>';
             s.yearsRequired.forEach(function(yr, i) {
                 html += '<div style="display:flex; gap:10px; margin-bottom:6px;">'
-                    + '<input id="wbwYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="5-8" style="' + _wbwFieldStyle + ' max-width:100px;" />'
-                    + '<input id="wbwYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area of experience" style="' + _wbwFieldStyle + '" />'
+                    + '<input id="wbwYearsRange' + i + '" type="text" value="' + escapeAttr(yr.range) + '" placeholder="5-8" style="' + _wbwFieldStyle + ' max-width:100px;" />'
+                    + '<input id="wbwYearsArea' + i + '" type="text" value="' + escapeAttr(yr.area) + '" placeholder="Area of experience" style="' + _wbwFieldStyle + '" />'
                     + '</div>';
             });
             html += '<button onclick="wbwAddYears()" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button>';
@@ -5774,7 +5809,7 @@
                     html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select>'
-                    + '<input id="wbwEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field of study" style="' + _wbwFieldStyle + '" />'
+                    + '<input id="wbwEdField' + i + '" type="text" value="' + escapeAttr(ed.field) + '" placeholder="Field of study" style="' + _wbwFieldStyle + '" />'
                     + '<label style="display:flex; align-items:center; gap:4px; font-size:0.8em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="wbwEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Preferred</label>'
                     + '</div>';
             });
@@ -5801,7 +5836,7 @@
                 + '<div style="font-size:0.75em; color:var(--c-muted); margin-bottom:6px;">Key qualifications beyond skills (e.g., "Proven track record of managing customer relationships")</div>';
             s.qualifications.forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px;">'
-                    + '<input id="wbwQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + _wbwFieldStyle + ' flex:1;" />'
+                    + '<input id="wbwQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + _wbwFieldStyle + ' flex:1;" />'
                     + '<button onclick="wbwRemoveQual(' + qi + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button>'
                     + '</div>';
             });
@@ -5975,7 +6010,7 @@
                     var bg = isSel ? 'var(--accent)' : 'var(--c-surface-2)';
                     var clr = isSel ? '#fff' : 'var(--c-heading)';
                     var border = isCompany && !isSel ? '2px solid var(--accent)' : '1px solid var(--c-surface-5)';
-                    html += '<button onclick="wbwToggleValue(\'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')" title="' + escapeHtml(v.description) + '" style="padding:6px 14px; background:' + bg + '; color:' + clr + '; border:' + border + '; border-radius:20px; cursor:pointer; font-size:0.82em; font-weight:600; transition:all 0.15s;">'
+                    html += '<button onclick="wbwToggleValue(\'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')" title="' + escapeAttr(v.description) + '" style="padding:6px 14px; background:' + bg + '; color:' + clr + '; border:' + border + '; border-radius:20px; cursor:pointer; font-size:0.82em; font-weight:600; transition:all 0.15s;">'
                         + (isCompany ? bpIcon('star',10) + ' ' : '') + escapeHtml(v.name) + '</button>';
                 });
                 html += '</div></div>';
@@ -6058,7 +6093,8 @@
                 var prompt = 'For the role "' + (_wbw.title || 'this role') + '" at "' + (_wbw.company || 'this company') + '", write a 1-2 sentence professional description for each workplace value below. Return JSON array of objects with "name" and "description" keys.\n\nValues:\n' + vals.map(function(n) { return '- ' + n; }).join('\n');
                 var resp = await callAnthropicAPI({ model: 'claude-haiku-4-5-20251001', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] }, null, 'wb-value-desc-bulk');
                 var respText = (resp.content && resp.content[0] && resp.content[0].text) || (typeof resp === 'string' ? resp : JSON.stringify(resp));
-                var parsed = JSON.parse(respText.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
+                var parsed = [];
+                try { parsed = JSON.parse(respText.replace(/```json?\n?/g, '').replace(/```/g, '').trim()); } catch(e) { console.warn('[WBW] Value desc JSON parse failed:', e.message); }
                 parsed.forEach(function(item) {
                     if (item.name && item.description) _wbw.valueDescriptions[item.name] = item.description;
                 });
@@ -6201,11 +6237,11 @@
             var fs = _wbwFieldStyle;
             var ls = _wbwLabelStyle;
             var html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
-            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Role Title</label><input id="wbwEditTitle" type="text" value="' + escapeHtml(data.title || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Company</label><input id="wbwEditCompany" type="text" value="' + escapeHtml(data.company || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Location</label><input id="wbwEditLocation" type="text" value="' + escapeHtml(data.location || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Department</label><input id="wbwEditDepartment" type="text" value="' + escapeHtml(data.department || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Reports To</label><input id="wbwEditReportsTo" type="text" value="' + escapeHtml(data.reportsTo || '') + '" style="' + fs + '" /></div>';
+            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Role Title</label><input id="wbwEditTitle" type="text" value="' + escapeAttr(data.title || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Company</label><input id="wbwEditCompany" type="text" value="' + escapeAttr(data.company || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Location</label><input id="wbwEditLocation" type="text" value="' + escapeAttr(data.location || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Department</label><input id="wbwEditDepartment" type="text" value="' + escapeAttr(data.department || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Reports To</label><input id="wbwEditReportsTo" type="text" value="' + escapeAttr(data.reportsTo || '') + '" style="' + fs + '" /></div>';
             html += '<div><label style="' + ls + '">Employment Type</label><select id="wbwEditEmploymentType" style="' + fs + '">';
             ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'].forEach(function(t) {
                 html += '<option' + (data.employmentType === t ? ' selected' : '') + '>' + t + '</option>';
@@ -6216,10 +6252,10 @@
                 html += '<option value="' + o.v + '"' + (data.seniority === o.v ? ' selected' : '') + '>' + o.l + '</option>';
             });
             html += '</select></div>';
-            html += '<div><label style="' + ls + '">Schedule</label><input id="wbwEditSchedule" type="text" value="' + escapeHtml(data.schedule || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Travel</label><input id="wbwEditTravel" type="text" value="' + escapeHtml(data.travel || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Industry</label><input id="wbwEditIndustry" type="text" value="' + escapeHtml(data.industry || '') + '" style="' + fs + '" /></div>';
-            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Compensation</label><input id="wbwEditCompensation" type="text" value="' + escapeHtml(data.compensationRange || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Schedule</label><input id="wbwEditSchedule" type="text" value="' + escapeAttr(data.schedule || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Travel</label><input id="wbwEditTravel" type="text" value="' + escapeAttr(data.travel || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Industry</label><input id="wbwEditIndustry" type="text" value="' + escapeAttr(data.industry || '') + '" style="' + fs + '" /></div>';
+            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Compensation</label><input id="wbwEditCompensation" type="text" value="' + escapeAttr(data.compensationRange || '') + '" style="' + fs + '" /></div>';
             html += '</div>';
 
             html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Work Summary</label>'
@@ -6229,8 +6265,8 @@
             html += '<div><label style="' + ls + '">Years of Experience</label>';
             (_wbw.yearsRequired || []).forEach(function(yr, i) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="wbwEditYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="3-5" style="' + fs + ' max-width:80px;" />'
-                    + '<input id="wbwEditYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area" style="' + fs + '" /></div>';
+                    + '<input id="wbwEditYearsRange' + i + '" type="text" value="' + escapeAttr(yr.range) + '" placeholder="3-5" style="' + fs + ' max-width:80px;" />'
+                    + '<input id="wbwEditYearsArea' + i + '" type="text" value="' + escapeAttr(yr.area) + '" placeholder="Area" style="' + fs + '" /></div>';
             });
             html += '<button onclick="_wbw.yearsRequired.push({range:\'\',area:\'\'});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
@@ -6242,7 +6278,7 @@
                     html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select>'
-                    + '<input id="wbwEditEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field" style="' + fs + '" />'
+                    + '<input id="wbwEditEdField' + i + '" type="text" value="' + escapeAttr(ed.field) + '" placeholder="Field" style="' + fs + '" />'
                     + '<label style="display:flex; align-items:center; gap:3px; font-size:0.75em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="wbwEditEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Pref</label></div>';
             });
             html += '<button onclick="_wbw.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -6263,7 +6299,7 @@
             html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Qualifications</label>';
             (_wbw.qualifications || []).forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="wbwEditQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + fs + ' flex:1;" />'
+                    + '<input id="wbwEditQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + fs + ' flex:1;" />'
                     + '<button onclick="_wbw.qualifications.splice(' + qi + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_wbw.qualifications.push(\'\');renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -6271,8 +6307,8 @@
             html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Custom Fields</label>';
             (data.customFields || []).forEach(function(cf, i) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="wbwEditCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + fs + ' max-width:180px;" />'
-                    + '<input id="wbwEditCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + fs + ' flex:1;" />'
+                    + '<input id="wbwEditCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + fs + ' max-width:180px;" />'
+                    + '<input id="wbwEditCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + fs + ' flex:1;" />'
                     + '<button onclick="_wbw.customFields.splice(' + i + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_wbw.customFields.push({key:\'\',value:\'\'});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
@@ -6552,6 +6588,7 @@
                 if (_jdcEditMode) {
                     html += renderJDCEditForm(_jdcResult);
                 } else {
+                    html += _jdcActionBar('top');
                     html += renderWorkBlueprint(_jdcResult, _jdcCompMode === 'with');
                 }
             }
@@ -6686,6 +6723,57 @@
             showToast('Work Blueprint generated: ' + statParts.join(', ') + ' extracted.', 'success');
         }
 
+        // ===== JDC EXTRACTION QUALITY CHECK =====
+        // Detects when a URL fetch returned a JS-rendered shell with no real JD content.
+        // Returns an object: { ok: bool, warnings: string[] }
+        function _jdcCheckExtractQuality(result, extractedText) {
+            var warnings = [];
+
+            // Bad SOC matches — these mean the title extraction failed badly
+            var junkSocTitles = ['Carpenters', 'Painters', 'Laborers', 'Packers', 'Assemblers',
+                'Cashiers', 'Waiters', 'Cooks', 'Dishwashers', 'Janitors', 'Landscaping'];
+            if (result.socTitle && junkSocTitles.some(function(t) {
+                return result.socTitle.toLowerCase().indexOf(t.toLowerCase()) !== -1;
+            })) {
+                warnings.push('BLS occupation matched to "' + result.socTitle + '" — likely a bad title extraction.');
+            }
+
+            // Garbage summary patterns
+            var summary = result.summary || '';
+            var garbagePatterns = [
+                /consider the categor/i,
+                /[0-9a-f]{20,}/,          // long hex hashes
+                /cookie/i,
+                /consent/i,
+                /javascript.*required/i,
+                /enable javascript/i,
+                /please wait/i,
+                /loading\.\.\./i
+            ];
+            if (garbagePatterns.some(function(p) { return p.test(summary); })) {
+                warnings.push('Work summary appears to contain page boilerplate, not job description content.');
+            }
+
+            // Very short summary
+            if (summary.length < 80) {
+                warnings.push('Work summary is unusually short (' + summary.length + ' chars) — page may not have loaded fully.');
+            }
+
+            // Very few skills for a URL fetch
+            var skillCount = (result.skills || []).length;
+            if (skillCount < 3) {
+                warnings.push('Only ' + skillCount + ' skill' + (skillCount === 1 ? '' : 's') + ' extracted \u2014 the page likely did not return full job content.');
+            }
+
+            // Short extracted text
+            if (extractedText && extractedText.length < 300) {
+                warnings.push('Extracted text was only ' + extractedText.length + ' characters — this page is likely JavaScript-rendered and requires manual paste.');
+            }
+
+            return { ok: warnings.length === 0, warnings: warnings };
+        }
+
+
         function runJDConverterFromURL() {
             var urlInput = document.getElementById('jdcUrlInput');
             var url = (urlInput || {}).value || '';
@@ -6706,10 +6794,13 @@
                     var text = _jdcExtractTextFromHTML(html);
                     if (text.length < 50) throw new Error('Could not extract meaningful text from the page.');
                     if (statusEl) statusEl.innerHTML = '<span style="color:var(--accent);">' + bpIcon('loader',14) + ' Extracting skills with AI...</span>';
-                    return convertJDToBlueprintAsync(text);
+                    return convertJDToBlueprintAsync(text).then(function(r) { return { result: r, text: text }; });
                 })
-                .then(function(result) {
+                .then(function(payload) {
+                    var result = payload.result;
+                    var extractedText = payload.text;
                     _jdcResult = result;
+                    _jdcResult._extractQuality = _jdcCheckExtractQuality(result, extractedText);
                     logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url', method: _jdcResult._extractionMethod || 'local' });
                     _jdcCompMode = 'without';
                     _jdcBulkResults = [];
@@ -6773,12 +6864,14 @@
             _jdcBulkResults = [];
             _jdcBulkViewIdx = 0;
             jds.forEach(function(jd) {
+                if (_jdcBulkResults.length >= 100) return;
                 try {
                     _jdcBulkResults.push(convertJDToBlueprint(jd));
                 } catch(e) {
                     console.warn('JDC bulk conversion error:', e);
                 }
             });
+            if (_jdcBulkResults.length >= 100) showToast('Bulk limit: first 100 job descriptions processed.', 'info');
             if (_jdcBulkResults.length > 0) {
                 _jdcResult = _jdcBulkResults[0];
                 _jdcCompMode = 'without';
@@ -6840,7 +6933,9 @@
                 _jdcBulkViewIdx = 0;
                 jds.forEach(function(jd) {
                     try {
-                        _jdcBulkResults.push(convertJDToBlueprint(jd));
+                        if (_jdcBulkResults.length < 100) {
+                            _jdcBulkResults.push(convertJDToBlueprint(jd));
+                        }
                     } catch(err) {
                         console.warn('JDC file conversion error:', err);
                     }
@@ -7877,6 +7972,58 @@
             return best || '';
         }
         
+        // ===== JDC ACTION BAR =====
+        // Renders export/edit/save/close buttons — shared top+bottom.
+        // position: 'top' adds margin-bottom; 'bottom' adds margin-top.
+        function _jdcActionBar(position) {
+            var isTop = position === 'top';
+            var margin = isTop ? 'margin-bottom:10px;' : 'margin-top:10px;';
+            var borderColor = 'var(--c-surface-5)';
+            var isSaved = _jdcSavedState;
+            var saveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
+
+            var h = '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; ' + margin + '">'
+                + '<button onclick="exportWorkBlueprintJSON()" style="padding:7px 15px; background:var(--accent); color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export JSON</button>'
+                + '<button onclick="exportWorkBlueprintPDF()" style="padding:7px 15px; background:#8b5cf6; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export PDF</button>'
+                + '<button onclick="exportWorkBlueprintWord()" style="padding:7px 15px; background:#2563eb; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export Word</button>'
+                + '<button onclick="copyWorkBlueprintJSON()" style="padding:7px 15px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('share',13) + ' Copy JSON</button>'
+                + '<button onclick="jdcEditBlueprint()" style="padding:7px 15px; background:#f59e0b; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('edit',13) + ' Edit</button>';
+
+            if (typeof fbUser !== 'undefined' && fbUser) {
+                h += '<button onclick="jdcSaveToRepository()" style="padding:7px 15px; background:#10b981; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                    + bpIcon('save',13) + ' ' + saveLabel + '</button>';
+            }
+
+            // Close button — rightmost, with unsaved warning
+            h += '<div style="margin-left:auto;">'
+                + '<button onclick="jdcCloseBlueprint()" style="padding:7px 14px; background:var(--c-surface-3); color:' + (isSaved ? 'var(--c-muted)' : '#ef4444') + '; border:1px solid ' + (isSaved ? borderColor : 'rgba(239,68,68,0.35)') + '; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;" title="' + (isSaved ? 'Close blueprint' : 'Unsaved changes') + '">'
+                + bpIcon('x',13) + ' Close</button>'
+                + '</div>';
+
+            h += '</div>';
+            return h;
+        }
+
+        function jdcCloseBlueprint() {
+            if (!_jdcSavedState && _jdcResult) {
+                if (!confirm('This blueprint hasn\'t been saved to your repository.\n\nClose anyway?')) return;
+            }
+            _jdcResult = null;
+            _jdcBulkResults = [];
+            _jdcBulkViewIdx = -1;
+            _jdcFromRepo = false;
+            _jdcEditMode = false;
+            _jdcSavedState = false;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+        }
+        window.jdcCloseBlueprint = jdcCloseBlueprint;
+
+
         function renderWorkBlueprint(data, showComp, opts) {
             opts = opts || {};
             var html = '';
@@ -7917,6 +8064,21 @@
                     html += '<span style="font-size:0.78em; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:' + mutedColor + ';"><strong style="color:' + headingColor + ';">' + escapeHtml(l.label) + ':</strong> ' + escapeHtml(l.value) + '</span>';
                 });
                 html += '</div>';
+            }
+
+            // ── Extraction Quality Warning ────────────────────────────
+            if (data._extractQuality && !data._extractQuality.ok && data._extractQuality.warnings.length) {
+                html += '<div style="margin-bottom:14px; padding:12px 14px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.35); border-radius:8px;">'
+                    + '<div style="display:flex; align-items:flex-start; gap:8px;">'
+                    + '<div style="flex-shrink:0; margin-top:1px;">' + bpIcon('warning', 14) + '</div>'
+                    + '<div>'
+                    + '<div style="font-size:0.8em; font-weight:700; color:#f59e0b; margin-bottom:4px;">Fetch Quality Warning — results may be incomplete</div>'
+                    + '<div style="font-size:0.77em; color:var(--c-muted); line-height:1.6;">'
+                    + data._extractQuality.warnings.map(function(w) { return '&bull; ' + escapeHtml(w); }).join('<br>')
+                    + '</div>'
+                    + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:6px;">This page is likely JavaScript-rendered. For best results, <strong style="color:#f59e0b;">copy and paste</strong> the job description text directly using the Paste tab.</div>'
+                    + '</div></div>'
+                    + '</div>';
             }
 
             // ── Compensation Range Panel ─────────────────────────────
@@ -7975,11 +8137,11 @@
                 // Active/override range — editable
                 html += '<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">';
                 html += '<div style="font-size:0.72em; color:var(--c-muted); font-weight:600; white-space:nowrap;">Use for this Blueprint:</div>';
-                html += '<input id="wbActiveCompRange" type="text" value="' + escapeHtml(activeRange) + '" placeholder="e.g. $180,000 \u2013 $220,000" style="flex:1; min-width:180px; padding:6px 10px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-text); font-size:0.82em; font-family:inherit;" oninput="wbUpdateActiveCompRange(this.value)">';
+                html += '<input id="wbActiveCompRange" type="text" value="' + escapeAttr(activeRange) + '" placeholder="e.g. $180,000 \u2013 $220,000" style="flex:1; min-width:180px; padding:6px 10px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-text); font-size:0.82em; font-family:inherit;" oninput="wbUpdateActiveCompRange(this.value)">';
                 if (jdRange || bpSuggestedRange) {
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
-                    if (jdRange) html += '<button onclick="wbSetCompRange(' + JSON.stringify(jdRange) + ')" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:5px; background:transparent; color:#60a5fa; cursor:pointer; font-weight:600;">Use JD Range</button>';
-                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(' + JSON.stringify(bpSuggestedRange) + ')" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(16,185,129,0.3); border-radius:5px; background:transparent; color:#10b981; cursor:pointer; font-weight:600;">Use Blueprint</button>';
+                    if (jdRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(jdRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:5px; background:transparent; color:#60a5fa; cursor:pointer; font-weight:600;">Use JD Range</button>';
+                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(bpSuggestedRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(16,185,129,0.3); border-radius:5px; background:transparent; color:#10b981; cursor:pointer; font-weight:600;">Use Blueprint</button>';
                     html += '</div>';
                 }
                 html += '</div>'; // end active range row
@@ -8328,23 +8490,7 @@
             }
 
             if (!opts.hideButtons) {
-                html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
-                    + '<button onclick="exportWorkBlueprintJSON()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export JSON</button>'
-                    + '<button onclick="exportWorkBlueprintPDF()" style="padding:8px 18px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export PDF</button>'
-                    + '<button onclick="exportWorkBlueprintWord()" style="padding:8px 18px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export Word</button>'
-                    + '<button onclick="copyWorkBlueprintJSON()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('share',14) + ' Copy JSON</button>'
-                    + '<button onclick="jdcEditBlueprint()" style="padding:8px 18px; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('edit',14) + ' Edit</button>';
-                if (typeof fbUser !== 'undefined' && fbUser) {
-                    var _saveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
-                    html += '<button onclick="jdcSaveToRepository()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                        + bpIcon('save',14) + ' ' + _saveLabel + '</button>';
-                }
-                html += '</div>';
+                html += _jdcActionBar();
             }
 
             return html;
@@ -8784,6 +8930,7 @@
 
         var _jdcEditMode = false;
         var _jdcFromRepo = false;
+        var _jdcSavedState = false; // true after save; false after edit/new conversion
         function jdcEditBlueprint() {
             if (!_jdcResult) return;
             if (!_jdcResult.skills) _jdcResult.skills = [];
@@ -9234,7 +9381,7 @@
             textFields.forEach(function(f) {
                 var spanStyle = f.span === 2 ? 'grid-column:1/-1;' : '';
                 html += '<div style="' + spanStyle + '"><label style="' + labelStyle + '">' + (f.label || f.id) + '</label>'
-                    + '<input id="jdcEdit' + f.id + '" type="text" value="' + escapeHtml(f.val || '') + '" style="' + fieldStyle + '" /></div>';
+                    + '<input id="jdcEdit' + f.id + '" type="text" value="' + escapeAttr(f.val || '') + '" style="' + fieldStyle + '" /></div>';
             });
             html += '<div><label style="' + labelStyle + '">Employment Type</label><select id="jdcEditEmploymentType" style="' + fieldStyle + '"><option value="">—</option>';
             var etMatch = false;
@@ -9264,7 +9411,7 @@
             html += '</select></div>';
             var compVal = (data.compensation && data.compensation.range) ? data.compensation.range : (data.compensationRange || '');
             html += '<div><label style="' + labelStyle + '">Compensation</label>'
-                + '<input id="jdcEditCompensation" type="text" value="' + escapeHtml(compVal) + '" placeholder="e.g. $100,000 - $120,000" style="' + fieldStyle + '" /></div>';
+                + '<input id="jdcEditCompensation" type="text" value="' + escapeAttr(compVal) + '" placeholder="e.g. $100,000 - $120,000" style="' + fieldStyle + '" /></div>';
             html += '</div>';
             if (data.bls) {
                 var editHiddenPcts = data.hiddenCompRows || [];
@@ -9309,8 +9456,8 @@
             html += '<div><label style="' + labelStyle + '">Years of Experience</label>';
             (data.yearsRequired || []).forEach(function(yr, i) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="jdcEditYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="3-5" style="' + fieldStyle + ' max-width:80px;" />'
-                    + '<input id="jdcEditYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area" style="' + fieldStyle + '" />'
+                    + '<input id="jdcEditYearsRange' + i + '" type="text" value="' + escapeAttr(yr.range) + '" placeholder="3-5" style="' + fieldStyle + ' max-width:80px;" />'
+                    + '<input id="jdcEditYearsArea' + i + '" type="text" value="' + escapeAttr(yr.area) + '" placeholder="Area" style="' + fieldStyle + '" />'
                     + '</div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.yearsRequired=_jdcResult.yearsRequired||[];_jdcResult.yearsRequired.push({range:\'\',area:\'\'});' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -9323,7 +9470,7 @@
                     html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select>'
-                    + '<input id="jdcEditEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field" style="' + fieldStyle + '" />'
+                    + '<input id="jdcEditEdField' + i + '" type="text" value="' + escapeAttr(ed.field) + '" placeholder="Field" style="' + fieldStyle + '" />'
                     + '<label style="display:flex; align-items:center; gap:3px; font-size:0.75em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="jdcEditEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Pref</label></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.education=_jdcResult.education||[];_jdcResult.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -9344,7 +9491,7 @@
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Qualifications</label>';
             (data.qualifications || []).forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="jdcEditQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + fieldStyle + ' flex:1;" />'
+                    + '<input id="jdcEditQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications.splice(' + qi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications=_jdcResult.qualifications||[];_jdcResult.qualifications.push(\'\');' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -9366,8 +9513,8 @@
             var profLevels = ['Awareness', 'Foundational', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
             (data.skills || []).forEach(function(s, si) {
                 html += '<tr style="border-bottom:1px solid ' + borderColor + ';">'
-                    + '<td style="padding:8px;"><input id="jdcEditSkillName' + si + '" type="text" value="' + escapeHtml(s.name) + '" style="' + fieldStyle + ' font-weight:600;" /></td>'
-                    + '<td style="padding:8px;"><div style="display:flex; align-items:center; gap:4px;"><input id="jdcEditSkillOutcome' + si + '" type="text" value="' + escapeHtml(s.outcome || '') + '" style="' + fieldStyle + ' flex:1;" />'
+                    + '<td style="padding:8px;"><input id="jdcEditSkillName' + si + '" type="text" value="' + escapeAttr(s.name) + '" style="' + fieldStyle + ' font-weight:600;" /></td>'
+                    + '<td style="padding:8px;"><div style="display:flex; align-items:center; gap:4px;"><input id="jdcEditSkillOutcome' + si + '" type="text" value="' + escapeAttr(s.outcome || '') + '" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="jdcAIFillOneSkillOutcome(' + si + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:0 3px; flex-shrink:0;" title="AI generate outcome">' + bpIcon('wand',13) + '</button></div></td>'
                     + '<td style="padding:8px;"><select id="jdcEditSkillLevel' + si + '" style="' + fieldStyle + '">';
                 profLevels.forEach(function(lv) {
@@ -9414,8 +9561,8 @@
                 var valName = typeof v === 'string' ? v : (v.name || '');
                 var valDesc = typeof v === 'object' ? (v.description || v.desc || '') : '';
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
-                    + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeHtml(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
-                    + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeHtml(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
+                    + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeAttr(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
+                    + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeAttr(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="jdcAIFillOneValueDesc(' + vi + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:0 3px;" title="AI generate description">' + bpIcon('wand',13) + '</button>'
                     + '<button onclick="_jdcSyncFormToState();_jdcResult.values.splice(' + vi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
@@ -9455,7 +9602,7 @@
             (demoData.evidence || []).forEach(function(ev, ei) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
                     + '<span style="color:#10b981; font-size:0.9em;">' + bpIcon('check',12) + '</span>'
-                    + '<input id="jdcEditEvidence' + ei + '" type="text" value="' + escapeHtml(ev) + '" style="' + fieldStyle + ' flex:1;" />'
+                    + '<input id="jdcEditEvidence' + ei + '" type="text" value="' + escapeAttr(ev) + '" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="_jdcSyncFormToState();_jdcResult.demonstrated.evidence.splice(' + ei + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();if(!_jdcResult.demonstrated)_jdcResult.demonstrated={evidence:[],artifacts:\'\'};_jdcResult.demonstrated.evidence.push(\'\');' + refreshEsc + ';" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px; margin-bottom:12px;">' + bpIcon('plus',10) + ' Add Evidence</button>';
@@ -9467,8 +9614,8 @@
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Custom Fields</label>';
             (data.customFields || []).forEach(function(cf, i) {
                 html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">'
-                    + '<input id="jdcEditCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + fieldStyle + ' max-width:180px;" />'
-                    + '<input id="jdcEditCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + fieldStyle + '" />'
+                    + '<input id="jdcEditCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + fieldStyle + ' max-width:180px;" />'
+                    + '<input id="jdcEditCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + fieldStyle + '" />'
                     + '<button onclick="_jdcSyncFormToState(); _jdcResult.customFields.splice(' + i + ',1); ' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState(); if(!_jdcResult.customFields) _jdcResult.customFields=[]; _jdcResult.customFields.push({key:\'\',value:\'\'}); ' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
@@ -9500,6 +9647,7 @@
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(d.id).set(d, { merge: true })
                 .then(function() {
                     _jdcSaving = false;
+                    _jdcSavedState = true;
                     showToast('Work Blueprint saved.', 'success');
                     logAnalyticsEvent(_jdcFromRepo ? 'wb_edited' : 'wb_created', { title: d.title || '', company: d.company || '' });
                     _jdcRepoCache = null;
@@ -9564,6 +9712,7 @@
 
         var _wbRepoCache = null;
         var _wbRepoViewIdx = -1;
+        var _d3RenderTimer = null; // debounce guard for D3 force graph renders
 
         function renderAdminWBRepo(el) {
             var html = '<div style="max-width:1000px;">'
@@ -11445,7 +11594,7 @@
             showToast('Saving comparison...', 'info', 2000);
             var col = _wbCompFSPath();
             var persist = col
-                ? col.doc(safe.id).set(safe).then(function() { showToast('Comparison saved!', 'success'); })
+                ? col.doc(safe.id).set(safe).then(function() { showToast('Comparison saved!', 'success'); }).catch(function(e) { console.warn('[Comp] Save error:', e.message); showToast('Comparison save failed — data may not have persisted.', 'error'); })
                 : Promise.resolve(function() {
                     var ls = _wbCompGetLS();
                     ls.unshift(safe);
@@ -11983,6 +12132,7 @@
             _jdcInputMode = 'paste';
             _jdcEditMode = true;
             _jdcFromRepo = true;
+            _jdcSavedState = true; // already in repo — close button should not warn
             if (!_jdcResult.skills) _jdcResult.skills = [];
             if (!_jdcResult.values) _jdcResult.values = [];
             if (!_jdcResult.certifications) _jdcResult.certifications = [];
@@ -12123,6 +12273,7 @@
         async function _parseAuditFetch() {
             _parseAuditLoading = true;
             _parseAuditResults = [];
+            try {
 
             var terms = [];
             var roles = (userData.roles || []).map(function(r) { return r.name || r; });
@@ -12238,7 +12389,308 @@
 
             _parseAuditResults = allJobs;
             _parseAuditLoading = false;
+            } catch(e) {
+                console.warn('[ParseAudit] Fetch error:', e.message);
+                _parseAuditLoading = false;
+                showToast('Job audit fetch failed: ' + e.message, 'error');
+            }
         }
+
+
+        function renderAdminWBAbout(el) {
+            // Reads live constants from the codebase — always in sync
+            var constants = {
+                profileSkillCap:  typeof PROFILE_SKILL_CAP !== 'undefined' ? PROFILE_SKILL_CAP : 50,
+                wbSkillCap:       typeof WB_SKILL_CAP      !== 'undefined' ? WB_SKILL_CAP      : 20,
+                jobSkillsCap:     typeof JOB_SKILLS_CAP    !== 'undefined' ? JOB_SKILLS_CAP    : 50,
+                premiumPoolPct:   15,     // 15% of BLS median
+                advancedW:        0.6, expertW: 0.9, masteryW: 1.2,
+                muDefault:        0.60,
+                dmplMult:         1.50,
+                otransPct:        0.15,
+                omegaPct:         0.08,
+                geoFloor:         0.78,  // rural floor
+                geoCeiling:       1.48,  // HCOL ceiling
+                techIndustryMult: 1.22,
+                finSvcMult:       1.18,
+                consMult:         1.14,
+                lifeSciMult:      1.10,
+                healthMult:       1.05,
+                tier1Mult:        1.18,
+                tier2Mult:        1.08
+            };
+
+            var headingColor   = 'var(--text-primary)';
+            var mutedColor     = 'var(--text-muted)';
+            var borderColor    = 'var(--border)';
+            var surfaceBg      = 'var(--bg-elevated)';
+            var accentBlue     = '#60a5fa';
+            var accentGreen    = '#10b981';
+            var accentAmber    = '#f59e0b';
+            var accentPurple   = '#a78bfa';
+
+            function row(label, val, note) {
+                return '<tr>'
+                    + '<td style="padding:7px 12px; font-size:0.82em; color:' + headingColor + '; font-weight:600; white-space:nowrap;">' + label + '</td>'
+                    + '<td style="padding:7px 12px; font-size:0.82em; color:' + accentBlue + '; font-family:monospace; font-weight:700;">' + val + '</td>'
+                    + '<td style="padding:7px 12px; font-size:0.78em; color:' + mutedColor + ';">' + (note || '') + '</td>'
+                    + '</tr>';
+            }
+
+            function section(title, color, content) {
+                return '<div style="margin-bottom:20px; border:1px solid ' + borderColor + '; border-radius:10px; overflow:hidden;">'
+                    + '<div style="padding:9px 14px; background:rgba(0,0,0,0.12); border-bottom:1px solid ' + borderColor + '; display:flex; align-items:center; gap:8px;">'
+                    + '<div style="width:8px; height:8px; border-radius:50%; background:' + color + ';"></div>'
+                    + '<span style="font-weight:700; font-size:0.8em; color:' + color + '; text-transform:uppercase; letter-spacing:0.5px;">' + title + '</span>'
+                    + '</div>'
+                    + '<div style="padding:12px 14px;">' + content + '</div>'
+                    + '</div>';
+            }
+
+            function tableWrap(rows) {
+                return '<table style="width:100%; border-collapse:collapse;">'
+                    + '<tbody>' + rows + '</tbody></table>';
+            }
+
+            function prose(txt) {
+                return '<p style="font-size:0.82em; color:' + mutedColor + '; line-height:1.65; margin:0 0 8px 0;">' + txt + '</p>';
+            }
+
+            var html = '<div id="wbAboutPanel" style="max-width:960px;">';
+
+            // Header
+            html += '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:18px;">'
+                + '<div>'
+                + '<div style="font-size:1.15em; font-weight:700; color:' + headingColor + ';">' + bpIcon('blueprint', 18) + ' About Work Blueprint</div>'
+                + '<div style="font-size:0.75em; color:' + mutedColor + '; margin-top:4px;">' + BP_VERSION + ' &middot; Jurkiewicz Methodology &middot; All constants are live from the codebase</div>'
+                + '</div>'
+                + '<button onclick="wbAboutExportPDF()" style="padding:7px 16px; background:' + accentBlue + '; color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.78em; font-weight:700;">'
+                + bpIcon('save', 12) + ' Download PDF</button>'
+                + '</div>';
+
+            // ── Layer 1: BLS Baseline ────────────────────────────────────────────
+            html += section('Layer 1 — BLS / OEWS Salary Baseline', accentBlue,
+                prose('Every Work Blueprint starts with Bureau of Labor Statistics Occupational Employment and Wage Statistics (OEWS) data, updated annually each May. Blueprint maps each job title to the closest SOC-6 occupation code using O*NET title aliases (53,391 aliases across 1,016 occupations).')
+                + prose('Matching follows a three-pass cascade: exact SOC match → O*NET crosswalk alias lookup → keyword-weighted fuzzy title similarity. The best-scoring match above a 0.35 confidence threshold is accepted; below that threshold, no BLS data is applied.')
+                + tableWrap(
+                    row('Data source', 'BLS OEWS May 2024', 'Released ~April each year; Blueprint updates on new release')
+                    + row('Crosswalk', 'O*NET 28.3', '53,391 aliases · 1,016 occupations')
+                    + row('Match threshold', '≥ 0.35 confidence', 'Below threshold: no BLS benchmark applied')
+                    + row('Percentiles provided', 'pct10, pct25, median, pct75, pct90', 'Annual wages, all workers nationally')
+                )
+            );
+
+            // ── Layer 2: Seniority Percentile ───────────────────────────────────
+            html += section('Layer 2 — Seniority → Percentile Mapping', accentGreen,
+                prose('Detected seniority maps to a BLS wage percentile. Blueprint reads the seniority signal from the job title, level field, or explicit JD keywords.')
+                + tableWrap(
+                    row('Entry / Junior', '25th percentile', 'New-to-role or early career')
+                    + row('Mid-level (default)', '50th percentile (median)', 'No explicit seniority signal')
+                    + row('Senior / Lead / Staff / Principal', '75th percentile', 'Demonstrated depth required')
+                    + row('Director', '75th percentile', 'Scope over a function or team')
+                    + row('Executive / VP / C-suite', '90th percentile', 'Org-wide accountability')
+                )
+            );
+
+            // ── Layer 3: Geographic Adjustment ──────────────────────────────────
+            html += section('Layer 3 — Geographic Adjustment', accentAmber,
+                prose('BLS OEWS figures are national medians. Blueprint applies a metro-area wage multiplier sourced from BLS Metro Area Occupational Employment and Wage data. Multipliers range from ' + constants.geoFloor + '× (rural / low-cost) to ' + constants.geoCeiling + '× (San Francisco / NYC). Unknown locations default to 1.0×.')
+                + prose('Formula at this layer: <strong>BLS_pct × Geo_multiplier</strong>.')
+            );
+
+            // ── Layer 4: Market Context (Comp Context Engine) ───────────────────
+            html += section('Layer 4 — Market Context Multiplier (Comp Context Engine)', accentPurple,
+                prose('Introduced in v4.46.64. Industry sector and company tier systematically push wages above the geographic BLS baseline. Both multipliers are stacked multiplicatively.')
+                + tableWrap(
+                    row('Technology', constants.techIndustryMult + '×', 'SaaS, cloud, AI, enterprise software')
+                    + row('Financial Services', constants.finSvcMult + '×', 'Banking, asset management, fintech, insurance')
+                    + row('Consulting', constants.consMult + '×', 'Strategy, management, and professional services')
+                    + row('Life Sciences', constants.lifeSciMult + '×', 'Pharma, biotech, medical devices')
+                    + row('Healthcare', constants.healthMult + '×', 'Health systems, providers, payers')
+                    + row('Company Tier 1', constants.tier1Mult + '×', 'FAANG, Salesforce, Goldman, McKinsey, OpenAI, Citadel, etc.')
+                    + row('Company Tier 2', constants.tier2Mult + '×', 'Oracle, SAP, IBM, Accenture, Deloitte, Boeing, etc.')
+                    + row('Unknown company — high signal', '1.12×', 'Posted salary hi > $200K')
+                    + row('Unknown company — mid signal', '1.06×', 'Posted salary hi $150K–$200K')
+                    + row('Unknown company — no signal', '1.00×', 'No posted salary, unrecognized company')
+                )
+                + prose('Formula at this layer: <strong>BLS_pct × Geo × Industry_mult × CompanyTier_mult</strong>.')
+            );
+
+            // ── Layer 5: Skill Premium Pool ─────────────────────────────────────
+            html += section('Layer 5 — Skill Premium Pool', '#f97316',
+                prose('A premium pool equal to ' + constants.premiumPoolPct + '% of the adjusted BLS median is distributed across blueprint skills. Each skill earns a share based on its O*NET importance score weighted by declared proficiency.')
+                + tableWrap(
+                    row('Premium pool', constants.premiumPoolPct + '% of adjusted median', 'Applied after Layers 1–4')
+                    + row('Advanced proficiency weight', constants.advancedW, 'O*NET importance × 0.6')
+                    + row('Expert proficiency weight', constants.expertW, 'O*NET importance × 0.9')
+                    + row('Mastery proficiency weight', constants.masteryW, 'O*NET importance × 1.2')
+                    + row('Profile skill cap', constants.profileSkillCap, 'Maximum skills on a profile')
+                    + row('Work Blueprint skill cap', constants.wbSkillCap, 'Maximum skills per blueprint')
+                )
+            );
+
+            // ── What Blueprint IS / IS NOT ───────────────────────────────────────
+            html += section('What This Model IS — and IS NOT', '#94a3b8',
+                '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
+                + '<div>'
+                + '<div style="font-size:0.72em; font-weight:700; color:' + accentGreen + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">&#10003; What it IS</div>'
+                + '<ul style="font-size:0.8em; color:' + mutedColor + '; line-height:1.75; padding-left:16px; margin:0;">'
+                + '<li>A structured benchmark grounded in government wage data</li>'
+                + '<li>A consistent, repeatable methodology across all roles</li>'
+                + '<li>A negotiation starting point informed by skill depth</li>'
+                + '<li>A market context signal using company and industry signals</li>'
+                + '<li>A living model updated on each BLS annual release</li>'
+                + '</ul>'
+                + '</div>'
+                + '<div>'
+                + '<div style="font-size:0.72em; font-weight:700; color:#ef4444; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">&#10007; What it IS NOT</div>'
+                + '<ul style="font-size:0.8em; color:' + mutedColor + '; line-height:1.75; padding-left:16px; margin:0;">'
+                + '<li>A guarantee or offer letter</li>'
+                + '<li>A substitute for direct compensation research</li>'
+                + '<li>Inclusive of equity, bonus, or total compensation</li>'
+                + '<li>Adjusted for individual negotiating leverage</li>'
+                + '<li>Validated against private comp survey data (Radford, Mercer, etc.)</li>'
+                + '</ul>'
+                + '</div>'
+                + '</div>'
+            );
+
+            // ── Data Sources & Refresh ───────────────────────────────────────────
+            html += section('Data Sources & Refresh Schedule', '#64748b',
+                tableWrap(
+                    row('BLS OEWS', 'Annual (May release)', 'National and metro occupational wages')
+                    + row('O*NET', '28.3 (current)', 'SOC crosswalk, skill importance scores, 53K+ aliases')
+                    + row('Geographic multipliers', 'Aligned to BLS Metro release', 'Metro-area wage index')
+                    + row('Industry multipliers', 'Model constant — reviewed annually', 'Calibrated to published HR comp surveys')
+                    + row('Company tier list', 'Updated in-code quarterly', 'Top 50–100 companies per sector by brand/wage premium')
+                )
+                + '<div style="margin-top:10px; font-size:0.75em; color:' + mutedColor + '; font-style:italic;">Known limitation: BLS OEWS lags the real-time market by 12–18 months. Fast-moving markets (AI, LLM engineering) may show significant deviation. Use as a floor, not a ceiling, for emerging roles.</div>'
+            );
+
+            html += '</div>'; // end wbAboutPanel
+
+            el.innerHTML = html;
+        }
+        window.renderAdminWBAbout = renderAdminWBAbout;
+
+        function wbAboutExportPDF() {
+            try {
+                var el = document.getElementById('wbAboutPanel');
+                if (!el) return;
+                if (typeof jsPDF === 'undefined' && typeof window.jspdf === 'undefined') {
+                    showToast('PDF library not loaded yet — try again in a moment.', 'warning'); return;
+                }
+                var jspdf = window.jspdf || window.jsPDF;
+                var doc = new jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+                var M = 18, W = 210, CW = W - M * 2;
+                var y = M, LH = 6.5, SH = 5.2;
+                var pageH = 297;
+
+                function checkPage(needed) {
+                    if (y + (needed || LH) > pageH - 14) { doc.addPage(); y = M; }
+                }
+                function heading1(txt) {
+                    checkPage(10);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(30, 64, 175);
+                    doc.text(txt, M, y); y += 10;
+                }
+                function heading2(txt, r, g, b) {
+                    checkPage(9);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(r || 30, g || 100, b || 200);
+                    doc.text(txt.toUpperCase(), M, y); y += 7;
+                }
+                function body(txt) {
+                    var lines = doc.splitTextToSize(txt, CW);
+                    checkPage(lines.length * SH + 2);
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(80, 80, 90);
+                    doc.text(lines, M, y); y += lines.length * SH + 2;
+                }
+                function tableRow(label, val, note) {
+                    checkPage(7);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(30, 41, 59);
+                    doc.text(label, M, y);
+                    doc.setFont('helvetica', 'normal'); doc.setTextColor(37, 99, 235);
+                    doc.text(String(val), M + 68, y);
+                    doc.setTextColor(100, 116, 139);
+                    var noteLines = doc.splitTextToSize(note || '', CW - 100);
+                    doc.text(noteLines, M + 100, y);
+                    y += 6;
+                }
+                function divider() { checkPage(5); doc.setDrawColor(220,220,228); doc.line(M, y, W - M, y); y += 5; }
+
+                // Title block
+                heading1('About Work Blueprint');
+                doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(100,116,139);
+                doc.text(BP_VERSION + '  \u00B7  Jurkiewicz Methodology  \u00B7  myblueprint.work', M, y); y += 8;
+                divider();
+
+                heading2('Layer 1 — BLS / OEWS Salary Baseline', 37, 99, 235);
+                body('Every Work Blueprint starts with Bureau of Labor Statistics OEWS data. Blueprint maps job titles to SOC-6 codes using O*NET aliases (53,391 aliases, 1,016 occupations). Matching: exact SOC → O*NET alias → keyword fuzzy. Threshold: \u2265 0.35 confidence.');
+                tableRow('Data source', 'BLS OEWS May 2024', 'Updated annually on new release');
+                tableRow('O*NET crosswalk', 'O*NET 28.3', '53,391 aliases · 1,016 occupations');
+                tableRow('Match threshold', '≥ 0.35', 'Below threshold: no BLS applied');
+                y += 3;
+
+                heading2('Layer 2 — Seniority → Percentile Mapping', 16, 185, 129);
+                tableRow('Entry / Junior', 'pct25', 'New-to-role or early career');
+                tableRow('Mid-level (default)', 'median', 'No explicit seniority signal');
+                tableRow('Senior / Lead / Staff / Principal', 'pct75', 'Demonstrated depth required');
+                tableRow('Director', 'pct75', 'Scope over a function or team');
+                tableRow('Executive / VP / C-suite', 'pct90', 'Org-wide accountability');
+                y += 3;
+
+                heading2('Layer 3 — Geographic Adjustment', 245, 158, 11);
+                body('Metro-area BLS wage multiplier. Range: ' + 0.78 + '× (rural) to ' + 1.48 + '× (SF/NYC). Unknown location defaults to 1.0×.');
+                y += 3;
+
+                heading2('Layer 4 — Market Context Multiplier (Comp Context Engine)', 167, 139, 250);
+                tableRow('Technology', '1.22×', 'SaaS, cloud, AI, enterprise software');
+                tableRow('Financial Services', '1.18×', 'Banking, fintech, insurance');
+                tableRow('Consulting', '1.14×', 'Strategy & professional services');
+                tableRow('Life Sciences', '1.10×', 'Pharma, biotech, medical devices');
+                tableRow('Healthcare', '1.05×', 'Health systems, providers, payers');
+                tableRow('Company Tier 1', '1.18×', 'FAANG, Salesforce, Goldman, McKinsey, OpenAI, Citadel');
+                tableRow('Company Tier 2', '1.08×', 'Oracle, SAP, IBM, Accenture, Deloitte, Boeing');
+                tableRow('Unknown — high salary signal', '1.12×', 'Posted hi > $200K');
+                tableRow('Unknown — mid salary signal', '1.06×', 'Posted hi $150K–$200K');
+                tableRow('Unknown — no signal', '1.00×', 'Baseline');
+                body('Formula: BLS_pct × Geo × Industry_mult × CompanyTier_mult');
+                y += 3;
+
+                heading2('Layer 5 — Skill Premium Pool', 249, 115, 22);
+                tableRow('Premium pool', '15% of adjusted median', 'Distributed across blueprint skills');
+                tableRow('Advanced proficiency weight', '0.6', 'O*NET importance × 0.6');
+                tableRow('Expert proficiency weight', '0.9', 'O*NET importance × 0.9');
+                tableRow('Mastery proficiency weight', '1.2', 'O*NET importance × 1.2');
+                tableRow('Profile skill cap', '50', 'Maximum skills on a profile');
+                tableRow('Work Blueprint skill cap', '20', 'Maximum skills per blueprint');
+                y += 3;
+
+                heading2('What This Model IS and IS NOT', 100, 116, 139);
+                body('IS: A structured benchmark grounded in government wage data. A consistent repeatable methodology. A negotiation starting point informed by skill depth. A market context signal using company and industry signals. A living model updated on each BLS annual release.');
+                body('IS NOT: A guarantee or offer letter. A substitute for direct comp research. Inclusive of equity, bonus, or total compensation. Adjusted for individual negotiating leverage. Validated against Radford, Mercer, or private comp survey data.');
+                y += 3;
+
+                heading2('Known Limitations', 100, 116, 139);
+                body('BLS OEWS lags the real-time market by 12–18 months. Fast-moving markets (AI, LLM engineering) may show significant deviation. Use as a floor, not a ceiling, for emerging roles.');
+
+                // Footer on each page
+                var pageCount = doc.internal.getNumberOfPages();
+                for (var i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(150,150,160);
+                    doc.text('Blueprint\u2122  \u00B7  Jurkiewicz Methodology  \u00B7  myblueprint.work  \u00B7  ' + BP_VERSION + '  \u00B7  Page ' + i + ' of ' + pageCount, W / 2, 291, { align: 'center' });
+                }
+
+                doc.save('Work-Blueprint-Methodology-' + BP_VERSION + '.pdf');
+                showToast('PDF downloaded.', 'success');
+            } catch(e) {
+                console.error('wbAboutExportPDF error:', e);
+                showToast('PDF export failed: ' + e.message, 'error');
+            }
+        }
+        window.wbAboutExportPDF = wbAboutExportPDF;
 
         function renderParseAudit(el) {
             var html = '<div style="max-width:1200px;">'
@@ -12801,7 +13253,7 @@
                 var count = dailyTotals[date] || 0;
                 var h = Math.max((count / sparkMax) * 100, 2);
                 var isToday = date === today.toISOString().slice(0, 10);
-                html += '<div title="' + escapeHtml(date) + ': ' + count + ' calls" style="flex:1; height:' + h + '%; background:' + (isToday ? '#60a5fa' : 'rgba(96,165,250,0.4)') + '; border-radius:3px 3px 0 0; min-width:8px; transition:height 0.3s;"></div>';
+                html += '<div title="' + escapeAttr(date) + ': ' + count + ' calls" style="flex:1; height:' + h + '%; background:' + (isToday ? '#60a5fa' : 'rgba(96,165,250,0.4)') + '; border-radius:3px 3px 0 0; min-width:8px; transition:height 0.3s;"></div>';
             });
             html += '</div>'
                 + '<div style="display:flex; justify-content:space-between; font-size:0.65em; color:var(--text-muted); margin-top:4px;">'
@@ -15661,7 +16113,7 @@
             
             // Activate showcase mode globals
             showcaseMode = true;
-            fbIsAdmin = true;
+            fbIsAdmin = false;       // showcase does NOT grant real admin privileges
             isReadOnlyProfile = true;
             appMode = 'showcase';
             
@@ -15935,7 +16387,7 @@
                 
                 + '<div style="margin-bottom:16px;">'
                 + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your name (for attribution):</label>'
-                + '<input type="text" id="verifyResponseName" value="' + escapeHtml(records[0].verifierName || '') + '" '
+                + '<input type="text" id="verifyResponseName" value="' + escapeAttr(records[0].verifierName || '') + '" '
                 + 'style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.9em; box-sizing:border-box;"></div>'
                 
                 + '<button onclick="submitVerifierResponse(\'' + escapeHtml(token).replace(/'/g,"\\'") + '\',\'' + escapeHtml(uid).replace(/'/g,"\\'") + '\',' + records.length + ')" '
@@ -16055,7 +16507,7 @@
                 + '<div class="settings-group" style="margin-bottom:10px;">'
                 + '<label class="settings-label" style="font-size:0.82em;">What was the measurable result? *</label>'
                 + '<input type="text" class="settings-input" id="outcomeResult" '
-                + 'value="' + escapeHtml(existing.outcome || '') + '" '
+                + 'value="' + escapeAttr(existing.outcome || '') + '" '
                 + 'placeholder="e.g., Increased pipeline velocity 40% saving $2.3M annually" '
                 + 'oninput="updateOutcomeScorePreview()" '
                 + 'style="font-size:0.88em;">'
@@ -19516,7 +19968,12 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             // File upload takes priority if present
             wizardState.useFileUpload = !!wizardState.resumeFileBase64 && !wizardState.resumeText;
             wizardNext(); // Go to step 3 (parsing/loading)
-            await wizardRunParsing();
+            try {
+                await wizardRunParsing();
+            } catch(e) {
+                console.warn('[Wizard] Parsing failed:', e.message);
+                showToast('Profile parsing failed: ' + e.message, 'error');
+            }
         }
 
         // ── STEP 2 (LinkedIn): .zip upload + CSV parsing ────────────────────
@@ -20400,7 +20857,7 @@ Rules:
                               text-transform:uppercase; letter-spacing:0.04em;">
                     ${label}
                 </label>
-                <input id="${id}" type="text" value="${escapeHtml(String(value ?? ''))}"
+                <input id="${id}" type="text" value="${escapeAttr(String(value ?? ''))}"
                        placeholder="${placeholder}"
                        style="width:100%; padding:10px 12px; background:var(--input-bg);
                               border:1px solid var(--border); border-radius:8px;
@@ -21568,6 +22025,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         window.toggleNetworkLabels = toggleNetworkLabels;
         
+        function initNetworkDebounced(delay) {
+            if (_d3RenderTimer) clearTimeout(_d3RenderTimer);
+            _d3RenderTimer = setTimeout(function() { _d3RenderTimer = null; initNetwork(); }, delay || 80);
+        }
+        window.initNetworkDebounced = initNetworkDebounced;
+
         function initNetwork() {
             // Empty state: no skills and signed in (not viewing a sample)
             var hasSkills = skillsData.skills && skillsData.skills.length > 0;
@@ -24318,6 +24781,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
                 updateStatsBar();
             } else if (view === 'admin') {
+                if (!fbIsAdmin && !showcaseMode) {
+                    console.warn('[switchView] Admin access denied — not an admin and not in showcase mode.');
+                    switchView('welcome');
+                    return;
+                }
                 var av = document.getElementById('adminView');
                 if (av) {
                     av.style.display = 'block';
@@ -25095,7 +25563,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         var claimedVal = proficiencyValue(evSummary.claimedLevel);
                         var sugIcon = sugVal > claimedVal ? '\u2191' : '\u2193';
                         var sugClr = sugVal > claimedVal ? '#10b981' : '#f59e0b';
-                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + sugClr + '18; color:' + sugClr + ';" title="' + escapeHtml(sug.name) + ' suggested ' + escapeHtml(sug.level) + ' (scoring adjusted)">'
+                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + sugClr + '18; color:' + sugClr + ';" title="' + escapeAttr(sug.name) + ' suggested ' + escapeHtml(sug.level) + ' (scoring adjusted)">'
                             + sugIcon + ' ' + escapeHtml(sug.name) + ' suggests ' + escapeHtml(sug.level) + '</span>';
                     });
                 }
@@ -25181,7 +25649,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const impactColor = getImpactColor(skillImpact.level);
             
             bodyHTML += `
-                <div class="modal-section" style="background: rgba(${impactColor === '#ef4444' ? '239, 68, 68' : impactColor === '#f59e0b' ? '245, 158, 11' : impactColor === '#3b82f6' ? '59, 130, 246' : '107, 114, 128'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
+                <div class="modal-section" style="background: rgba(${impactColor === '#10b981' ? '16, 185, 129' : impactColor === '#fb923c' ? '251, 146, 60' : impactColor === '#a78bfa' ? '167, 139, 250' : impactColor === '#60a5fa' ? '96, 165, 250' : '148, 163, 184'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
                     <div class="modal-section-title">
                         <span class="modal-section-icon">${bpIcon("bar-chart",18)}</span>
                         Market Impact
@@ -26991,8 +27459,9 @@ body {
                     + '<div style="display:grid; gap:5px;">';
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
                     var isCrit   = skill.impact === 'Critical';
-                    var dotColor = isCrit ? '#ef4444' : '#fbbf24';
-                    html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(239,68,68,0.07)' : 'rgba(251,191,36,0.07)') + '; border-radius:6px;">'
+                    // green=Critical(Mastery), orange=High(Expert) — red reserved for risks
+                    var dotColor = isCrit ? '#10b981' : '#fb923c';
+                    html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(16,185,129,0.07)' : 'rgba(251,146,60,0.07)') + '; border-radius:6px;">'
                         + '<div style="width:6px; height:6px; border-radius:50%; background:' + dotColor + '; flex-shrink:0;"></div>'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.84em; font-weight:600; color:var(--c-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.skill) + '</div>'
@@ -27716,7 +28185,7 @@ body {
                         color = 'var(--c-muted)';
                     }
                     
-                    html += '<button onclick="pickValue(\'' + escapeHtml(val.name).replace(/'/g, "\\'") + '\')" title="' + escapeHtml(val.description || '') + '" style="'
+                    html += '<button onclick="pickValue(\'' + escapeHtml(val.name).replace(/'/g, "\\'") + '\')" title="' + escapeAttr(val.description || '') + '" style="'
                         + 'background:' + bg + '; border:1.5px solid ' + border + '; color:' + color + '; '
                         + 'padding:8px 16px; border-radius:20px; cursor:pointer; font-size:0.88em; '
                         + 'font-weight:' + (isSelected ? '700' : '500') + '; transition:all 0.15s ease;">'
@@ -33577,6 +34046,7 @@ body {
 
         async function renderFitForMe(el) {
             if (!el) return;
+            try {
             var userSkillCount = (skillsData.skills || []).length;
             var roleCount = (userData.roles || []).length;
 
@@ -33749,6 +34219,10 @@ body {
             }
 
             el.innerHTML = html;
+            } catch(e) {
+                console.warn('[FitForMe] Render error:', e.message);
+                if (el) el.innerHTML = '<div style="padding:20px; color:#ef4444;">Error loading Fit For Me: ' + escapeHtml(e.message) + '</div>';
+            }
         }
 
         function _fitAddToPipeline(idx) {
@@ -34034,12 +34508,12 @@ body {
                 
                 + '<div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">'
                 + '<input id="findJobsKeyword" type="text" placeholder="Job title, skill, or keyword..." '
-                + 'value="' + escapeHtml(window._lastJobSearch || '') + '" '
+                + 'value="' + escapeAttr(window._lastJobSearch || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:2; min-width:180px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
                 + '<input id="findJobsLocation" type="text" placeholder="City, state, or remote..." '
-                + 'value="' + escapeHtml(window._lastJobLocation || '') + '" '
+                + 'value="' + escapeAttr(window._lastJobLocation || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:1; min-width:140px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
@@ -34169,7 +34643,7 @@ body {
                 + '\u26A1 AI-powered analysis (optional, requires API key)</summary>'
                 + '<div style="margin-top:8px; padding:12px; background:var(--c-surface-1); '
                 + 'border:1px solid var(--border); border-radius:8px;">'
-                + '<input id="jdApiKey" type="password" placeholder="sk-ant-..." value="' + escapeHtml(savedKey) + '" style="'
+                + '<input id="jdApiKey" type="password" placeholder="sk-ant-..." value="' + escapeAttr(savedKey) + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.88em; font-family:monospace;" />'
                 + '<div style="font-size:0.75em; color:var(--text-muted); margin-top:6px; line-height:1.5;">'
@@ -38481,7 +38955,7 @@ body {
                     var inferBadge = g.source === 'inferred' ? '<span style="font-size:0.68em; opacity:0.5; margin-left:2px;" title="Inferred from responsibilities">\u2248</span>' : '';
                     html += '<span class="jd-skill-chip jd-chip-gap" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px;" '
                         + 'onclick="quickAddGapSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(g.proficiency || 'Proficient') + '\', ' + idx + ')" '
-                        + 'title="' + escapeHtml(sectionTip) + '">'
+                        + 'title="' + escapeAttr(sectionTip) + '">'
                         + escapeHtml(g.name) + '<span style="font-size:0.72em; opacity:0.6;">' + escapeHtml(profLabel) + '</span>' + tierBadge + inferBadge;
                     if (fbIsAdmin) {
                         html += '<span onclick="event.stopPropagation(); adminBlockSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', ' + idx + ');" '
@@ -38538,7 +39012,7 @@ body {
                         html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
                             + 'font-size:0.82em; cursor:pointer; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); color:var(--text-secondary);" '
                             + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\'); showJobDetail(' + idx + ');" '
-                            + 'title="Expected for ' + escapeHtml(s.reason) + ' at ' + escapeHtml(s.level) + '">+ ' + escapeHtml(s.name) + '</span>';
+                            + 'title="Expected for ' + escapeAttr(s.reason) + ' at ' + escapeAttr(s.level) + '">+ ' + escapeHtml(s.name) + '</span>';
                     });
                     html += '</div>';
                 }
@@ -38613,26 +39087,26 @@ body {
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Job Title</label>'
-                + '<input id="editJobTitle" value="' + escapeHtml(job.title || '') + '" style="'
+                + '<input id="editJobTitle" value="' + escapeAttr(job.title || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div>'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Company</label>'
-                + '<input id="editJobCompany" value="' + escapeHtml(job.company || '') + '" style="'
+                + '<input id="editJobCompany" value="' + escapeAttr(job.company || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source URL</label>'
-                + '<input id="editJobUrl" value="' + escapeHtml(job.sourceUrl || '') + '" style="'
+                + '<input id="editJobUrl" value="' + escapeAttr(job.sourceUrl || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div>'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source Note</label>'
-                + '<input id="editJobNote" value="' + escapeHtml(job.sourceNote || '') + '" style="'
+                + '<input id="editJobNote" value="' + escapeAttr(job.sourceNote || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div></div>'
@@ -39207,7 +39681,7 @@ body {
             if (!el) return;
             var count = jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length;
             if (count < 1) { el.innerHTML = ''; return; }
-            el.innerHTML = '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
+            el.innerHTML = '<div title="' + escapeAttr(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
                 + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + count.toLocaleString() + '</div>'
                 + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs in database</div></div>';
         }
@@ -39932,7 +40406,7 @@ body {
         async function addRemoteJobToPipeline(idx) {
             var job = (window._displayedJobs || opportunitiesData)[idx];
             if (!job) { showToast('Job not found.', 'warning'); return; }
-            
+            try {
             if (!userData.savedJobs) userData.savedJobs = [];
             if (userData.savedJobs.length >= 10) {
                 showToast('Pipeline is full (10 max). Remove one first.', 'warning');
@@ -40030,6 +40504,10 @@ body {
             
             // Re-render to update the "In Pipeline" badge
             renderOpportunities();
+            } catch(e) {
+                console.warn('[Pipeline] Add job error:', e.message);
+                showToast('Could not add job to pipeline: ' + e.message, 'error');
+            }
         }
         window.addRemoteJobToPipeline = addRemoteJobToPipeline;
         // [removed] generatePitch — dead code cleanup v4.22.0
@@ -40768,7 +41246,7 @@ body {
             var step = type === 'number' && String(value).indexOf('.') !== -1 ? ' step="0.1"' : '';
             return '<div>'
                 + '<label style="font-size:0.78em; color:var(--text-muted); display:block; margin-bottom:4px;">' + label + '</label>'
-                + '<input id="' + id + '" type="' + inputType + '" value="' + escapeHtml(String(value)) + '" placeholder="' + placeholder + '"' + step
+                + '<input id="' + id + '" type="' + inputType + '" value="' + escapeAttr(String(value)) + '" placeholder="' + placeholder + '"' + step
                 + ' class="settings-input" style="width:100%; font-size:0.92em;">'
                 + '</div>';
         }
@@ -40810,7 +41288,7 @@ body {
             
             var achHTML = (job.achievements || []).map(function(a, i) {
                 return '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<input type="text" class="settings-input wh-ach-input" value="' + escapeHtml(a||'') + '" '
+                    + '<input type="text" class="settings-input wh-ach-input" value="' + escapeAttr(a||'') + '" '
                     + 'placeholder="e.g., Increased pipeline velocity 40% through process redesign" '
                     + 'style="flex:1; font-size:0.88em;">'
                     + '<button onclick="this.parentElement.remove()" style="background:none; border:none; color:var(--c-danger); cursor:pointer; font-size:1.1em; padding:0 4px;">\u00D7</button>'
@@ -40827,16 +41305,16 @@ body {
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group"><label class="settings-label">Job Title *</label>'
-                + '<input type="text" class="settings-input" id="whTitle" value="' + escapeHtml(job.title||'') + '" placeholder="VP of Strategy"></div>'
+                + '<input type="text" class="settings-input" id="whTitle" value="' + escapeAttr(job.title||'') + '" placeholder="VP of Strategy"></div>'
                 + '<div class="settings-group"><label class="settings-label">Company *</label>'
-                + '<input type="text" class="settings-input" id="whCompany" value="' + escapeHtml(job.company||'') + '" placeholder="Acme Corp"></div>'
+                + '<input type="text" class="settings-input" id="whCompany" value="' + escapeAttl(job.company||'') + '" placeholder="Acme Corp"></div>'
                 + '<div class="settings-group"><label class="settings-label">Location</label>'
-                + '<input type="text" class="settings-input" id="whLocation" value="' + escapeHtml(job.location||'') + '" placeholder="Philadelphia, PA"></div>'
+                + '<input type="text" class="settings-input" id="whLocation" value="' + escapeAttr(job.location||'') + '" placeholder="Philadelphia, PA"></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
                 + '<div class="settings-group"><label class="settings-label">Start Date</label>'
-                + '<input type="text" class="settings-input" id="whStartDate" value="' + escapeHtml(job.startDate||'') + '" placeholder="Jan 2020"></div>'
+                + '<input type="text" class="settings-input" id="whStartDate" value="' + escapeAttr(job.startDate||'') + '" placeholder="Jan 2020"></div>'
                 + '<div class="settings-group"><label class="settings-label">End Date</label>'
-                + '<input type="text" class="settings-input" id="whEndDate" value="' + escapeHtml(job.endDate||'') + '" placeholder="Present" ' + (job.current ? 'disabled' : '') + '></div>'
+                + '<input type="text" class="settings-input" id="whEndDate" value="' + escapeAttr(job.endDate||'') + '" placeholder="Present" ' + (job.current ? 'disabled' : '') + '></div>'
                 + '</div>'
                 + '</div>'
                 + '<div class="settings-group" style="margin-top:4px;">'
@@ -40988,29 +41466,29 @@ body {
                 // Row 1: Institution + Credential
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group"><label class="settings-label" id="edInstLabel">' + cfg.instLabel + '</label>'
-                + '<input type="text" class="settings-input" id="edSchool" value="' + escapeHtml(ed.school||'') + '" placeholder=""></div>'
+                + '<input type="text" class="settings-input" id="edSchool" value="' + escapeAttr(ed.school||'') + '" placeholder=""></div>'
                 + '<div class="settings-group"><label class="settings-label" id="edCredLabel">' + cfg.credLabel + '</label>'
-                + '<input type="text" class="settings-input" id="edDegree" value="' + escapeHtml(ed.degree||'') + '" placeholder="' + cfg.credPlaceholder + '"></div>'
+                + '<input type="text" class="settings-input" id="edDegree" value="' + escapeAttr(ed.degree||'') + '" placeholder="' + cfg.credPlaceholder + '"></div>'
                 + '</div>'
                 
                 // Row 2: Field + Authority (conditional)
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">'
                 + '<div class="settings-group"><label class="settings-label" id="edFieldLabel">' + cfg.fieldLabel + '</label>'
-                + '<input type="text" class="settings-input" id="edField" value="' + escapeHtml(ed.field||'') + '" placeholder="' + cfg.fieldPlaceholder + '"></div>'
+                + '<input type="text" class="settings-input" id="edField" value="' + escapeAttr(ed.field||'') + '" placeholder="' + cfg.fieldPlaceholder + '"></div>'
                 + '<div class="settings-group" id="edAuthorityGroup" style="' + (cfg.showAuthority ? '' : 'display:none;') + '">'
                 + '<label class="settings-label">Issuing Authority</label>'
-                + '<input type="text" class="settings-input" id="edAuthority" value="' + escapeHtml(ed.issuingAuthority||'') + '" placeholder="FAA, State Board, etc."></div>'
+                + '<input type="text" class="settings-input" id="edAuthority" value="' + escapeAttr(ed.issuingAuthority||'') + '" placeholder="FAA, State Board, etc."></div>'
                 + '<div class="settings-group" id="edYearSingleGroup" style="' + (cfg.showAuthority ? 'display:none;' : '') + '">'
                 + '<label class="settings-label">Year</label>'
-                + '<input type="text" class="settings-input" id="edYearSingle" value="' + escapeHtml(ed.year||ed.endYear||'') + '" placeholder="2024"></div>'
+                + '<input type="text" class="settings-input" id="edYearSingle" value="' + escapeAttr(ed.year||ed.endYear||'') + '" placeholder="2024"></div>'
                 + '</div>'
                 
                 // Row 3: Duration (conditional)
                 + '<div id="edDurationRow" style="display:' + (cfg.showDuration ? 'grid' : 'none') + '; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:14px;">'
                 + '<div class="settings-group"><label class="settings-label">Start Year</label>'
-                + '<input type="text" class="settings-input" id="edStartYear" value="' + escapeHtml(ed.startYear||'') + '" placeholder="2004"></div>'
+                + '<input type="text" class="settings-input" id="edStartYear" value="' + escapeAttr(ed.startYear||'') + '" placeholder="2004"></div>'
                 + '<div class="settings-group"><label class="settings-label">End Year</label>'
-                + '<input type="text" class="settings-input" id="edEndYear" value="' + escapeHtml(ed.endYear||ed.year||'') + '" placeholder="2006"></div>'
+                + '<input type="text" class="settings-input" id="edEndYear" value="' + escapeAttr(ed.endYear||ed.year||'') + '" placeholder="2006"></div>'
                 + '<div class="settings-group" style="display:flex; align-items:flex-end;">'
                 + '<label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82em; color:var(--c-muted); padding-bottom:10px;" id="edEnrolledLabel">'
                 + '<input type="checkbox" id="edEnrolled" ' + (ed.currentlyEnrolled ? 'checked' : '') + ' style="accent-color:var(--accent);"> Currently enrolled</label></div>'
@@ -41217,7 +41695,7 @@ body {
                 + 'placeholder="Type name, abbreviation, or category..." '
                 + 'oninput="onCertLibrarySearch()" autocomplete="off" '
                 + 'style="font-size:0.9em;"'
-                + (isEdit ? ' value="' + escapeHtml(cert.name||'') + '"' : '') + '>'
+                + (isEdit ? ' value="' + escapeAttr(cert.name||'') + '"' : '') + '>'
                 + '<div id="certSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:240px; overflow-y:auto; '
                 + 'background:var(--c-bg-solid-alt); border:1px solid var(--c-border-strong); border-radius:8px; margin-top:4px; '
                 + 'box-shadow:0 8px 24px rgba(0,0,0,0.3);"></div>'
@@ -41232,11 +41710,11 @@ body {
                 // Manual fields
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group" style="grid-column:1/-1;"><label class="settings-label">Credential Name *</label>'
-                + '<input type="text" class="settings-input" id="certName" value="' + escapeHtml(cert.name||'') + '" placeholder="Full credential name"></div>'
+                + '<input type="text" class="settings-input" id="certName" value="' + escapeAttr(cert.name||'') + '" placeholder="Full credential name"></div>'
                 + '<div class="settings-group"><label class="settings-label">Abbreviation</label>'
-                + '<input type="text" class="settings-input" id="certAbbr" value="' + escapeHtml(cert.abbr||'') + '" placeholder="PMP, CFA, CDL-A" style="font-size:0.9em;"></div>'
+                + '<input type="text" class="settings-input" id="certAbbr" value="' + escapeAttr(cert.abbr||'') + '" placeholder="PMP, CFA, CDL-A" style="font-size:0.9em;"></div>'
                 + '<div class="settings-group"><label class="settings-label">Issuing Organization</label>'
-                + '<input type="text" class="settings-input" id="certIssuer" value="' + escapeHtml(cert.issuer||'') + '" placeholder="PMI, SHRM, AWS, etc."></div>'
+                + '<input type="text" class="settings-input" id="certIssuer" value="' + escapeAttr(cert.issuer||'') + '" placeholder="PMI, SHRM, AWS, etc."></div>'
                 + '<div class="settings-group"><label class="settings-label">Type</label>'
                 + '<select class="settings-select" id="certType" style="font-size:0.88em;">'
                 + ['Certification','License','Degree','Rating','Endorsement','Credential','Certificate','Commission'].map(function(t) {
@@ -41244,7 +41722,7 @@ body {
                 }).join('')
                 + '</select></div>'
                 + '<div class="settings-group"><label class="settings-label">Year Obtained</label>'
-                + '<input type="text" class="settings-input" id="certYear" value="' + escapeHtml(cert.year||'') + '" placeholder="2023"></div>'
+                + '<input type="text" class="settings-input" id="certYear" value="' + escapeAttr(cert.year||'') + '" placeholder="2023"></div>'
                 + '</div>'
                 
                 // Linked skills
@@ -41818,7 +42296,7 @@ body {
                     
                     html += '<tr style="border-bottom:1px solid var(--c-border-subtle, rgba(255,255,255,0.04));">'
                         + '<td style="padding:8px 6px; white-space:nowrap;">' + dateStr + '</td>'
-                        + '<td style="padding:8px 6px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + escapeHtml(entry.job || '') + '">' + escapeHtml(entry.job || 'Unknown') + '</td>'
+                        + '<td style="padding:8px 6px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + escapeAttr(entry.job || '') + '">' + escapeHtml(entry.job || 'Unknown') + '</td>'
                         + '<td style="padding:8px 6px;"><span style="font-size:0.72em; padding:2px 6px; border-radius:4px; background:' + (fmtColors[entry.type] || '#64748b') + '22; color:' + (fmtColors[entry.type] || '#64748b') + '; font-weight:600;">' + (fmtLabels[entry.type] || entry.type) + '</span></td>'
                         + '<td style="padding:8px 6px;">' + presetPill + '</td>'
                         + '<td style="padding:8px 6px;">' + blindPills + '</td>'
@@ -43577,14 +44055,16 @@ body {
         }
         
         function getImpactColor(level) {
+            // Color scheme aligned with skill levels: green=Mastery, orange=Expert, purple=Advanced
+            // Red (#ef4444) is reserved exclusively for risks/gaps
             const colors = {
-                'critical': '#ef4444',
-                'high': '#f59e0b',
-                'moderate': '#3b82f6',
-                'standard': '#6b7280',
-                'supplementary': '#9ca3af'
+                'critical':      '#10b981',  // green  — Mastery-tier
+                'high':          '#fb923c',  // orange — Expert-tier
+                'moderate':      '#a78bfa',  // purple — Advanced-tier
+                'standard':      '#60a5fa',  // blue   — Proficient-tier
+                'supplementary': '#94a3b8'   // gray   — Novice-tier
             };
-            return colors[level] || '#3b82f6';
+            return colors[level] || '#60a5fa';
         }
         
         // ===== SKILL MANAGEMENT FUNCTIONS =====
@@ -43956,7 +44436,7 @@ body {
             var rolesEl = document.getElementById('bulkImportRoles');
             rolesEl.innerHTML = (userData.roles || []).map(function(role) {
                 return '<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">'
-                    + '<input type="checkbox" value="' + escapeHtml(role.id) + '" class="bulk-role-checkbox">'
+                    + '<input type="checkbox" value="' + escapeAttr(role.id) + '" class="bulk-role-checkbox">'
                     + '<span style="font-size:0.9em;">' + escapeHtml(role.name) + '</span></label>';
             }).join('');
             
