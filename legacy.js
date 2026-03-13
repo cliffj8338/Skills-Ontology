@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.87 - BUILD 20260313-neg-guide-fix
-        var BP_VERSION = 'v4.46.87';
+        // BLUEPRINT v4.46.88 - BUILD 20260313-neg-onclick-fix
+        var BP_VERSION = 'v4.46.88';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -44219,7 +44219,7 @@ body {
                 } else {
                     pickerHtml += '<div style="display:grid; gap:6px;">';
                     m.roles.forEach(function(r, idx) {
-                        pickerHtml += '<button onclick="_negGuideSelectMode(\\\''+m.id+'\\\','+idx+')" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
+                        pickerHtml += '<button data-neg-mode="' + m.id + '" data-neg-idx="' + idx + '" onclick="_negGuideSelectMode(this.dataset.negMode, parseInt(this.dataset.negIdx))" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
                             + '<span style="color:' + m.color + '; font-weight:700;">' + escapeHtml(r.title || 'Untitled') + '</span>'
                             + (r.company ? '<span style="color:var(--c-muted);"> · ' + escapeHtml(r.company) + '</span>' : '')
                             + '</button>';

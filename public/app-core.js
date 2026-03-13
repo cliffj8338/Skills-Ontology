@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.86 - BUILD 20260313-neg-guide-v2
-        var BP_VERSION = 'v4.46.86';
+        // BLUEPRINT v4.46.88 - BUILD 20260313-neg-onclick-fix
+        var BP_VERSION = 'v4.46.88';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -44483,8 +44483,7 @@ body {
             pickerHtml += '<div style="display:grid; gap:10px; margin-bottom:20px;">';
             modes.forEach(function(m) {
                 var hasRoles = m.roles.length > 0 || m.id === 'review';
-                pickerHtml += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:14px 16px; cursor:pointer; transition:border-color 0.15s;" '
-                    + 'onmouseenter="this.style.borderColor='' + m.color + ''" onmouseleave="this.style.borderColor='var(--c-surface-5)'">'
+                pickerHtml += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:14px 16px; cursor:pointer;">'
                     + '<div style="font-weight:700; font-size:0.95em; color:' + m.color + '; margin-bottom:4px;">' + bpIcon(m.icon,14) + ' ' + m.label + '</div>'
                     + '<div style="font-size:0.8em; color:var(--c-muted); margin-bottom:10px;">' + m.sub + '</div>';
 
@@ -44497,7 +44496,7 @@ body {
                     m.roles.forEach(function(r, idx) {
                         var roleTitle = escapeHtml(r.title || 'Untitled');
                         var roleCo    = r.company ? ' · ' + escapeHtml(r.company) : '';
-                        pickerHtml += '<button onclick="_negGuideSelectMode(\''+m.id+'\', '+idx+')" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
+                        pickerHtml += '<button data-neg-mode="' + m.id + '" data-neg-idx="' + idx + '" onclick="_negGuideSelectMode(this.dataset.negMode, parseInt(this.dataset.negIdx))" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
                             + '<span style="color:' + m.color + '; font-weight:700;">' + roleTitle + '</span>'
                             + '<span style="color:var(--c-muted);">' + roleCo + '</span></button>';
                     });
@@ -44563,74 +44562,43 @@ body {
             var roleMatchSc = role && role._lastMatchScore ? role._lastMatchScore : null;
             var modeLabel   = mode === 'external' ? 'external offer negotiation' : mode === 'internal' ? 'internal role move / promotion' : 'performance review / comp discussion';
 
-            var prompt = 'You are a senior career coach helping someone prepare for a ' + modeLabel + '.
-
-'
-                + 'CANDIDATE PROFILE:
-'
-                + 'Current title: ' + (userTitle || 'Not specified') + '
-'
-                + 'Current employer: ' + (userCo || 'Not specified') + '
-'
-                + 'Target role: ' + (roleTitle || 'Not specified') + '
-'
-                + 'Target company: ' + (roleCo || 'Not specified') + '
-'
-                + 'Top skills: ' + (topSkills.join(', ') || 'Not specified') + '
-'
-                + 'Key outcomes: ' + (outcomes.join(' | ') || 'None recorded') + '
-'
-                + 'Core values: ' + (values.join(', ') || 'Not specified') + '
-
-'
-                + 'COMPENSATION CONTEXT:
-'
-                + 'Current comp: $' + currentComp.toLocaleString() + '
-'
-                + 'Market rate (BLS): $' + marketRate.toLocaleString() + '
-'
-                + 'Justified value: $' + justified.toLocaleString() + '
-'
-                + 'Conservative offer: $' + conservative.toLocaleString() + '
-'
-                + 'Standard offer: $' + standard.toLocaleString() + '
-'
-                + 'Competitive offer: $' + competitive.toLocaleString() + '
-'
-                + 'Compa-ratio: ' + compaRatio + '%
-'
-                + (roleGaps.length ? 'Role skill gaps: ' + roleGaps.join(', ') + '
-' : '')
-                + (roleMatchSc ? 'Match score: ' + roleMatchSc + '%
-' : '') + '
-'
-                + 'Return ONLY a JSON object with this exact structure (no markdown, no explanation):
-'
-                + '{
-'
-                + '  "mode": "' + mode + '",
-'
-                + '  "roleTitle": "string",
-'
-                + '  "openingMove": "string — one sentence to open the comp conversation, specific and confident",
-'
-                + '  "theAsk": { "number": number, "justification": ["step1", "step2", "step3"] },
-'
-                + '  "strengths": [{ "title": "string", "evidence": "string", "hook": "string — how to say it in conversation" }],
-'
-                + '  "weaknessNeutralizations": [{ "weakness": "string", "reframe": "string — development narrative, not admission", "bridgeLine": "string — actual sentence to say" }],
-'
-                + '  "blindSpots": [{ "risk": "string", "why": "string", "mitigation": "string" }],
-'
-                + '  "counterOfferPlaybook": [{ "scenario": "string", "response": "string — scripted" }],
-'
-                + '  "valueConnections": [{ "value": "string", "connection": "string — tie to role/company" }],
-'
-                + '  "questionsToAsk": ["string", "string", "string"]
-'
-                + '}
-'
-                + 'Rules: exactly 3 strengths, exactly 3 weakness neutralizations, 1-3 blind spots, exactly 3 counter-offer scenarios, 2-3 value connections, 2-3 questions. Make everything specific to the candidate data provided. No generic advice.';
+            var prompt = [
+                'You are a senior career coach helping someone prepare for a ' + modeLabel + '.',
+                '',
+                'CANDIDATE PROFILE:',
+                'Current title: ' + (userTitle || 'Not specified'),
+                'Current employer: ' + (userCo || 'Not specified'),
+                'Target role: ' + (roleTitle || 'Not specified'),
+                'Target company: ' + (roleCo || 'Not specified'),
+                'Top skills: ' + (topSkills.join(', ') || 'Not specified'),
+                'Key outcomes: ' + (outcomes.join(' | ') || 'None recorded'),
+                'Core values: ' + (values.join(', ') || 'Not specified'),
+                '',
+                'COMPENSATION CONTEXT:',
+                'Current comp: $' + currentComp.toLocaleString(),
+                'Market rate (BLS): $' + marketRate.toLocaleString(),
+                'Justified value: $' + justified.toLocaleString(),
+                'Conservative offer: $' + conservative.toLocaleString(),
+                'Standard offer: $' + standard.toLocaleString(),
+                'Competitive offer: $' + competitive.toLocaleString(),
+                'Compa-ratio: ' + compaRatio + '%',
+                (roleGaps.length ? 'Role skill gaps: ' + roleGaps.join(', ') : ''),
+                '',
+                'Return ONLY a JSON object (no markdown, no explanation):',
+                '{',
+                '  "mode": "' + mode + '",',
+                '  "roleTitle": "string",',
+                '  "openingMove": "string — one sentence to open the comp conversation, specific and confident",',
+                '  "theAsk": { "number": number, "justification": ["step1", "step2", "step3"] },',
+                '  "strengths": [{ "title": "string", "evidence": "string", "hook": "string — how to say it in conversation" }],',
+                '  "weaknessNeutralizations": [{ "weakness": "string", "reframe": "string", "bridgeLine": "string — actual sentence to say" }],',
+                '  "blindSpots": [{ "risk": "string", "why": "string", "mitigation": "string" }],',
+                '  "counterOfferPlaybook": [{ "scenario": "string", "response": "string — scripted" }],',
+                '  "valueConnections": [{ "value": "string", "connection": "string — tie to role/company" }],',
+                '  "questionsToAsk": ["string", "string", "string"]',
+                '}',
+                'Rules: exactly 3 strengths, exactly 3 weakness neutralizations, 1-3 blind spots, exactly 3 counter-offer scenarios, 2-3 value connections, 2-3 questions. Specific to candidate data, no generic advice.'
+            ].filter(Boolean).join('\n');
 
             try {
                 var response = await fetch('https://api.anthropic.com/v1/messages', {
