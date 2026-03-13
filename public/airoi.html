@@ -913,7 +913,7 @@
     <div id="usage-counter-box" class="constants-box" style="margin-bottom:10px; text-align:center; padding:12px 10px;">
       <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:5px;">&#9679; Live</div>
       <div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.6em; color:var(--emerald); letter-spacing:-0.02em; line-height:1;" id="usage-count-display">—</div>
-      <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:10.5px; color:var(--slate2); margin-top:4px; line-height:1.4;">executives have run this<br>calculator</div>
+      <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:10.5px; color:var(--slate2); margin-top:4px; line-height:1.4;">unique visitors</div>
     </div>
 
     <div class="constants-box" style="margin-top:10px;">
@@ -1142,7 +1142,7 @@
   <div id="usage-counter-box-mobile" class="constants-box" style="margin-bottom:10px; text-align:center; padding:12px 10px;">
     <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:5px;">&#9679; Live</div>
     <div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.8em; color:var(--emerald); letter-spacing:-0.02em; line-height:1;" id="usage-count-display-mobile">—</div>
-    <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:10.5px; color:var(--slate2); margin-top:4px; line-height:1.4;">executives have run this<br>calculator</div>
+    <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:10.5px; color:var(--slate2); margin-top:4px; line-height:1.4;">unique visitors</div>
   </div>
 
   <div class="constants-box">
@@ -2274,15 +2274,50 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
     const TS  = firebase.firestore.FieldValue.serverTimestamp();
     const ref = db.collection('analytics').doc('airoi');
 
-    // Hour bucket for last-24h window: "YYYY-MM-DDTHH"
-    const hourKey = new Date().toISOString().slice(0, 13);
+    // ── UNIQUE VISITOR GATE ───────────────────────────────────────────────────
+    // Persistent UUID stored in localStorage. Generated once on first ever visit.
+    // If the key exists → visitor has already been counted → skip.
+    // Survives refreshes, tab closes, and return visits across days.
+    // Limitation: localStorage clear resets them (unavoidable without auth/login).
 
-    var update = { total: INC, lastSeen: TS };
-    update['hours.' + hourKey] = INC;
-    ref.set(update, { merge: true }).catch(function() {});
+    function genUUID() {
+      try {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, function(c) {
+          return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
+        });
+      } catch(e) {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = Math.random() * 16 | 0;
+          return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+      }
+    }
 
-    // Increment public mirror doc directly — no read required, works for all visitors
-    db.collection('analytics').doc('airoi_public').set({ total: INC }, { merge: true }).catch(function() {});
+    var existingUID = null;
+    try { existingUID = localStorage.getItem('airoi_uid'); } catch(e) {}
+
+    const isNewVisitor = !existingUID;
+
+    if (isNewVisitor) {
+      var uid = genUUID();
+      try { localStorage.setItem('airoi_uid', uid); } catch(e) {}
+
+      // Clean up old daily keys if present
+      try {
+        Object.keys(localStorage).forEach(function(k) {
+          if (k.startsWith('airoi_visit_')) localStorage.removeItem(k);
+        });
+      } catch(e) {}
+
+      // Hour bucket for sparkline: "YYYY-MM-DDTHH"
+      const hourKey = new Date().toISOString().slice(0, 13);
+      var update = { total: INC, unique: INC, lastSeen: TS };
+      update['hours.' + hourKey] = INC;
+      ref.set(update, { merge: true }).catch(function() {});
+
+      // Public mirror — unique count only
+      db.collection('analytics').doc('airoi_public').set({ total: INC, unique: INC }, { merge: true }).catch(function() {});
+    }
 
     // Track time on page — write duration on unload
     var _pageStart = Date.now();
@@ -2330,8 +2365,10 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
         .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
         .then(function(data) {
           var f = data.fields || {};
-          var total = parseInt(f.total ? (f.total.integerValue || f.total.doubleValue || 0) : 0, 10);
-          showCount(total);
+          // Prefer unique count; fall back to total for legacy data
+          var unique = parseInt(f.unique ? (f.unique.integerValue || f.unique.doubleValue || 0) : 0, 10);
+          var total  = parseInt(f.total  ? (f.total.integerValue  || f.total.doubleValue  || 0) : 0, 10);
+          showCount(unique || total);
         })
         .catch(function() {
           // Fallback: onSnapshot, skip cache-only snapshots
@@ -2340,7 +2377,8 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
             function(snap) {
               if (snap.metadata.fromCache) return;
               unsub();
-              showCount((snap.data() || {}).total || 0);
+              var d = snap.data() || {};
+              showCount(d.unique || d.total || 0);
             },
             function() { unsub(); }
           );
