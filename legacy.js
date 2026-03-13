@@ -13098,6 +13098,7 @@
                   steps: [
                     { label: 'Add Position', fn: 'openWorkHistoryModal(-1)', desc: 'Modal: title, company, location, dates, description' },
                     { label: 'Edit Position', fn: 'openWorkHistoryModal(idx)', desc: 'Pre-filled modal for existing position' },
+                    { label: 'Tile Grid View', fn: 'renderExperienceSettings()', desc: 'Experience tab renders as tile grid. Multi-role companies span full width with sub-grid role tiles. coColor() applies deterministic employer tint per company. Solo positions are standalone tiles.' },
                     { label: 'Hide Position', fn: 'toggleWorkHistoryHidden(idx)', desc: 'Sets job.hidden flag. Ripples to: network, reports, exports, matching' },
                     { label: 'Delete Position', fn: 'removeWorkHistoryItem(idx)', desc: 'Splices from workHistory, cleans orphan role + skill refs' },
                     { label: 'Hide from Network', fn: 'hideRoleFromNetwork(name)', desc: 'Role tile click → marks workHistory hidden → rebuilds network' },
@@ -13110,9 +13111,32 @@
                     { label: 'Parse JD', fn: 'parseJobDescription(text)', desc: 'AI extracts: title, company, skills, requirements, level' },
                     { label: 'Score Match', fn: 'computeMatchScore(job)', desc: 'Compares user skills vs job skills. Matched/surplus/gaps' },
                     { label: 'Values Align', fn: 'computeValuesAlignment()', desc: 'Maps user values against inferred company values' },
+                    { label: 'Comp Range', fn: 'activeCompRange / _jdcExtractCompensation()', desc: 'JD Posted Range vs Blueprint Calculated shown side by side; editable "Use for this Blueprint" input' },
                     { label: 'Network Overlay', fn: 'setNetworkMatchMode(mode)', desc: 'Switches between: you / job / match / values views' },
                     { label: 'Scouting Report', fn: 'buildReportData(jobIdx)', desc: 'Assembles full candidate profile for specific job' },
-                    { label: 'PDF Export', fn: 'generateScoutingPDF()', desc: 'jsPDF renders multi-page branded scouting report' }
+                    { label: 'PDF Export', fn: 'generateScoutingReport(jobIdx)', desc: 'jsPDF multi-page branded scouting report' }
+                ]},
+                { id: 'jd-converter', name: 'JD Converter', icon: 'file-text', cat: 'Jobs',
+                  steps: [
+                    { label: 'Input', fn: 'renderAdminJDConverter(el)', desc: 'Three modes: Paste text, Fetch URL (Vercel proxy fallback), Bulk upload (multiple JDs). URL fetch uses Vercel /api/fetch-url proxy to bypass CORS.' },
+                    { label: 'Extract', fn: 'convertJDToBlueprintAsync(jdText)', desc: 'Claude API extracts: title, company, location, seniority, skills (tier/requirement), qualifications, education, certifications, values, industry, yearsRequired, compensation range' },
+                    { label: 'Comp Extract', fn: '_jdcExtractCompensation() / _jdcExtractLocation()', desc: 'Local regex extraction runs in parallel: 5 comp patterns (base, total, range, narrative), location stripped of schedule noise (hybrid, 3 days/week, etc.)' },
+                    { label: 'Quality Check', fn: '_jdcCheckExtractQuality(result, raw)', desc: 'Scores extraction completeness. Warns if title/skills/company missing.' },
+                    { label: 'Edit Form', fn: 'renderJDCEditForm(data)', desc: 'Editable fields for all extracted values. Add/remove skills, set tiers, edit comp range, add custom fields.' },
+                    { label: 'Comp Panel', fn: 'activeCompRange on _jdcResult', desc: 'WB header shows JD Posted Range vs Blueprint Calculated side by side. Editable "Use for this Blueprint" with Use JD / Use Blueprint buttons.' },
+                    { label: 'Preview', fn: 'renderWorkBlueprint(data, showComp)', desc: 'Full Work Blueprint preview rendered from extracted data' },
+                    { label: 'Save', fn: 'jdcSaveToRepository() / jdcSaveAndRepository()', desc: 'Writes to users/{uid}/work_blueprints/{id} in Firestore. Navigates to WB Repository on save.' }
+                ]},
+                { id: 'wb-repository', name: 'WB Repository', icon: 'database', cat: 'Jobs',
+                  steps: [
+                    { label: 'Load', fn: '_wbRepoLoadData()', desc: 'Reads users/{uid}/work_blueprints ordered by savedAt desc. Populates _wbRepoCache.' },
+                    { label: 'Browse', fn: 'renderAdminWBRepo(el)', desc: 'Card list with title, company, seniority, skill count, saved date. Click to expand.' },
+                    { label: 'Load in Converter', fn: 'wbRepoLoadInConverter(idx)', desc: 'Opens WB in JD Converter edit mode for revision. Sets _jdcFromRepo=true, _jdcEditMode=true.' },
+                    { label: 'Compare', fn: 'wbRepoCompare(idx)', desc: 'Runs matchJobToProfile() against saved WB + user profile. Requires source JD text (stored or paste). Renders comparison diff.' },
+                    { label: 'Scouting Report', fn: 'generateScoutingReportFromWB(idx)', desc: 'WB→Report pipeline: resolves company values, runs buildReportDataFromWB(), applies blind settings, renders overlay. No pipeline job required.' },
+                    { label: 'Export', fn: 'wbRepoExport(mode)', desc: 'JSON, PDF (jsPDF), or Word export of the saved Work Blueprint' },
+                    { label: 'Clone', fn: 'wbRepoClone(idx)', desc: 'Deep-copies WB, appends "(Copy)" to title, saves new doc to Firestore' },
+                    { label: 'Delete', fn: 'wbRepoDelete(id)', desc: 'Removes from Firestore, clears cache, refreshes list' }
                 ]},
                 { id: 'network-viz', name: 'Network Visualization', icon: 'network', cat: 'Map',
                   steps: [
@@ -13126,12 +13150,13 @@
                 ]},
                 { id: 'reports', name: 'Scouting Reports', icon: 'clipboard', cat: 'Reports',
                   steps: [
-                    { label: 'Select Job', fn: 'User selects job from pipeline', desc: 'Scouting report is always job-specific' },
-                    { label: 'Build Data', fn: 'buildReportData(jobIdx)', desc: 'Assembles: skills, match%, gaps, values, work history, education' },
-                    { label: 'HTML Report', fn: 'buildScoutingReportHTML(data)', desc: 'Renders full HTML report with charts, sections, scores' },
-                    { label: 'PDF Report', fn: 'generateScoutingPDF(data)', desc: 'jsPDF multi-page: summary, skills arch, match analysis, experience' },
-                    { label: 'Standalone PDF', fn: 'exportStandalonePDF()', desc: 'Profile-only PDF without job context' },
-                    { label: 'Resume Export', fn: 'exportResume()', desc: 'ATS-formatted resume from profile data' }
+                    { label: 'Entry Point', fn: 'generateHTMLScoutingReport(jobIdx) OR generateScoutingReportFromWB(idx)', desc: 'Two entry points: (1) Job Pipeline — job-specific report; (2) WB Repository — Work Blueprint sourced report' },
+                    { label: 'Build Data', fn: 'buildReportData(jobIdx) / buildReportDataFromWB(wb)', desc: 'Assembles identical REPORT_DATA shape: skills (6-pass match), gaps, values alignment, work history, education, comp' },
+                    { label: 'Blind Settings', fn: 'getActiveBlindSettings() + applyBlindSettings()', desc: 'Applies identity/location/employer/institution/outcomes/comp privacy controls before render' },
+                    { label: 'HTML Report', fn: 'showReportOverlay(reportData, jobIdx)', desc: 'Fetches base.html template, injects REPORT_DATA, renders in blob iframe overlay with Share button' },
+                    { label: 'PDF Report', fn: 'generateScoutingReport(jobIdx)', desc: 'jsPDF multi-page: summary, skills network, match analysis, experience, gaps' },
+                    { label: 'Share Report', fn: 'shareScoutingReport()', desc: 'Writes sanitized reportData to Firestore reports/{id} with 128-bit shareToken. Copies URL to clipboard. Works for both job and WB-sourced reports.' },
+                    { label: 'Privacy Log', fn: 'logPrivacyEvent(format, title, company, settings)', desc: 'Audit log entry written per export/share event, visible in Settings → Privacy' }
                 ]},
                 { id: 'values-outcomes', name: 'Values & Outcomes', icon: 'star', cat: 'Blueprint',
                   steps: [
