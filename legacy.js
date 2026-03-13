@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.84 - BUILD 20260313-title-extract
-        var BP_VERSION = 'v4.46.84';
+        // BLUEPRINT v4.46.85 - BUILD 20260313-internal-mobility
+        var BP_VERSION = 'v4.46.85';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3630,7 +3630,7 @@
                     items: [
                         { id: 'ex1-1', name: 'EX mode architecture', status: 'planned', category: 'feature', priority: 'critical', notes: 'Distinct application mode for employees at companies that license Blueprint. Entry point: company-provisioned invite or SSO. Profile data is owned by the employee (portable), but employer gets aggregate/anonymized views. Core tension resolved: employee keeps their Blueprint forever, employer gets skill intelligence only while relationship is active. Shares all core infrastructure: skill ontology, BLS, matching engine, scouting reports.' },
                         { id: 'ex1-2', name: 'Compensation intelligence for reviews', status: 'planned', category: 'feature', priority: 'critical', notes: 'Employee uses Minimum Market Value + Justified Value data to prepare for annual or mid-year comp review. Blueprint surfaces the delta between current comp and justified value, pre-built talking points, compa-ratio context, and negotiation range. Positions the employee to have a data-backed conversation rather than an emotional one. High-leverage use case: most employees are underprepared for comp discussions.' },
-                        { id: 'ex1-3', name: 'Internal mobility matching', status: 'planned', category: 'feature', priority: 'critical', notes: 'Employee runs their profile against internal open roles (employer-provided JD feed or manual JD paste). Gap analysis vs internal roles vs external market. Shows: (1) which internal roles they are closest to ready for, (2) what skills to close to qualify, (3) how internal comp for that role compares to market. Competes with Gloat, Eightfold, Fuel50 — Blueprint advantage is the employee owns and enriches the underlying data.' },
+                        { id: 'ex1-3', name: 'Internal mobility matching', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.46.85: Shipped as Option C — personal mode, no employer provisioning required. New "Internal" subtab in Jobs section (alongside Pipeline, Find Jobs, Fit For Me, Tracker). Firestore: users/{uid}/internal_roles collection, same WB shape. Functions: _internalLoadRoles(), _internalSaveRole(), _internalDeleteRole(), _internalConvertAndSave() (reuses convertJDToBlueprintAsync), _internalRunMatch() (reuses matchJobToProfile 6-pass engine), _internalSaveCurrentComp() (writes to userData.preferences.currentComp). Three outputs per role: (1) readiness score + label (Ready Now/Near Ready/Developing/Gap Heavy), (2) skill gaps to close (critical only, Nice to Have filtered), (3) comp delta = BLS median minus currentComp with directional badge. Comp strip at top lets user set/update currentComp inline. Migrates cleanly to employer-provisioned EX mode (ex1-1) when that ships — data shape is identical, collection path just moves.' },
                         { id: 'ex1-4', name: 'Promotion readiness tracker', status: 'planned', category: 'feature', priority: 'high', notes: 'Employee maps their current profile against the skill and outcome expectations for the next level (defined by manager or pulled from internal JD). Blueprint shows readiness score, specific gaps, and what evidence already exists. Progress tracked over time. Turns vague "you need to show more leadership" feedback into a specific, measurable gap list. Manager and employee aligned on the same rubric.' },
                         { id: 'ex1-5', name: 'Performance review prep mode', status: 'planned', category: 'feature', priority: 'high', notes: 'Outcome tab repurposed as a structured achievement log in EX context. Employee documents results with STAR-style metadata (Situation, Task, Action, Result with metric). Blueprint surfaces the strongest outcomes by impact tier ahead of review season. Generates a shareable evidence summary for the review conversation. Replaces the annual panic of trying to remember what you accomplished 11 months ago.' },
                         { id: 'ex1-6', name: 'Career pathing tool', status: 'planned', category: 'feature', priority: 'high', notes: 'Employee selects 2-3 target roles (internal or external) and sees a side-by-side gap analysis across all of them. Blueprint recommends the path of least resistance: which role requires the fewest new skills, which has the best comp upside, which aligns best with stated values. Enables a structured career conversation with a manager grounded in data rather than aspiration. Pairs with L&D integration for skill-to-resource mapping.' },
@@ -34525,6 +34525,7 @@ body {
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (opportunitiesData.length > 0 ? ' (' + opportunitiesData.length + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'fit-for-me' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'fit-for-me\')">' + bpIcon('activity',14) + ' Fit For Me' + (_fitForMeData.length > 0 ? ' (' + _fitForMeData.length + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'internal' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'internal\')">' + bpIcon('compass',14) + ' Internal' + (_internalRolesCache && _internalRolesCache.length > 0 ? ' (' + _internalRolesCache.length + ')' : '') + '</button>'
                 + '</div>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
@@ -34553,6 +34554,9 @@ body {
                 return;
             } else if (jobsSubTab === 'tracker') {
                 el.innerHTML = renderTrackerInJobs();
+            } else if (jobsSubTab === 'internal') {
+                renderInternalMobility(el);
+                return;
             } else {
                 el.innerHTML = renderFindJobs();
                 if (opportunitiesData && opportunitiesData.length > 0) {
@@ -34567,7 +34571,243 @@ body {
             }
         }
         
-        // Render the Application Tracker inline within Jobs tab
+        // ── Internal Mobility (ex1-3) ─────────────────────────────────────────
+        var _internalRolesCache = null;
+        var _internalMatchExpanded = {};
+
+        function _internalLoadRoles(cb) {
+            if (!fbUser || !fbDb) { _internalRolesCache = []; if (cb) cb(); return; }
+            fbDb.collection('users').doc(fbUser.uid).collection('internal_roles').orderBy('savedAt', 'desc').get()
+                .then(function(snapshot) {
+                    _internalRolesCache = [];
+                    snapshot.forEach(function(doc) { var d = doc.data(); d.id = doc.id; _internalRolesCache.push(d); });
+                    if (cb) cb();
+                })
+                .catch(function(err) { console.warn('Internal roles load error:', err); _internalRolesCache = []; if (cb) cb(); });
+        }
+
+        function _internalSaveRole(entry, cb) {
+            if (!fbUser || !fbDb) { showToast('Sign in to save internal roles.', 'warning'); return; }
+            var col = fbDb.collection('users').doc(fbUser.uid).collection('internal_roles');
+            var op = entry.id ? col.doc(entry.id).set(entry, { merge: true }) : col.add(entry);
+            op.then(function(ref) {
+                if (!entry.id && ref) entry.id = ref.id;
+                _internalRolesCache = null;
+                logAnalyticsEvent('internal_role_saved', { title: entry.title || '' });
+                if (cb) cb();
+            }).catch(function(err) { showToast('Save failed: ' + err.message, 'error'); });
+        }
+
+        function _internalDeleteRole(id) {
+            if (!fbUser || !fbDb || !id) return;
+            if (!confirm('Remove this internal role? This cannot be undone.')) return;
+            fbDb.collection('users').doc(fbUser.uid).collection('internal_roles').doc(id).delete()
+                .then(function() {
+                    showToast('Internal role removed.', 'success');
+                    _internalRolesCache = null;
+                    _internalMatchExpanded = {};
+                    var el = document.getElementById('jobsSubTabContent');
+                    renderInternalMobility(el);
+                })
+                .catch(function(err) { showToast('Delete failed: ' + err.message, 'error'); });
+        }
+        window._internalDeleteRole = _internalDeleteRole;
+
+        function _internalRunMatch(idx) {
+            _internalMatchExpanded[idx] = !_internalMatchExpanded[idx];
+            var el = document.getElementById('jobsSubTabContent');
+            renderInternalMobility(el);
+        }
+        window._internalRunMatch = _internalRunMatch;
+
+        async function _internalConvertAndSave() {
+            var ta = document.getElementById('internalJDInput');
+            var raw = ta ? ta.value.trim() : '';
+            if (!raw || raw.length < 50) { showToast('Paste a job description (at least a few sentences).', 'warning'); return; }
+            var btn = document.getElementById('internalConvertBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Converting...'; }
+            try {
+                var result = await convertJDToBlueprintAsync(raw);
+                var entry = {
+                    id: '',
+                    title: result.title || 'Untitled Role',
+                    company: result.company || (userData.profile && userData.profile.currentCompany) || '',
+                    skills: result.skills || [],
+                    bls: result.bls || null,
+                    seniority: result.seniority || 'mid',
+                    rawText: raw.slice(0, 4000),
+                    savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    source: 'internal'
+                };
+                _internalSaveRole(entry, function() {
+                    if (ta) ta.value = '';
+                    showToast('Internal role saved: ' + entry.title, 'success');
+                    var el = document.getElementById('jobsSubTabContent');
+                    _internalLoadRoles(function() { renderInternalMobility(el); });
+                });
+            } catch(e) {
+                showToast('Conversion failed: ' + e.message, 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Convert & Save'; }
+            }
+        }
+        window._internalConvertAndSave = _internalConvertAndSave;
+
+        function _internalSaveCurrentComp() {
+            var inp = document.getElementById('internalCurrentCompInput');
+            var val = inp ? parseInt((inp.value || '').replace(/[^0-9]/g, ''), 10) : NaN;
+            if (isNaN(val) || val < 10000 || val > 5000000) { showToast('Enter a valid annual salary.', 'warning'); return; }
+            if (!userData.preferences) userData.preferences = {};
+            userData.preferences.currentComp = val;
+            saveUserData();
+            showToast('Current compensation saved.', 'success');
+            var el = document.getElementById('jobsSubTabContent');
+            renderInternalMobility(el);
+        }
+        window._internalSaveCurrentComp = _internalSaveCurrentComp;
+
+        function renderInternalMobility(el) {
+            if (!el) return;
+            el.innerHTML = '<div style="padding:32px 20px; text-align:center; color:var(--text-muted);">' + bpIcon('loader',20) + ' Loading...</div>';
+
+            function _doRender() {
+                var roles = _internalRolesCache || [];
+                var currentComp = (userData.preferences || {}).currentComp || null;
+                var html = '';
+
+                html += '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px;">'
+                    + '<div>'
+                    + '<h3 style="margin:0; font-size:1.1em; font-weight:700;">' + bpIcon('compass',16) + ' Internal Opportunities</h3>'
+                    + '<p style="margin:4px 0 0; font-size:0.82em; color:var(--text-muted);">Match your profile against internal roles. See your readiness, skill gaps, and comp delta.</p>'
+                    + '</div></div>';
+
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
+                    + '<div style="flex:1; min-width:180px;">'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:3px;">Your Current Compensation</div>'
+                    + '<div style="font-weight:700; font-size:1em; color:var(--text-primary);">'
+                    + (currentComp ? '$' + currentComp.toLocaleString() + ' / yr' : '<span style="color:var(--c-muted);">Not set — add to see market delta</span>')
+                    + '</div></div>'
+                    + '<div style="display:flex; align-items:center; gap:8px;">'
+                    + '<input id="internalCurrentCompInput" type="text" placeholder="e.g. 120000" value="' + (currentComp || '') + '" style="padding:7px 10px; border-radius:7px; border:1px solid var(--border); background:var(--c-input-bg-soft); color:var(--text-primary); font-size:0.88em; width:120px;">'
+                    + '<button onclick="_internalSaveCurrentComp()" style="padding:7px 14px; background:var(--accent); color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.85em; font-weight:600;">Save</button>'
+                    + '</div></div>';
+
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; padding:16px; margin-bottom:20px;">'
+                    + '<div style="font-weight:600; font-size:0.9em; margin-bottom:10px;">' + bpIcon('edit',14) + ' Add Internal Role</div>'
+                    + '<textarea id="internalJDInput" placeholder="Paste an internal job description here…" style="width:100%; min-height:100px; padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--c-input-bg-soft); color:var(--text-primary); font-size:0.85em; resize:vertical; box-sizing:border-box;"></textarea>'
+                    + '<div style="display:flex; align-items:center; gap:10px; margin-top:10px;">'
+                    + '<button id="internalConvertBtn" onclick="_internalConvertAndSave()" style="padding:9px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Convert & Save</button>'
+                    + '<span style="font-size:0.78em; color:var(--c-faint);">AI-powered extraction when signed in.</span>'
+                    + '</div></div>';
+
+                if (roles.length === 0) {
+                    html += '<div style="text-align:center; padding:40px 20px; color:var(--text-muted);">'
+                        + '<div style="opacity:0.25; margin-bottom:14px;">' + bpIcon('compass',44) + '</div>'
+                        + '<p style="font-size:1em; font-weight:600; margin:0 0 6px;">No internal roles yet</p>'
+                        + '<p style="font-size:0.85em; margin:0;">Paste a role from your company\'s job board above to see your readiness and skill gaps.</p>'
+                        + '</div>';
+                } else {
+                    roles.forEach(function(role, idx) {
+                        var isExpanded = !!_internalMatchExpanded[idx];
+                        var matchResult = null, gaps = [], strengths = [], matchScore = 0;
+                        try {
+                            if (role.skills && role.skills.length > 0) {
+                                matchResult = matchJobToProfile({ title: role.title, skills: role.skills, seniority: role.seniority || 'mid' });
+                                matchScore = matchResult ? Math.round((matchResult.score || 0) * 100) : 0;
+                                if (matchResult) {
+                                    gaps = (matchResult.gaps || []).filter(function(g) { return g.requirement !== 'Nice to Have'; }).slice(0, 6);
+                                    strengths = (matchResult.strengths || []).slice(0, 4);
+                                }
+                            }
+                        } catch(e) { console.warn('Internal match error:', e); }
+
+                        var blsMedian = role.bls && role.bls.median ? role.bls.median : null;
+                        var compDelta = null, compDeltaDir = '';
+                        if (blsMedian && currentComp) { compDelta = blsMedian - currentComp; compDeltaDir = compDelta >= 0 ? 'up' : 'down'; }
+
+                        var scoreColor = matchScore >= 75 ? '#10b981' : matchScore >= 50 ? '#fb923c' : matchScore >= 30 ? '#a78bfa' : '#94a3b8';
+                        var readinessLabel = matchScore >= 75 ? 'Ready Now' : matchScore >= 50 ? 'Near Ready' : matchScore >= 30 ? 'Developing' : 'Gap Heavy';
+
+                        html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:12px; overflow:hidden;">';
+                        html += '<div style="padding:14px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">';
+                        html += '<div style="flex-shrink:0; width:54px; height:54px; border-radius:50%; border:3px solid ' + scoreColor + '; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--c-surface-2);">'
+                            + '<span style="font-size:1em; font-weight:800; color:' + scoreColor + '; line-height:1;">' + (matchScore || '–') + '</span>'
+                            + '<span style="font-size:0.55em; color:var(--text-muted); line-height:1; margin-top:1px;">%</span></div>';
+                        html += '<div style="flex:1; min-width:160px;">'
+                            + '<div style="font-weight:700; font-size:0.97em;">' + escapeHtml(role.title || 'Untitled') + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:2px;">'
+                            + (role.company ? escapeHtml(role.company) + ' · ' : '')
+                            + '<span style="color:' + scoreColor + '; font-weight:600;">' + readinessLabel + '</span>'
+                            + (blsMedian ? ' · Market: $' + Math.round(blsMedian / 1000) + 'K' : '') + '</div>';
+                        if (compDelta !== null) {
+                            var deltaAbs = Math.abs(Math.round(compDelta / 1000));
+                            var deltaBg = compDeltaDir === 'up' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+                            var deltaFg = compDeltaDir === 'up' ? '#10b981' : '#ef4444';
+                            html += '<div style="margin-top:5px; display:inline-block; background:' + deltaBg + '; color:' + deltaFg + '; border-radius:5px; padding:2px 8px; font-size:0.75em; font-weight:600;">'
+                                + (compDeltaDir === 'up' ? '↑' : '↓') + ' $' + deltaAbs + 'K vs your current comp</div>';
+                        }
+                        html += '</div>';
+                        html += '<div style="display:flex; gap:8px; flex-shrink:0;">'
+                            + '<button onclick="_internalRunMatch(' + idx + ')" style="padding:6px 14px; background:var(--c-surface-3); color:var(--text-primary); border:1px solid var(--c-surface-5); border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">' + (isExpanded ? '▲ Collapse' : '▼ Details') + '</button>'
+                            + '<button onclick="_internalDeleteRole(\'' + escapeAttr(role.id) + '\')" style="padding:6px 10px; background:none; color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:7px; cursor:pointer; font-size:0.82em;" title="Remove">' + bpIcon('trash',13) + '</button>'
+                            + '</div>';
+                        html += '</div>';
+
+                        if (isExpanded && matchResult) {
+                            html += '<div style="border-top:1px solid var(--c-surface-5); padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">';
+                            html += '<div><div style="font-size:0.78em; font-weight:700; color:#ef4444; margin-bottom:8px; letter-spacing:0.03em;">SKILL GAPS TO CLOSE</div>';
+                            if (gaps.length === 0) {
+                                html += '<div style="font-size:0.82em; color:#10b981;">No critical gaps — strong match.</div>';
+                            } else {
+                                gaps.forEach(function(g) {
+                                    html += '<div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">'
+                                        + '<span style="width:7px; height:7px; border-radius:50%; background:#ef4444; flex-shrink:0;"></span>'
+                                        + '<span style="font-size:0.83em; font-weight:500;">' + escapeHtml(g.name || '') + '</span>'
+                                        + '<span style="font-size:0.72em; color:var(--text-muted);">(' + (g.proficiency || g.required || 'Required') + ')</span></div>';
+                                });
+                            }
+                            html += '</div>';
+                            html += '<div><div style="font-size:0.78em; font-weight:700; color:#10b981; margin-bottom:8px; letter-spacing:0.03em;">YOUR STRENGTHS</div>';
+                            if (strengths.length === 0) {
+                                html += '<div style="font-size:0.82em; color:var(--text-muted);">Add more skills to your Blueprint to see matches.</div>';
+                            } else {
+                                strengths.forEach(function(s) {
+                                    html += '<div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">'
+                                        + '<span style="width:7px; height:7px; border-radius:50%; background:#10b981; flex-shrink:0;"></span>'
+                                        + '<span style="font-size:0.83em; font-weight:500;">' + escapeHtml(s.name || '') + '</span></div>';
+                                });
+                            }
+                            html += '</div></div>';
+
+                            if (blsMedian) {
+                                html += '<div style="border-top:1px solid var(--c-surface-5); padding:12px 16px; display:flex; gap:20px; flex-wrap:wrap;">';
+                                [{ label: 'BLS Market Median', val: '$' + Math.round(blsMedian / 1000) + 'K' },
+                                 { label: 'Your Current Comp', val: currentComp ? '$' + Math.round(currentComp / 1000) + 'K' : 'Not set' },
+                                 { label: 'Delta', val: compDelta !== null ? (compDelta >= 0 ? '+' : '') + '$' + Math.round(compDelta / 1000) + 'K' : '—' },
+                                 role.bls && role.bls.p25 ? { label: 'P25', val: '$' + Math.round(role.bls.p25 / 1000) + 'K' } : null,
+                                 role.bls && role.bls.p75 ? { label: 'P75', val: '$' + Math.round(role.bls.p75 / 1000) + 'K' } : null
+                                ].filter(Boolean).forEach(function(f) {
+                                    html += '<div style="font-size:0.8em;"><span style="color:var(--text-muted);">' + f.label + '</span><br><strong>' + f.val + '</strong></div>';
+                                });
+                                html += '</div>';
+                            }
+                        }
+                        html += '</div>';
+                    });
+                }
+
+                el.innerHTML = html;
+            }
+
+            if (_internalRolesCache === null) {
+                _internalLoadRoles(function() { _doRender(); });
+            } else {
+                _doRender();
+            }
+        }
+        window.renderInternalMobility = renderInternalMobility;
+
+        // ── Application Tracker (inline) ──────────────────────────────────────
         function renderTrackerInJobs() {
             var apps = userData.applications || [];
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
