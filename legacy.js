@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.76 - BUILD 20260312-exp-full-tile
-        var BP_VERSION = 'v4.46.76';
+        // BLUEPRINT v4.46.77 - BUILD 20260312-exp-full-tile
+        var BP_VERSION = 'v4.46.77';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -40588,7 +40588,16 @@ body {
             if (whItems.length === 0) {
                 html += '<div style="padding:20px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No work history added yet.</div>';
             } else {
-                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-bottom:24px; align-items:start;">';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-bottom:24px; align-items:stretch;">';
+
+                // Deterministic color tint per company name — same name always same hue
+                function coColor(name) {
+                    var s = (name || '').toLowerCase().replace(/[^a-z0-9]/g,'');
+                    var h = 0;
+                    for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) & 0xFFFFFF; }
+                    var hue = h % 360;
+                    return 'hsla(' + hue + ',60%,55%,0.06)';
+                }
 
                 groupArr.forEach(function(group) {
                     group.sort(function(a,b){
@@ -40607,7 +40616,8 @@ body {
                         var lastYear   = lastEnd === 'Present' ? new Date().getFullYear() : (parseInt((lastEnd||'').split(' ').pop()) || 0);
                         var tenure     = lastYear && firstYear ? lastYear - firstYear : 0;
 
-                        html += '<div style="border:1px solid var(--c-accent-border-4b); border-top:3px solid var(--c-accent); border-radius:10px; overflow:hidden; grid-column:1/-1;">';
+                        var grpBg = coColor(coName);
+                        html += '<div style="border:1px solid var(--c-accent-border-4b); border-top:3px solid var(--c-accent); border-radius:10px; overflow:hidden; grid-column:1/-1; background:' + grpBg + ';">'; 
 
                         html += '<div style="padding:10px 14px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--c-surface-4);">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
@@ -40656,7 +40666,8 @@ body {
                         var isHidden = job.hidden === true;
                         var dateRange = formatWorkDate(job.startDate||'?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate||'?'));
 
-                        html += '<div id="wh-card-' + idx + '" style="background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px;'
+                        var soloBg = coColor(job.company||'');
+                        html += '<div id="wh-card-' + idx + '" style="background:' + soloBg + '; border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px; height:100%; box-sizing:border-box;'
                             + (isHidden ? ' opacity:0.5;' : '') + '">'
                             + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:6px;">'
                             + '<div style="min-width:0; flex:1;">'
