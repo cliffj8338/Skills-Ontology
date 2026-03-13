@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.86 - BUILD 20260313-neg-guide-v2
-        var BP_VERSION = 'v4.46.86';
+        // BLUEPRINT v4.46.87 - BUILD 20260313-neg-guide-fix
+        var BP_VERSION = 'v4.46.87';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -44159,6 +44159,15 @@ body {
             talkingPoints.forEach(function(tp) {
                 html += '<div style="padding:10px 14px; background:var(--c-surface-1); border-left:3px solid ' + tp.color + '; border-radius:0 8px 8px 0;">'                    + '<div style="font-size:0.75em; font-weight:700; color:' + tp.color +         function showNegotiationGuide() { showNegotiationGuideV2(); }
 
+            });
+            html += '</div></div>';
+            
+            html += '</div>'; // end modal-body
+            
+            modalContent.innerHTML = html;
+        }
+        window.showCompReviewGuide = showCompReviewGuide;
+        
         // ── Negotiation Guide V2 — AI-powered, role-aware ─────────────────────
         function showNegotiationGuideV2(preselectedMode, preselectedRole) {
             if (isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
@@ -44204,13 +44213,13 @@ body {
                     + '<div style="font-size:0.8em; color:var(--c-muted); margin-bottom:10px;">' + m.sub + '</div>';
 
                 if (m.id === 'review') {
-                    pickerHtml += '<button onclick="_negGuideSelectMode('review', null)" style="padding:7px 16px; background:' + m.color + '; color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">Build Review Guide</button>';
+                    pickerHtml += '<button onclick="_negGuideSelectMode(\'review\', null)" style="padding:7px 16px; background:' + m.color + '; color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">Build Review Guide</button>';
                 } else if (m.roles.length === 0) {
                     pickerHtml += '<div style="font-size:0.78em; color:var(--c-faint); font-style:italic;">No ' + m.roleLabel + 's saved yet.</div>';
                 } else {
                     pickerHtml += '<div style="display:grid; gap:6px;">';
                     m.roles.forEach(function(r, idx) {
-                        pickerHtml += '<button onclick="_negGuideSelectMode('' + m.id + '',' + idx + ')" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
+                        pickerHtml += '<button onclick="_negGuideSelectMode(\\\''+m.id+'\\\','+idx+')" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
                             + '<span style="color:' + m.color + '; font-weight:700;">' + escapeHtml(r.title || 'Untitled') + '</span>'
                             + (r.company ? '<span style="color:var(--c-muted);"> · ' + escapeHtml(r.company) + '</span>' : '')
                             + '</button>';
@@ -44270,33 +44279,32 @@ body {
             var roleGaps    = role && role.skills ? role.skills.filter(function(s) { return s.requirement === 'Required'; }).slice(0, 6).map(function(s) { return s.name; }) : [];
             var modeLabel   = mode === 'external' ? 'external offer negotiation' : mode === 'internal' ? 'internal role move / promotion' : 'performance review / comp discussion';
 
-            var prompt = 'You are a senior career coach helping someone prepare for a ' + modeLabel + '.\n\n'
-                + 'CANDIDATE PROFILE:\n'
-                + 'Current title: ' + (userTitle || 'Not specified') + '\n'
-                + 'Current employer: ' + (userCo || 'Not specified') + '\n'
-                + 'Target role: ' + (roleTitle || 'Not specified') + '\n'
-                + 'Target company: ' + (roleCo || 'Not specified') + '\n'
-                + 'Top skills: ' + (topSkills.join(', ') || 'Not specified') + '\n'
-                + 'Key outcomes: ' + (outcomes.join(' | ') || 'None recorded') + '\n'
-                + 'Core values: ' + (values.join(', ') || 'Not specified') + '\n\n'
-                + 'COMPENSATION CONTEXT:\n'
-                + 'Current comp: $' + currentComp.toLocaleString() + '\n'
-                + 'Market rate (BLS): $' + marketRate.toLocaleString() + '\n'
-                + 'Justified value: $' + justified.toLocaleString() + '\n'
-                + 'Conservative offer: $' + conservative.toLocaleString() + '\n'
-                + 'Standard offer: $' + standard.toLocaleString() + '\n'
-                + 'Competitive offer: $' + competitive.toLocaleString() + '\n'
-                + 'Compa-ratio: ' + compaRatio + '%\n'
-                + (roleGaps.length ? 'Role skill gaps: ' + roleGaps.join(', ') + '\n' : '')
-                + '\nReturn ONLY a JSON object (no markdown):\n'
-                + '{"mode":"' + mode + '","roleTitle":"string","openingMove":"string","theAsk":{"number":number,"justification":["step1","step2","step3"]},'
-                + '"strengths":[{"title":"string","evidence":"string","hook":"string"}],'
-                + '"weaknessNeutralizations":[{"weakness":"string","reframe":"string","bridgeLine":"string"}],'
-                + '"blindSpots":[{"risk":"string","why":"string","mitigation":"string"}],'
-                + '"counterOfferPlaybook":[{"scenario":"string","response":"string"}],'
-                + '"valueConnections":[{"value":"string","connection":"string"}],'
-                + '"questionsToAsk":["string","string","string"]}\n'
-                + 'Rules: exactly 3 strengths, 3 weakness neutralizations, 1-3 blind spots, 3 counter-offer scenarios, 2-3 value connections, 2-3 questions. Specific to candidate data, no generic advice.';
+            var prompt = [
+                'You are a senior career coach helping someone prepare for a ' + modeLabel + '.',
+                '',
+                'CANDIDATE PROFILE:',
+                'Current title: ' + (userTitle || 'Not specified'),
+                'Current employer: ' + (userCo || 'Not specified'),
+                'Target role: ' + (roleTitle || 'Not specified'),
+                'Target company: ' + (roleCo || 'Not specified'),
+                'Top skills: ' + (topSkills.join(', ') || 'Not specified'),
+                'Key outcomes: ' + (outcomes.join(' | ') || 'None recorded'),
+                'Core values: ' + (values.join(', ') || 'Not specified'),
+                '',
+                'COMPENSATION CONTEXT:',
+                'Current comp: $' + currentComp.toLocaleString(),
+                'Market rate (BLS): $' + marketRate.toLocaleString(),
+                'Justified value: $' + justified.toLocaleString(),
+                'Conservative offer: $' + conservative.toLocaleString(),
+                'Standard offer: $' + standard.toLocaleString(),
+                'Competitive offer: $' + competitive.toLocaleString(),
+                'Compa-ratio: ' + compaRatio + '%',
+                (roleGaps.length ? 'Role skill gaps: ' + roleGaps.join(', ') : ''),
+                '',
+                'Return ONLY a JSON object (no markdown):',
+                '{"mode":"' + mode + '","roleTitle":"string","openingMove":"string","theAsk":{"number":number,"justification":["step1","step2","step3"]},"strengths":[{"title":"string","evidence":"string","hook":"string"}],"weaknessNeutralizations":[{"weakness":"string","reframe":"string","bridgeLine":"string"}],"blindSpots":[{"risk":"string","why":"string","mitigation":"string"}],"counterOfferPlaybook":[{"scenario":"string","response":"string"}],"valueConnections":[{"value":"string","connection":"string"}],"questionsToAsk":["string","string","string"]}',
+                'Rules: exactly 3 strengths, 3 weakness neutralizations, 1-3 blind spots, 3 counter-offer scenarios, 2-3 value connections, 2-3 questions. Specific to candidate data, no generic advice.'
+            ].filter(Boolean).join('\n');
 
             try {
                 var response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -44414,20 +44422,6 @@ body {
             renderFn(html);
         }
         window._renderNegGuide = _renderNegGuide;
-                              </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="export-btn-large" onclick="closeExportModal()" style="width: 100%; margin-top: 25px;">
-                        Close Guide
-                    </button>
-                </div>
-            `;
-            
-            history.pushState({ modal: true }, ''); modal.classList.add('active');
-        }
-        
         // ===== IMPACT RATING ENGINE =====
         
         let impactRatings = null;

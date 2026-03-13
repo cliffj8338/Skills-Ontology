@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.74 - BUILD 20260312-values-race-fix
-        var BP_VERSION = 'v4.46.74';
+        // BLUEPRINT v4.46.87 - BUILD 20260313-neg-guide-fix
+        var BP_VERSION = 'v4.46.87';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -834,7 +834,7 @@
         // URL: myblueprint.work?showcase=KEY
         // Loads admin profile read-only with full admin UI visible
         var SHOWCASE_CONFIG = {
-            key: 'blueprint-demo-2026',           // URL param value (change this to your own secret)
+            key: 'bp-aKqWMR8AJli-tFPr8p3IJA32',           // URL param value (change this to your own secret)
             sourceUid: '',                         // Set to your Firebase UID (run fbUser.uid in console)
             bannerText: 'Showcase Mode — All features visible, editing disabled'
         };
@@ -3479,7 +3479,7 @@
                         { id: 'p2-4a', name: 'Parallel profile loading + deferred crosswalk', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.44.39: Sequential profile loading replaced with Promise.allSettled() for all 24 demos + 9 data libraries. O*NET crosswalk (4.6MB) deferred until after initial render. Significant load time improvement.' },
                         { id: 'p2-4b', name: 'Mobile network layout optimization', status: 'done', category: 'ux', priority: 'high', notes: 'v4.44.40-42: Hub/name nodes repositioned to upper-right on mobile across all 4 views. Match view: name and job hubs fully separated (upper-right vs upper-left). You view: forces tightened, height accounts for match toggle row. Desktop unchanged.' },
                         { id: 'p2-4c', name: 'Verification API deployment', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.44.29: Serverless /api/verify.js deployed to Vercel with Firebase Admin SDK env vars. GET returns pending records, POST writes verifier response. Token-based auth, no sign-in required for verifiers.' },
-                        { id: 'p2-4d', name: 'Showcase profile export + deploy', status: 'planned', category: 'feature', priority: 'high', notes: 'Run export-showcase.js in browser console while signed in. Place downloaded JSON at profiles/showcase/admin-demo.json. Verify ?showcase=blueprint-demo-2026 URL works end-to-end.' },
+                        { id: 'p2-4d', name: 'Showcase profile export + deploy', status: 'planned', category: 'feature', priority: 'high', notes: 'Run export-showcase.js in browser console while signed in. Place downloaded JSON at profiles/showcase/admin-demo.json. Verify ?showcase=bp-aKqWMR8AJli-tFPr8p3IJA32 URL works end-to-end.' },
                         { id: 'p2-4e', name: 'Verifier email notifications', status: 'planned', category: 'feature', priority: 'medium', notes: 'Send email when verification is completed. Requires email provider decision (SendGrid, Resend, etc.) and serverless function update.' },
                         { id: 'p2-4f', name: 'Expanded profile completeness (7 items)', status: 'done', category: 'feature', priority: 'low', notes: 'v4.44.52: Dashboard readiness ring expanded from 5→7 items. Added work history and education tracking alongside skills, outcomes, values, purpose, and jobs.' },
                         { id: 'p2-4g', name: 'Keyboard shortcuts', status: 'done', category: 'feature', priority: 'low', notes: 'v4.44.52: Global keyboard navigation. 1-5 for nav tabs (Skills/Jobs/Blueprint/Reports/Settings), ? for help. Disabled in inputs, modals, and during tours.' },
@@ -3517,7 +3517,7 @@
                         { id: 'p2-6e', name: 'Firestore data pipeline fix (new field persistence)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.63: _buildFirestoreData() whitelist was silently dropping all LinkedIn-derived fields. Added linkedinContent, contentVisibility, companyTenures, importStats to save builder. Added endorsements count and endorsementBoosted flag to skill serializer. Added all four fields to Firestore load path. Without this fix, merge data would not survive page refresh.' },
                         { id: 'p2-6g', name: 'Wizard overwrite safety gate', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: wizardOverwriteGuard() intercepts all three fresh-start wizard paths (Upload Resume, LinkedIn Import, Start Fresh) when user has existing profile data. Shows warning screen with: profile inventory (skills, positions, education, certs, outcomes counts), Download Backup button (wizardQuickExport() exports full profile JSON including linkedinContent/companyTenures/contentVisibility), Update from LinkedIn redirect (merge flow instead of overwrite), Go Back button, and red "I understand, start fresh" confirmation. No data lost without explicit user consent. Import Saved Blueprint path is not gated (additive by nature).' },
                         { id: 'p2-6h', name: 'Position visibility (full ripple)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: Hide/show toggles on every work history position. getVisibleRoles() filters roles by matching workHistory hidden flags. Wired to: network graph (role nodes + links), match network, card view, role filter chips, scouting reports (data + role groups), PDF exports (standalone + job), skills management, dashboard stats. Role info card has Hide Role button triggering network rebuild. toggleWorkHistoryHidden invalidates networkInitialized for lazy rebuild.' },
-                        { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'in-progress', category: 'feature', priority: 'high', notes: 'v4.46.18: Firestore comparison persistence. Comparisons stored at users/{uid}/comparisons/ with in-memory cache, optimistic UI, localStorage fallback, one-time migration, cache reset on sign-out. v4.46.19: Comparison sharing via URL tokens. Share button on step 4 and saved comparison modal. Writes sanitized copy to shared_comparisons/{id} (public read). URL: ?comp={id}&token={token}. Page load detects param, fetches doc, validates token, renders read-only modal. Re-share re-uses existing token. Remaining: batch comparison mode, WB template library, WB diff view, WB versioning/history, WB-to-scouting-report pipeline.' },
+                        { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'in-progress', category: 'feature', priority: 'high', notes: 'v4.46.18: Firestore comparison persistence. v4.46.19: Comparison URL token sharing. v4.46.81: WB→Scouting Report pipeline complete. buildReportDataFromWB() runs 6-pass matchJobToProfile() against WB skills, builds identical REPORT_DATA shape, resolves company values, applies comp context multipliers from wb.bls, and feeds showReportOverlay(). generateScoutingReportFromWB(idx) orchestrates blind settings, privacy audit log, and analytics. Scouting Report button added to WB repo expanded card. Share flow handles WB-sourced reports (job._sourceWB sentinel) identically to pipeline reports. Remaining: batch comparison mode, WB template library, WB diff view, WB versioning/history.' },
                         { id: 'p2-6i', name: 'User Flows tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.63: Admin → System → User Flows. 12 workflow categories mapped with step-by-step function chains: Onboarding, LinkedIn Merge, Skill Mgmt, Work History, Job Pipeline, Network Viz, Reports, Values/Outcomes, Content/Evidence, Settings, Education/Certs, Auth/Persistence. Clickable tiles open horizontal flow diagrams. Each step shows function name, description, downstream connections. Phase 2: export flows as PNG/PDF/mermaid.' },
                         { id: 'p2-6j', name: 'User Flows export (phase 2)', status: 'planned', category: 'feature', priority: 'low', notes: 'Export user flow diagrams as PNG, PDF, or Mermaid markdown. Add print stylesheet for flow diagrams. Consider SVG export for vector quality.' },
                         { id: 'p2-6k', name: 'Dev time comparison tile', status: 'done', category: 'feature', priority: 'low', notes: 'v4.45.65: Admin Overview tile comparing AI vibe-coding velocity vs traditional solo dev. Computes: speed multiplier, cost multiplier, LOC/hr efficiency. Stats grid shows lines of code, features shipped, deploys, AI sessions, hours, first commit date. Side-by-side comparison with progress bars for calendar time, work hours, work days, total cost. Editable stats modal with Firestore persistence. Traditional dev baseline: $175K/yr loaded, 100 LOC/day for complex SPA.' },
@@ -3526,14 +3526,14 @@
                         { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
                         { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' },
                         { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
-                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'in-progress', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched from monkey-patching getCategoryColor/getColor (template uses inline colors, not named functions) to post-render SVG recoloring. Polls SVG circles every 400ms for 10s, reads __data__.category from D3 bound data, applies main app color palette. Also recolors links (subtle white) and text. CSS override for dark network backgrounds. Template file still needs native color update for full parity.' },
+                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'done', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched to post-render SVG recoloring via injected script. Polls SVG circles, reads __data__.category, applies main app palette. v4.46.80: MutationObserver replaces blind polling — fires recolorNetwork() instantly as D3 appends SVG nodes, eliminating color flash. bpColors map realigned to getCategoryColor() exactly. Added lvColors proficiency fallback. Safety net polling runs at 200ms for 3s then disconnects. base.html template also updated natively: levelColor, levelColorLight, renderProfGrid cols, and profGrid hardcoded HTML all corrected to main app palette (Mastery=#10b981, Expert=#fb923c, Advanced=#a78bfa, Proficient=#60a5fa, Novice=#94a3b8).' },
                         { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73-74: Dedup guards on all 8 push paths. Startup deduplicateSkills(). Hard cap: PROFILE_SKILL_CAP=50, WB_SKILL_CAP=20. canAddSkill() central guard. Over-cap triage overlay (showSkillCapTriage) auto-triggers on load if over 50 after dedup. Scores skills by verification/evidence/proficiency, pre-selects lowest for removal. Over-cap banner with Manage button on Blueprint view. Prevent philosophy: never allow over-cap, force triage.' },
                         { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
                         { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' },
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
-                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.74: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.80: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -3546,6 +3546,7 @@
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
                         { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
+                        { id: 'p2-7t', name: 'Values persistence: inferValues guard + note preservation', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.82: Two-part fix. (1) inferValues() now guards: if blueprintData.values already has selected values (loaded from Firestore), it returns immediately without overwriting — calls _inferPurposeOnly() instead. Previously, inferValues() called from the dashboard completeness check and initValuesNetwork would clobber already-loaded values. (2) inferValues() STEP 2 (userData.values path) now preserves the .note field — previously the map() only returned {name,selected,inferred,custom}, silently dropping any personal notes. _inferPurposeOnly() extracted as a separate function so the guard path still gets purpose inference.' },
                         { id: 'p2-7s', name: 'Purpose persistence v3: inferValues circuit breaker + sessionStorage', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.54: inferValues() now uses _lastKnownPurpose as final fallback before blanking purpose — prevents the blank-purpose-then-save race. _lastKnownPurpose backed to sessionStorage so it survives hard reload. updatePurpose() also writes to sessionStorage. This is the deepest fix yet: even if userData.purpose and blueprintData.purpose are both transiently empty (which CAN happen on rapid navigation), the circuit breaker restores from sessionStorage before any save can fire.' },
                         { id: 'p2-7r', name: 'CMD+K Command Palette', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.53: Global CMD+K / CTRL+K command palette. Searches skills, outcomes, saved jobs, work history in real time. Static actions list (Add Skill, New Report, Generate Purpose, Export, Bulk Import, Comp Review). Navigation shortcuts with keyboard badges. Arrow key navigation, Enter to execute, Esc to close. Search icon injected into header. Analytics event on open. CSS injected once on first open.' },
                         { id: 'p2-7q', name: 'Outcomes tab UX redesign: search, category grouping, collapsible sections', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.52: 128-outcome scroll problem solved. Added search bar + category filter + shared-only toggle at top of outcomes tab. Outcomes grouped by category with collapsible sections (auto-collapsed when >5 items). Add button moved to header. Coaching tip + reflection prompts collapsed into Tips & Prompts accordion. Fixed SENSITIVE badge template literal bug. Fixed footer overlapping reports view by adding padding-bottom:80px to report container.' },
@@ -3558,7 +3559,7 @@
                         { id: 's13', name: 'XSS fix — negotiation modal location field', status: 'done', category: 'security', priority: 'high', notes: 'v4.46.43: userData.profile.location was rendered unescaped in two template literal positions inside showNegotiationGuide() which assigns to modalContent.innerHTML — a real XSS surface. Both instances wrapped in escapeHtml(userData.profile.location || \'\').' },
                         { id: 'p2-7m', name: 'Jobs tab bar mobile overflow fix', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.44: Jobs subtab bar was clipping \'Tracker\' tab on narrow mobile viewports. Container now uses overflow-x:auto, flex-wrap:nowrap, -webkit-overflow-scrolling:touch, scrollbar-width:none. Each button gets flex-shrink:0 and white-space:nowrap. Scrolls horizontally instead of clipping.' },
                         { id: 'p2-7n', name: 'Dashboard hero grid mobile responsiveness', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.44: Dashboard 3-box hero changed from rigid grid-template-columns:1fr 1fr 1fr to repeat(auto-fit, minmax(180px, 1fr)). Stacks to single column on narrow viewports. Jobs container padding reduced from 24px all sides to 16px 12px 80px for mobile breathing room.' },
-                        { id: 'p2-7o', name: 'Job Schema v2.0 Phase 3/4 bug fixes', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.45 (Phase 3): Three bugs fixed: title trailing noise strip, BLS category order/pattern fixes, skill gap quality filter in matchJobToProfile. v4.46.48 (Phase 4): Four additional fixes: (1) inferJobProficiency parameter order bug in admin-approved skills pass (args were (approved, seniority, jdText) — should be (jdText, approved, seniority)). (2) parseJobLocally seniority detection missing Director level — director titles were mapping to Senior. Now: Senior Director→Executive, Director/Principal/Sr Manager→Director, Senior/Lead/Staff→Senior. (3) inferJobProficiency fallback missing Director case — fell through to Proficient default. Now returns Advanced for Director seniority. (4) badTitles regex in analyzeJob expanded from 13 to 30+ patterns — adds position/role/job overview, what you\'ll bring/need, who you are, key responsibilities, minimum/basic/preferred qualifications, about the position/company/team, equal opportunity, why join us, compensation and benefits.' }
+                        { id: 'p2-7o', name: 'Job Schema v2.0 Phase 3/4 bug fixes', status: 'in-progress', category: 'infrastructure', priority: 'critical', notes: 'v4.46.45 (Phase 3): Three bugs fixed: title trailing noise strip, BLS category order/pattern fixes, skill gap quality filter in matchJobToProfile. v4.46.48 (Phase 4): Four additional fixes: (1) inferJobProficiency parameter order bug in admin-approved skills pass (args were (approved, seniority, jdText) — should be (jdText, approved, seniority)). (2) parseJobLocally seniority detection missing Director level — director titles were mapping to Senior. Now: Senior Director→Executive, Director/Principal/Sr Manager→Director, Senior/Lead/Staff→Senior. (3) inferJobProficiency fallback missing Director case — fell through to Proficient default. Now returns Advanced for Director seniority. (4) badTitles regex in analyzeJob expanded from 13 to 30+ patterns — adds position/role/job overview, what you\'ll bring/need, who you are, key responsibilities, minimum/basic/preferred qualifications, about the position/company/team, equal opportunity, why join us, compensation and benefits. v4.46.84: Two title extraction bugs fixed. (1) _jdcExtractTextFromHTML() now grabs <h1>/<h2> before DOM strip and prepends as "Job Title: {text}" — ATS pages (Greenhouse, Lever) put the role name in h1 which was lost in textContent flatten. (2) _jdcExtractTitle() skipWords extended to block metadata field prefixes (location, reports to, leads, department, posted, level, classification, team, function, division). Added colon-guard in line scan: lines matching "ShortLabel: value" (colon within 25 chars, ≤3-word label) are skipped as ATS field rows. Also synced legacy.js _jdcExtractTextFromHTML with cookie-stripping it was missing since v4.46.64. Remaining: BLS alias gap for revenue operations titles, soft-skill tier-downgrade list.' }
                     ]
                 },
                 {
@@ -3633,8 +3634,8 @@
                     icon: 'users',
                     items: [
                         { id: 'ex1-1', name: 'EX mode architecture', status: 'planned', category: 'feature', priority: 'critical', notes: 'Distinct application mode for employees at companies that license Blueprint. Entry point: company-provisioned invite or SSO. Profile data is owned by the employee (portable), but employer gets aggregate/anonymized views. Core tension resolved: employee keeps their Blueprint forever, employer gets skill intelligence only while relationship is active. Shares all core infrastructure: skill ontology, BLS, matching engine, scouting reports.' },
-                        { id: 'ex1-2', name: 'Compensation intelligence for reviews', status: 'planned', category: 'feature', priority: 'critical', notes: 'Employee uses Minimum Market Value + Justified Value data to prepare for annual or mid-year comp review. Blueprint surfaces the delta between current comp and justified value, pre-built talking points, compa-ratio context, and negotiation range. Positions the employee to have a data-backed conversation rather than an emotional one. High-leverage use case: most employees are underprepared for comp discussions.' },
-                        { id: 'ex1-3', name: 'Internal mobility matching', status: 'planned', category: 'feature', priority: 'critical', notes: 'Employee runs their profile against internal open roles (employer-provided JD feed or manual JD paste). Gap analysis vs internal roles vs external market. Shows: (1) which internal roles they are closest to ready for, (2) what skills to close to qualify, (3) how internal comp for that role compares to market. Competes with Gloat, Eightfold, Fuel50 — Blueprint advantage is the employee owns and enriches the underlying data.' },
+                        { id: 'ex1-2', name: 'Compensation intelligence for reviews', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.46.86: Shipped as part of Negotiation Guide V2. showNegotiationGuideV2() replaces the old static showNegotiationGuide() with an AI-powered, role-aware modal. Three modes: External Offer, Internal Move, Performance Review. Role picker pulls from Pipeline (savedJobs) and Internal Opportunities (_internalRolesCache). One Claude Sonnet API call assembles the full guide: opening move, the ask with 3-step justification chain, 3 strengths with evidence hooks and conversation lines, 3 weakness neutralizations with reframe + scripted bridge line, 1-3 blind spots with mitigation, 3 counter-offer playbook scenarios with scripted responses, value connections, and 2-3 questions to reveal budget flexibility. Comp snapshot (Conservative/Standard/Competitive) shown inline. Dashboard panel gets Build My Negotiation Guide button. Back button returns to role picker without closing modal.' },
+                        { id: 'ex1-3', name: 'Internal mobility matching', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.46.85: Shipped as Option C — personal mode, no employer provisioning required. New "Internal" subtab in Jobs section (alongside Pipeline, Find Jobs, Fit For Me, Tracker). Firestore: users/{uid}/internal_roles collection, same WB shape. Functions: _internalLoadRoles(), _internalSaveRole(), _internalDeleteRole(), _internalConvertAndSave() (reuses convertJDToBlueprintAsync), _internalRunMatch() (reuses matchJobToProfile 6-pass engine), _internalSaveCurrentComp() (writes to userData.preferences.currentComp). Three outputs per role: (1) readiness score + label (Ready Now/Near Ready/Developing/Gap Heavy), (2) skill gaps to close (critical only, Nice to Have filtered), (3) comp delta = BLS median minus currentComp with directional badge. Comp strip at top lets user set/update currentComp inline. Migrates cleanly to employer-provisioned EX mode (ex1-1) when that ships — data shape is identical, collection path just moves.' },
                         { id: 'ex1-4', name: 'Promotion readiness tracker', status: 'planned', category: 'feature', priority: 'high', notes: 'Employee maps their current profile against the skill and outcome expectations for the next level (defined by manager or pulled from internal JD). Blueprint shows readiness score, specific gaps, and what evidence already exists. Progress tracked over time. Turns vague "you need to show more leadership" feedback into a specific, measurable gap list. Manager and employee aligned on the same rubric.' },
                         { id: 'ex1-5', name: 'Performance review prep mode', status: 'planned', category: 'feature', priority: 'high', notes: 'Outcome tab repurposed as a structured achievement log in EX context. Employee documents results with STAR-style metadata (Situation, Task, Action, Result with metric). Blueprint surfaces the strongest outcomes by impact tier ahead of review season. Generates a shareable evidence summary for the review conversation. Replaces the annual panic of trying to remember what you accomplished 11 months ago.' },
                         { id: 'ex1-6', name: 'Career pathing tool', status: 'planned', category: 'feature', priority: 'high', notes: 'Employee selects 2-3 target roles (internal or external) and sees a side-by-side gap analysis across all of them. Blueprint recommends the path of least resistance: which role requires the fewest new skills, which has the best comp upside, which aligns best with stated values. Enables a structured career conversation with a manager grounded in data rather than aspiration. Pairs with L&D integration for skill-to-resource mapping.' },
@@ -6819,6 +6820,19 @@
         function _jdcExtractTextFromHTML(html) {
             var tmp = document.createElement('div');
             tmp.innerHTML = html;
+            // Extract h1/h2 title hint before stripping DOM — ATS pages (Greenhouse, Lever, Workday)
+            // put the job title in <h1> which gets lost when we flatten to textContent below.
+            // Prepending as "Job Title: ..." lets _jdcExtractTitle's label pattern catch it first.
+            var h1TitleHint = '';
+            var h1El = tmp.querySelector('h1, h2');
+            if (h1El) {
+                var h1Text = (h1El.textContent || '').trim().replace(/\s+/g, ' ');
+                // Sanity check: must look like a job title, not a page header or company name
+                var h1BadPatterns = /^(careers at|jobs at|current openings|welcome|search|apply|create alert|job alert|about us|powered by)/i;
+                if (h1Text.length >= 5 && h1Text.length <= 120 && !h1BadPatterns.test(h1Text)) {
+                    h1TitleHint = h1Text;
+                }
+            }
             // Remove boilerplate structural elements
             ['script','style','nav','header','footer','noscript','iframe','svg'].forEach(function(tag) {
                 var els = tmp.querySelectorAll(tag);
@@ -6847,7 +6861,7 @@
             text = text.replace(/This (?:site|website) uses? cookies[^.]{0,200}\./gi, '');
             text = text.replace(/(?:Accept|Reject) (?:All|Cookies)[^.]{0,80}\.?/gi, '');
             var lines = text.split(/\.\s+/).map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 10; });
-            return lines.join('.\n');
+            return (h1TitleHint ? 'Job Title: ' + h1TitleHint + '\n' : '') + lines.join('.\n');
         }
 
         function runJDConverterBulk() {
@@ -7135,12 +7149,21 @@
                     if (t.length >= 5 && t.length <= 120) return t;
                 }
             }
-            var skipWords = /^(about|we |our |the company|description|overview|who we are|what you|why |join |apply|equal|eoe|disclaimer|benefits|perks|compensation|salary|requirements|responsibilities|qualifications|duties|summary|introduction|company\s)/i;
+            var skipWords = /^(about|we |our |the company|description|overview|who we are|what you|why |join |apply|equal|eoe|disclaimer|benefits|perks|compensation|salary|requirements|responsibilities|qualifications|duties|summary|introduction|company\s|location|reports\s+to|leads|department|posted|level|classification|team|function|division)/i;
             var bulletRx = /^[\u2022\u2023\u25E6\u25AA\u25AB\-\*\>]\s*/;
             for (var li = 0; li < Math.min(8, lines.length); li++) {
                 var ln = lines[li].replace(bulletRx, '');
                 if (ln.length >= 5 && ln.length <= 120 && !/^\d+\./.test(ln) && !skipWords.test(ln)) {
-                    if (/[a-z]/i.test(ln) && !/^https?:/.test(ln)) return ln;
+                    if (/[a-z]/i.test(ln) && !/^https?:/.test(ln)) {
+                        // Skip ATS metadata field lines: "Location: Bay Area", "Reports to: VP, People"
+                        // Pattern: short label (≤25 chars, ≤3 words) followed by colon + value
+                        var colonIdx = ln.indexOf(':');
+                        if (colonIdx > 0 && colonIdx <= 25) {
+                            var label = ln.slice(0, colonIdx).trim();
+                            if (label.split(/\s+/).length <= 3) continue;
+                        }
+                        return ln;
+                    }
                 }
             }
             return lines[0] || 'Unknown Role';
@@ -8175,7 +8198,6 @@
             // Premium pool = 15% of BLS median. Only Advanced/Expert/Mastery qualify.
             (function() {
                 var renderBls = data.bls;
-                console.log('[WB Comp Recompute] bls:', JSON.stringify(renderBls), '| skill[0].compValue:', data.skills && data.skills[0] ? data.skills[0].compValue : 'n/a', '| level:', data.skills && data.skills[0] ? data.skills[0].blueprintLevel : 'n/a');
                 if (renderBls && renderBls.median) {
                     var renderPremMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
                     var renderPool = Math.round(renderBls.median * 0.15);
@@ -9781,6 +9803,7 @@
                     + '<button onclick="wbRepoEditModal(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('edit',14) + ' Edit</button>'
                     + '<button onclick="wbRepoClone(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--accent, #60a5fa); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('copy',14) + ' Clone</button>'
                     + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:linear-gradient(135deg, #10b981, #3b82f6); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
+                    + '<button onclick="generateScoutingReportFromWB(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:linear-gradient(135deg, #8b5cf6, #3b82f6); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(139,92,246,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('file-text',14) + ' Scouting Report</button>'
                     + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, _jdcCompMode === 'with');
@@ -10182,6 +10205,39 @@
                 }
                 return true;
             });
+
+            // Soft-skill downgrade pass — these pass quality filter but should never surface as
+            // critical gaps. Downgrade requirement to 'Nice to Have' regardless of AI extraction.
+            // Keeps them visible in the skill list but removes them from gap score denominator.
+            var softSkillPhrases = {
+                'cross-functional collaboration': 1, 'cross functional collaboration': 1,
+                'verbal and written communication': 1, 'written and verbal communication': 1,
+                'communication skills': 1, 'interpersonal skills': 1,
+                'active listening skills': 1, 'active listening': 1,
+                'attention to detail': 1, 'detail oriented': 1, 'detail-oriented': 1,
+                'exceptional judgment': 1, 'sound judgment': 1, 'good judgment': 1,
+                'growth mindset': 1, 'growth-oriented mindset': 1, 'learner\'s mindset': 1,
+                'leading through ambiguity': 1, 'comfortable with ambiguity': 1,
+                'systems thinker': 1, 'systems thinking': 1,
+                'stakeholder management': 1, 'executive presence': 1,
+                'collaborative': 1, 'team player': 1, 'self-starter': 1, 'self starter': 1,
+                'results oriented': 1, 'results-oriented': 1, 'outcome oriented': 1,
+                'strategic thinking': 1, 'critical thinking': 1, 'analytical thinking': 1,
+                'problem solving': 1, 'problem-solving': 1,
+                'emotional intelligence': 1, 'empathy': 1,
+                'time management': 1, 'prioritization': 1, 'organizational skills': 1,
+                'adaptability': 1, 'flexibility': 1, 'resilience': 1,
+                'collaboration': 1, 'teamwork': 1, 'communication': 1
+            };
+            return skills.map(function(s) {
+                var lower = (s.name || '').toLowerCase().trim();
+                // Strip trailing "skills/abilities/competencies" for lookup
+                var normalized = lower.replace(/\s+(skills?|abilities?|competenc(?:y|ies))$/i, '').trim();
+                if (softSkillPhrases[lower] || softSkillPhrases[normalized]) {
+                    return Object.assign({}, s, { requirement: 'Nice to Have' });
+                }
+                return s;
+            });
         }
 
         function _wbCompareStructuredMatch(workBlueprint, candidateProfile) {
@@ -10229,7 +10285,9 @@
                                 var oName = oSkill.name;
                                 var oLower = oName.toLowerCase();
                                 // Skip generic abilities that match everything
-                                if (ENRICHMENT_BLOCKLIST[oLower]) return;
+                                // Normalize trailing "skills/abilities" so "active listening skills" hits the blocklist
+                                var oLowerNorm = oLower.replace(/\s+(skills?|abilities?|competenc(?:y|ies))$/i, '').trim();
+                                if (ENRICHMENT_BLOCKLIST[oLower] || ENRICHMENT_BLOCKLIST[oLowerNorm]) return;
                                 if (!existingNames[oLower]) {
                                     existingNames[oLower] = true;
                                     wbSkills.push({
@@ -11133,6 +11191,248 @@
             }
         }
         window.wbRepoCompare = wbRepoCompare;
+
+        // ── WB → Scouting Report Pipeline ────────────────────────────────────
+        // Builds the identical REPORT_DATA shape as buildReportData(jobIdx),
+        // but sourced from a Work Blueprint instead of a pipeline job.
+        function buildReportDataFromWB(wb) {
+            if (!wb) return null;
+            var profile      = userData.profile || {};
+            var allSkills    = skillsData.skills || [];
+            var allRoles     = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (skillsData.roles || []);
+            var userValues   = blueprintData.values || [];
+            var userOutcomes = blueprintData.outcomes || [];
+            var userPurpose  = blueprintData.purpose || '';
+            var userEdu      = userData.education || [];
+            var userCerts    = userData.certifications || [];
+
+            // Run 6-pass ontology matcher against WB skills
+            var wbSkills = wb.skills || [];
+            var matchData = (typeof matchJobToProfile === 'function') ? matchJobToProfile(wbSkills) : { score: 0, matched: [], gaps: [], surplus: [] };
+            var matched   = matchData.matched || [];
+            var gaps      = matchData.gaps || [];
+
+            // Values alignment
+            var companyVals = wb._resolvedCompanyValues || getCompanyValues(wb.company || '', wb.sourceJD || '');
+            var valAlign    = computeValuesAlignment(userValues, companyVals);
+
+            // Role / domain data (same logic as buildReportData)
+            var roleColors = ['#60a5fa','#a855f7','#10b981','#f59e0b','#ec4899','#06b6d4','#fb923c','#38bdf8','#84cc16'];
+            var activeRoleIds = new Set();
+            var roleNameToId  = {};
+            allRoles.forEach(function(r) { roleNameToId[r.name] = r.id; });
+            allSkills.forEach(function(s) {
+                if (!s.roles && s.role) s.roles = [roleNameToId[s.role] || s.role];
+                (s.roles || []).forEach(function(r) { activeRoleIds.add(r); });
+            });
+            var roles = allRoles.filter(function(r) { return activeRoleIds.has(r.id); }).map(function(r, i) {
+                return { id: r.id, name: r.name, color: r.color || roleColors[i % roleColors.length] };
+            });
+            var validRoleIds = new Set(roles.map(function(r) { return r.id; }));
+            var connectedSkills = allSkills.filter(function(s) {
+                return (s.roles || []).some(function(rid) { return validRoleIds.has(rid); });
+            });
+
+            // Required WB skill names (for k=1 tagging)
+            var jobRequiredNames = wbSkills.filter(function(s) {
+                var tier = s.tier || 'required';
+                return tier === 'required' || tier === 'Required';
+            }).map(function(s) { return s.name; });
+            var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
+
+            // Build reportSkills (same shape as buildReportData)
+            var reportSkills = allSkills.map(function(s) {
+                var sk = { n: s.name, l: s.level || 'Proficient', r: (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); }) };
+                var isMatched = matched.some(function(m) { return m.userSkill.toLowerCase() === s.name.toLowerCase(); });
+                var isRequired = jobRequiredSet.has(s.name.toLowerCase()) || isMatched;
+                if (isRequired) sk.k = 1;
+                sk._key   = !!s.key;
+                sk._level = s.level || 'Proficient';
+                var ev = (s.evidence || []).map(function(e) {
+                    return typeof e === 'string' ? e : ((e.outcome || '') + ' ' + (e.description || '')).trim();
+                }).filter(Boolean).join(' ');
+                if (ev) sk.ev = ev.substring(0, 300);
+                var certMatch = userCerts.find(function(c) { return (c.skills || []).some(function(cs) { return cs.toLowerCase() === s.name.toLowerCase(); }); });
+                var eduMatch  = userEdu.find(function(e) { return (e.skills || []).some(function(es) { return es.toLowerCase() === s.name.toLowerCase(); }); });
+                if (certMatch) { sk.vf = 'cert'; sk.vfLabel = certMatch.name; }
+                else if (eduMatch) { sk.vf = 'edu'; sk.vfLabel = eduMatch.name; }
+                else if (isRequired && ev) { sk.vf = 'verified'; }
+                return sk;
+            });
+
+            // Preset filtering (honour sharing preset)
+            var activePreset = (typeof currentPreset !== 'undefined') ? currentPreset : 'custom';
+            if (activePreset !== 'full' && activePreset !== 'custom') {
+                var levelRank = { 'Mastery':5,'Expert':4,'Advanced':3,'Proficient':2,'Novice':1 };
+                reportSkills = reportSkills.filter(function(sk) {
+                    if (sk.k) return true;
+                    if (activePreset === 'executive') return true;
+                    if (activePreset === 'advisory') return sk._key;
+                    if (activePreset === 'board') return sk._key || sk._level === 'Mastery';
+                    return true;
+                });
+                if (activePreset === 'executive') {
+                    var jm = reportSkills.filter(function(sk) { return sk.k; });
+                    var sp = reportSkills.filter(function(sk) { return !sk.k; });
+                    sp.sort(function(a,b) { return (levelRank[b._level]||0)-(levelRank[a._level]||0); });
+                    reportSkills = jm.concat(sp.slice(0,20));
+                }
+            }
+            reportSkills.forEach(function(sk) { delete sk._key; delete sk._level; });
+
+            // Gaps
+            var reportGaps = gaps.map(function(g) {
+                var adj = connectedSkills.filter(function(s) {
+                    var words = g.name.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
+                    return words.some(function(w) { return s.name.toLowerCase().indexOf(w) !== -1; });
+                }).slice(0,3).map(function(s) { return s.name; });
+                return { n: g.name, rq: g.requirement || 'Required',
+                    br: adj.length > 0 ? 'Adjacent skills (' + adj.join(', ') + ') suggest a bridgeable gap.' : 'Targeted upskilling recommended.',
+                    adj: adj };
+            });
+
+            // Values
+            var candidateValues = userValues.filter(function(v) { return v.selected; }).map(function(v) {
+                var isAligned = valAlign && valAlign.aligned && valAlign.aligned.some(function(a) { return a.name === v.name; });
+                return { n: v.name, s: isAligned ? 'aligned' : 'yours' };
+            });
+            var companyValuesList = [];
+            if (companyVals) {
+                (companyVals.primary   || []).forEach(function(v) { companyValuesList.push({ n:v, t:'primary',   s: candidateValues.some(function(cv){return cv.n===v&&cv.s==='aligned';}) ? 'aligned':'theirs' }); });
+                (companyVals.secondary || []).forEach(function(v) { companyValuesList.push({ n:v, t:'secondary', s: candidateValues.some(function(cv){return cv.n===v&&cv.s==='aligned';}) ? 'aligned':'theirs' }); });
+            }
+
+            // Outcomes
+            var reportOutcomes = userOutcomes.filter(function(o) { return o.shared !== false; });
+            if (activePreset === 'advisory') reportOutcomes = reportOutcomes.filter(function(o) { return o.category === 'Strategic Foresight' || o.category === 'Thought Leadership' || o.category === 'Business Impact'; });
+            else if (activePreset === 'board') reportOutcomes = reportOutcomes.filter(function(o) { return o.category === 'Business Impact' || o.category === 'Crisis Leadership' || o.category === 'Entrepreneurial'; });
+            reportOutcomes = reportOutcomes.slice(0,6).map(function(o) {
+                var text = o.text || o.outcome || '';
+                return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi,'[Company]') };
+            });
+
+            // Narrative — driven by WB match
+            var topMatched  = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0,3);
+            var topNames    = topMatched.map(function(m) { return m.userSkill; }).join(', ');
+            var narrative   = (profile.name || 'This candidate') + ' brings ';
+            if (topNames) narrative += 'demonstrated expertise in ' + topNames + ' — ';
+            narrative += matched.length + ' of ' + (matched.length + gaps.length) + ' required competencies matched';
+            narrative += gaps.length > 0 ? ' with ' + gaps.length + ' gap' + (gaps.length!==1?'s':'') + ' identified.' : ' with no significant gaps.';
+
+            // Domains
+            var reportDomains = roles.map(function(role, i) {
+                var c = connectedSkills.filter(function(s) { return (s.roles||[]).indexOf(role.id)!==-1; }).length;
+                return { n: role.name, c: c, m: connectedSkills.length, cl: role.color };
+            }).filter(function(d) { return d.c > 0; });
+
+            // Proficiency
+            var proficiency = { Mastery:0, Expert:0, Advanced:0, Proficient:0, Novice:0 };
+            allSkills.forEach(function(s) { var lv = s.level||'Proficient'; if (proficiency.hasOwnProperty(lv)) proficiency[lv]++; });
+
+            // Comp — use WB's own bls data if available, else profile comp
+            var compData = null;
+            if (wb.bls) {
+                var bls = wb.bls;
+                var ctx = wb.compContext || {};
+                var mult = (ctx.industryMult || 1) * (ctx.companyMult || 1);
+                var median = bls.median ? Math.round(bls.median * mult) : 0;
+                if (median > 0) {
+                    compData = {
+                        marketRate:        median,
+                        conservativeOffer: Math.round(median * 0.90),
+                        standardOffer:     Math.round(median * 1.00),
+                        competitiveOffer:  Math.round(median * 1.10),
+                        roleLevel:         wb.seniority || 'Mid',
+                        compSource:        'work-blueprint',
+                        compLabel:         'Work Blueprint Estimate',
+                        reportedComp:      (profile.reportedComp || 0)
+                    };
+                }
+            }
+            if (!compData && typeof getEffectiveComp === 'function') {
+                var c = getEffectiveComp();
+                if (c) compData = { marketRate: c.marketRate||0, conservativeOffer: c.conservativeOffer||0, standardOffer: c.standardOffer||0, competitiveOffer: c.competitiveOffer||0, roleLevel: c.roleLevel||'Mid', compSource: c.compSource||'algorithm', compLabel: c.compLabel||'Market Estimate', reportedComp: (profile.reportedComp||0) };
+            }
+
+            return {
+                candidate: {
+                    name:      profile.name || 'Anonymous Candidate',
+                    photo:     (profile.name || 'A').charAt(0).toUpperCase(),
+                    title:     profile.currentTitle || profile.title || '',
+                    location:  profile.location || 'Location undisclosed',
+                    contact:   profile.email || 'Available upon request',
+                    phone:     profile.phone || '',
+                    linkedin:  profile.linkedin || profile.linkedinUrl || '',
+                    purpose:   userPurpose,
+                    blindTitle:(profile.currentTitle || 'Professional').replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi,'')
+                },
+                workHistory: getVisibleWorkHistory().slice(0,5).map(function(w) {
+                    var dates = w.dates || w.years || '';
+                    if (!dates) { var st = w.startYear||(w.startDate?w.startDate.split('-')[0]:''); var en = w.current?'Present':(w.endYear||(w.endDate==='Present'?'Present':(w.endDate?w.endDate.split('-')[0]:''))); if (st||en) dates=[st,en].filter(Boolean).join('-'); }
+                    return { title: w.title||w.role||'', company: w.company||w.organization||'', dates: dates, description: w.description||'' };
+                }),
+                job: {
+                    title:   wb.title   || 'Work Blueprint',
+                    company: wb.company || 'Undisclosed',
+                    date:    new Date().toLocaleDateString('en-US',{ month:'short', day:'numeric', year:'numeric' }),
+                    _sourceWB: true  // sentinel: report was generated from a WB, not a pipeline job
+                },
+                match: { percentage: matchData.score || 0, narrative: narrative },
+                roles:             roles,
+                skills:            reportSkills,
+                networkSkills:     reportSkills.filter(function(sk){ return (sk.r&&sk.r.length>0)||sk.k===1; }),
+                jobMatchSkills:    reportSkills.filter(function(sk){ return sk.k===1; }),
+                totalSkillCount:   allSkills.length,
+                sharingPreset:     activePreset,
+                jobRequired:       jobRequiredNames,
+                gaps:              reportGaps,
+                values: { score: valAlign?valAlign.score:0, narrative: 'Cultural Fit Signal — '+((valAlign?(valAlign.aligned||[]).length:0))+' shared values identified.', candidate: candidateValues, company: companyValuesList },
+                outcomes:          reportOutcomes,
+                education:  userEdu.map(function(e){ return { name:e.institution||e.name||'', desc:(e.degree||'')+(e.field?' — '+e.field:''), location:e.location||'', dates:e.dates||e.year||'', vf:'edu',  skills:e.skills||[] }; }),
+                certifications: userCerts.map(function(c){ return { name:c.name||'', vf:'cert', vfLabel:c.issuer||c.name||'', desc:c.description||c.issuer||'', dates:c.dates||c.year||'', status:c.status||'', skills:c.skills||[] }; }),
+                domains:           reportDomains,
+                proficiency:       proficiency,
+                comp:              compData
+            };
+        }
+        window.buildReportDataFromWB = buildReportDataFromWB;
+
+        // Generates and displays an HTML scouting report directly from a saved WB.
+        function generateScoutingReportFromWB(idx) {
+            if (!_wbRepoCache || !_wbRepoCache[idx]) { showToast('Work Blueprint not found.', 'error'); return; }
+            var wb = _wbRepoCache[idx];
+
+            // Pre-resolve company values if needed
+            var doGenerate = function() {
+                showToast('Generating scouting report from Work Blueprint…', 'info', 2500);
+                logAnalyticsEvent('scouting_report_html', { company: wb.company||'', title: wb.title||'', source:'wb' });
+
+                var reportData = buildReportDataFromWB(wb);
+                if (!reportData) { showToast('Failed to build report data.', 'error'); return; }
+
+                var blindSettings = (typeof getActiveBlindSettings==='function') ? getActiveBlindSettings() : {};
+                var overridden    = (typeof hasOverrides==='function') ? hasOverrides() : false;
+                if (typeof applyBlindSettings==='function') applyBlindSettings(reportData, blindSettings);
+                if (typeof logPrivacyEvent==='function') logPrivacyEvent('html', wb.title||'', wb.company||'', blindSettings, overridden);
+                if (typeof _blindOverrides !== 'undefined') _blindOverrides = null;
+
+                // showReportOverlay with null jobIdx (WB-sourced) — share flow handles sentinel
+                showReportOverlay(reportData, null);
+            };
+
+            // Resolve company values before generating if possible
+            if (wb.company && typeof ensureCompanyValues === 'function') {
+                ensureCompanyValues(wb.company).then(function(resolved) {
+                    if (resolved && resolved.primary && resolved.primary.length > 0) {
+                        wb._resolvedCompanyValues = resolved;
+                    }
+                    doGenerate();
+                }).catch(doGenerate);
+            } else {
+                doGenerate();
+            }
+        }
+        window.generateScoutingReportFromWB = generateScoutingReportFromWB;
 
         var _wbCompWizStep = 1;
         var _wbCompWizData = { wb: null, rawJD: '', candidateId: '', candidate: null };
@@ -12988,6 +13288,7 @@
                   steps: [
                     { label: 'Add Position', fn: 'openWorkHistoryModal(-1)', desc: 'Modal: title, company, location, dates, description' },
                     { label: 'Edit Position', fn: 'openWorkHistoryModal(idx)', desc: 'Pre-filled modal for existing position' },
+                    { label: 'Tile Grid View', fn: 'renderExperienceSettings()', desc: 'Experience tab renders as tile grid. Multi-role companies span full width with sub-grid role tiles. coColor() applies deterministic employer tint per company. Solo positions are standalone tiles.' },
                     { label: 'Hide Position', fn: 'toggleWorkHistoryHidden(idx)', desc: 'Sets job.hidden flag. Ripples to: network, reports, exports, matching' },
                     { label: 'Delete Position', fn: 'removeWorkHistoryItem(idx)', desc: 'Splices from workHistory, cleans orphan role + skill refs' },
                     { label: 'Hide from Network', fn: 'hideRoleFromNetwork(name)', desc: 'Role tile click → marks workHistory hidden → rebuilds network' },
@@ -13000,9 +13301,32 @@
                     { label: 'Parse JD', fn: 'parseJobDescription(text)', desc: 'AI extracts: title, company, skills, requirements, level' },
                     { label: 'Score Match', fn: 'computeMatchScore(job)', desc: 'Compares user skills vs job skills. Matched/surplus/gaps' },
                     { label: 'Values Align', fn: 'computeValuesAlignment()', desc: 'Maps user values against inferred company values' },
+                    { label: 'Comp Range', fn: 'activeCompRange / _jdcExtractCompensation()', desc: 'JD Posted Range vs Blueprint Calculated shown side by side; editable "Use for this Blueprint" input' },
                     { label: 'Network Overlay', fn: 'setNetworkMatchMode(mode)', desc: 'Switches between: you / job / match / values views' },
                     { label: 'Scouting Report', fn: 'buildReportData(jobIdx)', desc: 'Assembles full candidate profile for specific job' },
-                    { label: 'PDF Export', fn: 'generateScoutingPDF()', desc: 'jsPDF renders multi-page branded scouting report' }
+                    { label: 'PDF Export', fn: 'generateScoutingReport(jobIdx)', desc: 'jsPDF multi-page branded scouting report' }
+                ]},
+                { id: 'jd-converter', name: 'JD Converter', icon: 'file-text', cat: 'Jobs',
+                  steps: [
+                    { label: 'Input', fn: 'renderAdminJDConverter(el)', desc: 'Three modes: Paste text, Fetch URL (Vercel proxy fallback), Bulk upload (multiple JDs). URL fetch uses Vercel /api/fetch-url proxy to bypass CORS.' },
+                    { label: 'Extract', fn: 'convertJDToBlueprintAsync(jdText)', desc: 'Claude API extracts: title, company, location, seniority, skills (tier/requirement), qualifications, education, certifications, values, industry, yearsRequired, compensation range' },
+                    { label: 'Comp Extract', fn: '_jdcExtractCompensation() / _jdcExtractLocation()', desc: 'Local regex extraction runs in parallel: 5 comp patterns (base, total, range, narrative), location stripped of schedule noise (hybrid, 3 days/week, etc.)' },
+                    { label: 'Quality Check', fn: '_jdcCheckExtractQuality(result, raw)', desc: 'Scores extraction completeness. Warns if title/skills/company missing.' },
+                    { label: 'Edit Form', fn: 'renderJDCEditForm(data)', desc: 'Editable fields for all extracted values. Add/remove skills, set tiers, edit comp range, add custom fields.' },
+                    { label: 'Comp Panel', fn: 'activeCompRange on _jdcResult', desc: 'WB header shows JD Posted Range vs Blueprint Calculated side by side. Editable "Use for this Blueprint" with Use JD / Use Blueprint buttons.' },
+                    { label: 'Preview', fn: 'renderWorkBlueprint(data, showComp)', desc: 'Full Work Blueprint preview rendered from extracted data' },
+                    { label: 'Save', fn: 'jdcSaveToRepository() / jdcSaveAndRepository()', desc: 'Writes to users/{uid}/work_blueprints/{id} in Firestore. Navigates to WB Repository on save.' }
+                ]},
+                { id: 'wb-repository', name: 'WB Repository', icon: 'database', cat: 'Jobs',
+                  steps: [
+                    { label: 'Load', fn: '_wbRepoLoadData()', desc: 'Reads users/{uid}/work_blueprints ordered by savedAt desc. Populates _wbRepoCache.' },
+                    { label: 'Browse', fn: 'renderAdminWBRepo(el)', desc: 'Card list with title, company, seniority, skill count, saved date. Click to expand.' },
+                    { label: 'Load in Converter', fn: 'wbRepoLoadInConverter(idx)', desc: 'Opens WB in JD Converter edit mode for revision. Sets _jdcFromRepo=true, _jdcEditMode=true.' },
+                    { label: 'Compare', fn: 'wbRepoCompare(idx)', desc: 'Runs matchJobToProfile() against saved WB + user profile. Requires source JD text (stored or paste). Renders comparison diff.' },
+                    { label: 'Scouting Report', fn: 'generateScoutingReportFromWB(idx)', desc: 'WB→Report pipeline: resolves company values, runs buildReportDataFromWB(), applies blind settings, renders overlay. No pipeline job required.' },
+                    { label: 'Export', fn: 'wbRepoExport(mode)', desc: 'JSON, PDF (jsPDF), or Word export of the saved Work Blueprint' },
+                    { label: 'Clone', fn: 'wbRepoClone(idx)', desc: 'Deep-copies WB, appends "(Copy)" to title, saves new doc to Firestore' },
+                    { label: 'Delete', fn: 'wbRepoDelete(id)', desc: 'Removes from Firestore, clears cache, refreshes list' }
                 ]},
                 { id: 'network-viz', name: 'Network Visualization', icon: 'network', cat: 'Map',
                   steps: [
@@ -13016,12 +13340,13 @@
                 ]},
                 { id: 'reports', name: 'Scouting Reports', icon: 'clipboard', cat: 'Reports',
                   steps: [
-                    { label: 'Select Job', fn: 'User selects job from pipeline', desc: 'Scouting report is always job-specific' },
-                    { label: 'Build Data', fn: 'buildReportData(jobIdx)', desc: 'Assembles: skills, match%, gaps, values, work history, education' },
-                    { label: 'HTML Report', fn: 'buildScoutingReportHTML(data)', desc: 'Renders full HTML report with charts, sections, scores' },
-                    { label: 'PDF Report', fn: 'generateScoutingPDF(data)', desc: 'jsPDF multi-page: summary, skills arch, match analysis, experience' },
-                    { label: 'Standalone PDF', fn: 'exportStandalonePDF()', desc: 'Profile-only PDF without job context' },
-                    { label: 'Resume Export', fn: 'exportResume()', desc: 'ATS-formatted resume from profile data' }
+                    { label: 'Entry Point', fn: 'generateHTMLScoutingReport(jobIdx) OR generateScoutingReportFromWB(idx)', desc: 'Two entry points: (1) Job Pipeline — job-specific report; (2) WB Repository — Work Blueprint sourced report' },
+                    { label: 'Build Data', fn: 'buildReportData(jobIdx) / buildReportDataFromWB(wb)', desc: 'Assembles identical REPORT_DATA shape: skills (6-pass match), gaps, values alignment, work history, education, comp' },
+                    { label: 'Blind Settings', fn: 'getActiveBlindSettings() + applyBlindSettings()', desc: 'Applies identity/location/employer/institution/outcomes/comp privacy controls before render' },
+                    { label: 'HTML Report', fn: 'showReportOverlay(reportData, jobIdx)', desc: 'Fetches base.html template, injects REPORT_DATA, renders in blob iframe overlay with Share button' },
+                    { label: 'PDF Report', fn: 'generateScoutingReport(jobIdx)', desc: 'jsPDF multi-page: summary, skills network, match analysis, experience, gaps' },
+                    { label: 'Share Report', fn: 'shareScoutingReport()', desc: 'Writes sanitized reportData to Firestore reports/{id} with 128-bit shareToken. Copies URL to clipboard. Works for both job and WB-sourced reports.' },
+                    { label: 'Privacy Log', fn: 'logPrivacyEvent(format, title, company, settings)', desc: 'Audit log entry written per export/share event, visible in Settings → Privacy' }
                 ]},
                 { id: 'values-outcomes', name: 'Values & Outcomes', icon: 'star', cat: 'Blueprint',
                   steps: [
@@ -16103,7 +16428,7 @@
         }
         
         // ===== ADMIN SHOWCASE MODE (v4.44.36) =====
-        // URL: myblueprint.work?showcase=blueprint-demo-2026
+        // URL: myblueprint.work?showcase=bp-aKqWMR8AJli-tFPr8p3IJA32
         // Loads admin profile as read-only with full admin UI, no auth required
         // Sensitive data (emails, API keys, user PII) redacted
         function checkShowcaseMode() {
@@ -18464,6 +18789,47 @@
             if (window.onetCrosswalk) return;
             fetch('onet-crosswalk.json').then(function(r) { return r.json(); }).then(function(data) {
                 window.onetCrosswalk = data;
+                // Inject custom aliases missing from O*NET — modern job titles not in the 2019 SOC system.
+                // Format: alias → [SOC code]. SOC must exist in data.occupations.
+                var customAliases = {
+                    // Revenue Operations — maps to Sales Managers (11-2022)
+                    'revenue operations': ['11-2022'],
+                    'revenue ops': ['11-2022'],
+                    'revops': ['11-2022'],
+                    'director of revenue operations': ['11-2022'],
+                    'vp of revenue operations': ['11-2022'],
+                    'head of revenue operations': ['11-2022'],
+                    // Total Rewards — maps to Compensation and Benefits Managers (11-3111)
+                    'total rewards': ['11-3111'],
+                    'director of total rewards': ['11-3111'],
+                    'vp of total rewards': ['11-3111'],
+                    'total rewards and people operations': ['11-3111'],
+                    'director total rewards people operations': ['11-3111'],
+                    // People Operations — maps to HR Managers (11-3121)
+                    'people operations': ['11-3121'],
+                    'head of people operations': ['11-3121'],
+                    'vp of people operations': ['11-3121'],
+                    // GTM / Go-to-Market — maps to Marketing Managers (11-2021)
+                    'go to market': ['11-2021'],
+                    'gtm strategy': ['11-2021'],
+                    'head of gtm': ['11-2021'],
+                    // Talent Intelligence / Talent Strategy — maps to HR Managers (11-3121)
+                    'talent intelligence': ['11-3121'],
+                    'talent strategy': ['11-3121'],
+                    'head of talent intelligence': ['11-3121'],
+                    // AI / ML Strategy roles — maps to Computer and Information Systems Managers (11-3021)
+                    'ai strategy': ['11-3021'],
+                    'head of ai': ['11-3021'],
+                    'vp of ai': ['11-3021']
+                };
+                if (data.aliases && data.occupations) {
+                    Object.keys(customAliases).forEach(function(alias) {
+                        var socs = customAliases[alias].filter(function(s) { return data.occupations[s]; });
+                        if (socs.length > 0 && !data.aliases[alias]) {
+                            data.aliases[alias] = socs;
+                        }
+                    });
+                }
                 var occCount = Object.keys(data.occupations || {}).length;
                 var aliasCount = Object.keys(data.aliases || {}).length;
                 console.log('✅ O*NET Crosswalk loaded (deferred): ' + occCount + ' occupations, ' + aliasCount + ' aliases');
@@ -23878,10 +24244,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 initCardView();
                 
                 // Auto-save every 60 seconds (Firestore + localStorage)
-                setInterval(() => {
-                    saveUserData();
-                    if (fbUser && fbDb) debouncedSave(500);
-                }, 60000);
+                // Guard: initializeMainApp() is called from 5+ paths — only register once.
+                // Without this, every re-init stacks a new interval.
+                if (!window._autoSaveInterval) {
+                    window._autoSaveInterval = setInterval(function() {
+                        saveUserData();
+                        if (fbUser && fbDb) debouncedSave(500);
+                    }, 60000);
+                }
             }
             
             // Navigate to the target view
@@ -27038,6 +27408,14 @@ body {
         window.saveValueNote = saveValueNote;
 
         function inferValues() {
+            // GUARD: If blueprintData already has selected values, do NOT overwrite them.
+            // inferValues() is called from multiple render paths (dashboard, content tab, values network)
+            // and must not clobber values already loaded from Firestore.
+            if (blueprintData.values && blueprintData.values.length > 0
+                    && blueprintData.values.some(function(v) { return v.selected; })) {
+                _inferPurposeOnly();
+                return;
+            }
             // Restore circuit breaker from sessionStorage if lost (e.g. hard reload)
             if (!window._lastKnownPurpose) {
                 try {
@@ -27050,7 +27428,7 @@ body {
             if (saved && saved.length > 0) {
                 blueprintData.values = saved;
             } else {
-                // STEP 2: Use profile values if they exist
+                // STEP 2: Use profile values if they exist — preserve .note field
                 var profileValues = userData.values || [];
                 if (profileValues.length > 0) {
                     blueprintData.values = profileValues.map(function(v) {
@@ -27058,7 +27436,8 @@ body {
                             name: v.name,
                             selected: v.selected !== undefined ? v.selected : true,
                             inferred: v.inferred || false,
-                            custom: false
+                            custom: false,
+                            note: v.note || ''
                         };
                     });
                 } else {
@@ -27083,6 +27462,16 @@ body {
                 }
             }
             
+            _inferPurposeOnly();
+            
+            // Enforce max 10 values
+            if (blueprintData.values.length > 10) {
+                blueprintData.values = blueprintData.values.slice(0, 10);
+            }
+        }
+
+        // Separated so the guard path in inferValues() can still run purpose logic.
+        function _inferPurposeOnly() {
             // Purpose — Firestore is authoritative for signed-in users.
             // wbPurpose localStorage is only used when not signed in.
             var savedPurpose = null;
@@ -27093,20 +27482,12 @@ body {
             } else if (userData.purpose && userData.purpose.trim().length > 0) {
                 blueprintData.purpose = userData.purpose;
             } else if (blueprintData.purpose && blueprintData.purpose.trim().length > 0) {
-                // Keep existing in-memory value — userData may be stale but blueprintData is current
-                userData.purpose = blueprintData.purpose; // sync back
+                userData.purpose = blueprintData.purpose;
             } else if (window._lastKnownPurpose && window._lastKnownPurpose.trim().length > 0) {
-                // Circuit breaker: Firestore last-known value prevents inferValues from erasing purpose
                 blueprintData.purpose = window._lastKnownPurpose;
                 userData.purpose = window._lastKnownPurpose;
-                console.log('\u26a0 inferValues: restored purpose from _lastKnownPurpose circuit breaker');
             } else {
                 blueprintData.purpose = "";
-            }
-            
-            // Enforce max 10 values
-            if (blueprintData.values.length > 10) {
-                blueprintData.values = blueprintData.values.slice(0, 10);
             }
         }
 
@@ -27497,6 +27878,9 @@ body {
                         + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:2px;">Start at ' + formatCompValue(totalValue.yourWorth || totalValue.marketRate) + ', target ' + formatCompValue(totalValue.competitiveOffer) + '+</div>'
                         + '</div>';
                 }
+
+                html += '<button onclick="showNegotiationGuideV2()" style="margin-top:10px; width:100%; padding:8px 12px; background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(245,158,11,0.08)); border:1px solid rgba(251,191,36,0.3); border-radius:8px; color:#fbbf24; font-size:0.78em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">'
+                    + bpIcon('target',13) + ' Build My Negotiation Guide</button>';
 
                 html += '</div></div>'; // end right col
                 html += '</div></div>'; // end 2-col body + card
@@ -30269,23 +30653,37 @@ body {
                     // Post-render approach: polls SVG circles and recolors by __data__ category
                     var patchColors = '<script>'
                         + '(function() {'
+                        // Category colors match getCategoryColor() exactly
+                        // Type colors match the main app skill type palette
+                        // Level colors match the main app proficiency palette
                         + '  var bpColors = {'
-                        + '    skill:"#60a5fa", ability:"#a78bfa", workstyle:"#f59e0b",'
-                        + '    knowledge:"#10b981", workactivity:"#ec4899",'
-                        + '    unique:"#fbbf24", trade:"#f97316",'
-                        + '    "General Professional":"#60a5fa", Technology:"#818cf8",'
-                        + '    "Business & Management":"#f59e0b", "Marketing & Sales":"#ec4899",'
-                        + '    "Finance & Accounting":"#10b981", "HR & Talent":"#a78bfa",'
-                        + '    "Healthcare":"#06b6d4", Engineering:"#8b5cf6",'
-                        + '    Legal:"#f97316", "Creative & Design":"#f472b6",'
-                        + '    Transversal:"#94a3b8"'
+                        + '    Technology:"#3b82f6",'
+                        + '    "Business & Management":"#8b5cf6",'
+                        + '    "Finance & Accounting":"#10b981",'
+                        + '    "Marketing & Sales":"#f59e0b",'
+                        + '    "Human Resources":"#ec4899",'
+                        + '    "Healthcare & Medical":"#14b8a6",'
+                        + '    "Engineering & Manufacturing":"#6366f1",'
+                        + '    "Legal & Compliance":"#78716c",'
+                        + '    "Creative & Design":"#f97316",'
+                        + '    "General Professional":"#64748b",'
+                        + '    skill:"#60a5fa", ability:"#a78bfa",'
+                        + '    workstyle:"#10b981", unique:"#fbbf24",'
+                        + '    knowledge:"#06b6d4", workactivity:"#ec4899",'
+                        + '    trade:"#f97316", Transversal:"#94a3b8"'
+                        + '  };'
+                        // Level → color for nodes that expose proficiency instead of category
+                        + '  var lvColors = {'
+                        + '    Mastery:"#10b981", Expert:"#fb923c",'
+                        + '    Advanced:"#a78bfa", Proficient:"#60a5fa", Novice:"#94a3b8"'
                         + '  };'
                         + '  function recolorNetwork() {'
                         + '    document.querySelectorAll("svg circle").forEach(function(c) {'
                         + '      var d = c.__data__;'
                         + '      if (!d) return;'
                         + '      var cat = d.category || d.cat || d.type || d.group || "";'
-                        + '      var color = bpColors[cat] || (cat.toLowerCase ? bpColors[cat.toLowerCase()] : null);'
+                        + '      var lv  = d.level || d.proficiency || "";'
+                        + '      var color = bpColors[cat] || bpColors[cat.toLowerCase ? cat.toLowerCase() : cat] || lvColors[lv] || null;'
                         + '      if (color) { c.setAttribute("fill", color); c.style.fill = color; }'
                         + '      if (d.isRole || d.type === "role" || d.nodeType === "role") {'
                         + '        c.setAttribute("fill", "rgba(255,255,255,0.06)");'
@@ -30353,19 +30751,32 @@ body {
                         + '      document.querySelectorAll("svg line").forEach(function(l) { l.style.display = ""; });'
                         + '    }'
                         + '  }'
+                        // Run immediately once (catches any synchronously-rendered nodes)
+                        + '  recolorNetwork(); filterJobMatch();'
+                        // MutationObserver: fires recolorNetwork the instant D3 adds SVG nodes
+                        // This eliminates the color flash — no waiting for a poll tick
+                        + '  var _obs = new MutationObserver(function(muts) {'
+                        + '    var hasSVG = muts.some(function(m) {'
+                        + '      return Array.from(m.addedNodes).some(function(n) {'
+                        + '        return n.nodeType === 1 && (n.tagName === "circle" || n.tagName === "line" || n.tagName === "g" || (n.querySelector && n.querySelector("circle")));'
+                        + '      });'
+                        + '    });'
+                        + '    if (hasSVG) { recolorNetwork(); filterJobMatch(); }'
+                        + '  });'
+                        + '  _obs.observe(document.body || document.documentElement, { childList: true, subtree: true });'
+                        // Safety net: fast polling for first 3s, then disconnect observer
                         + '  var n = 0;'
                         + '  var iv = setInterval(function() {'
-                        + '    recolorNetwork();'
-                        + '    filterJobMatch();'
-                        + '    if (++n > 25) clearInterval(iv);'
-                        + '  }, 400);'
+                        + '    recolorNetwork(); filterJobMatch();'
+                        + '    if (++n > 15) { clearInterval(iv); _obs.disconnect(); }'
+                        + '  }, 200);'
                         + '  document.addEventListener("DOMContentLoaded", function() {'
-                        + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
-                        // Re-filter when tabs are clicked
+                        + '    [500,1200,2500].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
+                        // Re-apply on tab/button clicks
                         + '    document.addEventListener("click", function(e) {'
                         + '      if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
-                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 300);'
-                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 800);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 150);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 600);'
                         + '      }'
                         + '    });'
                         + '  });'
@@ -30436,6 +30847,8 @@ body {
             if (btn) { btn.disabled = true; btn.innerHTML = bpIcon('clock',14) + ' Sharing…'; }
             
             var reportData = overlay._reportData;
+            // WB-sourced reports (reportData.job._sourceWB) share identically to pipeline reports.
+            // The _sourceWB flag is carried in reportData.job but stripped on the Firestore write below.
             
             // Generate secure report ID: timestamp + crypto-random hex (128-bit entropy)
             var cryptoBytes = new Uint8Array(16);
@@ -34269,6 +34682,7 @@ body {
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (opportunitiesData.length > 0 ? ' (' + opportunitiesData.length + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'fit-for-me' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'fit-for-me\')">' + bpIcon('activity',14) + ' Fit For Me' + (_fitForMeData.length > 0 ? ' (' + _fitForMeData.length + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'internal' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'internal\')">' + bpIcon('compass',14) + ' Internal' + (_internalRolesCache && _internalRolesCache.length > 0 ? ' (' + _internalRolesCache.length + ')' : '') + '</button>'
                 + '</div>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
@@ -34297,6 +34711,9 @@ body {
                 return;
             } else if (jobsSubTab === 'tracker') {
                 el.innerHTML = renderTrackerInJobs();
+            } else if (jobsSubTab === 'internal') {
+                renderInternalMobility(el);
+                return;
             } else {
                 el.innerHTML = renderFindJobs();
                 if (opportunitiesData && opportunitiesData.length > 0) {
@@ -34311,7 +34728,295 @@ body {
             }
         }
         
-        // Render the Application Tracker inline within Jobs tab
+        // ── Internal Mobility (ex1-3) ─────────────────────────────────────────
+        var _internalRolesCache = null;   // null = unloaded, [] = empty, [...] = loaded
+        var _internalMatchExpanded = {};  // idx → bool
+
+        function _internalLoadRoles(cb) {
+            if (!fbUser || !fbDb) { _internalRolesCache = []; if (cb) cb(); return; }
+            fbDb.collection('users').doc(fbUser.uid).collection('internal_roles').orderBy('savedAt', 'desc').get()
+                .then(function(snapshot) {
+                    _internalRolesCache = [];
+                    snapshot.forEach(function(doc) {
+                        var d = doc.data(); d.id = doc.id;
+                        _internalRolesCache.push(d);
+                    });
+                    if (cb) cb();
+                })
+                .catch(function(err) {
+                    console.warn('Internal roles load error:', err);
+                    _internalRolesCache = [];
+                    if (cb) cb();
+                });
+        }
+
+        function _internalSaveRole(entry, cb) {
+            if (!fbUser || !fbDb) { showToast('Sign in to save internal roles.', 'warning'); return; }
+            var col = fbDb.collection('users').doc(fbUser.uid).collection('internal_roles');
+            var op = entry.id ? col.doc(entry.id).set(entry, { merge: true }) : col.add(entry);
+            op.then(function(ref) {
+                if (!entry.id && ref) entry.id = ref.id;
+                _internalRolesCache = null; // invalidate cache
+                logAnalyticsEvent('internal_role_saved', { title: entry.title || '' });
+                if (cb) cb();
+            }).catch(function(err) { showToast('Save failed: ' + err.message, 'error'); });
+        }
+
+        function _internalDeleteRole(id) {
+            if (!fbUser || !fbDb || !id) return;
+            if (!confirm('Remove this internal role? This cannot be undone.')) return;
+            fbDb.collection('users').doc(fbUser.uid).collection('internal_roles').doc(id).delete()
+                .then(function() {
+                    showToast('Internal role removed.', 'success');
+                    _internalRolesCache = null;
+                    _internalMatchExpanded = {};
+                    var el = document.getElementById('jobsSubTabContent');
+                    renderInternalMobility(el);
+                })
+                .catch(function(err) { showToast('Delete failed: ' + err.message, 'error'); });
+        }
+        window._internalDeleteRole = _internalDeleteRole;
+
+        function _internalRunMatch(idx) {
+            _internalMatchExpanded[idx] = !_internalMatchExpanded[idx];
+            var el = document.getElementById('jobsSubTabContent');
+            renderInternalMobility(el);
+        }
+        window._internalRunMatch = _internalRunMatch;
+
+        async function _internalConvertAndSave() {
+            var ta = document.getElementById('internalJDInput');
+            var raw = ta ? ta.value.trim() : '';
+            if (!raw || raw.length < 50) { showToast('Paste a job description (at least a few sentences).', 'warning'); return; }
+            var btn = document.getElementById('internalConvertBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Converting...'; }
+            try {
+                var result = await convertJDToBlueprintAsync(raw);
+                var entry = {
+                    id: '',
+                    title: result.title || 'Untitled Role',
+                    company: result.company || (userData.profile && userData.profile.currentCompany) || '',
+                    skills: result.skills || [],
+                    bls: result.bls || null,
+                    seniority: result.seniority || 'mid',
+                    rawText: raw.slice(0, 4000),
+                    savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    source: 'internal'
+                };
+                _internalSaveRole(entry, function() {
+                    if (ta) ta.value = '';
+                    showToast('Internal role saved: ' + entry.title, 'success');
+                    var el = document.getElementById('jobsSubTabContent');
+                    _internalLoadRoles(function() { renderInternalMobility(el); });
+                });
+            } catch(e) {
+                showToast('Conversion failed: ' + e.message, 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Convert & Save'; }
+            }
+        }
+        window._internalConvertAndSave = _internalConvertAndSave;
+
+        function _internalSaveCurrentComp() {
+            var inp = document.getElementById('internalCurrentCompInput');
+            var val = inp ? parseInt((inp.value || '').replace(/[^0-9]/g, ''), 10) : NaN;
+            if (isNaN(val) || val < 10000 || val > 5000000) { showToast('Enter a valid annual salary.', 'warning'); return; }
+            if (!userData.preferences) userData.preferences = {};
+            userData.preferences.currentComp = val;
+            saveUserData();
+            showToast('Current compensation saved.', 'success');
+            var el = document.getElementById('jobsSubTabContent');
+            renderInternalMobility(el);
+        }
+        window._internalSaveCurrentComp = _internalSaveCurrentComp;
+
+        function renderInternalMobility(el) {
+            if (!el) return;
+            el.innerHTML = '<div style="padding:32px 20px; text-align:center; color:var(--text-muted);">' + bpIcon('loader',20) + ' Loading...</div>';
+
+            function _doRender() {
+                var roles = _internalRolesCache || [];
+                var currentComp = (userData.preferences || {}).currentComp || null;
+                var html = '';
+
+                // ── Header ──
+                html += '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px;">'
+                    + '<div>'
+                    + '<h3 style="margin:0; font-size:1.1em; font-weight:700;">' + bpIcon('compass',16) + ' Internal Opportunities</h3>'
+                    + '<p style="margin:4px 0 0; font-size:0.82em; color:var(--text-muted);">Match your profile against internal roles. See your readiness, skill gaps, and comp delta.</p>'
+                    + '</div>'
+                    + '</div>';
+
+                // ── Current Comp strip ──
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
+                    + '<div style="flex:1; min-width:180px;">'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:3px;">Your Current Compensation</div>'
+                    + '<div style="font-weight:700; font-size:1em; color:var(--text-primary);">'
+                    + (currentComp ? '$' + currentComp.toLocaleString() + ' / yr' : '<span style="color:var(--c-muted);">Not set — add to see market delta</span>')
+                    + '</div></div>'
+                    + '<div style="display:flex; align-items:center; gap:8px;">'
+                    + '<input id="internalCurrentCompInput" type="text" placeholder="e.g. 120000" value="' + (currentComp || '') + '" style="padding:7px 10px; border-radius:7px; border:1px solid var(--border); background:var(--c-input-bg-soft); color:var(--text-primary); font-size:0.88em; width:120px;">'
+                    + '<button onclick="_internalSaveCurrentComp()" style="padding:7px 14px; background:var(--accent); color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.85em; font-weight:600;">Save</button>'
+                    + '</div></div>';
+
+                // ── Paste JD ──
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; padding:16px; margin-bottom:20px;">'
+                    + '<div style="font-weight:600; font-size:0.9em; margin-bottom:10px;">' + bpIcon('edit',14) + ' Add Internal Role</div>'
+                    + '<textarea id="internalJDInput" placeholder="Paste an internal job description here…" style="width:100%; min-height:100px; padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--c-input-bg-soft); color:var(--text-primary); font-size:0.85em; resize:vertical; box-sizing:border-box;"></textarea>'
+                    + '<div style="display:flex; align-items:center; gap:10px; margin-top:10px;">'
+                    + '<button id="internalConvertBtn" onclick="_internalConvertAndSave()" style="padding:9px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Convert & Save</button>'
+                    + '<span style="font-size:0.78em; color:var(--c-faint);">AI-powered extraction when signed in.</span>'
+                    + '</div></div>';
+
+                // ── Roles list ──
+                if (roles.length === 0) {
+                    html += '<div style="text-align:center; padding:40px 20px; color:var(--text-muted);">'
+                        + '<div style="opacity:0.25; margin-bottom:14px;">' + bpIcon('compass',44) + '</div>'
+                        + '<p style="font-size:1em; font-weight:600; margin:0 0 6px;">No internal roles yet</p>'
+                        + '<p style="font-size:0.85em; margin:0;">Paste a role from your company\'s job board above to see your readiness and skill gaps.</p>'
+                        + '</div>';
+                } else {
+                    roles.forEach(function(role, idx) {
+                        var isExpanded = !!_internalMatchExpanded[idx];
+
+                        // Run match on the fly using existing engine
+                        var matchResult = null;
+                        var gaps = [], strengths = [], matchScore = 0;
+                        try {
+                            if (role.skills && role.skills.length > 0) {
+                                var wbForMatch = { title: role.title, skills: role.skills, seniority: role.seniority || 'mid' };
+                                matchResult = matchJobToProfile(wbForMatch);
+                                matchScore = matchResult ? Math.round((matchResult.score || 0) * 100) : 0;
+                                if (matchResult) {
+                                    gaps = (matchResult.gaps || []).filter(function(g) { return g.requirement !== 'Nice to Have'; }).slice(0, 6);
+                                    strengths = (matchResult.strengths || []).slice(0, 4);
+                                }
+                            }
+                        } catch(e) { console.warn('Internal match error:', e); }
+
+                        // Comp delta
+                        var blsMedian = role.bls && role.bls.median ? role.bls.median : null;
+                        var compDelta = null, compDeltaDir = '';
+                        if (blsMedian && currentComp) {
+                            compDelta = blsMedian - currentComp;
+                            compDeltaDir = compDelta >= 0 ? 'up' : 'down';
+                        }
+
+                        // Score color
+                        var scoreColor = matchScore >= 75 ? '#10b981' : matchScore >= 50 ? '#fb923c' : matchScore >= 30 ? '#a78bfa' : '#94a3b8';
+                        var readinessLabel = matchScore >= 75 ? 'Ready Now' : matchScore >= 50 ? 'Near Ready' : matchScore >= 30 ? 'Developing' : 'Gap Heavy';
+
+                        html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:12px; overflow:hidden;">';
+
+                        // Card header
+                        html += '<div style="padding:14px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">';
+
+                        // Score ring
+                        html += '<div style="flex-shrink:0; width:54px; height:54px; border-radius:50%; border:3px solid ' + scoreColor + '; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--c-surface-2);">'
+                            + '<span style="font-size:1em; font-weight:800; color:' + scoreColor + '; line-height:1;">' + (matchScore || '–') + '</span>'
+                            + '<span style="font-size:0.55em; color:var(--text-muted); line-height:1; margin-top:1px;">%</span>'
+                            + '</div>';
+
+                        // Title / meta
+                        html += '<div style="flex:1; min-width:160px;">'
+                            + '<div style="font-weight:700; font-size:0.97em; color:var(--text-primary);">' + escapeHtml(role.title || 'Untitled') + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:2px;">'
+                            + (role.company ? escapeHtml(role.company) + ' · ' : '')
+                            + '<span style="color:' + scoreColor + '; font-weight:600;">' + readinessLabel + '</span>'
+                            + (blsMedian ? ' · Market: $' + Math.round(blsMedian / 1000) + 'K' : '')
+                            + '</div>';
+
+                        // Comp delta badge
+                        if (compDelta !== null) {
+                            var deltaAbs = Math.abs(Math.round(compDelta / 1000));
+                            var deltaBg = compDeltaDir === 'up' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+                            var deltaFg = compDeltaDir === 'up' ? '#10b981' : '#ef4444';
+                            var deltaArrow = compDeltaDir === 'up' ? '↑' : '↓';
+                            html += '<div style="margin-top:5px; display:inline-block; background:' + deltaBg + '; color:' + deltaFg + '; border-radius:5px; padding:2px 8px; font-size:0.75em; font-weight:600;">'
+                                + deltaArrow + ' $' + deltaAbs + 'K vs your current comp'
+                                + '</div>';
+                        }
+                        html += '</div>'; // end title/meta
+
+                        // Actions
+                        html += '<div style="display:flex; gap:8px; flex-shrink:0;">'
+                            + '<button onclick="_internalRunMatch(' + idx + ')" style="padding:6px 14px; background:var(--c-surface-3); color:var(--text-primary); border:1px solid var(--c-surface-5); border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">'
+                            + (isExpanded ? '▲ Collapse' : '▼ Details') + '</button>'
+                            + '<button onclick="_internalDeleteRole(\'' + escapeAttr(role.id) + '\')" style="padding:6px 10px; background:none; color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:7px; cursor:pointer; font-size:0.82em;" title="Remove">' + bpIcon('trash',13) + '</button>'
+                            + '</div>';
+
+                        html += '</div>'; // end card header
+
+                        // Expanded details
+                        if (isExpanded && matchResult) {
+                            html += '<div style="border-top:1px solid var(--c-surface-5); padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">';
+
+                            // Gaps
+                            html += '<div>'
+                                + '<div style="font-size:0.78em; font-weight:700; color:#ef4444; margin-bottom:8px; letter-spacing:0.03em;">SKILL GAPS TO CLOSE</div>';
+                            if (gaps.length === 0) {
+                                html += '<div style="font-size:0.82em; color:#10b981;">No critical gaps — strong match.</div>';
+                            } else {
+                                gaps.forEach(function(g) {
+                                    html += '<div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">'
+                                        + '<span style="width:7px; height:7px; border-radius:50%; background:#ef4444; flex-shrink:0;"></span>'
+                                        + '<span style="font-size:0.83em; color:var(--text-primary); font-weight:500;">' + escapeHtml(g.name || '') + '</span>'
+                                        + '<span style="font-size:0.72em; color:var(--text-muted);">(' + (g.proficiency || g.required || 'Required') + ')</span>'
+                                        + '</div>';
+                                });
+                            }
+                            html += '</div>';
+
+                            // Strengths
+                            html += '<div>'
+                                + '<div style="font-size:0.78em; font-weight:700; color:#10b981; margin-bottom:8px; letter-spacing:0.03em;">YOUR STRENGTHS</div>';
+                            if (strengths.length === 0) {
+                                html += '<div style="font-size:0.82em; color:var(--text-muted);">Add more skills to your Blueprint to see matches.</div>';
+                            } else {
+                                strengths.forEach(function(s) {
+                                    html += '<div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">'
+                                        + '<span style="width:7px; height:7px; border-radius:50%; background:#10b981; flex-shrink:0;"></span>'
+                                        + '<span style="font-size:0.83em; color:var(--text-primary); font-weight:500;">' + escapeHtml(s.name || '') + '</span>'
+                                        + '</div>';
+                                });
+                            }
+                            html += '</div>';
+
+                            html += '</div>'; // end grid
+
+                            // Comp context detail
+                            if (blsMedian) {
+                                html += '<div style="border-top:1px solid var(--c-surface-5); padding:12px 16px; display:flex; gap:20px; flex-wrap:wrap;">';
+                                var compFields = [
+                                    { label: 'BLS Market Median', val: '$' + Math.round(blsMedian / 1000) + 'K' },
+                                    { label: 'Your Current Comp', val: currentComp ? '$' + Math.round(currentComp / 1000) + 'K' : 'Not set' },
+                                    { label: 'Delta', val: compDelta !== null ? (compDelta >= 0 ? '+' : '') + '$' + Math.round(compDelta / 1000) + 'K' : '—' }
+                                ];
+                                if (role.bls && role.bls.p25) compFields.push({ label: 'P25', val: '$' + Math.round(role.bls.p25 / 1000) + 'K' });
+                                if (role.bls && role.bls.p75) compFields.push({ label: 'P75', val: '$' + Math.round(role.bls.p75 / 1000) + 'K' });
+                                compFields.forEach(function(f) {
+                                    html += '<div style="font-size:0.8em;"><span style="color:var(--text-muted);">' + f.label + '</span><br><strong>' + f.val + '</strong></div>';
+                                });
+                                html += '</div>';
+                            }
+                        }
+
+                        html += '</div>'; // end role card
+                    });
+                }
+
+                el.innerHTML = html;
+            }
+
+            if (_internalRolesCache === null) {
+                _internalLoadRoles(function() { _doRender(); });
+            } else {
+                _doRender();
+            }
+        }
+        window.renderInternalMobility = renderInternalMobility;
+
+        // ── Application Tracker (inline) ──────────────────────────────────────
         function renderTrackerInJobs() {
             var apps = userData.applications || [];
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
@@ -36573,6 +37278,35 @@ body {
                 var socs = cw.aliases[strippedKeepOf];
                 var r = buildResult(socs[0], 0.95, socs.slice(1));
                 if (r) return r;
+            }
+
+            // Step 2b: Hybrid title split — titles with "&", "/", or "and" often have two functions.
+            // Try each segment independently. First segment wins (it's the primary function).
+            // e.g. "director total rewards people operations" → try "director total rewards" first
+            // e.g. "director revenue operations" → no split, falls through
+            var splitChars = /\s*[&\/]\s*|\s+and\s+/;
+            if (splitChars.test(norm)) {
+                var segments = norm.split(splitChars).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 3; });
+                for (var si = 0; si < segments.length; si++) {
+                    var seg = segments[si];
+                    // Try exact alias on segment
+                    if (cw.aliases[seg]) {
+                        var socs = cw.aliases[seg];
+                        var r = buildResult(socs[0], 0.9, socs.slice(1));
+                        if (r) return r;
+                    }
+                    // Also strip qualifiers from segment and retry
+                    var segStripped = seg;
+                    qualifiers.forEach(function(q) {
+                        segStripped = segStripped.replace(new RegExp('\\b' + q + '\\b', 'g'), '');
+                    });
+                    segStripped = segStripped.replace(/\b(of|and|the|for|in)\b/g, '').replace(/\s+/g, ' ').trim();
+                    if (segStripped !== seg && segStripped.length >= 3 && cw.aliases[segStripped]) {
+                        var socs = cw.aliases[segStripped];
+                        var r = buildResult(socs[0], 0.88, socs.slice(1));
+                        if (r) return r;
+                    }
+                }
             }
 
             // Step 3: Partial substring match
@@ -40737,10 +41471,10 @@ body {
 
             var html = '';
 
-            // ── LinkedIn Banner ──────────────────────────────────────────────
+            // LinkedIn Banner
             var lastMerge    = (userData.importStats || {}).lastMerge;
             var lastMergeStr = lastMerge ? new Date(lastMerge).toLocaleDateString() : null;
-            html += '<div style="padding:11px 16px; margin-bottom:16px; background:linear-gradient(135deg,rgba(10,102,194,0.07),rgba(10,102,194,0.02)); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
+            html += '<div style="padding:11px 16px; margin-bottom:20px; background:linear-gradient(135deg,rgba(10,102,194,0.07),rgba(10,102,194,0.02)); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
                 + '<div style="display:flex; align-items:center; gap:10px;">'
                 + '<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
                 + '<div><div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">Update from LinkedIn</div>'
@@ -40753,7 +41487,7 @@ body {
                 + '<div id="liMergeStatus" style="display:none; font-size:0.8em; color:var(--accent); margin-top:8px; padding:6px 10px; background:var(--c-surface-2); border-radius:6px;">' + bpIcon('settings',12) + ' Processing...</div>'
                 + '<div id="liMergeResult" style="display:none; margin-top:8px; padding:8px 10px; background:var(--c-surface-2); border-radius:6px;"></div>';
 
-            // ── Work History ─────────────────────────────────────────────────
+            // Work History
             var hiddenCount = whItems.filter(function(j) { return j.hidden; }).length;
 
             // Build company groups
@@ -40770,8 +41504,7 @@ body {
                 return bR - aR;
             });
 
-            // Section header
-            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<span style="color:var(--c-accent);">' + bpIcon('briefcase',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Work History</span>'
@@ -40782,9 +41515,18 @@ body {
                 + '</div>';
 
             if (whItems.length === 0) {
-                html += '<div style="padding:20px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No work history added yet.</div>';
+                html += '<div style="padding:20px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No work history added yet.</div>';
             } else {
-                html += '<div style="display:grid; gap:6px; margin-bottom:16px;">';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; margin-bottom:24px; align-items:stretch;">';
+
+                // Deterministic color tint per company name — same name always same hue
+                function coColor(name) {
+                    var s = (name || '').toLowerCase().replace(/[^a-z0-9]/g,'');
+                    var h = 0;
+                    for (var i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) & 0xFFFFFF; }
+                    var hue = h % 360;
+                    return 'hsla(' + hue + ',60%,55%,0.06)';
+                }
 
                 groupArr.forEach(function(group) {
                     group.sort(function(a,b){
@@ -40795,7 +41537,7 @@ body {
                     var isGroup = group.length > 1;
 
                     if (isGroup) {
-                        var coName    = group[0].job.company || 'Company';
+                        var coName     = group[0].job.company || 'Company';
                         var firstStart = group[0].job.startDate || '';
                         var lastEntry  = group[group.length - 1].job;
                         var lastEnd    = lastEntry.current ? 'Present' : (lastEntry.endDate || '');
@@ -40803,14 +41545,13 @@ body {
                         var lastYear   = lastEnd === 'Present' ? new Date().getFullYear() : (parseInt((lastEnd||'').split(' ').pop()) || 0);
                         var tenure     = lastYear && firstYear ? lastYear - firstYear : 0;
 
-                        // Group container
-                        html += '<div style="border:1px solid var(--c-surface-5b); border-left:3px solid var(--c-accent); border-radius:10px; overflow:hidden;">';
+                        var grpBg = coColor(coName);
+                        html += '<div style="border:1px solid var(--c-accent-border-4b); border-top:3px solid var(--c-accent); border-radius:10px; overflow:hidden; grid-column:1/-1; background:' + grpBg + ';">';
 
-                        // Group header row — compact
-                        html += '<div style="padding:9px 12px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center;">'
+                        html += '<div style="padding:10px 14px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--c-surface-4);">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
-                            + '<span style="font-weight:700; color:var(--c-accent); font-size:0.88em;">' + escapeHtml(coName) + '</span>'
-                            + '<span style="font-size:0.68em; padding:2px 7px; border-radius:4px; background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
+                            + '<span style="font-weight:700; color:var(--c-accent); font-size:0.9em;">' + escapeHtml(coName) + '</span>'
+                            + '<span style="font-size:0.65em; padding:2px 7px; border-radius:4px; background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
                             + '</div>'
                             + '<span style="font-size:0.72em; color:var(--c-faint);">'
                             + (firstStart ? formatWorkDate(firstStart) + ' \u2013 ' + (lastEnd === 'Present' ? 'Present' : formatWorkDate(lastEnd)) : '')
@@ -40818,69 +41559,73 @@ body {
                             + '</span>'
                             + '</div>';
 
-                        // Positions within group — compact rows
                         var rev = group.slice().reverse();
+                        html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:8px; padding:10px;">';
                         rev.forEach(function(entry, gIdx) {
-                            var job     = entry.job;
-                            var idx     = entry.idx;
+                            var job      = entry.job;
+                            var idx      = entry.idx;
                             var isLatest = gIdx === 0;
                             var isHidden = job.hidden === true;
                             var dateRange = formatWorkDate(job.startDate||'?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate||'?'));
 
-                            html += '<div id="wh-card-' + idx + '" style="padding:8px 12px 8px 20px; border-top:1px solid var(--c-surface-4); display:flex; align-items:center; gap:8px;'
-                                + (isHidden ? ' opacity:0.45;' : '') + '">'
-                                + '<div style="width:5px; height:5px; border-radius:50%; background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; flex-shrink:0;"></div>'
-                                + '<div style="flex:1; min-width:0;">'
-                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '500') + '; color:var(--c-text-alt);">' + escapeHtml(job.title||'Untitled') + '</span>'
-                                + '<span style="font-size:0.75em; color:var(--c-muted); margin-left:8px;">' + escapeHtml(dateRange) + '</span>'
-                                + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b; margin-left:6px;">Hidden</span>' : '')
+                            html += '<div id="wh-card-' + idx + '" style="background:var(--c-surface-2); border:1px solid ' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; border-radius:8px; padding:11px 12px;'
+                                + (isHidden ? ' opacity:0.5;' : '') + '">'
+                                + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:6px;">'
+                                + '<div style="display:flex; align-items:center; gap:5px; min-width:0;">'
+                                + '<div style="width:6px; height:6px; border-radius:50%; flex-shrink:0; background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + ';"></div>'
+                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '600') + '; color:var(--c-text-alt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title||'Untitled') + '</span>'
                                 + '</div>'
-                                + '<div style="display:flex; gap:2px; flex-shrink:0;">'
-                                + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + '; font-size:0.8em;">' + bpIcon('eye',12) + '</button>'
-                                + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
-                                + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
+                                + '<div style="display:flex; gap:1px; flex-shrink:0;">'
+                                + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + '; line-height:1;">' + bpIcon('eye',11) + '</button>'
+                                + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                                + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                                 + '</div>'
+                                + '</div>'
+                                + '<div style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(dateRange) + '</div>'
+                                + (isHidden ? '<div style="font-size:0.65em; color:#f59e0b; margin-top:3px;">Hidden</div>' : '')
+                                + (job.description ? '<div style="font-size:0.72em; color:var(--c-faint); margin-top:5px; line-height:1.4; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">' + escapeHtml(job.description.substring(0,120)) + (job.description.length > 120 ? '\u2026' : '') + '</div>' : '')
                                 + '</div>';
                         });
-
-                        html += '</div>'; // end group card
+                        html += '</div></div>';
 
                     } else {
-                        // Single position — compact row card
                         var entry    = group[0];
                         var job      = entry.job;
                         var idx      = entry.idx;
                         var isHidden = job.hidden === true;
                         var dateRange = formatWorkDate(job.startDate||'?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate||'?'));
 
-                        html += '<div id="wh-card-' + idx + '" style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;'
-                            + (isHidden ? ' opacity:0.45;' : '') + '">'
-                            + '<div style="flex:1; min-width:0;">'
-                            + '<div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">'
-                            + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); white-space:nowrap;">' + escapeHtml(job.title||'Untitled Role') + '</span>'
-                            + '<span style="font-size:0.75em; color:var(--c-accent);">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</span>'
-                            + '<span style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(dateRange) + '</span>'
-                            + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b;">Hidden</span>' : '')
+                        var soloBg = coColor(job.company||'');
+                        html += '<div id="wh-card-' + idx + '" style="background:' + soloBg + '; border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px; height:100%; box-sizing:border-box;'
+                            + (isHidden ? ' opacity:0.5;' : '') + '">'
+                            + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:6px;">'
+                            + '<div style="min-width:0; flex:1;">'
+                            + '<div style="font-size:0.92em; font-weight:700; color:var(--c-text-alt); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title||'Untitled Role') + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--c-accent); font-weight:600;">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
                             + '</div>'
-                            + (job.description ? '<div style="font-size:0.76em; color:var(--c-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">' + escapeHtml(job.description.substring(0,120)) + (job.description.length > 120 ? '\u2026' : '') + '</div>' : '')
-                            + '</div>'
-                            + '<div style="display:flex; gap:2px; flex-shrink:0;">'
+                            + '<div style="display:flex; gap:1px; flex-shrink:0;">'
                             + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + ';">' + bpIcon('eye',12) + '</button>'
                             + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
                             + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                             + '</div>'
+                            + '</div>'
+                            + '<div style="display:flex; align-items:center; gap:8px; font-size:0.73em; color:var(--c-muted);">'
+                            + '<span>' + escapeHtml(dateRange) + '</span>'
+                            + (isHidden ? '<span style="color:#f59e0b;">Hidden</span>' : '')
+                            + '</div>'
+                            + (job.description ? '<div style="font-size:0.76em; color:var(--c-faint); margin-top:6px; line-height:1.5; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">' + escapeHtml(job.description.substring(0,160)) + (job.description.length > 160 ? '\u2026' : '') + '</div>' : '')
                             + '</div>';
                     }
                 });
 
-                html += '</div>'; // end work history grid
+                html += '</div>'; // end work history outer grid
             }
 
-            // ── Education ────────────────────────────────────────────────────
+            // Education
             var edTypeIcons  = { degree:'\uD83C\uDF93', cert:'\uD83D\uDCDC', trade:'\uD83D\uDD27', bootcamp:'\u26A1', profdev:'\uD83D\uDCCA', military:'\uD83C\uDF96\uFE0F' };
             var edTypeLabels = { degree:'Degree', cert:'Certificate', trade:'Trade', bootcamp:'Bootcamp', profdev:'Prof Dev', military:'Military' };
 
-            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<span style="color:var(--c-accent);">' + bpIcon('graduation',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Education</span>'
@@ -40890,37 +41635,37 @@ body {
                 + '</div>';
 
             if (edItems.length === 0) {
-                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No education entries yet.</div>';
+                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No education entries yet.</div>';
             } else {
-                html += '<div style="display:grid; gap:5px; margin-bottom:16px;">';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px; margin-bottom:24px;">';
                 edItems.forEach(function(ed, idx) {
-                    var edType   = ed.type || 'degree';
-                    var icon     = edTypeIcons[edType] || '\uD83C\uDF93';
+                    var edType    = ed.type || 'degree';
+                    var icon      = edTypeIcons[edType] || '\uD83C\uDF93';
                     var typeLabel = edTypeLabels[edType] || 'Degree';
-                    var dateStr  = '';
+                    var dateStr   = '';
                     if (ed.startYear && (ed.endYear || ed.currentlyEnrolled)) {
                         dateStr = ed.startYear + ' \u2013 ' + (ed.currentlyEnrolled ? 'Present' : ed.endYear);
                     } else if (ed.year) { dateStr = ed.year; }
                     var mainLine = (ed.degree || '') + (ed.field ? ' in ' + ed.field : '');
                     var subLine  = (ed.school || '') + (ed.issuingAuthority ? ' \u00B7 ' + ed.issuingAuthority : '') + (dateStr ? ' \u00B7 ' + dateStr : '');
 
-                    html += '<div style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;">'
-                        + '<span style="font-size:0.75em; padding:2px 7px; border-radius:8px; background:var(--c-surface-4a); color:var(--c-muted); white-space:nowrap; flex-shrink:0;">' + icon + ' ' + typeLabel + '</span>'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(mainLine) + '</div>'
-                        + (subLine ? '<div style="font-size:0.74em; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(subLine) + '</div>' : '')
+                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px;">'
+                        + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:8px;">'
+                        + '<span style="font-size:0.68em; padding:3px 8px; border-radius:8px; background:var(--c-surface-4a); color:var(--c-muted); white-space:nowrap; flex-shrink:0;">' + icon + ' ' + typeLabel + '</span>'
+                        + '<div style="display:flex; gap:1px; flex-shrink:0;">'
+                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div>'
-                        + '<div style="display:flex; gap:2px; flex-shrink:0;">'
-                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
-                        + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div>'
+                        + '<div style="font-size:0.88em; font-weight:700; color:var(--c-text-alt); margin-bottom:4px; line-height:1.3;">' + escapeHtml(mainLine || 'Untitled') + '</div>'
+                        + (subLine ? '<div style="font-size:0.74em; color:var(--c-muted); line-height:1.4;">' + escapeHtml(subLine) + '</div>' : '')
                         + '</div>';
                 });
                 html += '</div>';
             }
 
-            // ── Certifications ───────────────────────────────────────────────
-            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+            // Certifications
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<span style="color:var(--c-accent);">' + bpIcon('award',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Certifications & Licenses</span>'
@@ -40930,9 +41675,9 @@ body {
                 + '</div>';
 
             if (certItems.length === 0) {
-                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No credentials yet.</div>';
+                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No credentials yet.</div>';
             } else {
-                html += '<div style="display:grid; gap:5px; margin-bottom:16px;">';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:8px; margin-bottom:24px;">';
                 certItems.forEach(function(cert, idx) {
                     var tierColor = cert.tier >= 2 ? '#f59e0b' : '#10b981';
                     var tierTag   = cert.tier >= 2 ? 'ADV' : 'PRO';
@@ -40940,33 +41685,33 @@ body {
                     var libSkills   = cert.libraryMatch ? (findCertInLibrary(cert.libraryMatch) || {}).skills : null;
                     var totalLinks  = linkedCount + (libSkills ? libSkills.length : 0);
 
-                    html += '<div style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;">'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
-                        + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt);">' + escapeHtml(cert.name||'') + (cert.abbr ? ' <span style="color:var(--c-accent); font-size:0.85em;">(' + cert.abbr + ')</span>' : '') + '</span>'
-                        + (cert.tier ? '<span style="font-size:0.65em; padding:1px 5px; border-radius:4px; background:rgba(' + (cert.tier >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + '; font-weight:700;">' + tierTag + '</span>' : '')
-                        + (totalLinks > 0 ? '<span style="font-size:0.7em; color:var(--c-purple-light);">\uD83D\uDD17 ' + totalLinks + '</span>' : '')
+                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px;">'
+                        + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:8px;">'
+                        + '<div style="display:flex; gap:4px; flex-wrap:wrap; flex:1; min-width:0;">'
+                        + (cert.tier ? '<span style="font-size:0.65em; padding:2px 6px; border-radius:5px; background:rgba(' + (cert.tier >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + '; font-weight:700; flex-shrink:0;">' + tierTag + '</span>' : '')
+                        + (totalLinks > 0 ? '<span style="font-size:0.7em; color:var(--c-purple-light); flex-shrink:0;">\uD83D\uDD17 ' + totalLinks + '</span>' : '')
                         + '</div>'
+                        + '<div style="display:flex; gap:1px; flex-shrink:0;">'
+                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="removeCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
+                        + '</div>'
+                        + '</div>'
+                        + '<div style="font-size:0.88em; font-weight:700; color:var(--c-text-alt); margin-bottom:4px; line-height:1.3;">' + escapeHtml(cert.name||'Untitled') + (cert.abbr ? ' <span style="color:var(--c-accent); font-size:0.82em; font-weight:400;">(' + escapeHtml(cert.abbr) + ')</span>' : '') + '</div>'
                         + '<div style="font-size:0.74em; color:var(--c-muted);">' + escapeHtml((cert.issuer||'') + (cert.year ? ' \u00B7 ' + cert.year : '')) + '</div>'
-                        + '</div>'
-                        + '<div style="display:flex; gap:2px; flex-shrink:0;">'
-                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
-                        + '<button onclick="removeCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
-                        + '</div>'
                         + '</div>';
                 });
                 html += '</div>';
             }
 
-            // Save button
-            html += '<div style="margin-top:16px;">'
+            html += '<div style="margin-top:8px;">'
                 + '<button onclick="saveAll(); showToast(\'Experience saved.\', \'success\')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">Save All Changes</button>'
                 + '</div>';
 
             return html;
         }
 
-        // --- Work History CRUD ---
+
+                // --- Work History CRUD ---
         function addWorkHistoryItem() {
             if (readOnlyGuard()) return;
             openWorkHistoryModal(-1);
@@ -41307,7 +42052,7 @@ body {
                 + '<div class="settings-group"><label class="settings-label">Job Title *</label>'
                 + '<input type="text" class="settings-input" id="whTitle" value="' + escapeAttr(job.title||'') + '" placeholder="VP of Strategy"></div>'
                 + '<div class="settings-group"><label class="settings-label">Company *</label>'
-                + '<input type="text" class="settings-input" id="whCompany" value="' + escapeAttl(job.company||'') + '" placeholder="Acme Corp"></div>'
+                + '<input type="text" class="settings-input" id="whCompany" value="' + escapeAttr(job.company||'') + '" placeholder="Acme Corp"></div>'
                 + '<div class="settings-group"><label class="settings-label">Location</label>'
                 + '<input type="text" class="settings-input" id="whLocation" value="' + escapeAttr(job.location||'') + '" placeholder="Philadelphia, PA"></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
@@ -43691,169 +44436,329 @@ body {
         }
         window.showCompReviewGuide = showCompReviewGuide;
         
-        function showNegotiationGuide() {
+        function showNegotiationGuide() { showNegotiationGuideV2(); }
+
+        // ── Negotiation Guide V2 — AI-powered, role-aware ─────────────────────
+        function showNegotiationGuideV2(preselectedMode, preselectedRole) {
             if (isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
-            logAnalyticsEvent('negotiation_guide', {});
-            const totalValue = getEffectiveComp();
-            const negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
-            const displayFormatted = formatCompValue(totalValue.displayComp);
-            
-            const modal = document.getElementById('exportModal');
-            const modalContent = modal.querySelector('.modal-content');
-            
-            modalContent.innerHTML = `
-                <div class="modal-header">
-                    <div class="modal-header-left">
-                        <h2 class="modal-title">${bpIcon("briefcase",18)} Salary Negotiation Strategy</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">Compa-ratio based negotiation guidance</p>
-                    </div>
-                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
-                </div>
-                <div class="modal-body" style="padding: 30px; max-height: 70vh; overflow-y: auto;">
-                    <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <div style="color: #10b981; font-weight: 600; margin-bottom: 10px;">${totalValue.compLabel}</div>
-                        <div style="font-size: 2em; font-weight: 700; color: #e0e0e0;">
-                            ${displayFormatted}/yr
-                        </div>
-                        <div style="color: #9ca3af; margin-top: 8px;">
-                            ${totalValue.roleLevel} • ${totalValue.compSource === 'algorithm' ? totalValue.compaRatio + '% compa-ratio • ' : ''}${escapeHtml(userData.profile.location || '')}
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">${bpIcon("bar-chart",14)} Understanding Compa-Ratios</h3>
-                        <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.7;">
-                            <strong>Compa-ratio</strong> = Your salary ÷ Market median × 100%
-                            <br><br>
-                            <strong>How Companies Use This:</strong>
-                            <br>• <strong>80-120%</strong> = Acceptable range
-                            <br>• <strong>100%</strong> = Exactly at market median
-                            <br>• <strong>&lt;80%</strong> = Underpaid (flight risk)
-                            <br>• <strong>&gt;120%</strong> = Overpaid for role
-                            <br><br>
-                            <strong>Market Rate (50th percentile):</strong> $${totalValue.marketRate.toLocaleString()}
-                            <br><strong>Your Worth (with premiums):</strong> $${totalValue.yourWorth.toLocaleString()} (${totalValue.compaRatio}%)
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 25px;">
-                        <h3 style="color: #fbbf24; margin-bottom: 15px;">${bpIcon("dollar",14)} Expected Offer Ranges</h3>
-                        <div style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">
-                            Companies typically offer <strong>75-95%</strong> of your market worth. Here's what to expect:
-                        </div>
-                        
-                        <div style="background: rgba(107, 114, 128, 0.2); padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #9ca3af;">
-                            <div style="color: #9ca3af; font-weight: 600; margin-bottom: 5px;">Conservative Offer (75%)</div>
-                            <div style="font-size: 1.3em; color: #e0e0e0; font-weight: 600;">
-                                $${totalValue.conservativeOffer.toLocaleString()}
-                            </div>
-                            <div style="color: #9ca3af; font-size: 0.9em; margin-top: 5px;">
-                                Budget-constrained companies • Startups • Non-profits
-                            </div>
-                        </div>
-                        
-                        <div style="background: rgba(96, 165, 250, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #60a5fa;">
-                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Standard Offer (85%) ← Most Common</div>
-                            <div style="font-size: 1.3em; color: #e0e0e0; font-weight: 600;">
-                                $${totalValue.standardOffer.toLocaleString()}
-                            </div>
-                            <div style="color: #9ca3af; font-size: 0.9em; margin-top: 5px;">
-                                Typical initial offers • Room to negotiate up
-                            </div>
-                        </div>
-                        
-                        <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 8px; border-left: 3px solid #10b981;">
-                            <div style="color: #10b981; font-weight: 600; margin-bottom: 5px;">Competitive Offer (95%)</div>
-                            <div style="font-size: 1.3em; color: #e0e0e0; font-weight: 600;">
-                                $${totalValue.competitiveOffer.toLocaleString()}
-                            </div>
-                            <div style="color: #9ca3af; font-size: 0.9em; margin-top: 5px;">
-                                High-demand roles • Top-tier companies • Multiple offers
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 15px; padding: 15px; background: rgba(251, 191, 36, 0.2); border-radius: 8px;">
-                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 5px;">${bpIcon('lightbulb',14)} Your Negotiation Gap</div>
-                            <div style="color: #d1d5db; font-size: 0.95em;">
-                                <strong>$${negotiationGap.toLocaleString()}</strong> between standard offer and your worth
-                                <br>This is your leverage. Start at your worth ($${totalValue.yourWorth.toLocaleString()}) and negotiate down to competitive range ($${totalValue.competitiveOffer.toLocaleString()}+).
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(251, 191, 36, 0.1); padding: 20px; border-radius: 8px; border-left: 3px solid #fbbf24; margin-bottom: 25px;">
-                        <h3 style="color: #fbbf24; margin-bottom: 15px;">${bpIcon('target',16)} Your Talking Points</h3>
-                        <div style="color: #d1d5db; line-height: 1.8;">
-                            <p style="margin-bottom: 15px;">
-                                <strong style="color: #fbbf24;">1. Lead with Your Worth:</strong><br>
-                                "Based on my skill profile and market analysis, my value is in the $${Math.round(totalValue.yourWorth * 0.95 / 1000) * 1000}-$${Math.round(totalValue.yourWorth * 1.05 / 1000) * 1000} range for ${totalValue.roleLevel} roles in ${escapeHtml(userData.profile.location || '')}."
-                            </p>
-                            <p style="margin-bottom: 15px;">
-                                <strong style="color: #fbbf24;">2. Reference Your Top 10 Skills:</strong><br>
-                                "I bring ${totalValue.top10Skills.filter(s => s.level === 'Mastery').length} mastery-level skills including ${totalValue.top10Skills.slice(0, 3).map(s => s.skill).join(', ')}. These command premiums in the current market."
-                            </p>
-                            <p style="margin-bottom: 15px;">
-                                <strong style="color: #fbbf24;">3. Show the Data:</strong><br>
-                                "The market rate for ${totalValue.roleLevel} is $${totalValue.marketRate.toLocaleString()}. My critical and high-impact skills justify a ${Math.round(((totalValue.yourWorth - totalValue.marketRate) / totalValue.marketRate) * 100)}% premium."
-                            </p>
-                            <p style="margin-bottom: 15px;">
-                                <strong style="color: #fbbf24;">4. Use Your Outcomes:</strong><br>
-                                "I've consistently delivered [cite 2-3 quantified outcomes from your Blueprint]. This track record supports my valuation."
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">${bpIcon("clipboard",14)} Negotiation Script</h3>
-                        <div style="color: #d1d5db; line-height: 1.8; font-size: 0.95em;">
-                            <strong>When they ask for salary expectations:</strong>
-                            <br><br>
-                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; margin: 10px 0; font-style: italic;">
-                            "I appreciate you asking. Based on my research and skill profile, I'm looking at the $${Math.round(totalValue.competitiveOffer / 1000) * 1000}-$${Math.round(totalValue.yourWorth / 1000) * 1000} range. But I'm flexible depending on the total compensation package, including equity and benefits. What range were you considering?"
-                            </div>
-                            <br>
-                            <strong>When they give a low offer ($${totalValue.conservativeOffer.toLocaleString()}):</strong>
-                            <br><br>
-                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; margin: 10px 0; font-style: italic;">
-                            "I appreciate the offer. Based on market data for ${totalValue.roleLevel} roles with my skill set${totalValue.top10Skills.length > 0 ? '—particularly my ' + totalValue.top10Skills[0].skill + ' expertise' : ''}—the range is typically closer to $${totalValue.standardOffer.toLocaleString()}-$${totalValue.competitiveOffer.toLocaleString()}. Can we explore options in that range?"
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">✓ Best Practices</h3>
-                        <div style="color: #d1d5db; line-height: 1.8;">
-                            <div style="margin-bottom: 15px;">
-                                <strong style="color: #10b981;">DO:</strong>
-                                <ul style="margin-left: 20px; margin-top: 8px;">
-                                    <li>Start at your worth ($${totalValue.yourWorth.toLocaleString()})</li>
-                                    <li>Reference the $${negotiationGap.toLocaleString()} gap as your leverage</li>
-                                    <li>Cite your top 10 skills as justification</li>
-                                    <li>Ask about total comp (equity, bonus, benefits)</li>
-                                    <li>Get offers in writing before negotiating</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <strong style="color: #ef4444;">DON'T:</strong>
-                                <ul style="margin-left: 20px; margin-top: 8px;">
-                                    <li>Accept the first offer—they expect negotiation</li>
-                                    <li>Give a range first—make them lead</li>
-                                    <li>Focus only on base salary</li>
-                                    <li>Negotiate without data</li>
-                                    <li>Accept below $${totalValue.conservativeOffer.toLocaleString()} (75%)</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="export-btn-large" onclick="closeExportModal()" style="width: 100%; margin-top: 25px;">
-                        Close Guide
-                    </button>
-                </div>
-            `;
-            
-            history.pushState({ modal: true }, ''); modal.classList.add('active');
+
+            var modal    = document.getElementById('exportModal');
+            var mContent = modal.querySelector('.modal-content');
+            if (!modal || !mContent) return;
+
+            var tv       = getEffectiveComp();
+            var pipeline = (userData.savedJobs || []).slice(0, 10);
+            var internal = (_internalRolesCache || []).slice(0, 10);
+            var hasComp  = tv && tv.total > 0;
+
+            function openModal(html) {
+                mContent.innerHTML = html;
+                history.pushState({ modal: true }, '');
+                modal.classList.add('active');
+            }
+
+            // ── If role/mode passed directly, skip picker ──────────────────
+            if (preselectedMode && preselectedRole) {
+                _buildNegGuideWithAI(preselectedMode, preselectedRole, tv, openModal);
+                return;
+            }
+
+            // ── Role picker UI ─────────────────────────────────────────────
+            var pickerHtml = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2>'
+                + '<p style="color:var(--c-muted); margin-top:5px; font-size:0.85em;">AI-powered coaching for salary, internal moves, and review conversations</p>'
+                + '</div>'
+                + '<button class="modal-close" aria-label="Close" onclick="closeExportModal()">×</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px 28px; max-height:72vh; overflow-y:auto;">';
+
+            // Mode cards
+            var modes = [
+                { id: 'external', icon: 'briefcase', color: '#60a5fa', label: 'External Offer', sub: 'Negotiating a new job offer', roles: pipeline, roleLabel: 'pipeline job' },
+                { id: 'internal', icon: 'compass',   color: '#a78bfa', label: 'Internal Move',  sub: 'Advocating for a role change or promotion', roles: internal, roleLabel: 'internal role' },
+                { id: 'review',   icon: 'target',    color: '#10b981', label: 'Performance Review', sub: 'Annual or mid-year comp conversation', roles: [], roleLabel: '' }
+            ];
+
+            pickerHtml += '<div style="display:grid; gap:10px; margin-bottom:20px;">';
+            modes.forEach(function(m) {
+                var hasRoles = m.roles.length > 0 || m.id === 'review';
+                pickerHtml += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:14px 16px; cursor:pointer;">'
+                    + '<div style="font-weight:700; font-size:0.95em; color:' + m.color + '; margin-bottom:4px;">' + bpIcon(m.icon,14) + ' ' + m.label + '</div>'
+                    + '<div style="font-size:0.8em; color:var(--c-muted); margin-bottom:10px;">' + m.sub + '</div>';
+
+                if (m.id === 'review') {
+                    pickerHtml += '<button onclick="_negGuideSelectMode(\'review\', null)" style="padding:7px 16px; background:' + m.color + '; color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">Build Review Guide</button>';
+                } else if (m.roles.length === 0) {
+                    pickerHtml += '<div style="font-size:0.78em; color:var(--c-faint); font-style:italic;">No ' + m.roleLabel + 's saved yet — add some in the ' + (m.id === 'external' ? 'Pipeline' : 'Internal') + ' tab.</div>';
+                } else {
+                    pickerHtml += '<div style="display:grid; gap:6px;">';
+                    m.roles.forEach(function(r, idx) {
+                        var roleTitle = escapeHtml(r.title || 'Untitled');
+                        var roleCo    = r.company ? ' · ' + escapeHtml(r.company) : '';
+                        pickerHtml += '<button onclick="_negGuideSelectMode(\''+m.id+'\', '+idx+')" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
+                            + '<span style="color:' + m.color + '; font-weight:700;">' + roleTitle + '</span>'
+                            + '<span style="color:var(--c-muted);">' + roleCo + '</span></button>';
+                    });
+                    pickerHtml += '</div>';
+                }
+
+                pickerHtml += '</div>';
+            });
+            pickerHtml += '</div></div>';
+
+            openModal(pickerHtml);
+
+            // Store refs for picker callback
+            window._negGuidePipelineRoles = pipeline;
+            window._negGuideInternalRoles = internal;
+            window._negGuideTv            = tv;
         }
+        window.showNegotiationGuideV2 = showNegotiationGuideV2;
+
+        function _negGuideSelectMode(mode, roleIdx) {
+            var role = null;
+            if (mode === 'external') role = (window._negGuidePipelineRoles || [])[roleIdx] || null;
+            if (mode === 'internal') role = (window._negGuideInternalRoles || [])[roleIdx] || null;
+            var tv   = window._negGuideTv || getEffectiveComp();
+            var modal = document.getElementById('exportModal');
+            var mContent = modal ? modal.querySelector('.modal-content') : null;
+            if (!mContent) return;
+            function openModal(html) { mContent.innerHTML = html; }
+            _buildNegGuideWithAI(mode, role, tv, openModal);
+        }
+        window._negGuideSelectMode = _negGuideSelectMode;
+
+        async function _buildNegGuideWithAI(mode, role, tv, renderFn) {
+            // ── Loading state ──────────────────────────────────────────────
+            renderFn('<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Building Your Guide…</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">×</button></div>'
+                + '<div class="modal-body" style="padding:40px 28px; text-align:center;">'
+                + '<div style="opacity:0.5; margin-bottom:16px;">' + bpIcon('loader',36) + '</div>'
+                + '<p style="color:var(--c-muted); font-size:0.9em;">Analyzing your profile, strengths, and comp data…</p></div>');
+
+            logAnalyticsEvent('negotiation_guide', { mode: mode, hasRole: !!role });
+
+            // ── Assemble context ───────────────────────────────────────────
+            var allSkills   = (skillsData && skillsData.skills) || userData.skills || [];
+            var topSkills   = allSkills.filter(function(s) { return ['Mastery','Expert','Advanced'].indexOf(s.level) > -1; })
+                                .slice(0, 12).map(function(s) { return s.level + ': ' + s.name; });
+            var outcomes    = (blueprintData.outcomes || userData.outcomes || []).slice(0, 6)
+                                .map(function(o) { return (o.title || '') + (o.metric ? ' — ' + o.metric : '') + (o.description ? '. ' + o.description : ''); });
+            var values      = (blueprintData.values || []).filter(function(v) { return v.selected; }).slice(0, 5)
+                                .map(function(v) { return v.name; });
+            var userTitle   = (userData.profile && userData.profile.currentTitle) || '';
+            var userCo      = (userData.profile && userData.profile.currentCompany) || '';
+            var currentComp = tv ? (tv.reportedComp || 0) : 0;
+            var justified   = tv ? (tv.yourWorth || tv.total || 0) : 0;
+            var conservative= tv ? (tv.conservativeOffer || 0) : 0;
+            var standard    = tv ? (tv.standardOffer || 0) : 0;
+            var competitive = tv ? (tv.competitiveOffer || 0) : 0;
+            var marketRate  = tv ? (tv.marketRate || 0) : 0;
+            var compaRatio  = (marketRate > 0 && currentComp > 0) ? Math.round((currentComp / marketRate) * 100) : 0;
+            var roleTitle   = role ? (role.title || '') : userTitle;
+            var roleCo      = role ? (role.company || userCo) : userCo;
+            var roleGaps    = role && role.skills ? (role.skills.filter(function(s) { return s.requirement === 'Required' || s.requirement === 'Nice to Have'; }).slice(0, 6).map(function(s) { return s.name; })) : [];
+            var roleMatchSc = role && role._lastMatchScore ? role._lastMatchScore : null;
+            var modeLabel   = mode === 'external' ? 'external offer negotiation' : mode === 'internal' ? 'internal role move / promotion' : 'performance review / comp discussion';
+
+            var prompt = [
+                'You are a senior career coach helping someone prepare for a ' + modeLabel + '.',
+                '',
+                'CANDIDATE PROFILE:',
+                'Current title: ' + (userTitle || 'Not specified'),
+                'Current employer: ' + (userCo || 'Not specified'),
+                'Target role: ' + (roleTitle || 'Not specified'),
+                'Target company: ' + (roleCo || 'Not specified'),
+                'Top skills: ' + (topSkills.join(', ') || 'Not specified'),
+                'Key outcomes: ' + (outcomes.join(' | ') || 'None recorded'),
+                'Core values: ' + (values.join(', ') || 'Not specified'),
+                '',
+                'COMPENSATION CONTEXT:',
+                'Current comp: $' + currentComp.toLocaleString(),
+                'Market rate (BLS): $' + marketRate.toLocaleString(),
+                'Justified value: $' + justified.toLocaleString(),
+                'Conservative offer: $' + conservative.toLocaleString(),
+                'Standard offer: $' + standard.toLocaleString(),
+                'Competitive offer: $' + competitive.toLocaleString(),
+                'Compa-ratio: ' + compaRatio + '%',
+                (roleGaps.length ? 'Role skill gaps: ' + roleGaps.join(', ') : ''),
+                '',
+                'Return ONLY a JSON object (no markdown, no explanation):',
+                '{',
+                '  "mode": "' + mode + '",',
+                '  "roleTitle": "string",',
+                '  "openingMove": "string — one sentence to open the comp conversation, specific and confident",',
+                '  "theAsk": { "number": number, "justification": ["step1", "step2", "step3"] },',
+                '  "strengths": [{ "title": "string", "evidence": "string", "hook": "string — how to say it in conversation" }],',
+                '  "weaknessNeutralizations": [{ "weakness": "string", "reframe": "string", "bridgeLine": "string — actual sentence to say" }],',
+                '  "blindSpots": [{ "risk": "string", "why": "string", "mitigation": "string" }],',
+                '  "counterOfferPlaybook": [{ "scenario": "string", "response": "string — scripted" }],',
+                '  "valueConnections": [{ "value": "string", "connection": "string — tie to role/company" }],',
+                '  "questionsToAsk": ["string", "string", "string"]',
+                '}',
+                'Rules: exactly 3 strengths, exactly 3 weakness neutralizations, 1-3 blind spots, exactly 3 counter-offer scenarios, 2-3 value connections, 2-3 questions. Specific to candidate data, no generic advice.'
+            ].filter(Boolean).join('\n');
+
+            try {
+                var response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1800,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+                var data = await response.json();
+                var raw  = (data.content || []).map(function(b) { return b.text || ''; }).join('');
+                raw = raw.replace(/```json|```/g, '').trim();
+                var guide = JSON.parse(raw);
+                _renderNegGuide(guide, tv, currentComp, mode, renderFn);
+            } catch(e) {
+                console.warn('[NegGuide] AI call failed:', e);
+                _renderNegGuideError(renderFn);
+            }
+        }
+        window._buildNegGuideWithAI = _buildNegGuideWithAI;
+
+        function _renderNegGuideError(renderFn) {
+            renderFn('<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('alert',18) + ' Guide Unavailable</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">×</button></div>'
+                + '<div class="modal-body" style="padding:32px 28px; text-align:center;">'
+                + '<p style="color:var(--c-muted);">Could not generate your guide — please check your connection and try again.</p>'
+                + '<button onclick="closeExportModal()" style="margin-top:20px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Close</button>'
+                + '</div>');
+        }
+
+        function _renderNegGuide(g, tv, currentComp, mode, renderFn) {
+            var conservative = tv ? (tv.conservativeOffer || 0) : 0;
+            var standard     = tv ? (tv.standardOffer || 0) : 0;
+            var competitive  = tv ? (tv.competitiveOffer || 0) : 0;
+            var justified    = tv ? (tv.yourWorth || tv.total || 0) : 0;
+            var modeColor    = mode === 'external' ? '#60a5fa' : mode === 'internal' ? '#a78bfa' : '#10b981';
+            var modeLabel    = mode === 'external' ? 'External Offer' : mode === 'internal' ? 'Internal Move' : 'Performance Review';
+
+            function section(title, color, content) {
+                return '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px 18px; margin-bottom:12px;">'
+                    + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:' + color + '; margin-bottom:10px;">' + title + '</div>'
+                    + content + '</div>';
+            }
+            function pill(text, color) {
+                return '<span style="display:inline-block; background:' + color + '22; color:' + color + '; border-radius:5px; padding:2px 8px; font-size:0.72em; font-weight:700; margin-right:4px;">' + escapeHtml(text) + '</span>';
+            }
+
+            var html = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2>'
+                + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.83em;">' + pill(modeLabel, modeColor) + (g.roleTitle ? escapeHtml(g.roleTitle) : '') + '</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">×</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:20px 24px; max-height:74vh; overflow-y:auto;">';
+
+            // ── Comp snapshot ──
+            var compRows = [
+                { label: 'Conservative', val: conservative, color: '#94a3b8' },
+                { label: 'Standard',     val: standard,     color: '#60a5fa' },
+                { label: 'Competitive',  val: competitive,  color: '#10b981' }
+            ];
+            var compHtml = '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;">';
+            compRows.forEach(function(r) {
+                compHtml += '<div style="text-align:center; padding:10px 8px; background:var(--c-surface-2); border-radius:8px; border-top:2px solid ' + r.color + ';">'
+                    + '<div style="font-size:0.68em; color:' + r.color + '; font-weight:700; margin-bottom:4px;">' + r.label + '</div>'
+                    + '<div style="font-size:0.95em; font-weight:800; color:var(--c-heading);">$' + Math.round(r.val / 1000) + 'K</div>'
+                    + '</div>';
+            });
+            compHtml += '</div>';
+            if (g.theAsk && g.theAsk.number) {
+                compHtml += '<div style="padding:10px 14px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); border-radius:8px;">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:#fbbf24; margin-bottom:4px;">' + bpIcon('target',12) + ' YOUR ASK: $' + Math.round(g.theAsk.number).toLocaleString() + '</div>'
+                    + (g.theAsk.justification || []).map(function(j, i) {
+                        return '<div style="font-size:0.76em; color:var(--c-muted); margin-top:3px;">' + (i+1) + '. ' + escapeHtml(j) + '</div>';
+                    }).join('') + '</div>';
+            }
+            html += section(bpIcon('dollar',12) + ' Compensation', '#fbbf24', compHtml);
+
+            // ── Opening move ──
+            if (g.openingMove) {
+                html += section(bpIcon('activity',12) + ' Opening Move', '#60a5fa',
+                    '<div style="font-style:italic; font-size:0.88em; color:var(--c-text); line-height:1.6; padding:10px 14px; background:rgba(96,165,250,0.06); border-left:3px solid #60a5fa; border-radius:0 8px 8px 0;">'
+                    + '"' + escapeHtml(g.openingMove) + '"</div>');
+            }
+
+            // ── Strengths ──
+            var strHtml = '<div style="display:grid; gap:8px;">';
+            (g.strengths || []).forEach(function(s) {
+                strHtml += '<div style="padding:10px 14px; background:rgba(16,185,129,0.06); border-radius:8px; border-left:3px solid #10b981;">'
+                    + '<div style="font-size:0.84em; font-weight:700; color:#10b981; margin-bottom:3px;">' + escapeHtml(s.title || '') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(s.evidence || '') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(s.hook || '') + '"</div>'
+                    + '</div>';
+            });
+            strHtml += '</div>';
+            html += section(bpIcon('check',12) + ' Your Strengths', '#10b981', strHtml);
+
+            // ── Weakness neutralizations ──
+            var weakHtml = '<div style="display:grid; gap:8px;">';
+            (g.weaknessNeutralizations || []).forEach(function(w) {
+                weakHtml += '<div style="padding:10px 14px; background:rgba(251,191,36,0.05); border-radius:8px; border-left:3px solid #fbbf24;">'
+                    + '<div style="font-size:0.76em; font-weight:700; color:var(--c-muted); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Potential Concern</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-text); margin-bottom:5px;">' + escapeHtml(w.weakness || '') + '</div>'
+                    + '<div style="font-size:0.76em; font-weight:700; color:#fbbf24; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Reframe As</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(w.reframe || '') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic; border-top:1px solid rgba(251,191,36,0.15); padding-top:5px; margin-top:3px;">"' + escapeHtml(w.bridgeLine || '') + '"</div>'
+                    + '</div>';
+            });
+            weakHtml += '</div>';
+            html += section(bpIcon('alert',12) + ' Weaknesses → Reframed', '#fbbf24', weakHtml);
+
+            // ── Blind spots ──
+            var bsHtml = '<div style="display:grid; gap:8px;">';
+            (g.blindSpots || []).forEach(function(b) {
+                bsHtml += '<div style="padding:10px 14px; background:rgba(239,68,68,0.06); border-radius:8px; border-left:3px solid #ef4444;">'
+                    + '<div style="font-size:0.84em; font-weight:700; color:#ef4444; margin-bottom:3px;">' + escapeHtml(b.risk || '') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:4px;">' + escapeHtml(b.why || '') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-text);">Mitigation: ' + escapeHtml(b.mitigation || '') + '</div>'
+                    + '</div>';
+            });
+            bsHtml += '</div>';
+            html += section(bpIcon('eye',12) + ' Blind Spots', '#ef4444', bsHtml);
+
+            // ── Counter-offer playbook ──
+            var coHtml = '<div style="display:grid; gap:8px;">';
+            (g.counterOfferPlaybook || []).forEach(function(c) {
+                coHtml += '<div style="padding:10px 14px; background:rgba(167,139,250,0.06); border-radius:8px; border-left:3px solid #a78bfa;">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:#a78bfa; margin-bottom:4px;">' + escapeHtml(c.scenario || '') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(c.response || '') + '"</div>'
+                    + '</div>';
+            });
+            coHtml += '</div>';
+            html += section(bpIcon('shield',12) + ' Counter-Offer Playbook', '#a78bfa', coHtml);
+
+            // ── Value connections + Questions ──
+            var valHtml = '<div style="display:grid; gap:6px; margin-bottom:10px;">';
+            (g.valueConnections || []).forEach(function(v) {
+                valHtml += '<div style="font-size:0.82em; padding:7px 12px; background:var(--c-surface-2); border-radius:7px;">'
+                    + '<strong style="color:var(--c-text);">' + escapeHtml(v.value || '') + ':</strong> '
+                    + '<span style="color:var(--c-muted);">' + escapeHtml(v.connection || '') + '</span></div>';
+            });
+            valHtml += '</div>';
+            valHtml += '<div style="font-size:0.75em; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Questions to Ask</div>'
+                + '<div style="display:grid; gap:5px;">';
+            (g.questionsToAsk || []).forEach(function(q) {
+                valHtml += '<div style="font-size:0.81em; color:var(--c-text); padding:6px 12px; background:var(--c-surface-2); border-radius:7px;">' + escapeHtml(q) + '</div>';
+            });
+            valHtml += '</div>';
+            html += section(bpIcon('star',12) + ' Values & Questions', '#fb923c', valHtml);
+
+            html += '<button onclick="showNegotiationGuideV2()" style="width:100%; margin-top:4px; padding:10px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; color:var(--c-muted); font-size:0.82em; cursor:pointer;">← Back to Role Picker</button>';
+            html += '</div>'; // end modal-body
+
+            renderFn(html);
+        }
+        window._renderNegGuide = _renderNegGuide;
+
         
         // ===== IMPACT RATING ENGINE =====
         
