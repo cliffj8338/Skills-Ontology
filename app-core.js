@@ -22842,6 +22842,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 node.attr("transform", d => `translate(${d.x},${d.y})`);
             });
 
+            simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
+            var _pad = isMobile ? 30 : 100;
+            nodes.forEach(function(d) {
+                if (d.type !== "center") {
+                    d.x = Math.max(_pad, Math.min(width - _pad, d.x));
+                    d.y = Math.max(_pad, Math.min(height - _pad, d.y));
+                }
+            });
+            link
+                .attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
+            node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
             window.networkData = { nodes, links, svg, link, node };
             setTimeout(applyLabelToggles, 100);
             
@@ -25183,16 +25196,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var nfp = document.getElementById('networkFilterPill');
                     if (nfp) nfp.style.display = (activeRole && activeRole !== 'all') ? 'flex' : 'none';
                     if (!window.networkInitialized) {
-                        requestAnimationFrame(function() {
-                            requestAnimationFrame(function() {
-                                try {
-                                    initNetwork();
-                                    window.networkInitialized = true;
-                                } catch(e) {
-                                    console.error('initNetwork error:', e);
-                                }
-                            });
-                        });
+                        try {
+                            initNetwork();
+                            window.networkInitialized = true;
+                        } catch(e) {
+                            console.error('initNetwork error:', e);
+                        }
                     }
                     // Always render job selector when entering network view
                     setTimeout(function() { renderJobSelectorWidget(); }, 100);
@@ -25305,16 +25314,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var labelToggles = document.getElementById('networkLabelToggles');
                 if (labelToggles) labelToggles.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
                 if (!window.networkInitialized) {
-                    requestAnimationFrame(function() {
-                        requestAnimationFrame(function() {
-                            try {
-                                initNetwork();
-                                window.networkInitialized = true;
-                            } catch(e) {
-                                console.error('initNetwork error:', e);
-                            }
-                        });
-                    });
+                    try {
+                        initNetwork();
+                        window.networkInitialized = true;
+                    } catch(e) {
+                        console.error('initNetwork error:', e);
+                    }
                 }
                 // Hide filter button/panel in network view (filtering via node clicks)
                 var filterBtn = document.getElementById('filterToggleBtn');
