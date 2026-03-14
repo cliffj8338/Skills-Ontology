@@ -6170,6 +6170,15 @@ function wizardShowDiscovery(parsed) {
         items.push({ type: 'skills-count', icon: bpIcon('compass',14), text: parsed.skills.length + ' skills extracted', color: 'var(--accent)' });
         items.push({ type: 'evidence', icon: bpIcon('clipboard',14), text: evCount + ' evidence items found', color: '#10b981' });
     }
+    if (parsed.workHistory && parsed.workHistory.length > 0) {
+        items.push({ type: 'work', icon: bpIcon('briefcase',14), text: parsed.workHistory.length + ' positions with details', color: '#f97316' });
+    }
+    if (parsed.certifications && parsed.certifications.length > 0) {
+        items.push({ type: 'certs', icon: bpIcon('check',14), text: parsed.certifications.length + ' certifications & licenses', color: '#14b8a6' });
+    }
+    if (parsed.education && parsed.education.length > 0) {
+        items.push({ type: 'edu', icon: bpIcon('lightbulb',14), text: parsed.education.length + ' education entries', color: '#8b5cf6' });
+    }
     if (parsed.values && parsed.values.length > 0) {
         items.push({ type: 'values', icon: bpIcon('lightbulb',14), text: parsed.values.length + ' professional values inferred', color: '#f59e0b' });
     }
@@ -6260,21 +6269,34 @@ async function wizardRunParsing() {
             return;
         }
 
-        const systemPrompt = `You are a professional career analyst. Extract structured profile data from a resume or LinkedIn profile text.
+        const systemPrompt = `You are an expert career analyst. Extract EVERY detail from this resume or LinkedIn profile into structured JSON.
 
-Return ONLY valid JSON in this exact shape — no markdown, no explanation, just the JSON object:
+CRITICAL: LinkedIn PDF exports have unusual formatting — text may be in sidebars, columns, or split across pages. Read EVERY section carefully: Summary, Experience, Education, Certifications, Top Skills, Honors, Volunteering. Do NOT skip any section.
+
+Return ONLY valid JSON — no markdown, no explanation:
 {
   "profile": {
     "name": "Full Name",
-    "currentTitle": "Current Job Title",
-    "location": "City, State or Remote",
+    "currentTitle": "Most Recent Job Title",
+    "currentCompany": "Current/Most Recent Company",
+    "location": "City, State",
     "email": "",
     "phone": "",
-    "yearsExperience": 10,
-    "executiveSummary": "2-3 sentence professional summary in first person"
+    "linkedinUrl": "",
+    "yearsExperience": 30,
+    "executiveSummary": "2-4 sentence professional summary in first person capturing career arc and unique positioning"
   },
   "roles": [
-    { "id": "role1", "name": "Role Name", "years": "2019-Present", "company": "Company Name" }
+    { "id": "role1", "name": "Job Title", "years": "2019-Present", "company": "Company Name", "description": "2-3 sentence summary of role responsibilities and achievements" }
+  ],
+  "workHistory": [
+    { "title": "Job Title", "company": "Company Name", "startDate": "January 2019", "endDate": "Present", "description": "Key responsibilities and achievements in this role" }
+  ],
+  "education": [
+    { "school": "School Name", "degree": "Degree or Program", "field": "Field of Study", "years": "1985-1990" }
+  ],
+  "certifications": [
+    { "name": "Certification Name", "issuer": "Issuing Organization", "year": "" }
   ],
   "skills": [
     {
@@ -6284,23 +6306,38 @@ Return ONLY valid JSON in this exact shape — no markdown, no explanation, just
       "roles": ["role1"],
       "key": true,
       "evidence": [
-{ "description": "What you did", "outcome": "Measurable result or impact" }
+        { "description": "What was done — specific action", "outcome": "Measurable result or impact" }
       ]
     }
   ],
   "values": [
-    { "name": "Value Name", "description": "Brief personal description of this value", "selected": true }
+    { "name": "Value Name", "description": "Personal description of this value based on career evidence", "selected": true }
   ],
-  "purpose": "One paragraph purpose statement in first person — what you do, who you help, how you do it differently"
+  "purpose": "One paragraph purpose statement in first person"
 }
 
-Rules:
-- Extract 15-40 skills. Include technical skills, soft skills, leadership abilities, and unique differentiators.
-- Level guide: Mastery=career-defining expertise (15+ yrs), Expert=deep proficiency (8-15 yrs), Advanced=strong competency (4-8 yrs), Proficient=solid (1-4 yrs), Novice=learning.
-- For each skill, extract 1-3 evidence items from the resume. Outcomes must be specific — include numbers, percentages, dollar amounts wherever present in the text.
-- Infer 4-6 values from the resume's tone, achievements, and career pattern. Make them personal, not generic.
-- Write the purpose statement to be compelling and authentic to this person's actual experience.
-- category="unique" for skills not in standard O*NET taxonomy (industry-specific, rare combinations).`;
+SKILL EXTRACTION RULES — this is the most important part:
+- Extract 25-50 skills. Be thorough and aggressive. More is better than fewer.
+- DOMAIN SKILLS: Extract skills specific to every industry/domain mentioned. A pilot needs: Aviation, Flight Operations, Instrument Flying, Aircraft Safety, Aeronautical Decision Making. A musician needs: Percussion Performance, Music Performance, Studio Recording. A nonprofit founder needs: Nonprofit Leadership, Fundraising, Community Engagement.
+- LEADERSHIP SKILLS: Management, Team Building, Strategic Planning, Executive Communication, Stakeholder Management, Budget Management, Change Management, etc.
+- TECHNICAL SKILLS: Any technologies, platforms, methodologies mentioned.
+- SOFT SKILLS: Public Speaking, Negotiation, Mentoring, Cross-Cultural Communication, etc.
+- UNIQUE SKILLS: Industry-specific, rare combinations, or skills that don't fit standard taxonomies. Use category="unique" for these.
+- INFERRED SKILLS: If someone managed $200M in sales, infer Sales Strategy, Revenue Growth, Enterprise Sales even if not explicitly listed. If someone founded a charity, infer Nonprofit Leadership, Fundraising, Community Outreach.
+- Look at EVERY role and extract skills implied by the responsibilities described.
+- Level guide: Mastery=career-defining (15+ yrs or primary identity), Expert=deep (8-15 yrs), Advanced=strong (4-8 yrs), Proficient=solid (1-4 yrs), Novice=emerging.
+- For each skill, extract 1-3 evidence items. Outcomes must be specific — include numbers, dollar amounts, percentages.
+- key=true for skills that define this person's professional identity.
+
+WORK HISTORY: Extract EVERY position listed. Include descriptions with specific achievements. Do not skip any role.
+
+CERTIFICATIONS: Extract ALL certifications, licenses, and credentials. Include pilot licenses, professional certifications, industry credentials, etc.
+
+EDUCATION: Extract ALL education entries.
+
+VALUES: Infer 4-7 values from career patterns, volunteer work, personal mission, and tone. Make them personal and specific.
+
+PURPOSE: Write a compelling, authentic purpose statement that captures this person's unique career narrative.`;
 
         // Build message content: PDF document or plain text
         var userContent;
@@ -6322,7 +6359,7 @@ Rules:
 
         var data = await callAnthropicAPI({
                 model: 'claude-sonnet-4-20250514',
-                max_tokens: 8000,
+                max_tokens: 16000,
                 system: systemPrompt,
                 messages: [{ role: 'user', content: userContent }]
             }, wizardApiKey, 'resume-parse');
@@ -6350,6 +6387,38 @@ Rules:
         wizardState.skills = parsed.skills || [];
         wizardState.values = (parsed.values || []).map(v => ({ ...v, selected: v.selected !== false }));
         wizardState.purpose = parsed.purpose || '';
+
+        if (parsed.workHistory && parsed.workHistory.length > 0) {
+            wizardState.workHistory = parsed.workHistory.map(function(wh) {
+                return {
+                    title: wh.title || '',
+                    company: wh.company || '',
+                    startDate: wh.startDate || '',
+                    endDate: wh.endDate || '',
+                    description: wh.description || ''
+                };
+            });
+        }
+        if (parsed.education && parsed.education.length > 0) {
+            wizardState.education = parsed.education.map(function(edu) {
+                return {
+                    school: edu.school || edu.institution || '',
+                    degree: edu.degree || '',
+                    field: edu.field || edu.fieldOfStudy || '',
+                    years: edu.years || ''
+                };
+            });
+        }
+        if (parsed.certifications && parsed.certifications.length > 0) {
+            wizardState.certifications = parsed.certifications.map(function(cert) {
+                return {
+                    name: cert.name || '',
+                    issuer: cert.issuer || cert.organization || '',
+                    year: cert.year || '',
+                    status: 'active'
+                };
+            });
+        }
 
         wizardShowDiscovery(parsed);
 

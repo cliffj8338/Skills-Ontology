@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.90 - BUILD 20260314-security-hardening
-        var BP_VERSION = 'v4.46.93';
+        var BP_VERSION = 'v4.46.94';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3594,6 +3594,7 @@
                         { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. v4.45.66: Filtered allSkills→visibleSkills to exclude skills whose only roles are hidden. Report now shows correct skill count, domain distribution, proficiency breakdown, and network graph reflecting only visible positions.' },
                         { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. hideRoleFromNetwork() handles orphan roles directly. v4.45.66: Moved roleInfoCard from controlsBar to body level to fix z-index stacking — card was trapped in parent stacking context, making × close and Hide Role buttons unclickable. Now renders above SVG network correctly.' },
                         { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
+                        { id: 'p2-7a', name: 'Email sign-in going to junk/spam', status: 'planned', category: 'bug', priority: 'high', notes: 'Firebase default sender noreply@work-blueprint.firebaseapp.com has no SPF/DKIM alignment with myblueprint.work domain. Sign-in emails (magic links, verification) land in spam. Fix: Configure custom SMTP in Firebase Console → Authentication → Templates → SMTP Settings using Resend or similar with myblueprint.work domain. Requires DNS SPF/DKIM records.' },
                         { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' },
                         { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
                         { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'done', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched to post-render SVG recoloring via injected script. Polls SVG circles, reads __data__.category, applies main app palette. v4.46.80: MutationObserver replaces blind polling — fires recolorNetwork() instantly as D3 appends SVG nodes, eliminating color flash. bpColors map realigned to getCategoryColor() exactly. Added lvColors proficiency fallback. Safety net polling runs at 200ms for 3s then disconnects. base.html template also updated natively: levelColor, levelColorLight, renderProfGrid cols, and profGrid hardcoded HTML all corrected to main app palette (Mastery=#10b981, Expert=#fb923c, Advanced=#a78bfa, Proficient=#60a5fa, Novice=#94a3b8).' },
@@ -21220,21 +21221,34 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     return;
                 }
 
-                const systemPrompt = `You are a professional career analyst. Extract structured profile data from a resume or LinkedIn profile text.
+                const systemPrompt = `You are an expert career analyst. Extract EVERY detail from this resume or LinkedIn profile into structured JSON.
 
-Return ONLY valid JSON in this exact shape — no markdown, no explanation, just the JSON object:
+CRITICAL: LinkedIn PDF exports have unusual formatting — text may be in sidebars, columns, or split across pages. Read EVERY section carefully: Summary, Experience, Education, Certifications, Top Skills, Honors, Volunteering. Do NOT skip any section.
+
+Return ONLY valid JSON — no markdown, no explanation:
 {
   "profile": {
     "name": "Full Name",
-    "currentTitle": "Current Job Title",
-    "location": "City, State or Remote",
+    "currentTitle": "Most Recent Job Title",
+    "currentCompany": "Current/Most Recent Company",
+    "location": "City, State",
     "email": "",
     "phone": "",
-    "yearsExperience": 10,
-    "executiveSummary": "2-3 sentence professional summary in first person"
+    "linkedinUrl": "",
+    "yearsExperience": 30,
+    "executiveSummary": "2-4 sentence professional summary in first person capturing career arc and unique positioning"
   },
   "roles": [
-    { "id": "role1", "name": "Role Name", "years": "2019-Present", "company": "Company Name" }
+    { "id": "role1", "name": "Job Title", "years": "2019-Present", "company": "Company Name", "description": "2-3 sentence summary of role responsibilities and achievements" }
+  ],
+  "workHistory": [
+    { "title": "Job Title", "company": "Company Name", "startDate": "January 2019", "endDate": "Present", "description": "Key responsibilities and achievements in this role" }
+  ],
+  "education": [
+    { "school": "School Name", "degree": "Degree or Program", "field": "Field of Study", "years": "1985-1990" }
+  ],
+  "certifications": [
+    { "name": "Certification Name", "issuer": "Issuing Organization", "year": "" }
   ],
   "skills": [
     {
@@ -21244,23 +21258,38 @@ Return ONLY valid JSON in this exact shape — no markdown, no explanation, just
       "roles": ["role1"],
       "key": true,
       "evidence": [
-        { "description": "What you did", "outcome": "Measurable result or impact" }
+        { "description": "What was done — specific action", "outcome": "Measurable result or impact" }
       ]
     }
   ],
   "values": [
-    { "name": "Value Name", "description": "Brief personal description of this value", "selected": true }
+    { "name": "Value Name", "description": "Personal description of this value based on career evidence", "selected": true }
   ],
-  "purpose": "One paragraph purpose statement in first person — what you do, who you help, how you do it differently"
+  "purpose": "One paragraph purpose statement in first person"
 }
 
-Rules:
-- Extract 15-40 skills. Include technical skills, soft skills, leadership abilities, and unique differentiators.
-- Level guide: Mastery=career-defining expertise (15+ yrs), Expert=deep proficiency (8-15 yrs), Advanced=strong competency (4-8 yrs), Proficient=solid (1-4 yrs), Novice=learning.
-- For each skill, extract 1-3 evidence items from the resume. Outcomes must be specific — include numbers, percentages, dollar amounts wherever present in the text.
-- Infer 4-6 values from the resume's tone, achievements, and career pattern. Make them personal, not generic.
-- Write the purpose statement to be compelling and authentic to this person's actual experience.
-- category="unique" for skills not in standard O*NET taxonomy (industry-specific, rare combinations).`;
+SKILL EXTRACTION RULES — this is the most important part:
+- Extract 25-50 skills. Be thorough and aggressive. More is better than fewer.
+- DOMAIN SKILLS: Extract skills specific to every industry/domain mentioned. A pilot needs: Aviation, Flight Operations, Instrument Flying, Aircraft Safety, Aeronautical Decision Making. A musician needs: Percussion Performance, Music Performance, Studio Recording. A nonprofit founder needs: Nonprofit Leadership, Fundraising, Community Engagement.
+- LEADERSHIP SKILLS: Management, Team Building, Strategic Planning, Executive Communication, Stakeholder Management, Budget Management, Change Management, etc.
+- TECHNICAL SKILLS: Any technologies, platforms, methodologies mentioned.
+- SOFT SKILLS: Public Speaking, Negotiation, Mentoring, Cross-Cultural Communication, etc.
+- UNIQUE SKILLS: Industry-specific, rare combinations, or skills that don't fit standard taxonomies. Use category="unique" for these.
+- INFERRED SKILLS: If someone managed $200M in sales, infer Sales Strategy, Revenue Growth, Enterprise Sales even if not explicitly listed. If someone founded a charity, infer Nonprofit Leadership, Fundraising, Community Outreach.
+- Look at EVERY role and extract skills implied by the responsibilities described.
+- Level guide: Mastery=career-defining (15+ yrs or primary identity), Expert=deep (8-15 yrs), Advanced=strong (4-8 yrs), Proficient=solid (1-4 yrs), Novice=emerging.
+- For each skill, extract 1-3 evidence items. Outcomes must be specific — include numbers, dollar amounts, percentages.
+- key=true for skills that define this person's professional identity.
+
+WORK HISTORY: Extract EVERY position listed. Include descriptions with specific achievements. Do not skip any role.
+
+CERTIFICATIONS: Extract ALL certifications, licenses, and credentials. Include pilot licenses, professional certifications, industry credentials, etc.
+
+EDUCATION: Extract ALL education entries.
+
+VALUES: Infer 4-7 values from career patterns, volunteer work, personal mission, and tone. Make them personal and specific.
+
+PURPOSE: Write a compelling, authentic purpose statement that captures this person's unique career narrative.`;
 
                 // Build message content: PDF document or plain text
                 var userContent;
@@ -21282,7 +21311,7 @@ Rules:
 
                 var data = await callAnthropicAPI({
                         model: 'claude-sonnet-4-20250514',
-                        max_tokens: 8000,
+                        max_tokens: 16000,
                         system: systemPrompt,
                         messages: [{ role: 'user', content: userContent }]
                     }, wizardApiKey, 'resume-parse');
@@ -21302,6 +21331,38 @@ Rules:
                 wizardState.skills = parsed.skills || [];
                 wizardState.values = (parsed.values || []).map(v => ({ ...v, selected: v.selected !== false }));
                 wizardState.purpose = parsed.purpose || '';
+
+                if (parsed.workHistory && parsed.workHistory.length > 0) {
+                    wizardState.workHistory = parsed.workHistory.map(function(wh) {
+                        return {
+                            title: wh.title || '',
+                            company: wh.company || '',
+                            startDate: wh.startDate || '',
+                            endDate: wh.endDate || '',
+                            description: wh.description || ''
+                        };
+                    });
+                }
+                if (parsed.education && parsed.education.length > 0) {
+                    wizardState.education = parsed.education.map(function(edu) {
+                        return {
+                            school: edu.school || edu.institution || '',
+                            degree: edu.degree || '',
+                            field: edu.field || edu.fieldOfStudy || '',
+                            years: edu.years || ''
+                        };
+                    });
+                }
+                if (parsed.certifications && parsed.certifications.length > 0) {
+                    wizardState.certifications = parsed.certifications.map(function(cert) {
+                        return {
+                            name: cert.name || '',
+                            issuer: cert.issuer || cert.organization || '',
+                            year: cert.year || '',
+                            status: 'active'
+                        };
+                    });
+                }
 
                 await new Promise(r => setTimeout(r, 600));
                 setStatus('Done! ✓', 100);
