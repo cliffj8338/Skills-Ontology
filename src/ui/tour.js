@@ -644,26 +644,7 @@ window._bpTour = {
 // Fire welcome tour for first-time visitors after profile loads
 
 export function maybeAutoTour() {
-    // Don't auto-fire if already seen, or if onboarding wizard is active
-    try {
-        if (localStorage.getItem(TOUR_SEEN_WELCOME) === 'true') return;
-    } catch(e) {}
-    // Skip for invited/active users — they'll get onboarding wizard instead
-    if (appMode === 'invited' || appMode === 'active') return;
-    if (document.querySelector('.onboarding-wizard.active')) return;
-    if (document.querySelector('.onboarding-overlay')) return;
-    // Wait for teaser modal to be dismissed first
-    if (document.getElementById('teaserOverlay')) {
-        setTimeout(maybeAutoTour, 1500);
-        return;
-    }
-
-    // Wait for network to render, then launch
-    setTimeout(function() {
-        if (!tourActive) {
-            window._bpTour.startWelcome();
-        }
-    }, 1800);
+    return;
 }
 
 // Initialize help button and check for auto-tour after app loads
