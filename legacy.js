@@ -44361,6 +44361,8 @@ body {
             var tid = (appContext.demoTemplateId || userData.templateId || '').replace(/^demo[-_]?/, '');
             var tv = typeof getEffectiveComp === 'function' ? getEffectiveComp() : (typeof calculateTotalMarketValue === 'function' ? calculateTotalMarketValue() : null);
             var currentComp = tv ? (tv.reportedComp || 0) : 0;
+            var activeJob = (typeof activeJobForNetwork !== 'undefined') ? activeJobForNetwork : null;
+            var jobId = activeJob ? (activeJob.id || 'sample-high') : 'sample-high';
 
             mContent.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Loading Guide\u2026</h2></div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button></div>'
@@ -44371,7 +44373,8 @@ body {
 
             var guides = await _loadStaticNegGuides();
             var profileGuides = guides[tid];
-            if (!profileGuides) {
+            var guide = profileGuides ? (profileGuides[jobId] || profileGuides[Object.keys(profileGuides)[0]]) : null;
+            if (!guide) {
                 mContent.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2></div>'
                     + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button></div>'
                     + '<div class="modal-body" style="padding:24px 28px;">'
@@ -44382,9 +44385,6 @@ body {
                     + '</div>';
                 return;
             }
-
-            var guideKeys = Object.keys(profileGuides);
-            var guide = profileGuides[guideKeys[0]];
 
             var disclaimer = '<div style="padding:12px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
                 + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:#60a5fa;">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
