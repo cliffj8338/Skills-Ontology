@@ -23180,7 +23180,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("radial", d3.forceRadial(function(d) {
                     if (d.type === 'role' && d.id !== 'role-job-req') return matchRoleOrbitR;
                     return 0;
-                }, centerX, gravityCenter).strength(function(d) {
+                }, networkBodyX, gravityCenter).strength(function(d) {
                     if (d.type === 'role' && d.id !== 'role-job-req') return 0.7;
                     return 0;
                 }));
