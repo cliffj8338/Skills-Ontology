@@ -22761,7 +22761,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return roleOrbitR;
                     if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.10 : 0.14) * scaleFactor;
                     return 0;
-                }).strength(d => {
+                }, networkCenterX, gravityCenter).strength(d => {
                     if (d.type === "role") return 0.8;
                     if (d.type === "skill") return 0.2;
                     return 0;
@@ -23068,8 +23068,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             svg.selectAll("*").remove();
             if (simulation) simulation.stop();
             
-            var centerX = isMobile ? width * 0.68 : width * 0.35;
-            var centerY = isMobile ? height * 0.18 : height * 0.22;
+            var centerX = isMobile ? width * 0.68 : width * 0.42;
+            var centerY = isMobile ? height * 0.18 : height * 0.28;
             var maxTitleLen = isMobile ? 20 : 30;
             var truncTitle = (job.title || "Job").length > maxTitleLen ? (job.title || "Job").substring(0, maxTitleLen - 2) + '\u2026' : (job.title || "Job");
             var nodes = [
@@ -23131,13 +23131,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 180 : 220 * scaleFactor) : (isMobile ? 100 : 110 * scaleFactor); }))
                 .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -400 : -400) * scaleFactor : (isMobile ? -220 : -220) * scaleFactor; }))
                 .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 50 : 60) * scaleFactor : d.type === 'role' ? (isMobile ? 55 : 55) * scaleFactor : (isMobile ? 38 : 48) * scaleFactor; }).iterations(2))
-                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : (isMobile ? width * 0.40 : width * 0.48); }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.03 : 0.03); }))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.03 : 0.03))
+                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : (isMobile ? width * 0.40 : width * 0.46); }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.04 : 0.05); }))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.04 : 0.05))
                 .force("radial", d3.forceRadial(function(d) {
                     if (d.type === 'role') return jobRoleOrbitR;
                     if (d.type === 'skill') return Math.min(width, height) * (isMobile ? 0.14 : 0.18) * scaleFactor;
                     return 0;
-                }).strength(function(d) {
+                }, centerX, gravityCenter).strength(function(d) {
                     if (d.type === 'role') return 0.7;
                     if (d.type === 'skill') return 0.12;
                     return 0;
@@ -23368,7 +23368,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("radial", d3.forceRadial(function(d) {
                     if (d.type === 'role' && d.id !== 'role-job-req') return matchRoleOrbitR;
                     return 0;
-                }).strength(function(d) {
+                }, centerX, gravityCenter).strength(function(d) {
                     if (d.type === 'role' && d.id !== 'role-job-req') return 0.7;
                     return 0;
                 }));
