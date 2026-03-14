@@ -54,11 +54,11 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.46.89. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field.
+Current: v4.46.90. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field.
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
 
-## Security Hardening (v4.46.89)
+## Security Hardening (v4.46.90)
 - **Security Headers (vercel.json)**: HSTS, X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, CSP. API responses get `no-store` cache control.
 - **CSP**: Restricts scripts to self + Firebase/Google/CDN, blocks object/embed, restricts connect-src to Firebase + self.
 - **API CORS**: All APIs use allowlisted origins (myblueprint.work, www.myblueprint.work, localhost). `verify.js` moved from wildcard `*` to explicit allowlist.
@@ -67,14 +67,14 @@ Current: v4.46.89. Single source of truth: `src/core/constants.js` (`BP_VERSION`
 - **SSRF Protection**: `api-job-proxy.js` uses domain allowlist + regex, blocks internal/private IPs, uses `redirect: 'manual'` to prevent redirect-based SSRF.
 - **XSS**: All user-controlled innerHTML uses `escapeHtml()` and `escapeAttr()`. No eval/Function usage.
 
-## Stability Hardening (v4.46.89)
+## Stability Hardening (v4.46.90)
 - **Error handlers**: `window.onerror` + `unhandledrejection` catch all runtime errors and log incidents.
 - **Promise safety**: All `.then()` chains have `.catch()` handlers — no unhandled rejections.
 - **DOM null guards**: All `querySelector` results checked before use. Modal elements guarded against null.
 - **Firestore retry**: `saveToFirestore` retries 3x with exponential backoff.
 - **localStorage wrapper**: `safeGet()`/`safeSet()`/`safeRemove()` handle quota exceeded + private browsing.
 
-## Performance Notes
+## Performance (v4.46.90)
 - **Console banner**: Only shown in localhost dev mode, suppressed in production.
 - **Verbose debug logs**: Removed from comparison engine hot paths.
 - **52 event listeners / 9 removeEventListeners**: Potential leak area for future cleanup.
