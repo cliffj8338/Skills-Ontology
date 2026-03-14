@@ -44657,53 +44657,156 @@ body {
         function showNegotiationGuide() { showNegotiationGuideV2(); }
 
         // ── Static Negotiation Guide for Demo Mode ────────────────────────────
-        var _staticNegGuidesCache = null;
-        async function _loadStaticNegGuides() {
-            if (_staticNegGuidesCache) return _staticNegGuidesCache;
-            try {
-                var resp = await fetch('/profiles/demo-assets/negotiation-guides.json');
-                if (resp.ok) _staticNegGuidesCache = await resp.json();
-            } catch(e) { console.warn('[NEG] Static guides fetch failed:', e.message); }
-            return _staticNegGuidesCache || {};
+        function _buildStaticNegGuide(job) {
+            var topSkills = (userData.skills || []).slice(0, 8).map(function(s) { return s.name; });
+            var roles = (userData.roles || []).map(function(r) { return r.name; });
+            var values = (userData.values || []).slice(0, 3);
+            var workHistory = userData.workHistory || [];
+            var yrsExp = workHistory.reduce(function(sum, w) { return sum + (w.years || w.duration || 2); }, 0) || 5;
+
+            var jobTitle = job.title || 'Target Role';
+            var company = job.company || 'Target Company';
+            var seniority = job.seniority || 'Mid';
+            var jobRoles = job.parsedRoles || [];
+            var rawText = job.rawText || '';
+            var tier = job.tier || 'mid';
+
+            var salaryRanges = {
+                'Entry': { low: 38000, mid: 48000, high: 58000 },
+                'Mid': { low: 55000, mid: 72000, high: 88000 },
+                'Senior': { low: 95000, mid: 125000, high: 155000 },
+                'Staff': { low: 145000, mid: 175000, high: 210000 },
+                'Director': { low: 155000, mid: 195000, high: 240000 },
+                'Executive': { low: 185000, mid: 245000, high: 320000 },
+                'C-Suite': { low: 280000, mid: 400000, high: 550000 }
+            };
+            var range = salaryRanges[seniority] || salaryRanges['Mid'];
+            var tierMult = tier === 'high' ? 1.0 : tier === 'mid' ? 1.1 : 1.25;
+            var askNum = Math.round(range.high * tierMult);
+
+            var relevantSkills = topSkills.filter(function(s) { return rawText.toLowerCase().indexOf(s.toLowerCase().split(' ')[0]) > -1; });
+            if (relevantSkills.length < 2) relevantSkills = topSkills.slice(0, 3);
+
+            var openingMove;
+            if (seniority === 'C-Suite' || seniority === 'Executive') {
+                openingMove = 'Thank you for this opportunity. I\u2019m genuinely excited about the ' + jobTitle + ' role at ' + company + '. Over ' + yrsExp + '+ years, I\u2019ve built deep expertise in ' + (relevantSkills[0] || roles[0] || 'my field').toLowerCase() + ' and ' + (relevantSkills[1] || 'strategic leadership').toLowerCase() + ', and I see a compelling fit between what I bring and what ' + company + ' needs at this stage. I\u2019d like to discuss how we can structure something that reflects the impact I\u2019m prepared to deliver.';
+            } else if (seniority === 'Senior' || seniority === 'Staff' || seniority === 'Director') {
+                openingMove = 'I\u2019m very enthusiastic about this ' + jobTitle + ' opportunity at ' + company + '. My ' + yrsExp + '+ years in ' + (relevantSkills[0] || roles[0] || 'my field').toLowerCase() + ' and ' + (relevantSkills[1] || 'cross-functional work').toLowerCase() + ' have prepared me to make an immediate impact. Before we discuss specifics, I want to make sure we\u2019re aligned on the scope and expectations \u2014 because I want to deliver exceptional results from day one.';
+            } else {
+                openingMove = 'I\u2019m excited about the ' + jobTitle + ' role at ' + company + '. What draws me is the chance to apply my skills in ' + (relevantSkills[0] || roles[0] || 'my field').toLowerCase() + ' and ' + (relevantSkills[1] || 'hands-on work').toLowerCase() + ' in an environment where I can grow while making real contributions. I want to be transparent about my expectations so we can find an arrangement that works for both of us.';
+            }
+
+            var strengths = [
+                { title: relevantSkills[0] || roles[0] || 'Core Expertise',
+                  evidence: yrsExp + '+ years of demonstrated expertise in ' + (relevantSkills[0] || roles[0] || 'this field').toLowerCase() + ', directly applicable to ' + company + '\u2019s needs.',
+                  hook: 'My background in ' + (relevantSkills[0] || roles[0] || 'this area').toLowerCase() + ' means I can deliver impact from day one at ' + company + '.' },
+                { title: relevantSkills[1] || roles[1] || 'Leadership & Impact',
+                  evidence: 'Proven track record in ' + (relevantSkills[1] || roles[1] || 'leadership').toLowerCase() + ' with measurable outcomes across ' + (workHistory.length || 2) + '+ organizations.',
+                  hook: 'What sets me apart is my ability to combine ' + (relevantSkills[1] || 'technical depth').toLowerCase() + ' with practical execution \u2014 exactly what this ' + jobTitle + ' role demands.' },
+                { title: relevantSkills[2] || 'Cross-Functional Impact',
+                  evidence: 'Experience spanning ' + (roles.slice(0, 3).join(', ').toLowerCase() || 'multiple domains') + ' gives me the breadth to drive cross-functional results.',
+                  hook: 'I don\u2019t just do the work \u2014 I connect it to the bigger picture, which is critical for ' + company + '\u2019s mission.' }
+            ];
+
+            var weaknessNeutralizations = [];
+            if (tier === 'low' || tier === 'mid') {
+                weaknessNeutralizations.push({
+                    weakness: 'My background is more heavily weighted toward ' + (roles[0] || 'my primary domain') + ' than ' + (jobRoles[1] || jobRoles[0] || 'this specific area') + '.',
+                    reframe: 'This cross-functional perspective is actually an advantage \u2014 I bring proven methodologies from ' + (roles[0] || 'my field') + ' that translate directly to ' + (jobRoles[0] || 'this role') + '.',
+                    bridgeLine: 'The skills that made me successful in ' + (roles[0] || 'my current work') + ' \u2014 problem-solving, stakeholder management, strategic thinking \u2014 are exactly what ' + company + ' needs in this role.'
+                });
+            } else {
+                weaknessNeutralizations.push({
+                    weakness: 'Some might question whether my specific experience maps to ' + company + '\u2019s exact industry context.',
+                    reframe: 'My diverse experience across ' + (workHistory.length || 2) + '+ organizations means I bring fresh perspectives and battle-tested approaches that insiders often miss.',
+                    bridgeLine: 'I\u2019ve consistently delivered results when stepping into new contexts \u2014 that adaptability is a core strength, not a gap.'
+                });
+            }
+            weaknessNeutralizations.push({
+                weakness: 'The ' + jobTitle + ' role may require deeper expertise in ' + (jobRoles[1] || jobRoles[0] || 'certain areas') + ' than I\u2019ve demonstrated.',
+                reframe: 'I\u2019ve rapidly built expertise in new domains throughout my career. My learning velocity and existing foundation in ' + (relevantSkills[0] || 'related areas') + ' mean I\u2019ll close any gaps quickly.',
+                bridgeLine: 'I\u2019d rather hire someone who learns fast and thinks critically than someone who\u2019s done the exact same job \u2014 and I suspect ' + company + ' feels the same way.'
+            });
+            weaknessNeutralizations.push({
+                weakness: 'My compensation expectations may be above their initial range for this role.',
+                reframe: 'The value I bring \u2014 reducing ramp-up time, bringing proven frameworks, and delivering measurable results \u2014 far exceeds the incremental investment.',
+                bridgeLine: 'Let\u2019s focus on the ROI: my track record shows I deliver multiples of my compensation in organizational value within the first year.'
+            });
+
+            var blindSpots = [
+                { risk: 'Overvaluing your transferable skills',
+                  why: 'You may assume ' + company + ' values breadth as much as you do, but they may prioritize deep domain-specific experience for ' + jobTitle + '.',
+                  mitigation: 'Research ' + company + '\u2019s recent hires for similar roles. Prepare specific examples that map your experience to their exact challenges.' },
+                { risk: 'Anchoring too high or too low',
+                  why: 'Without knowing ' + company + '\u2019s internal bands, you could price yourself out or leave significant money on the table.',
+                  mitigation: 'Use the market data range ($' + Math.round(range.low / 1000) + 'K\u2013$' + Math.round(range.high * tierMult / 1000) + 'K) as your framework. Lead with value, not a number.' },
+                { risk: 'Neglecting total compensation',
+                  why: 'Base salary is only one component. ' + (seniority === 'Executive' || seniority === 'C-Suite' ? 'Equity, bonuses, and deferred comp' : 'Benefits, PTO, and growth opportunities') + ' could represent 20\u201340% of total value.',
+                  mitigation: 'Prepare a total comp framework before negotiations. Know your minimum on base, but be flexible on structure.' }
+            ];
+
+            var counterOfferPlaybook = [
+                { scenario: '\u201cWe can\u2019t go above $' + Math.round(range.mid / 1000) + 'K for this role.\u201d',
+                  response: 'I understand budget constraints. Given my ' + yrsExp + '+ years of experience and the value I\u2019d bring to ' + company + ', could we explore a signing bonus, accelerated review timeline, or additional equity to bridge the gap?' },
+                { scenario: '\u201cWe need someone with more direct ' + (jobRoles[0] || 'industry') + ' experience.\u201d',
+                  response: 'I respect that concern. Let me share how my ' + (roles[0] || 'background') + ' experience directly translates \u2014 [cite specific example]. I\u2019d also propose a 90-day milestone plan so you can see the ROI firsthand.' },
+                { scenario: '\u201cWe have other strong candidates at a lower price point.\u201d',
+                  response: 'I\u2019d encourage you to evaluate total value, not just cost. My ability to deliver results from day one \u2014 combined with ' + (relevantSkills.slice(0, 2).join(' and ') || 'my unique skill set') + ' \u2014 reduces your risk and accelerates your timeline.' }
+            ];
+
+            var valueConns = (values.length > 0 ? values : [{ name: 'Excellence' }, { name: 'Growth' }, { name: 'Impact' }]).slice(0, 3).map(function(v) {
+                return { value: v.name || v, connection: 'Your commitment to ' + (v.name || v).toLowerCase() + ' aligns with ' + company + '\u2019s emphasis on ' + (jobRoles[0] ? jobRoles[0].toLowerCase() : 'high performance') + '. Reference this shared value when explaining why ' + company + ' is your top choice.' };
+            });
+
+            var questionsToAsk = [
+                'What does success look like for the ' + jobTitle + ' role in the first 6 months?',
+                'How does ' + company + ' approach professional development and growth for people in this role?',
+                'What are the biggest challenges the team is facing right now that this hire would address?',
+                'Can you walk me through the compensation philosophy \u2014 how does ' + company + ' think about rewarding high performers?',
+                'What\u2019s the decision timeline, and is there anything else I can provide to support the process?'
+            ];
+
+            return {
+                roleTitle: jobTitle + ' \u2014 ' + company,
+                mode: 'external',
+                openingMove: openingMove,
+                theAsk: {
+                    number: askNum,
+                    justification: [
+                        'Market data for ' + seniority + '-level ' + (jobRoles[0] || 'professionals') + ' in this space ranges $' + Math.round(range.low / 1000) + 'K\u2013$' + Math.round(range.high * tierMult / 1000) + 'K.',
+                        'My ' + yrsExp + '+ years of experience and expertise in ' + (relevantSkills.slice(0, 2).join(', ') || 'this domain') + ' place me in the upper quartile.',
+                        'This number reflects the immediate value I bring \u2014 reducing ramp-up time and delivering measurable results from day one.'
+                    ]
+                },
+                strengths: strengths,
+                weaknessNeutralizations: weaknessNeutralizations,
+                blindSpots: blindSpots,
+                counterOfferPlaybook: counterOfferPlaybook,
+                valueConnections: valueConns,
+                questionsToAsk: questionsToAsk
+            };
         }
 
-        async function _showStaticNegGuide() {
+        function _showStaticNegGuide() {
             var modal = document.getElementById('exportModal');
             var mContent = modal ? modal.querySelector('.modal-content') : null;
             if (!modal || !mContent) return;
 
-            var tid = (appContext.demoTemplateId || userData.templateId || '').replace(/^demo[-_]?/, '');
             var tv = typeof getEffectiveComp === 'function' ? getEffectiveComp() : (typeof calculateTotalMarketValue === 'function' ? calculateTotalMarketValue() : null);
             var currentComp = tv ? (tv.reportedComp || 0) : 0;
+
             var activeJob = (typeof activeJobForNetwork !== 'undefined') ? activeJobForNetwork : null;
-            var jobId = activeJob ? (activeJob.id || 'sample-high') : 'sample-high';
-
-            mContent.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Loading Guide\u2026</h2></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button></div>'
-                + '<div class="modal-body" style="padding:40px; text-align:center;">'
-                + '<div style="opacity:0.5; margin-bottom:16px;">' + bpIcon('loader',36) + '</div></div>';
-            history.pushState({ modal: true }, '');
-            modal.classList.add('active');
-
-            var guides = await _loadStaticNegGuides();
-            var profileGuides = guides[tid];
-            var guide = profileGuides ? (profileGuides[jobId] || profileGuides[Object.keys(profileGuides)[0]]) : null;
-            if (!guide) {
-                mContent.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2></div>'
-                    + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button></div>'
-                    + '<div class="modal-body" style="padding:24px 28px;">'
-                    + '<div style="padding:16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
-                    + '<div style="font-size:0.82em; color:var(--c-muted);"><strong style="color:#60a5fa;">In your Blueprint</strong>, this guide is dynamically generated from your unique profile, skills, and target role using AI-powered analysis.</div></div>'
-                    + '<p style="color:var(--c-muted); font-size:0.9em;">No static guide available for this demo profile. Sign up to get a personalized negotiation guide built from your data.</p>'
-                    + '<button onclick="demoGate(\u0027build a negotiation guide\u0027)" style="margin-top:16px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Get My Own Guide</button>'
-                    + '</div>';
-                return;
+            var job = activeJob || (userData.savedJobs && userData.savedJobs.length > 0 ? userData.savedJobs[0] : null);
+            if (!job) {
+                job = { title: 'Target Role', company: 'Target Company', seniority: 'Mid', tier: 'high', parsedRoles: [], rawText: '' };
             }
+
+            var guide = _buildStaticNegGuide(job);
 
             var disclaimer = '<div style="padding:12px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
                 + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:#60a5fa;">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
 
-            var origRenderFn = function(html) {
+            var renderFn = function(html) {
                 var bodyStart = html.indexOf('<div class="modal-body"');
                 if (bodyStart > -1) {
                     var bodyTagEnd = html.indexOf('>', bodyStart) + 1;
@@ -44712,8 +44815,11 @@ body {
                 mContent.innerHTML = html;
             };
 
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
+
             if (typeof _renderNegGuide === 'function') {
-                _renderNegGuide(guide, tv, currentComp, guide.mode || 'external', origRenderFn);
+                _renderNegGuide(guide, tv, currentComp, guide.mode || 'external', renderFn);
             }
         }
         window._showStaticNegGuide = _showStaticNegGuide;
