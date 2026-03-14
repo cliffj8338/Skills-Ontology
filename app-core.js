@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.87 - BUILD 20260313-neg-guide-fix
-        var BP_VERSION = 'v4.46.87';
+        // BLUEPRINT v4.46.90 - BUILD 20260314-security-hardening
+        var BP_VERSION = 'v4.46.90';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -639,11 +639,13 @@
 
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
-        console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260305-mobile-admin                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c   Build: 20260305-mobile-admin                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        }
 
 
         // ===== DATE FORMATTING UTILITY =====
@@ -876,6 +878,12 @@
                         updateAuthUI();
                         rebuildProfileDropdown();
                         authReadyResolve(user);
+                    }).catch(function(err) {
+                        console.error('Admin role check failed:', err.message);
+                        fbIsAdmin = false;
+                        detectAppMode();
+                        updateAuthUI();
+                        authReadyResolve(user);
                     });
                 } else {
                     console.log('🔓 Not signed in');
@@ -1076,6 +1084,9 @@
                 updateAuthUI();
                 rebuildProfileDropdown();
                 switchView('welcome');
+            }).catch(function(err) {
+                console.error('Sign-out error:', err.message);
+                showToast('Sign-out failed. Please try again.', 'error');
             });
         }
         window.authSignOut = authSignOut;
@@ -1702,6 +1713,9 @@
                     URL.revokeObjectURL(url);
                     
                     showToast('Your data has been exported.', 'success');
+                }).catch(function(err) {
+                    console.error('Export error:', err.message);
+                    showToast('Could not export data. Please try again.', 'error');
                 });
         }
         window.exportMyData = exportMyData;
@@ -1764,7 +1778,9 @@
                     var data = doc.data();
                     
                     var modal = document.getElementById('exportModal');
+                    if (!modal) { showToast('Could not display data panel.', 'error'); return; }
                     var modalContent = modal.querySelector('.modal-content');
+                    if (!modalContent) { showToast('Could not display data panel.', 'error'); return; }
                     
                     var summary = 'Account: ' + escapeHtml(data.email || 'N/A')
                         + '\nCreated: ' + (data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'N/A')
@@ -1788,6 +1804,9 @@
                         + '</div></div>';
                     
                     history.pushState({ modal: true }, ''); modal.classList.add('active');
+                }).catch(function(err) {
+                    console.error('View data error:', err.message);
+                    showToast('Could not load your data. Please try again.', 'error');
                 });
         }
         window.viewMyData = viewMyData;
@@ -2275,9 +2294,10 @@
                     var m = doc.data();
                     var jt = document.getElementById('adminJobsTile');
                     if (jt && m.totalJobs) {
-                        jt.querySelector('div[style*="font-size:1.5em"]').textContent = m.totalJobs.toLocaleString();
-                        jt.querySelector('div[style*="top:8px"]').textContent = '\u25CF';
-                        jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
+                        var jtVal = jt.querySelector('div[style*="font-size:1.5em"]');
+                        var jtDot = jt.querySelector('div[style*="top:8px"]');
+                        if (jtVal) jtVal.textContent = m.totalJobs.toLocaleString();
+                        if (jtDot) { jtDot.textContent = '\u25CF'; jtDot.style.color = '#10b981'; }
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
                         if (lc) lc.textContent = '14/14 libraries loaded';
@@ -9913,6 +9933,9 @@
             return fetch('profiles/demo/comparison-candidate.json?v=' + Date.now()).then(function(r) { return r.json(); }).then(function(data) {
                 _wbCompareCandidate = data;
                 return data;
+            }).catch(function(err) {
+                console.warn('Failed to load comparison candidate:', err.message);
+                return null;
             });
         }
 
@@ -10414,12 +10437,12 @@
             var companyValObj = null;
             if (workBlueprint._resolvedCompanyValues) {
                 companyValObj = workBlueprint._resolvedCompanyValues;
-                console.log('[COMPARE] Company values (pre-resolved): ' + (companyValObj.primary || []).join(', '));
+                
             } else if (workBlueprint.company && window.companyDataLoaded) {
                 var lookedUp = getCompanyValues(workBlueprint.company, '');
                 if (lookedUp && !lookedUp.inferred && lookedUp.primary && lookedUp.primary.length > 0) {
                     companyValObj = lookedUp;
-                    console.log('[COMPARE] Company values from DB: ' + workBlueprint.company + ' → ' + (lookedUp.primary || []).join(', '));
+                    
                 }
             }
             // Fallback: construct from WB stored values
@@ -10434,7 +10457,7 @@
             if (wbValues.length > 0 && candidateProfile.values) {
                 valResult = _wbCompareFuzzyValues(candidateProfile.values, companyValObj);
                 if (valResult) {
-                    console.log('[COMPARE] Values: company=' + (companyValObj.primary || []).join(', ') + ' | aligned=' + (valResult.aligned || []).map(function(a) { return a.name; }).join(', ') + ' | score=' + valResult.score + '%');
+                    
                 }
             }
 
@@ -10483,8 +10506,7 @@
         function _wbCompareRunBoth(rawJDText, wb, candidate) {
             var rawResult = _wbCompareRawJDMatch(rawJDText, candidate);
             var structResult = _wbCompareStructuredMatch(wb, candidate);
-            console.log('[COMPARE] Raw JD: ' + rawResult.skillsExtracted + ' skills extracted, ' + rawResult.matched.length + ' matched, score=' + rawResult.score);
-            console.log('[COMPARE] WB: ' + structResult.skillsUsed + ' skills (' + (structResult.skillsFiltered || 0) + ' filtered), ' + structResult.matched.length + ' matched, score=' + structResult.score + ' (bonus=' + (structResult.structuredBonus || 0) + ')');
+            
             return { raw: rawResult, struct: structResult };
         }
 
@@ -11979,6 +12001,9 @@
                 });
                 html += '</div>';
                 container.innerHTML = html;
+            }).catch(function(err) {
+                console.warn('Comparison repo render error:', err.message);
+                container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--c-muted); font-size:0.85em;">Could not load saved comparisons.</div>';
             });
         }
 
@@ -11990,7 +12015,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.then(function(entry) {
+            lookup.catch(function(err) { console.warn('Comparison lookup error:', err.message); return null; }).then(function(entry) {
                 if (!entry || !entry.wb || !entry.rawResult || !entry.structResult) {
                     showToast('Comparison data not available.', 'warning');
                     return;
@@ -12041,7 +12066,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.then(function(entry) {
+            lookup.catch(function(err) { console.warn('Share lookup error:', err.message); return null; }).then(function(entry) {
                 if (!entry) { showToast('Comparison not found.', 'warning'); return; }
                 // If already shared, re-surface URL
                 if (entry.shareToken && entry.shareId) {
@@ -12195,7 +12220,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.then(function(entry) {
+            lookup.catch(function(err) { console.warn('PDF export lookup error:', err.message); return null; }).then(function(entry) {
                 if (!entry) { showToast('Comparison not found.', 'warning'); return; }
                 _wbCompPDFThemeChoice(function(theme) {
                     _wbCompBuildPDF(entry.wb, entry.rawResult, entry.structResult, entry.candidate, theme);
@@ -16261,16 +16286,23 @@
             var token = 'vrf-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8);
             var profileName = userData.profile.name || 'A professional';
             
-            // Create verification records
             var records = skillNames.map(function(sn) {
                 var skill = (skillsData.skills || []).find(function(s) { return s.name === sn; });
-                var evidence = skill ? (skill.evidence || []).map(function(e) { return (e.outcome || '') + ' ' + (e.description || ''); }).join('; ') : '';
+                var outcomes = [];
+                if (skill && skill.evidence && skill.evidence.length > 0) {
+                    skill.evidence.forEach(function(e) {
+                        if (e.outcome) outcomes.push(e.outcome.substring(0, 200));
+                        else if (e.description) outcomes.push(e.description.substring(0, 200));
+                    });
+                }
+                var evidenceText = outcomes.length > 0 ? outcomes.slice(0, 5).join('; ') : '';
                 
                 var record = {
                     id: token + '-' + sn.replace(/\s+/g, '-').toLowerCase().substring(0, 20),
                     skillName: sn,
                     claimedLevel: skill ? skill.level : 'Unknown',
-                    evidenceSummary: evidence.substring(0, 500),
+                    evidenceSummary: evidenceText.substring(0, 500),
+                    outcomes: outcomes.slice(0, 5),
                     verifierName: verifierName,
                     verifierEmail: verifierEmail,
                     relationship: relationship,
@@ -16282,14 +16314,12 @@
                     respondedAt: null
                 };
                 
-                // Store locally
                 if (!userData.verifications) userData.verifications = [];
                 userData.verifications.push(record);
                 
                 return record;
             });
             
-            // Save to Firestore if available
             if (fbUser && fbDb) {
                 records.forEach(function(rec) {
                     fbDb.collection('users').doc(fbUser.uid).collection('verifications').doc(rec.id).set(rec)
@@ -16299,28 +16329,44 @@
             }
             saveAll();
             
-            // Build verification URL
-            var baseUrl = window.location.origin + window.location.pathname;
+            var baseUrl = window.location.origin;
             var verifyUrl = baseUrl + '?verify=' + token + (fbUser ? '&uid=' + fbUser.uid : '');
             
-            // Build email
             var skillsSummary = records.map(function(r) {
-                return '  • ' + r.skillName + ' (claimed: ' + r.claimedLevel + ')\n    Evidence: ' + (r.evidenceSummary || 'None provided').substring(0, 200);
+                var block = '  \u2022 ' + r.skillName + ' \u2014 Claimed Level: ' + r.claimedLevel;
+                if (r.outcomes && r.outcomes.length > 0) {
+                    block += '\n    Outcomes & Evidence:';
+                    r.outcomes.forEach(function(o) {
+                        block += '\n      - ' + o;
+                    });
+                }
+                return block;
             }).join('\n\n');
             
             var subject = encodeURIComponent('Skill Verification Request from ' + profileName);
             var body = encodeURIComponent(
                 'Hi ' + verifierName + ',\n\n'
                 + (personalNote ? personalNote + '\n\n' : '')
-                + profileName + ' is requesting your verification of the following professional skills:\n\n'
+                + profileName + ' is asking you to verify their proficiency in the following skill'
+                + (records.length > 1 ? 's' : '') + '.\n\n'
+                + 'Based on your professional relationship (' + relationship + '), your verification '
+                + 'carries significant weight in validating their expertise.\n\n'
+                + '--- SKILLS TO VERIFY ---\n\n'
                 + skillsSummary + '\n\n'
-                + 'To verify, please visit:\n' + verifyUrl + '\n\n'
-                + 'You can confirm, suggest a different level, or decline. Your response helps validate professional expertise through Blueprint.\n\n'
+                + '--- HOW TO RESPOND ---\n\n'
+                + 'Click the link below to open the verification form:\n'
+                + verifyUrl + '\n\n'
+                + 'You will be able to:\n'
+                + '  \u2713 Confirm the claimed proficiency level\n'
+                + '  \u2191 Suggest a higher or lower level\n'
+                + '  \u270D Add a comment with your observations\n'
+                + '  \u2717 Decline if you cannot verify\n\n'
+                + 'The link expires in 30 days. No account or sign-in is required.\n\n'
                 + 'Thank you for your time.\n\n'
-                + '---\nGenerated by Blueprint\u2122 · ' + new Date().toLocaleDateString() + ' · myblueprint.work'
+                + '---\nGenerated by Blueprint\u2122 Career Intelligence\n'
+                + new Date().toLocaleDateString() + ' \u00B7 myblueprint.work'
             );
             
-            // Open mailto
             window.open('mailto:' + verifierEmail + '?subject=' + subject + '&body=' + body);
             
             closeExportModal();
@@ -16674,22 +16720,34 @@
             var el = document.getElementById('verifyLandingContent');
             
             var skillCards = records.map(function(rec, idx) {
-                var cred = getCredibilityLabel(rec.relationship || 'Other');
+                var outcomesHTML = '';
+                if (rec.outcomes && rec.outcomes.length > 0) {
+                    outcomesHTML = '<div style="margin:10px 0 12px; padding:10px 12px; background:rgba(96,165,250,0.06); border-left:3px solid rgba(96,165,250,0.3); border-radius:0 8px 8px 0;">'
+                        + '<div style="font-size:0.75em; color:#60a5fa; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Outcomes & Evidence</div>'
+                        + rec.outcomes.map(function(o) {
+                            return '<div style="font-size:0.82em; color:#cbd5e1; padding:3px 0; line-height:1.4;">\u2022 ' + escapeHtml(o) + '</div>';
+                        }).join('')
+                        + '</div>';
+                } else if (rec.evidenceSummary) {
+                    outcomesHTML = '<div style="font-size:0.82em; color:#94a3b8; margin-bottom:12px; line-height:1.5;">' + escapeHtml(rec.evidenceSummary).substring(0, 300) + '</div>';
+                }
+                
                 return '<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:20px; margin-bottom:12px; text-align:left;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-weight:700; font-size:1.05em; color:#e2e8f0;">' + escapeHtml(rec.skillName) + '</div>'
                     + '<div style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.15); color:#60a5fa;">Claimed: ' + escapeHtml(rec.claimedLevel) + '</div>'
                     + '</div>'
-                    + (rec.evidenceSummary ? '<div style="font-size:0.82em; color:#94a3b8; margin-bottom:12px; line-height:1.5;">' + escapeHtml(rec.evidenceSummary).substring(0, 300) + '</div>' : '')
+                    + outcomesHTML
                     + '<div style="margin-bottom:8px;">'
-                    + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your assessment of this skill level:</label>'
+                    + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your assessment:</label>'
                     + '<select id="verifyLevel_' + idx + '" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.9em;">'
                     + '<option value="confirm">\u2713 Confirm ' + escapeHtml(rec.claimedLevel) + ' level</option>'
-                    + '<option value="Mastery">Suggest: Mastery</option>'
-                    + '<option value="Expert">Suggest: Expert</option>'
-                    + '<option value="Advanced">Suggest: Advanced</option>'
-                    + '<option value="Proficient">Suggest: Proficient</option>'
-                    + '<option value="Competent">Suggest: Competent</option>'
+                    + '<option value="Mastery">\u2191 Suggest: Mastery</option>'
+                    + '<option value="Expert">\u2191 Suggest: Expert</option>'
+                    + '<option value="Advanced">\u2191 Suggest: Advanced</option>'
+                    + '<option value="Proficient">\u2191 Suggest: Proficient</option>'
+                    + '<option value="Novice">\u2193 Suggest: Novice</option>'
+                    + '<option value="comment">\u270D Comment only (add context without confirming)</option>'
                     + '<option value="decline">\u2717 Decline to verify</option>'
                     + '</select></div>'
                     + '</div>';
@@ -16699,16 +16757,15 @@
                 + '<div style="margin-bottom:20px;">'
                 + '<div style="font-size:1.2em; font-weight:700; color:#e2e8f0; margin-bottom:6px;">'
                 + escapeHtml(profileName) + ' has requested your verification</div>'
-                + '<div style="font-size:0.88em; color:#94a3b8; line-height:1.5;">Please review the skills below and confirm, suggest a different level, or decline. '
-                + 'Your verification strengthens their professional credibility.</div>'
+                + '<div style="font-size:0.88em; color:#94a3b8; line-height:1.5;">Please review each skill below. You can confirm, suggest a different proficiency level, add a comment, or decline.</div>'
                 + '</div>'
                 
                 + '<div style="margin-bottom:16px;">' + skillCards + '</div>'
                 
                 + '<div style="margin-bottom:16px;">'
-                + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Add a note (optional):</label>'
+                + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your note (optional \u2014 required if commenting):</label>'
                 + '<textarea id="verifyResponseNote" rows="3" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.88em; resize:vertical; box-sizing:border-box;" '
-                + 'placeholder="Any additional context about your professional assessment\u2026"></textarea></div>'
+                + 'placeholder="Share context about your professional experience with this person\u2019s skills\u2026"></textarea></div>'
                 
                 + '<div style="margin-bottom:16px;">'
                 + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your name (for attribution):</label>'
@@ -16730,6 +16787,13 @@
             var note = (document.getElementById('verifyResponseNote') || {}).value || '';
             var name = (document.getElementById('verifyResponseName') || {}).value || '';
             
+            var hasComment = responses.some(function(r) { return r === 'comment'; });
+            if (hasComment && !note.trim()) {
+                var noteEl = document.getElementById('verifyResponseNote');
+                if (noteEl) { noteEl.style.borderColor = '#ef4444'; noteEl.focus(); }
+                return;
+            }
+            
             var payload = {
                 token: token,
                 uid: uid,
@@ -16739,7 +16803,6 @@
                 respondedAt: new Date().toISOString()
             };
             
-            // Submit to serverless API
             var el = document.getElementById('verifyLandingContent');
             
             fetch('/api/verify', {
@@ -44496,7 +44559,7 @@ body {
                     m.roles.forEach(function(r, idx) {
                         var roleTitle = escapeHtml(r.title || 'Untitled');
                         var roleCo    = r.company ? ' · ' + escapeHtml(r.company) : '';
-                        pickerHtml += '<button onclick="_negGuideSelectMode(\''+m.id+'\', '+idx+')" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
+                        pickerHtml += '<button data-neg-mode="' + m.id + '" data-neg-idx="' + idx + '" onclick="_negGuideSelectMode(this.dataset.negMode, parseInt(this.dataset.negIdx))" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
                             + '<span style="color:' + m.color + '; font-weight:700;">' + roleTitle + '</span>'
                             + '<span style="color:var(--c-muted);">' + roleCo + '</span></button>';
                     });
@@ -44601,17 +44664,12 @@ body {
             ].filter(Boolean).join('\n');
 
             try {
-                var response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 1800,
-                        messages: [{ role: 'user', content: prompt }]
-                    })
-                });
-                var data = await response.json();
-                var raw  = (data.content || []).map(function(b) { return b.text || ''; }).join('');
+                var data = await callAnthropicAPI({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 1800,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'negotiation_guide');
+                var raw = (data.content || []).map(function(b) { return b.text || ''; }).join('');
                 raw = raw.replace(/```json|```/g, '').trim();
                 var guide = JSON.parse(raw);
                 _renderNegGuide(guide, tv, currentComp, mode, renderFn);

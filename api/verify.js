@@ -134,6 +134,7 @@ async function handleGet(req, res) {
             skillName: sanitizeString(r.skillName, 200),
             claimedLevel: sanitizeString(r.claimedLevel, 50),
             evidenceSummary: sanitizeString(r.evidenceSummary, 500),
+            outcomes: Array.isArray(r.outcomes) ? r.outcomes.slice(0, 5).map(o => sanitizeString(o, 200)) : [],
             relationship: sanitizeString(r.relationship, 50),
             verifierName: sanitizeString(r.verifierName, 100)
         })),
@@ -161,11 +162,16 @@ async function handlePost(req, res) {
         return res.status(400).json({ error: 'Too many responses' });
     }
 
-    const VALID_RESPONSES = ['confirm', 'decline', 'Novice', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
+    const VALID_RESPONSES = ['confirm', 'decline', 'comment', 'Novice', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
     for (const r of responses) {
         if (typeof r !== 'string' || !VALID_RESPONSES.includes(r)) {
             return res.status(400).json({ error: 'Invalid response value: ' + String(r).substring(0, 30) });
         }
+    }
+
+    const hasComment = responses.some(r => r === 'comment');
+    if (hasComment && (!note || !String(note).trim())) {
+        return res.status(400).json({ error: 'A note is required when using comment response' });
     }
     
     const userDoc = await db.collection('users').doc(uid).get();
@@ -204,6 +210,8 @@ async function handlePost(req, res) {
         
         if (response === 'decline') {
             verifications[vIdx].status = 'declined';
+        } else if (response === 'comment') {
+            verifications[vIdx].status = 'commented';
         } else {
             verifications[vIdx].status = 'confirmed';
             if (response !== 'confirm') {
