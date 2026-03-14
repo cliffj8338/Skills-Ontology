@@ -639,11 +639,13 @@
 
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
-        console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260305-mobile-admin                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c   Build: 20260305-mobile-admin                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        }
 
 
         // ===== DATE FORMATTING UTILITY =====
@@ -876,6 +878,12 @@
                         updateAuthUI();
                         rebuildProfileDropdown();
                         authReadyResolve(user);
+                    }).catch(function(err) {
+                        console.error('Admin role check failed:', err.message);
+                        fbIsAdmin = false;
+                        detectAppMode();
+                        updateAuthUI();
+                        authReadyResolve(user);
                     });
                 } else {
                     console.log('🔓 Not signed in');
@@ -1076,6 +1084,9 @@
                 updateAuthUI();
                 rebuildProfileDropdown();
                 switchView('welcome');
+            }).catch(function(err) {
+                console.error('Sign-out error:', err.message);
+                showToast('Sign-out failed. Please try again.', 'error');
             });
         }
         window.authSignOut = authSignOut;
@@ -1702,6 +1713,9 @@
                     URL.revokeObjectURL(url);
                     
                     showToast('Your data has been exported.', 'success');
+                }).catch(function(err) {
+                    console.error('Export error:', err.message);
+                    showToast('Could not export data. Please try again.', 'error');
                 });
         }
         window.exportMyData = exportMyData;
@@ -1764,7 +1778,9 @@
                     var data = doc.data();
                     
                     var modal = document.getElementById('exportModal');
+                    if (!modal) { showToast('Could not display data panel.', 'error'); return; }
                     var modalContent = modal.querySelector('.modal-content');
+                    if (!modalContent) { showToast('Could not display data panel.', 'error'); return; }
                     
                     var summary = 'Account: ' + escapeHtml(data.email || 'N/A')
                         + '\nCreated: ' + (data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'N/A')
@@ -1788,6 +1804,9 @@
                         + '</div></div>';
                     
                     history.pushState({ modal: true }, ''); modal.classList.add('active');
+                }).catch(function(err) {
+                    console.error('View data error:', err.message);
+                    showToast('Could not load your data. Please try again.', 'error');
                 });
         }
         window.viewMyData = viewMyData;
@@ -2275,9 +2294,10 @@
                     var m = doc.data();
                     var jt = document.getElementById('adminJobsTile');
                     if (jt && m.totalJobs) {
-                        jt.querySelector('div[style*="font-size:1.5em"]').textContent = m.totalJobs.toLocaleString();
-                        jt.querySelector('div[style*="top:8px"]').textContent = '\u25CF';
-                        jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
+                        var jtVal = jt.querySelector('div[style*="font-size:1.5em"]');
+                        var jtDot = jt.querySelector('div[style*="top:8px"]');
+                        if (jtVal) jtVal.textContent = m.totalJobs.toLocaleString();
+                        if (jtDot) { jtDot.textContent = '\u25CF'; jtDot.style.color = '#10b981'; }
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
                         if (lc) lc.textContent = '14/14 libraries loaded';
@@ -9913,6 +9933,9 @@
             return fetch('profiles/demo/comparison-candidate.json?v=' + Date.now()).then(function(r) { return r.json(); }).then(function(data) {
                 _wbCompareCandidate = data;
                 return data;
+            }).catch(function(err) {
+                console.warn('Failed to load comparison candidate:', err.message);
+                return null;
             });
         }
 
@@ -10414,12 +10437,12 @@
             var companyValObj = null;
             if (workBlueprint._resolvedCompanyValues) {
                 companyValObj = workBlueprint._resolvedCompanyValues;
-                console.log('[COMPARE] Company values (pre-resolved): ' + (companyValObj.primary || []).join(', '));
+                
             } else if (workBlueprint.company && window.companyDataLoaded) {
                 var lookedUp = getCompanyValues(workBlueprint.company, '');
                 if (lookedUp && !lookedUp.inferred && lookedUp.primary && lookedUp.primary.length > 0) {
                     companyValObj = lookedUp;
-                    console.log('[COMPARE] Company values from DB: ' + workBlueprint.company + ' → ' + (lookedUp.primary || []).join(', '));
+                    
                 }
             }
             // Fallback: construct from WB stored values
@@ -10434,7 +10457,7 @@
             if (wbValues.length > 0 && candidateProfile.values) {
                 valResult = _wbCompareFuzzyValues(candidateProfile.values, companyValObj);
                 if (valResult) {
-                    console.log('[COMPARE] Values: company=' + (companyValObj.primary || []).join(', ') + ' | aligned=' + (valResult.aligned || []).map(function(a) { return a.name; }).join(', ') + ' | score=' + valResult.score + '%');
+                    
                 }
             }
 
@@ -10483,8 +10506,7 @@
         function _wbCompareRunBoth(rawJDText, wb, candidate) {
             var rawResult = _wbCompareRawJDMatch(rawJDText, candidate);
             var structResult = _wbCompareStructuredMatch(wb, candidate);
-            console.log('[COMPARE] Raw JD: ' + rawResult.skillsExtracted + ' skills extracted, ' + rawResult.matched.length + ' matched, score=' + rawResult.score);
-            console.log('[COMPARE] WB: ' + structResult.skillsUsed + ' skills (' + (structResult.skillsFiltered || 0) + ' filtered), ' + structResult.matched.length + ' matched, score=' + structResult.score + ' (bonus=' + (structResult.structuredBonus || 0) + ')');
+            
             return { raw: rawResult, struct: structResult };
         }
 
@@ -11979,6 +12001,9 @@
                 });
                 html += '</div>';
                 container.innerHTML = html;
+            }).catch(function(err) {
+                console.warn('Comparison repo render error:', err.message);
+                container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--c-muted); font-size:0.85em;">Could not load saved comparisons.</div>';
             });
         }
 
@@ -11990,7 +12015,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.then(function(entry) {
+            lookup.catch(function(err) { console.warn('Comparison lookup error:', err.message); return null; }).then(function(entry) {
                 if (!entry || !entry.wb || !entry.rawResult || !entry.structResult) {
                     showToast('Comparison data not available.', 'warning');
                     return;
@@ -12041,7 +12066,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.then(function(entry) {
+            lookup.catch(function(err) { console.warn('Share lookup error:', err.message); return null; }).then(function(entry) {
                 if (!entry) { showToast('Comparison not found.', 'warning'); return; }
                 // If already shared, re-surface URL
                 if (entry.shareToken && entry.shareId) {
@@ -12195,7 +12220,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.then(function(entry) {
+            lookup.catch(function(err) { console.warn('PDF export lookup error:', err.message); return null; }).then(function(entry) {
                 if (!entry) { showToast('Comparison not found.', 'warning'); return; }
                 _wbCompPDFThemeChoice(function(theme) {
                     _wbCompBuildPDF(entry.wb, entry.rawResult, entry.structResult, entry.candidate, theme);

@@ -3,11 +3,11 @@
 Career intelligence web app at myblueprint.work. Modular Vite-based frontend + Firebase Auth/Firestore backend, deployed via Vercel from GitHub (cliffj8338/blueprint).
 
 ## Architecture
-- **Frontend**: Vite-built modular SPA. Entry: `index.html` (1,241-line shell) → `src/main.js` → modular ES modules in `src/`. `legacy.js` (46K-line monolith) loaded alongside for backward compatibility. **IMPORTANT**: Vite serves `public/legacy.js` (not root `legacy.js`). After editing root `legacy.js`, always run `cp legacy.js public/legacy.js` to sync.
+- **Frontend**: Vite-built modular SPA. Entry: `index.html` (1,241-line shell) → `src/main.js` → modular ES modules in `src/`. `public/app-core.js` (formerly legacy.js) loaded alongside for backward compatibility.
 - **Backend**: Firebase Auth + Firestore for user data, Vercel serverless functions for API proxying
 - **Deployment**: Vercel auto-deploys from GitHub `main` branch. Runs `vite build` → `dist/`.
 - **Dev server**: `npm run dev` (Vite dev server on port 5000 with HMR)
-- **Dual-load pattern**: `index.html` loads `legacy.js` (regular script) AND `src/main.js` (ES module). Legacy runs its own DOMContentLoaded with `initializeApp()`. Module DOMContentLoaded is gated by `window._legacyInitComplete` to prevent double init.
+- **Dual-load pattern**: `index.html` loads `public/app-core.js` (regular script) AND `src/main.js` (ES module). Legacy runs its own DOMContentLoaded with `initializeApp()`. Module DOMContentLoaded is gated by `window._legacyInitComplete` to prevent double init.
 
 ## Project Structure
 - `src/core/constants.js` — Single source of truth for `BP_VERSION`, `BP_BUILD`
@@ -30,11 +30,20 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - `src/ui/nav.js` — Navigation, routing
 - `src/ui/icons.js` — SVG icon system (`bpIcon`)
 - `src/ui/toast.js` — Toast notifications
-- `legacy.js` — Old monolith (kept for backward compat, loaded alongside modules)
+- `public/app-core.js` — Main application logic (formerly legacy.js monolith)
+- `legacy.js` — Root HTML monolith (kept for reference, not served)
 - `vite.config.js` — Vite build config with manual chunk splitting
-- `vercel.json` — Vercel deployment config, CSP headers, rewrites
+- `vercel.json` — Vercel deployment config, security headers, CSP, rewrites
 - `scripts/count-lines.js` — Build-time script that counts source lines and writes `public/build-stats.json`
 - `public/build-stats.json` — Auto-generated: lineCount, jsLines, htmlLines, cssLines, fileCount, totalDeploys, version, buildDate
+
+## API Endpoints
+- `api/ai.js` — AI proxy (Firebase auth required, rate limited)
+- `api/job-search.js` — Multi-source job aggregator (7 sources)
+- `api/api-job-proxy.js` — CORS proxy for ATS page fetching (domain allowlisted, SSRF-hardened)
+- `api/verify.js` — Skill verification (token-based, rate limited, CORS restricted)
+- `api/jobs-sync.js` — Background job sync
+- `api/jobs-sources-additions.js` — Adzuna/Muse sync helpers
 
 ## Key Data Files
 - `skills/index-v4.json` — 43K+ skill library (ESCO, Lightcast, O*NET, trades)
@@ -45,33 +54,34 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.46.26. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field. Legacy.js header version is informational only.
+Current: v4.46.89. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field.
 
-**UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `legacy.js` line ~1083 JS comment, `legacy.js` line ~1084 `var BP_VERSION`, and `legacy.js` line 1 HTML comment, and `index.html` version comment.
+**UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
 
-## Architecture Hardening (v4.46.25–v4.46.26)
-- **Stubs**: All 30+ unmigrated function stubs in `src/` now `console.warn` + `return null` instead of throwing
-- **Data-ready Promise**: `window._userDataReady` Promise created in legacy.js, resolved at all `userData.initialized = true` points. Views use `waitForUserData()` from `src/core/data-helpers.js` instead of setInterval polling
-- **Shared helpers**: `_sd()` and `_bd()` deduplicated from 7 view files into `src/core/data-helpers.js`
-- **Double-init gate**: `window._legacyInitComplete` flag set by legacy.js; module DOMContentLoaded in network.js skips if set
-- **window.templates**: Both `window._templates` and `window.templates` exposed in legacy.js for nav.js compatibility
-- **Window override guard (v4.46.26)**: All `window.X = X` assignments in ES modules guarded with `if (!window.X)` to prevent modules from overwriting legacy.js functions (root cause of Fit For Me and other features breaking when data lived in legacy.js closure)
-- **D3 simulation fix (v4.46.26)**: `nav-shared.js` drag handlers now safely access simulation via `window._d3simulation` instead of bare global; legacy.js exposes simulation on window
-- **IMPORTANT**: Root `legacy.js` is an HTML file; `public/legacy.js` is the JS-only version served by Vite. Never `cp legacy.js public/legacy.js` — apply changes to each file separately
+## Security Hardening (v4.46.89)
+- **Security Headers (vercel.json)**: HSTS, X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, CSP. API responses get `no-store` cache control.
+- **CSP**: Restricts scripts to self + Firebase/Google/CDN, blocks object/embed, restricts connect-src to Firebase + self.
+- **API CORS**: All APIs use allowlisted origins (myblueprint.work, www.myblueprint.work, localhost). `verify.js` moved from wildcard `*` to explicit allowlist.
+- **Rate Limiting**: `verify.js` and `ai.js` have per-IP/per-UID rate limiting (in-memory Map, resets on cold start).
+- **Input Validation**: `verify.js` validates uid format (`[a-zA-Z0-9_-]{1,128}`), token format (`vrf-` prefix), response values (whitelist), and sanitizes all output strings.
+- **SSRF Protection**: `api-job-proxy.js` uses domain allowlist + regex, blocks internal/private IPs, uses `redirect: 'manual'` to prevent redirect-based SSRF.
+- **XSS**: All user-controlled innerHTML uses `escapeHtml()` and `escapeAttr()`. No eval/Function usage.
+
+## Stability Hardening (v4.46.89)
+- **Error handlers**: `window.onerror` + `unhandledrejection` catch all runtime errors and log incidents.
+- **Promise safety**: All `.then()` chains have `.catch()` handlers — no unhandled rejections.
+- **DOM null guards**: All `querySelector` results checked before use. Modal elements guarded against null.
+- **Firestore retry**: `saveToFirestore` retries 3x with exponential backoff.
+- **localStorage wrapper**: `safeGet()`/`safeSet()`/`safeRemove()` handle quota exceeded + private browsing.
+
+## Performance Notes
+- **Console banner**: Only shown in localhost dev mode, suppressed in production.
+- **Verbose debug logs**: Removed from comparison engine hot paths.
+- **52 event listeners / 9 removeEventListeners**: Potential leak area for future cleanup.
+- **3.2MB app-core.js**: Monolith size; code splitting would require full refactor.
 
 ## Proficiency Color Palette
 Gradient from cool to warm to green (achievement): Novice `#94a3b8` (slate) → Proficient `#60a5fa` (blue) → Advanced `#a78bfa` (purple) → Expert `#fb923c` (orange) → Mastery `#10b981` (green). Red `#ef4444` is ONLY for errors/problems. Yellow `#fbbf24` for caution/warnings.
-
-## Skills Card View (v4.46.24)
-Rarity-based grouping using O*NET `marketScarcity` data:
-- **Rare** (amber theme): Market differentiators. `getSkillImpact(skill).marketScarcity === 'rare'`
-- **Uncommon** (blue/purple theme): Competitive advantages. `marketScarcity === 'uncommon'`
-- **Common** (neutral theme): Foundational capabilities. `marketScarcity === 'common'`
-- Unique skills default to "uncommon" unless `skill.userAssessment.rarity` is set
-- Fallback: maps `impact.level` (critical/high → rare, moderate → uncommon, standard/supplementary → common) when `marketScarcity` unavailable
-- Each tier shows: header with icon/count/description, stats bar (proficiency breakdown, evidence coverage, verified count), then skill cards in grid layout
-- Skill cards: two-line layout with level badge + impact + rarity pill + role alignment
-- Sorting within tiers: core first, then proficiency level descending, then alphabetical
 
 ## Git
 Token embedded in remote URL. Push: `git add -A && git commit -m "..." && git push origin main`

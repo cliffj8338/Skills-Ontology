@@ -163,7 +163,7 @@ export default async function handler(req, res) {
             || /^[a-z0-9-]+\.jobvite\.com$/.test(parsedHost)
             || /^[a-z0-9-]+\.phenom\.com$/.test(parsedHost)
             || /^[a-z0-9-]+\.rippling\.com$/.test(parsedHost)
-            || /\.careers\.|careers\.|jobs\.|talent\.|recruiting\./.test(parsedHost);
+            || /^[a-z0-9-]+\.(careers|jobs|talent|recruiting)\.[a-z]{2,6}$/.test(parsedHost);
 
         if (!isAllowed) {
             return res.status(403).json({ error: 'Domain not allowed for page fetching: ' + parsedHost });
@@ -178,7 +178,7 @@ export default async function handler(req, res) {
             const timeout = setTimeout(() => controller.abort(), 20000);
             const pageRes = await fetch(pageUrl, {
                 signal: controller.signal,
-                redirect: 'follow',
+                redirect: 'manual',
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -191,6 +191,9 @@ export default async function handler(req, res) {
                 }
             });
             clearTimeout(timeout);
+            if (pageRes.status >= 300 && pageRes.status < 400) {
+                return res.status(pageRes.status).json({ error: 'Page redirected', location: pageRes.headers.get('location') || '' });
+            }
             if (!pageRes.ok) {
                 return res.status(pageRes.status).json({ error: 'Page returned ' + pageRes.status });
             }
