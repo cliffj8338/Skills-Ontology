@@ -25183,10 +25183,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var nfp = document.getElementById('networkFilterPill');
                     if (nfp) nfp.style.display = (activeRole && activeRole !== 'all') ? 'flex' : 'none';
                     if (!window.networkInitialized) {
-                        setTimeout(function() {
-                            initNetwork();
-                            window.networkInitialized = true;
-                        }, 50);
+                        requestAnimationFrame(function() {
+                            requestAnimationFrame(function() {
+                                try {
+                                    initNetwork();
+                                    window.networkInitialized = true;
+                                } catch(e) {
+                                    console.error('initNetwork error:', e);
+                                }
+                            });
+                        });
                     }
                     // Always render job selector when entering network view
                     setTimeout(function() { renderJobSelectorWidget(); }, 100);
@@ -25298,10 +25304,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // Show label toggles on desktop
                 var labelToggles = document.getElementById('networkLabelToggles');
                 if (labelToggles) labelToggles.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
-                // Lazy-init network if needed (e.g. after profile switch)
                 if (!window.networkInitialized) {
-                    initNetwork();
-                    window.networkInitialized = true;
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(function() {
+                            try {
+                                initNetwork();
+                                window.networkInitialized = true;
+                            } catch(e) {
+                                console.error('initNetwork error:', e);
+                            }
+                        });
+                    });
                 }
                 // Hide filter button/panel in network view (filtering via node clicks)
                 var filterBtn = document.getElementById('filterToggleBtn');
