@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprint™ Ontology Visualization Lab</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #0a0e1a;
+    color: #e2e8f0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow-x: hidden;
+}
+.header {
+    padding: 24px 40px;
+    border-bottom: 1px solid rgba(96,165,250,0.15);
+    display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(180deg, rgba(96,165,250,0.06) 0%, transparent 100%);
+}
+.header h1 {
+    font-size: 1.3em; font-weight: 700; letter-spacing: 0.04em;
+    color: #60a5fa;
+}
+.header span { font-size: 0.85em; color: #64748b; }
+.nav {
+    display: flex; gap: 6px; padding: 16px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-wrap: wrap;
+}
+.nav button {
+    padding: 8px 18px; border-radius: 8px; border: 1px solid rgba(96,165,250,0.2);
+    background: rgba(96,165,250,0.06); color: #94a3b8; font-size: 0.82em;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.nav button:hover { background: rgba(96,165,250,0.12); color: #e2e8f0; }
+.nav button.active {
+    background: rgba(96,165,250,0.18); color: #60a5fa;
+    border-color: rgba(96,165,250,0.5);
+}
+.viz-container {
+    padding: 30px 40px;
+    min-height: calc(100vh - 130px);
+}
+.viz-title {
+    font-size: 1.1em; font-weight: 700; margin-bottom: 6px; color: #e2e8f0;
+}
+.viz-desc {
+    font-size: 0.82em; color: #64748b; margin-bottom: 20px; max-width: 700px; line-height: 1.5;
+}
+.viz-panel {
+    display: none;
+}
+.viz-panel.active { display: block; }
+svg { overflow: visible; }
+.tooltip {
+    position: absolute; padding: 8px 14px; background: rgba(15,23,42,0.95);
+    border: 1px solid rgba(96,165,250,0.3); border-radius: 8px;
+    font-size: 0.78em; color: #e2e8f0; pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 100;
+    max-width: 280px; line-height: 1.4;
+}
+.legend {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.legend-item {
+    display: flex; align-items: center; gap: 6px; font-size: 0.78em; color: #94a3b8;
+}
+.legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>BLUEPRINT™ ONTOLOGY VISUALIZATION LAB</h1>
+    <span>Staging — 7 visualization approaches for skill/role/value ontologies</span>
+</div>
+
+<div class="nav" id="vizNav"></div>
+<div class="viz-container" id="vizContainer"></div>
+<div class="tooltip" id="tooltip" style="display:none;"></div>
+
+<script>
+const COLORS = {
+    skill: '#60a5fa',
+    role: '#a78bfa',
+    value: '#10b981',
+    category: '#fb923c',
+    accent: '#f472b6',
+    muted: '#475569',
+    surface: '#1e293b',
+    bg: '#0a0e1a',
+    levels: { 1: '#94a3b8', 2: '#60a5fa', 3: '#a78bfa', 4: '#fb923c', 5: '#10b981' },
+    levelNames: { 1: 'Novice', 2: 'Proficient', 3: 'Advanced', 4: 'Expert', 5: 'Mastery' }
+};
+
+const SAMPLE_SKILLS = [
+    { name: 'Strategic Planning', level: 5, category: 'Business & Management', roles: ['VP Operations', 'Chief Strategy Officer'] },
+    { name: 'Financial Analysis', level: 4, category: 'Finance & Accounting', roles: ['VP Operations', 'Chief Strategy Officer'] },
+    { name: 'Team Leadership', level: 5, category: 'Leadership & Management', roles: ['VP Operations', 'Director of Engineering'] },
+    { name: 'Data Analytics', level: 3, category: 'Technology & Engineering', roles: ['Chief Strategy Officer', 'Data Scientist'] },
+    { name: 'Project Management', level: 4, category: 'Business & Management', roles: ['VP Operations', 'Director of Engineering'] },
+    { name: 'Python', level: 3, category: 'Technology & Engineering', roles: ['Data Scientist'] },
+    { name: 'Machine Learning', level: 2, category: 'Technology & Engineering', roles: ['Data Scientist'] },
+    { name: 'Stakeholder Management', level: 5, category: 'Leadership & Management', roles: ['VP Operations', 'Chief Strategy Officer'] },
+    { name: 'Budget Management', level: 4, category: 'Finance & Accounting', roles: ['VP Operations'] },
+    { name: 'Change Management', level: 4, category: 'Leadership & Management', roles: ['VP Operations', 'Director of Engineering'] },
+    { name: 'Risk Assessment', level: 3, category: 'Business & Management', roles: ['Chief Strategy Officer'] },
+    { name: 'Negotiation', level: 4, category: 'Business & Management', roles: ['VP Operations', 'Chief Strategy Officer'] },
+    { name: 'Public Speaking', level: 3, category: 'Communication', roles: ['VP Operations', 'Chief Strategy Officer'] },
+    { name: 'SQL', level: 3, category: 'Technology & Engineering', roles: ['Data Scientist'] },
+    { name: 'Cloud Architecture', level: 2, category: 'Technology & Engineering', roles: ['Director of Engineering'] },
+    { name: 'Talent Development', level: 4, category: 'Human Resources', roles: ['VP Operations', 'Director of Engineering'] },
+    { name: 'Process Optimization', level: 5, category: 'Business & Management', roles: ['VP Operations'] },
+    { name: 'M&A Due Diligence', level: 3, category: 'Finance & Accounting', roles: ['Chief Strategy Officer'] },
+    { name: 'Cross-functional Alignment', level: 4, category: 'Leadership & Management', roles: ['VP Operations', 'Director of Engineering'] },
+    { name: 'Executive Communication', level: 5, category: 'Communication', roles: ['VP Operations', 'Chief Strategy Officer'] },
+    { name: 'Supply Chain Management', level: 3, category: 'Operations', roles: ['VP Operations'] },
+    { name: 'Agile Methodology', level: 3, category: 'Technology & Engineering', roles: ['Director of Engineering'] },
+    { name: 'Competitive Intelligence', level: 3, category: 'Business & Management', roles: ['Chief Strategy Officer'] },
+    { name: 'Board Reporting', level: 4, category: 'Communication', roles: ['Chief Strategy Officer', 'VP Operations'] },
+    { name: 'Vendor Management', level: 3, category: 'Operations', roles: ['VP Operations', 'Director of Engineering'] },
+    { name: 'Performance Metrics', level: 4, category: 'Business & Management', roles: ['VP Operations', 'Director of Engineering'] },
+    { name: 'Revenue Forecasting', level: 3, category: 'Finance & Accounting', roles: ['Chief Strategy Officer'] },
+    { name: 'Product Strategy', level: 3, category: 'Business & Management', roles: ['Chief Strategy Officer', 'Director of Engineering'] },
+    { name: 'Organizational Design', level: 4, category: 'Human Resources', roles: ['VP Operations'] },
+    { name: 'Digital Transformation', level: 3, category: 'Technology & Engineering', roles: ['Director of Engineering', 'Chief Strategy Officer'] }
+];
+
+const SAMPLE_ROLES = ['VP Operations', 'Chief Strategy Officer', 'Director of Engineering', 'Data Scientist'];
+
+const SAMPLE_VALUES = [
+    { group: 'How I Think', values: [
+        { name: 'Intellectual Honesty', selected: true },
+        { name: 'Strategic Thinking', selected: true },
+        { name: 'Systems Thinking', selected: false },
+        { name: 'First Principles Thinking', selected: false },
+        { name: 'Curiosity', selected: false },
+        { name: 'Evidence-Based Decision Making', selected: false },
+        { name: 'Pattern Recognition', selected: false },
+        { name: 'Long-term Orientation', selected: false }
+    ]},
+    { group: 'How I Lead', values: [
+        { name: 'Accountability', selected: true },
+        { name: 'Servant Leadership', selected: false },
+        { name: 'Transparency', selected: false },
+        { name: 'Decisiveness', selected: false },
+        { name: 'Talent Development', selected: true },
+        { name: 'Empowerment', selected: false },
+        { name: 'Courage', selected: false }
+    ]},
+    { group: 'How I Work', values: [
+        { name: 'Bias Toward Action', selected: true },
+        { name: 'Excellence', selected: false },
+        { name: 'Collaboration', selected: false },
+        { name: 'Resourcefulness', selected: false },
+        { name: 'Continuous Improvement', selected: false }
+    ]},
+    { group: 'What I Protect', values: [
+        { name: 'Integrity', selected: false },
+        { name: 'Legacy', selected: true },
+        { name: 'Resilience', selected: false },
+        { name: 'Purpose Over Profit', selected: false },
+        { name: 'Independence', selected: false }
+    ]}
+];
+
+const CATEGORY_COLORS = {
+    'Business & Management': '#60a5fa',
+    'Finance & Accounting': '#10b981',
+    'Leadership & Management': '#a78bfa',
+    'Technology & Engineering': '#fb923c',
+    'Communication': '#f472b6',
+    'Human Resources': '#fbbf24',
+    'Operations': '#6ee7b7'
+};
+
+const VIZ_TYPES = [
+    { id: 'force', name: 'Force Graph', desc: 'Your current approach — D3 force-directed layout showing organic skill-role clusters. Skills centered, roles on perimeter.' },
+    { id: 'treemap', name: 'Treemap', desc: 'Hierarchical area-based view. Each rectangle\'s size represents skill count per category. Good for seeing where your expertise is concentrated.' },
+    { id: 'sunburst', name: 'Sunburst', desc: 'Radial hierarchy: center = you, first ring = categories, second ring = individual skills. Color intensity shows proficiency level.' },
+    { id: 'sankey', name: 'Sankey', desc: 'Flow diagram showing how skills connect to roles. Band width = proficiency level. Shows skill reuse across roles.' },
+    { id: 'chord', name: 'Chord', desc: 'Circular layout showing many-to-many relationships between skill categories and roles. Arc width = shared skill count.' },
+    { id: 'radial', name: 'Radial Tree', desc: 'Dendrogram arranged in a circle. Shows the full taxonomy hierarchy (categories → skills) without physics simulation.' },
+    { id: 'constellation', name: 'Constellation', desc: 'Galaxy-inspired view. Skills as stars with brightness = proficiency, clustered into category constellations. Pure aesthetic.' }
+];
+
+const tooltip = document.getElementById('tooltip');
+function showTooltip(evt, html) {
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (evt.pageX + 14) + 'px';
+    tooltip.style.top = (evt.pageY - 14) + 'px';
+}
+function hideTooltip() { tooltip.style.display = 'none'; }
+
+function buildNav() {
+    const nav = document.getElementById('vizNav');
+    VIZ_TYPES.forEach((v, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = v.name;
+        btn.className = i === 0 ? 'active' : '';
+        btn.onclick = () => switchViz(v.id);
+        nav.appendChild(btn);
+    });
+}
+
+function switchViz(id) {
+    document.querySelectorAll('.nav button').forEach((b, i) => {
+        b.className = VIZ_TYPES[i].id === id ? 'active' : '';
+    });
+    document.querySelectorAll('.viz-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById('viz-' + id);
+    if (panel) {
+        panel.classList.add('active');
+        if (!panel.dataset.rendered) {
+            panel.dataset.rendered = '1';
+            renderers[id](panel);
+        }
+    }
+}
+
+const renderers = {};
+
+renderers.force = function(panel) {
+    const width = Math.min(900, window.innerWidth - 80);
+    const height = 600;
+    const svg = d3.select(panel).append('svg').attr('width', width).attr('height', height);
+
+    const categories = [...new Set(SAMPLE_SKILLS.map(s => s.category))];
+    const nodes = [];
+    const links = [];
+
+    nodes.push({ id: 'center', type: 'center', name: 'You', radius: 20 });
+    SAMPLE_ROLES.forEach(r => {
+        nodes.push({ id: 'role-' + r, type: 'role', name: r, radius: 14 });
+    });
+    SAMPLE_SKILLS.forEach(s => {
+        nodes.push({ id: 'skill-' + s.name, type: 'skill', name: s.name, level: s.level, category: s.category, radius: 5 + s.level * 2 });
+        links.push({ source: 'center', target: 'skill-' + s.name, strength: 0.1 });
+        s.roles.forEach(r => {
+            links.push({ source: 'skill-' + s.name, target: 'role-' + r, strength: 0.3 });
+        });
+    });
+
+    const sim = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.source.type === 'center' ? 80 : 120).strength(d => d.strength))
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide(d => d.radius + 4))
+        .force('radial-roles', d3.forceRadial(Math.min(width, height) * 0.4, width / 2, height / 2).strength(d => d.type === 'role' ? 0.8 : 0))
+        .force('radial-skills', d3.forceRadial(Math.min(width, height) * 0.12, width / 2, height / 2).strength(d => d.type === 'skill' ? 0.15 : 0));
+
+    const link = svg.selectAll('.link').data(links).join('line')
+        .attr('stroke', 'rgba(96,165,250,0.08)').attr('stroke-width', 0.5);
+
+    const node = svg.selectAll('.node').data(nodes).join('circle')
+        .attr('r', d => d.radius)
+        .attr('fill', d => {
+            if (d.type === 'center') return '#60a5fa';
+            if (d.type === 'role') return COLORS.role;
+            return CATEGORY_COLORS[d.category] || COLORS.skill;
+        })
+        .attr('stroke', d => d.type === 'role' ? 'rgba(167,139,250,0.5)' : 'none')
+        .attr('stroke-width', d => d.type === 'role' ? 2 : 0)
+        .attr('opacity', d => d.type === 'skill' ? 0.4 + d.level * 0.12 : 1)
+        .on('mouseover', (evt, d) => showTooltip(evt, '<strong>' + d.name + '</strong>' + (d.level ? '<br>Level: ' + COLORS.levelNames[d.level] + ' (' + d.level + '/5)' : '') + (d.category ? '<br>' + d.category : '')))
+        .on('mouseout', hideTooltip);
+
+    const label = svg.selectAll('.label').data(nodes.filter(d => d.type !== 'skill')).join('text')
+        .text(d => d.name)
+        .attr('fill', d => d.type === 'center' ? '#60a5fa' : '#c4b5fd')
+        .attr('font-size', d => d.type === 'center' ? '11px' : '9px')
+        .attr('text-anchor', 'middle').attr('dy', d => d.radius + 14)
+        .attr('font-weight', 600);
+
+    sim.on('tick', () => {
+        link.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+        node.attr('cx', d => d.x).attr('cy', d => d.y);
+        label.attr('x', d => d.x).attr('y', d => d.y);
+    });
+};
+
+renderers.treemap = function(panel) {
+    const width = Math.min(900, window.innerWidth - 80);
+    const height = 550;
+
+    const catGroups = {};
+    SAMPLE_SKILLS.forEach(s => {
+        if (!catGroups[s.category]) catGroups[s.category] = [];
+        catGroups[s.category].push(s);
+    });
+
+    const root = d3.hierarchy({
+        name: 'Skills',
+        children: Object.entries(catGroups).map(([cat, skills]) => ({
+            name: cat,
+            children: skills.map(s => ({ name: s.name, value: s.level, level: s.level, category: cat }))
+        }))
+    }).sum(d => d.value).sort((a, b) => b.value - a.value);
+
+    d3.treemap().size([width, height]).padding(3).paddingOuter(6).round(true)(root);
+
+    const svg = d3.select(panel).append('svg').attr('width', width).attr('height', height);
+
+    const cell = svg.selectAll('g').data(root.leaves()).join('g')
+        .attr('transform', d => `translate(${d.x0},${d.y0})`);
+
+    cell.append('rect')
+        .attr('width', d => d.x1 - d.x0)
+        .attr('height', d => d.y1 - d.y0)
+        .attr('fill', d => CATEGORY_COLORS[d.data.category] || COLORS.skill)
+        .attr('opacity', d => 0.2 + d.data.level * 0.16)
+        .attr('rx', 4)
+        .attr('stroke', d => CATEGORY_COLORS[d.data.category] || COLORS.skill)
+        .attr('stroke-opacity', 0.4)
+        .on('mouseover', (evt, d) => showTooltip(evt, '<strong>' + d.data.name + '</strong><br>' + d.data.category + '<br>Level: ' + COLORS.levelNames[d.data.level]))
+        .on('mouseout', hideTooltip);
+
+    cell.append('text')
+        .attr('x', 6).attr('y', 16)
+        .text(d => (d.x1 - d.x0 > 60) ? d.data.name : d.data.name.substring(0, 6) + '…')
+        .attr('fill', '#e2e8f0').attr('font-size', d => (d.x1 - d.x0 > 100) ? '10px' : '8px')
+        .attr('font-weight', 600).attr('opacity', 0.9);
+
+    cell.append('text')
+        .attr('x', 6).attr('y', 30)
+        .text(d => (d.x1 - d.x0 > 80) ? COLORS.levelNames[d.data.level] : '')
+        .attr('fill', '#94a3b8').attr('font-size', '8px');
+
+    const catLabels = svg.selectAll('.cat-label').data(root.children).join('text')
+        .attr('x', d => d.x0 + 4).attr('y', d => d.y0 - 4)
+        .text(d => d.data.name)
+        .attr('fill', d => CATEGORY_COLORS[d.data.name] || '#94a3b8')
+        .attr('font-size', '9px').attr('font-weight', 700).attr('letter-spacing', '0.05em');
+};
+
+renderers.sunburst = function(panel) {
+    const size = Math.min(600, window.innerWidth - 80);
+    const radius = size / 2;
+
+    const catGroups = {};
+    SAMPLE_SKILLS.forEach(s => {
+        if (!catGroups[s.category]) catGroups[s.category] = [];
+        catGroups[s.category].push(s);
+    });
+
+    const root = d3.hierarchy({
+        name: 'You',
+        children: Object.entries(catGroups).map(([cat, skills]) => ({
+            name: cat,
+            children: skills.map(s => ({ name: s.name, value: s.level, level: s.level, category: cat }))
+        }))
+    }).sum(d => d.value).sort((a, b) => b.value - a.value);
+
+    const partition = d3.partition().size([2 * Math.PI, radius]);
+    partition(root);
+
+    const svg = d3.select(panel).append('svg').attr('width', size).attr('height', size);
+    const g = svg.append('g').attr('transform', `translate(${radius},${radius})`);
+
+    const arc = d3.arc()
+        .startAngle(d => d.x0)
+        .endAngle(d => d.x1)
+        .innerRadius(d => d.y0 * 0.7)
+        .outerRadius(d => d.y1 * 0.7 - 1)
+        .padAngle(0.005)
+        .padRadius(radius / 2);
+
+    g.append('circle').attr('r', root.y1 * 0.7 * 0.22).attr('fill', 'rgba(96,165,250,0.15)').attr('stroke', 'rgba(96,165,250,0.3)');
+    g.append('text').text('YOU').attr('text-anchor', 'middle').attr('dy', '0.35em')
+        .attr('fill', '#60a5fa').attr('font-size', '12px').attr('font-weight', 700).attr('letter-spacing', '0.1em');
+
+    g.selectAll('path').data(root.descendants().filter(d => d.depth > 0)).join('path')
+        .attr('d', arc)
+        .attr('fill', d => {
+            const cat = d.depth === 1 ? d.data.name : d.data.category;
+            const base = CATEGORY_COLORS[cat] || COLORS.skill;
+            if (d.depth === 1) return base;
+            return d3.color(base).darker(0.5 - d.data.level * 0.15);
+        })
+        .attr('opacity', d => d.depth === 1 ? 0.7 : 0.3 + (d.data.level || 3) * 0.14)
+        .attr('stroke', COLORS.bg).attr('stroke-width', 0.5)
+        .on('mouseover', (evt, d) => showTooltip(evt, '<strong>' + d.data.name + '</strong>' + (d.data.level ? '<br>Level: ' + COLORS.levelNames[d.data.level] : '<br>' + d.children.length + ' skills')))
+        .on('mouseout', hideTooltip);
+
+    g.selectAll('.cat-text').data(root.children).join('text')
+        .attr('transform', d => {
+            const angle = (d.x0 + d.x1) / 2;
+            const r = (d.y0 + d.y1) / 2 * 0.7;
+            const x = Math.sin(angle) * r;
+            const y = -Math.cos(angle) * r;
+            const rot = angle * 180 / Math.PI - 90 + (angle > Math.PI ? 180 : 0);
+            return `translate(${x},${y}) rotate(${rot})`;
+        })
+        .text(d => d.data.name.length > 18 ? d.data.name.substring(0, 16) + '…' : d.data.name)
+        .attr('text-anchor', 'middle').attr('dy', '0.35em')
+        .attr('fill', '#e2e8f0').attr('font-size', '8px').attr('font-weight', 600);
+};
+
+renderers.sankey = function(panel) {
+    const width = Math.min(900, window.innerWidth - 80);
+    const height = 550;
+    const svg = d3.select(panel).append('svg').attr('width', width).attr('height', height);
+
+    const categories = [...new Set(SAMPLE_SKILLS.map(s => s.category))];
+    const nodeNames = [...categories, ...SAMPLE_ROLES];
+    const nodeMap = {};
+    nodeNames.forEach((n, i) => nodeMap[n] = i);
+
+    const sankeyLinks = [];
+    SAMPLE_SKILLS.forEach(s => {
+        s.roles.forEach(r => {
+            const key = s.category + '→' + r;
+            const existing = sankeyLinks.find(l => l.key === key);
+            if (existing) { existing.value += s.level; }
+            else { sankeyLinks.push({ key, source: nodeMap[s.category], target: nodeMap[r], value: s.level }); }
+        });
+    });
+
+    const yPositions = {};
+    const leftNodes = categories;
+    const rightNodes = SAMPLE_ROLES;
+    leftNodes.forEach((n, i) => { yPositions[nodeMap[n]] = { x: 60, y: 30 + i * (height - 60) / leftNodes.length }; });
+    rightNodes.forEach((n, i) => { yPositions[nodeMap[n]] = { x: width - 180, y: 50 + i * (height - 100) / rightNodes.length }; });
+
+    const maxVal = d3.max(sankeyLinks, d => d.value);
+
+    sankeyLinks.forEach(link => {
+        const sPos = yPositions[link.source];
+        const tPos = yPositions[link.target];
+        const bandWidth = Math.max(2, (link.value / maxVal) * 30);
+
+        const path = svg.append('path')
+            .attr('d', `M${sPos.x + 120},${sPos.y + 15} C${width/2},${sPos.y + 15} ${width/2},${tPos.y + 15} ${tPos.x},${tPos.y + 15}`)
+            .attr('fill', 'none')
+            .attr('stroke', CATEGORY_COLORS[nodeNames[link.source]] || COLORS.skill)
+            .attr('stroke-width', bandWidth)
+            .attr('opacity', 0.25)
+            .on('mouseover', function(evt) {
+                d3.select(this).attr('opacity', 0.6);
+                showTooltip(evt, '<strong>' + nodeNames[link.source] + ' → ' + nodeNames[link.target] + '</strong><br>Combined proficiency: ' + link.value);
+            })
+            .on('mouseout', function() { d3.select(this).attr('opacity', 0.25); hideTooltip(); });
+    });
+
+    nodeNames.forEach((name, i) => {
+        const pos = yPositions[i];
+        const isRole = i >= categories.length;
+        svg.append('rect')
+            .attr('x', isRole ? pos.x : pos.x).attr('y', pos.y)
+            .attr('width', isRole ? 160 : 120).attr('height', 30)
+            .attr('rx', 6)
+            .attr('fill', isRole ? 'rgba(167,139,250,0.15)' : 'rgba(96,165,250,0.1)')
+            .attr('stroke', isRole ? 'rgba(167,139,250,0.4)' : (CATEGORY_COLORS[name] || 'rgba(96,165,250,0.3)'))
+            .attr('stroke-width', 1.5);
+        svg.append('text')
+            .attr('x', (isRole ? pos.x + 80 : pos.x + 60)).attr('y', pos.y + 19)
+            .text(name)
+            .attr('fill', isRole ? '#c4b5fd' : '#e2e8f0')
+            .attr('font-size', '10px').attr('font-weight', 600).attr('text-anchor', 'middle');
+    });
+};
+
+renderers.chord = function(panel) {
+    const size = Math.min(600, window.innerWidth - 80);
+    const outerRadius = size / 2 - 50;
+    const innerRadius = outerRadius - 20;
+
+    const categories = [...new Set(SAMPLE_SKILLS.map(s => s.category))];
+    const groups = [...categories, ...SAMPLE_ROLES];
+    const n = groups.length;
+    const matrix = Array.from({ length: n }, () => new Array(n).fill(0));
+
+    SAMPLE_SKILLS.forEach(s => {
+        const ci = groups.indexOf(s.category);
+        s.roles.forEach(r => {
+            const ri = groups.indexOf(r);
+            matrix[ci][ri] += s.level;
+            matrix[ri][ci] += s.level;
+        });
+    });
+
+    const chord = d3.chord().padAngle(0.04).sortSubgroups(d3.descending);
+    const chords = chord(matrix);
+
+    const svg = d3.select(panel).append('svg').attr('width', size).attr('height', size);
+    const g = svg.append('g').attr('transform', `translate(${size/2},${size/2})`);
+
+    const arcGen = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
+    const ribbon = d3.ribbon().radius(innerRadius);
+
+    g.selectAll('.group-arc').data(chords.groups).join('path')
+        .attr('d', arcGen)
+        .attr('fill', d => {
+            const name = groups[d.index];
+            return CATEGORY_COLORS[name] || COLORS.role;
+        })
+        .attr('opacity', 0.8)
+        .on('mouseover', (evt, d) => showTooltip(evt, '<strong>' + groups[d.index] + '</strong><br>Total connections: ' + d.value))
+        .on('mouseout', hideTooltip);
+
+    g.selectAll('.ribbon').data(chords).join('path')
+        .attr('d', ribbon)
+        .attr('fill', d => {
+            const name = groups[d.source.index];
+            return CATEGORY_COLORS[name] || COLORS.role;
+        })
+        .attr('opacity', 0.15)
+        .on('mouseover', function(evt, d) {
+            d3.select(this).attr('opacity', 0.45);
+            showTooltip(evt, '<strong>' + groups[d.source.index] + ' ↔ ' + groups[d.target.index] + '</strong><br>Shared weight: ' + d.source.value);
+        })
+        .on('mouseout', function() { d3.select(this).attr('opacity', 0.15); hideTooltip(); });
+
+    g.selectAll('.group-label').data(chords.groups).join('text')
+        .attr('transform', d => {
+            const angle = (d.startAngle + d.endAngle) / 2;
+            const x = Math.sin(angle) * (outerRadius + 14);
+            const y = -Math.cos(angle) * (outerRadius + 14);
+            return `translate(${x},${y})`;
+        })
+        .text(d => groups[d.index].length > 20 ? groups[d.index].substring(0, 18) + '…' : groups[d.index])
+        .attr('fill', '#94a3b8').attr('font-size', '8px').attr('font-weight', 600)
+        .attr('text-anchor', d => {
+            const angle = (d.startAngle + d.endAngle) / 2;
+            return angle > Math.PI ? 'end' : 'start';
+        })
+        .attr('dy', '0.35em');
+};
+
+renderers.radial = function(panel) {
+    const size = Math.min(700, window.innerWidth - 80);
+    const radius = size / 2 - 60;
+
+    const catGroups = {};
+    SAMPLE_SKILLS.forEach(s => {
+        if (!catGroups[s.category]) catGroups[s.category] = [];
+        catGroups[s.category].push(s);
+    });
+
+    const treeData = {
+        name: 'Skills',
+        children: Object.entries(catGroups).map(([cat, skills]) => ({
+            name: cat,
+            children: skills.map(s => ({ name: s.name, level: s.level, category: cat }))
+        }))
+    };
+
+    const root = d3.hierarchy(treeData);
+    const tree = d3.tree().size([2 * Math.PI, radius]).separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
+    tree(root);
+
+    const svg = d3.select(panel).append('svg').attr('width', size).attr('height', size);
+    const g = svg.append('g').attr('transform', `translate(${size/2},${size/2})`);
+
+    g.selectAll('.link').data(root.links()).join('path')
+        .attr('d', d3.linkRadial().angle(d => d.x).radius(d => d.y))
+        .attr('fill', 'none')
+        .attr('stroke', d => {
+            const cat = d.target.data.category || d.target.data.name;
+            return CATEGORY_COLORS[cat] || 'rgba(96,165,250,0.15)';
+        })
+        .attr('stroke-opacity', 0.25)
+        .attr('stroke-width', 1.2);
+
+    const node = g.selectAll('.node').data(root.descendants()).join('g')
+        .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0)`);
+
+    node.append('circle')
+        .attr('r', d => {
+            if (d.depth === 0) return 12;
+            if (d.depth === 1) return 8;
+            return 3 + (d.data.level || 1) * 1.2;
+        })
+        .attr('fill', d => {
+            if (d.depth === 0) return '#60a5fa';
+            if (d.depth === 1) return CATEGORY_COLORS[d.data.name] || COLORS.skill;
+            return COLORS.levels[d.data.level] || COLORS.skill;
+        })
+        .attr('opacity', d => d.depth === 2 ? 0.5 + (d.data.level || 1) * 0.1 : 1)
+        .on('mouseover', (evt, d) => showTooltip(evt, '<strong>' + d.data.name + '</strong>' + (d.data.level ? '<br>Level: ' + COLORS.levelNames[d.data.level] : '')))
+        .on('mouseout', hideTooltip);
+
+    node.filter(d => d.depth < 2).append('text')
+        .attr('dy', '0.35em')
+        .attr('x', d => d.x < Math.PI === !d.children ? 14 : -14)
+        .attr('text-anchor', d => d.x < Math.PI === !d.children ? 'start' : 'end')
+        .attr('transform', d => d.x >= Math.PI ? 'rotate(180)' : null)
+        .text(d => d.data.name)
+        .attr('fill', d => d.depth === 0 ? '#60a5fa' : '#94a3b8')
+        .attr('font-size', d => d.depth === 0 ? '11px' : '9px')
+        .attr('font-weight', 600);
+
+    node.filter(d => d.depth === 2).append('text')
+        .attr('dy', '0.35em')
+        .attr('x', d => d.x < Math.PI ? 10 : -10)
+        .attr('text-anchor', d => d.x < Math.PI ? 'start' : 'end')
+        .attr('transform', d => d.x >= Math.PI ? 'rotate(180)' : null)
+        .text(d => d.data.name)
+        .attr('fill', '#64748b')
+        .attr('font-size', '7.5px');
+};
+
+renderers.constellation = function(panel) {
+    const width = Math.min(900, window.innerWidth - 80);
+    const height = 600;
+    const svg = d3.select(panel).append('svg').attr('width', width).attr('height', height);
+
+    const defs = svg.append('defs');
+    const glow = defs.append('filter').attr('id', 'star-glow');
+    glow.append('feGaussianBlur').attr('stdDeviation', 3).attr('result', 'blur');
+    glow.append('feMerge').selectAll('feMergeNode').data(['blur', 'SourceGraphic']).join('feMergeNode').attr('in', d => d);
+
+    const nebulaGrad = defs.append('radialGradient').attr('id', 'nebula');
+    nebulaGrad.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(96,165,250,0.08)');
+    nebulaGrad.append('stop').attr('offset', '100%').attr('stop-color', 'transparent');
+
+    for (let i = 0; i < 150; i++) {
+        svg.append('circle')
+            .attr('cx', Math.random() * width)
+            .attr('cy', Math.random() * height)
+            .attr('r', Math.random() * 1.2)
+            .attr('fill', '#334155')
+            .attr('opacity', Math.random() * 0.5 + 0.1);
+    }
+
+    const categories = [...new Set(SAMPLE_SKILLS.map(s => s.category))];
+    const cAngle = 2 * Math.PI / categories.length;
+    const cRadius = Math.min(width, height) * 0.3;
+    const cx = width / 2, cy = height / 2;
+
+    categories.forEach((cat, ci) => {
+        const ax = cx + Math.cos(cAngle * ci - Math.PI / 2) * cRadius;
+        const ay = cy + Math.sin(cAngle * ci - Math.PI / 2) * cRadius;
+
+        svg.append('circle')
+            .attr('cx', ax).attr('cy', ay).attr('r', 80)
+            .attr('fill', 'url(#nebula)').attr('opacity', 0.5);
+
+        const catSkills = SAMPLE_SKILLS.filter(s => s.category === cat);
+        const color = CATEGORY_COLORS[cat] || COLORS.skill;
+
+        catSkills.forEach((s, si) => {
+            const angle = (si / catSkills.length) * 2 * Math.PI + Math.random() * 0.3;
+            const dist = 25 + Math.random() * 55;
+            const sx = ax + Math.cos(angle) * dist;
+            const sy = ay + Math.sin(angle) * dist;
+            const starR = 1.5 + s.level * 1.3;
+
+            svg.append('circle')
+                .attr('cx', sx).attr('cy', sy).attr('r', starR + 4)
+                .attr('fill', color).attr('opacity', 0.08 + s.level * 0.04)
+                .attr('filter', 'url(#star-glow)');
+
+            svg.append('circle')
+                .attr('cx', sx).attr('cy', sy).attr('r', starR)
+                .attr('fill', color)
+                .attr('opacity', 0.3 + s.level * 0.14)
+                .attr('filter', 'url(#star-glow)')
+                .on('mouseover', (evt) => showTooltip(evt, '<strong>' + s.name + '</strong><br>' + cat + '<br>Brightness: ' + COLORS.levelNames[s.level]))
+                .on('mouseout', hideTooltip);
+
+            if (s.level >= 4) {
+                svg.append('text')
+                    .attr('x', sx).attr('y', sy + starR + 12)
+                    .text(s.name)
+                    .attr('fill', color).attr('font-size', '7px').attr('font-weight', 600)
+                    .attr('text-anchor', 'middle').attr('opacity', 0.6);
+            }
+        });
+
+        catSkills.forEach((s1, i) => {
+            const a1 = (i / catSkills.length) * 2 * Math.PI + Math.random() * 0.15;
+            const d1 = 25 + Math.random() * 55;
+            const x1 = ax + Math.cos(a1) * d1;
+            const y1 = ay + Math.sin(a1) * d1;
+            if (i < catSkills.length - 1 && Math.random() > 0.4) {
+                const a2 = ((i + 1) / catSkills.length) * 2 * Math.PI + Math.random() * 0.15;
+                const d2 = 25 + Math.random() * 55;
+                const x2 = ax + Math.cos(a2) * d2;
+                const y2 = ay + Math.sin(a2) * d2;
+                svg.append('line')
+                    .attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2)
+                    .attr('stroke', color).attr('stroke-width', 0.4).attr('opacity', 0.12);
+            }
+        });
+
+        svg.append('text')
+            .attr('x', ax).attr('y', ay - 75)
+            .text(cat.toUpperCase())
+            .attr('fill', color).attr('font-size', '8px').attr('font-weight', 700)
+            .attr('text-anchor', 'middle').attr('letter-spacing', '0.1em').attr('opacity', 0.5);
+    });
+
+    svg.append('circle')
+        .attr('cx', cx).attr('cy', cy).attr('r', 4)
+        .attr('fill', '#60a5fa').attr('filter', 'url(#star-glow)');
+    svg.append('text')
+        .attr('x', cx).attr('y', cy + 16)
+        .text('YOU').attr('fill', '#60a5fa').attr('font-size', '9px')
+        .attr('font-weight', 700).attr('text-anchor', 'middle').attr('letter-spacing', '0.12em');
+};
+
+function init() {
+    buildNav();
+    const container = document.getElementById('vizContainer');
+    VIZ_TYPES.forEach((v, i) => {
+        const panel = document.createElement('div');
+        panel.id = 'viz-' + v.id;
+        panel.className = 'viz-panel' + (i === 0 ? ' active' : '');
+        panel.innerHTML = '<div class="viz-title">' + v.name + '</div><div class="viz-desc">' + v.desc + '</div>';
+        if (v.id !== 'force' && v.id !== 'constellation') {
+            const legend = document.createElement('div');
+            legend.className = 'legend';
+            Object.entries(CATEGORY_COLORS).forEach(([name, color]) => {
+                legend.innerHTML += '<div class="legend-item"><div class="legend-dot" style="background:' + color + '"></div>' + name + '</div>';
+            });
+            panel.appendChild(legend);
+        }
+        container.appendChild(panel);
+    });
+    renderers.force(document.getElementById('viz-force'));
+}
+
+init();
+</script>
+</body>
+</html>
