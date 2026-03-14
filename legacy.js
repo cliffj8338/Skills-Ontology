@@ -1797,7 +1797,48 @@
                 return;
             }
             if (appContext.mode === 'demo') {
-                exitDemoMode();
+                if (appContext.userSnapshot) {
+                    userData = appContext.userSnapshot;
+                    window._userData = userData;
+                    skillsData.roles = appContext.skillsSnapshot.roles;
+                    skillsData.skills = appContext.skillsSnapshot.skills;
+                    blueprintData.values = appContext.blueprintSnapshot.values;
+                    if (blueprintData.values.length === 0 && userData.values && userData.values.length > 0) {
+                        blueprintData.values = JSON.parse(JSON.stringify(userData.values));
+                    }
+                    blueprintData.outcomes = appContext.blueprintSnapshot.outcomes;
+                    blueprintData.purpose = appContext.blueprintSnapshot.purpose || userData.purpose || '';
+                    appContext.userSnapshot = null;
+                    appContext.skillsSnapshot = null;
+                    appContext.blueprintSnapshot = null;
+                } else if (fbUser && fbDb) {
+                    appContext.mode = 'live';
+                    loadUserFromFirestore(fbUser.uid).then(function() {
+                        normalizeUserRoles();
+                        window.blueprintInitialized = false;
+                        window.networkInitialized = false;
+                        window.cardViewInitialized = false;
+                        checkReadOnly();
+                        updateProfileChip(userData.profile.name || 'My Profile');
+                    });
+                    window._welcomePickerActive = false;
+                    switchView('admin');
+                    return;
+                }
+                appContext.mode = 'live';
+                normalizeUserRoles();
+                if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
+                window.blueprintInitialized = false;
+                window.opportunitiesInitialized = false;
+                window.reportsInitialized = false;
+                window.applicationsInitialized = false;
+                window.networkInitialized = false;
+                window.cardViewInitialized = false;
+                checkReadOnly();
+                updateDemoToggleUI();
+                updateProfileChip(userData.profile.name || 'My Profile');
+                clearJobOverlay();
+                rebuildProfileDropdown();
             }
             window._welcomePickerActive = false;
             switchView('admin');
@@ -14156,10 +14197,13 @@
                 roles: JSON.parse(JSON.stringify(skillsData.roles || [])),
                 skills: JSON.parse(JSON.stringify(skillsData.skills || []))
             };
+            var snapshotValues = (blueprintData.values && blueprintData.values.length > 0)
+                ? blueprintData.values
+                : (userData.values && userData.values.length > 0 ? userData.values : []);
             appContext.blueprintSnapshot = {
-                values: JSON.parse(JSON.stringify(blueprintData.values || [])),
+                values: JSON.parse(JSON.stringify(snapshotValues)),
                 outcomes: JSON.parse(JSON.stringify(blueprintData.outcomes || [])),
-                purpose: blueprintData.purpose || ''
+                purpose: blueprintData.purpose || userData.purpose || ''
             };
             
             // Track current view for return
@@ -14226,14 +14270,16 @@
                 return;
             }
             
-            // Restore user state from snapshot
             userData = appContext.userSnapshot;
             window._userData = userData;
             skillsData.roles = appContext.skillsSnapshot.roles;
             skillsData.skills = appContext.skillsSnapshot.skills;
             blueprintData.values = appContext.blueprintSnapshot.values;
+            if (blueprintData.values.length === 0 && userData.values && userData.values.length > 0) {
+                blueprintData.values = JSON.parse(JSON.stringify(userData.values));
+            }
             blueprintData.outcomes = appContext.blueprintSnapshot.outcomes;
-            blueprintData.purpose = appContext.blueprintSnapshot.purpose;
+            blueprintData.purpose = appContext.blueprintSnapshot.purpose || userData.purpose || '';
             
             // Clear snapshots
             appContext.userSnapshot = null;
