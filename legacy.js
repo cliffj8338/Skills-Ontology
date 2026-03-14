@@ -22427,7 +22427,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             ];
 
             var visibleRoles = getVisibleRoles();
-            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.36 : 0.40);
+            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.38 : 0.44);
             visibleRoles.forEach((role, i) => {
                 const angle = (i / visibleRoles.length) * 2 * Math.PI - Math.PI / 2;
                 const radius = roleOrbitR;
@@ -22540,9 +22540,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
             });
 
-            var linkDist = isMobile ? [160, 100] : [200 * scaleFactor, 110 * scaleFactor];
-            var chargeStr = isMobile ? [-350, -200] : [-400 * scaleFactor, -220 * scaleFactor];
-            var collisionR = isMobile ? [55, 50, 38] : [70 * scaleFactor, 60 * scaleFactor, 48 * scaleFactor];
+            var linkDist = isMobile ? [180, 90] : [240 * scaleFactor, 100 * scaleFactor];
+            var chargeStr = isMobile ? [-400, -220] : [-500 * scaleFactor, -250 * scaleFactor];
+            var collisionR = isMobile ? [55, 55, 40] : [70 * scaleFactor, 65 * scaleFactor, 50 * scaleFactor];
             var gravityCenter = isMobile ? height * 0.46 : height * 0.48;
             
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
@@ -22565,11 +22565,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.06 : 0.05))
                 .force("radial", d3.forceRadial(d => {
                     if (d.type === "role") return roleOrbitR;
-                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.14 : 0.18) * scaleFactor;
+                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.10 : 0.14) * scaleFactor;
                     return 0;
                 }).strength(d => {
-                    if (d.type === "role") return 0.7;
-                    if (d.type === "skill") return 0.12;
+                    if (d.type === "role") return 0.8;
+                    if (d.type === "skill") return 0.2;
                     return 0;
                 }));
 
@@ -23033,11 +23033,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var gapSkills = new Set();
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
-            // === LAYOUT: Name upper-right, Job Needs upper-left on mobile ===
-            var nameX = isMobile ? width * 0.75 : width * 0.22;
+            var nameX = isMobile ? width * 0.75 : width * 0.18;
             var nameY = isMobile ? height * 0.12 : height * 0.38;
-            var networkBodyX = isMobile ? width * 0.50 : width * 0.22;
-            var jobX = isMobile ? width * 0.18 : width * 0.78;
+            var networkBodyX = isMobile ? width * 0.50 : width * 0.32;
+            var jobX = isMobile ? width * 0.18 : width * 0.82;
             var jobY = isMobile ? height * 0.12 : height * 0.32;
             
             var matchCenterName = userData.profile.name || "You";
@@ -23149,22 +23148,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("x", d3.forceX(function(d) {
                     if (d.type === 'center') return nameX;
                     if (d.id === 'role-job-req') return jobX;
-                    if (d.matchState === 'gap') return isMobile ? width * 0.25 : jobX;
-                    if (d.matchState === 'matched') return isMobile ? width * 0.50 : width * 0.5;
-                    return isMobile ? width * 0.55 : networkBodyX + width * 0.05;
+                    if (d.matchState === 'gap') return isMobile ? width * 0.25 : width * 0.68;
+                    if (d.matchState === 'matched') return isMobile ? width * 0.50 : width * 0.55;
+                    return isMobile ? width * 0.50 : width * 0.42;
                 }).strength(function(d) {
                     if (d.type === 'center' || d.id === 'role-job-req') return 0;
-                    if (d.matchState === 'matched') return 0.04;
+                    if (d.matchState === 'matched') return 0.08;
+                    if (d.matchState === 'gap') return 0.06;
                     return isMobile ? 0.04 : 0.06;
                 }))
                 .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.03 : 0.04))
                 .force("radial", d3.forceRadial(function(d) {
                     if (d.type === 'role' && d.id !== 'role-job-req') return matchRoleOrbitR;
-                    if (d.type === 'skill') return Math.min(width, height) * (isMobile ? 0.14 : 0.18) * scaleFactor;
                     return 0;
                 }).strength(function(d) {
                     if (d.type === 'role' && d.id !== 'role-job-req') return 0.7;
-                    if (d.type === 'skill') return 0.12;
                     return 0;
                 }));
             
