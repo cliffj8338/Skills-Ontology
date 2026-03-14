@@ -14581,6 +14581,10 @@
                     + 'padding:16px 28px; border-radius:10px; font-size:1em; font-weight:600; cursor:pointer; '
                     + 'background:transparent; color:var(--text-secondary); border:2px solid var(--border-subtle); transition:all 0.2s;">'
                     + bpIcon('users',16) + ' See a Demo First</button>'
+                    + '<button onclick="if(window._bpTour)window._bpTour.startWelcome();" style="'
+                    + 'padding:16px 28px; border-radius:10px; font-size:1em; font-weight:600; cursor:pointer; '
+                    + 'background:transparent; color:var(--text-muted); border:2px solid var(--border-subtle); transition:all 0.2s;">'
+                    + bpIcon('help',16) + ' Tour Blueprint</button>'
                     + '</div>'
                     
                     // Sign in nudge
@@ -14624,6 +14628,10 @@
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
                 + 'background:transparent; color:#10b981; border:2px solid #10b981; transition:all 0.2s;'
                 + '">' + bpIcon('about',16) + ' Why Blueprint</button>'
+                + '<button onclick="if(window._bpTour)window._bpTour.startWelcome();" style="'
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
+                + 'background:transparent; color:var(--text-muted); border:2px solid var(--border-subtle); transition:all 0.2s;'
+                + '">' + bpIcon('help',16) + ' Tour Blueprint</button>'
                 + '</div>'
                 + '</div>'
                 
@@ -17249,10 +17257,7 @@
             checkReadOnly();
             rebuildProfileDropdown();
             
-            // Navigate to Skills view (network on desktop, card on mobile)
-            if (window.innerWidth <= 768) {
-                currentSkillsView = 'card';
-            }
+            currentSkillsView = 'network';
             switchView('network');
             // Ensure we're at the top after view switch
             setTimeout(function() { window.scrollTo(0, 0); }, 50);
@@ -24151,11 +24156,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else if (targetView === 'blueprint') {
                 switchView('blueprint');
             } else {
-                // Default: show skills (lazy-init handles network rendering)
-                const isMobile = window.innerWidth <= 768;
-                if (isMobile) {
-                    currentSkillsView = 'card';
-                }
+                currentSkillsView = 'network';
                 switchView('network');
             }
             
@@ -47876,26 +47877,7 @@ body {
             // Fire welcome tour for first-time visitors after profile loads
 
             function maybeAutoTour() {
-                // Don't auto-fire if already seen, or if onboarding wizard is active
-                try {
-                    if (localStorage.getItem(TOUR_SEEN_WELCOME) === 'true') return;
-                } catch(e) {}
-                // Skip for invited/active users — they'll get onboarding wizard instead
-                if (appMode === 'invited' || appMode === 'active') return;
-                if (document.querySelector('.onboarding-wizard.active')) return;
-                if (document.querySelector('.onboarding-overlay')) return;
-                // Wait for teaser modal to be dismissed first
-                if (document.getElementById('teaserOverlay')) {
-                    setTimeout(maybeAutoTour, 1500);
-                    return;
-                }
-
-                // Wait for network to render, then launch
-                setTimeout(function() {
-                    if (!tourActive) {
-                        window._bpTour.startWelcome();
-                    }
-                }, 1800);
+                return;
             }
 
             // Initialize help button and check for auto-tour after app loads
