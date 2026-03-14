@@ -434,86 +434,134 @@ export function closeHelpMenu() {
 export function getWelcomeSteps() {
     var profileName = (window._userData.profile && window._userData.profile.name) || 'this profile';
     var skillCount = (skillsData.skills || []).length;
+    var jobCount = (window._userData.savedJobs || []).length;
+    var topJob = (window._userData.savedJobs || [])[0];
+    var topJobLabel = topJob ? (topJob.title || 'Target Role') + ' at ' + (topJob.company || 'Target Company') : '';
+    var topJobScore = topJob && topJob.matchData ? topJob.matchData.score : 0;
+    var tv = typeof calculateTotalMarketValue === 'function' ? calculateTotalMarketValue() : null;
+    var marketVal = tv && tv.yourWorth ? '$' + Math.round(tv.yourWorth / 1000) + 'K' : '';
+    var roleLevel = tv ? (tv.roleLevel || '') : '';
+    var valuesCount = ((window._blueprintData.values || []).filter(function(v) { return v.selected; })).length;
     return [
-        // 1. SKILLS ARCHITECTURE — the wow moment
         {
-            title: 'Your Skills, Fully Mapped',
-            desc: 'Every node is a skill. <strong>Size</strong> = proficiency. <strong>Color</strong> = role cluster. Built on professional-grade <strong>O*NET</strong> and <strong>ESCO</strong> taxonomies.'
-                + (skillCount > 0 ? ' This profile has <strong>' + skillCount + '</strong> mapped.' : '')
-                + '<br><br><span style="color:#60a5fa;">Drag any node to rearrange. Tap one to see the evidence behind it.</span>',
+            title: 'Welcome to Blueprint\u2122',
+            desc: 'This is <strong>' + profileName + '</strong>\u2019s career intelligence profile \u2014 skills, market value, job fit, and negotiation strategy, all in one place.'
+                + '<br><br>Let\u2019s walk through the key features. This takes about 2 minutes.',
+            badge: 'Overview',
+            target: null,
+            beforeShow: function() { switchView('skills'); },
+            delay: 600
+        },
+        {
+            title: 'The Skills Network',
+            desc: 'Every node is a skill. <strong>Size</strong> = proficiency level. <strong>Color</strong> = role cluster. Connected nodes share professional context.'
+                + (skillCount > 0 ? '<br><br>This profile has <strong>' + skillCount + ' skills</strong> mapped across ' + ((window._userData.roles || []).length || 'multiple') + ' professional roles.' : '')
+                + '<br><br><span style="color:#60a5fa;">Try it \u2014 drag nodes to rearrange, tap one to explore.</span>',
             badge: 'Skills Architecture',
             target: '#controlsBar',
             spotlightPad: 6,
             beforeShow: function() { switchView('skills'); },
-            delay: 600
+            delay: 500
         },
-        // 2. JOB INTELLIGENCE
         {
-            title: 'Test Yourself Against Any Job',
-            desc: 'Paste any job description. Blueprint parses the requirements, scores your match, and shows exactly where you align <span style="color:#10b981;">&#9679;</span>, where the gaps are <span style="color:#ef4444;">&#9679;</span>, and where you have leverage <span style="color:#64748b;">&#9679;</span>.'
-                + '<br><br>Then toggle the <strong>Match Overlay</strong> on the skills network to see it visually.',
+            title: 'Evidence Behind Every Skill',
+            desc: 'Each skill claim is backed by <strong>documented evidence</strong> \u2014 outcomes, metrics, and accomplishments that prove the level.'
+                + '<br><br>No self-reported fluff. Blueprint tracks evidence points and calculates an <strong>effective level</strong> based on what you can actually prove.'
+                + '<br><br><span style="color:#f59e0b;">Tap any skill node on the network to see its evidence.</span>',
+            badge: 'Evidence System',
+            target: null
+        },
+        {
+            title: 'Job Match Intelligence',
+            desc: 'Paste any job description and Blueprint parses the requirements, scores your match, and breaks down exactly where you align <span style="color:#10b981;">\u25cf</span>, where the gaps are <span style="color:#ef4444;">\u25cf</span>, and where you have leverage <span style="color:#64748b;">\u25cf</span>.'
+                + (topJob ? '<br><br>This profile has <strong>' + jobCount + ' jobs</strong> analyzed. Top match: <strong>' + topJobLabel + '</strong> at <strong>' + topJobScore + '%</strong>.' : ''),
             badge: 'Job Intelligence',
             target: '#nav-jobs',
             spotlightPad: 4,
-            beforeShow: function() { switchView('jobs'); }
-        },
-        // 3. VALUES ALIGNMENT
-        {
-            title: 'Know the Fit Before You Walk In',
-            desc: 'Blueprint surfaces your <strong>core professional values</strong> from career patterns \u2014 not a personality quiz. Then it maps them against company culture profiles so you can see alignment before you commit.'
-                + '<br><br>Because the right job isn\u2019t just about skills. It\u2019s about fit.',
-            badge: 'Values Alignment',
-            target: '#nav-blueprint',
-            spotlightPad: 4,
-            beforeShow: function() { switchView('blueprint'); switchBlueprintTab('values'); },
+            beforeShow: function() { switchView('jobs'); },
             delay: 400
         },
-        // 4. SCOUTING REPORTS — the paradigm shift
         {
-            title: 'Attract Them to You',
-            desc: 'Generate a <strong>Scouting Report</strong> \u2014 an interactive career intelligence page designed to be sent to recruiters and hiring managers. Your skills, match analysis, talking points, and values alignment in one shareable document.'
+            title: 'Match Overlay on the Network',
+            desc: 'Toggle the <strong>Match Overlay</strong> to see job fit directly on the skills network. Matched skills glow <span style="color:#10b981;">green</span>, gaps pulse <span style="color:#ef4444;">red</span>, surplus skills fade \u2014 giving you an instant visual read on any opportunity.'
+                + '<br><br>This is the view that changes how you think about job fit.',
+            badge: 'Visual Match',
+            target: '#controlsBar',
+            spotlightPad: 6,
+            beforeShow: function() { switchView('skills'); },
+            delay: 400
+        },
+        {
+            title: 'Know Your Market Value',
+            desc: 'Compensation powered by <strong>BLS wage data</strong>, calibrated to your function, seniority, and skill depth.'
+                + (marketVal ? '<br><br>' + profileName + '\u2019s justified value: <strong>' + marketVal + '</strong> (' + roleLevel + ').' : '')
+                + '<br><br>Two modes: <strong>Evidence-based</strong> (what your documented outcomes prove) and <strong>Potential</strong> (your full skill architecture).',
+            badge: 'Market Valuation',
+            target: null,
+            beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
+            delay: 400
+        },
+        {
+            title: 'Negotiation Guide',
+            desc: 'For each job, Blueprint generates a complete <strong>negotiation playbook</strong> \u2014 your opening move, the ask number, strengths to lead with, blind spots to watch for, and counter-offer responses.'
+                + '<br><br>All built from your actual skills, experience, and BLS comp data. No generic advice.'
+                + '<br><br><span style="color:#10b981;">Try it \u2014 click Negotiation Guide on any saved job.</span>',
+            badge: 'Negotiation',
+            target: null,
+            beforeShow: function() { switchBlueprintTab('export'); },
+            delay: 400
+        },
+        {
+            title: 'Values Alignment',
+            desc: 'Blueprint surfaces your <strong>core professional values</strong> from career patterns \u2014 not a personality quiz.'
+                + (valuesCount > 0 ? ' This profile has <strong>' + valuesCount + ' values</strong> identified.' : '')
+                + '<br><br>Then it maps them against <strong>company culture profiles</strong> so you can see alignment before you commit. The right job isn\u2019t just about skills \u2014 it\u2019s about fit.',
+            badge: 'Values',
+            target: null,
+            beforeShow: function() { switchBlueprintTab('values'); },
+            delay: 400
+        },
+        {
+            title: 'The Career Dashboard',
+            desc: 'The executive summary of your professional identity \u2014 market value, skill distribution, readiness score, purpose statement, and career trajectory in one view.'
+                + '<br><br>Six tabs: <strong>Dashboard</strong> \u00B7 <strong>Skills</strong> \u00B7 <strong>Experience</strong> \u00B7 <strong>Outcomes</strong> \u00B7 <strong>Values</strong> \u00B7 <strong>Export</strong>.',
+            badge: 'Blueprint Dashboard',
+            target: '#blueprintSubnav',
+            spotlightPad: 4,
+            beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
+            delay: 400
+        },
+        {
+            title: 'Scouting Reports',
+            desc: 'Generate a <strong>Scouting Report</strong> \u2014 an interactive career intelligence page designed to send to recruiters and hiring managers. Skills match, gap analysis, talking points, and values alignment in one shareable document.'
                 + '<br><br>This isn\u2019t a resume. It\u2019s a signal that you\u2019re a different kind of candidate.'
-                + (isReadOnlyProfile ? '<br><span style="color:#10b981;">Try it \u2014 sample reports are available on the Reports page.</span>' : ''),
-            badge: 'Scouting Reports',
+                + (isReadOnlyProfile ? '<br><span style="color:#10b981;">Sample reports are available on the Reports page.</span>' : ''),
+            badge: 'Reports',
             target: '#nav-reports',
             spotlightPad: 4,
             beforeShow: function() { switchView('reports'); },
             delay: 400
         },
-        // 5. MARKET VALUATION
         {
-            title: 'Know Your Number',
-            desc: '<strong>Evidence-based</strong> valuation reflects what your documented outcomes prove. <strong>Potential</strong> reflects your full skill architecture. Both are powered by BLS salary data and skill rarity analysis.'
-                + '<br><br>Walk into every compensation conversation knowing your range \u2014 and the evidence to justify it.',
-            badge: 'Market Valuation',
-            target: '#nav-blueprint',
-            spotlightPad: 4,
-            beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
-            delay: 400
-        },
-        // 6. PURPOSE & NARRATIVE
-        {
-            title: 'Your Career Story, Distilled',
-            desc: 'Blueprint synthesizes your skills, outcomes, and values into a <strong>purpose statement</strong> \u2014 the language that connects who you are with what the work demands.'
-                + '<br><br>This is the narrative thread that ties your entire professional identity together.',
-            badge: 'Purpose',
+            title: '24 Characters. Real Blueprints.',
+            desc: '<strong>Breaking Bad</strong> \u00B7 <strong>Stranger Things</strong> \u00B7 <strong>Succession</strong> \u00B7 <strong>Game of Thrones</strong> \u2014 six characters per show, each with a complete career Blueprint.'
+                + '<br><br>Skills, values, job matches, market values \u2014 all fully built. Switch profiles anytime to explore.',
+            badge: 'Sample Profiles',
             target: null,
-            beforeShow: function() { switchBlueprintTab('purpose'); },
-            delay: 300
+            beforeShow: function() { viewSampleProfile(); },
+            delay: 500
         },
-        // 7. CLOSE — the handoff
         {
-            title: isReadOnlyProfile ? 'Ready to Build Your Own?' : 'Your Career Intelligence Starts Here',
+            title: isReadOnlyProfile ? 'Ready to Build Yours?' : 'Your Career Intelligence',
             desc: isReadOnlyProfile
-                ? 'You\u2019ve seen what Blueprint can do with ' + profileName + '. Imagine this with <strong>your</strong> skills, <strong>your</strong> outcomes, <strong>your</strong> market value.'
-                    + '<br><br>Hit the <strong>?</strong> button anytime for help. Explore all 24 sample profiles. Then join the waitlist to build yours.'
-                : 'That\u2019s Blueprint. Six lenses on one career. Hit the <strong>?</strong> button anytime for section-specific guides.'
-                    + '<br><br>Your data stays yours \u2014 export it, own it, take it anywhere.',
+                ? 'You\u2019ve seen what Blueprint does with ' + profileName + '. Imagine this with <strong>your</strong> skills, <strong>your</strong> evidence, <strong>your</strong> market value.'
+                    + '<br><br>Hit <strong>?</strong> anytime for feature guides. Explore all 24 profiles. When you\u2019re ready \u2014 <strong>build yours</strong>.'
+                : 'That\u2019s Blueprint \u2014 career intelligence across every dimension. Hit <strong>?</strong> anytime for section guides.'
+                    + '<br><br>Your data stays yours. Export it, own it, take it anywhere.',
             badge: isReadOnlyProfile ? 'Get Started' : 'Let\u2019s Go',
             target: '#tourHelpBtn',
             spotlightPad: 6,
-            spotlightRadius: '50%',
-            beforeShow: function() { viewSampleProfile(); }
+            spotlightRadius: '50%'
         }
     ];
 }
