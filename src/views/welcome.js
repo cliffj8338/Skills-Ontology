@@ -6130,13 +6130,18 @@ async function wizardParseLinkedInZip(file) {
 export function renderWizardStep3(el) {
     el.innerHTML = `
         <div style="display:flex; flex-direction:column; align-items:center;
-                    min-height:420px; text-align:center; gap:16px; padding-top:20px;">
-            <div id="wizardParsingIcon" style="animation:spin 2s linear infinite;">${bpIcon("settings",40)}</div>
+                    min-height:420px; text-align:center; gap:12px; padding-top:12px;">
+            <div style="position:relative; width:280px; height:200px;">
+                <canvas id="wizardNetCanvas" width="560" height="400"
+                    style="width:280px; height:200px;"></canvas>
+                <div id="wizardParsingIcon" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+                    animation:spin 2.5s linear infinite; opacity:0.5;">${bpIcon("settings",28)}</div>
+            </div>
             <div>
-                <h2 style="color:var(--text-primary); font-size:1.3em; margin-bottom:6px;">
-                    Reading your career story
+                <h2 style="color:var(--text-primary); font-size:1.2em; margin-bottom:4px;">
+                    Building your Blueprint
                 </h2>
-                <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.88em;">
+                <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.85em;">
                     Analyzing your resume...
                 </p>
             </div>
@@ -6145,10 +6150,90 @@ export function renderWizardStep3(el) {
                             background:linear-gradient(90deg,var(--accent),#818cf8);
                             border-radius:4px; transition:width 0.5s ease;"></div>
             </div>
-            <div id="wizardDiscoveryFeed" style="width:100%; max-width:440px; min-height:220px;
-                        text-align:left; margin-top:8px;"></div>
+            <div id="wizardDiscoveryFeed" style="width:100%; max-width:440px; min-height:200px;
+                        text-align:left; margin-top:4px;"></div>
         </div>
     `;
+    wizardStartNetworkAnim();
+}
+
+function wizardStartNetworkAnim() {
+    var canvas = document.getElementById('wizardNetCanvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W = 560, H = 400;
+    var nodes = [];
+    var edges = [];
+    var colors = ['#3b82f6','#a78bfa','#10b981','#fb923c','#60a5fa','#f59e0b','#ec4899','#818cf8'];
+    var tick = 0;
+    var maxNodes = 28;
+    var addInterval = 320;
+    var lastAdd = 0;
+
+    function addNode() {
+        var angle = Math.random() * Math.PI * 2;
+        var dist = 60 + Math.random() * 110;
+        var x = W/2 + Math.cos(angle) * dist;
+        var y = H/2 + Math.sin(angle) * dist;
+        var r = 3 + Math.random() * 6;
+        var node = { x:x, y:y, r:r, color:colors[nodes.length%colors.length], alpha:0, targetAlpha:0.9,
+                     vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3 };
+        nodes.push(node);
+        if (nodes.length > 2) {
+            var closest = -1, closestDist = Infinity;
+            for (var j=0; j<nodes.length-1; j++) {
+                var d = Math.hypot(nodes[j].x-x, nodes[j].y-y);
+                if (d < closestDist) { closestDist=d; closest=j; }
+            }
+            if (closest >= 0) edges.push({ a:closest, b:nodes.length-1, alpha:0 });
+            if (nodes.length > 4 && Math.random() > 0.4) {
+                var second = Math.floor(Math.random() * (nodes.length-1));
+                if (second !== closest) edges.push({ a:second, b:nodes.length-1, alpha:0 });
+            }
+        }
+    }
+
+    function draw() {
+        if (!canvas.isConnected) return;
+        ctx.clearRect(0,0,W,H);
+        tick++;
+        if (tick - lastAdd > addInterval/16 && nodes.length < maxNodes) {
+            addNode(); lastAdd = tick;
+        }
+        for (var i=0; i<nodes.length; i++) {
+            var n = nodes[i];
+            n.alpha += (n.targetAlpha - n.alpha) * 0.06;
+            n.x += n.vx; n.y += n.vy;
+            n.vx *= 0.995; n.vy *= 0.995;
+            if (n.x<30||n.x>W-30) n.vx*=-1;
+            if (n.y<30||n.y>H-30) n.vy*=-1;
+        }
+        for (var e=0; e<edges.length; e++) {
+            var edge = edges[e];
+            edge.alpha += (0.35 - edge.alpha) * 0.04;
+            var a = nodes[edge.a], b = nodes[edge.b];
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = 'rgba(96,165,250,' + (edge.alpha * Math.min(a.alpha,b.alpha)) + ')';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        for (var i=0; i<nodes.length; i++) {
+            var n = nodes[i];
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.r + Math.sin(tick*0.03+i)*0.8, 0, Math.PI*2);
+            ctx.fillStyle = n.color;
+            ctx.globalAlpha = n.alpha;
+            ctx.fill();
+            ctx.globalAlpha = n.alpha * 0.25;
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.r*2.5, 0, Math.PI*2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
 }
 
 function wizardShowDiscovery(parsed) {
@@ -6258,10 +6343,25 @@ async function wizardRunParsing() {
 
     try {
         logAnalyticsEvent('resume_parse', {});
-        setStatus('Parsing your resume...', 15);
+        setStatus('Reading your resume...', 10);
+
+        var thinkingPhases = [
+            { msg: 'Identifying career roles...', pct: 20, delay: 2500 },
+            { msg: 'Extracting skills & expertise...', pct: 30, delay: 5000 },
+            { msg: 'Mapping certifications & credentials...', pct: 38, delay: 8000 },
+            { msg: 'Finding evidence of impact...', pct: 45, delay: 11000 },
+            { msg: 'Building your skill network...', pct: 50, delay: 14000 },
+            { msg: 'Inferring domain expertise...', pct: 55, delay: 18000 },
+            { msg: 'Analyzing career trajectory...', pct: 58, delay: 22000 },
+            { msg: 'Assembling your profile...', pct: 62, delay: 26000 }
+        ];
+        var thinkingTimers = thinkingPhases.map(function(phase) {
+            return setTimeout(function() { setStatus(phase.msg, phase.pct); }, phase.delay);
+        });
 
         var wizardApiKey = safeGet('wbAnthropicKey');
         if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
+            thinkingTimers.forEach(function(t) { clearTimeout(t); });
             setStatus('', 0);
             var icon = document.getElementById('wizardParsingIcon');
             if (icon) icon.style.animation = 'none';
@@ -6363,10 +6463,11 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 system: systemPrompt,
                 messages: [{ role: 'user', content: userContent }]
             }, wizardApiKey, 'resume-parse');
-        setStatus('Structuring your profile data...', 55);
+        thinkingTimers.forEach(function(t) { clearTimeout(t); });
+        setStatus('Structuring your profile data...', 70);
         const rawText = data.content[0]?.text || '';
 
-        setStatus('Extracting skills and evidence...', 75);
+        setStatus('Extracting skills and evidence...', 80);
 
         const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
         var parsed;
@@ -6430,6 +6531,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
         renderWizardStep();
 
     } catch (err) {
+        thinkingTimers.forEach(function(t) { clearTimeout(t); });
         console.error('Parsing error:', err);
         const el = document.getElementById('wizardParsingIcon');
         if (el) el.style.animation = 'none';
@@ -6826,6 +6928,14 @@ export function renderWizardStep6(el) {
         isFromResume ? skills.length + ' Skills Found' : 'Your Skills',
         isFromResume ? 'Tap proficiency levels to adjust. Check common outcomes to add evidence instantly.'
                      : 'Add your key skills. You can build this out further after setup.')
+    + (isFromResume ? '<div style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.06));'
+        + ' border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:12px 16px; margin-bottom:14px;'
+        + ' display:flex; align-items:center; gap:12px;">'
+        + '<span style="font-size:1.2em;">✨</span>'
+        + '<div style="flex:1;">'
+        + '<div style="font-size:0.84em; font-weight:600; color:var(--text-primary);">AI can help strengthen your evidence</div>'
+        + '<div style="font-size:0.76em; color:var(--text-secondary); margin-top:2px;">Click the sparkle button on any skill below to generate outcome statements from your career context.</div>'
+        + '</div></div>' : '')
     + (isFromResume ? wizardRenderSkillCards(skills, levels, levelColors) : wizardRenderEmptySkills())
     + (hasGaps ? wizardRenderGapSection(gapSkills, levelColors) : '')
     + '<div style="display:flex; justify-content:space-between; margin-top:20px;">'
@@ -6864,8 +6974,14 @@ function wizardRenderSkillCards(skills, levels, levelColors) {
                 + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">'
                 + '<div style="flex:1; min-width:0; font-weight:600; color:var(--text-primary); font-size:0.9em;">'
                 + escapeHtml(s.name) + '</div>'
+                + '<button onclick="event.stopPropagation(); wizardAIEvidence(' + i + ')" title="AI: Generate evidence"'
+                + ' style="background:none; border:1px solid rgba(168,85,247,0.3); border-radius:6px;'
+                + ' padding:2px 7px; cursor:pointer; font-size:0.72em; color:#a78bfa;'
+                + ' transition:all 0.15s; line-height:1.4;"'
+                + ' onmouseover="this.style.background=\'rgba(168,85,247,0.12)\'"'
+                + ' onmouseout="this.style.background=\'none\'">✨</button>'
                 + '<span style="font-size:0.72em; color:var(--text-muted);">'
-                + (s.evidence ? s.evidence.length : 0) + ' evidence</span>'
+                + (s.evidence ? s.evidence.length : 0) + ' ev</span>'
                 + '</div>';
 
             html += '<div style="display:flex; gap:4px; margin-bottom:' + (outcomes.length > 0 ? '8' : '0') + 'px;">';
@@ -6979,7 +7095,7 @@ function wizardSetSkillLevel(idx, level) {
         wizardState.skills[idx].level = level;
         var card = document.getElementById('skill-card-' + idx);
         if (card) {
-            var btns = card.querySelectorAll('button');
+            var btns = card.querySelectorAll('button[onclick*="wizardSetSkillLevel"]');
             var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
             btns.forEach(function(btn) {
                 var lvl = btn.textContent.trim();
@@ -7015,6 +7131,75 @@ function wizardToggleOutcome(skillIdx, outcomeIdx) {
     }
 }
 window.wizardToggleOutcome = wizardToggleOutcome;
+
+async function wizardAIEvidence(skillIdx) {
+    var s = wizardState.skills[skillIdx];
+    if (!s) return;
+    var card = document.getElementById('skill-card-' + skillIdx);
+    var aiKey = safeGet('wbAnthropicKey');
+    if (!aiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
+        showToast('Sign in to use AI evidence generation.', 'warning');
+        return;
+    }
+    var existingEl = document.getElementById('ai-evidence-' + skillIdx);
+    if (existingEl) { existingEl.remove(); return; }
+    var container = document.createElement('div');
+    container.id = 'ai-evidence-' + skillIdx;
+    container.style.cssText = 'border-top:1px solid rgba(168,85,247,0.2); padding:10px 0 4px; margin-top:8px;';
+    container.innerHTML = '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
+        + '<span style="font-size:0.8em;">✨</span>'
+        + '<span style="font-size:0.78em; color:#a78bfa; font-weight:600;">Generating evidence...</span>'
+        + '<span class="ai-dots" style="font-size:0.78em; color:#a78bfa;">⟳</span></div>';
+    if (card) card.appendChild(container);
+
+    try {
+        var context = 'Name: ' + (wizardState.profile.name || '')
+            + '\nTitle: ' + (wizardState.profile.currentTitle || '')
+            + '\nYears: ' + (wizardState.profile.yearsExperience || '')
+            + '\nRoles: ' + (wizardState.parsedData?.roles || []).map(function(r) { return r.name + ' at ' + r.company; }).join(', ')
+            + '\nExisting evidence: ' + (s.evidence || []).map(function(e) { return e.outcome || e.description; }).join('; ');
+
+        var data = await callAnthropicAPI({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 400,
+            messages: [{
+                role: 'user',
+                content: 'Generate exactly 3 specific, quantified evidence statements for this skill on a professional resume. Each should have an action (what was done) and an outcome (measurable result). Return ONLY a JSON array of objects with "description" and "outcome" keys. No markdown.\n\nSkill: ' + s.name + ' (Level: ' + s.level + ')\n' + context
+            }]
+        }, aiKey, 'evidence-gen');
+
+        var text = (data.content[0]?.text || '').trim();
+        var clean = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        var suggestions = JSON.parse(clean);
+        if (!Array.isArray(suggestions)) suggestions = [];
+
+        container.innerHTML = '<div style="font-size:0.78em; color:#a78bfa; font-weight:600; margin-bottom:6px;">✨ AI-generated evidence — check to add:</div>';
+        suggestions.forEach(function(sug, si) {
+            var label = document.createElement('label');
+            label.style.cssText = 'display:flex; align-items:start; gap:8px; padding:4px 0; font-size:0.78em; color:var(--text-secondary); cursor:pointer;';
+            label.innerHTML = '<input type="checkbox" style="margin-top:2px; accent-color:#a78bfa; flex-shrink:0;">'
+                + '<div><strong style="color:var(--text-primary);">' + escapeHtml(sug.outcome || sug.description || '') + '</strong>'
+                + (sug.description && sug.outcome ? '<br>' + escapeHtml(sug.description) : '') + '</div>';
+            label.querySelector('input').onchange = function() {
+                if (!s.evidence) s.evidence = [];
+                var outcomeKey = (sug.outcome || sug.description || '').toLowerCase().trim();
+                if (this.checked) {
+                    var alreadyExists = s.evidence.some(function(e) { return (e.outcome||e.description||'').toLowerCase().trim() === outcomeKey; });
+                    if (!alreadyExists) {
+                        s.evidence.push({ description: sug.description || '', outcome: sug.outcome || '', source: 'ai-generated' });
+                        showToast('Evidence added to ' + s.name, 'success', 2000);
+                    }
+                } else {
+                    s.evidence = s.evidence.filter(function(e) { return (e.outcome||e.description||'').toLowerCase().trim() !== outcomeKey; });
+                }
+            };
+            container.appendChild(label);
+        });
+    } catch (err) {
+        container.innerHTML = '<div style="font-size:0.78em; color:var(--danger);">Could not generate evidence: ' + escapeHtml(err.message) + '</div>';
+    }
+}
+window.wizardAIEvidence = wizardAIEvidence;
 
 export function wizardSaveSkills() {
     if (readOnlyGuard()) return;
@@ -7104,6 +7289,25 @@ export function renderWizardStep7(el) {
                     + '</div></div></div>';
             }).join('')}
         </div>
+
+        ${wizardState.parsedData ? `
+        <div style="background:linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.04));
+                    border:1px solid rgba(99,102,241,0.15); border-radius:10px; padding:12px 16px;
+                    margin-bottom:14px; display:flex; align-items:center; gap:12px;">
+            <span style="font-size:1.1em;">✨</span>
+            <div style="flex:1; font-size:0.78em; color:var(--text-secondary);">
+                <strong style="color:var(--text-primary);">Not seeing the right values?</strong>
+                AI can suggest values based on your unique career story — your roles, skills, and the patterns in how you've worked.
+            </div>
+            <button onclick="wizardAISuggestValues()"
+                    style="background:none; border:1px solid rgba(168,85,247,0.3); border-radius:7px;
+                           padding:6px 14px; color:#a78bfa; cursor:pointer; font-size:0.78em;
+                           font-weight:600; white-space:nowrap; transition:all 0.15s;"
+                    onmouseover="this.style.background='rgba(168,85,247,0.1)'"
+                    onmouseout="this.style.background='none'">
+                ✨ Suggest
+            </button>
+        </div>` : ''}
 
         <div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px;
                     padding:14px; margin-bottom:20px;">
@@ -7225,6 +7429,57 @@ export function wizardAddCustomValue() {
 if (!window.wizardAddCustomValue) window.wizardAddCustomValue = wizardAddCustomValue;
 if (!window.wizardEditValueDesc) window.wizardEditValueDesc = wizardEditValueDesc;
 
+async function wizardAISuggestValues() {
+    var apiKey = safeGet('wbAnthropicKey');
+    if (!apiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
+        showToast('Sign in to use AI suggestions.', 'warning');
+        return;
+    }
+    showToast('Analyzing your career for values...', 'info', 3000);
+    try {
+        var context = 'Name: ' + (wizardState.profile.name || '')
+            + '\nTitle: ' + (wizardState.profile.currentTitle || '')
+            + '\nSkills: ' + wizardState.skills.slice(0,12).map(function(s){return s.name;}).join(', ')
+            + '\nRoles: ' + (wizardState.parsedData?.roles || []).map(function(r){return r.name + ' at ' + (r.company||'');}).join(', ')
+            + '\nExisting values: ' + wizardState.values.map(function(v){return v.name;}).join(', ');
+
+        var data = await callAnthropicAPI({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 500,
+            messages: [{
+                role: 'user',
+                content: 'Based on this career profile, suggest 4 professional values that are specific to this person — not generic. Each value should feel like it comes from their actual career experience, not a corporate handbook. Return ONLY a JSON array of objects with "name" and "description" keys. Descriptions should be personal (first person implied). Do NOT repeat any existing values.\n\n' + context
+            }]
+        }, apiKey, 'values-suggest');
+
+        var text = (data.content[0]?.text || '').trim();
+        var clean = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        var suggestions = JSON.parse(clean);
+        if (!Array.isArray(suggestions)) suggestions = [];
+
+        var existingNames = {};
+        wizardState.values.forEach(function(v) { existingNames[v.name.toLowerCase()] = true; });
+        var added = 0;
+        suggestions.forEach(function(sug) {
+            if (sug.name && !existingNames[sug.name.toLowerCase()]) {
+                wizardState.values.push({ name: sug.name, description: sug.description || '', selected: true, _fromAI: true });
+                existingNames[sug.name.toLowerCase()] = true;
+                added++;
+            }
+        });
+        if (added > 0) {
+            showToast(added + ' values suggested and pre-selected. Deselect any that don\'t resonate.', 'success', 4000);
+            var inner = document.getElementById('wizardInner');
+            if (inner) renderWizardStep7(inner);
+        } else {
+            showToast('No new unique values to suggest.', 'info');
+        }
+    } catch(err) {
+        showToast('Could not generate suggestions: ' + err.message, 'error');
+    }
+}
+window.wizardAISuggestValues = wizardAISuggestValues;
+
 export function wizardSaveValues() {
     if (readOnlyGuard()) return;
     wizardNext();
@@ -7253,22 +7508,35 @@ export function renderWizardStep8(el) {
                       onfocus="this.style.borderColor='var(--accent)'"
                       onblur="this.style.borderColor='var(--border)'">${escapeHtml(purpose)}</textarea>
 
-            ${isFromResume ? `
-            <button onclick="wizardRegeneratePurpose()"
-                    style="margin-top:12px; background:none; border:1px solid var(--border);
-                           border-radius:7px; padding:7px 14px; color:var(--text-secondary);
-                           cursor:pointer; font-size:0.82em; transition:all 0.18s;"
-                    onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"
-                    onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
-                ↺ Regenerate
-            </button>` : ''}
+            <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                ${isFromResume ? `
+                <button onclick="wizardRegeneratePurpose()"
+                        style="background:none; border:1px solid var(--border);
+                               border-radius:7px; padding:7px 14px; color:var(--text-secondary);
+                               cursor:pointer; font-size:0.82em; transition:all 0.18s;"
+                        onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"
+                        onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
+                    ↺ Regenerate
+                </button>
+                <button onclick="wizardRefinePromptPurpose()"
+                        style="background:none; border:1px solid rgba(168,85,247,0.3);
+                               border-radius:7px; padding:7px 14px; color:#a78bfa;
+                               cursor:pointer; font-size:0.82em; transition:all 0.18s;"
+                        onmouseover="this.style.background='rgba(168,85,247,0.08)'"
+                        onmouseout="this.style.background='none'">
+                    ✨ Make it more me
+                </button>` : ''}
+            </div>
         </div>
 
-        <div style="background:var(--accent-glow); border:1px solid var(--border);
-                    border-radius:10px; padding:16px; margin-bottom:24px;">
+        <div style="background:linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.04));
+                    border:1px solid rgba(99,102,241,0.15); border-radius:10px; padding:16px; margin-bottom:24px;">
             <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;">
                 <strong style="color:var(--accent);">${bpIcon('lightbulb',12)} What makes a strong purpose statement:</strong><br>
                 Specific about who you help · Describes real outcomes, not activities · Reflects your actual approach · Sounds like a person, not a job description
+            </div>
+            <div style="font-size:0.76em; color:var(--text-muted); margin-top:8px; padding-top:8px; border-top:1px solid rgba(99,102,241,0.1);">
+                ✨ <strong>AI tip:</strong> Use "Regenerate" for a completely new draft, or "Make it more me" to refine what you've written into something that sounds more authentic.
             </div>
         </div>
 
@@ -7329,6 +7597,42 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
     if (btn) { btn.textContent = '↺ Regenerate'; btn.disabled = false; }
 }
+
+async function wizardRefinePromptPurpose() {
+    if (readOnlyGuard()) return;
+    var ta = document.getElementById('wizardPurpose');
+    var current = ta ? ta.value.trim() : '';
+    if (!current) {
+        showToast('Write something first — then AI can refine it.', 'info');
+        return;
+    }
+    var apiKey = safeGet('wbAnthropicKey');
+    if (!apiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
+        showToast('Sign in to use AI refinement.', 'warning');
+        return;
+    }
+    if (ta) ta.style.opacity = '0.5';
+    try {
+        var data = await callAnthropicAPI({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 400,
+            messages: [{
+                role: 'user',
+                content: 'Rewrite this purpose statement to sound more authentic, personal, and human. Keep the same meaning but make it sound like a real person talking about what drives them — not corporate speak. Remove any generic phrases. Keep it 2-3 sentences. Return ONLY the rewritten statement.\n\nOriginal: ' + current + '\n\nContext — Name: ' + (wizardState.profile.name || '') + ', Title: ' + (wizardState.profile.currentTitle || '') + ', Key skills: ' + wizardState.skills.slice(0,5).map(function(s){return s.name;}).join(', ')
+            }]
+        }, apiKey, 'purpose-refine');
+        var refined = (data.content[0]?.text || '').trim();
+        if (refined && ta) {
+            ta.value = refined;
+            wizardState.purpose = refined;
+            showToast('Purpose refined — edit further if you like.', 'success', 3000);
+        }
+    } catch(err) {
+        showToast('Refinement failed: ' + err.message, 'error');
+    }
+    if (ta) ta.style.opacity = '1';
+}
+window.wizardRefinePromptPurpose = wizardRefinePromptPurpose;
 
 export function wizardSavePurpose() {
     if (readOnlyGuard()) return;

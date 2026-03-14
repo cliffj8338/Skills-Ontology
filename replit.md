@@ -55,7 +55,7 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.46.94. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field.
+Current: v4.46.95. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field.
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
 
