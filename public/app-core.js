@@ -1817,6 +1817,10 @@
                 showToast('Admin access required.', 'error');
                 return;
             }
+            if (appContext.mode === 'demo') {
+                exitDemoMode();
+            }
+            window._welcomePickerActive = false;
             switchView('admin');
         }
         window.showAdminPanel = showAdminPanel;
@@ -25084,12 +25088,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (adminV) adminV.style.display = 'none';
             if (controls) controls.style.display = 'none';
             
-            // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
             var roBanner = document.getElementById('readonlyBanner');
             if (roBanner) {
+                var isSampleViewing = appContext.mode === 'demo' || isReadOnlyProfile;
                 if (view === 'welcome' || view === 'consent' || view === 'admin') {
                     roBanner.style.display = 'none';
-                } else if (isReadOnlyProfile) {
+                } else if (isSampleViewing) {
                     roBanner.style.cssText = 'display:block !important; text-align:center; padding:10px 16px; font-size:0.88em; word-spacing:normal; white-space:normal;';
                 }
             }
@@ -47743,6 +47747,7 @@ body {
                 if (tourTooltip) { tourTooltip.remove(); tourTooltip = null; }
                 var spotlight = document.querySelector('.tour-spotlight');
                 if (spotlight) spotlight.remove();
+                var wasTourName = tourName;
                 // Mark tour as seen
                 if (skipFlag !== false) {
                     try { localStorage.setItem(TOUR_SEEN_KEY, 'true'); } catch(e) {}
@@ -47752,6 +47757,9 @@ body {
                 }
                 tourSteps = [];
                 tourCurrentStep = 0;
+                if (wasTourName === 'welcome' && typeof viewSampleProfile === 'function') {
+                    setTimeout(function() { viewSampleProfile(); }, 200);
+                }
             }
 
             function createOverlayElements() {
