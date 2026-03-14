@@ -6130,24 +6130,89 @@ async function wizardParseLinkedInZip(file) {
 export function renderWizardStep3(el) {
     el.innerHTML = `
         <div style="display:flex; flex-direction:column; align-items:center;
-                    justify-content:center; min-height:320px; text-align:center; gap:24px;">
-            <div id="wizardParsingIcon" style="animation:spin 2s linear infinite;">${bpIcon("settings",48)}</div>
+                    min-height:420px; text-align:center; gap:16px; padding-top:20px;">
+            <div id="wizardParsingIcon" style="animation:spin 2s linear infinite;">${bpIcon("settings",40)}</div>
             <div>
-                <h2 style="color:var(--text-primary); font-size:1.4em; margin-bottom:10px;">
-                    Claude is reading your resume
+                <h2 style="color:var(--text-primary); font-size:1.3em; margin-bottom:6px;">
+                    Reading your career story
                 </h2>
-                <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.9em;">
-                    Extracting skills, evidence, and outcomes...
+                <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.88em;">
+                    Analyzing your resume...
                 </p>
             </div>
-            <div style="width:280px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
+            <div style="width:300px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
                 <div id="wizardParseProgress" style="height:100%; width:0%;
                             background:linear-gradient(90deg,var(--accent),#818cf8);
                             border-radius:4px; transition:width 0.5s ease;"></div>
             </div>
-            <p style="color:var(--text-muted); font-size:0.8em;">Usually takes 10–20 seconds</p>
+            <div id="wizardDiscoveryFeed" style="width:100%; max-width:440px; min-height:220px;
+                        text-align:left; margin-top:8px;"></div>
         </div>
     `;
+}
+
+function wizardShowDiscovery(parsed) {
+    var feed = document.getElementById('wizardDiscoveryFeed');
+    if (!feed) return;
+    feed.innerHTML = '';
+
+    var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
+    var items = [];
+
+    if (parsed.profile && parsed.profile.name) {
+        items.push({ type: 'profile', icon: bpIcon('profile',14), text: parsed.profile.name + ' \u00B7 ' + (parsed.profile.currentTitle || ''), color: 'var(--accent)' });
+    }
+    if (parsed.roles && parsed.roles.length > 0) {
+        items.push({ type: 'roles', icon: bpIcon('briefcase',14), text: parsed.roles.length + ' career roles identified', color: '#a78bfa' });
+    }
+    if (parsed.skills && parsed.skills.length > 0) {
+        var evCount = parsed.skills.reduce(function(n, s) { return n + (s.evidence ? s.evidence.length : 0); }, 0);
+        items.push({ type: 'skills-count', icon: bpIcon('compass',14), text: parsed.skills.length + ' skills extracted', color: 'var(--accent)' });
+        items.push({ type: 'evidence', icon: bpIcon('clipboard',14), text: evCount + ' evidence items found', color: '#10b981' });
+    }
+    if (parsed.values && parsed.values.length > 0) {
+        items.push({ type: 'values', icon: bpIcon('lightbulb',14), text: parsed.values.length + ' professional values inferred', color: '#f59e0b' });
+    }
+    if (parsed.purpose) {
+        items.push({ type: 'purpose', icon: bpIcon('star',14), text: 'Purpose statement drafted', color: '#818cf8' });
+    }
+
+    var topSkills = (parsed.skills || []).slice(0, 8);
+    if (topSkills.length > 0) {
+        items.push({ type: 'skill-chips', skills: topSkills, levelColors: levelColors });
+    }
+
+    items.forEach(function(item, idx) {
+        setTimeout(function() {
+            var div = document.createElement('div');
+            div.style.cssText = 'opacity:0; transform:translateY(8px); transition:all 0.35s ease;';
+
+            if (item.type === 'skill-chips') {
+                div.innerHTML = '<div style="display:flex; flex-wrap:wrap; gap:6px; padding:6px 0;">'
+                    + item.skills.map(function(s) {
+                        var c = item.levelColors[s.level] || '#6b7280';
+                        return '<span style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px;'
+                            + ' background:rgba(255,255,255,0.04); border:1px solid ' + c + '33;'
+                            + ' border-radius:20px; font-size:0.78em; color:var(--text-secondary);">'
+                            + '<span style="width:7px;height:7px;border-radius:50%;background:' + c + ';"></span>'
+                            + escapeHtml(s.name) + '</span>';
+                    }).join('') + '</div>';
+            } else {
+                div.innerHTML = '<div style="display:flex; align-items:center; gap:10px; padding:7px 14px;'
+                    + ' background:rgba(255,255,255,0.03); border-radius:10px; margin-bottom:4px;">'
+                    + '<span style="color:' + item.color + ';">' + item.icon + '</span>'
+                    + '<span style="color:var(--text-primary); font-size:0.88em; font-weight:500;">' + escapeHtml(item.text) + '</span>'
+                    + '<span style="margin-left:auto; color:' + item.color + '; font-size:0.75em;">\u2713</span>'
+                    + '</div>';
+            }
+
+            feed.appendChild(div);
+            requestAnimationFrame(function() {
+                div.style.opacity = '1';
+                div.style.transform = 'translateY(0)';
+            });
+        }, idx * 350);
+    });
 }
 
 async function wizardRunParsing() {
@@ -6242,11 +6307,12 @@ Rules:
 
         setStatus('Extracting skills and evidence...', 75);
 
-        // Strip markdown fences if present
         const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
         const parsed = JSON.parse(clean);
 
-        setStatus('Building your Blueprint...', 95);
+        setStatus('Discoveries from your resume:', 90);
+        var parsingIcon = document.getElementById('wizardParsingIcon');
+        if (parsingIcon) parsingIcon.style.display = 'none';
 
         wizardState.parsedData = parsed;
         wizardState.profile = parsed.profile || {};
@@ -6254,10 +6320,12 @@ Rules:
         wizardState.values = (parsed.values || []).map(v => ({ ...v, selected: v.selected !== false }));
         wizardState.purpose = parsed.purpose || '';
 
-        await new Promise(r => setTimeout(r, 600));
-        setStatus('Done! ✓', 100);
-        await new Promise(r => setTimeout(r, 400));
+        wizardShowDiscovery(parsed);
 
+        var discoveryItems = 5 + Math.min((parsed.skills || []).length > 0 ? 2 : 0, 2);
+        await new Promise(r => setTimeout(r, Math.max(discoveryItems * 350 + 800, 3000)));
+
+        setStatus('', 100);
         wizardState.step = 4;
         renderWizardStep();
 
@@ -6290,44 +6358,129 @@ export function renderWizardStep4(el) {
     const p = wizardState.profile;
     const isFromResume = !!wizardState.parsedData;
 
+    var lenses = wizardDetectLenses(wizardState.skills, wizardState.parsedData);
+    var selectedLens = wizardState.selectedLens || (lenses.length > 0 ? lenses[0].id : '');
+    if (!wizardState.selectedLens && lenses.length > 0) wizardState.selectedLens = lenses[0].id;
+
     el.innerHTML = `
-        ${wizardHeading(isFromResume ? bpIcon('check',22) : bpIcon('profile',22), 
-            isFromResume ? 'Review Your Profile' : 'Your Profile',
-            isFromResume ? 'Claude extracted this from your resume. Review and correct anything that’s off.' 
+        ${wizardHeading(isFromResume ? bpIcon('check',22) : bpIcon('profile',22),
+            isFromResume ? 'Your Profile & Career Direction' : 'Your Profile',
+            isFromResume ? 'Confirm your details, then choose the career story that fits you best.'
                          : 'Fill in your basic information to get started.')}
 
         <div style="background:var(--bg-elevated); border:1px solid var(--border);
-                    border-radius:14px; padding:24px; margin-bottom:20px;">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    border-radius:14px; padding:20px; margin-bottom:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 ${wizardField('Full Name', 'wizardName', p.name || '', 'e.g. Alex Johnson')}
                 ${wizardField('Current Title', 'wizardTitle', p.currentTitle || '', 'e.g. VP of Engineering')}
                 ${wizardField('Location', 'wizardLocation', p.location || '', 'e.g. Austin, TX / Remote')}
                 ${wizardField('Email', 'wizardEmail', p.email || '', 'your@email.com')}
                 ${wizardField('Years of Experience', 'wizardYears', p.yearsExperience || '', 'e.g. 15')}
-                ${wizardField('Phone (optional)', 'wizardPhone', p.phone || '', '')}
                 ${wizardField('Total Compensation (optional)', 'wizardComp', p.reportedComp ? Math.round(p.reportedComp).toLocaleString() : '', 'e.g. 350,000')}
             </div>
-            <div style="margin-top:16px;">
-                <label style="display:block; font-size:0.82em; font-weight:600;
-                              color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">
-                    Professional Summary
-                </label>
-                <textarea id="wizardSummary" placeholder="A 2-3 sentence summary of who you are professionally..."
-                          style="width:100%; min-height:100px; background:var(--input-bg);
-                                 border:1px solid var(--border); border-radius:8px; padding:12px;
-                                 color:var(--text-primary); font-size:0.9em; line-height:1.6;
-                                 font-family:inherit; resize:vertical; outline:none;"
-                          onfocus="this.style.borderColor='var(--accent)'"
-                          onblur="this.style.borderColor='var(--border)'">${escapeHtml(p.executiveSummary || '')}</textarea>
-            </div>
+            <details style="margin-top:12px;">
+                <summary style="cursor:pointer; font-size:0.82em; color:var(--text-muted); font-weight:600;">
+                    Professional Summary & Contact Details
+                </summary>
+                <div style="margin-top:10px;">
+                    <textarea id="wizardSummary" placeholder="A 2-3 sentence summary..."
+                              style="width:100%; min-height:80px; background:var(--input-bg);
+                                     border:1px solid var(--border); border-radius:8px; padding:10px;
+                                     color:var(--text-primary); font-size:0.88em; line-height:1.5;
+                                     font-family:inherit; resize:vertical; outline:none;">${escapeHtml(p.executiveSummary || '')}</textarea>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
+                        ${wizardField('Phone (optional)', 'wizardPhone', p.phone || '', '')}
+                    </div>
+                </div>
+            </details>
         </div>
 
+        ${isFromResume && lenses.length > 0 ? wizardRenderLensGrid(lenses, selectedLens) : ''}
+
         <div style="display:flex; justify-content:space-between;">
-            ${wizardBtn('← Back', wizardState.entryMode === 'manual' ? 'wizardBack()' : 'wizardBack()', 'ghost')}
-            ${wizardBtn('Continue → Occupation Match', 'wizardSaveProfile()', 'primary')}
+            ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
+            ${wizardBtn('Continue \u2192 Skills', 'wizardSaveProfile()', 'primary')}
         </div>
     `;
 }
+
+function wizardRenderLensGrid(lenses, selectedLens) {
+    var cards = lenses.map(function(lens) {
+        var sel = lens.id === selectedLens;
+        return '<div onclick="wizardSelectLens(\'' + lens.id + '\')" id="lens-' + lens.id + '"'
+            + ' style="background:' + (sel ? 'rgba(59,130,246,0.10)' : 'var(--bg-elevated)') + ';'
+            + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border)') + ';'
+            + ' border-radius:12px; padding:14px; cursor:pointer; transition:all 0.18s;">'
+            + '<div style="font-size:1.3em; margin-bottom:6px;">' + lens.icon + '</div>'
+            + '<div style="font-weight:700; color:var(--text-primary); font-size:0.9em; margin-bottom:4px;">'
+            + escapeHtml(lens.title) + '</div>'
+            + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.45;">'
+            + escapeHtml(lens.desc) + '</div>'
+            + (sel ? '<div style="margin-top:8px; font-size:0.75em; color:var(--accent); font-weight:700;">SELECTED</div>' : '')
+            + '</div>';
+    }).join('');
+
+    return '<div style="margin-bottom:16px;">'
+        + '<div style="font-weight:700; color:var(--text-primary); font-size:0.95em; margin-bottom:4px;">'
+        + 'What story should your Blueprint tell?</div>'
+        + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:12px;">'
+        + 'This shapes which skills get highlighted and how your evidence is framed. You can always change it.</p>'
+        + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="wizardLensGrid">'
+        + cards + '</div></div>';
+}
+
+function wizardDetectLenses(skills, parsedData) {
+    var skillNames = (skills || []).map(function(s) { return (s.name || '').toLowerCase(); });
+    var allText = skillNames.join(' ');
+    var roles = (parsedData && parsedData.roles) || [];
+    var roleText = roles.map(function(r) { return ((r.name || '') + ' ' + (r.company || '')).toLowerCase(); }).join(' ');
+    var combined = allText + ' ' + roleText;
+
+    var techTerms = ['python','javascript','typescript','react','node','sql','aws','azure','cloud','data','machine learning','ai','software','engineering','api','devops','infrastructure','architecture','system design','kubernetes','docker'];
+    var techScore = techTerms.reduce(function(n, t) { return n + (combined.indexOf(t) >= 0 ? 1 : 0); }, 0);
+
+    var leaderTerms = ['leadership','management','team','director','vp','head of','chief','executive','strategy','vision','stakeholder','cross-functional','p&l','budget','hire','mentor','coach'];
+    var leaderScore = leaderTerms.reduce(function(n, t) { return n + (combined.indexOf(t) >= 0 ? 1 : 0); }, 0);
+
+    var builderTerms = ['startup','founder','launch','scale','growth','product','revenue','entrepreneur','build','ship','mvp','market','customer','acquisition','gtm'];
+    var builderScore = builderTerms.reduce(function(n, t) { return n + (combined.indexOf(t) >= 0 ? 1 : 0); }, 0);
+
+    var expertTerms = ['research','analysis','specialist','domain','expert','certification','compliance','regulatory','audit','quality','methodology','framework','consulting','advisory'];
+    var expertScore = expertTerms.reduce(function(n, t) { return n + (combined.indexOf(t) >= 0 ? 1 : 0); }, 0);
+
+    var scored = [
+        { id: 'technical', icon: '\uD83D\uDCBB', title: 'Technical Leader', desc: 'You solve hard problems with technology. Your skills, architectures, and systems speak for themselves.', score: techScore },
+        { id: 'strategic', icon: '\uD83C\uDFAF', title: 'Strategic Operator', desc: 'You lead teams, set direction, and drive results. Your impact is measured in people and outcomes.', score: leaderScore },
+        { id: 'builder', icon: '\uD83D\uDE80', title: 'Builder & Growth Driver', desc: 'You create things from nothing. Products, companies, markets \u2014 you see gaps and fill them.', score: builderScore },
+        { id: 'expert', icon: '\uD83E\uDDE0', title: 'Domain Expert', desc: 'Deep knowledge in a specialized area. Your expertise is rare and valuable.', score: expertScore }
+    ];
+
+    scored.sort(function(a, b) { return b.score - a.score; });
+    return scored;
+}
+
+function wizardSelectLens(lensId) {
+    wizardState.selectedLens = lensId;
+    var grid = document.getElementById('wizardLensGrid');
+    if (!grid) return;
+    var cards = grid.children;
+    for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        var isSel = card.id === 'lens-' + lensId;
+        card.style.background = isSel ? 'rgba(59,130,246,0.10)' : 'var(--bg-elevated)';
+        card.style.borderColor = isSel ? 'var(--accent)' : 'var(--border)';
+        var existing = card.querySelector('div[data-sel-label]');
+        if (existing) existing.remove();
+        if (isSel) {
+            var lbl = document.createElement('div');
+            lbl.setAttribute('data-sel-label', '1');
+            lbl.style.cssText = 'margin-top:8px; font-size:0.75em; color:var(--accent); font-weight:700;';
+            lbl.textContent = 'SELECTED';
+            card.appendChild(lbl);
+        }
+    }
+}
+window.wizardSelectLens = wizardSelectLens;
 
 export function wizardField(label, id, value, placeholder) {
     return `<div>
@@ -6555,107 +6708,238 @@ export function renderWizardStep5(el) {
 
 export function wizardSaveEnrichment() {
     if (readOnlyGuard()) return;
-    var enrichment = wizardState.enrichment;
-    if (!enrichment || !enrichment.gapSkills) {
-        wizardNext();
-        return;
-    }
-
-    // Collect checked gap skills
-    var addedCount = 0;
-    enrichment.gapSkills.forEach(function(g, i) {
-        var cb = document.getElementById('enrich-skill-' + i);
-        if (cb && cb.checked) {
-            // Map O*NET level to Blueprint level
-            var levelMap = { 'Mastery': 'Mastery', 'Expert': 'Expert', 'Advanced': 'Advanced', 'Proficient': 'Proficient', 'Novice': 'Novice' };
-            var level = levelMap[g.occupationLevel] || 'Proficient';
-
-            wizardState.skills.push({
-                name: g.name,
-                level: level,
-                category: g.category || 'skill',
-                roles: [],
-                key: false,
-                evidence: [],
-                onetId: g.elementId || null,
-                sources: ['onet-enrichment:' + new Date().toISOString().substring(0, 10)]
-            });
-            addedCount++;
-        }
-    });
-
-    if (addedCount > 0) {
-        showToast(addedCount + ' skill' + (addedCount > 1 ? 's' : '') + ' added from O*NET enrichment.', 'success');
-    }
-
     wizardNext();
 }
 
-// ── STEP 6: Skills review ──────────────────────────────────────────────
+// ── STEP 6: Skills review (consolidated with proficiency + outcomes) ──
 
 export function renderWizardStep6(el) {
-    const skills = wizardState.skills;
-    const isFromResume = skills.length > 0;
-    const levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
+    var skills = wizardState.skills;
+    var isFromResume = skills.length > 0;
+    var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
+    var levels = ['Novice','Proficient','Advanced','Expert','Mastery'];
+    var enrichment = wizardState.enrichment || {};
+    var gapSkills = (enrichment.gapSkills || []).slice(0, 8);
+    var hasGaps = gapSkills.length > 0;
 
-    el.innerHTML = `
-        ${wizardHeading(bpIcon('compass',22),
-            isFromResume ? `${skills.length} Skills Extracted` : 'Your Skills',
-            isFromResume ? 'Claude identified these from your resume. Toggle any off you do not want to include. You can add more later.'
-                         : 'Add your key skills. You can build this out further after setup.')}
-
-        ${isFromResume ? `
-        <div style="background:var(--bg-elevated); border:1px solid var(--border);
-                    border-radius:14px; padding:20px; margin-bottom:20px; max-height:420px; overflow-y:auto;">
-            ${skills.map((s, i) => `
-                <div style="display:flex; align-items:center; gap:12px; padding:10px 0;
-                            border-bottom:1px solid var(--border);">
-                    <input type="checkbox" id="skill-check-${i}" checked
-                           style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">
-                    <div style="width:10px; height:10px; border-radius:50%; flex-shrink:0;
-                                background:${levelColors[s.level] || '#6b7280'};"></div>
-                    <div style="flex:1; min-width:0;">
-                        <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
-                            ${escapeHtml(s.name)}
-                        </div>
-                        <div style="font-size:0.78em; color:var(--text-muted);">
-                            ${escapeHtml(s.level)} · ${s.evidence?.length || 0} evidence items
-                        </div>
-                    </div>
-                    <span style="font-size:0.75em; padding:3px 9px; border-radius:10px;
-                                 background:var(--chip-bg); color:var(--text-secondary);">
-                        ${escapeHtml(s.level)}
-                    </span>
-                </div>
-            `).join('')}
-        </div>
-        <p style="font-size:0.82em; color:var(--text-muted); margin-bottom:20px;">
-            Uncheck skills you want to exclude. You can add, edit, and add evidence to all skills after setup.
-        </p>
-        ` : `
-        <div style="background:var(--bg-elevated); border:2px dashed var(--border);
-                    border-radius:14px; padding:32px; text-align:center; margin-bottom:20px;">
-            <p style="color:var(--text-secondary); margin-bottom:16px;">
-                Skills are best built from your resume. You can add them manually in the Skills tab after setup.
-            </p>
-            <p style="color:var(--text-muted); font-size:0.85em;">
-                The system includes 90+ O*NET standard skills you can browse and add.
-            </p>
-        </div>
-        `}
-
-        <div style="display:flex; justify-content:space-between;">
-            ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
-            ${wizardBtn('Continue → Values', 'wizardSaveSkills()', 'primary')}
-        </div>
-    `;
+    el.innerHTML = wizardHeading(bpIcon('compass',22),
+        isFromResume ? skills.length + ' Skills Found' : 'Your Skills',
+        isFromResume ? 'Tap proficiency levels to adjust. Check common outcomes to add evidence instantly.'
+                     : 'Add your key skills. You can build this out further after setup.')
+    + (isFromResume ? wizardRenderSkillCards(skills, levels, levelColors) : wizardRenderEmptySkills())
+    + (hasGaps ? wizardRenderGapSection(gapSkills, levelColors) : '')
+    + '<div style="display:flex; justify-content:space-between; margin-top:20px;">'
+    + wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')
+    + wizardBtn('Continue \u2192 Values', 'wizardSaveSkills()', 'primary')
+    + '</div>';
 }
+
+function wizardRenderSkillCards(skills, levels, levelColors) {
+    var roleMap = {};
+    skills.forEach(function(s, i) {
+        var roleKey = (s.roles && s.roles.length > 0) ? s.roles[0] : '_general';
+        if (!roleMap[roleKey]) roleMap[roleKey] = [];
+        roleMap[roleKey].push({ skill: s, idx: i });
+    });
+
+    var html = '<div style="max-height:440px; overflow-y:auto; margin-bottom:12px;">';
+    var roleKeys = Object.keys(roleMap);
+    roleKeys.forEach(function(roleKey) {
+        var items = roleMap[roleKey];
+        var roleName = roleKey === '_general' ? 'General Skills' : roleKey;
+        if (roleKeys.length > 1) {
+            html += '<details open style="margin-bottom:8px;">'
+                + '<summary style="cursor:pointer; font-weight:700; font-size:0.85em; color:var(--text-secondary);'
+                + ' padding:8px 0; text-transform:uppercase; letter-spacing:0.04em;">'
+                + escapeHtml(roleName) + ' (' + items.length + ')</summary>';
+        }
+        items.forEach(function(item) {
+            var s = item.skill;
+            var i = item.idx;
+            var outcomes = wizardGetCommonOutcomes(s.name, s.category);
+            html += '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+                + ' border-radius:10px; padding:12px; margin-bottom:8px;" id="skill-card-' + i + '">'
+                + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                + '<input type="checkbox" id="skill-check-' + i + '" checked'
+                + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">'
+                + '<div style="flex:1; min-width:0; font-weight:600; color:var(--text-primary); font-size:0.9em;">'
+                + escapeHtml(s.name) + '</div>'
+                + '<span style="font-size:0.72em; color:var(--text-muted);">'
+                + (s.evidence ? s.evidence.length : 0) + ' evidence</span>'
+                + '</div>';
+
+            html += '<div style="display:flex; gap:4px; margin-bottom:' + (outcomes.length > 0 ? '8' : '0') + 'px;">';
+            levels.forEach(function(lvl) {
+                var active = s.level === lvl;
+                html += '<button onclick="wizardSetSkillLevel(' + i + ',\'' + lvl + '\')"'
+                    + ' style="flex:1; padding:4px 2px; border-radius:6px; border:1.5px solid '
+                    + (active ? levelColors[lvl] : 'var(--border)') + ';'
+                    + ' background:' + (active ? levelColors[lvl] + '22' : 'transparent') + ';'
+                    + ' color:' + (active ? levelColors[lvl] : 'var(--text-muted)') + ';'
+                    + ' font-size:0.68em; font-weight:' + (active ? '700' : '500') + ';'
+                    + ' cursor:pointer; transition:all 0.15s; line-height:1.3;">'
+                    + lvl.substring(0, 3) + '</button>';
+            });
+            html += '</div>';
+
+            if (outcomes.length > 0) {
+                html += '<div style="border-top:1px solid var(--border); padding-top:6px;">';
+                outcomes.forEach(function(outcome, oi) {
+                    var alreadyHas = s.evidence && s.evidence.some(function(e) { return e.description === outcome; });
+                    html += '<label style="display:flex; align-items:start; gap:8px; padding:3px 0;'
+                        + ' font-size:0.78em; color:var(--text-secondary); cursor:pointer;">'
+                        + '<input type="checkbox" id="outcome-' + i + '-' + oi + '"'
+                        + (alreadyHas ? ' checked disabled' : '')
+                        + ' onchange="wizardToggleOutcome(' + i + ',' + oi + ')"'
+                        + ' style="margin-top:2px; accent-color:var(--accent); flex-shrink:0;">'
+                        + escapeHtml(outcome) + '</label>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+        });
+        if (roleKeys.length > 1) html += '</details>';
+    });
+    html += '</div>';
+    return html;
+}
+
+function wizardRenderEmptySkills() {
+    return '<div style="background:var(--bg-elevated); border:2px dashed var(--border);'
+        + ' border-radius:14px; padding:32px; text-align:center; margin-bottom:20px;">'
+        + '<p style="color:var(--text-secondary); margin-bottom:16px;">'
+        + 'Skills are best built from your resume. You can add them manually in the Skills tab after setup.</p>'
+        + '<p style="color:var(--text-muted); font-size:0.85em;">'
+        + 'The system includes 90+ O*NET standard skills you can browse and add.</p></div>';
+}
+
+function wizardRenderGapSection(gapSkills, levelColors) {
+    var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+        + ' border-radius:12px; padding:14px; margin-top:8px;">'
+        + '<div style="font-weight:700; color:var(--text-primary); font-size:0.88em; margin-bottom:8px;">'
+        + '\uD83C\uDFAF Suggested from O*NET</div>';
+    gapSkills.forEach(function(g, i) {
+        var c = levelColors[g.occupationLevel] || '#6b7280';
+        html += '<label style="display:flex; align-items:center; gap:10px; padding:6px 0;'
+            + ' border-bottom:1px solid var(--border); cursor:pointer;">'
+            + '<input type="checkbox" id="enrich-skill-' + i + '"'
+            + ' style="width:15px; height:15px; accent-color:var(--accent); flex-shrink:0;">'
+            + '<div style="width:8px; height:8px; border-radius:50%; background:' + c + '; flex-shrink:0;"></div>'
+            + '<div style="flex:1; min-width:0;">'
+            + '<span style="font-weight:600; font-size:0.85em; color:var(--text-primary);">'
+            + escapeHtml(g.name) + '</span>'
+            + ' <span style="font-size:0.72em; color:var(--text-muted);">'
+            + escapeHtml(g.occupationLevel || 'Proficient') + '</span>'
+            + '</div></label>';
+    });
+    html += '</div>';
+    return html;
+}
+
+function wizardGetCommonOutcomes(skillName, category) {
+    var name = (skillName || '').toLowerCase();
+    var outcomeMap = {
+        'python': ['Built production data pipelines processing 1M+ records','Automated reporting workflows reducing manual effort by 60%+','Developed ML models deployed to production'],
+        'javascript': ['Built responsive web applications serving 10K+ users','Implemented real-time features with WebSockets/SSE','Created reusable component libraries adopted across teams'],
+        'typescript': ['Migrated legacy JS codebase to TypeScript reducing bugs 40%+','Designed type-safe API contracts across frontend/backend','Built shared type definitions used by 5+ services'],
+        'react': ['Built component-driven UIs with 95%+ Lighthouse scores','Implemented complex state management for enterprise apps','Reduced bundle size 30%+ through code splitting and optimization'],
+        'node': ['Built RESTful APIs handling 1K+ requests/second','Designed microservice architectures for scalable backends','Implemented CI/CD pipelines with automated testing'],
+        'sql': ['Optimized database queries reducing response time by 50%+','Designed normalized schemas supporting 100M+ row tables','Built ETL pipelines for business intelligence reporting'],
+        'aws': ['Architected cloud infrastructure supporting 99.9% uptime','Reduced cloud costs 25%+ through right-sizing and reserved capacity','Implemented Infrastructure-as-Code with CloudFormation/Terraform'],
+        'leadership': ['Led cross-functional teams of 5-15 engineers','Mentored junior developers resulting in 3+ promotions','Drove adoption of engineering best practices across organization'],
+        'management': ['Managed teams of 5-20 direct reports across multiple projects','Implemented performance review processes improving retention 20%+','Drove quarterly planning and OKR processes for department'],
+        'project management': ['Delivered complex projects on time and within budget','Coordinated cross-team dependencies for 10+ stakeholder groups','Implemented agile methodologies improving velocity 30%+'],
+        'communication': ['Presented technical strategies to C-level executives','Created documentation standards adopted across engineering org','Led knowledge-sharing sessions increasing team productivity'],
+        'data analysis': ['Built dashboards driving executive decision-making','Identified revenue opportunities through customer behavior analysis','Automated reporting reducing analyst workload 40%+'],
+        'machine learning': ['Deployed ML models generating measurable business impact','Built feature engineering pipelines for production ML systems','Improved model accuracy 15%+ through systematic experimentation'],
+        'product management': ['Defined product roadmaps generating $1M+ in revenue','Conducted user research informing 10+ feature decisions','Increased user engagement 25%+ through data-driven prioritization'],
+        'agile': ['Facilitated sprint ceremonies for teams of 8-12 engineers','Improved sprint velocity 20%+ through process optimization','Coached teams on agile principles reducing cycle time'],
+        'docker': ['Containerized applications reducing deployment time 70%+','Built multi-stage Docker builds optimizing image sizes','Designed container orchestration for microservice deployments'],
+        'kubernetes': ['Managed production Kubernetes clusters with 99.9% uptime','Implemented auto-scaling reducing infrastructure costs 30%+','Designed service mesh architecture for inter-service communication'],
+        'security': ['Implemented security audits identifying and resolving 50+ vulnerabilities','Designed authentication/authorization systems for enterprise apps','Achieved compliance certifications (SOC2, HIPAA, or similar)'],
+        'design': ['Created design systems adopted by 10+ product teams','Improved user task completion rates 30%+ through UX redesign','Led user research studies informing product direction'],
+        'strategy': ['Developed business strategies driving 20%+ revenue growth','Led market analysis identifying new growth opportunities','Built strategic partnerships generating $500K+ in value'],
+        'sales': ['Exceeded quota consistently achieving 110%+ of targets','Built sales playbooks adopted by teams of 10+ reps','Developed enterprise accounts generating $1M+ ARR'],
+        'marketing': ['Executed campaigns generating 1000+ qualified leads per quarter','Improved conversion rates 25%+ through A/B testing','Built content strategies increasing organic traffic 50%+']
+    };
+
+    for (var key in outcomeMap) {
+        if (name.indexOf(key) >= 0 || key.indexOf(name) >= 0) {
+            return outcomeMap[key];
+        }
+    }
+
+    if (category === 'knowledge') return ['Applied specialized knowledge to solve complex domain problems','Trained team members on domain-specific methodologies'];
+    if (category === 'ability') return ['Demonstrated capability under pressure in high-stakes situations','Applied skill consistently across diverse project contexts'];
+    return [];
+}
+
+function wizardSetSkillLevel(idx, level) {
+    if (idx >= 0 && idx < wizardState.skills.length) {
+        wizardState.skills[idx].level = level;
+        var card = document.getElementById('skill-card-' + idx);
+        if (card) {
+            var btns = card.querySelectorAll('button');
+            var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
+            btns.forEach(function(btn) {
+                var lvl = btn.textContent.trim();
+                var fullLevel = { Nov:'Novice', Pro:'Proficient', Adv:'Advanced', Exp:'Expert', Mas:'Mastery' }[lvl] || '';
+                var active = fullLevel === level;
+                var c = levelColors[fullLevel] || 'var(--text-muted)';
+                btn.style.borderColor = active ? c : 'var(--border)';
+                btn.style.background = active ? c + '22' : 'transparent';
+                btn.style.color = active ? c : 'var(--text-muted)';
+                btn.style.fontWeight = active ? '700' : '500';
+            });
+        }
+    }
+}
+window.wizardSetSkillLevel = wizardSetSkillLevel;
+
+function wizardToggleOutcome(skillIdx, outcomeIdx) {
+    var s = wizardState.skills[skillIdx];
+    if (!s) return;
+    var outcomes = wizardGetCommonOutcomes(s.name, s.category);
+    var outcome = outcomes[outcomeIdx];
+    if (!outcome) return;
+    if (!s.evidence) s.evidence = [];
+    var cb = document.getElementById('outcome-' + skillIdx + '-' + outcomeIdx);
+    if (cb && cb.checked) {
+        s.evidence.push({ description: outcome, type: 'outcome', source: 'common-outcome', date: new Date().toISOString().substring(0, 10) });
+        var evSpan = document.getElementById('skill-card-' + skillIdx);
+        if (evSpan) {
+            var countEl = evSpan.querySelector('span[style*="evidence"]');
+        }
+    } else {
+        s.evidence = s.evidence.filter(function(e) { return e.description !== outcome; });
+    }
+}
+window.wizardToggleOutcome = wizardToggleOutcome;
 
 export function wizardSaveSkills() {
     if (readOnlyGuard()) return;
-    // Filter to only checked skills
-    wizardState.skills = wizardState.skills.filter((s, i) => {
-        const cb = document.getElementById(`skill-check-${i}`);
+    var enrichment = wizardState.enrichment;
+    if (enrichment && enrichment.gapSkills) {
+        var existingNames = {};
+        wizardState.skills.forEach(function(s) { existingNames[s.name.toLowerCase()] = true; });
+        var addedCount = 0;
+        enrichment.gapSkills.slice(0, 8).forEach(function(g, i) {
+            var cb = document.getElementById('enrich-skill-' + i);
+            if (cb && cb.checked && !existingNames[g.name.toLowerCase()]) {
+                var levelMap = { 'Mastery':'Mastery', 'Expert':'Expert', 'Advanced':'Advanced', 'Proficient':'Proficient', 'Novice':'Novice' };
+                wizardState.skills.push({
+                    name: g.name, level: levelMap[g.occupationLevel] || 'Proficient',
+                    category: g.category || 'skill', roles: [], key: false, evidence: [],
+                    onetId: g.elementId || null, sources: ['onet-enrichment:' + new Date().toISOString().substring(0, 10)]
+                });
+                existingNames[g.name.toLowerCase()] = true;
+                addedCount++;
+            }
+        });
+        if (addedCount > 0) showToast(addedCount + ' skill' + (addedCount > 1 ? 's' : '') + ' added from O*NET.', 'success');
+    }
+    wizardState.skills = wizardState.skills.filter(function(s, i) {
+        var cb = document.getElementById('skill-check-' + i);
         return !cb || cb.checked;
     });
     wizardNext();
@@ -6952,68 +7236,148 @@ export function wizardSavePurpose() {
     wizardNext();
 }
 
-// ── STEP 9: Complete ──────────────────────────────────────────────────
+// ── STEP 9: Complete — Instant Value Reveal ──────────────────────────
 
 export function renderWizardStep9(el) {
-    const skillCount = wizardState.skills.length;
-    const valueCount = wizardState.values.filter(v => v.selected).length;
-    const evidenceCount = wizardState.skills.reduce((n, s) => n + (s.evidence?.length || 0), 0);
+    var skillCount = wizardState.skills.length;
+    var valueCount = wizardState.values.filter(function(v) { return v.selected; }).length;
+    var evidenceCount = wizardState.skills.reduce(function(n, s) { return n + (s.evidence ? s.evidence.length : 0); }, 0);
 
-    el.innerHTML = `
-        ${wizardHeading(bpIcon('star',22), 'Your Blueprint is Ready',
-            'Here is what we built together. Download your profile to save it, then explore your full dashboard.')}
+    var marketValue = wizardEstimateMarketValue();
+    var topSkills = wizardGetTopValueSkills(3);
+    var strengthLabel = evidenceCount >= 15 ? 'Strong' : evidenceCount >= 8 ? 'Good' : evidenceCount >= 3 ? 'Building' : 'Early';
+    var strengthColor = evidenceCount >= 15 ? '#10b981' : evidenceCount >= 8 ? '#60a5fa' : evidenceCount >= 3 ? '#f59e0b' : '#94a3b8';
 
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;">
-            ${[
-                [bpIcon('compass',14), skillCount, 'Skills'],
-                [bpIcon('clipboard',12), evidenceCount, 'Evidence Items'],
-                [bpIcon('lightbulb',12), valueCount, 'Values']
-            ].map(([icon, n, label]) => `
-                <div style="background:var(--bg-elevated); border:1px solid var(--border);
-                            border-radius:12px; padding:20px; text-align:center;">
-                    <div style="font-size:1.8em; margin-bottom:6px;">${icon}</div>
-                    <div style="font-size:1.8em; font-weight:800; color:var(--accent); line-height:1;">${n}</div>
-                    <div style="font-size:0.82em; color:var(--text-secondary); margin-top:4px;">${label}</div>
-                </div>
-            `).join('')}
-        </div>
+    el.innerHTML = wizardHeading(bpIcon('star',22), 'Your Blueprint is Ready', '')
 
-        <div style="background:var(--bg-elevated); border:1px solid var(--border);
-                    border-radius:14px; padding:22px; margin-bottom:20px;">
-            <div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.95em;">
-                ${escapeHtml(wizardState.profile.name || 'Your')} · ${escapeHtml(wizardState.profile.currentTitle || '')}
-            </div>
-            ${wizardState.purpose ? `
-            <p style="color:var(--text-secondary); font-size:0.88em; line-height:1.7; margin-bottom:14px;
-                       font-style:italic; border-left:3px solid var(--accent); padding-left:14px;">
-                "${escapeHtml(wizardState.purpose)}"
-            </p>` : ''}
-            <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                ${wizardState.values.filter(v=>v.selected).slice(0,5).map(v =>
-                    `<span style="background:var(--chip-bg); border:1px solid var(--border);
-                                  padding:4px 10px; border-radius:10px; font-size:0.78em;
-                                  color:var(--text-secondary);">${escapeHtml(v.name)}</span>`
-                ).join('')}
-            </div>
-        </div>
+    + '<div style="background:linear-gradient(135deg, rgba(59,130,246,0.12), rgba(168,85,247,0.08));'
+    + ' border:1px solid rgba(59,130,246,0.25); border-radius:16px; padding:28px; text-align:center;'
+    + ' margin-bottom:20px;">'
+    + '<div style="font-size:0.82em; color:var(--text-secondary); text-transform:uppercase;'
+    + ' letter-spacing:0.08em; font-weight:600; margin-bottom:8px;">Estimated Market Value</div>'
+    + '<div id="wizardValueCounter" style="font-size:2.8em; font-weight:800; color:var(--accent);'
+    + ' line-height:1; margin-bottom:4px;" data-target="' + marketValue.total + '">$0</div>'
+    + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:16px;">'
+    + 'Based on BLS data, ' + skillCount + ' skills, and ' + evidenceCount + ' evidence items</div>'
+    + '<div style="display:flex; justify-content:center; gap:24px;">'
+    + '<div><div style="font-size:1.2em; font-weight:700; color:var(--text-primary);">'
+    + '$' + Math.round(marketValue.conservative / 1000) + 'K</div>'
+    + '<div style="font-size:0.7em; color:var(--text-muted);">Conservative</div></div>'
+    + '<div><div style="font-size:1.2em; font-weight:700; color:var(--accent);">'
+    + '$' + Math.round(marketValue.total / 1000) + 'K</div>'
+    + '<div style="font-size:0.7em; color:var(--text-muted);">Target</div></div>'
+    + '<div><div style="font-size:1.2em; font-weight:700; color:#a78bfa;">'
+    + '$' + Math.round(marketValue.competitive / 1000) + 'K</div>'
+    + '<div style="font-size:0.7em; color:var(--text-muted);">Competitive</div></div>'
+    + '</div></div>'
 
-        <div style="display:flex; flex-direction:column; align-items:center; gap:12px; margin-bottom:24px;">
-            <button onclick="wizardSaveAndGo()"
-                    style="width:100%; max-width:360px; background:var(--accent); color:#fff; border:none;
-                           padding:16px 24px; border-radius:10px; cursor:pointer;
-                           font-size:0.95em; font-weight:700;">
-                ${bpIcon("save",14)} Save & Go to Dashboard
-            </button>
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82em; color:var(--text-secondary);">
-                <input type="checkbox" id="wizardDownloadCheck" checked style="accent-color:var(--accent);">
-                Also download JSON backup
-            </label>
-        </div>
+    + (topSkills.length > 0 ? '<div style="display:grid; grid-template-columns:repeat(' + Math.min(topSkills.length, 3) + ',1fr);'
+    + ' gap:10px; margin-bottom:16px;">'
+    + topSkills.map(function(ts) {
+        var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
+        return '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+            + ' border-radius:10px; padding:12px; text-align:center;">'
+            + '<div style="font-size:0.78em; font-weight:700; color:var(--text-primary); margin-bottom:4px;'
+            + ' overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">'
+            + escapeHtml(ts.name) + '</div>'
+            + '<div style="width:8px; height:8px; border-radius:50%; background:'
+            + (levelColors[ts.level] || '#6b7280') + '; margin:0 auto 4px;"></div>'
+            + '<div style="font-size:0.72em; color:var(--text-muted);">' + escapeHtml(ts.level) + '</div></div>';
+    }).join('') + '</div>' : '')
 
-        <p style="text-align:center; font-size:0.8em; color:var(--text-muted);">
-            Your profile saves to your account automatically when signed in.
-        </p>
-    `;
+    + '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;">'
+    + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+    + ' border-radius:10px; padding:14px; text-align:center;">'
+    + '<div style="font-size:1.5em; font-weight:800; color:var(--accent);">' + skillCount + '</div>'
+    + '<div style="font-size:0.75em; color:var(--text-muted);">Skills</div></div>'
+    + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+    + ' border-radius:10px; padding:14px; text-align:center;">'
+    + '<div style="font-size:1.5em; font-weight:800; color:' + strengthColor + ';">' + evidenceCount + '</div>'
+    + '<div style="font-size:0.75em; color:var(--text-muted);">Evidence</div></div>'
+    + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+    + ' border-radius:10px; padding:14px; text-align:center;">'
+    + '<div style="font-size:1.5em; font-weight:800; color:var(--text-primary);">' + strengthLabel + '</div>'
+    + '<div style="font-size:0.75em; color:var(--text-muted);">Profile Strength</div></div>'
+    + '</div>'
+
+    + (wizardState.purpose ? '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+    + ' border-radius:12px; padding:16px; margin-bottom:16px;">'
+    + '<p style="color:var(--text-secondary); font-size:0.85em; line-height:1.6;'
+    + ' font-style:italic; border-left:3px solid var(--accent); padding-left:12px; margin:0;">'
+    + '"' + escapeHtml(wizardState.purpose) + '"</p></div>' : '')
+
+    + '<div style="display:flex; flex-direction:column; align-items:center; gap:12px; margin-bottom:20px;">'
+    + '<button onclick="wizardSaveAndGo()" style="width:100%; max-width:360px; background:var(--accent);'
+    + ' color:#fff; border:none; padding:16px 24px; border-radius:10px; cursor:pointer;'
+    + ' font-size:0.95em; font-weight:700;">' + bpIcon('save',14) + ' Save & Go to Dashboard</button>'
+    + '<label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82em;'
+    + ' color:var(--text-secondary);">'
+    + '<input type="checkbox" id="wizardDownloadCheck" checked style="accent-color:var(--accent);">'
+    + 'Also download JSON backup</label></div>'
+    + '<p style="text-align:center; font-size:0.8em; color:var(--text-muted);">'
+    + 'Your profile saves to your account automatically when signed in.</p>';
+
+    setTimeout(wizardAnimateValueCounter, 300);
+}
+
+function wizardEstimateMarketValue() {
+    var skills = wizardState.skills || [];
+    var profile = wizardState.profile || {};
+    var yearsExp = parseInt(profile.yearsExperience) || 5;
+    var titleStr = (profile.currentTitle || '').toLowerCase();
+
+    var levelWeight = { Novice: 1, Proficient: 2, Advanced: 3, Expert: 4, Mastery: 5 };
+    var totalPoints = skills.reduce(function(sum, s) {
+        var base = levelWeight[s.level] || 2;
+        var evidenceBonus = Math.min((s.evidence ? s.evidence.length : 0) * 0.3, 2);
+        return sum + base + evidenceBonus;
+    }, 0);
+
+    var baseMultiplier = 18000;
+    if (titleStr.indexOf('vp') >= 0 || titleStr.indexOf('vice president') >= 0 || titleStr.indexOf('director') >= 0) baseMultiplier = 24000;
+    else if (titleStr.indexOf('senior') >= 0 || titleStr.indexOf('lead') >= 0 || titleStr.indexOf('principal') >= 0) baseMultiplier = 21000;
+    else if (titleStr.indexOf('manager') >= 0) baseMultiplier = 20000;
+    else if (titleStr.indexOf('junior') >= 0 || titleStr.indexOf('associate') >= 0) baseMultiplier = 14000;
+
+    var yearsMultiplier = 1 + Math.min(yearsExp, 25) * 0.025;
+    var rawValue = totalPoints * baseMultiplier * yearsMultiplier / skills.length || 0;
+    rawValue = Math.max(rawValue, 45000);
+    rawValue = Math.min(rawValue, 550000);
+    var total = Math.round(rawValue / 1000) * 1000;
+
+    return {
+        total: total,
+        conservative: Math.round(total * 0.85 / 1000) * 1000,
+        competitive: Math.round(total * 1.18 / 1000) * 1000
+    };
+}
+
+function wizardGetTopValueSkills(count) {
+    var skills = wizardState.skills || [];
+    var levelWeight = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
+    var scored = skills.map(function(s) {
+        return { name: s.name, level: s.level, score: (levelWeight[s.level] || 2) + (s.evidence ? s.evidence.length : 0) * 0.5 };
+    });
+    scored.sort(function(a, b) { return b.score - a.score; });
+    return scored.slice(0, count);
+}
+
+function wizardAnimateValueCounter() {
+    var el = document.getElementById('wizardValueCounter');
+    if (!el) return;
+    var target = parseInt(el.getAttribute('data-target')) || 0;
+    if (target <= 0) { el.textContent = '$0'; return; }
+    var duration = 1500;
+    var start = Date.now();
+    var tick = function() {
+        var elapsed = Date.now() - start;
+        var progress = Math.min(elapsed / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = Math.round(target * eased);
+        el.textContent = '$' + current.toLocaleString();
+        if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
 }
 
 export function wizardApplyContentOpts() {
@@ -7034,14 +7398,25 @@ export function wizardBuildUserData() {
             ...wizardState.profile,
             headline: `${wizardState.profile.currentTitle || ''} · ${wizardState.profile.yearsExperience || ''}+ Years`
         },
-        skills: wizardState.skills.map(s => ({
-            ...s,
-            roles: s.roles || [],
-            key: s.key || false,
-            onetId: s.onetId || null,
-            endorsements: s.endorsements || 0,
-            endorsementBoosted: s.endorsementBoosted || false
-        })),
+        skills: wizardState.skills.map(function(s) {
+            var isKey = s.key || false;
+            var lens = wizardState.selectedLens || '';
+            if (lens && !isKey) {
+                var n = (s.name || '').toLowerCase();
+                if (lens === 'technical' && /python|javascript|typescript|react|node|sql|aws|azure|cloud|data|software|api|devops|infrastructure|architecture|kubernetes|docker|engineering|machine learning|ai/i.test(n)) isKey = true;
+                else if (lens === 'strategic' && /leadership|management|team|strategy|vision|stakeholder|cross-functional|coaching|mentoring|hiring|budget/i.test(n)) isKey = true;
+                else if (lens === 'builder' && /product|growth|revenue|launch|startup|scale|market|customer|entrepreneur|mvp|gtm/i.test(n)) isKey = true;
+                else if (lens === 'expert' && /research|analysis|specialist|domain|certification|compliance|regulatory|methodology|framework|consulting/i.test(n)) isKey = true;
+            }
+            return {
+                ...s,
+                roles: s.roles || [],
+                key: isKey,
+                onetId: s.onetId || null,
+                endorsements: s.endorsements || 0,
+                endorsementBoosted: s.endorsementBoosted || false
+            };
+        }),
         roles: (wizardState.parsedData?.roles || []).map((r, i) => ({
             id: r.id || `role${i+1}`,
             name: r.name || r.company || `Role ${i+1}`,
@@ -7053,6 +7428,7 @@ export function wizardBuildUserData() {
         })),
         values: wizardState.values,
         purpose: wizardState.purpose,
+        careerLens: wizardState.selectedLens || null,
         workHistory: wizardState.workHistory || [],
         companyTenures: wizardState.companyTenures || [],
         education: wizardState.education || [],
