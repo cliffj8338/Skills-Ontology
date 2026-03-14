@@ -146,20 +146,23 @@ export function startTour(name, steps) {
 }
 
 export function endTour(skipFlag) {
+    var wasWelcome = tourName === 'welcome';
     tourActive = false;
     if (tourOverlay) { tourOverlay.style.clipPath = ''; tourOverlay.remove(); tourOverlay = null; }
     if (tourTooltip) { tourTooltip.remove(); tourTooltip = null; }
     var spotlight = document.querySelector('.tour-spotlight');
     if (spotlight) spotlight.remove();
-    // Mark tour as seen
     if (skipFlag !== false) {
         try { localStorage.setItem(TOUR_SEEN_KEY, 'true'); } catch(e) {}
-        if (tourName === 'welcome') {
+        if (wasWelcome) {
             try { localStorage.setItem(TOUR_SEEN_WELCOME, 'true'); } catch(e) {}
         }
     }
     tourSteps = [];
     tourCurrentStep = 0;
+    if (wasWelcome && typeof viewSampleProfile === 'function') {
+        setTimeout(function() { try { viewSampleProfile(); } catch(e) {} }, 200);
+    }
 }
 
 export function createOverlayElements() {
