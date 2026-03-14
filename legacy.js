@@ -44342,9 +44342,71 @@ body {
         }
         window.showCompReviewGuide = showCompReviewGuide;
         
+        // ── Static Negotiation Guide for Demo Mode ────────────────────────────
+        var _staticNegGuidesCache = null;
+        async function _loadStaticNegGuides() {
+            if (_staticNegGuidesCache) return _staticNegGuidesCache;
+            try {
+                var resp = await fetch('/profiles/demo-assets/negotiation-guides.json');
+                if (resp.ok) _staticNegGuidesCache = await resp.json();
+            } catch(e) { console.warn('[NEG] Static guides fetch failed:', e.message); }
+            return _staticNegGuidesCache || {};
+        }
+
+        async function _showStaticNegGuide() {
+            var modal = document.getElementById('exportModal');
+            var mContent = modal ? modal.querySelector('.modal-content') : null;
+            if (!modal || !mContent) return;
+
+            var tid = (appContext.demoTemplateId || userData.templateId || '').replace(/^demo[-_]?/, '');
+            var tv = typeof getEffectiveComp === 'function' ? getEffectiveComp() : (typeof calculateTotalMarketValue === 'function' ? calculateTotalMarketValue() : null);
+            var currentComp = tv ? (tv.reportedComp || 0) : 0;
+
+            mContent.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Loading Guide\u2026</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button></div>'
+                + '<div class="modal-body" style="padding:40px; text-align:center;">'
+                + '<div style="opacity:0.5; margin-bottom:16px;">' + bpIcon('loader',36) + '</div></div>';
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
+
+            var guides = await _loadStaticNegGuides();
+            var profileGuides = guides[tid];
+            if (!profileGuides) {
+                mContent.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2></div>'
+                    + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button></div>'
+                    + '<div class="modal-body" style="padding:24px 28px;">'
+                    + '<div style="padding:16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
+                    + '<div style="font-size:0.82em; color:var(--c-muted);"><strong style="color:#60a5fa;">In your Blueprint</strong>, this guide is dynamically generated from your unique profile, skills, and target role using AI-powered analysis.</div></div>'
+                    + '<p style="color:var(--c-muted); font-size:0.9em;">No static guide available for this demo profile. Sign up to get a personalized negotiation guide built from your data.</p>'
+                    + '<button onclick="demoGate(\u0027build a negotiation guide\u0027)" style="margin-top:16px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Get My Own Guide</button>'
+                    + '</div>';
+                return;
+            }
+
+            var guideKeys = Object.keys(profileGuides);
+            var guide = profileGuides[guideKeys[0]];
+
+            var disclaimer = '<div style="padding:12px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
+                + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:#60a5fa;">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
+
+            var origRenderFn = function(html) {
+                var bodyStart = html.indexOf('<div class="modal-body"');
+                if (bodyStart > -1) {
+                    var bodyTagEnd = html.indexOf('>', bodyStart) + 1;
+                    html = html.substring(0, bodyTagEnd) + disclaimer + html.substring(bodyTagEnd);
+                }
+                mContent.innerHTML = html;
+            };
+
+            if (typeof _renderNegGuide === 'function') {
+                _renderNegGuide(guide, tv, currentComp, guide.mode || 'external', origRenderFn);
+            }
+        }
+        window._showStaticNegGuide = _showStaticNegGuide;
+
         // ── Negotiation Guide V2 — AI-powered, role-aware ─────────────────────
         function showNegotiationGuideV2(preselectedMode, preselectedRole) {
-            if (isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
+            if (isReadOnlyProfile) { _showStaticNegGuide(); return; }
 
             var modal    = document.getElementById('exportModal');
             var mContent = modal.querySelector('.modal-content');
