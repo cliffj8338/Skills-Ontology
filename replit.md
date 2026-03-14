@@ -50,6 +50,7 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - `onet-impact-ratings.json` — O*NET impact ratings with `marketScarcity` per skill
 - `certifications/lightcast-certs.json` — 1,583 certification credentials
 - `profiles/demo/` — Demo candidate profiles (24 characters)
+- `profiles/demo-assets/negotiation-guides.json` — Pre-built static negotiation guides for all 24 demo profiles (zero API calls in demo mode)
 - `bls-wages.json` — BLS wage data (831 occupations)
 - `companies.json` — Company values (58 companies)
 

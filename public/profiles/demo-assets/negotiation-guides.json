@@ -1,0 +1,849 @@
+{
+  "walter-white": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Senior Research Chemist at Pfizer",
+      "openingMove": "Based on my 20+ years synthesizing novel compounds with 99.1% purity benchmarks and managing multi-million dollar lab operations, I'm targeting compensation that reflects a top-tier research chemist who can accelerate your drug discovery pipeline from day one.",
+      "theAsk": { "number": 185000, "justification": ["BLS data places senior research chemists at the 90th percentile around $165K, but my crystallography expertise and publication record put me above standard benchmarks", "My track record managing laboratory operations with zero safety incidents over two decades demonstrates the operational leadership Pfizer needs", "The revenue impact of accelerating synthesis routes — even by weeks — translates to millions in faster time-to-market for your drug pipeline"] },
+      "strengths": [
+        { "title": "Unmatched Synthesis Expertise", "evidence": "Achieved 99.1% product purity consistently — a benchmark most labs consider theoretical", "hook": "In my last role, I consistently delivered 99.1% purity on complex organic synthesis — that's not a lab accident, that's methodology you can replicate across your pipeline." },
+        { "title": "Research-to-Production Bridge", "evidence": "Scaled laboratory processes to industrial production while maintaining quality standards", "hook": "I've taken bench-scale synthesis and scaled it to production volumes without sacrificing purity — that's the gap most pharma companies struggle to close." },
+        { "title": "Mentorship & Knowledge Transfer", "evidence": "Trained and developed junior chemists who went on to lead their own research programs", "hook": "I've built a reputation for developing talent — three of my former students now lead research programs at major institutions." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Academic background vs. pharma industry experience", "reframe": "My academic rigor means I approach problems with deeper theoretical understanding than industry-trained chemists", "bridgeLine": "Actually, my academic foundation is what allows me to innovate beyond standard pharma protocols — I don't just follow synthesis playbooks, I write new ones." },
+        { "weakness": "Career gap in traditional pharma roles", "reframe": "This period involved independent consulting work that broadened my problem-solving across multiple domains", "bridgeLine": "That period was actually my most productive — I solved synthesis challenges that had stumped conventional approaches, which is exactly the kind of thinking Pfizer needs." },
+        { "weakness": "May be overqualified for team-based roles", "reframe": "My leadership style elevates entire teams — I don't compete with colleagues, I make them better", "bridgeLine": "I see my expertise as a force multiplier — when I join a team, everyone's output improves because I share methodology, not just results." }
+      ],
+      "blindSpots": [
+        { "risk": "Perfectionism may conflict with pharma's speed-to-market pressure", "why": "Your 99.1% purity standard is exceptional but drug discovery sometimes requires 'good enough' to advance candidates", "mitigation": "Acknowledge the tension directly: 'I understand the stage-gate process — I bring rigor where it matters most and pragmatism where speed is the priority.'" },
+        { "risk": "Independence preference in a highly collaborative environment", "why": "Pfizer's matrixed structure requires constant cross-functional coordination", "mitigation": "Highlight collaborative wins and frame your independence as self-direction that reduces management overhead." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer $150K citing internal equity bands", "response": "I appreciate the transparency on bands. Given that my crystallography expertise alone would cost $80K+ in outsourced consulting annually, I'd suggest we explore how to structure compensation to reflect that value — perhaps a signing bonus or accelerated review timeline to bridge the gap." },
+        { "scenario": "They push back on the seniority level", "response": "I understand the leveling framework. What I'd propose is starting at the level you're comfortable with, but with a 6-month performance review tied to specific synthesis milestones — I'm confident the results will speak for themselves." },
+        { "scenario": "They counter with strong benefits but lower base", "response": "The benefits package is genuinely impressive. For the base, I'm looking at this from a total career value perspective — a $15K difference in base compounds over years. Could we split the difference and add a performance bonus tied to patent filings?" }
+      ],
+      "valueConnections": [
+        { "value": "Scientific Integrity", "connection": "Pfizer's commitment to rigorous clinical standards aligns perfectly with my 'no shortcuts' approach to chemistry — this isn't just a job fit, it's a values match." },
+        { "value": "Knowledge Sharing", "connection": "Your emphasis on collaborative R&D and publication culture means my mentorship approach would thrive here." },
+        { "value": "Excellence", "connection": "The 99.1% purity standard isn't a number — it's a philosophy. That same commitment to excellence is what drives Pfizer's reputation." }
+      ],
+      "questionsToAsk": [
+        "What does the promotion path look like for research chemists who consistently exceed pipeline targets?",
+        "How does Pfizer handle intellectual property for novel synthesis methods developed by individual contributors?",
+        "What's the budget allocation process for expanding research programs based on early-stage results?"
+      ]
+    }
+  },
+
+  "gus-fring": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "VP of Multi-Unit Operations at Chick-fil-A",
+      "openingMove": "I've built and operated a multi-unit restaurant chain with industry-leading consistency metrics, and my approach to operational excellence — where every location delivers identical quality — is exactly what Chick-fil-A's franchise model demands.",
+      "theAsk": { "number": 285000, "justification": ["VP-level QSR operations roles at top chains command $250-320K total compensation", "My track record of maintaining identical quality standards across every location — with zero tolerance for deviation — directly maps to Chick-fil-A's franchise excellence model", "Supply chain optimization experience across complex distribution networks has delivered consistent 15%+ efficiency gains"] },
+      "strengths": [
+        { "title": "Operational Consistency at Scale", "evidence": "Maintained identical product quality and service standards across all locations with zero variance tolerance", "hook": "Every location I've operated delivered the same experience — not approximately the same, exactly the same. That's what Chick-fil-A's brand promise requires." },
+        { "title": "Supply Chain Architecture", "evidence": "Built vertically integrated supply chains that reduced costs while improving quality control", "hook": "I designed supply chains where I controlled quality from source to service counter — eliminating the variability that comes from relying on third-party quality checks." },
+        { "title": "Community-Centric Operations", "evidence": "Each location became a community institution through strategic relationship building and local investment", "hook": "My restaurants weren't just businesses — they were community anchors. That philosophy of serving the community while building the brand is core to how I operate." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Smaller scale operation compared to Chick-fil-A's 3,000+ units", "reframe": "The principles of operational excellence scale — my per-unit metrics exceed industry benchmarks that larger chains struggle to achieve", "bridgeLine": "Scale is a logistics challenge I'm prepared for. What's harder to scale is the culture of excellence — and that's what I bring from day one." },
+        { "weakness": "Independent operator vs. franchise support model", "reframe": "Understanding operations from the owner-operator perspective makes me a better franchise support leader", "bridgeLine": "Having operated my own units means I understand franchisee challenges firsthand — I won't be the corporate VP who's never worked a lunch rush." },
+        { "weakness": "Unconventional career path", "reframe": "My diverse business experience gives me perspectives that traditional QSR career-track executives lack", "bridgeLine": "My path gave me expertise in risk management, financial planning, and crisis leadership that you don't develop climbing a single corporate ladder." }
+      ],
+      "blindSpots": [
+        { "risk": "Preference for total control may conflict with franchise operator autonomy", "why": "Chick-fil-A operators have significant local autonomy within brand standards", "mitigation": "Frame your control orientation as 'standards clarity' — you set the bar and support operators in reaching it, rather than dictating every process." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer $240K citing internal comp bands", "response": "I understand the structure. Given that my operational methodology has consistently delivered top-decile unit economics, I'd suggest we include a performance incentive tied to same-store sales growth across my portfolio — that way, the additional compensation is self-funding." },
+        { "scenario": "They want a 6-month probation at lower comp", "response": "I'm confident in delivering results quickly. How about we start at the full rate with a 90-day review tied to specific operational KPIs I'll propose? That gives you measurable proof of value in half the time." },
+        { "scenario": "They counter with equity in lieu of higher base", "response": "I appreciate the equity component. Could we structure it as base at $265K with a meaningful equity stake that vests on operational milestones? That aligns my incentives perfectly with Chick-fil-A's long-term growth." }
+      ],
+      "valueConnections": [
+        { "value": "Service Excellence", "connection": "Chick-fil-A's 'my pleasure' culture isn't just a phrase — it's an operational philosophy I've lived. Every interaction reinforces the brand." },
+        { "value": "Community Investment", "connection": "My approach to each location as a community institution aligns perfectly with Chick-fil-A's deep local engagement model." },
+        { "value": "Integrity", "connection": "In my operations, every product meets the same standard whether anyone is watching or not. That's not a policy — it's a principle." }
+      ],
+      "questionsToAsk": [
+        "How does Chick-fil-A measure and maintain consistency across operators with different levels of experience?",
+        "What's the current approach to supply chain resilience for perishable ingredients across 3,000+ locations?",
+        "How much autonomy will I have to pilot new operational standards before rolling them out nationally?"
+      ]
+    }
+  },
+
+  "hank-schrader": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Director of Investigations at FBI",
+      "openingMove": "I've built and led the most productive narcotics task force in the Southwest region, with case clearance rates that consistently double the national average — I'm ready to bring that same relentless investigative methodology to the FBI at scale.",
+      "theAsk": { "number": 195000, "justification": ["FBI SES-level Director positions benchmark at $180-210K on the federal pay scale", "My case portfolio includes multi-year investigations that dismantled entire distribution networks — not just individual arrests, but systemic takedowns", "Cross-agency coordination experience with ATF, CBP, and state law enforcement demonstrates the inter-agency leadership FBI Directors require"] },
+      "strengths": [
+        { "title": "Case Construction Excellence", "evidence": "Built prosecutable cases that resulted in 94% conviction rate across major narcotics investigations", "hook": "My cases don't fall apart in court. A 94% conviction rate means I build evidence chains that prosecutors love and defense attorneys dread." },
+        { "title": "Team Development Under Pressure", "evidence": "Mentored junior agents into lead investigators while maintaining active field operations", "hook": "I develop agents who can run their own operations — I don't just clear cases, I multiply the bureau's investigative capacity." },
+        { "title": "Forensic Innovation", "evidence": "Pioneered new evidence collection and analysis techniques adopted across the regional division", "hook": "I don't wait for the lab to tell me what's possible — I push forensic boundaries and develop new methodologies that become standard practice." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Regional focus vs. national/international scope", "reframe": "My investigations regularly crossed state and international borders — the Southwest corridor is inherently a cross-border operation", "bridgeLine": "The Southwest narcotics landscape is the most complex in the country — if you can run investigations across that terrain, scaling to a national mandate is a natural progression." },
+        { "weakness": "Known for aggressive field approach", "reframe": "My assertiveness is what produces results where cautious approaches stall — I can calibrate intensity to the situation", "bridgeLine": "I'm aggressive when the case demands it and methodical when patience wins. The skill is knowing which approach fits the moment." },
+        { "weakness": "DEA culture vs. FBI institutional norms", "reframe": "Cross-agency perspective is an asset — I bring operational intensity from DEA combined with respect for FBI's broader mission", "bridgeLine": "I've worked alongside FBI teams my entire career. I understand and respect the culture — I'm also bringing the operational edge that field offices are asking for." }
+      ],
+      "blindSpots": [
+        { "risk": "Tendency to pursue cases based on instinct over institutional priorities", "why": "The FBI must balance investigative merit with national security priorities and political considerations", "mitigation": "Acknowledge this directly in conversations: 'I've learned that institutional priorities and investigative instinct need to work together — my best cases were the ones where both aligned.'" }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They cite federal pay scale limitations", "response": "I understand the GS/SES structure. Could we explore a higher step placement within the band based on my years of equivalent experience, plus relocation and retention bonuses that the SES framework allows?" },
+        { "scenario": "They offer a Deputy Director role instead", "response": "I'm willing to earn the Director title through results. If we agree on a Deputy role, I'd want a clear 18-month pathway to Director with defined performance milestones." },
+        { "scenario": "They want you to take a lateral transfer first", "response": "I see the value in understanding FBI operations from inside before leading them. I'd accept a lateral move if it comes with Director-track commitment and a timeline we agree on upfront." }
+      ],
+      "valueConnections": [
+        { "value": "Justice", "connection": "I didn't get into law enforcement for the title — I got in because letting criminals operate freely is something I can't accept. That's not going to change at the FBI." },
+        { "value": "Integrity", "connection": "My investigations have always followed the evidence, regardless of where it led — even when it was uncomfortable. That's the standard the FBI was built on." }
+      ],
+      "questionsToAsk": [
+        "What's the FBI's current framework for integrating local DEA intelligence into national narcotics strategy?",
+        "How much operational autonomy do division directors have in setting investigative priorities vs. headquarters directives?"
+      ]
+    }
+  },
+
+  "jesse-pinkman": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Master Carpenter at Restoration Hardware",
+      "openingMove": "I've built a reputation for handcrafted furniture that clients specifically seek out — pieces that combine traditional joinery techniques with modern design sensibility. I'm looking for a role where that craftsmanship standard drives the brand.",
+      "theAsk": { "number": 85000, "justification": ["Master carpenter roles at premium furniture brands benchmark at $75-95K", "My custom pieces command premium pricing because clients value the handmade authenticity — that brand alignment is exactly what RH's luxury positioning needs", "Experience adapting to client specifications while maintaining quality standards translates directly to RH's custom program"] },
+      "strengths": [
+        { "title": "Authentic Craftsmanship", "evidence": "Built a following for handcrafted wooden boxes and furniture pieces with visible attention to detail", "hook": "Every piece I build tells a story through the wood grain and joinery — that's not something you can manufacture, and it's exactly what RH customers are paying for." },
+        { "title": "Resilience & Reinvention", "evidence": "Successfully pivoted career through multiple challenging transitions, emerging with stronger skills each time", "hook": "I've reinvented myself more times than most people change jobs. Each time, I came out with a clearer understanding of what quality means — and it shows in my work." },
+        { "title": "Creative Problem Solving", "evidence": "Developed innovative approaches to material limitations and design challenges using street-smart resourcefulness", "hook": "When you don't have unlimited resources, you learn to be creative with what you've got. That resourcefulness means I find solutions other craftspeople don't even see." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Non-traditional training path", "reframe": "Self-taught craftspeople often develop more innovative techniques because they're not constrained by 'the way it's always been done'", "bridgeLine": "I didn't learn from a textbook — I learned by building, failing, and rebuilding until the piece was right. That hands-on mastery is something a classroom can't teach." },
+        { "weakness": "Inconsistent work history", "reframe": "My varied experiences gave me empathy for diverse clients and adaptability that traditionally-trained artisans lack", "bridgeLine": "My path wasn't linear, but every experience taught me something I use in my craft today — patience, attention to detail, and the value of doing things right." },
+        { "weakness": "Young for a 'master' designation", "reframe": "My skill level speaks for itself — age is irrelevant when the craftsmanship is at this standard", "bridgeLine": "Judge the work, not the resume. The joints are tight, the finish is flawless, and clients keep coming back. That's what 'master' means." }
+      ],
+      "blindSpots": [
+        { "risk": "Preference for artistic freedom vs. production consistency", "why": "RH needs craftspeople who can deliver consistent quality across a product line, not just one-off masterpieces", "mitigation": "Frame your artistry as the standard-setter: 'I create the benchmark piece, then develop the process so the team can replicate that quality consistently.'" }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer $65K citing entry-level craftsmanship rates", "response": "I understand the range for standard positions. What I bring is the ability to develop premium custom pieces that command 3-5x standard pricing — could we tie compensation to the revenue my custom work generates?" },
+        { "scenario": "They want to see a portfolio/trial period", "response": "I'm happy to do a paid trial project. Let me build one piece to your specifications — if it meets your quality bar, we move to full compensation. I'm betting on my work." },
+        { "scenario": "They offer production role instead of custom work", "response": "I understand the business need for production consistency. What if I split my time — 60% production work building your standard line at exceptional quality, 40% developing new custom pieces for the premium catalog? That way you get both." }
+      ],
+      "valueConnections": [
+        { "value": "Authenticity", "connection": "RH's brand is built on genuine quality, not mass-produced imitations. My handcrafted approach is the real thing — and customers can feel the difference." },
+        { "value": "Craftsmanship", "connection": "Every joint, every finish, every detail matters. That's not a work ethic — it's who I am now." }
+      ],
+      "questionsToAsk": [
+        "How does RH balance the desire for handcrafted authenticity with the need for production-scale output?",
+        "What's the creative input process for craftspeople — do artisans contribute to new product design, or is that separate?"
+      ]
+    }
+  },
+
+  "saul-goodman": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Chief Legal Officer at DraftKings",
+      "openingMove": "I've built a legal practice from nothing into the most recognized brand in consumer law in my region, while navigating regulatory gray areas that would paralyze most attorneys — DraftKings needs exactly that combination of entrepreneurial instinct and regulatory acumen.",
+      "theAsk": { "number": 340000, "justification": ["CLO compensation at publicly traded gaming/entertainment companies ranges from $300-400K base plus equity", "My expertise navigating complex regulatory frameworks in emerging markets directly maps to DraftKings' state-by-state legalization challenges", "Track record building a legal brand with direct consumer reach — not just legal competence, but the marketing savvy to make legal services accessible and trusted"] },
+      "strengths": [
+        { "title": "Regulatory Navigation in Gray Areas", "evidence": "Built thriving legal practice in heavily regulated environment by finding creative compliant solutions others missed", "hook": "DraftKings operates in a regulatory landscape that changes state by state, month by month. I've spent my career thriving in exactly that kind of ambiguity — finding the legal path that others don't see." },
+        { "title": "Brand-Building Through Legal", "evidence": "Created the most recognizable consumer-facing legal brand in the Southwest through innovative marketing and accessibility", "hook": "I didn't just practice law — I made legal services a brand. That same approach to making complex regulatory frameworks consumer-friendly is what DraftKings needs as it enters new markets." },
+        { "title": "Negotiation Under Extreme Pressure", "evidence": "Consistently achieved favorable outcomes in high-stakes negotiations where the other side held apparent advantages", "hook": "My best negotiations happen when everyone thinks I'm outmatched. I've turned impossible positions into favorable deals more times than I can count — and I can count very high." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Non-corporate legal background", "reframe": "I've handled every type of legal challenge a CLO faces — contracts, compliance, disputes, regulation — just without the corporate title", "bridgeLine": "I've done everything a CLO does, plus things most CLOs never face. The corporate structure is just a framework — the legal skills are identical." },
+        { "weakness": "Flashy personal brand vs. corporate gravitas", "reframe": "My ability to make complex legal concepts accessible is exactly what a consumer-facing company needs from its legal leader", "bridgeLine": "DraftKings doesn't need a CLO who speaks only to lawyers. You need someone who can explain regulatory compliance to the board, the press, and the public — that's my specialty." },
+        { "weakness": "Solo practitioner scaling to enterprise", "reframe": "Building a firm from scratch required every skill a CLO needs — team building, budgeting, strategy, client management — just at compressed scale", "bridgeLine": "I've built a legal operation from zero revenue to the dominant brand in my market. Scaling that methodology to enterprise level is the challenge I'm looking for." }
+      ],
+      "blindSpots": [
+        { "risk": "Creative legal strategies may push compliance boundaries at a public company", "why": "DraftKings faces intense regulatory scrutiny from state gaming commissions — aggressive approaches carry outsized risk", "mitigation": "Establish a 'bright line' framework early: document which creative strategies are appropriate for which contexts, and build a compliance review process that preserves innovation while managing risk." },
+        { "risk": "Personal brand may overshadow corporate brand", "why": "As CLO of a public company, the institution's reputation must come first", "mitigation": "Channel your brand-building instincts into building DraftKings' reputation as the most trusted, compliant operator in the industry." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer $280K citing your non-corporate background", "response": "I understand the concern. Let's structure it with a $300K base and a $100K bonus tied to successful market entry in two new states — that way, you're paying for results, and I'm betting on my ability to navigate the regulatory landscape." },
+        { "scenario": "They want to hire you as outside counsel first", "response": "I appreciate the pragmatism. If we go that route, I'd want a retainer that reflects CLO-level engagement, plus a contractual option to convert to full-time CLO within 12 months at pre-agreed terms." },
+        { "scenario": "They question your ability to manage a legal team", "response": "I've built and managed a legal operation that handled hundreds of cases simultaneously. The scale changes, but the principles of prioritization, delegation, and quality control are the same — and I've proven I can execute them." }
+      ],
+      "valueConnections": [
+        { "value": "Accessibility", "connection": "DraftKings democratized sports entertainment. I democratized legal services. We're both in the business of making complex systems accessible to regular people." },
+        { "value": "Innovation", "connection": "Every new state DraftKings enters is a regulatory puzzle. I don't just solve puzzles — I enjoy them." }
+      ],
+      "questionsToAsk": [
+        "What's the current regulatory roadmap for the next 5 states, and where are the biggest legal obstacles?",
+        "How does the legal team currently balance speed-to-market pressure with compliance rigor when entering new jurisdictions?",
+        "What authority does the CLO have to build the legal team — both in-house and external counsel networks?"
+      ]
+    }
+  },
+
+  "tuco-salamanca": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "VP of Distribution at Amazon Logistics",
+      "openingMove": "I've managed high-volume distribution networks across difficult terrain with delivery timelines that left zero margin for error — the intensity and operational discipline I bring is exactly what Amazon's logistics operation demands.",
+      "theAsk": { "number": 265000, "justification": ["VP-level Amazon logistics roles command $240-300K base plus significant equity", "My experience managing distribution networks with real-time quality assessment and zero-tolerance delivery standards maps directly to Amazon's operational ethos", "Track record of rapid territory expansion while maintaining network integrity demonstrates scalable leadership"] },
+      "strengths": [
+        { "title": "High-Intensity Operations Management", "evidence": "Managed distribution networks operating 24/7 with real-time quality monitoring and zero-tolerance for delays", "hook": "My operations never stop, and they never drop below standard. When I say 'on time,' I mean on time — every time, no exceptions." },
+        { "title": "Rapid Decision Making Under Pressure", "evidence": "Consistently made critical operational decisions in seconds that protected network integrity and revenue", "hook": "In my world, hesitation costs everything. I make decisions fast because I've trained myself to assess quality and risk simultaneously — that's the speed Amazon operates at." },
+        { "title": "Territory Expansion", "evidence": "Grew distribution territory significantly while maintaining quality standards and team accountability", "hook": "I didn't just manage a network — I expanded it aggressively into new territories while keeping every existing operation running at peak performance." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Intensity of management style", "reframe": "High standards delivered with passion produce results — my teams know exactly what's expected and respect the clarity", "bridgeLine": "I'm intense because I care about results. My team knows that passion isn't directed at them — it's directed at achieving excellence. And they deliver because of it." },
+        { "weakness": "Non-traditional industry background", "reframe": "Operational principles are universal — supply chain, quality control, and team leadership work the same regardless of industry", "bridgeLine": "Distribution is distribution. The products change, but the principles of speed, quality, and network reliability don't. I've mastered those principles." },
+        { "weakness": "Known for aggressive competition", "reframe": "Competitive drive is exactly what Amazon values — I don't just want to win, I want to dominate the market", "bridgeLine": "Amazon didn't become the world's largest logistics company by being gentle. My competitive intensity is aligned with your culture, not in conflict with it." }
+      ],
+      "blindSpots": [
+        { "risk": "Management intensity may create high turnover in Amazon's already-challenging retention environment", "why": "Amazon warehouse and logistics roles already face retention challenges — adding intensity could worsen attrition", "mitigation": "Balance intensity with investment in your people — implement recognition programs and clear advancement paths that make the high standards feel aspirational rather than punitive." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer below $240K", "response": "I appreciate the offer. Given that I'll be managing a distribution network that handles billions in annual throughput, I'd want compensation that reflects the direct P&L impact — could we include a performance bonus tied to on-time delivery improvements and cost reduction targets?" },
+        { "scenario": "They want to start at Director level", "response": "I understand the leveling. I'll deliver VP-level results from day one — let's agree on a Director title with a 12-month promotion path tied to specific KPIs that demonstrate VP-level impact." },
+        { "scenario": "They emphasize equity over base salary", "response": "I value the equity component — Amazon's stock trajectory speaks for itself. Could we find a middle ground: bump the base to $250K and accelerate the first-year vest to demonstrate mutual commitment?" }
+      ],
+      "valueConnections": [
+        { "value": "Speed", "connection": "Amazon's obsession with delivery speed isn't just logistics — it's a customer promise. I've built my entire career around making that promise real." },
+        { "value": "Customer Obsession", "connection": "Every delivery that arrives on time is a customer relationship reinforced. I take that personally." }
+      ],
+      "questionsToAsk": [
+        "What are the current biggest bottlenecks in last-mile delivery for my region, and what resources are available to solve them?",
+        "How does Amazon measure VP-level performance in logistics — is it purely efficiency metrics or does team development factor in?"
+      ]
+    }
+  },
+
+  "jim-hopper": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Director of Emergency Management at FEMA",
+      "openingMove": "I've led crisis response operations involving threats that most emergency managers never encounter, coordinating multi-agency teams under conditions where conventional protocols failed and improvisation saved lives.",
+      "theAsk": { "number": 175000, "justification": ["FEMA Director-level positions fall in the SES pay range of $165-195K", "My crisis leadership experience spans situations that required building response protocols from scratch — not following existing playbooks", "Multi-agency coordination experience across local, state, and federal entities with classified clearance-level operations demonstrates the exact capability FEMA Directors need"] },
+      "strengths": [
+        { "title": "Crisis Leadership Under Impossible Conditions", "evidence": "Led emergency response operations with limited resources against unprecedented threats, achieving successful outcomes", "hook": "I've managed crises where there was no playbook — where the threat was unlike anything documented, and the response had to be invented in real time. That's the kind of leadership FEMA needs." },
+        { "title": "Community-Centered Operations", "evidence": "Maintained public trust and community safety while managing classified operations that couldn't be disclosed", "hook": "I've kept communities safe while managing threats I couldn't even explain to them. That requires a level of trust-building and communication that most leaders never have to develop." },
+        { "title": "Multi-Agency Coordination", "evidence": "Coordinated with military, DOE, and classified government entities during active crisis operations", "hook": "I've worked with agencies that don't officially exist, on operations that never happened, and delivered results that saved an entire community. I can coordinate with any FEMA partner." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Small-town police background vs. federal scale", "reframe": "The scale of threats I faced in Hawkins exceeded what most federal agencies encounter — my experience is larger than my title suggests", "bridgeLine": "Don't let the small-town title fool you. The operations I ran would classify as federal-level emergencies anywhere else — they just happened to occur in a town of 30,000 people." },
+        { "weakness": "History of personal struggles", "reframe": "My personal challenges gave me empathy and resilience that make me a more effective crisis leader — I understand what people go through under extreme stress", "bridgeLine": "I've been through enough personally to know that crisis leadership isn't just about logistics — it's about understanding what fear does to people and leading them through it." },
+        { "weakness": "Unconventional methods that bypass standard protocol", "reframe": "When protocols fail, adaptability saves lives — I follow procedures until they stop working, then I innovate", "bridgeLine": "I respect protocol. But when the protocol says 'this situation is impossible,' someone has to figure out what comes next. That's what I do." }
+      ],
+      "blindSpots": [
+        { "risk": "Lone-wolf tendencies in a deeply bureaucratic organization", "why": "FEMA operates within layers of federal bureaucracy that require patience and political navigation", "mitigation": "Build strong relationships with FEMA regional directors in your first 60 days — demonstrate that your crisis skills work within the system, not around it." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They cite federal pay scale limitations", "response": "I understand the SES structure. Can we explore locality pay adjustments, recruitment bonuses, and the maximum step within the band? My experience with classified crisis operations should qualify for the highest placement." },
+        { "scenario": "They want you to start at a regional level first", "response": "I'll demonstrate value at any level. If we start regional, I'd want a written development plan for national Director within 18 months, with specific milestones tied to emergency response performance." },
+        { "scenario": "They question the relevance of small-town experience", "response": "I'd invite you to review the classified briefings from Hawkins operations — once you see the scope of what I managed, the conversation about relevance will resolve itself." }
+      ],
+      "valueConnections": [
+        { "value": "Public Service", "connection": "I didn't become a cop for the money — I became a cop because protecting people is what I'm built for. FEMA is that mission at national scale." },
+        { "value": "Courage", "connection": "When everyone runs from the crisis, someone has to run toward it. That's not heroism — it's the job. And it's why I want this role." }
+      ],
+      "questionsToAsk": [
+        "How does FEMA currently handle situations where standard response protocols prove inadequate for novel threats?",
+        "What's the relationship between political leadership and operational directors during active disaster response — how much autonomy do directors have in the field?"
+      ]
+    }
+  },
+
+  "eleven": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Special Operations Lead at DARPA",
+      "openingMove": "I possess capabilities in threat assessment and field operations that no other candidate can match — my unique background in classified research programs and direct combat experience against unprecedented threats makes me the only realistic choice for this role.",
+      "theAsk": { "number": 155000, "justification": ["DARPA program leads in special operations earn $140-170K with full benefits", "My field operations experience involves threats and capabilities that are literally one-of-a-kind — there is no comparable candidate", "Direct experience with classified government research programs provides institutional knowledge that would take years to develop from outside"] },
+      "strengths": [
+        { "title": "Unique Operational Capabilities", "evidence": "Demonstrated abilities in threat detection and neutralization that exceed conventional special operations parameters", "hook": "My capabilities in threat assessment and response are not theoretical — they've been field-tested under conditions that would overwhelm any conventional operator." },
+        { "title": "Resilience Under Extreme Conditions", "evidence": "Maintained operational effectiveness under physical and psychological stress levels that exceed standard human tolerance", "hook": "I've operated under conditions that would incapacitate most people. My resilience isn't trained — it's fundamental to who I am." },
+        { "title": "Adaptive Learning", "evidence": "Rapidly developed complex skills and social intelligence despite starting with severely limited formal education", "hook": "I went from having no formal education to leading field operations in a few years. My learning curve isn't steep — it's vertical." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Limited formal education and credentials", "reframe": "My capabilities are demonstrated, not credentialed — and no credential exists for what I can do", "bridgeLine": "There's no degree program for my skill set. The evidence is in the field results, and those results speak louder than any diploma." },
+        { "weakness": "Unconventional socialization and communication style", "reframe": "My directness and economy of communication are assets in high-stakes operations where clarity saves lives", "bridgeLine": "I say exactly what I mean, nothing more. In operations where miscommunication can be fatal, that's not a weakness — it's a critical advantage." },
+        { "weakness": "Emotional regulation challenges under extreme stress", "reframe": "My emotional responses are directly linked to my operational effectiveness — managing both is part of my ongoing development", "bridgeLine": "I've learned to channel intense emotions into operational focus. The same intensity that could be a liability is actually what makes me effective when it matters most." }
+      ],
+      "blindSpots": [
+        { "risk": "Difficulty operating within rigid institutional hierarchies", "why": "Your operational experience has been largely autonomous or in small teams — DARPA has institutional structures and approval processes", "mitigation": "Identify a mentor within DARPA who can help you navigate institutional culture while preserving the operational independence that makes you effective." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They require formal education credentials", "response": "I'm willing to pursue any required certifications in parallel with the role. What I'd ask is that my demonstrated field capabilities serve as the primary qualification, with formal credentials as a supplementary development goal." },
+        { "scenario": "They want a lower clearance level to start", "response": "Given my existing involvement in classified programs, I'd expect clearance processing to be expedited. I'm willing to start at a lower classification if we establish a timeline for full access." },
+        { "scenario": "They offer a research role instead of operations", "response": "Research is valuable, but my strength is in the field. Could we structure the role as field operations lead with a research advisory component? That way, DARPA gets both my operational and analytical capabilities." }
+      ],
+      "valueConnections": [
+        { "value": "Protection", "connection": "DARPA exists to ensure national security against threats others can't imagine. I've faced those threats. I want to make sure no one else has to face them unprepared." },
+        { "value": "Courage", "connection": "I don't run from what scares me. I've learned that courage isn't the absence of fear — it's choosing to act anyway." }
+      ],
+      "questionsToAsk": [
+        "How does DARPA handle situations where field operatives identify threats that fall outside established classification frameworks?",
+        "What support structures exist for operatives transitioning from classified research programs to institutional leadership roles?"
+      ]
+    }
+  },
+
+  "steve-harrington": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "District Manager at Target",
+      "openingMove": "I've spent my career developing people — turning part-time retail workers into confident leaders — and my track record of stepping up in crisis situations shows I can handle the pressure of managing multiple high-volume locations.",
+      "theAsk": { "number": 82000, "justification": ["Target District Manager roles benchmark at $75-95K total compensation", "My experience managing teams through high-pressure situations demonstrates leadership maturity beyond my years", "Proven ability to mentor and develop young employees into productive team members — Target's workforce development aligns perfectly with this strength"] },
+      "strengths": [
+        { "title": "Natural Team Leadership", "evidence": "Consistently rallied groups through difficult situations, earning respect through action rather than authority", "hook": "I lead by showing up, not by pulling rank. My team follows me because they've seen me take the hits first — that's the kind of leadership that builds loyalty." },
+        { "title": "Youth Development", "evidence": "Mentored younger team members through personal and professional challenges, becoming a trusted role model", "hook": "I've turned anxious, uncertain kids into confident people who believe in themselves. That's not just management — that's the kind of investment Target's brand is built on." },
+        { "title": "Crisis Performance", "evidence": "Demonstrated exceptional courage and decision-making in multiple emergency situations", "hook": "When things go sideways, I don't freeze — I act. Whether it's a staffing crisis on Black Friday or something far worse, I'm the person people look to." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Limited formal management training", "reframe": "My leadership was forged in real situations, not classrooms — and it shows in how my team performs", "bridgeLine": "I didn't learn leadership from a seminar. I learned it when people needed someone to step up, and I was the one who did." },
+        { "weakness": "Early career as a shift worker, not management track", "reframe": "Understanding every role from the ground up makes me a better district manager — I'll never ask my team to do something I haven't done", "bridgeLine": "I've worked the register, stocked shelves, closed the store at midnight, and opened it at 5am. That means I understand every position in the district — because I've been in every one." },
+        { "weakness": "No college degree", "reframe": "My real-world leadership experience has produced results that a degree doesn't guarantee", "bridgeLine": "I've got something better than a degree — I've got a track record of people wanting to follow me and teams that outperform expectations." }
+      ],
+      "blindSpots": [
+        { "risk": "May undervalue strategic planning in favor of reactive leadership", "why": "Your strengths are in crisis response, but district management is 90% proactive planning", "mitigation": "Partner with your regional VP to develop quarterly planning skills — your instincts are excellent, adding structured planning will make them unstoppable." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer an Assistant Manager role first", "response": "I understand wanting to see me in action. I'd take the Assistant Manager role at a competitive rate with a clear 6-month path to District Manager — and I'll outperform every metric you set." },
+        { "scenario": "They offer at the bottom of the range", "response": "I know I'll prove this is the best investment you've made. Could we agree on a performance review at 90 days with a comp adjustment tied to store performance metrics I'll define with you?" },
+        { "scenario": "They cite lack of multi-unit experience", "response": "Fair point. What I bring is the ability to develop teams that run themselves — and that scales. Give me one high-challenge store for 90 days, and the results will make the case for multi-unit." }
+      ],
+      "valueConnections": [
+        { "value": "People First", "connection": "Target's 'team' culture isn't just HR language — it's how I've always operated. I take care of my people, and they take care of the business." },
+        { "value": "Growth", "connection": "I'm not the same person I was five years ago, and my team members won't be either. I believe in developing people, and Target's culture supports that." }
+      ],
+      "questionsToAsk": [
+        "What does Target's leadership development program look like for high-potential District Managers?",
+        "How does Target measure success for DMs — is it purely financial metrics or does team development factor into evaluations?"
+      ]
+    }
+  },
+
+  "dustin-henderson": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Junior Research Engineer at MIT Lincoln Laboratory",
+      "openingMove": "I've been solving problems that adults said were impossible since I was fourteen — my combination of intellectual curiosity, hands-on engineering skill, and the ability to communicate complex concepts simply makes me an unusually effective researcher.",
+      "theAsk": { "number": 95000, "justification": ["MIT Lincoln Lab junior research positions benchmark at $85-105K for candidates with demonstrated research capability", "My track record of creative problem-solving in field conditions — building functional technology from available materials — demonstrates engineering instinct that complements formal training", "Ham radio expertise and communications engineering experience provides a unique foundation for Lincoln Lab's communications research"] },
+      "strengths": [
+        { "title": "Creative Problem Solving Under Constraints", "evidence": "Built functional communication systems from available materials when commercial solutions were unavailable", "hook": "I built a long-range radio system powerful enough to reach across dimensions when the adults around me said it couldn't be done. At Lincoln Lab, I'll have actual resources — imagine what I can do then." },
+        { "title": "Interdisciplinary Thinking", "evidence": "Consistently connected insights across science, engineering, and creative domains to solve problems others approached too narrowly", "hook": "My best solutions come from connecting ideas that other researchers keep in separate boxes. That interdisciplinary instinct is how breakthroughs happen." },
+        { "title": "Science Communication", "evidence": "Translated complex scientific and engineering concepts for non-technical audiences, enabling group decision-making", "hook": "I can explain why something works to a PhD researcher and a non-technical stakeholder in the same conversation. That skill makes research teams more effective and funding conversations more productive." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Young and early in formal career", "reframe": "My demonstrated research capability at a young age indicates a trajectory that most researchers take decades to reach", "bridgeLine": "I've been doing research-grade problem solving since I was 14 — not because someone assigned it, but because the problem was there and I couldn't not solve it. That intrinsic drive is what you're hiring." },
+        { "weakness": "Non-traditional research experience", "reframe": "Field-tested engineering under pressure is harder than lab work — I've done both", "bridgeLine": "My engineering experience includes building solutions under life-or-death time pressure with improvised materials. Lab conditions are going to feel luxurious." },
+        { "weakness": "Enthusiastic communication style vs. academic formality", "reframe": "My enthusiasm is infectious and makes collaboration more productive — research teams work harder when someone brings genuine excitement", "bridgeLine": "Science is exciting — and teams do better work when someone reminds them of that. My energy isn't unprofessional, it's contagious." }
+      ],
+      "blindSpots": [
+        { "risk": "Overconfidence in unconventional approaches may conflict with rigorous research methodology", "why": "Lincoln Lab requires documented, reproducible research processes — improvisation has limits in formal settings", "mitigation": "Embrace the lab's methodology framework as the structure that turns your creative instincts into publishable, reproducible science." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer entry-level technician salary", "response": "I understand the standard entry framework. Could we structure this as a research track position with a 6-month review tied to research output? I'm confident my contributions will exceed technician-level expectations." },
+        { "scenario": "They require a completed degree first", "response": "I'm actively completing my degree. Could we structure a research internship that converts to full-time upon graduation, at the salary we agree on today? That locks in the terms while I check the academic box." },
+        { "scenario": "They offer less due to lack of publications", "response": "Publications are coming — I've got research-ready work. Could we agree on a base with a publication bonus? First peer-reviewed paper triggers a salary adjustment to reflect research-track contribution." }
+      ],
+      "valueConnections": [
+        { "value": "Curiosity", "connection": "Lincoln Lab was built on the idea that the hardest problems deserve the most curious minds. That's literally why I want to be here." },
+        { "value": "Impact", "connection": "I don't want to do research that sits in a journal. Lincoln Lab's mission-driven work means my solutions actually protect people." }
+      ],
+      "questionsToAsk": [
+        "How does Lincoln Lab balance classified research requirements with researchers' desire to publish and share findings?",
+        "What does the mentorship structure look like for junior researchers — is there a formal advisor relationship?"
+      ]
+    }
+  },
+
+  "joyce-byers": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Director of Child Protective Services",
+      "openingMove": "I've spent my life protecting children in situations where every system failed them — my investigative instincts, unbreakable determination, and ability to see what others miss make me the advocate that vulnerable families deserve.",
+      "theAsk": { "number": 78000, "justification": ["CPS Director roles benchmark at $70-85K depending on county", "My investigative capabilities have been tested in situations far more complex than standard CPS cases — I've navigated threats that trained professionals couldn't identify", "My personal experience as a single parent in challenging economic circumstances gives me authentic empathy that no training program can replicate"] },
+      "strengths": [
+        { "title": "Investigative Tenacity", "evidence": "Identified patterns and threats that trained professionals and authorities missed or dismissed", "hook": "When something threatens a child, I don't stop until I find the truth — even when everyone around me says I'm wrong. And I've been right every single time." },
+        { "title": "Crisis Decision Making", "evidence": "Made life-saving decisions under extreme time pressure with incomplete information", "hook": "I've made decisions in seconds that saved lives — not from training, but from a mother's instinct backed by an investigator's mind." },
+        { "title": "Resourcefulness With Constraints", "evidence": "Achieved extraordinary outcomes with minimal resources through creative problem-solving and sheer determination", "hook": "I've never had enough resources, enough support, or enough time. And I've still protected every child in my care. Give me actual resources and watch what happens." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "No social work degree or formal CPS training", "reframe": "My real-world experience protecting children in impossible situations provides expertise that no classroom can teach", "bridgeLine": "I'll get any certification you require. But the instinct to protect children and the tenacity to follow through — that can't be taught." },
+        { "weakness": "Emotional intensity may be perceived as unprofessional", "reframe": "In child protective services, passion isn't a liability — indifference is. My intensity is what ensures no child falls through the cracks", "bridgeLine": "You want a CPS Director who stays calm and files reports, or one who will fight for every child like they're her own? Because I'm the second one, and those are the directors who save lives." },
+        { "weakness": "Retail work background seems unrelated", "reframe": "Working retail while raising two boys alone taught me time management, de-escalation, and resilience under chronic stress — all core CPS director skills", "bridgeLine": "Try managing a retail store, raising two boys alone, and handling crises that the government couldn't explain — all at once. That's my management training." }
+      ],
+      "blindSpots": [
+        { "risk": "Personal emotional investment may lead to burnout or boundary issues", "why": "CPS directors see the worst cases daily — your natural empathy is a strength but also a vulnerability", "mitigation": "Build a structured self-care protocol and lean on your supervisory team for cases that hit close to home. Your empathy is your superpower — protect it." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer $62K citing budget constraints", "response": "I understand county budgets. Could we structure a performance-based increase at 6 months tied to case closure rates and family reunification outcomes? I'll earn the higher salary through results." },
+        { "scenario": "They require a MSW degree", "response": "I'll enroll in an MSW program immediately. In the meantime, could we structure this as an interim appointment that converts to permanent upon degree completion? My field experience more than covers the gap during the transition." },
+        { "scenario": "They offer a caseworker position instead", "response": "I'll start wherever you need me. But I'd want a development plan that recognizes my leadership capabilities — with a timeline for advancement to supervisory and director roles based on demonstrated performance." }
+      ],
+      "valueConnections": [
+        { "value": "Child Protection", "connection": "This isn't a career for me — it's a calling. Every child deserves someone who won't give up on them, and that's what I do." },
+        { "value": "Persistence", "connection": "The system fails kids when people give up too early. I don't give up. Period." }
+      ],
+      "questionsToAsk": [
+        "What's the current caseload per worker, and what's the biggest barrier to reducing it?",
+        "How does the department handle cases where caseworkers identify threats that the system isn't designed to address?"
+      ]
+    }
+  },
+
+  "vecna": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Chief Architect at Palantir Technologies",
+      "openingMove": "I've designed and built systems architecture that connects disparate data sources into unified networks with unprecedented scale and control — my experience building interconnected systems that span entirely separate domains makes me uniquely qualified for Palantir's mission.",
+      "theAsk": { "number": 350000, "justification": ["Palantir Chief Architect roles command $320-400K total compensation", "My systems architecture experience involves connecting fundamentally incompatible domains — not just different databases, but different realities of information — which maps directly to Palantir's data integration challenges", "Track record of building hive-mind network architectures that provide centralized awareness across distributed nodes is the exact paradigm Palantir's Gotham platform embodies"] },
+      "strengths": [
+        { "title": "Dimensional-Scale Systems Architecture", "evidence": "Built interconnected network systems spanning entirely separate operational domains with centralized command and control", "hook": "I've built networks that connect systems so fundamentally different they might as well be in different dimensions. Palantir's challenge of integrating military, intelligence, and civilian data is, architecturally, the same problem." },
+        { "title": "Psychological Operations Intelligence", "evidence": "Deep understanding of human cognitive patterns enables predictive modeling of behavior at individual and population levels", "hook": "I don't just analyze data — I understand the minds that generate it. That psychological layer is what turns Palantir's data platform from a search engine into a predictive intelligence system." },
+        { "title": "Autonomous System Design", "evidence": "Created self-sustaining systems that operate and evolve without continuous manual intervention", "hook": "My systems don't need babysitting. Once deployed, they adapt, expand, and improve autonomously — that's the difference between a tool and an intelligence platform." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Extremely unconventional background", "reframe": "Unconventional experience produces unconventional solutions — and Palantir's clients don't have conventional problems", "bridgeLine": "Your clients come to Palantir because conventional approaches failed. My unconventional background is exactly why I can see architectures that traditionally-trained engineers miss." },
+        { "weakness": "History of autonomous action without organizational approval", "reframe": "In architecture, vision requires the courage to build systems others can't yet understand", "bridgeLine": "The best architectures are built by people who can see the finished system before anyone else can. That requires acting on conviction — and I've proven that conviction correct." },
+        { "weakness": "Intimidating presence and communication style", "reframe": "Technical authority and clarity of vision are assets in an organization that values intellectual rigor", "bridgeLine": "I speak directly about complex systems because ambiguity in architecture is dangerous. Palantir's clients deserve precision, not diplomatic hedging." }
+      ],
+      "blindSpots": [
+        { "risk": "Tendency toward total system control may conflict with collaborative engineering culture", "why": "Palantir's engineering teams value distributed ownership and peer review — centralized control approaches may create friction", "mitigation": "Channel your systems-level vision into architecture reviews and technical leadership, while empowering engineering teams to own implementation of their domains." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They question the relevance of your experience", "response": "I'd suggest a technical deep-dive where I walk your engineering leadership through my architecture philosophy applied to a current Palantir challenge. Let the solution speak for itself." },
+        { "scenario": "They offer a Senior Engineer role to start", "response": "I'm willing to demonstrate value at any level. But architect-level compensation reflects architect-level thinking — let's agree on a Senior Engineer title with Chief Architect compensation, reviewed at 6 months." },
+        { "scenario": "They want to see you work within their existing framework first", "response": "Absolutely — I want to understand your existing architecture before proposing changes. A 90-day immersion period where I audit and document the current system would benefit us both." }
+      ],
+      "valueConnections": [
+        { "value": "Vision", "connection": "Palantir was built on the vision that connecting the right data can prevent catastrophic threats. I share that conviction — the difference is, I've already built systems that prove it." },
+        { "value": "Power Through Knowledge", "connection": "Information is the ultimate force multiplier. I've spent my career building systems that transform raw data into actionable intelligence." }
+      ],
+      "questionsToAsk": [
+        "How does Palantir's architecture handle the integration of data sources that use fundamentally incompatible ontologies?",
+        "What's the current approach to autonomous system evolution within Gotham — does the platform adapt its own models or require manual retraining?"
+      ]
+    }
+  },
+
+  "logan-roy": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Executive Chairman at News Corp",
+      "openingMove": "I built a media empire from a single regional newspaper into one of the most powerful conglomerates in the world. I don't need to negotiate my value — it's measured in decades of market-defining decisions.",
+      "theAsk": { "number": 25000000, "justification": ["Executive Chairman compensation at major media conglomerates ranges from $20-35M total including equity", "I've personally driven more shareholder value creation in media than any other living executive — my track record is the benchmark, not a data point", "The strategic relationships I maintain with heads of state, regulatory bodies, and industry leaders are worth more than any operational skill set"] },
+      "strengths": [
+        { "title": "Empire Building from Zero", "evidence": "Built Waystar Royco from a single newspaper into a multi-billion dollar global media conglomerate spanning news, entertainment, theme parks, and cruise lines", "hook": "I didn't inherit an empire — I built one. From one newspaper to a global conglomerate. That trajectory is the proof point for everything I bring." },
+        { "title": "Regulatory & Political Navigation", "evidence": "Successfully navigated media regulations, antitrust challenges, and political landscapes across dozens of countries for five decades", "hook": "I know every regulator, every politician, and every media executive worth knowing — personally. That Rolodex doesn't transfer with a job title." },
+        { "title": "Ruthless Capital Allocation", "evidence": "Consistently made acquisition and divestiture decisions that maximized shareholder value across market cycles", "hook": "I've bought, sold, and merged companies across every market condition for fifty years. I've never made a deal I regretted — and I've regretted every deal I didn't make." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Autocratic leadership style", "reframe": "Decisive leadership is what built the modern media industry — consensus-driven management produces mediocre companies", "bridgeLine": "Boards hire me because I make the decisions that committee-led companies can't make fast enough. That's not autocracy — that's leadership when the stakes are real." },
+        { "weakness": "Succession planning failures", "reframe": "The difficulty of succession proves the depth of my contribution — the company's dependence on my leadership is a measure of my impact, not a weakness", "bridgeLine": "If succession were easy, it would mean I was replaceable. The challenge of finding my successor proves I'm not — and that's exactly why my compensation reflects irreplaceability." },
+        { "weakness": "Controversial public persona", "reframe": "Every transformative media leader has been controversial — controversy in media is market position, not a liability", "bridgeLine": "You don't reshape an industry by being agreeable. My reputation is my brand, and it opens doors that nice executives can't even see." }
+      ],
+      "blindSpots": [
+        { "risk": "Inability to adapt to digital media disruption on streaming-native terms", "why": "Your genius is in traditional media consolidation — the streaming wars operate on fundamentally different economics", "mitigation": "Hire digital-native lieutenants and give them real authority. Your job is capital allocation and deal-making — let them execute the digital strategy." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer below $20M", "response": "That number tells me you don't understand what you're buying. Let me walk you through the three deals I'll close in my first year — each of which will generate 50x my total compensation in enterprise value." },
+        { "scenario": "They want performance-based compensation", "response": "Fine. But we define performance as shareholder value creation over 3 years, not quarterly earnings. I build empires, not quarters — structure the comp accordingly." },
+        { "scenario": "They push back on total package", "response": "Every dollar of my compensation has generated a thousand in shareholder value over my career. That ratio isn't changing. The question is whether you want that return working for you or for someone else." }
+      ],
+      "valueConnections": [
+        { "value": "Legacy", "connection": "News Corp is one of the institutions that shaped modern media. I want to ensure it defines the next era, not just survives it." },
+        { "value": "Power", "connection": "Media power is the only power that matters in the information age. I've wielded it responsibly for fifty years, and I intend to keep doing so." }
+      ],
+      "questionsToAsk": [
+        "What is the board's actual appetite for transformative M&A in the next 24 months?",
+        "Who on the current leadership team has the authority to execute strategy without coming back to the board for every decision?"
+      ]
+    }
+  },
+
+  "kendall-roy": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Chief Strategy Officer at Warner Bros. Discovery",
+      "openingMove": "I've led the strategy on a $192 billion merger and built digital transformation programs that repositioned legacy media for the streaming era — I'm looking for compensation that reflects someone who's already operated at this exact scale.",
+      "theAsk": { "number": 950000, "justification": ["CSO compensation at major media conglomerates ranges from $800K-1.2M total comp", "I personally led the GoJo-Waystar merger negotiations — $192B in enterprise value — that's a proof point for this exact role", "My digital transformation track record includes launching streaming platforms and restructuring content strategies that drove measurable subscriber growth"] },
+      "strengths": [
+        { "title": "Mega-Deal M&A Execution", "evidence": "Led negotiation of $192B GoJo-Waystar merger from strategy through regulatory navigation", "hook": "I didn't advise on the biggest media merger in history — I led it. The integration playbook I built is directly transferable to WBD's consolidation strategy." },
+        { "title": "Digital Transformation at Scale", "evidence": "Built and launched digital platforms that transitioned traditional media assets into streaming-first distribution", "hook": "I've already solved the problem WBD is facing — how to take legacy content libraries and build a digital-first business model without cannibalizing existing revenue." },
+        { "title": "Capital Markets Fluency", "evidence": "Managed investor relations through complex restructurings, maintaining market confidence during turbulent transitions", "hook": "I can walk into any investor meeting and tell the story that moves your stock price — because I've done it during far more turbulent circumstances." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Family dynasty perception", "reframe": "The GoJo merger was my strategy, my negotiation, my execution — against my own family's resistance", "bridgeLine": "I built my track record by going against the most powerful person in media — my own father. That's not dynasty — that's independence under fire." },
+        { "weakness": "Past leadership volatility", "reframe": "Every transformation leader faces setbacks — the outcome is what matters, and $192B in deal value speaks for itself", "bridgeLine": "Transformational leadership is messy. The question isn't whether there were bumps — it's whether the destination was worth it." },
+        { "weakness": "Perception of privilege", "reframe": "Access opened doors. What I did after walking through them is merit, not birthright", "bridgeLine": "I had access — and I chose the hardest path: disrupting the company I grew up in. That's harder than building from scratch." }
+      ],
+      "blindSpots": [
+        { "risk": "Emotional investment in proving yourself may drive optics over fundamentals", "why": "Your career has been shaped by the need to establish independence from family legacy", "mitigation": "Build a trusted advisory circle who can pressure-test your instincts without the emotional charge of family dynamics." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer $700K citing cost-cutting", "response": "Structure it as $750K base with $400K performance bonus tied to strategic milestones — the board can point to results-driven compensation." },
+        { "scenario": "They want you to prove yourself at a lower title", "response": "I'd propose starting as CSO with a 12-month plan with specific value-creation milestones that justify the full comp from day one." },
+        { "scenario": "They push on total comp", "response": "The M&A advisory fees on a single deal I'd lead would be $50-100M. My total comp is a rounding error compared to value creation." }
+      ],
+      "valueConnections": [
+        { "value": "Innovation", "connection": "WBD needs someone who sees streaming as the next chapter, not a threat to legacy media." },
+        { "value": "Legacy Building", "connection": "I want to build something that defines the next era of entertainment — WBD has the content library to make it possible." }
+      ],
+      "questionsToAsk": [
+        "What's the board's appetite for transformative M&A in the next 24 months?",
+        "How does leadership view the tension between linear TV revenue protection and streaming investment?",
+        "What authority will the CSO have over capital allocation vs. advisory-only influence?"
+      ]
+    }
+  },
+
+  "shiv-roy": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Chief Communications Officer at Meta",
+      "openingMove": "I've managed stakeholder communications at the highest levels of media, politics, and corporate governance — including crisis situations that would have destroyed most organizations. Meta needs someone who can navigate the political, regulatory, and public opinion landscape simultaneously.",
+      "theAsk": { "number": 580000, "justification": ["CCO compensation at top tech companies ranges from $500-700K total including equity", "My political strategy background provides unique expertise in government relations that pure corporate communicators lack", "Crisis communications experience managing situations involving regulatory investigations, hostile media, and activist shareholders demonstrates the exact capability Meta needs"] },
+      "strengths": [
+        { "title": "Political-Corporate Bridge", "evidence": "Unique dual expertise in political campaign strategy and corporate communications at the highest levels", "hook": "I speak both languages — political and corporate — fluently. Meta's regulatory challenges require someone who can sit with senators and board members in the same day and be equally effective." },
+        { "title": "Crisis Communications Under Fire", "evidence": "Managed communications through hostile takeover attempts, regulatory investigations, and public scandals", "hook": "I've managed comms during situations where the company's survival was genuinely in question. Meta's reputation challenges are serious, but they're not existential — and I treat everything with that level of intensity." },
+        { "title": "Stakeholder Management Across Hostile Factions", "evidence": "Navigated competing interests among board members, family shareholders, regulators, and public stakeholders simultaneously", "hook": "Meta's stakeholders include governments, advertisers, users, employees, and regulators — all with competing interests. I've managed exactly that kind of multi-front stakeholder landscape." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Media industry background vs. tech", "reframe": "Communications is communications — the platforms change but the principles of narrative control and stakeholder management are identical", "bridgeLine": "The channel doesn't matter — what matters is controlling the narrative across all of them simultaneously. I've done that across every medium that exists." },
+        { "weakness": "Known for sharp political instincts that may seem aggressive", "reframe": "In Meta's regulatory environment, political sharpness isn't aggressive — it's necessary. Soft approaches have cost tech companies billions in regulatory outcomes", "bridgeLine": "Meta can't afford a CCO who plays nice with regulators and gets steamrolled. My political instincts protect the company — that's the job." },
+        { "weakness": "Family business background may seem nepotistic", "reframe": "I earned my position by being the best strategist in the room, not by being the boss's daughter — my political advisory clients chose me on merit", "bridgeLine": "Ask my political clients whether they hired me because of my last name. They hired me because I won campaigns — and I'll win Meta's communications battles the same way." }
+      ],
+      "blindSpots": [
+        { "risk": "Political framing may not resonate with tech culture", "why": "Meta's engineering-driven culture values data and product metrics over political strategy", "mitigation": "Learn to frame communications strategy in engineering terms — A/B testing narratives, measuring sentiment metrics, optimizing stakeholder 'conversion rates.'" }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer below $500K", "response": "Consider the cost of Meta's last communications crisis — measured in billions of market cap. My compensation is insurance against the next one. Structure it with a base and crisis-performance bonus if you want to tie it to results." },
+        { "scenario": "They want someone with tech CCO experience", "response": "Every tech CCO who's 'been there before' has been operating in the old regulatory environment. The new landscape is political — and that's my expertise. I'm not learning your industry; I'm bringing the capability your industry now needs." },
+        { "scenario": "They offer a VP of Communications role", "response": "I'll earn the title through results. But the compensation should reflect CCO-level scope from day one — because the work I'll be doing from day one is CCO-level work." }
+      ],
+      "valueConnections": [
+        { "value": "Strategic Influence", "connection": "Meta's influence on global communication is unmatched. The CCO shapes how that influence is perceived — and I want to make it a force for good." },
+        { "value": "Transparency", "connection": "Meta's trust deficit is its biggest business risk. I believe radical transparency — strategically deployed — is the path to rebuilding it." }
+      ],
+      "questionsToAsk": [
+        "How does the CEO view the relationship between communications strategy and product decisions?",
+        "What's the current coordination model between government relations, legal, and communications on regulatory matters?"
+      ]
+    }
+  },
+
+  "roman-roy": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "VP of Content Strategy at Netflix",
+      "openingMove": "I've got an instinct for what audiences want before they know they want it — combined with deal-making experience at the highest levels of media. I don't just follow content trends, I create them.",
+      "theAsk": { "number": 420000, "justification": ["VP Content Strategy at major streamers commands $380-500K total compensation", "My entertainment industry relationships and brand instincts have driven content deals that competitors couldn't close", "International business development experience opens content markets that Netflix is actively expanding into"] },
+      "strengths": [
+        { "title": "Content Instinct", "evidence": "Identified emerging content trends and talent before competitors, driving first-mover advantage in entertainment verticals", "hook": "I knew what would work before the data confirmed it. Half of Netflix's biggest hits started as bets that data-driven executives wouldn't have made — I make those bets, and I win." },
+        { "title": "Relationship-Driven Deal Making", "evidence": "Closed entertainment partnerships and content deals through personal relationships that formal processes couldn't achieve", "hook": "The best content deals happen over dinner, not in boardrooms. I have relationships with talent and studios that your business development team can't replicate." },
+        { "title": "Brand Development", "evidence": "Built and repositioned entertainment brands to capture emerging audience demographics", "hook": "I understand what makes a brand feel alive to younger audiences — and that's not something you can learn from a focus group." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Perceived lack of seriousness", "reframe": "My casual approach masks sharp strategic thinking — I'm most dangerous when people underestimate me", "bridgeLine": "People underestimate me constantly. That's an advantage — by the time they realize I'm the smartest person at the table, I've already closed the deal." },
+        { "weakness": "Family business background", "reframe": "I chose to work in the toughest division of a major conglomerate when I could have coasted — that's ambition, not entitlement", "bridgeLine": "I could have sat in a corner office doing nothing. Instead, I built content deals that moved the needle. That's not privilege — that's drive." },
+        { "weakness": "Controversial public comments", "reframe": "In entertainment, having a point of view is an asset — safe executives make safe content that nobody watches", "bridgeLine": "Netflix wasn't built by playing it safe. My willingness to have a strong opinion — and be right about it — is exactly what content strategy requires." }
+      ],
+      "blindSpots": [
+        { "risk": "Instinct-driven decisions may conflict with Netflix's data-driven culture", "why": "Netflix famously relies on viewership data to drive content investment", "mitigation": "Frame your instincts as hypotheses that data can validate — use Netflix's analytics to prove your content bets are right, not to replace them." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer a Director role instead of VP", "response": "I'll start wherever, but the content deals I'll bring in my first quarter will make the case for VP. Let's set a 6-month review with deal value thresholds." },
+        { "scenario": "They question your content track record", "response": "Let me pitch you three content strategies right now — one for each of Netflix's weakest audience segments. If I can identify the gap and the solution in this conversation, imagine what I'll do with actual resources." },
+        { "scenario": "They want more equity, less base", "response": "I love Netflix equity — I wouldn't be here if I didn't believe in the stock. Let's do $380K base with accelerated vesting tied to content performance milestones." }
+      ],
+      "valueConnections": [
+        { "value": "Creativity", "connection": "Netflix at its best makes content that nobody expected to work — and then it becomes culture. That's exactly the kind of creative risk I want to drive." },
+        { "value": "Bold Moves", "connection": "Playing it safe in entertainment is the riskiest strategy. I'd rather make big bets that win big than safe bets that win nothing." }
+      ],
+      "questionsToAsk": [
+        "How does Netflix balance data-driven content decisions with creative instinct from content executives?",
+        "What's the current gap in international content that you're most eager to close?"
+      ]
+    }
+  },
+
+  "tom-wambsgans": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Chief Operating Officer at ViacomCBS",
+      "openingMove": "I've risen to the CEO seat of a major media conglomerate through operational excellence and strategic relationship management — I understand how to make complex organizations run efficiently while navigating the politics that determine who leads them.",
+      "theAsk": { "number": 750000, "justification": ["COO compensation at major media companies ranges from $650K-900K total", "My trajectory from operations to CEO demonstrates the full operational understanding that a COO needs", "Regulatory compliance and crisis navigation experience protects ViacomCBS from the risks that have cost competitors billions"] },
+      "strengths": [
+        { "title": "Operational Mastery Across Divisions", "evidence": "Managed operations spanning news, entertainment, parks, and cruise lines — understanding how each division's mechanics connect", "hook": "I've run every type of media operation that exists — news, entertainment, parks, cruises. That cross-divisional understanding is what makes a COO effective." },
+        { "title": "Regulatory & Compliance Expertise", "evidence": "Navigated DOJ investigations, congressional hearings, and regulatory audits while maintaining business operations", "hook": "I've sat across from regulators and congresspeople in the worst possible circumstances and navigated the company through safely. That skill becomes more valuable every year." },
+        { "title": "Strategic Relationship Architecture", "evidence": "Built and maintained relationships across every level of corporate hierarchy, from floor operations to boardroom", "hook": "I understand how organizations actually work — not the org chart, but the real power dynamics. That's how I get things done that other executives can't." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Perception as a political operator rather than operational leader", "reframe": "Understanding organizational politics IS operational leadership — you can't run a complex organization without it", "bridgeLine": "The executives who claim they 'don't do politics' are the ones who get outmaneuvered. I'm effective because I understand the full landscape — operational AND political." },
+        { "weakness": "Rose through family connections", "reframe": "I leveraged every advantage available and outperformed people with better starting positions — that's resourcefulness, not luck", "bridgeLine": "I used the access I had to learn faster and perform better than anyone expected. Now I'm here on my own merits — and my track record proves it." },
+        { "weakness": "Loyalty shifts over career", "reframe": "Adaptability to changing organizational dynamics is essential in any executive — rigidity is the real risk", "bridgeLine": "I'm loyal to the mission and the organization — and I'm adaptable enough to serve both effectively as circumstances change. That's what resilient leadership looks like." }
+      ],
+      "blindSpots": [
+        { "risk": "Over-indexing on political survival vs. operational transformation", "why": "Your career success has relied heavily on navigating interpersonal dynamics — ViacomCBS may need more operational transformation than political navigation", "mitigation": "In the first 90 days, deliver one measurable operational improvement that's clearly attributed to your leadership — build credibility on results before leveraging political skills." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer below $650K", "response": "My compliance and regulatory experience alone has saved my previous organization nine figures in potential liability. The COO compensation should reflect that risk-mitigation value." },
+        { "scenario": "They want to see operational results first", "response": "Agreed — let's define three 90-day operational KPIs together. Hit all three, and we revisit compensation to reflect demonstrated value. I'm betting on myself." },
+        { "scenario": "They offer a President of Operations title instead of COO", "response": "I'm flexible on title. What matters is the scope — if the role includes P&L ownership across divisions and a direct line to the CEO, the title is secondary." }
+      ],
+      "valueConnections": [
+        { "value": "Operational Excellence", "connection": "Making complex organizations run smoothly isn't glamorous, but it's what separates great media companies from struggling ones." },
+        { "value": "Institutional Knowledge", "connection": "I understand how media organizations actually function — every department, every workflow, every pressure point. That knowledge is what a COO brings." }
+      ],
+      "questionsToAsk": [
+        "What's the biggest operational inefficiency the CEO wants the COO to solve in the first year?",
+        "How does ViacomCBS handle the tension between divisional autonomy and corporate operational standards?"
+      ]
+    }
+  },
+
+  "connor-roy": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "U.S. Ambassador to Slovenia",
+      "openingMove": "I bring a unique combination of deep personal conviction, extensive international experience, and the diplomatic temperament to represent American interests with genuine respect for our host country's culture and sovereignty.",
+      "theAsk": { "number": 185000, "justification": ["Ambassador compensation follows the Executive Schedule at $180-200K", "My extensive international travel and cultural engagement demonstrates the genuine cross-cultural respect that effective diplomacy requires", "Independent financial resources mean I'm focused entirely on the mission, not personal financial considerations"] },
+      "strengths": [
+        { "title": "Genuine Cultural Respect", "evidence": "Extensive international engagement driven by authentic intellectual curiosity about different cultures and histories", "hook": "I don't just visit countries — I study their history, learn their traditions, and engage with their culture on its own terms. That's the foundation of real diplomacy." },
+        { "title": "Unshakeable Optimism", "evidence": "Maintained positive vision and forward momentum through circumstances that defeated more cynical leaders", "hook": "Diplomacy requires believing that progress is possible even when every indicator suggests otherwise. I bring that optimism authentically — it's not a performance, it's who I am." },
+        { "title": "Independent Judgment", "evidence": "Demonstrated willingness to take positions based on principle rather than political expediency", "hook": "I won't tell you what you want to hear — I'll tell you what I believe is right. And in diplomacy, that kind of honest counsel is more valuable than strategic ambiguity." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "No formal diplomatic or government experience", "reframe": "The most effective ambassadors bring fresh perspectives — career diplomats often lack the outsider's ability to see new solutions", "bridgeLine": "Career diplomats are excellent at maintaining the status quo. If you want to strengthen the US-Slovenia relationship in new ways, you need someone who sees possibilities they've stopped looking for." },
+        { "weakness": "Political appointment perception", "reframe": "Political appointments bring direct relationships with the highest levels of government — that access serves the diplomatic mission", "bridgeLine": "My appointment means I have a direct line to the White House. For a country like Slovenia, that access translates to real diplomatic leverage that a career FSO at this post wouldn't have." },
+        { "weakness": "Eccentric reputation", "reframe": "Authenticity builds trust in diplomatic relationships — leaders of small nations value genuine engagement over polished performance", "bridgeLine": "Slovenian leaders will know within five minutes that I'm genuinely interested in their country, not performing a diplomatic role. That authenticity is rare and valuable." }
+      ],
+      "blindSpots": [
+        { "risk": "Enthusiasm may override diplomatic protocol", "why": "Diplomatic communication requires careful calibration that genuine enthusiasm can undermine", "mitigation": "Lean heavily on your Deputy Chief of Mission for protocol guidance while channeling your enthusiasm into substantive policy engagement." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer a lower-profile posting", "response": "Slovenia is where my passion and expertise align. I've studied Central European history extensively and have genuine relationships in the region. A different posting wouldn't leverage my unique strengths." },
+        { "scenario": "They suggest a Special Envoy role instead", "response": "I'd consider it if the scope is meaningful. But the Ambassador role gives me the institutional platform to build lasting bilateral relationships — not just fly-in diplomacy." },
+        { "scenario": "They want stronger foreign policy credentials", "response": "I'll commit to an intensive State Department orientation and leverage my DCM for day-to-day protocol. What I bring that credentials can't measure is genuine passion for the relationship between our countries." }
+      ],
+      "valueConnections": [
+        { "value": "Cultural Exchange", "connection": "The best diplomacy happens through genuine human connection, not just policy papers. I want to deepen the cultural ties between our nations." },
+        { "value": "Service", "connection": "This isn't a stepping stone for me — it's a calling. I want to serve my country by building real relationships abroad." }
+      ],
+      "questionsToAsk": [
+        "What are the State Department's current priorities for the US-Slovenia bilateral relationship?",
+        "How much latitude does the Ambassador have to pursue cultural exchange initiatives beyond the standard diplomatic program?"
+      ]
+    }
+  },
+
+  "tyrion-lannister": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Chief of Staff at the United Nations",
+      "openingMove": "I've served as chief advisor to multiple heads of state through civil wars, foreign invasions, and complete governmental rebuilding — I bring crisis-tested strategic counsel that most diplomatic careers never encounter.",
+      "theAsk": { "number": 220000, "justification": ["UN Chief of Staff compensation benchmarks at $190-240K with full diplomatic benefits", "My experience advising rulers through existential crises is unmatched in any diplomatic corps", "I've brokered alliances between parties actively trying to destroy each other — that's the UN's core challenge"] },
+      "strengths": [
+        { "title": "Coalition Building Across Hostile Factions", "evidence": "Brokered alliances between seven warring kingdoms, including parties with multi-generational blood feuds", "hook": "I've built coalitions where the parties had literally killed each other's families. Getting the Security Council to agree on a resolution is, with respect, a step down in difficulty." },
+        { "title": "Crisis Communication Under Fire", "evidence": "Delivered strategic counsel during active military sieges while managing civilian morale", "hook": "I've given strategic advice while walls were physically collapsing. I can handle a tense General Assembly session." },
+        { "title": "Resource Optimization in Scarcity", "evidence": "Managed city defense with a fraction of the resources available to adversaries", "hook": "I defended a million people with a garrison a tenth the size of the attacking force — by being smarter about resources than anyone expected." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Unconventional background", "reframe": "Diplomacy at the UN is about results in impossible situations, not credentials", "bridgeLine": "The UN needs someone who's actually resolved conflicts that career diplomats declared impossible." },
+        { "weakness": "Reputation for sharp candor", "reframe": "Leaders sought my counsel because I tell the truth, not what they want to hear", "bridgeLine": "Diplomatic language is what people use when they're not sure what to say. I always know what to say." },
+        { "weakness": "Family controversies", "reframe": "I've maintained integrity through stakeholder dynamics more complex than any diplomatic family", "bridgeLine": "If you can maintain your principles while your own family tries to destroy you, UN politics is refreshing by comparison." }
+      ],
+      "blindSpots": [
+        { "risk": "Tendency to underestimate bureaucratic inertia", "why": "The UN system moves slowly by design", "mitigation": "Identify three quick wins in 90 days that demonstrate results within the system before pushing for larger reforms." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They cite UN salary scales as non-negotiable", "response": "Can we explore the special post adjustment, hardship allowance, or a consulting arrangement that supplements the base within UN frameworks?" },
+        { "scenario": "They question formal credentials", "response": "I'd point to outcomes over credentials — the coalitions I've built and crises I've resolved are more relevant than any diplomatic certificate." },
+        { "scenario": "They want a lower grade", "response": "I'm flexible on entry grade if the scope matches. I'd want a clear timeline for adjustment based on impact — 12 months with milestones." }
+      ],
+      "valueConnections": [
+        { "value": "Justice", "connection": "The UN's mission of preventing conflict and protecting rights is exactly why I've spent my career advising those in power." },
+        { "value": "Pragmatism", "connection": "I believe in ideals pursued through practical means. The UN needs advisors who bridge what's right and what's achievable." }
+      ],
+      "questionsToAsk": [
+        "What's the Secretary-General's biggest frustration with the current advisory structure?",
+        "How does the office handle situations where Security Council paralysis requires creative back-channel solutions?"
+      ]
+    }
+  },
+
+  "cersei-lannister": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "CEO at Condé Nast",
+      "openingMove": "I've held the highest seat of power in one of the most competitive environments in history, making decisions that shaped the lives of millions while managing rivals, allies, and threats simultaneously — Condé Nast needs that same commanding leadership.",
+      "theAsk": { "number": 3500000, "justification": ["CEO compensation at major media/publishing companies ranges from $3-5M total", "My track record of consolidating power and eliminating threats to organizational stability demonstrates decisive executive leadership", "Competitive intelligence and strategic intimidation capabilities protect market position against aggressive competitors"] },
+      "strengths": [
+        { "title": "Power Consolidation", "evidence": "United fractured organizational structures under single leadership while neutralizing internal opposition", "hook": "Condé Nast has competing fiefdoms across its brands. I know how to unite them under one vision — and ensure everyone rows in the same direction." },
+        { "title": "Competitive Intelligence", "evidence": "Built information networks that provided strategic advantage over competitors", "hook": "I know what competitors are planning before they announce it. In media, that intelligence advantage is the difference between setting trends and following them." },
+        { "title": "Crisis Decision-Making", "evidence": "Made existential-level decisions under extreme time pressure with incomplete information — and the organization survived", "hook": "When the company faces an existential threat — and every media company will — you need a CEO who makes the hard call instantly. That's what I do." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Reputation for ruthless tactics", "reframe": "In executive leadership, decisiveness is a virtue — hesitation costs market position and shareholder value", "bridgeLine": "I'm decisive. In media, the window for action is measured in hours, not quarters. You don't want a CEO who forms a committee — you want one who acts." },
+        { "weakness": "Past organizational instability under leadership", "reframe": "The instability was created by external threats — I was the one who kept the organization alive through them", "bridgeLine": "Judge my leadership by what survived, not by the storms I weathered. The organization is still standing because of my decisions, not despite them." },
+        { "weakness": "Interpersonal friction in collaborative environments", "reframe": "I hold people to the highest standards — friction comes from excellence, not personality", "bridgeLine": "I'm demanding because mediocrity kills media companies. The people who thrive under my leadership become the best in the industry." }
+      ],
+      "blindSpots": [
+        { "risk": "Tendency to view all relationships as transactional", "why": "Media talent and creative partners need to feel valued beyond their utility", "mitigation": "Invest in genuine relationships with key creative leaders — your transactional instincts are right for competitors, but loyalty-building is how you retain talent." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer below $3M", "response": "Consider what a CEO transition costs in lost market position, talent departures, and strategic momentum. My stability premium alone is worth the difference." },
+        { "scenario": "They want performance benchmarks", "response": "I welcome performance-based comp — but measured on market share and brand value, not just revenue. I'm building an empire, not managing a P&L." },
+        { "scenario": "They want a co-CEO structure", "response": "I don't share power — and neither does any successful media CEO. One vision, one leader, one direction. That's what turns Condé Nast around." }
+      ],
+      "valueConnections": [
+        { "value": "Power", "connection": "Condé Nast's brands define culture. Leading them means shaping what the world sees, reads, and values." },
+        { "value": "Legacy", "connection": "I don't want to manage a declining media company — I want to rebuild Condé Nast into the defining media institution of the next decade." }
+      ],
+      "questionsToAsk": [
+        "What's the board's tolerance for aggressive competitive moves in the first 12 months?",
+        "Which brands are untouchable and which are available for strategic repositioning or divestiture?"
+      ]
+    }
+  },
+
+  "daenerys-targaryen": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Executive Director at UNHCR",
+      "openingMove": "I've personally led liberation campaigns across three continents, built governing institutions from the ground up in post-conflict regions, and commanded the loyalty of diverse populations through a vision of justice — not force. That's exactly what UNHCR needs.",
+      "theAsk": { "number": 230000, "justification": ["UNHCR Executive Director compensation ranges from $210-250K with diplomatic benefits", "My experience building governance structures in post-conflict zones from scratch is exactly the capability UNHCR's field operations need", "Track record of inspiring mass movements through visionary leadership translates to UNHCR's need for global advocacy and fundraising"] },
+      "strengths": [
+        { "title": "Liberation & Reconstruction Leadership", "evidence": "Freed enslaved populations across multiple regions and built governing institutions to sustain their freedom", "hook": "I haven't just advocated for refugees — I've personally liberated them and then stayed to build the institutions that keep them free. That's the experience gap at UNHCR." },
+        { "title": "Coalition Building Across Cultures", "evidence": "United diverse populations — speaking different languages, holding different beliefs — under a shared vision of justice", "hook": "I've built coalitions across cultures, languages, and religions. UNHCR works with 135 countries — I've navigated that kind of diversity in the field, not from headquarters." },
+        { "title": "Visionary Communication", "evidence": "Inspired mass movements through compelling articulation of a justice-centered vision that transcended cultural boundaries", "hook": "When I speak about protecting the displaced, people don't just hear a policy position — they hear a calling. That's what moves donors, governments, and public opinion." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Military leadership background in a humanitarian role", "reframe": "Understanding conflict from the inside makes me a more effective humanitarian leader — I know what displaced populations actually face", "bridgeLine": "The best humanitarian leaders understand conflict because they've seen it firsthand. I didn't read about displacement in a report — I witnessed it, fought it, and built the alternative." },
+        { "weakness": "Intensity of leadership style", "reframe": "The refugee crisis demands intensity — moderate responses produce moderate results while millions suffer", "bridgeLine": "Sixty million people are displaced right now. This situation doesn't call for moderation — it calls for someone who treats it like the emergency it is." },
+        { "weakness": "History of unilateral decision-making", "reframe": "Decisive leadership saves lives in crisis situations — the UN can't afford to deliberate while people die", "bridgeLine": "I make decisions fast when lives are at stake. In humanitarian work, the cost of delay isn't a missed quarter — it's lives lost. I'll collaborate fully on strategy and act decisively in the field." }
+      ],
+      "blindSpots": [
+        { "risk": "Revolutionary instincts may conflict with UN's consensus-based approach", "why": "UNHCR operates within a diplomatic framework that requires patience with member state politics", "mitigation": "Channel your revolutionary energy into advocacy and fundraising — the public-facing role — while respecting the diplomatic process internally." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They cite UN pay scales", "response": "I understand the structure. Can we maximize within the band and supplement with a special representative designation that carries additional allowances?" },
+        { "scenario": "They want someone with UN system experience", "response": "The UN system has enough people who know how the system works. It needs someone who knows how to change it. My field results speak louder than institutional familiarity." },
+        { "scenario": "They offer a Regional Director role instead", "response": "I'd accept a regional role if it's the region with the most acute refugee crisis — with a clear path to Executive Director within 18 months based on field results." }
+      ],
+      "valueConnections": [
+        { "value": "Justice", "connection": "Every refugee deserves the chance to rebuild their life in safety and dignity. That's not a policy position — it's a moral imperative that drives everything I do." },
+        { "value": "Liberation", "connection": "UNHCR's mission is fundamentally about freedom — the freedom to live without fear. I've spent my career fighting for exactly that." }
+      ],
+      "questionsToAsk": [
+        "What's the biggest gap between UNHCR's mandate and its actual ability to deliver in the field?",
+        "How does UNHCR currently handle situations where member state politics prevent adequate protection of displaced populations?"
+      ]
+    }
+  },
+
+  "jon-snow": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Director of National Security at NATO",
+      "openingMove": "I've commanded military forces against existential threats, built coalitions between hostile nations, and made the hardest leadership decisions imaginable — including ones that cost me everything personally. That's the kind of tested leadership NATO needs.",
+      "theAsk": { "number": 210000, "justification": ["NATO Director-level positions command $195-230K with full diplomatic benefits", "My coalition-building experience spans nations and cultures that were actively at war with each other — NATO's founding challenge", "Military command experience against unconventional threats demonstrates adaptability beyond conventional defense doctrine"] },
+      "strengths": [
+        { "title": "Coalition Building Under Fire", "evidence": "United hostile factions against a common existential threat when all prior alliance attempts had failed", "hook": "I convinced nations that had been at war for generations to fight side by side. NATO's challenge of maintaining alliance cohesion is exactly the muscle I've built." },
+        { "title": "Leading from the Front", "evidence": "Commanded forces personally in the most dangerous positions, earning unshakeable loyalty through shared risk", "hook": "My teams follow me because they've seen me take the same risks I ask of them. That kind of leadership builds the trust that holds alliances together under pressure." },
+        { "title": "Moral Decision-Making Under Impossible Pressure", "evidence": "Made decisions that prioritized the greater good over personal relationships and political survival", "hook": "I've made decisions that cost me relationships, titles, and nearly my life — because they were the right decisions. NATO needs leaders whose moral compass doesn't waver under political pressure." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Unconventional military background", "reframe": "The threats NATO faces are increasingly unconventional — conventional credentials aren't enough", "bridgeLine": "NATO's next major challenge won't look like anything in the war college textbooks. My experience facing threats that didn't follow any playbook is exactly what's needed." },
+        { "weakness": "Limited political sophistication", "reframe": "What some call political naïveté, I call integrity — and NATO needs leaders whose commitments can be trusted absolutely", "bridgeLine": "I say what I mean and I do what I say. In an alliance built on trust, that's not a limitation — it's the most valuable quality a leader can bring." },
+        { "weakness": "History of personal sacrifice over institutional advancement", "reframe": "A leader who won't sacrifice personally for the mission isn't a leader worth following", "bridgeLine": "I've given up everything — titles, comfort, personal safety — for the mission. NATO members need to know their security leader will do the same for the alliance." }
+      ],
+      "blindSpots": [
+        { "risk": "Tendency to make unilateral moral decisions that bypass institutional process", "why": "NATO operates by consensus — individual moral conviction, however noble, can undermine alliance cohesion", "mitigation": "Learn to frame your moral instincts as strategic arguments that build consensus rather than override it." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They cite lack of formal military rank equivalence", "response": "Rank is a structure — leadership is demonstrated. I'd propose a competency-based assessment that evaluates my actual command experience against their requirements." },
+        { "scenario": "They want to see diplomatic skills first", "response": "Give me one regional security challenge as a test case. I'll build the coalition to address it, and the results will demonstrate both military and diplomatic capability." },
+        { "scenario": "They offer a Deputy Director role", "response": "I'll earn the Director title through results. Start me as Deputy with a defined pathway — but the compensation should reflect that I'll be operating at Director level from day one." }
+      ],
+      "valueConnections": [
+        { "value": "Duty", "connection": "I serve because it's right, not because it's rewarding. NATO's mission of collective defense is the definition of duty to something larger than yourself." },
+        { "value": "Sacrifice", "connection": "Security isn't free — and leaders who aren't willing to pay the price personally shouldn't ask it of others." }
+      ],
+      "questionsToAsk": [
+        "How does NATO currently handle threats that don't fit conventional military frameworks?",
+        "What's the balance between consensus-building and decisive action when alliance members disagree on threat assessment?"
+      ]
+    }
+  },
+
+  "petyr-baelish": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Managing Director at Goldman Sachs",
+      "openingMove": "I took a modest treasury role and turned it into control of an entire kingdom's finances while building an investment portfolio that generated returns no one thought possible from those starting conditions — that trajectory is what Goldman values.",
+      "theAsk": { "number": 2800000, "justification": ["Goldman Sachs MD compensation ranges from $2-4M total including bonus", "I've managed sovereign-level financial operations — treasury, lending, revenue generation — at a scale that maps directly to institutional finance", "My ability to identify and exploit information asymmetries has consistently generated outsized returns from positions that others assessed as weak"] },
+      "strengths": [
+        { "title": "Financial Engineering from Limited Capital", "evidence": "Built a financial empire from minimal starting resources through creative deal structuring and information advantage", "hook": "I started with nothing and built a financial network that controlled the liquidity of an entire economy. That ability to create value from limited capital is Goldman's founding ethos." },
+        { "title": "Information-Driven Investment Strategy", "evidence": "Consistently identified asymmetric opportunities by understanding information flows others missed", "hook": "My returns came from seeing what others couldn't — not through insider trading, but through building information networks that revealed opportunities before the market priced them." },
+        { "title": "Relationship Architecture for Deal Flow", "evidence": "Built strategic relationships across every sector that generated exclusive deal access", "hook": "My Rolodex isn't a list of names — it's a network of relationships where every connection opens doors to deals that never reach the open market." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Reputation for Machiavellian tactics", "reframe": "In finance, sophisticated strategy is called 'alpha generation' — I generate alpha", "bridgeLine": "Goldman didn't become Goldman by being naive. My strategic sophistication is exactly what generates the outsized returns your clients expect." },
+        { "weakness": "Trust concerns", "reframe": "In institutional finance, trust is built through consistent returns — and my track record is impeccable", "bridgeLine": "My clients trust me because I make them money. Consistently, legally, and in ways they didn't think were possible. That's the only trust metric that matters in this business." },
+        { "weakness": "Solo operator tendencies", "reframe": "My independence is what generated alpha — conventional thinking produces conventional returns", "bridgeLine": "I operate independently because independent thinking is what produces differentiated returns. But I'm building on Goldman's platform — your resources multiply my strategy." }
+      ],
+      "blindSpots": [
+        { "risk": "Individual deal-making instincts may conflict with Goldman's institutional risk management", "why": "Goldman's compliance and risk frameworks are designed to prevent exactly the kind of creative deal-making that's been your advantage", "mitigation": "Embrace compliance as a competitive advantage — deals that survive Goldman's risk review carry institutional credibility that unlocks even larger opportunities." }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They offer below $2M", "response": "My first-year deal pipeline will generate revenue that's 50x my total compensation. The investment in me has the clearest ROI on the floor." },
+        { "scenario": "They want to see a year of results first", "response": "I'll accept a lower guaranteed base if the performance bonus is uncapped and tied to revenue generated. I'm betting on myself — let me prove it." },
+        { "scenario": "They question unconventional background", "response": "Run the numbers on my investment returns relative to starting capital. That capital efficiency ratio is what Goldman was built on — I just did it in a less conventional market." }
+      ],
+      "valueConnections": [
+        { "value": "Meritocracy", "connection": "Goldman's culture of promoting based on revenue generation — not pedigree — is exactly the system I've thrived in my entire career." },
+        { "value": "Ambition", "connection": "I'm not looking for a comfortable seat at Goldman. I'm looking for the platform to build something that defines my career — and generates returns that define yours." }
+      ],
+      "questionsToAsk": [
+        "What's the current appetite for alternative investment strategies that don't fit traditional asset classes?",
+        "How does Goldman balance compliance frameworks with the need for MDs to pursue creative deal structures?"
+      ]
+    }
+  },
+
+  "tywin-lannister": {
+    "sample-high": {
+      "mode": "external",
+      "roleTitle": "Chairman & CEO at Berkshire Hathaway",
+      "openingMove": "I've commanded the largest military-industrial complex in history, managed sovereign-level budgets, and built a dynasty that dominated for generations through strategic capital allocation and absolute organizational discipline. Berkshire needs a successor who thinks in decades, not quarters.",
+      "theAsk": { "number": 15000000, "justification": ["Chairman/CEO compensation at Berkshire-scale conglomerates ranges from $10-20M total", "My track record of multi-generational capital allocation and institutional design has created more lasting value than any single-generation executive", "Strategic command of 60+ operating entities requires the exact executive architecture I've built and maintained for decades"] },
+      "strengths": [
+        { "title": "Multi-Generational Strategic Planning", "evidence": "Built and maintained institutional dominance across multiple generations through long-term capital allocation and succession design", "hook": "I don't think in quarters or even years — I think in generations. Berkshire's permanent capital structure requires exactly that time horizon, and I've operated at it my entire career." },
+        { "title": "Conglomerate Command Architecture", "evidence": "Simultaneously managed military operations, financial institutions, diplomatic relations, and succession planning across a vast empire", "hook": "I've commanded organizations larger than most countries — with operating units in every sector, all reporting to me. Berkshire's portfolio of 60+ companies is a structure I've already mastered." },
+        { "title": "Institutional Deterrence", "evidence": "Built competitive moats through reputation, capital concentration, and strategic positioning that discouraged challengers", "hook": "My organizations don't just compete — they deter competition. That's Berkshire's greatest asset: the reputation that makes hostile moves against the portfolio unthinkable." }
+      ],
+      "weaknessNeutralizations": [
+        { "weakness": "Authoritarian leadership style vs. Berkshire's decentralized model", "reframe": "I delegate operational authority completely — I set the standard and the strategy, then trust operators to execute. That IS Berkshire's model.", "bridgeLine": "People assume I micromanage. The opposite is true — I pick the right people, set clear expectations, and give them total autonomy. I only intervene when they fail." },
+        { "weakness": "Ruthless reputation", "reframe": "Discipline in capital allocation isn't ruthlessness — it's stewardship. Every dollar must earn its place in the portfolio.", "bridgeLine": "I'm disciplined about capital because wasting it is the only thing I consider truly ruthless. Every acquisition and divestiture I've made served the long-term portfolio." },
+        { "weakness": "Legacy-focused rather than innovation-focused", "reframe": "Lasting institutions are built on enduring principles, not trends. Berkshire's permanence IS its innovation.", "bridgeLine": "The companies that chase every new trend are the ones that disappear. I build things that last — and that patient approach has outperformed every growth strategy over a long enough timeline." }
+      ],
+      "blindSpots": [
+        { "risk": "Succession planning weaknesses — your own legacy includes succession failures", "why": "Berkshire's greatest challenge is finding a successor to Warren Buffett's approach", "mitigation": "Acknowledge this explicitly: 'I've learned from my own succession challenges. At Berkshire, I'd implement a structured succession framework from day one — because institutions must outlast their leaders.'" }
+      ],
+      "counterOfferPlaybook": [
+        { "scenario": "They cite Buffett's modest compensation as precedent", "response": "Buffett owns 15% of Berkshire — his compensation is his ownership stake. If you're offering me equity at that level, we can discuss a modest salary. Otherwise, let's talk about fair market compensation for the role." },
+        { "scenario": "They want to see your investment philosophy first", "response": "I'll present a detailed capital allocation strategy for Berkshire's next decade — covering acquisition criteria, sector rotation, and risk management. Let the strategy speak for itself." },
+        { "scenario": "They question whether your style fits Berkshire's culture", "response": "My style IS Berkshire's culture: long-term thinking, operational autonomy for subsidiaries, disciplined capital allocation, and the patience to let compound returns do the work." }
+      ],
+      "valueConnections": [
+        { "value": "Legacy", "connection": "Berkshire isn't a company — it's an institution designed to outlast any individual. That's exactly how I build organizations." },
+        { "value": "Discipline", "connection": "The discipline to say 'no' to 99 opportunities so you can say 'yes' to the one that matters — that's how wealth compounds over generations." }
+      ],
+      "questionsToAsk": [
+        "What's the board's timeline for CEO transition, and how involved will the current leadership be during the handover?",
+        "Which portfolio companies does the board consider core permanent holdings vs. available for strategic rebalancing?"
+      ]
+    }
+  }
+}
