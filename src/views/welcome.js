@@ -6217,57 +6217,25 @@ function wizardShowDiscovery(parsed) {
 
 function wizardRepairJSON(text) {
     var trimmed = text.trim();
-    if (!trimmed.startsWith('{')) return null;
-
-    var inStr = false, escaped = false, depth = 0, arrDepth = 0;
-    var lastGoodPos = 0;
+    if (trimmed.charAt(0) !== '{') return null;
+    var inStr = false, esc = false, depth = 0, arrDepth = 0;
+    var safePoints = [];
     for (var i = 0; i < trimmed.length; i++) {
-        var ch = trimmed[i];
-        if (escaped) { escaped = false; continue; }
-        if (ch === '\\') { escaped = true; continue; }
-        if (ch === '"') { inStr = !inStr; continue; }
+        var c = trimmed.charCodeAt(i);
+        if (esc) { esc = false; continue; }
+        if (c === 92) { esc = true; continue; }
+        if (c === 34) { inStr = !inStr; continue; }
         if (inStr) continue;
-        if (ch === '{') depth++;
-        else if (ch === '}') { depth--; if (depth === 0) lastGoodPos = i + 1; }
-        else if (ch === '[') arrDepth++;
-        else if (ch === ']') arrDepth--;
+        if (c === 123) depth++;
+        else if (c === 125) depth--;
+        else if (c === 91) arrDepth++;
+        else if (c === 93) arrDepth--;
+        if (c === 44 && depth === 1 && arrDepth === 0) safePoints.push(i);
     }
-
-    if (lastGoodPos > 0 && depth === 0) {
-        try { return JSON.parse(trimmed.substring(0, lastGoodPos)); } catch(e) {}
+    for (var s = safePoints.length - 1; s >= 0; s--) {
+        var candidate = trimmed.substring(0, safePoints[s]) + '}';
+        try { return JSON.parse(candidate); } catch(e) {}
     }
-
-    var repaired = trimmed;
-    if (inStr) repaired += '"';
-    while (arrDepth > 0) { repaired += ']'; arrDepth--; }
-    while (depth > 0) { repaired += '}'; depth--; }
-
-    var lastComma = repaired.length - 1;
-    while (lastComma > 0 && /[\s}\]"]/.test(repaired[lastComma])) lastComma--;
-
-    var attempts = [
-        repaired,
-        repaired.replace(/,\s*([}\]])/g, '$1'),
-        repaired.replace(/,\s*"[^"]*$/, '"}')
-    ];
-
-    for (var a = 0; a < attempts.length; a++) {
-        try {
-            var result = JSON.parse(attempts[a]);
-            if (result && typeof result === 'object') return result;
-        } catch(e) {}
-    }
-
-    var skillsMatch = trimmed.match(/"skills"\s*:\s*\[[\s\S]*?\]/);
-    var profileMatch = trimmed.match(/"profile"\s*:\s*\{[^}]*\}/);
-    if (profileMatch || skillsMatch) {
-        var partial = '{';
-        if (profileMatch) partial += '"profile":' + profileMatch[0].replace(/^"profile"\s*:\s*/, '') + ',';
-        if (skillsMatch) partial += '"skills":' + skillsMatch[0].replace(/^"skills"\s*:\s*/, '') + ',';
-        partial = partial.replace(/,$/, '') + '}';
-        try { return JSON.parse(partial); } catch(e) {}
-    }
-
     return null;
 }
 
