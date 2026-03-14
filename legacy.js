@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.88 - BUILD 20260313-neg-onclick-fix
-        var BP_VERSION = 'v4.46.88';
+        // BLUEPRINT v4.46.89 - BUILD 20260313-neg-cors-fix
+        var BP_VERSION = 'v4.46.89';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -44307,13 +44307,12 @@ body {
             ].filter(Boolean).join('\n');
 
             try {
-                var response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1800, messages: [{ role: 'user', content: prompt }] })
-                });
-                var data = await response.json();
-                var raw  = (data.content || []).map(function(b) { return b.text || ''; }).join('').replace(/```json|```/g, '').trim();
+                var data = await callAnthropicAPI({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 1800,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'negotiation_guide');
+                var raw = (data.content || []).map(function(b) { return b.text || ''; }).join('').replace(/```json|```/g, '').trim();
                 var guide = JSON.parse(raw);
                 _renderNegGuide(guide, tv, currentComp, mode, renderFn);
             } catch(e) {
