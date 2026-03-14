@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.90 - BUILD 20260314-security-hardening
-        var BP_VERSION = 'v4.46.90';
+        var BP_VERSION = 'v4.46.91';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1071,10 +1071,10 @@
                 _wbCompCache = null;
                 _wbCompCacheLoaded = false;
                 
-                // SECURITY: Clear sensitive localStorage on sign-out
                 safeRemove('wbAnthropicKey');
                 safeRemove('wbValues');
                 safeRemove('wbPurpose');
+                window._lastKnownValues = null;
                 safeRemove('wbEvidenceConfig');
                 safeRemove('currentProfile');
                 safeRemove('blueprint_waitlist');
@@ -1288,8 +1288,10 @@
                     return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
-                // Belt-and-suspenders: empty array is truthy so || won't help; use length check
-                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values : (userData.values || []),
+                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values
+                    : (userData.values && userData.values.length > 0) ? userData.values
+                    : (window._lastKnownValues && window._lastKnownValues.length > 0) ? window._lastKnownValues
+                    : [],
                 purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
@@ -1545,13 +1547,16 @@
                         skillsData.roles = data.roles || [];
                     }
                     
-                    // CRITICAL: Sync blueprintData BEFORE any dedup/migration saves fire.
-                    // saveToFirestore() reads blueprintData.values — if this sync happens after
-                    // the dedup/migration save, blueprintData.values is still [] and wipes Firestore.
                     if (typeof blueprintData !== 'undefined') {
                         blueprintData.purpose = data.purpose || '';
                         blueprintData.values = data.values && data.values.length > 0 ? data.values : (blueprintData.values && blueprintData.values.length > 0 ? blueprintData.values : []);
                         blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
+                        if (blueprintData.values && blueprintData.values.length > 0
+                                && blueprintData.values.some(function(v) { return v.selected; })) {
+                            window._lastKnownValues = JSON.parse(JSON.stringify(blueprintData.values));
+                            var valKey = 'bp_last_values' + (uid ? '_' + uid : '');
+                            try { sessionStorage.setItem(valKey, JSON.stringify(blueprintData.values)); } catch(e) {}
+                        }
                     }
                     
                     // Deduplicate skills on load
@@ -3611,6 +3616,7 @@
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
                         { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
+                        { id: 'p2-7u', name: 'Values persistence v4: circuit breaker + deep-copy + triple fallback', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.91: Four-layer fix. (1) inferValues() now checks userData.values as backup if blueprintData.values is empty — prevents race where render fires before Firestore load. (2) _lastKnownValues circuit breaker (window + sessionStorage) — mirrors purpose circuit breaker — prevents values from ever being permanently lost. (3) saveValues() now deep-copies to userData.values (was reference assignment — later reassignment of blueprintData.values broke userData). (4) _buildFirestoreData() has triple fallback chain: blueprintData.values → userData.values → _lastKnownValues → []. Firestore load and saveValues both write to _lastKnownValues + sessionStorage.' },
                         { id: 'p2-7t', name: 'Values persistence: inferValues guard + note preservation', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.82: Two-part fix. (1) inferValues() now guards: if blueprintData.values already has selected values (loaded from Firestore), it returns immediately without overwriting — calls _inferPurposeOnly() instead. Previously, inferValues() called from the dashboard completeness check and initValuesNetwork would clobber already-loaded values. (2) inferValues() STEP 2 (userData.values path) now preserves the .note field — previously the map() only returned {name,selected,inferred,custom}, silently dropping any personal notes. _inferPurposeOnly() extracted as a separate function so the guard path still gets purpose inference.' },
                         { id: 'p2-7s', name: 'Purpose persistence v3: inferValues circuit breaker + sessionStorage', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.54: inferValues() now uses _lastKnownPurpose as final fallback before blanking purpose — prevents the blank-purpose-then-save race. _lastKnownPurpose backed to sessionStorage so it survives hard reload. updatePurpose() also writes to sessionStorage. This is the deepest fix yet: even if userData.purpose and blueprintData.purpose are both transiently empty (which CAN happen on rapid navigation), the circuit breaker restores from sessionStorage before any save can fire.' },
                         { id: 'p2-7r', name: 'CMD+K Command Palette', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.53: Global CMD+K / CTRL+K command palette. Searches skills, outcomes, saved jobs, work history in real time. Static actions list (Add Skill, New Report, Generate Purpose, Export, Bulk Import, Comp Review). Navigation shortcuts with keyboard badges. Arrow key navigation, Enter to execute, Esc to close. Search icon injected into header. Analytics event on open. CSS injected once on first open.' },
@@ -27428,14 +27434,18 @@ body {
 
         function saveValues() {
             if (readOnlyGuard()) return;
-            // Sync to userData so Firestore write includes current values
-            userData.values = blueprintData.values;
-            if (blueprintData.purpose) userData.purpose = blueprintData.purpose; // keep in sync
+            userData.values = JSON.parse(JSON.stringify(blueprintData.values));
+            if (blueprintData.purpose) userData.purpose = blueprintData.purpose;
+            if (blueprintData.values && blueprintData.values.length > 0
+                    && blueprintData.values.some(function(v) { return v.selected; })) {
+                window._lastKnownValues = JSON.parse(JSON.stringify(blueprintData.values));
+                var valKey = 'bp_last_values' + (fbUser && fbUser.uid ? '_' + fbUser.uid : '');
+                try { sessionStorage.setItem(valKey, JSON.stringify(blueprintData.values)); } catch(e) {}
+            }
             try {
                 safeSet('wbValues', JSON.stringify(blueprintData.values));
                 safeSet('wbPurpose', blueprintData.purpose || '');
             } catch (e) { /* quota exceeded or private mode */ }
-            // Persist to Firestore for signed-in users
             if (typeof fbUser !== 'undefined' && fbUser && typeof debouncedSave === 'function') {
                 debouncedSave();
             }
@@ -27560,13 +27570,42 @@ body {
         window.saveValueNote = saveValueNote;
 
         function inferValues() {
-            // GUARD: If blueprintData already has selected values, do NOT overwrite them.
-            // inferValues() is called from multiple render paths (dashboard, content tab, values network)
-            // and must not clobber values already loaded from Firestore.
             if (blueprintData.values && blueprintData.values.length > 0
                     && blueprintData.values.some(function(v) { return v.selected; })) {
                 _inferPurposeOnly();
                 return;
+            }
+            if ((!blueprintData.values || blueprintData.values.length === 0 ||
+                    !blueprintData.values.some(function(v) { return v.selected; }))
+                    && userData.values && userData.values.length > 0
+                    && userData.values.some(function(v) { return v.selected; })) {
+                blueprintData.values = JSON.parse(JSON.stringify(userData.values));
+                _inferPurposeOnly();
+                return;
+            }
+            if ((!blueprintData.values || blueprintData.values.length === 0)
+                    && window._lastKnownValues && window._lastKnownValues.length > 0) {
+                blueprintData.values = JSON.parse(JSON.stringify(window._lastKnownValues));
+                console.warn('⚡ Values circuit breaker: restored from _lastKnownValues');
+                _inferPurposeOnly();
+                return;
+            }
+            if ((!blueprintData.values || blueprintData.values.length === 0)
+                    && !window._lastKnownValues) {
+                try {
+                    var ssvKey = 'bp_last_values' + (typeof fbUser !== 'undefined' && fbUser && fbUser.uid ? '_' + fbUser.uid : '');
+                    var ssv = sessionStorage.getItem(ssvKey);
+                    if (ssv) {
+                        var parsed = JSON.parse(ssv);
+                        if (parsed && parsed.length > 0 && parsed.some(function(v) { return v.selected; })) {
+                            window._lastKnownValues = parsed;
+                            blueprintData.values = JSON.parse(JSON.stringify(parsed));
+                            console.warn('⚡ Values circuit breaker: restored from sessionStorage');
+                            _inferPurposeOnly();
+                            return;
+                        }
+                    }
+                } catch(e) {}
             }
             // Restore circuit breaker from sessionStorage if lost (e.g. hard reload)
             if (!window._lastKnownPurpose) {

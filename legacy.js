@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.90 - BUILD 20260314-security-hardening
-        var BP_VERSION = 'v4.46.90';
+        var BP_VERSION = 'v4.46.91';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1063,10 +1063,10 @@
                 _wbCompCache = null;
                 _wbCompCacheLoaded = false;
                 
-                // SECURITY: Clear sensitive localStorage on sign-out
                 safeRemove('wbAnthropicKey');
                 safeRemove('wbValues');
                 safeRemove('wbPurpose');
+                window._lastKnownValues = null;
                 safeRemove('wbEvidenceConfig');
                 safeRemove('currentProfile');
                 safeRemove('blueprint_waitlist');
@@ -1277,8 +1277,10 @@
                     return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
-                // Belt-and-suspenders: empty array is truthy so || won't help; use length check
-                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values : (userData.values || []),
+                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values
+                    : (userData.values && userData.values.length > 0) ? userData.values
+                    : (window._lastKnownValues && window._lastKnownValues.length > 0) ? window._lastKnownValues
+                    : [],
                 purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
@@ -1532,13 +1534,16 @@
                         skillsData.roles = data.roles || [];
                     }
                     
-                    // CRITICAL: Sync blueprintData BEFORE any dedup/migration saves fire.
-                    // saveToFirestore() reads blueprintData.values — if this sync happens after
-                    // the dedup/migration save, blueprintData.values is still [] and wipes Firestore.
                     if (typeof blueprintData !== 'undefined') {
                         blueprintData.purpose = data.purpose || '';
                         blueprintData.values = data.values && data.values.length > 0 ? data.values : (blueprintData.values && blueprintData.values.length > 0 ? blueprintData.values : []);
                         blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
+                        if (blueprintData.values && blueprintData.values.length > 0
+                                && blueprintData.values.some(function(v) { return v.selected; })) {
+                            window._lastKnownValues = JSON.parse(JSON.stringify(blueprintData.values));
+                            var valKey = 'bp_last_values' + (uid ? '_' + uid : '');
+                            try { sessionStorage.setItem(valKey, JSON.stringify(blueprintData.values)); } catch(e) {}
+                        }
                     }
                     
                     // Deduplicate skills on load
@@ -27236,14 +27241,18 @@ body {
 
         function saveValues() {
             if (readOnlyGuard()) return;
-            // Sync to userData so Firestore write includes current values
-            userData.values = blueprintData.values;
-            if (blueprintData.purpose) userData.purpose = blueprintData.purpose; // keep in sync
+            userData.values = JSON.parse(JSON.stringify(blueprintData.values));
+            if (blueprintData.purpose) userData.purpose = blueprintData.purpose;
+            if (blueprintData.values && blueprintData.values.length > 0
+                    && blueprintData.values.some(function(v) { return v.selected; })) {
+                window._lastKnownValues = JSON.parse(JSON.stringify(blueprintData.values));
+                var valKey = 'bp_last_values' + (fbUser && fbUser.uid ? '_' + fbUser.uid : '');
+                try { sessionStorage.setItem(valKey, JSON.stringify(blueprintData.values)); } catch(e) {}
+            }
             try {
                 safeSet('wbValues', JSON.stringify(blueprintData.values));
                 safeSet('wbPurpose', blueprintData.purpose || '');
             } catch (e) { /* quota exceeded or private mode */ }
-            // Persist to Firestore for signed-in users
             if (typeof fbUser !== 'undefined' && fbUser && typeof debouncedSave === 'function') {
                 debouncedSave();
             }
@@ -27368,13 +27377,42 @@ body {
         window.saveValueNote = saveValueNote;
 
         function inferValues() {
-            // GUARD: If blueprintData already has selected values, do NOT overwrite them.
-            // inferValues() is called from multiple render paths (dashboard, content tab, values network)
-            // and must not clobber values already loaded from Firestore.
             if (blueprintData.values && blueprintData.values.length > 0
                     && blueprintData.values.some(function(v) { return v.selected; })) {
                 _inferPurposeOnly();
                 return;
+            }
+            if ((!blueprintData.values || blueprintData.values.length === 0 ||
+                    !blueprintData.values.some(function(v) { return v.selected; }))
+                    && userData.values && userData.values.length > 0
+                    && userData.values.some(function(v) { return v.selected; })) {
+                blueprintData.values = JSON.parse(JSON.stringify(userData.values));
+                _inferPurposeOnly();
+                return;
+            }
+            if ((!blueprintData.values || blueprintData.values.length === 0)
+                    && window._lastKnownValues && window._lastKnownValues.length > 0) {
+                blueprintData.values = JSON.parse(JSON.stringify(window._lastKnownValues));
+                console.warn('⚡ Values circuit breaker: restored from _lastKnownValues');
+                _inferPurposeOnly();
+                return;
+            }
+            if ((!blueprintData.values || blueprintData.values.length === 0)
+                    && !window._lastKnownValues) {
+                try {
+                    var ssvKey = 'bp_last_values' + (typeof fbUser !== 'undefined' && fbUser && fbUser.uid ? '_' + fbUser.uid : '');
+                    var ssv = sessionStorage.getItem(ssvKey);
+                    if (ssv) {
+                        var parsed = JSON.parse(ssv);
+                        if (parsed && parsed.length > 0 && parsed.some(function(v) { return v.selected; })) {
+                            window._lastKnownValues = parsed;
+                            blueprintData.values = JSON.parse(JSON.stringify(parsed));
+                            console.warn('⚡ Values circuit breaker: restored from sessionStorage');
+                            _inferPurposeOnly();
+                            return;
+                        }
+                    }
+                } catch(e) {}
             }
             // Restore circuit breaker from sessionStorage if lost (e.g. hard reload)
             if (!window._lastKnownPurpose) {
