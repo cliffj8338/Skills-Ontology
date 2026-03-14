@@ -4155,7 +4155,7 @@ window.importProfile = function(event) {
 
 // =====================================================================
 // ONBOARDING WIZARD v1.0
-// Multi-step guided profile builder with Claude AI resume parsing
+// Multi-step guided profile builder with AI resume parsing
 // =====================================================================
 
 let wizardState = {
@@ -4997,7 +4997,7 @@ export function renderWizardStep1(el) {
                 <div style="margin-bottom:12px;">${bpIcon("file-text",32)}</div>
                 <div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">Upload Resume</div>
                 <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">
-                    PDF or paste text. Claude reads it and builds your profile automatically.
+                    PDF or paste text. AI reads it and builds your profile automatically.
                 </div>
                 <div style="margin-top:14px; font-size:0.78em; color:var(--accent); font-weight:600;">
                     RECOMMENDED
@@ -5234,7 +5234,7 @@ export function renderWizardStep2(el) {
     }
     el.innerHTML = `
         ${wizardHeading(bpIcon('file-text',22), 'Add Your Resume',
-            'Upload a PDF, paste resume text, or copy your LinkedIn profile. Claude will extract your skills, experience, and outcomes automatically.')}
+            'Upload a PDF, paste resume text, or copy your LinkedIn profile. AI will extract your skills, experience, and outcomes automatically.')}
 
         <div style="background:var(--bg-elevated); border:1px solid var(--border);
                     border-radius:14px; padding:24px; margin-bottom:20px;">
@@ -5286,7 +5286,7 @@ export function renderWizardStep2(el) {
             </div>
 
             <div id="rtab-paste-content" style="display:none;">
-                <textarea id="wizardResumeText" placeholder="Paste your full resume here \u2014 the more detail, the better the profile Claude builds for you.
+                <textarea id="wizardResumeText" placeholder="Paste your full resume here \u2014 the more detail, the better the profile we build for you.
 
 Include: job titles, companies, dates, responsibilities, achievements, metrics, skills, education, certifications..."
                           style="width:100%; min-height:280px; background:var(--input-bg);
@@ -5325,7 +5325,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                         style="background:var(--accent); color:#fff; border:none;
                                padding:11px 28px; border-radius:9px; cursor:pointer;
                                font-size:0.9em; font-weight:600; opacity:0.5; transition:opacity 0.2s;">
-                    Parse with Claude \u2192
+                    Parse Resume \u2192
                 </button>
             </div>
         </div>
@@ -6249,7 +6249,7 @@ async function wizardRunParsing() {
 
     try {
         logAnalyticsEvent('resume_parse', {});
-        setStatus('Sending to Claude...', 15);
+        setStatus('Parsing your resume...', 15);
 
         var wizardApiKey = safeGet('wbAnthropicKey');
         if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
@@ -7002,7 +7002,7 @@ export function renderWizardStep7(el) {
     var selectedCount = vals.filter(function(v) { return v.selected; }).length;
 
     var subtitle = hasAIValues
-        ? 'Claude suggested these from your career history. Select the ones that resonate, edit descriptions, or add your own.'
+        ? 'These were suggested from your career history. Select the ones that resonate, edit descriptions, or add your own.'
         : 'Select the values that define how you work, or add your own. Click a description to edit it.';
 
     el.innerHTML = `
@@ -7170,7 +7170,7 @@ export function renderWizardStep8(el) {
     el.innerHTML = `
         ${wizardHeading(bpIcon('edit',22),
             'Your Purpose Statement',
-            isFromResume ? 'Claude drafted this from your resume. Often the hardest thing to write about yourself — edit it until it sounds like you.'
+            isFromResume ? 'This was drafted from your resume. Often the hardest thing to write about yourself — edit it until it sounds like you.'
                          : 'Write a brief statement about what you do, who you help, and what makes your approach distinctive.')}
 
         <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -7191,7 +7191,7 @@ export function renderWizardStep8(el) {
                            cursor:pointer; font-size:0.82em; transition:all 0.18s;"
                     onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"
                     onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
-                ↺ Regenerate with Claude
+                ↺ Regenerate
             </button>` : ''}
         </div>
 
@@ -7258,7 +7258,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         showToast(toastMsg, 'error', 6000);
     }
 
-    if (btn) { btn.textContent = '↺ Regenerate with Claude'; btn.disabled = false; }
+    if (btn) { btn.textContent = '↺ Regenerate'; btn.disabled = false; }
 }
 
 export function wizardSavePurpose() {
