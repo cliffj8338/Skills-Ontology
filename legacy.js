@@ -15404,8 +15404,9 @@
             };
             
             var functionPatterns = [
+                { fn: 'technology', patterns: /\b(software|developer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|data engineer|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
+                { fn: 'engineering', patterns: /\b(chemist|chemistry|chemical engineer|biotech|biotechnology|biolog|biochem|research scient|laboratory|lab manager|physicist|materials scien|pharmaceutical|r&d|mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ },
                 { fn: 'strategy', patterns: /\b(strategy|strategic|futurist|evangelist|thought leader|advisory|consulting|consultant)\b/ },
-                { fn: 'technology', patterns: /\b(software|developer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
                 { fn: 'recruiting', patterns: /\b(recruit|talent acqui|sourcing|hiring|ats|applicant|staffing|headhunt)\b/ },
                 { fn: 'hr', patterns: /\b(human resource|hr |shrm|people ops|workforce|talent manage|employee relation|compensation|benefits|hris|organizational develop|learning.+develop|training and develop|talent acquisition|people partner)\b/ },
                 { fn: 'marketing', patterns: /\b(marketing|brand|content|seo|digital market|growth|demand gen|product market|communications|pr |public relation)\b/ },
@@ -15415,7 +15416,6 @@
                 { fn: 'healthcare', patterns: /\b(nurse|clinical|patient|medical|pharma|health|hospital|physician|therapy|diagnostic)\b/ },
                 { fn: 'education', patterns: /\b(teaching|teacher|professor|instructor|curriculum|education|academic|school)\b/ },
                 { fn: 'legal', patterns: /\b(legal|attorney|lawyer|litigation|compliance|regulatory|paralegal|contract law|bar exam)\b/ },
-                { fn: 'engineering', patterns: /\b(mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ },
                 { fn: 'trades', patterns: /\b(hair|stylist|cosmetolog|barber|plumb|electri|weld|hvac|carpenter|mechanic|technician|maintenance|repair|install)\b/ },
                 { fn: 'retail', patterns: /\b(cashier|retail|store|merchandise|stock|inventory clerk|customer service rep|point of sale|pos )\b/ }
             ];
@@ -44343,7 +44343,7 @@ body {
         window.showCompReviewGuide = showCompReviewGuide;
         
         // ── Static Negotiation Guide for Demo Mode ────────────────────────────
-        function _buildStaticNegGuide(job) {
+        function _buildStaticNegGuide(job, tv) {
             var topSkills = (userData.skills || []).slice(0, 8).map(function(s) { return s.name; });
             var roles = (userData.roles || []).map(function(r) { return r.name; });
             var values = (userData.values || []).slice(0, 3);
@@ -44357,18 +44357,21 @@ body {
             var rawText = job.rawText || '';
             var tier = job.tier || 'mid';
 
-            var salaryRanges = {
-                'Entry': { low: 38000, mid: 48000, high: 58000 },
-                'Mid': { low: 55000, mid: 72000, high: 88000 },
-                'Senior': { low: 95000, mid: 125000, high: 155000 },
-                'Staff': { low: 145000, mid: 175000, high: 210000 },
-                'Director': { low: 155000, mid: 195000, high: 240000 },
-                'Executive': { low: 185000, mid: 245000, high: 320000 },
-                'C-Suite': { low: 280000, mid: 400000, high: 550000 }
-            };
-            var range = salaryRanges[seniority] || salaryRanges['Mid'];
-            var tierMult = tier === 'high' ? 1.0 : tier === 'mid' ? 1.1 : 1.25;
-            var askNum = Math.round(range.high * tierMult);
+            var conservative = tv ? (tv.conservativeOffer || 0) : 0;
+            var standard = tv ? (tv.standardOffer || 0) : 0;
+            var competitive = tv ? (tv.competitiveOffer || 0) : 0;
+            var justified = tv ? (tv.yourWorth || tv.total || 0) : 0;
+            if (justified === 0 && competitive === 0) {
+                var fallbackBands = { 'Entry': 48000, 'Mid': 72000, 'Senior': 125000, 'Staff': 175000, 'Director': 195000, 'Executive': 245000, 'C-Suite': 400000 };
+                justified = fallbackBands[seniority] || 72000;
+                conservative = Math.round(justified * 0.75);
+                standard = Math.round(justified * 0.85);
+                competitive = Math.round(justified * 0.95);
+            }
+            var tierMult = tier === 'high' ? 1.0 : tier === 'mid' ? 1.05 : 1.12;
+            var askNum = Math.round((justified > 0 ? justified : competitive) * tierMult);
+            var rangeLow = conservative > 0 ? conservative : askNum;
+            var rangeHigh = askNum;
 
             var relevantSkills = topSkills.filter(function(s) { return rawText.toLowerCase().indexOf(s.toLowerCase().split(' ')[0]) > -1; });
             if (relevantSkills.length < 2) relevantSkills = topSkills.slice(0, 3);
@@ -44425,14 +44428,14 @@ body {
                   mitigation: 'Research ' + company + '\u2019s recent hires for similar roles. Prepare specific examples that map your experience to their exact challenges.' },
                 { risk: 'Anchoring too high or too low',
                   why: 'Without knowing ' + company + '\u2019s internal bands, you could price yourself out or leave significant money on the table.',
-                  mitigation: 'Use the market data range ($' + Math.round(range.low / 1000) + 'K\u2013$' + Math.round(range.high * tierMult / 1000) + 'K) as your framework. Lead with value, not a number.' },
+                  mitigation: 'Use the market data range ($' + Math.round(rangeLow / 1000) + 'K\u2013$' + Math.round(rangeHigh / 1000) + 'K) as your framework. Lead with value, not a number.' },
                 { risk: 'Neglecting total compensation',
                   why: 'Base salary is only one component. ' + (seniority === 'Executive' || seniority === 'C-Suite' ? 'Equity, bonuses, and deferred comp' : 'Benefits, PTO, and growth opportunities') + ' could represent 20\u201340% of total value.',
                   mitigation: 'Prepare a total comp framework before negotiations. Know your minimum on base, but be flexible on structure.' }
             ];
 
             var counterOfferPlaybook = [
-                { scenario: '\u201cWe can\u2019t go above $' + Math.round(range.mid / 1000) + 'K for this role.\u201d',
+                { scenario: '\u201cWe can\u2019t go above $' + Math.round(standard / 1000) + 'K for this role.\u201d',
                   response: 'I understand budget constraints. Given my ' + yrsExp + '+ years of experience and the value I\u2019d bring to ' + company + ', could we explore a signing bonus, accelerated review timeline, or additional equity to bridge the gap?' },
                 { scenario: '\u201cWe need someone with more direct ' + (jobRoles[0] || 'industry') + ' experience.\u201d',
                   response: 'I respect that concern. Let me share how my ' + (roles[0] || 'background') + ' experience directly translates \u2014 [cite specific example]. I\u2019d also propose a 90-day milestone plan so you can see the ROI firsthand.' },
@@ -44459,7 +44462,7 @@ body {
                 theAsk: {
                     number: askNum,
                     justification: [
-                        'Market data for ' + seniority + '-level ' + (jobRoles[0] || 'professionals') + ' in this space ranges $' + Math.round(range.low / 1000) + 'K\u2013$' + Math.round(range.high * tierMult / 1000) + 'K.',
+                        'Market data for ' + seniority + '-level ' + (jobRoles[0] || 'professionals') + ' in this space ranges $' + Math.round(rangeLow / 1000) + 'K\u2013$' + Math.round(rangeHigh / 1000) + 'K.',
                         'My ' + yrsExp + '+ years of experience and expertise in ' + (relevantSkills.slice(0, 2).join(', ') || 'this domain') + ' place me in the upper quartile.',
                         'This number reflects the immediate value I bring \u2014 reducing ramp-up time and delivering measurable results from day one.'
                     ]
@@ -44487,7 +44490,7 @@ body {
                 job = { title: 'Target Role', company: 'Target Company', seniority: 'Mid', tier: 'high', parsedRoles: [], rawText: '' };
             }
 
-            var guide = _buildStaticNegGuide(job);
+            var guide = _buildStaticNegGuide(job, tv);
 
             var disclaimer = '<div style="padding:12px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
                 + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:#60a5fa;">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
