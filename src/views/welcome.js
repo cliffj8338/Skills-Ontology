@@ -6215,6 +6215,62 @@ function wizardShowDiscovery(parsed) {
     });
 }
 
+function wizardRepairJSON(text) {
+    var trimmed = text.trim();
+    if (!trimmed.startsWith('{')) return null;
+
+    var inStr = false, escaped = false, depth = 0, arrDepth = 0;
+    var lastGoodPos = 0;
+    for (var i = 0; i < trimmed.length; i++) {
+        var ch = trimmed[i];
+        if (escaped) { escaped = false; continue; }
+        if (ch === '\\') { escaped = true; continue; }
+        if (ch === '"') { inStr = !inStr; continue; }
+        if (inStr) continue;
+        if (ch === '{') depth++;
+        else if (ch === '}') { depth--; if (depth === 0) lastGoodPos = i + 1; }
+        else if (ch === '[') arrDepth++;
+        else if (ch === ']') arrDepth--;
+    }
+
+    if (lastGoodPos > 0 && depth === 0) {
+        try { return JSON.parse(trimmed.substring(0, lastGoodPos)); } catch(e) {}
+    }
+
+    var repaired = trimmed;
+    if (inStr) repaired += '"';
+    while (arrDepth > 0) { repaired += ']'; arrDepth--; }
+    while (depth > 0) { repaired += '}'; depth--; }
+
+    var lastComma = repaired.length - 1;
+    while (lastComma > 0 && /[\s}\]"]/.test(repaired[lastComma])) lastComma--;
+
+    var attempts = [
+        repaired,
+        repaired.replace(/,\s*([}\]])/g, '$1'),
+        repaired.replace(/,\s*"[^"]*$/, '"}')
+    ];
+
+    for (var a = 0; a < attempts.length; a++) {
+        try {
+            var result = JSON.parse(attempts[a]);
+            if (result && typeof result === 'object') return result;
+        } catch(e) {}
+    }
+
+    var skillsMatch = trimmed.match(/"skills"\s*:\s*\[[\s\S]*?\]/);
+    var profileMatch = trimmed.match(/"profile"\s*:\s*\{[^}]*\}/);
+    if (profileMatch || skillsMatch) {
+        var partial = '{';
+        if (profileMatch) partial += '"profile":' + profileMatch[0].replace(/^"profile"\s*:\s*/, '') + ',';
+        if (skillsMatch) partial += '"skills":' + skillsMatch[0].replace(/^"skills"\s*:\s*/, '') + ',';
+        partial = partial.replace(/,$/, '') + '}';
+        try { return JSON.parse(partial); } catch(e) {}
+    }
+
+    return null;
+}
+
 async function wizardRunParsing() {
     const setStatus = (msg, pct) => {
         const s = document.getElementById('wizardParsingStatus');
@@ -6298,7 +6354,7 @@ Rules:
 
         var data = await callAnthropicAPI({
                 model: 'claude-sonnet-4-20250514',
-                max_tokens: 4000,
+                max_tokens: 8000,
                 system: systemPrompt,
                 messages: [{ role: 'user', content: userContent }]
             }, wizardApiKey, 'resume-parse');
@@ -6308,7 +6364,14 @@ Rules:
         setStatus('Extracting skills and evidence...', 75);
 
         const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-        const parsed = JSON.parse(clean);
+        var parsed;
+        try {
+            parsed = JSON.parse(clean);
+        } catch (jsonErr) {
+            parsed = wizardRepairJSON(clean);
+            if (!parsed) throw jsonErr;
+            console.warn('Parsing: repaired truncated JSON response');
+        }
 
         setStatus('Discoveries from your resume:', 90);
         var parsingIcon = document.getElementById('wizardParsingIcon');

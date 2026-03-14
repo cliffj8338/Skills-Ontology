@@ -21000,6 +21000,35 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             `;
         }
 
+
+        function wizardRepairJSON(text) {
+            var trimmed = text.trim();
+            if (!trimmed.startsWith("{")) return null;
+            var inStr = false, escaped = false, depth = 0, arrDepth = 0, lastGoodPos = 0;
+            for (var i = 0; i < trimmed.length; i++) {
+                var ch = trimmed[i];
+                if (escaped) { escaped = false; continue; }
+                if (ch === "\\") { escaped = true; continue; }
+                if (ch === """) { inStr = !inStr; continue; }
+                if (inStr) continue;
+                if (ch === "{") depth++;
+                else if (ch === "}") { depth--; if (depth === 0) lastGoodPos = i + 1; }
+                else if (ch === "[") arrDepth++;
+                else if (ch === "]") arrDepth--;
+            }
+            if (lastGoodPos > 0 && depth === 0) {
+                try { return JSON.parse(trimmed.substring(0, lastGoodPos)); } catch(e) {}
+            }
+            var repaired = trimmed;
+            if (inStr) repaired += """;
+            while (arrDepth > 0) { repaired += "]"; arrDepth--; }
+            while (depth > 0) { repaired += "}"; depth--; }
+            var attempts = [repaired, repaired.replace(/,\s*([}\]])/g, "$1")];
+            for (var a = 0; a < attempts.length; a++) {
+                try { var result = JSON.parse(attempts[a]); if (result && typeof result === "object") return result; } catch(e) {}
+            }
+            return null;
+        }
         async function wizardRunParsing() {
             const setStatus = (msg, pct) => {
                 const s = document.getElementById('wizardParsingStatus');
@@ -21083,7 +21112,7 @@ Rules:
 
                 var data = await callAnthropicAPI({
                         model: 'claude-sonnet-4-20250514',
-                        max_tokens: 4000,
+                        max_tokens: 8000,
                         system: systemPrompt,
                         messages: [{ role: 'user', content: userContent }]
                     }, wizardApiKey, 'resume-parse');
@@ -21094,7 +21123,7 @@ Rules:
 
                 // Strip markdown fences if present
                 const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-                const parsed = JSON.parse(clean);
+                var parsed; try { parsed = JSON.parse(clean); } catch(jsonErr) { parsed = wizardRepairJSON(clean); if (!parsed) throw jsonErr; console.warn("Parsing: repaired truncated JSON"); }
 
                 setStatus('Building your Blueprint...', 95);
 
@@ -36120,7 +36149,7 @@ body {
             
             var data = await callAnthropicAPI({
                     model: 'claude-sonnet-4-20250514',
-                    max_tokens: 4000,
+                    max_tokens: 8000,
                     system: systemPrompt,
                     messages: [{ role: 'user', content: userPrompt }]
                 }, apiKey, 'jd-analysis');
