@@ -25008,10 +25008,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     // Show network filter pill if role active
                     var nfp = document.getElementById('networkFilterPill');
                     if (nfp) nfp.style.display = (activeRole && activeRole !== 'all') ? 'flex' : 'none';
-                    // Lazy-init network SVG on first visit
                     if (!window.networkInitialized) {
-                        initNetwork();
-                        window.networkInitialized = true;
+                        setTimeout(function() {
+                            initNetwork();
+                            window.networkInitialized = true;
+                        }, 50);
                     }
                     // Always render job selector when entering network view
                     setTimeout(function() { renderJobSelectorWidget(); }, 100);
