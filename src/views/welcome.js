@@ -4141,11 +4141,17 @@ window.importProfile = function(event) {
     reader.onload = function(e) {
         try {
             const imported = sanitizeImport(JSON.parse(e.target.result));
+            imported.initialized = true;
             userData = imported;
-            window._userData.initialized = true;
             window._userData = userData;
-            saveUserData();
-            location.reload();
+            _sd().skills = imported.skills || [];
+            _sd().roles = imported.roles || [];
+            _sd().skillDetails = {};
+            _bd().values = imported.values || [];
+            _bd().purpose = imported.purpose || '';
+            _bd().outcomes = imported.outcomes || [];
+            normalizeUserRoles();
+            saveToFirestore().then(function() { location.reload(); });
         } catch (error) {
             showToast('Import error: ' + error.message, 'error');
         }
@@ -5214,11 +5220,18 @@ export function wizardImportProfile(event) {
     reader.onload = function(e) {
         try {
             const imported = sanitizeImport(JSON.parse(e.target.result));
-            userData = { ...imported, initialized: true };
+            imported.initialized = true;
+            userData = imported;
             window._userData = userData;
-            saveUserData();
+            _sd().skills = imported.skills || [];
+            _sd().roles = imported.roles || [];
+            _sd().skillDetails = {};
+            _bd().values = imported.values || [];
+            _bd().purpose = imported.purpose || '';
+            _bd().outcomes = imported.outcomes || [];
+            normalizeUserRoles();
             closeWizard();
-            location.reload();
+            saveToFirestore().then(function() { location.reload(); });
         } catch(err) {
             showToast('File read error: ' + err.message, 'error');
         }

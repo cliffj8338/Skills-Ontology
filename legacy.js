@@ -18988,11 +18988,18 @@
             reader.onload = function(e) {
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
+                    imported.initialized = true;
                     userData = imported;
-                    userData.initialized = true; _markUserDataReady();
                     window._userData = userData;
-                    saveUserData();
-                    location.reload();
+                    _markUserDataReady();
+                    skillsData.skills = imported.skills || [];
+                    skillsData.roles = imported.roles || [];
+                    skillsData.skillDetails = {};
+                    blueprintData.values = imported.values || [];
+                    blueprintData.purpose = imported.purpose || '';
+                    blueprintData.outcomes = imported.outcomes || [];
+                    normalizeUserRoles();
+                    saveToFirestore().then(function() { location.reload(); });
                 } catch (error) {
                     showToast('Import error: ' + error.message, 'error');
                 }
@@ -20065,6 +20072,7 @@
         }
 
         function wizardImportProfile(event) {
+            if (window.wizardImportProfile && window.wizardImportProfile !== wizardImportProfile) return window.wizardImportProfile(event);
             if (readOnlyGuard()) return;
             const file = event.target.files[0];
             if (!file) return;
@@ -20072,11 +20080,18 @@
             reader.onload = function(e) {
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
-                    userData = { ...imported, initialized: true };
+                    imported.initialized = true;
+                    userData = imported;
                     window._userData = userData;
-                    saveUserData();
+                    skillsData.skills = imported.skills || [];
+                    skillsData.roles = imported.roles || [];
+                    skillsData.skillDetails = {};
+                    blueprintData.values = imported.values || [];
+                    blueprintData.purpose = imported.purpose || '';
+                    blueprintData.outcomes = imported.outcomes || [];
+                    normalizeUserRoles();
                     closeWizard();
-                    location.reload();
+                    saveToFirestore().then(function() { location.reload(); });
                 } catch(err) {
                     showToast('File read error: ' + err.message, 'error');
                 }
