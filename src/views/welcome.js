@@ -7493,10 +7493,6 @@ function wizardEstimateBaseAnchor() {
 
 function wizardRenderMarketIntel(intel) {
     if (!intel) return '';
-    var keepNames = {};
-    intel.keepSkills.forEach(function(k) { keepNames[k.name.toLowerCase()] = true; });
-    var dropNames = {};
-    intel.dropSkills.forEach(function(d) { dropNames[d.name.toLowerCase()] = true; });
 
     var html = '<div id="marketIntelPanel" style="margin-bottom:16px;">';
 
@@ -7505,13 +7501,22 @@ function wizardRenderMarketIntel(intel) {
             + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
             + '<div style="font-weight:700; font-size:0.82em; color:#10b981; margin-bottom:8px;">'
             + '\uD83D\uDCC8 Keep & Highlight — Your Strongest Market Assets</div>';
-        intel.keepSkills.forEach(function(k) {
+        intel.keepSkills.forEach(function(k, ki) {
+            var accepted = k._accepted;
             html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
                 + '<span style="color:#10b981; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2713</span>'
-                + '<div><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
+                + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
                 + escapeHtml(k.name) + '</span>'
+                + (accepted ? '<span style="font-size:0.68em; background:#10b981; color:#fff; padding:1px 6px; border-radius:4px; margin-left:6px; font-weight:700;">KEY</span>' : '')
                 + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
-                + escapeHtml(k.rationale) + '</span></div></div>';
+                + escapeHtml(k.rationale) + '</span></div>'
+                + '<button onclick="wizardAcceptKeep(' + ki + ')" id="keep-btn-' + ki + '"'
+                + (accepted ? ' disabled' : '')
+                + ' style="background:' + (accepted ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)') + '; border:1px solid rgba(16,185,129,0.3);'
+                + ' color:#10b981; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
+                + (accepted ? ' opacity:0.7;' : '') + '">' + (accepted ? '\u2713 Key Skill' : 'Mark Key') + '</button>'
+                + '</div>';
         });
         html += '</div>';
     }
@@ -7570,16 +7575,38 @@ function wizardRenderMarketIntel(intel) {
     return html;
 }
 
+function wizardAcceptKeep(keepIdx) {
+    var intel = wizardState.marketIntel;
+    if (!intel || !intel.keepSkills[keepIdx]) return;
+    var keep = intel.keepSkills[keepIdx];
+    if (keep._accepted) return;
+    var keepName = keep.name.toLowerCase();
+    var skill = wizardState.skills.find(function(s) { return s.name.toLowerCase() === keepName; });
+    if (skill) {
+        skill.key = true;
+        skill._marketKeep = true;
+    }
+    keep._accepted = true;
+    var btn = document.getElementById('keep-btn-' + keepIdx);
+    if (btn) {
+        btn.textContent = '\u2713 Key Skill';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+    }
+    showToast('"' + keep.name + '" marked as a Key Skill.', 'success', 2500);
+}
+window.wizardAcceptKeep = wizardAcceptKeep;
+
 function wizardAcceptDrop(dropIdx) {
     var intel = wizardState.marketIntel;
     if (!intel || !intel.dropSkills[dropIdx]) return;
     var drop = intel.dropSkills[dropIdx];
     if (drop._accepted) return;
     var dropName = drop.name.toLowerCase();
+    drop._accepted = true;
     wizardState.skills = wizardState.skills.filter(function(s) {
         return s.name.toLowerCase() !== dropName;
     });
-    drop._accepted = true;
     var btn = document.getElementById('drop-btn-' + dropIdx);
     if (btn) {
         btn.textContent = 'Removed';
@@ -7587,6 +7614,8 @@ function wizardAcceptDrop(dropIdx) {
         btn.style.opacity = '0.5';
     }
     showToast('Removed "' + drop.name + '" from your skills.', 'info', 2500);
+    var el = document.getElementById('wizardStepContent');
+    if (el) renderWizardStep6(el);
 }
 window.wizardAcceptDrop = wizardAcceptDrop;
 
@@ -7606,7 +7635,9 @@ function wizardAddGrowthSkill(growthIdx) {
         estimatedValueAdd: g.estimatedValueAdd,
         valueAddPct: g.valueAddPct,
         dateAdded: new Date().toISOString().substring(0, 10),
-        source: 'market-intel'
+        source: 'market-intel',
+        sourceRole: (wizardState.profile && wizardState.profile.currentTitle) || '',
+        sourceIndustry: (wizardState.profile && wizardState.profile.industry) || ''
     });
     var btn = document.getElementById('growth-btn-' + growthIdx);
     if (btn) {
@@ -7705,7 +7736,9 @@ function wizardRenderSkillCards(skills, levels, levelColors) {
                 + '<input type="checkbox" id="skill-check-' + i + '" checked'
                 + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">'
                 + '<div style="flex:1; min-width:0; font-weight:600; color:var(--text-primary); font-size:0.9em;">'
-                + escapeHtml(s.name) + '</div>'
+                + escapeHtml(s.name)
+                + (s._marketKeep ? ' <span style="font-size:0.65em; background:#10b981; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">KEY</span>' : '')
+                + '</div>'
                 + '<button onclick="event.stopPropagation(); wizardAIEvidence(' + i + ')" title="AI: Generate evidence"'
                 + ' style="background:none; border:1px solid rgba(168,85,247,0.3); border-radius:6px;'
                 + ' padding:2px 7px; cursor:pointer; font-size:0.72em; color:#a78bfa;'

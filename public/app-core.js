@@ -22044,13 +22044,22 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
                     + '<div style="font-weight:700; font-size:0.82em; color:#10b981; margin-bottom:8px;">'
                     + '\uD83D\uDCC8 Keep & Highlight \u2014 Your Strongest Market Assets</div>';
-                intel.keepSkills.forEach(function(k) {
+                intel.keepSkills.forEach(function(k, ki) {
+                    var accepted = k._accepted;
                     html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
                         + '<span style="color:#10b981; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2713</span>'
-                        + '<div><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
+                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
                         + escapeHtml(k.name) + '</span>'
+                        + (accepted ? '<span style="font-size:0.68em; background:#10b981; color:#fff; padding:1px 6px; border-radius:4px; margin-left:6px; font-weight:700;">KEY</span>' : '')
                         + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
-                        + escapeHtml(k.rationale) + '</span></div></div>';
+                        + escapeHtml(k.rationale) + '</span></div>'
+                        + '<button onclick="wizardAcceptKeep(' + ki + ')" id="keep-btn-' + ki + '"'
+                        + (accepted ? ' disabled' : '')
+                        + ' style="background:' + (accepted ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)') + '; border:1px solid rgba(16,185,129,0.3);'
+                        + ' color:#10b981; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
+                        + (accepted ? ' opacity:0.7;' : '') + '">' + (accepted ? '\u2713 Key Skill' : 'Mark Key') + '</button>'
+                        + '</div>';
                 });
                 html += '</div>';
             }
@@ -22109,6 +22118,21 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
             return html;
         }
 
+        function wizardAcceptKeep(keepIdx) {
+            var intel = wizardState.marketIntel;
+            if (!intel || !intel.keepSkills[keepIdx]) return;
+            var keep = intel.keepSkills[keepIdx];
+            if (keep._accepted) return;
+            var keepName = keep.name.toLowerCase();
+            var skill = wizardState.skills.find(function(s) { return s.name.toLowerCase() === keepName; });
+            if (skill) { skill.key = true; skill._marketKeep = true; }
+            keep._accepted = true;
+            var btn = document.getElementById('keep-btn-' + keepIdx);
+            if (btn) { btn.textContent = '\u2713 Key Skill'; btn.disabled = true; btn.style.opacity = '0.7'; }
+            showToast('"' + keep.name + '" marked as a Key Skill.', 'success', 2500);
+        }
+        window.wizardAcceptKeep = wizardAcceptKeep;
+
         function wizardAcceptDrop(dropIdx) {
             var intel = wizardState.marketIntel;
             if (!intel || !intel.dropSkills[dropIdx]) return;
@@ -22122,6 +22146,8 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
             var btn = document.getElementById('drop-btn-' + dropIdx);
             if (btn) { btn.textContent = 'Removed'; btn.disabled = true; btn.style.opacity = '0.5'; }
             showToast('Removed "' + drop.name + '" from your skills.', 'info', 2500);
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep6(el);
         }
         window.wizardAcceptDrop = wizardAcceptDrop;
 
@@ -22135,7 +22161,9 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
             wizardState.growthSkills.push({
                 name: g.name, rationale: g.rationale,
                 estimatedValueAdd: g.estimatedValueAdd, valueAddPct: g.valueAddPct,
-                dateAdded: new Date().toISOString().substring(0, 10), source: 'market-intel'
+                dateAdded: new Date().toISOString().substring(0, 10), source: 'market-intel',
+                sourceRole: (wizardState.profile && wizardState.profile.currentTitle) || '',
+                sourceIndustry: (wizardState.profile && wizardState.profile.industry) || ''
             });
             var btn = document.getElementById('growth-btn-' + growthIdx);
             if (btn) { btn.textContent = '\u2713 Added'; btn.disabled = true; btn.style.background = 'rgba(16,185,129,0.1)'; btn.style.borderColor = 'rgba(16,185,129,0.3)'; btn.style.color = '#10b981'; }
@@ -22169,7 +22197,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                                         background:${levelColors[s.level] || '#6b7280'};"></div>
                             <div style="flex:1; min-width:0;">
                                 <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
-                                    ${escapeHtml(s.name)}
+                                    ${escapeHtml(s.name)}${s._marketKeep ? ' <span style="font-size:0.65em; background:#10b981; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">KEY</span>' : ''}
                                 </div>
                                 <div style="font-size:0.78em; color:var(--text-muted);">
                                     ${escapeHtml(s.level)} \u00b7 ${s.evidence?.length || 0} evidence items
