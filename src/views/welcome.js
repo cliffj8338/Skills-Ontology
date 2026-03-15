@@ -6769,7 +6769,7 @@ export function renderWizardStep5(el) {
         return;
     }
 
-    // Gather titles to resolve
+    // Gather titles to resolve — split compound titles into individual segments
     var titles = [];
     var currentTitle = (wizardState.profile.currentTitle || '').trim();
     if (currentTitle) {
@@ -6783,15 +6783,27 @@ export function renderWizardStep5(el) {
         }
     });
 
+    // Split compound titles (e.g. "Co-Founder/Chief Pilot") into segments and resolve each
+    var expandedTitles = [];
+    titles.forEach(function(t) {
+        expandedTitles.push(t);
+        if (/[\/&]|\band\b/i.test(t.label)) {
+            var parts = t.label.split(/\s*[\/&]\s*|\s+and\s+/i).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 3; });
+            parts.forEach(function(part) {
+                expandedTitles.push({ label: part, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
+            });
+        }
+    });
+
     // Resolve all titles
     var resolutions = [];
     var seenSocs = {};
-    titles.forEach(function(t) {
+    expandedTitles.forEach(function(t) {
         var result = resolveTitle(t.label);
         if (result && !seenSocs[result.soc]) {
             seenSocs[result.soc] = true;
             resolutions.push({
-                inputTitle: t.label,
+                inputTitle: t._parentTitle || t.label,
                 source: t.source,
                 company: t.company || '',
                 years: t.years || '',
@@ -6802,21 +6814,154 @@ export function renderWizardStep5(el) {
                 alternatives: result.alternatives || []
             });
         }
+        if (result && result.alternatives) {
+            result.alternatives.forEach(function(alt) {
+                if (!seenSocs[alt.soc]) {
+                    seenSocs[alt.soc] = true;
+                    resolutions.push({
+                        inputTitle: t._parentTitle || t.label,
+                        source: t.source,
+                        company: t.company || '',
+                        years: t.years || '',
+                        soc: alt.soc,
+                        occTitle: alt.title,
+                        family: alt.family,
+                        confidence: (result.confidence || 0.8) * 0.85,
+                        alternatives: []
+                    });
+                }
+            });
+        }
     });
 
-    // Run gap analysis for primary occupation (highest confidence current title, or first match)
+    // Also infer occupations from certifications
+    var certSocMap = {
+        'private pilot': ['53-2012.00'],
+        'instrument rating': ['53-2012.00', '53-2011.00'],
+        'commercial pilot': ['53-2012.00'],
+        'airline transport pilot': ['53-2011.00'],
+        'ifr': ['53-2012.00'],
+        'cfi': ['53-2012.00', '25-1194.00'],
+        'cfii': ['53-2012.00', '25-1194.00'],
+        'a&p': ['49-3011.00'],
+        'pmp': ['11-9021.00'],
+        'csm': ['15-1221.00'],
+        'cpa': ['13-2011.00'],
+        'cissp': ['15-1212.00'],
+        'aws': ['15-1211.00'],
+        'scrum': ['15-1221.00']
+    };
+    var certs = wizardState.certifications || (wizardState.parsedData && wizardState.parsedData.certifications) || [];
+    certs.forEach(function(cert) {
+        var name = (cert.name || '').toLowerCase();
+        for (var key in certSocMap) {
+            if (name.includes(key)) {
+                certSocMap[key].forEach(function(soc) {
+                    if (!seenSocs[soc] && window.onetCrosswalk && window.onetCrosswalk.occupations[soc]) {
+                        seenSocs[soc] = true;
+                        var occ = window.onetCrosswalk.occupations[soc];
+                        resolutions.push({
+                            inputTitle: cert.name,
+                            source: 'certification',
+                            company: cert.issuer || '',
+                            years: '',
+                            soc: soc,
+                            occTitle: occ.title,
+                            family: occ.family,
+                            confidence: 0.9,
+                            alternatives: []
+                        });
+                    }
+                });
+            }
+        }
+    });
+
+    // Run gap analysis for ALL matched occupations, not just the primary
     var primaryRes = resolutions.find(function(r) { return r.source === 'current'; }) || resolutions[0];
     var gapResult = null;
     var gapSkills = [];
-    if (primaryRes) {
-        gapResult = suggestMissingSkills(wizardState.skills, primaryRes.soc);
-        if (gapResult) {
-            // Filter to meaningful gaps (importance > 40, not already in user skills)
-            gapSkills = gapResult.gaps.filter(function(g) {
-                return (g.importance || 0) >= 30;
-            }).slice(0, 40);
+    var gapSkillNames = {};
+    resolutions.forEach(function(res) {
+        var result = suggestMissingSkills(wizardState.skills, res.soc);
+        if (result) {
+            if (!gapResult || (res.source === 'current' && !gapResult._isPrimary)) {
+                gapResult = result;
+                gapResult._isPrimary = res.source === 'current';
+            }
+            result.gaps.forEach(function(g) {
+                if ((g.importance || 0) >= 25 && !gapSkillNames[g.name.toLowerCase()]) {
+                    gapSkillNames[g.name.toLowerCase()] = true;
+                    g._fromOcc = res.occTitle;
+                    gapSkills.push(g);
+                }
+            });
         }
-    }
+    });
+    gapSkills.sort(function(a, b) { return (b.importance || 0) - (a.importance || 0); });
+    gapSkills = gapSkills.slice(0, 50);
+
+    // Add certification-implied skills when matched SOC has no O*NET skill data (e.g. pilots)
+    var socsWithNoSkills = {};
+    resolutions.forEach(function(r) {
+        var occ = window.onetCrosswalk && window.onetCrosswalk.occupations[r.soc];
+        if (occ && (!occ.skills || occ.skills.length === 0)) socsWithNoSkills[r.soc] = true;
+    });
+    var needsCertSkills = Object.keys(socsWithNoSkills).length > 0 || resolutions.some(function(r) { return r.source === 'certification'; });
+    var certSkillMap = {
+        'private pilot': [
+            { name: 'Flight Operations', level: 'Expert', category: 'skill' },
+            { name: 'Instrument Flying (IFR)', level: 'Expert', category: 'skill' },
+            { name: 'Aviation Safety Management', level: 'Expert', category: 'knowledge' },
+            { name: 'Aeronautical Decision Making', level: 'Expert', category: 'ability' },
+            { name: 'Pre-Flight Planning', level: 'Advanced', category: 'skill' },
+            { name: 'Weather Analysis & Interpretation', level: 'Advanced', category: 'knowledge' },
+            { name: 'Navigation Systems', level: 'Advanced', category: 'skill' },
+            { name: 'Aircraft Systems Knowledge', level: 'Advanced', category: 'knowledge' },
+            { name: 'Emergency Procedures', level: 'Expert', category: 'skill' },
+            { name: 'Crew Resource Management (CRM)', level: 'Advanced', category: 'ability' },
+            { name: 'FAA Regulatory Compliance', level: 'Advanced', category: 'knowledge' },
+            { name: 'Risk Assessment', level: 'Expert', category: 'ability' }
+        ],
+        'instrument rating': [
+            { name: 'Instrument Flying (IFR)', level: 'Expert', category: 'skill' },
+            { name: 'Approach Procedures', level: 'Advanced', category: 'skill' },
+            { name: 'Weather Analysis & Interpretation', level: 'Expert', category: 'knowledge' },
+            { name: 'Navigation Systems', level: 'Expert', category: 'skill' }
+        ],
+        'csm': [
+            { name: 'Agile Methodology', level: 'Advanced', category: 'skill' },
+            { name: 'Scrum Framework', level: 'Advanced', category: 'knowledge' },
+            { name: 'Sprint Planning', level: 'Advanced', category: 'skill' }
+        ],
+        'pmp': [
+            { name: 'Project Management', level: 'Expert', category: 'skill' },
+            { name: 'Program Management', level: 'Advanced', category: 'skill' },
+            { name: 'Resource Allocation', level: 'Advanced', category: 'skill' }
+        ]
+    };
+    if (needsCertSkills) certs.forEach(function(cert) {
+        var certName = (cert.name || '').toLowerCase();
+        for (var key in certSkillMap) {
+            if (certName.includes(key)) {
+                certSkillMap[key].forEach(function(cs) {
+                    if (!gapSkillNames[cs.name.toLowerCase()]) {
+                        var alreadyHas = wizardState.skills.some(function(s) { return s.name.toLowerCase() === cs.name.toLowerCase(); });
+                        if (!alreadyHas) {
+                            gapSkillNames[cs.name.toLowerCase()] = true;
+                            gapSkills.push({
+                                name: cs.name,
+                                category: cs.category,
+                                occupationLevel: cs.level,
+                                importance: 75,
+                                _fromOcc: cert.name + ' (certification)'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    });
 
     // Store enrichment state for the save function
     wizardState.enrichment = {
@@ -6890,7 +7035,7 @@ export function renderWizardStep5(el) {
                 </button>
             </div>
             <p style="font-size:0.82em; color:var(--text-muted); margin-bottom:14px;">
-                Based on ${escapeHtml(primaryRes.occTitle)}, these skills are typical for the role but missing from your profile.
+                Based on ${resolutions.length > 1 ? resolutions.length + ' matched occupations' : escapeHtml(primaryRes.occTitle)}, these skills are typical for your roles but missing from your profile.
             </p>
             <div style="max-height:340px; overflow-y:auto;">
                 ${gapSkills.map(function(g, i) {
@@ -6904,6 +7049,7 @@ export function renderWizardStep5(el) {
                         + escapeHtml(g.name) + '</div>'
                         + '<div style="font-size:0.76em; color:var(--text-muted);">'
                         + (g.category || 'skill') + ' \u00B7 ' + (g.occupationLevel || 'Proficient')
+                        + (g._fromOcc ? ' \u00B7 <span style="color:var(--text-secondary);">' + escapeHtml(g._fromOcc) + '</span>' : '')
                         + '</div></div></div>';
                 }).join('')}
             </div>
