@@ -143,8 +143,9 @@ export default async function handler(req, res) {
         if (!allowedModels.includes(body.model)) {
             body.model = 'claude-sonnet-4-20250514';
         }
-        if (!body.max_tokens || body.max_tokens > 4096) {
-            body.max_tokens = 4096;
+        var maxTokenCeiling = 16000;
+        if (!body.max_tokens || body.max_tokens > maxTokenCeiling) {
+            body.max_tokens = maxTokenCeiling;
         }
         
         const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {

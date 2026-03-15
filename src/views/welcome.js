@@ -6369,7 +6369,7 @@ async function wizardRunParsing() {
             return;
         }
 
-        const systemPrompt = `You are an expert career analyst. Extract EVERY detail from this resume or LinkedIn profile into structured JSON.
+        const systemPrompt = `You are an elite career intelligence system that builds comprehensive professional skill profiles. Extract EVERY detail from this resume or LinkedIn profile into structured JSON.
 
 CRITICAL: LinkedIn PDF exports have unusual formatting — text may be in sidebars, columns, or split across pages. Read EVERY section carefully: Summary, Experience, Education, Certifications, Top Skills, Honors, Volunteering. Do NOT skip any section.
 
@@ -6402,7 +6402,7 @@ Return ONLY valid JSON — no markdown, no explanation:
     {
       "name": "Skill Name",
       "level": "Mastery|Expert|Advanced|Proficient|Novice",
-      "category": "skill|ability|workstyle|unique",
+      "category": "skill|knowledge|ability|workstyle|unique",
       "roles": ["role1"],
       "key": true,
       "evidence": [
@@ -6416,28 +6416,54 @@ Return ONLY valid JSON — no markdown, no explanation:
   "purpose": "One paragraph purpose statement in first person"
 }
 
-SKILL EXTRACTION RULES — this is the most important part:
-- Extract 25-50 skills. Be thorough and aggressive. More is better than fewer.
-- DOMAIN SKILLS: Extract skills specific to every industry/domain mentioned. A pilot needs: Aviation, Flight Operations, Instrument Flying, Aircraft Safety, Aeronautical Decision Making. A musician needs: Percussion Performance, Music Performance, Studio Recording. A nonprofit founder needs: Nonprofit Leadership, Fundraising, Community Engagement.
-- LEADERSHIP SKILLS: Management, Team Building, Strategic Planning, Executive Communication, Stakeholder Management, Budget Management, Change Management, etc.
-- TECHNICAL SKILLS: Any technologies, platforms, methodologies mentioned.
-- SOFT SKILLS: Public Speaking, Negotiation, Mentoring, Cross-Cultural Communication, etc.
-- UNIQUE SKILLS: Industry-specific, rare combinations, or skills that don't fit standard taxonomies. Use category="unique" for these.
-- INFERRED SKILLS: If someone managed $200M in sales, infer Sales Strategy, Revenue Growth, Enterprise Sales even if not explicitly listed. If someone founded a charity, infer Nonprofit Leadership, Fundraising, Community Outreach.
-- Look at EVERY role and extract skills implied by the responsibilities described.
-- Level guide: Mastery=career-defining (15+ yrs or primary identity), Expert=deep (8-15 yrs), Advanced=strong (4-8 yrs), Proficient=solid (1-4 yrs), Novice=emerging.
-- For each skill, extract 1-3 evidence items. Outcomes must be specific — include numbers, dollar amounts, percentages.
-- key=true for skills that define this person's professional identity.
+SKILL EXTRACTION — THIS IS THE MOST CRITICAL PART OF YOUR JOB:
 
-WORK HISTORY: Extract EVERY position listed. Include descriptions with specific achievements. Do not skip any role.
+TARGET: Extract 40-60 skills MINIMUM. Senior professionals should have 50-70+. A VP with 20+ years should never have fewer than 50. More is ALWAYS better.
 
-CERTIFICATIONS: Extract ALL certifications, licenses, and credentials. Include pilot licenses, professional certifications, industry credentials, etc.
+FOR EACH ROLE listed, you MUST extract 8-15 skills specific to that role. Think about what someone in that exact position does daily:
 
-EDUCATION: Extract ALL education entries.
+ROLE DECOMPOSITION METHOD — for EVERY role title, mentally decompose it:
+- What does a [VP of Global Strategy] DO? → Strategic Planning, Competitive Analysis, Market Entry Strategy, Corporate Development, M&A Due Diligence, Business Model Innovation, Board Presentations, Executive Stakeholder Management, Scenario Planning, Growth Strategy, P&L Management, Cross-functional Leadership, Data-Driven Decision Making, Strategic Partnerships, International Expansion, Portfolio Strategy...
+- What does a [Chief Pilot / Co-Founder] DO? → Flight Operations, Instrument Flying, Multi-Engine Aircraft, Aviation Safety Management, Crew Resource Management, Aeronautical Decision Making, Aircraft Systems Knowledge, FAA Regulatory Compliance, Pre-Flight Planning, Weather Analysis, Navigation Systems, Risk Assessment, Emergency Procedures, Aviation Maintenance Oversight, Pilot Training...
+- What does a [GM / General Manager] DO? → Operations Management, Revenue Growth, Team Building, Budget Management, Performance Management, Customer Experience, Vendor Management, Process Optimization, KPI Development, Business Development...
 
-VALUES: Infer 4-7 values from career patterns, volunteer work, personal mission, and tone. Make them personal and specific.
+SKILL CATEGORIES — extract skills from ALL of these for EVERY person:
+1. DOMAIN/INDUSTRY SKILLS: The actual craft — aviation skills for pilots, legal skills for lawyers, medical skills for doctors, engineering skills for engineers. Be SPECIFIC (not "Aviation" but "Instrument Flying", "Multi-Engine Operations", "CRM", etc.)
+2. STRATEGIC/LEADERSHIP: Strategy, planning, organizational design, change management, stakeholder management, board governance, executive communication, vision setting
+3. OPERATIONAL: P&L, budgeting, process improvement, KPI frameworks, operations management, resource allocation, vendor management, supply chain
+4. PEOPLE: Team building, mentoring, talent development, performance management, cross-cultural leadership, conflict resolution, organizational development
+5. ANALYTICAL: Data analysis, market research, competitive intelligence, financial modeling, forecasting, scenario planning, business intelligence
+6. COMMUNICATION: Public speaking, executive presentations, negotiation, written communication, storytelling, media relations, investor relations
+7. TECHNICAL: Any tools, platforms, methodologies, frameworks, systems
+8. UNIQUE/RARE: Skills that come from unusual career combinations — a pilot who is also a strategy VP has RARE cross-domain skills like "Risk-to-Opportunity Assessment", "Operational Safety Culture Design", "Real-Time Decision Making Under Pressure"
 
-PURPOSE: Write a compelling, authentic purpose statement that captures this person's unique career narrative.`;
+LEVEL ASSIGNMENT — be generous for senior professionals:
+- Mastery = career-defining, primary professional identity (10+ years or core to who they are)
+- Expert = deep demonstrated expertise (5-10 years or significant achievements)
+- Advanced = strong demonstrated capability (3-5 years or clear evidence)
+- Proficient = solid working knowledge (1-3 years)
+- Novice = emerging or basic exposure
+- For senior executives (VP+, C-suite, Founders): MOST skills should be Advanced, Expert, or Mastery. These are not entry-level people.
+
+INFERENCE RULES:
+- If someone was VP at a unicorn → infer Fundraising Support, Investor Relations, Hyper-Growth Management, Scaling Operations
+- If someone was a pilot → infer ALL piloting sub-skills (IFR, VFR, CRM, navigation, systems, weather, regulations, etc.)
+- If someone managed teams → infer Hiring, Performance Reviews, Team Development, Coaching, Organizational Design
+- If someone worked internationally → infer Cross-Cultural Communication, International Business, Global Strategy
+- If someone co-founded a company → infer Entrepreneurship, Business Planning, Fundraising, Product-Market Fit, Startup Operations
+- If someone has 15+ years → they have MANY more skills than a junior person. Extract them ALL.
+
+EVIDENCE: For each skill, 1-3 evidence items with specific outcomes (numbers, %, $, timeframes).
+
+key=true for the 10-15 skills that most define this person's professional identity.
+
+WORK HISTORY: Extract EVERY position. Include descriptions with specific achievements.
+
+CERTIFICATIONS: Extract ALL certifications, licenses, credentials — pilot licenses, professional certs, industry credentials, etc.
+
+VALUES: Infer 4-7 values from career patterns. Make them personal and specific, not corporate.
+
+PURPOSE: Write a compelling, authentic purpose statement capturing this person's unique career narrative.`;
 
         // Build message content: PDF document or plain text
         var userContent;
@@ -6787,8 +6813,8 @@ export function renderWizardStep5(el) {
         if (gapResult) {
             // Filter to meaningful gaps (importance > 40, not already in user skills)
             gapSkills = gapResult.gaps.filter(function(g) {
-                return (g.importance || 0) >= 40;
-            }).slice(0, 20);
+                return (g.importance || 0) >= 30;
+            }).slice(0, 40);
         }
     }
 
@@ -6850,11 +6876,21 @@ export function renderWizardStep5(el) {
         ${gapSkills.length > 0 ? `
         <div style="background:var(--bg-elevated); border:1px solid var(--border);
                     border-radius:14px; padding:20px; margin-bottom:20px;">
-            <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px; font-size:0.92em;">
-                Suggested Skills from O*NET
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                <div style="font-weight:700; color:var(--text-primary); font-size:0.92em;">
+                    Suggested Skills from O*NET
+                </div>
+                <button onclick="wizardSelectAllEnrichSkills()" id="enrichSelectAllBtn"
+                    style="background:none; border:1px solid var(--accent); border-radius:6px;
+                           padding:4px 12px; color:var(--accent); cursor:pointer; font-size:0.76em;
+                           font-weight:600; transition:all 0.15s;"
+                    onmouseover="this.style.background='rgba(96,165,250,0.1)'"
+                    onmouseout="this.style.background='none'">
+                    Select All
+                </button>
             </div>
             <p style="font-size:0.82em; color:var(--text-muted); margin-bottom:14px;">
-                Based on ${escapeHtml(primaryRes.occTitle)}, these skills are typical for the role but missing from your profile. Check the ones you want to add.
+                Based on ${escapeHtml(primaryRes.occTitle)}, these skills are typical for the role but missing from your profile.
             </p>
             <div style="max-height:340px; overflow-y:auto;">
                 ${gapSkills.map(function(g, i) {
@@ -6901,6 +6937,30 @@ export function renderWizardStep5(el) {
         </div>
         `}
 
+        ${wizardState.parsedData && wizardState.parsedData.roles && wizardState.parsedData.roles.length > 0 ? `
+        <div style="background:linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.04));
+                    border:1px solid rgba(99,102,241,0.15); border-radius:14px; padding:20px; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                <span style="font-size:1.3em;">🔍</span>
+                <div>
+                    <div style="font-weight:700; color:var(--text-primary); font-size:0.92em;">
+                        AI Deep Skill Discovery
+                    </div>
+                    <div style="font-size:0.78em; color:var(--text-secondary); margin-top:2px;">
+                        AI will analyze each of your roles in depth and suggest skills specific to your actual career — not just generic O*NET matches.
+                    </div>
+                </div>
+            </div>
+            <button onclick="wizardAIDeepDiscovery()" id="aiDeepDiscoveryBtn"
+                    style="width:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;
+                           border:none; border-radius:8px; padding:10px 20px; cursor:pointer;
+                           font-size:0.88em; font-weight:600; transition:all 0.15s;">
+                ✨ Discover Skills From My Roles
+            </button>
+            <div id="aiDeepDiscoveryResults" style="margin-top:12px;"></div>
+        </div>
+        ` : ''}
+
         <div style="display:flex; justify-content:space-between;">
             ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
             ${wizardBtn('Continue \u2192 Skills', 'wizardSaveEnrichment()', 'primary')}
@@ -6908,8 +6968,180 @@ export function renderWizardStep5(el) {
     `;
 }
 
+async function wizardAIDeepDiscovery() {
+    var btn = document.getElementById('aiDeepDiscoveryBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Analyzing your roles...'; btn.style.opacity = '0.6'; }
+
+    var apiKey = safeGet('wbAnthropicKey');
+    if (!apiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
+        showToast('Sign in to use AI discovery.', 'warning');
+        if (btn) { btn.disabled = false; btn.textContent = '✨ Discover Skills From My Roles'; btn.style.opacity = '1'; }
+        return;
+    }
+
+    try {
+        var roles = (wizardState.parsedData?.roles || []).map(function(r) {
+            return (r.name || '') + (r.company ? ' at ' + r.company : '') + (r.years ? ' (' + r.years + ')' : '');
+        }).join('\n');
+
+        var existingSkills = wizardState.skills.map(function(s) { return s.name; }).join(', ');
+
+        var data = await callAnthropicAPI({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4000,
+            messages: [{
+                role: 'user',
+                content: 'You are a career skills expert. Given these roles, identify 20-30 SPECIFIC skills that someone in these exact positions would have. Think deeply about what each role actually requires day-to-day.\n\nRoles:\n' + roles
+                    + '\n\nSkills they ALREADY have (do NOT repeat these): ' + existingSkills
+                    + '\n\nFor each skill, provide the name, a suggested proficiency level (Mastery/Expert/Advanced/Proficient), and which role it primarily comes from.'
+                    + '\n\nIMPORTANT: Be SPECIFIC and ROLE-RELEVANT. Not generic business skills — what does THIS specific role at THIS type of company actually require?'
+                    + ' A pilot needs actual aviation skills (IFR flying, CRM, weather analysis). A VP of Strategy needs actual strategy skills (scenario planning, M&A due diligence, portfolio strategy).'
+                    + '\n\nReturn ONLY a JSON array: [{"name":"Skill Name","level":"Expert","category":"skill|knowledge|ability|unique","role":"Which Role"}]'
+            }]
+        }, apiKey, 'deep-discovery');
+
+        var text = (data.content[0]?.text || '').trim();
+        var clean = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        var suggestions;
+        try {
+            suggestions = JSON.parse(clean);
+        } catch(jsonErr) {
+            var arrMatch = clean.match(/\[[\s\S]*\]/);
+            if (arrMatch) {
+                try { suggestions = JSON.parse(arrMatch[0]); } catch(e2) { suggestions = []; }
+            } else { suggestions = []; }
+        }
+        if (!Array.isArray(suggestions)) suggestions = [];
+
+        var container = document.getElementById('aiDeepDiscoveryResults');
+        if (!container) return;
+
+        if (!wizardState.enrichment) wizardState.enrichment = {};
+        wizardState.enrichment.aiDiscovery = suggestions;
+
+        var existingMap = {};
+        wizardState.skills.forEach(function(s) { existingMap[s.name.toLowerCase()] = true; });
+        var unique = suggestions.filter(function(s) { return s.name && !existingMap[s.name.toLowerCase()]; });
+
+        if (unique.length === 0) {
+            container.innerHTML = '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px;">No additional unique skills found.</div>';
+            return;
+        }
+
+        var groupedByRole = {};
+        unique.forEach(function(s) {
+            var role = s.role || 'General';
+            if (!groupedByRole[role]) groupedByRole[role] = [];
+            groupedByRole[role].push(s);
+        });
+
+        var html = '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
+            + '<div style="font-weight:600; font-size:0.85em; color:var(--text-primary);">' + unique.length + ' skills discovered</div>'
+            + '<button onclick="wizardSelectAllAIDiscovery()" id="aiDiscoverySelectAllBtn"'
+            + ' style="background:none; border:1px solid var(--accent); border-radius:6px;'
+            + ' padding:4px 12px; color:var(--accent); cursor:pointer; font-size:0.76em;'
+            + ' font-weight:600;">Select All</button></div>';
+
+        var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
+
+        Object.keys(groupedByRole).forEach(function(role) {
+            html += '<div style="font-size:0.76em; color:var(--text-muted); font-weight:600; margin:10px 0 4px; text-transform:uppercase; letter-spacing:0.5px;">' + escapeHtml(role) + '</div>';
+            groupedByRole[role].forEach(function(s, i) {
+                var gIdx = 'ai-disc-' + role.replace(/[^a-z0-9]/gi,'') + '-' + i;
+                var c = levelColors[s.level] || '#60a5fa';
+                html += '<label style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer; border-bottom:1px solid var(--border);">'
+                    + '<input type="checkbox" class="ai-discovery-cb" data-name="' + escapeAttr(s.name) + '" data-level="' + escapeAttr(s.level||'Proficient') + '" data-category="' + escapeAttr(s.category||'skill') + '"'
+                    + ' style="width:16px; height:16px; accent-color:var(--accent); flex-shrink:0;">'
+                    + '<div style="flex:1;">'
+                    + '<span style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(s.name) + '</span>'
+                    + ' <span style="font-size:0.72em; color:' + c + '; font-weight:500;">' + escapeHtml(s.level||'') + '</span>'
+                    + '</div></label>';
+            });
+        });
+
+        container.innerHTML = html;
+        if (btn) { btn.textContent = '✓ Discovery Complete'; btn.style.background = '#10b981'; }
+
+    } catch (err) {
+        showToast('Discovery failed: ' + err.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '✨ Discover Skills From My Roles'; btn.style.opacity = '1'; }
+    }
+}
+window.wizardAIDeepDiscovery = wizardAIDeepDiscovery;
+
+function wizardSelectAllAIDiscovery() {
+    var cbs = document.querySelectorAll('.ai-discovery-cb');
+    var allChecked = true;
+    cbs.forEach(function(cb) { if (!cb.checked) allChecked = false; });
+    cbs.forEach(function(cb) { cb.checked = !allChecked; });
+    var btn = document.getElementById('aiDiscoverySelectAllBtn');
+    if (btn) btn.textContent = allChecked ? 'Select All' : 'Deselect All';
+}
+window.wizardSelectAllAIDiscovery = wizardSelectAllAIDiscovery;
+
+function wizardSelectAllEnrichSkills() {
+    var enrichment = wizardState.enrichment || {};
+    var gapSkills = enrichment.gapSkills || [];
+    var allChecked = true;
+    for (var i = 0; i < gapSkills.length; i++) {
+        var cb = document.getElementById('enrich-skill-' + i);
+        if (cb && !cb.checked) { allChecked = false; break; }
+    }
+    for (var j = 0; j < gapSkills.length; j++) {
+        var cb2 = document.getElementById('enrich-skill-' + j);
+        if (cb2) cb2.checked = !allChecked;
+    }
+    var btn = document.getElementById('enrichSelectAllBtn');
+    if (btn) btn.textContent = allChecked ? 'Select All' : 'Deselect All';
+}
+window.wizardSelectAllEnrichSkills = wizardSelectAllEnrichSkills;
+
 export function wizardSaveEnrichment() {
     if (readOnlyGuard()) return;
+    var enrichment = wizardState.enrichment || {};
+    var gapSkills = enrichment.gapSkills || [];
+    var added = 0;
+    for (var i = 0; i < gapSkills.length; i++) {
+        var cb = document.getElementById('enrich-skill-' + i);
+        if (cb && cb.checked) {
+            var g = gapSkills[i];
+            var already = wizardState.skills.some(function(s) { return s.name.toLowerCase() === g.name.toLowerCase(); });
+            if (!already) {
+                wizardState.skills.push({
+                    name: g.name,
+                    level: g.occupationLevel || 'Proficient',
+                    category: g.category || 'skill',
+                    roles: [],
+                    key: false,
+                    evidence: [],
+                    _fromEnrich: true
+                });
+                added++;
+            }
+        }
+    }
+    var aiCbs = document.querySelectorAll('.ai-discovery-cb');
+    aiCbs.forEach(function(cb) {
+        if (cb.checked) {
+            var name = cb.getAttribute('data-name');
+            var level = cb.getAttribute('data-level') || 'Proficient';
+            var category = cb.getAttribute('data-category') || 'skill';
+            var already = wizardState.skills.some(function(s) { return s.name.toLowerCase() === name.toLowerCase(); });
+            if (!already) {
+                wizardState.skills.push({
+                    name: name,
+                    level: level,
+                    category: category,
+                    roles: [],
+                    key: false,
+                    evidence: [],
+                    _fromAIDiscovery: true
+                });
+                added++;
+            }
+        }
+    });
+    if (added > 0) showToast(added + ' skills added to your profile.', 'success', 3000);
     wizardNext();
 }
 
@@ -6921,7 +7153,7 @@ export function renderWizardStep6(el) {
     var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
     var levels = ['Novice','Proficient','Advanced','Expert','Mastery'];
     var enrichment = wizardState.enrichment || {};
-    var gapSkills = (enrichment.gapSkills || []).slice(0, 8);
+    var gapSkills = (enrichment.gapSkills || []).slice(0, 20);
     var hasGaps = gapSkills.length > 0;
 
     el.innerHTML = wizardHeading(bpIcon('compass',22),

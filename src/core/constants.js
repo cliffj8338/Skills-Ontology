@@ -3,13 +3,13 @@
  * MONOLITH LINES: 1723–2066
  */
 
-export var BP_VERSION = 'v4.46.95';
+export var BP_VERSION = 'v4.46.96';
 export var BP_BUILD   = '20260314-security-hardening';
 export var JOB_SCHEMA_VERSION = '2.0';
 export var JOB_SKILLS_CAP     = 50;
-export var PROFILE_SKILL_CAP  = 50;
+export var PROFILE_SKILL_CAP  = 75;
 export var WB_SKILL_CAP       = 20;
-export var SKILL_CAP_WARN     = 45;
+export var SKILL_CAP_WARN     = 65;
 export var INCIDENT_MAX       = 50;
 export var AI_INPUT_COST_PER_M  = 3.0;
 export var AI_OUTPUT_COST_PER_M = 15.0;

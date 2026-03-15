@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.90 - BUILD 20260314-security-hardening
-        var BP_VERSION = 'v4.46.95';
+        var BP_VERSION = 'v4.46.96';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -14,9 +14,9 @@
         // competency frameworks use 12-25, resume best practice is 5-10 core competencies.
         // Blueprint needs broader coverage for multi-job matching across diverse roles.
         // 50 balances signal-to-noise: ~5 mastery + ~10 expert + ~15 advanced + ~20 foundational.
-        var PROFILE_SKILL_CAP = 50;       // Max skills on personal profile
+        var PROFILE_SKILL_CAP = 75;       // Max skills on personal profile
         var WB_SKILL_CAP = 20;            // Max skills per Work Blueprint
-        var SKILL_CAP_WARN = 45;          // Show warning at this threshold
+        var SKILL_CAP_WARN = 65;          // Show warning at this threshold
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {

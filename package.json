@@ -1,6 +1,6 @@
 {
   "name": "blueprint",
-  "version": "4.46.95",
+  "version": "4.46.96",
   "private": true,
   "type": "module",
   "scripts": {
