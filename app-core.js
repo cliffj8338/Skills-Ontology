@@ -1,6 +1,6 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.90 - BUILD 20260314-security-hardening
+        // BLUEPRINT v4.46.99 - BUILD 20260314-security-hardening
         var BP_VERSION = 'v4.46.99';
         
         // ===== JOB SCHEMA VERSION =====
@@ -664,7 +664,7 @@
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
             console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c   Build: 20260305-mobile-admin                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c   Build: 20260314-security-hardening                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
             console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
             console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         }
