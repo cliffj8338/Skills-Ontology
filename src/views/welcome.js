@@ -4281,7 +4281,7 @@ export function renderWizardStep() {
         </div>
 
         <!-- Step content -->
-        <div id="wizardStepContent" style="flex:1; overflow-y:auto; padding:32px 28px;">
+        <div id="wizardStepContent" style="flex:1; overflow-y:scroll; padding:32px 28px;">
             <div style="max-width:700px; margin:0 auto;" id="wizardInner">
                 <!-- Populated per step -->
             </div>
@@ -6487,7 +6487,7 @@ Return ONLY valid JSON — no markdown, no explanation:
 
 SKILL EXTRACTION — THIS IS THE MOST CRITICAL PART OF YOUR JOB:
 
-TARGET: Extract 40-60 skills MINIMUM. Senior professionals should have 50-70+. A VP with 20+ years should never have fewer than 50. More is ALWAYS better.
+TARGET: Extract 30-45 skills. Focus on the highest-value, most differentiating skills. Quality over quantity — 35 well-evidenced skills are worth more than 70 generic ones.
 
 FOR EACH ROLE listed, you MUST extract 8-15 skills specific to that role. Think about what someone in that exact position does daily:
 
@@ -6993,6 +6993,21 @@ export function renderWizardStep5(el) {
     var gapResult = null;
     var gapSkills = [];
     var gapSkillNames = {};
+    var existingSkillWords = {};
+    wizardState.skills.forEach(function(s) {
+        var words = (s.name || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2; });
+        words.forEach(function(w) { existingSkillWords[w] = true; });
+    });
+    var existingSkillNamesLower = {};
+    wizardState.skills.forEach(function(s) { existingSkillNamesLower[s.name.toLowerCase()] = true; });
+    function isGapRedundant(gapName) {
+        var gLow = gapName.toLowerCase();
+        if (existingSkillNamesLower[gLow]) return true;
+        var gapWords = gLow.replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2; });
+        if (gapWords.length === 0) return false;
+        var overlap = gapWords.filter(function(w) { return existingSkillWords[w]; }).length;
+        return overlap / gapWords.length >= 0.6;
+    }
     resolutions.forEach(function(res) {
         var result = suggestMissingSkills(wizardState.skills, res.soc);
         if (result) {
@@ -7001,7 +7016,7 @@ export function renderWizardStep5(el) {
                 gapResult._isPrimary = res.source === 'current';
             }
             result.gaps.forEach(function(g) {
-                if ((g.importance || 0) >= 25 && !gapSkillNames[g.name.toLowerCase()]) {
+                if ((g.importance || 0) >= 25 && !gapSkillNames[g.name.toLowerCase()] && !isGapRedundant(g.name)) {
                     gapSkillNames[g.name.toLowerCase()] = true;
                     g._fromOcc = res.occTitle;
                     gapSkills.push(g);
@@ -7010,7 +7025,7 @@ export function renderWizardStep5(el) {
         }
     });
     gapSkills.sort(function(a, b) { return (b.importance || 0) - (a.importance || 0); });
-    gapSkills = gapSkills.slice(0, 50);
+    gapSkills = gapSkills.slice(0, 20);
 
     // Add certification-implied skills when matched SOC has no O*NET skill data (e.g. pilots)
     var socsWithNoSkills = {};
@@ -7056,7 +7071,7 @@ export function renderWizardStep5(el) {
         for (var key in certSkillMap) {
             if (certName.includes(key)) {
                 certSkillMap[key].forEach(function(cs) {
-                    if (!gapSkillNames[cs.name.toLowerCase()]) {
+                    if (!gapSkillNames[cs.name.toLowerCase()] && !isGapRedundant(cs.name)) {
                         var alreadyHas = wizardState.skills.some(function(s) { return s.name.toLowerCase() === cs.name.toLowerCase(); });
                         if (!alreadyHas) {
                             gapSkillNames[cs.name.toLowerCase()] = true;
@@ -8412,6 +8427,18 @@ export function wizardSaveSkills() {
         var cb = document.getElementById('skill-check-' + i);
         return !cb || cb.checked;
     });
+    var SKILL_CAP = 50;
+    if (wizardState.skills.length > SKILL_CAP) {
+        var levelWeight = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
+        wizardState.skills.sort(function(a, b) {
+            var aScore = (a.key ? 100 : 0) + (levelWeight[a.level] || 1) * 10 + (a.evidence ? a.evidence.length : 0) * 3 + (a._marketKeep ? 50 : 0);
+            var bScore = (b.key ? 100 : 0) + (levelWeight[b.level] || 1) * 10 + (b.evidence ? b.evidence.length : 0) * 3 + (b._marketKeep ? 50 : 0);
+            return bScore - aScore;
+        });
+        var removed = wizardState.skills.length - SKILL_CAP;
+        wizardState.skills = wizardState.skills.slice(0, SKILL_CAP);
+        showToast('Capped at ' + SKILL_CAP + ' skills (' + removed + ' lower-priority skills trimmed).', 'info', 3000);
+    }
     if (wizardState.growthSkills && wizardState.growthSkills.length > 0) {
         var _ud = window._userData || {};
         _ud.growthSkills = wizardState.growthSkills;
@@ -8919,26 +8946,108 @@ function wizardEstimateMarketValue() {
     var profile = wizardState.profile || {};
     var yearsExp = parseInt(profile.yearsExperience) || 5;
     var titleStr = (profile.currentTitle || '').toLowerCase();
+    var rolesStr = ((wizardState.parsedData?.roles || []).map(function(r) { return r.name || ''; }).join(' ')).toLowerCase();
+    var skillNames = skills.map(function(s) { return (s.name || '').toLowerCase(); }).join(' ');
+    var allSignals = titleStr + ' ' + rolesStr + ' ' + skillNames;
 
-    var levelWeight = { Novice: 1, Proficient: 2, Advanced: 3, Expert: 4, Mastery: 5 };
-    var totalPoints = skills.reduce(function(sum, s) {
-        var base = levelWeight[s.level] || 2;
-        var evidenceBonus = Math.min((s.evidence ? s.evidence.length : 0) * 0.3, 2);
-        return sum + base + evidenceBonus;
-    }, 0);
+    var SALARY_TABLE = {
+        education: [29120, 62340, 83010, 132550, 165820],
+        engineering: [53230, 102320, 130290, 152670, 238291],
+        finance: [41390, 81680, 132050, 214210, 246341],
+        general: [27780, 43630, 82340, 164130, 206000],
+        healthcare: [30370, 62340, 107960, 162420, 219080],
+        hr: [42360, 72910, 91550, 189960, 218453],
+        legal: [48190, 61010, 215420, 247732, 284891],
+        marketing: [56220, 76950, 95940, 211080, 242741],
+        operations: [53190, 101190, 133140, 164130, 188749],
+        sales: [29140, 66260, 97570, 201490, 231713],
+        strategy: [76770, 101190, 133140, 164130, 230000],
+        technology: [76360, 133080, 169000, 216220, 248652],
+        trades: [29060, 62350, 81730, 100200, 176990]
+    };
+    var SALARY_CAP = {
+        education: [35240, 79410, 104670, 165820, 198984],
+        engineering: [64790, 130290, 161240, 183510, 290094],
+        finance: [49210, 106450, 180550, 299894, 359872],
+        general: [31190, 52560, 102980, 229781, 290000],
+        healthcare: [34900, 73160, 135320, 219080, 262896],
+        hr: [49440, 97270, 120190, 265944, 319132],
+        legal: [61010, 78280, 93936, 301588, 361905],
+        marketing: [76950, 104870, 129480, 295512, 354614],
+        operations: [66140, 133140, 174140, 229781, 275737],
+        sales: [38640, 97570, 131520, 281882, 338258],
+        strategy: [101190, 133140, 174140, 229781, 330000],
+        technology: [102320, 169000, 213920, 290330, 348396],
+        trades: [38430, 81730, 105020, 176990, 212388]
+    };
 
-    var baseMultiplier = 18000;
-    if (titleStr.indexOf('vp') >= 0 || titleStr.indexOf('vice president') >= 0 || titleStr.indexOf('director') >= 0) baseMultiplier = 24000;
-    else if (titleStr.indexOf('senior') >= 0 || titleStr.indexOf('lead') >= 0 || titleStr.indexOf('principal') >= 0) baseMultiplier = 21000;
-    else if (titleStr.indexOf('manager') >= 0) baseMultiplier = 20000;
-    else if (titleStr.indexOf('junior') >= 0 || titleStr.indexOf('associate') >= 0) baseMultiplier = 14000;
+    var detectedFunction = 'general';
+    if (/\b(software|engineer|developer|devops|cloud|architect|data scien|machine learn|ai\b|programming|full.?stack|front.?end|back.?end|sre|infra)\b/.test(allSignals)) detectedFunction = 'technology';
+    else if (/\b(strateg|business develop|corporate develop|m&a|venture|consulting|futuri|innovation)\b/.test(allSignals)) detectedFunction = 'strategy';
+    else if (/\b(market|brand|content|seo|advertising|digital market|growth market|campaign|creative direct)\b/.test(allSignals)) detectedFunction = 'marketing';
+    else if (/\b(sales|account exec|business develop|revenue|quota|pipeline|enterprise sales|deal)\b/.test(allSignals)) detectedFunction = 'sales';
+    else if (/\b(financ|accounting|cfo|controller|treasury|audit|tax|invest|banking|actuar)\b/.test(allSignals)) detectedFunction = 'finance';
+    else if (/\b(operations|supply chain|logistics|procurement|manufacturing|facilities|warehouse)\b/.test(allSignals)) detectedFunction = 'operations';
+    else if (/\b(hr|human resource|talent|recruit|people|compensation|benefits|workforce|org.?design)\b/.test(allSignals)) detectedFunction = 'hr';
+    else if (/\b(nurse|physician|clinical|medical|health|pharma|biotech|patient|hospital)\b/.test(allSignals)) detectedFunction = 'healthcare';
+    else if (/\b(teach|professor|curriculum|education|academic|school|university|instruct)\b/.test(allSignals)) detectedFunction = 'education';
+    else if (/\b(attorney|lawyer|legal|paralegal|compliance|regulation|contract|litigation)\b/.test(allSignals)) detectedFunction = 'legal';
+    else if (/\b(electrician|plumber|hvac|welder|mechanic|carpenter|technician|maintenance)\b/.test(allSignals)) detectedFunction = 'trades';
 
-    var yearsMultiplier = 1 + Math.min(yearsExp, 25) * 0.025;
-    var rawValue = totalPoints * baseMultiplier * yearsMultiplier / skills.length || 0;
-    rawValue = Math.max(rawValue, 45000);
-    rawValue = Math.min(rawValue, 550000);
-    var total = Math.round(rawValue / 1000) * 1000;
+    var seniorityLevel = 0;
+    var titleAndRoles = titleStr + ' ' + rolesStr;
+    if (/\b(ceo|cto|cfo|coo|cmo|cio|ciso|chief|c-suite|president)\b/.test(titleAndRoles)) seniorityLevel = 4;
+    else if (/\b(svp|evp|senior vice president|executive vice president)\b/.test(titleAndRoles)) seniorityLevel = 4;
+    else if (/\b(vp|vice president)\b/.test(titleAndRoles)) seniorityLevel = 4;
+    else if (/\b(senior director|sr\. director)\b/.test(titleAndRoles)) seniorityLevel = 3;
+    else if (/\b(director|gm|general manager)\b/.test(titleAndRoles)) seniorityLevel = 3;
+    else if (/\b(senior manager|sr\. manager|principal|head of)\b/.test(titleAndRoles)) seniorityLevel = 3;
+    else if (/\b(manager|lead|supervisor|team lead)\b/.test(titleAndRoles)) seniorityLevel = 2;
+    else if (/\b(senior|sr\.)\b/.test(titleAndRoles)) seniorityLevel = 2;
 
+    if (yearsExp >= 20 && seniorityLevel < 3) seniorityLevel = Math.max(seniorityLevel, 3);
+    else if (yearsExp >= 12 && seniorityLevel < 2) seniorityLevel = Math.max(seniorityLevel, 2);
+    else if (yearsExp >= 5 && seniorityLevel < 1) seniorityLevel = Math.max(seniorityLevel, 1);
+
+    var salaryBand = SALARY_TABLE[detectedFunction] || SALARY_TABLE.general;
+    var baseMarketRate = salaryBand[seniorityLevel];
+
+    var evidenceScore = 0;
+    skills.forEach(function(skill) {
+        if (skill.evidence && skill.evidence.length > 0) {
+            skill.evidence.forEach(function(ev) {
+                if (ev.outcome && (ev.outcome.match(/\d+%|\$\d+|[0-9,]+/) || ev.outcome.includes('reduced') || ev.outcome.includes('increased'))) {
+                    evidenceScore += 2;
+                } else if (ev.outcome) {
+                    evidenceScore += 1;
+                }
+            });
+        }
+    });
+    var evidencePct = Math.min(evidenceScore * 0.003, 0.12);
+    var workStylesPct = Math.min(skills.filter(function(s) { return s.category === 'workstyle'; }).length * 0.01, 0.08);
+    var masteryCount = skills.filter(function(s) { return s.level === 'Mastery' || s.level === 'Expert'; }).length;
+    var depthPct = Math.min(masteryCount * 0.01, 0.05);
+    var totalPremiumPct = Math.min(evidencePct + workStylesPct + depthPct, 0.35);
+    var premiumAmount = Math.round(baseMarketRate * totalPremiumPct);
+    var totalValue = baseMarketRate + premiumAmount;
+
+    var roleFloor = 0;
+    if (/\b(ceo|cto|cfo|coo|cmo|cio|ciso|chief|president)\b/.test(titleAndRoles)) roleFloor = 200000;
+    else if (/\b(svp|evp|senior vice president)\b/.test(titleAndRoles)) roleFloor = 180000;
+    else if (/\b(vp|vice president)\b/.test(titleAndRoles)) roleFloor = 150000;
+    else if (/\b(senior director)\b/.test(titleAndRoles)) roleFloor = 130000;
+    else if (/\b(director|gm|general manager)\b/.test(titleAndRoles)) roleFloor = 110000;
+    else if (/\b(senior manager|principal|head of)\b/.test(titleAndRoles)) roleFloor = 95000;
+    else if (/\b(manager|lead)\b/.test(titleAndRoles)) roleFloor = 75000;
+    else if (/\b(senior|sr\.)\b/.test(titleAndRoles)) roleFloor = 65000;
+
+    totalValue = Math.max(totalValue, roleFloor);
+    var capBand = SALARY_CAP[detectedFunction] || SALARY_CAP.general;
+    var salaryCap = capBand[seniorityLevel] || capBand[4];
+    if (totalValue > salaryCap) totalValue = salaryCap;
+
+    var total = Math.round(totalValue / 1000) * 1000;
     return {
         total: total,
         conservative: Math.round(total * 0.85 / 1000) * 1000,
@@ -8985,6 +9094,19 @@ export function wizardApplyContentOpts() {
 window.wizardApplyContentOpts = wizardApplyContentOpts;
 
 export function wizardBuildUserData() {
+    var builtRoles = (wizardState.parsedData?.roles || []).map((r, i) => ({
+        id: r.id || `role${i+1}`,
+        name: r.name || r.company || `Role ${i+1}`,
+        company: r.company || '',
+        years: r.years || '',
+        progression: r.progression || null,
+        totalYears: r.totalYears || null,
+        color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
+    }));
+    var validRoleIds = new Set();
+    builtRoles.forEach(function(r) { validRoleIds.add(r.id); validRoleIds.add(r.name); });
+    var allRoleIds = builtRoles.map(function(r) { return r.id; });
+
     return {
         initialized: true,
         templateId: 'wizard-built',
@@ -9002,24 +9124,20 @@ export function wizardBuildUserData() {
                 else if (lens === 'builder' && /product|growth|revenue|launch|startup|scale|market|customer|entrepreneur|mvp|gtm/i.test(n)) isKey = true;
                 else if (lens === 'expert' && /research|analysis|specialist|domain|certification|compliance|regulatory|methodology|framework|consulting/i.test(n)) isKey = true;
             }
+            var skillRoles = (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); });
+            if (skillRoles.length === 0 && allRoleIds.length > 0) {
+                skillRoles = allRoleIds.slice();
+            }
             return {
                 ...s,
-                roles: s.roles || [],
+                roles: skillRoles,
                 key: isKey,
                 onetId: s.onetId || null,
                 endorsements: s.endorsements || 0,
                 endorsementBoosted: s.endorsementBoosted || false
             };
         }),
-        roles: (wizardState.parsedData?.roles || []).map((r, i) => ({
-            id: r.id || `role${i+1}`,
-            name: r.name || r.company || `Role ${i+1}`,
-            company: r.company || '',
-            years: r.years || '',
-            progression: r.progression || null,
-            totalYears: r.totalYears || null,
-            color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
-        })),
+        roles: builtRoles,
         values: wizardState.values,
         purpose: wizardState.purpose,
         careerLens: wizardState.selectedLens || null,
@@ -9351,12 +9469,21 @@ function wizardToggleRoleHidden(whIdx) {
         showToast('You need at least one visible role.', 'warning');
         return;
     }
-    showToast(wh[whIdx].hidden
+    var isHidden = wh[whIdx].hidden;
+    showToast(isHidden
         ? 'Role hidden — skills from this role are still kept.'
         : 'Role visible again.',
         'info', 2000);
-    var el = document.getElementById('wizardStepContent');
-    if (el) renderWizardStep5(el);
+    var btns = document.querySelectorAll('[onclick*="wizardToggleRoleHidden(' + whIdx + ')"]');
+    btns.forEach(function(btn) {
+        var row = btn.closest('[style*="padding:10px 0"]');
+        if (row) row.style.opacity = isHidden ? '0.5' : '1';
+        btn.style.background = isHidden ? 'rgba(245,158,11,0.15)' : 'none';
+        btn.style.borderColor = isHidden ? '#f59e0b' : 'var(--border)';
+        btn.style.color = isHidden ? '#f59e0b' : 'var(--text-muted)';
+        btn.innerHTML = isHidden ? '👁 Hidden — skills kept' : '👁 Hide role';
+        btn.title = isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills';
+    });
 }
 window.wizardToggleRoleHidden = wizardToggleRoleHidden;
 window.wizardSaveEnrichment = wizardSaveEnrichment;

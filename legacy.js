@@ -19154,7 +19154,7 @@
                 </div>
 
                 <!-- Step content -->
-                <div id="wizardStepContent" style="flex:1; overflow-y:auto; padding:32px 28px;">
+                <div id="wizardStepContent" style="flex:1; overflow-y:scroll; padding:32px 28px;">
                     <div style="max-width:700px; margin:0 auto;" id="wizardInner">
                         <!-- Populated per step -->
                     </div>
@@ -21295,7 +21295,7 @@ Return ONLY valid JSON — no markdown, no explanation:
 }
 
 SKILL EXTRACTION RULES — this is the most important part:
-- Extract 25-50 skills. Be thorough and aggressive. More is better than fewer.
+- Extract 30-45 skills. Focus on the highest-value, most differentiating skills. Quality over quantity — 35 well-evidenced skills are worth more than 70 generic ones.
 - DOMAIN SKILLS: Extract skills specific to every industry/domain mentioned. A pilot needs: Aviation, Flight Operations, Instrument Flying, Aircraft Safety, Aeronautical Decision Making. A musician needs: Percussion Performance, Music Performance, Studio Recording. A nonprofit founder needs: Nonprofit Leadership, Fundraising, Community Engagement.
 - LEADERSHIP SKILLS: Management, Team Building, Strategic Planning, Executive Communication, Stakeholder Management, Budget Management, Change Management, etc.
 - TECHNICAL SKILLS: Any technologies, platforms, methodologies mentioned.
@@ -21539,12 +21539,21 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 showToast('You need at least one visible role.', 'warning');
                 return;
             }
-            showToast(wh[whIdx].hidden
+            var isHidden = wh[whIdx].hidden;
+            showToast(isHidden
                 ? 'Role hidden — skills from this role are still kept.'
                 : 'Role visible again.',
                 'info', 2000);
-            var el = document.getElementById('wizardStepContent');
-            if (el) renderWizardStep5(el);
+            var btns = document.querySelectorAll('[onclick*="wizardToggleRoleHidden(' + whIdx + ')"]');
+            btns.forEach(function(btn) {
+                var row = btn.closest('[style*="padding:10px 0"]');
+                if (row) row.style.opacity = isHidden ? '0.5' : '1';
+                btn.style.background = isHidden ? 'rgba(245,158,11,0.15)' : 'none';
+                btn.style.borderColor = isHidden ? '#f59e0b' : 'var(--border)';
+                btn.style.color = isHidden ? '#f59e0b' : 'var(--text-muted)';
+                btn.innerHTML = isHidden ? '👁 Hidden — skills kept' : '👁 Hide role';
+                btn.title = isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills';
+            });
         }
         window.wizardToggleRoleHidden = wizardToggleRoleHidden;
 
@@ -21640,19 +21649,44 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 }
             });
 
-            // Run gap analysis for primary occupation (highest confidence current title, or first match)
+            // Run gap analysis for ALL matched occupations with fuzzy dedup
             var primaryRes = resolutions.find(function(r) { return r.source === 'current'; }) || resolutions[0];
             var gapResult = null;
             var gapSkills = [];
-            if (primaryRes) {
-                gapResult = suggestMissingSkills(wizardState.skills, primaryRes.soc);
-                if (gapResult) {
-                    // Filter to meaningful gaps (importance > 40, not already in user skills)
-                    gapSkills = gapResult.gaps.filter(function(g) {
-                        return (g.importance || 0) >= 40;
-                    }).slice(0, 20);
-                }
+            var gapSkillNames = {};
+            var existingSkillWords = {};
+            wizardState.skills.forEach(function(s) {
+                var words = (s.name || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2; });
+                words.forEach(function(w) { existingSkillWords[w] = true; });
+            });
+            var existingSkillNamesLower = {};
+            wizardState.skills.forEach(function(s) { existingSkillNamesLower[s.name.toLowerCase()] = true; });
+            function isGapRedundant(gapName) {
+                var gLow = gapName.toLowerCase();
+                if (existingSkillNamesLower[gLow]) return true;
+                var gapWords = gLow.replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2; });
+                if (gapWords.length === 0) return false;
+                var overlap = gapWords.filter(function(w) { return existingSkillWords[w]; }).length;
+                return overlap / gapWords.length >= 0.6;
             }
+            resolutions.forEach(function(res) {
+                var result = suggestMissingSkills(wizardState.skills, res.soc);
+                if (result) {
+                    if (!gapResult || (res.source === 'current' && !gapResult._isPrimary)) {
+                        gapResult = result;
+                        gapResult._isPrimary = res.source === 'current';
+                    }
+                    result.gaps.forEach(function(g) {
+                        if ((g.importance || 0) >= 25 && !gapSkillNames[g.name.toLowerCase()] && !isGapRedundant(g.name)) {
+                            gapSkillNames[g.name.toLowerCase()] = true;
+                            g._fromOcc = res.occTitle;
+                            gapSkills.push(g);
+                        }
+                    });
+                }
+            });
+            gapSkills.sort(function(a, b) { return (b.importance || 0) - (a.importance || 0); });
+            gapSkills = gapSkills.slice(0, 20);
 
             // Store enrichment state for the save function
             wizardState.enrichment = {
@@ -22474,11 +22508,22 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
         function wizardSaveSkills() {
             if (window.wizardSaveSkills && window.wizardSaveSkills !== wizardSaveSkills) return window.wizardSaveSkills();
             if (readOnlyGuard()) return;
-            // Filter to only checked skills
-            wizardState.skills = wizardState.skills.filter((s, i) => {
-                const cb = document.getElementById(`skill-check-${i}`);
+            wizardState.skills = wizardState.skills.filter(function(s, i) {
+                var cb = document.getElementById('skill-check-' + i);
                 return !cb || cb.checked;
             });
+            if (wizardState.skills.length > 50) {
+                wizardState.skills.sort(function(a, b) {
+                    var pa = (a.key || a.isKey) ? 3 : (a._marketKeep || a.marketKeep) ? 2 : 0;
+                    var pb = (b.key || b.isKey) ? 3 : (b._marketKeep || b.marketKeep) ? 2 : 0;
+                    if (pb !== pa) return pb - pa;
+                    var la = ['Novice','Proficient','Advanced','Expert','Mastery'].indexOf(a.level || 'Proficient');
+                    var lb = ['Novice','Proficient','Advanced','Expert','Mastery'].indexOf(b.level || 'Proficient');
+                    if (lb !== la) return lb - la;
+                    return (b.evidence ? b.evidence.length : 0) - (a.evidence ? a.evidence.length : 0);
+                });
+                wizardState.skills = wizardState.skills.slice(0, 50);
+            }
             if (wizardState.growthSkills && wizardState.growthSkills.length > 0) {
                 var _ud = window._userData || userData;
                 _ud.growthSkills = wizardState.growthSkills;
@@ -22853,6 +22898,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // wizardApplyContentOpts exposed by ES module
 
         function wizardBuildUserData() {
+            var builtRoles = (wizardState.parsedData?.roles || []).map((r, i) => ({
+                id: r.id || `role${i+1}`,
+                name: r.name || r.company || `Role ${i+1}`,
+                company: r.company || '',
+                years: r.years || '',
+                progression: r.progression || null,
+                totalYears: r.totalYears || null,
+                color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
+            }));
+            var validRoleIds = new Set();
+            builtRoles.forEach(function(r) { validRoleIds.add(r.id); validRoleIds.add(r.name); });
+            var allRoleIds = builtRoles.map(function(r) { return r.id; });
+
             return {
                 initialized: true,
                 templateId: 'wizard-built',
@@ -22860,23 +22918,30 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     ...wizardState.profile,
                     headline: `${wizardState.profile.currentTitle || ''} · ${wizardState.profile.yearsExperience || ''}+ Years`
                 },
-                skills: wizardState.skills.map(s => ({
-                    ...s,
-                    roles: s.roles || [],
-                    key: s.key || false,
-                    onetId: s.onetId || null,
-                    endorsements: s.endorsements || 0,
-                    endorsementBoosted: s.endorsementBoosted || false
-                })),
-                roles: (wizardState.parsedData?.roles || []).map((r, i) => ({
-                    id: r.id || `role${i+1}`,
-                    name: r.name || r.company || `Role ${i+1}`,
-                    company: r.company || '',
-                    years: r.years || '',
-                    progression: r.progression || null,
-                    totalYears: r.totalYears || null,
-                    color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
-                })),
+                skills: wizardState.skills.map(function(s) {
+                    var isKey = s.key || false;
+                    var lens = wizardState.selectedLens || '';
+                    if (lens && !isKey) {
+                        var n = (s.name || '').toLowerCase();
+                        if (lens === 'technical' && /python|javascript|typescript|react|node|sql|aws|azure|cloud|data|software|api|devops|infrastructure|architecture|kubernetes|docker|engineering|machine learning|ai/i.test(n)) isKey = true;
+                        else if (lens === 'strategic' && /leadership|management|team|strategy|vision|stakeholder|cross-functional|coaching|mentoring|hiring|budget/i.test(n)) isKey = true;
+                        else if (lens === 'builder' && /product|growth|revenue|launch|startup|scale|market|customer|entrepreneur|mvp|gtm/i.test(n)) isKey = true;
+                        else if (lens === 'expert' && /research|analysis|specialist|domain|certification|compliance|regulatory|methodology|framework|consulting/i.test(n)) isKey = true;
+                    }
+                    var skillRoles = (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); });
+                    if (skillRoles.length === 0 && allRoleIds.length > 0) {
+                        skillRoles = allRoleIds.slice();
+                    }
+                    return {
+                        ...s,
+                        roles: skillRoles,
+                        key: isKey,
+                        onetId: s.onetId || null,
+                        endorsements: s.endorsements || 0,
+                        endorsementBoosted: s.endorsementBoosted || false
+                    };
+                }),
+                roles: builtRoles,
                 values: wizardState.values,
                 purpose: wizardState.purpose,
                 workHistory: wizardState.workHistory || [],
