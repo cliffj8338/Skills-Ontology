@@ -1336,6 +1336,7 @@
             if (_ud.companyTenures) data.companyTenures = _ud.companyTenures;
             if (_ud.importStats) data.importStats = _ud.importStats;
             if (_ud.blindDefaults) data.blindDefaults = _ud.blindDefaults;
+            data.growthSkills = (_ud.growthSkills && _ud.growthSkills.length > 0) ? _ud.growthSkills : [];
             if (_ud.privacyLog && _ud.privacyLog.length > 0) data.privacyLog = _ud.privacyLog.slice(-100);
             // Dev velocity stats (admin)
             if (window._blueprintDevStats) data.devStats = window._blueprintDevStats;
@@ -1550,6 +1551,7 @@
                     userData.companyTenures = data.companyTenures || [];
                     userData.importStats = data.importStats || {};
                     userData.blindDefaults = data.blindDefaults || {};
+                    userData.growthSkills = data.growthSkills || [];
                     userData.privacyLog = data.privacyLog || [];
                     // Restore sharing preset
                     if ((data.preferences || {}).sharingPreset && typeof currentPreset !== 'undefined') {
@@ -21934,16 +21936,226 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
 
         // ── STEP 6: Skills review ──────────────────────────────────────────────
 
+
+        // ── Market Intelligence Engine ──
+        async function wizardFetchMarketIntelligence() {
+            if (wizardState.marketIntel) return wizardState.marketIntel;
+            if (!wizardState.skills || wizardState.skills.length === 0) return null;
+
+            var skillsList = wizardState.skills.map(function(s) { return s.name + ' (' + s.level + ')'; }).join(', ');
+            var title = (wizardState.profile && wizardState.profile.currentTitle) || '';
+            var roles = (wizardState.parsedData && wizardState.parsedData.roles) ? wizardState.parsedData.roles.map(function(r) { return (r.title || r.name || '') + ' at ' + (r.company || ''); }).join('; ') : '';
+            var industry = (wizardState.profile && wizardState.profile.industry) || '';
+
+            var prompt = 'You are a career market intelligence analyst. Analyze this professional\'s skills against current market demand for their role/industry.\n\n'
+                + 'Current Title: ' + title + '\n'
+                + 'Industry: ' + industry + '\n'
+                + 'Career History: ' + roles + '\n'
+                + 'Current Skills: ' + skillsList + '\n\n'
+                + 'Return ONLY valid JSON (no markdown) with exactly this structure:\n'
+                + '{\n'
+                + '  "keepSkills": [{"name": "exact skill name from list", "rationale": "1 sentence why this is high-value"}],\n'
+                + '  "dropSkills": [{"name": "exact skill name from list", "rationale": "1 sentence with market data why this is low-value"}],\n'
+                + '  "growthSkills": [{"name": "skill name to add", "rationale": "1 sentence why", "valueAddPct": 3}]\n'
+                + '}\n\n'
+                + 'Rules:\n'
+                + '- keepSkills: 3-6 highest market-value skills from their current list. Focus on skills that differentiate.\n'
+                + '- dropSkills: 1-4 skills that are commoditized, outdated, or dilute their profile. Be direct.\n'
+                + '- growthSkills: 2-4 skills they do NOT have but would significantly increase market value. valueAddPct is estimated salary increase (1-8 range).\n'
+                + '- Be constructively honest. Data-backed. No fluff.\n'
+                + '- Every skill in keepSkills and dropSkills MUST match an exact name from their Current Skills list.';
+
+            try {
+                var aiKey = safeGet('wbAnthropicKey');
+                var data = await callAnthropicAPI({
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 1500,
+                    messages: [{ role: 'user', content: prompt }]
+                }, aiKey, 'skill-market-intel');
+
+                var text = (data.content[0] && data.content[0].text) || '';
+                var clean = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+                var result = JSON.parse(clean);
+                if (!result.keepSkills) result.keepSkills = [];
+                if (!result.dropSkills) result.dropSkills = [];
+                if (!result.growthSkills) result.growthSkills = [];
+
+                var baseAnchor = wizardEstimateBaseAnchor();
+                result.growthSkills.forEach(function(g) {
+                    var pct = Math.min(Math.max(g.valueAddPct || 2, 1), 8);
+                    g.estimatedValueAdd = Math.round(baseAnchor * pct / 100 / 1000) * 1000;
+                    g.valueAddPct = pct;
+                });
+
+                wizardState.marketIntel = result;
+                return result;
+            } catch (err) {
+                console.warn('[BP] Market intelligence failed:', err.message);
+                return null;
+            }
+        }
+        window.wizardFetchMarketIntelligence = wizardFetchMarketIntelligence;
+
+        function wizardEstimateBaseAnchor() {
+            var SALARY_TABLE_LOCAL = {
+                education: [29120, 62340, 83010, 132550, 165820],
+                engineering: [53230, 102320, 130290, 152670, 238291],
+                finance: [41390, 81680, 132050, 214210, 246341],
+                general: [27780, 43630, 82340, 164130, 206000],
+                healthcare: [30370, 62340, 107960, 162420, 219080],
+                hr: [42360, 72910, 91550, 189960, 218453],
+                legal: [48190, 61010, 215420, 247732, 284891],
+                marketing: [56220, 76950, 95940, 211080, 242741],
+                operations: [53190, 101190, 133140, 164130, 188749],
+                sales: [29140, 66260, 97570, 201490, 231713],
+                strategy: [76770, 101190, 133140, 164130, 230000],
+                technology: [76360, 133080, 169000, 216220, 248652],
+                trades: [29060, 62350, 81730, 100200, 176990]
+            };
+            var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
+            var func = 'general';
+            if (/\b(software|developer|engineer|tech|data|devops|cloud|cyber|ai|ml)\b/.test(title)) func = 'technology';
+            else if (/\b(market|brand|content|seo|growth|digital)\b/.test(title)) func = 'marketing';
+            else if (/\b(sales|account exec|business develop)\b/.test(title)) func = 'sales';
+            else if (/\b(financ|accounting|cfo|controller|treasury)\b/.test(title)) func = 'finance';
+            else if (/\b(operation|logistics|supply|procurement)\b/.test(title)) func = 'operations';
+            else if (/\b(strateg|consult|advisory|management consult)\b/.test(title)) func = 'strategy';
+            else if (/\b(nurse|doctor|physician|clinical|medical|health)\b/.test(title)) func = 'healthcare';
+            else if (/\b(hr|human resource|people|talent|recruit)\b/.test(title)) func = 'hr';
+            else if (/\b(legal|attorney|counsel|lawyer|paralegal)\b/.test(title)) func = 'legal';
+            else if (/\b(teacher|professor|instructor|principal|dean)\b/.test(title)) func = 'education';
+            else if (/\b(engineer|mechanic|electric|plumb|weld|construct)\b/.test(title)) func = 'trades';
+
+            var seniority = 1;
+            if (/\b(vp|vice president|c-suite|ceo|cto|cfo|coo|chief|svp|evp)\b/.test(title)) seniority = 4;
+            else if (/\b(director|head of|principal)\b/.test(title)) seniority = 3;
+            else if (/\b(senior|sr|lead|staff)\b/.test(title)) seniority = 2;
+            else if (/\b(junior|jr|entry|associate|intern)\b/.test(title)) seniority = 0;
+
+            return SALARY_TABLE_LOCAL[func][seniority];
+        }
+
+        function wizardRenderMarketIntel(intel) {
+            if (!intel) return '';
+            var html = '<div id="marketIntelPanel" style="margin-bottom:16px;">';
+
+            if (intel.keepSkills.length > 0) {
+                html += '<div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25);'
+                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:#10b981; margin-bottom:8px;">'
+                    + '\uD83D\uDCC8 Keep & Highlight \u2014 Your Strongest Market Assets</div>';
+                intel.keepSkills.forEach(function(k) {
+                    html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
+                        + '<span style="color:#10b981; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2713</span>'
+                        + '<div><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
+                        + escapeHtml(k.name) + '</span>'
+                        + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
+                        + escapeHtml(k.rationale) + '</span></div></div>';
+                });
+                html += '</div>';
+            }
+
+            if (intel.dropSkills.length > 0) {
+                html += '<div style="background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.2);'
+                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:#ef4444; margin-bottom:8px;">'
+                    + '\u2702 Consider Removing \u2014 Low Market Signal</div>';
+                intel.dropSkills.forEach(function(d, di) {
+                    html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
+                        + '<span style="color:#ef4444; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2717</span>'
+                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);'
+                        + ' text-decoration:line-through; opacity:0.7;">'
+                        + escapeHtml(d.name) + '</span>'
+                        + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
+                        + escapeHtml(d.rationale) + '</span></div>'
+                        + '<button onclick="wizardAcceptDrop(' + di + ')" id="drop-btn-' + di + '"'
+                        + (d._accepted ? ' disabled' : '')
+                        + ' style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3);'
+                        + ' color:#ef4444; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
+                        + (d._accepted ? ' opacity:0.5;' : '') + '">' + (d._accepted ? 'Removed' : 'Remove') + '</button>'
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+
+            if (intel.growthSkills.length > 0) {
+                html += '<div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.25);'
+                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:#3b82f6; margin-bottom:8px;">'
+                    + '\uD83D\uDE80 Growth Opportunities \u2014 Add These to Increase Market Value</div>';
+                intel.growthSkills.forEach(function(g, gi) {
+                    var dollarStr = g.estimatedValueAdd >= 1000
+                        ? '+~$' + (g.estimatedValueAdd / 1000).toFixed(0) + 'K/yr'
+                        : '+~$' + g.estimatedValueAdd + '/yr';
+                    html += '<div style="display:flex; align-items:start; gap:8px; padding:5px 0;">'
+                        + '<span style="color:#3b82f6; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2191</span>'
+                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
+                        + escapeHtml(g.name) + '</span>'
+                        + '<span style="font-size:0.75em; color:#f59e0b; font-weight:700; margin-left:6px;">'
+                        + dollarStr + '</span>'
+                        + '<div style="font-size:0.74em; color:var(--text-secondary); margin-top:2px;">'
+                        + escapeHtml(g.rationale) + '</div></div>'
+                        + '<button onclick="wizardAddGrowthSkill(' + gi + ')" id="growth-btn-' + gi + '"'
+                        + ' style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3);'
+                        + ' color:#3b82f6; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;">+ Add</button>'
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function wizardAcceptDrop(dropIdx) {
+            var intel = wizardState.marketIntel;
+            if (!intel || !intel.dropSkills[dropIdx]) return;
+            var drop = intel.dropSkills[dropIdx];
+            if (drop._accepted) return;
+            var dropName = drop.name.toLowerCase();
+            wizardState.skills = wizardState.skills.filter(function(s) {
+                return s.name.toLowerCase() !== dropName;
+            });
+            drop._accepted = true;
+            var btn = document.getElementById('drop-btn-' + dropIdx);
+            if (btn) { btn.textContent = 'Removed'; btn.disabled = true; btn.style.opacity = '0.5'; }
+            showToast('Removed "' + drop.name + '" from your skills.', 'info', 2500);
+        }
+        window.wizardAcceptDrop = wizardAcceptDrop;
+
+        function wizardAddGrowthSkill(growthIdx) {
+            var intel = wizardState.marketIntel;
+            if (!intel || !intel.growthSkills[growthIdx]) return;
+            var g = intel.growthSkills[growthIdx];
+            if (!wizardState.growthSkills) wizardState.growthSkills = [];
+            var alreadyAdded = wizardState.growthSkills.some(function(gs) { return gs.name.toLowerCase() === g.name.toLowerCase(); });
+            if (alreadyAdded) { showToast('"' + g.name + '" is already in your growth plan.', 'info', 2000); return; }
+            wizardState.growthSkills.push({
+                name: g.name, rationale: g.rationale,
+                estimatedValueAdd: g.estimatedValueAdd, valueAddPct: g.valueAddPct,
+                dateAdded: new Date().toISOString().substring(0, 10), source: 'market-intel'
+            });
+            var btn = document.getElementById('growth-btn-' + growthIdx);
+            if (btn) { btn.textContent = '\u2713 Added'; btn.disabled = true; btn.style.background = 'rgba(16,185,129,0.1)'; btn.style.borderColor = 'rgba(16,185,129,0.3)'; btn.style.color = '#10b981'; }
+            showToast('"' + g.name + '" added to your Growth Plan.', 'success', 2500);
+        }
+        window.wizardAddGrowthSkill = wizardAddGrowthSkill;
+
         function renderWizardStep6(el) {
             const skills = wizardState.skills;
             const isFromResume = skills.length > 0;
             const levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
+            var intel = wizardState.marketIntel || null;
 
             el.innerHTML = `
                 ${wizardHeading(bpIcon('compass',22),
-                    isFromResume ? `${skills.length} Skills Extracted` : 'Your Skills',
-                    isFromResume ? 'These were identified from your resume. Toggle any off you do not want to include. You can add more later.'
+                    isFromResume ? `${skills.length} Skills Found` : 'Your Skills',
+                    isFromResume ? 'Market intelligence applied. Adjust proficiency levels and review recommendations below.'
                                  : 'Add your key skills. You can build this out further after setup.')}
+
+                ${intel ? wizardRenderMarketIntel(intel) : (isFromResume ? '<div id="marketIntelLoading" style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.06)); border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px; display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:1.1em;">&#9889;</span><div style="font-size:0.8em; color:var(--text-secondary);">Analyzing market value of your skills...</div><span style="font-size:0.8em; color:var(--accent);">\u21BB</span></div>' : '')}
 
                 ${isFromResume ? `
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -21960,7 +22172,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                                     ${escapeHtml(s.name)}
                                 </div>
                                 <div style="font-size:0.78em; color:var(--text-muted);">
-                                    ${escapeHtml(s.level)} · ${s.evidence?.length || 0} evidence items
+                                    ${escapeHtml(s.level)} \u00b7 ${s.evidence?.length || 0} evidence items
                                 </div>
                             </div>
                             <span style="font-size:0.75em; padding:3px 9px; border-radius:10px;
@@ -21986,10 +22198,22 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 `}
 
                 <div style="display:flex; justify-content:space-between;">
-                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
-                    ${wizardBtn('Continue → Values', 'wizardSaveSkills()', 'primary')}
+                    ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
+                    ${wizardBtn('Continue \u2192 Values', 'wizardSaveSkills()', 'primary')}
                 </div>
             `;
+
+            if (isFromResume && !intel) {
+                wizardFetchMarketIntelligence().then(function(result) {
+                    if (result) {
+                        var panel = document.getElementById('marketIntelLoading');
+                        if (panel) panel.outerHTML = wizardRenderMarketIntel(result);
+                    } else {
+                        var loading = document.getElementById('marketIntelLoading');
+                        if (loading) loading.remove();
+                    }
+                });
+            }
         }
 
         function wizardSaveSkills() {
@@ -22000,6 +22224,10 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 const cb = document.getElementById(`skill-check-${i}`);
                 return !cb || cb.checked;
             });
+            if (wizardState.growthSkills && wizardState.growthSkills.length > 0) {
+                var _ud = window._userData || userData;
+                _ud.growthSkills = wizardState.growthSkills;
+            }
             wizardNext();
         }
 
@@ -22419,6 +22647,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     networkSize: wizardState.networkSize || 0
                 },
                 importStats: wizardState.importStats || {},
+                growthSkills: wizardState.growthSkills || [],
                 preferences: { seniorityLevel: 'Senior', minimumMatchScore: 60, minimumSkillMatches: 3 },
                 applications: []
             };
