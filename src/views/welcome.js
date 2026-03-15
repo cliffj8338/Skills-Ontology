@@ -5177,7 +5177,7 @@ export function wizardQuickExport() {
         btn.style.borderColor = '#ef4444';
     }
 }
-if (!window.wizardQuickExport) window.wizardQuickExport = wizardQuickExport;
+window.wizardQuickExport = wizardQuickExport;
 
 export function wizardChooseUpload() {
     wizardOverwriteGuard(function() {
@@ -5325,7 +5325,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                         style="background:var(--accent); color:#fff; border:none;
                                padding:11px 28px; border-radius:9px; cursor:pointer;
                                font-size:0.9em; font-weight:600; opacity:0.5; transition:opacity 0.2s;">
-                    Parse Resume \u2192
+                    Build My Profile \u2192
                 </button>
             </div>
         </div>
@@ -6247,25 +6247,19 @@ function wizardShowDiscovery(parsed) {
     if (parsed.profile && parsed.profile.name) {
         items.push({ type: 'profile', icon: bpIcon('profile',14), text: parsed.profile.name + ' \u00B7 ' + (parsed.profile.currentTitle || ''), color: 'var(--accent)' });
     }
-    if (parsed.roles && parsed.roles.length > 0) {
-        items.push({ type: 'roles', icon: bpIcon('briefcase',14), text: parsed.roles.length + ' career roles identified', color: '#a78bfa' });
+    var roleCount = (parsed.roles && parsed.roles.length) || (parsed.workHistory && parsed.workHistory.length) || 0;
+    if (roleCount > 0) {
+        items.push({ type: 'roles', icon: bpIcon('briefcase',14), text: roleCount + ' career roles identified', color: '#a78bfa' });
     }
     if (parsed.skills && parsed.skills.length > 0) {
         var evCount = parsed.skills.reduce(function(n, s) { return n + (s.evidence ? s.evidence.length : 0); }, 0);
-        items.push({ type: 'skills-count', icon: bpIcon('compass',14), text: parsed.skills.length + ' skills extracted', color: 'var(--accent)' });
-        items.push({ type: 'evidence', icon: bpIcon('clipboard',14), text: evCount + ' evidence items found', color: '#10b981' });
-    }
-    if (parsed.workHistory && parsed.workHistory.length > 0) {
-        items.push({ type: 'work', icon: bpIcon('briefcase',14), text: parsed.workHistory.length + ' positions with details', color: '#f97316' });
+        items.push({ type: 'skills-count', icon: bpIcon('compass',14), text: parsed.skills.length + ' skills extracted with ' + evCount + ' evidence items', color: 'var(--accent)' });
     }
     if (parsed.certifications && parsed.certifications.length > 0) {
         items.push({ type: 'certs', icon: bpIcon('check',14), text: parsed.certifications.length + ' certifications & licenses', color: '#14b8a6' });
     }
     if (parsed.education && parsed.education.length > 0) {
         items.push({ type: 'edu', icon: bpIcon('lightbulb',14), text: parsed.education.length + ' education entries', color: '#8b5cf6' });
-    }
-    if (parsed.values && parsed.values.length > 0) {
-        items.push({ type: 'values', icon: bpIcon('lightbulb',14), text: parsed.values.length + ' professional values inferred', color: '#f59e0b' });
     }
     if (parsed.purpose) {
         items.push({ type: 'purpose', icon: bpIcon('star',14), text: 'Purpose statement drafted', color: '#818cf8' });
@@ -7306,14 +7300,20 @@ export function renderWizardStep6(el) {
         isFromResume ? skills.length + ' Skills Found' : 'Your Skills',
         isFromResume ? 'Tap proficiency levels to adjust. Check common outcomes to add evidence instantly.'
                      : 'Add your key skills. You can build this out further after setup.')
-    + (isFromResume ? '<div style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.06));'
-        + ' border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:12px 16px; margin-bottom:14px;'
-        + ' display:flex; align-items:center; gap:12px;">'
-        + '<span style="font-size:1.2em;">✨</span>'
-        + '<div style="flex:1;">'
-        + '<div style="font-size:0.84em; font-weight:600; color:var(--text-primary);">AI can help strengthen your evidence</div>'
-        + '<div style="font-size:0.76em; color:var(--text-secondary); margin-top:2px;">Click the sparkle button on any skill below to generate outcome statements from your career context.</div>'
-        + '</div></div>' : '')
+    + (isFromResume ? '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">'
+        + '<div style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.06));'
+        + ' border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:10px 14px;'
+        + ' display:flex; align-items:center; gap:10px; flex:1;">'
+        + '<span style="font-size:1.1em;">✨</span>'
+        + '<div style="font-size:0.76em; color:var(--text-secondary);">Click the sparkle button on any skill to generate outcome statements from your career context.</div>'
+        + '</div>'
+        + '<button onclick="wizardToggleAllSkills()" id="skillsSelectAllBtn"'
+        + ' style="background:none; border:1px solid var(--accent); border-radius:6px;'
+        + ' padding:4px 12px; color:var(--accent); cursor:pointer; font-size:0.76em;'
+        + ' font-weight:600; transition:all 0.15s; margin-left:10px; white-space:nowrap;"'
+        + ' onmouseover="this.style.background=\'rgba(96,165,250,0.1)\'"'
+        + ' onmouseout="this.style.background=\'none\'">Deselect All</button>'
+        + '</div>' : '')
     + (isFromResume ? wizardRenderSkillCards(skills, levels, levelColors) : wizardRenderEmptySkills())
     + (hasGaps ? wizardRenderGapSection(gapSkills, levelColors) : '')
     + '<div style="display:flex; justify-content:space-between; margin-top:20px;">'
@@ -7579,6 +7579,15 @@ async function wizardAIEvidence(skillIdx) {
 }
 window.wizardAIEvidence = wizardAIEvidence;
 
+function wizardToggleAllSkills() {
+    var checks = document.querySelectorAll('[id^="skill-check-"]');
+    var allChecked = Array.from(checks).every(function(c) { return c.checked; });
+    checks.forEach(function(c) { c.checked = !allChecked; });
+    var btn = document.getElementById('skillsSelectAllBtn');
+    if (btn) btn.textContent = allChecked ? 'Select All' : 'Deselect All';
+}
+window.wizardToggleAllSkills = wizardToggleAllSkills;
+
 export function wizardSaveSkills() {
     if (readOnlyGuard()) return;
     var enrichment = wizardState.enrichment;
@@ -7586,7 +7595,7 @@ export function wizardSaveSkills() {
         var existingNames = {};
         wizardState.skills.forEach(function(s) { existingNames[s.name.toLowerCase()] = true; });
         var addedCount = 0;
-        enrichment.gapSkills.slice(0, 8).forEach(function(g, i) {
+        enrichment.gapSkills.forEach(function(g, i) {
             var cb = document.getElementById('enrich-skill-' + i);
             if (cb && cb.checked && !existingNames[g.name.toLowerCase()]) {
                 var levelMap = { 'Mastery':'Mastery', 'Expert':'Expert', 'Advanced':'Advanced', 'Proficient':'Proficient', 'Novice':'Novice' };
@@ -7804,8 +7813,8 @@ export function wizardAddCustomValue() {
     var inner = document.getElementById('wizardInner');
     if (inner) renderWizardStep7(inner);
 }
-if (!window.wizardAddCustomValue) window.wizardAddCustomValue = wizardAddCustomValue;
-if (!window.wizardEditValueDesc) window.wizardEditValueDesc = wizardEditValueDesc;
+window.wizardAddCustomValue = wizardAddCustomValue;
+window.wizardEditValueDesc = wizardEditValueDesc;
 
 async function wizardAISuggestValues() {
     var apiKey = safeGet('wbAnthropicKey');
@@ -8170,7 +8179,7 @@ export function wizardApplyContentOpts() {
     if (postCb && !postCb.checked) { wizardState.richMedia = []; if (wizardState.parsedData) wizardState.parsedData.richMedia = []; }
     if (learnCb && !learnCb.checked) { wizardState.learning = []; if (wizardState.parsedData) wizardState.parsedData.learning = []; }
 }
-if (!window.wizardApplyContentOpts) window.wizardApplyContentOpts = wizardApplyContentOpts;
+window.wizardApplyContentOpts = wizardApplyContentOpts;
 
 export function wizardBuildUserData() {
     return {
@@ -8355,35 +8364,34 @@ async function initializeMainApp() {
     _sd().roles = window._userData.roles || _sd().roles;
     _sd().skillDetails = window._userData.skillDetails || {};
 
-// Expose wizard and nav functions to global scope for onclick handlers
-if (!window.showOnboardingWizard) window.showOnboardingWizard = showOnboardingWizard;
-if (!window.wizardChooseUpload) window.wizardChooseUpload = wizardChooseUpload;
-if (!window.wizardChooseLinkedIn) window.wizardChooseLinkedIn = wizardChooseLinkedIn;
-if (!window.wizardChooseManual) window.wizardChooseManual = wizardChooseManual;
-if (!window.wizardChooseImport) window.wizardChooseImport = wizardChooseImport;
-if (!window.wizardImportProfile) window.wizardImportProfile = wizardImportProfile;
-if (!window.wizardBack) window.wizardBack = wizardBack;
-if (!window.wizardNext) window.wizardNext = wizardNext;
-if (!window.wizardSetResumeTab) window.wizardSetResumeTab = wizardSetResumeTab;
-if (!window.wizardHandleResumeDrop) window.wizardHandleResumeDrop = wizardHandleResumeDrop;
-if (!window.wizardHandleResumeFile) window.wizardHandleResumeFile = wizardHandleResumeFile;
-if (!window.wizardClearResumeFile) window.wizardClearResumeFile = wizardClearResumeFile;
-if (!window.wizardSkipParsing) window.wizardSkipParsing = wizardSkipParsing;
-if (!window.wizardStartParsing) window.wizardStartParsing = wizardStartParsing;
-if (!window.wizardHandleLinkedInDrop) window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
-if (!window.wizardHandleLinkedInFile) window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
-if (!window.wizardSaveProfile) window.wizardSaveProfile = wizardSaveProfile;
-if (!window.wizardSaveSkills) window.wizardSaveSkills = wizardSaveSkills;
-if (!window.wizardToggleValue) window.wizardToggleValue = wizardToggleValue;
-if (!window.wizardSaveValues) window.wizardSaveValues = wizardSaveValues;
-if (!window.wizardSavePurpose) window.wizardSavePurpose = wizardSavePurpose;
-if (!window.wizardRegeneratePurpose) window.wizardRegeneratePurpose = wizardRegeneratePurpose;
-if (!window.wizardDownloadBackup) window.wizardDownloadBackup = wizardDownloadBackup;
-if (!window.wizardLaunchOnly) window.wizardLaunchOnly = wizardLaunchOnly;
-if (!window.wizardSaveAndGo) window.wizardSaveAndGo = wizardSaveAndGo;
-if (!window.confirmExitWizard) window.confirmExitWizard = confirmExitWizard;
-if (!window.toggleFilterPanel) window.toggleFilterPanel = toggleFilterPanel;
-if (!window.renderFilterChips) window.renderFilterChips = renderFilterChips;
+// Expose wizard and nav functions to global scope — module MUST override legacy
+window.wizardChooseUpload = wizardChooseUpload;
+window.wizardChooseLinkedIn = wizardChooseLinkedIn;
+window.wizardChooseManual = wizardChooseManual;
+window.wizardChooseImport = wizardChooseImport;
+window.wizardImportProfile = wizardImportProfile;
+window.wizardBack = wizardBack;
+window.wizardNext = wizardNext;
+window.wizardSetResumeTab = wizardSetResumeTab;
+window.wizardHandleResumeDrop = wizardHandleResumeDrop;
+window.wizardHandleResumeFile = wizardHandleResumeFile;
+window.wizardClearResumeFile = wizardClearResumeFile;
+window.wizardSkipParsing = wizardSkipParsing;
+window.wizardStartParsing = wizardStartParsing;
+window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
+window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
+window.wizardSaveProfile = wizardSaveProfile;
+window.wizardSaveSkills = wizardSaveSkills;
+window.wizardToggleValue = wizardToggleValue;
+window.wizardSaveValues = wizardSaveValues;
+window.wizardSavePurpose = wizardSavePurpose;
+window.wizardRegeneratePurpose = wizardRegeneratePurpose;
+window.wizardDownloadBackup = wizardDownloadBackup;
+window.wizardLaunchOnly = wizardLaunchOnly;
+window.wizardSaveAndGo = wizardSaveAndGo;
+window.confirmExitWizard = confirmExitWizard;
+window.toggleFilterPanel = toggleFilterPanel;
+window.renderFilterChips = renderFilterChips;
 
     // Render dynamic filter chips from profile data
     renderFilterChips();
@@ -8484,55 +8492,55 @@ if (!window.updateTriageCount) window.updateTriageCount = updateTriageCount;
 if (!window.confirmSkillCapTriage) window.confirmSkillCapTriage = confirmSkillCapTriage;
 if (!window.getSampleJobsForProfile) window.getSampleJobsForProfile = getSampleJobsForProfile;
 if (!window.loadTemplate) window.loadTemplate = loadTemplate;
-if (!window.showOnboardingWizard) window.showOnboardingWizard = showOnboardingWizard;
-if (!window.closeWizard) window.closeWizard = closeWizard;
-if (!window.renderWizardStep) window.renderWizardStep = renderWizardStep;
-if (!window.wizardNext) window.wizardNext = wizardNext;
-if (!window.wizardBack) window.wizardBack = wizardBack;
-if (!window.confirmExitWizard) window.confirmExitWizard = confirmExitWizard;
-if (!window.wizardHeading) window.wizardHeading = wizardHeading;
-if (!window.wizardBtn) window.wizardBtn = wizardBtn;
-if (!window.openMergeComparisonModal) window.openMergeComparisonModal = openMergeComparisonModal;
-if (!window.mergeToggleAll) window.mergeToggleAll = mergeToggleAll;
-if (!window.applyMergeSelections) window.applyMergeSelections = applyMergeSelections;
-if (!window.renderWizardStep1) window.renderWizardStep1 = renderWizardStep1;
-if (!window.wizardOverwriteGuard) window.wizardOverwriteGuard = wizardOverwriteGuard;
-if (!window.wizardQuickExport) window.wizardQuickExport = wizardQuickExport;
-if (!window.wizardChooseUpload) window.wizardChooseUpload = wizardChooseUpload;
-if (!window.wizardChooseLinkedIn) window.wizardChooseLinkedIn = wizardChooseLinkedIn;
-if (!window.wizardChooseManual) window.wizardChooseManual = wizardChooseManual;
-if (!window.wizardChooseImport) window.wizardChooseImport = wizardChooseImport;
-if (!window.wizardImportProfile) window.wizardImportProfile = wizardImportProfile;
-if (!window.renderWizardStep2) window.renderWizardStep2 = renderWizardStep2;
-if (!window.wizardSetResumeTab) window.wizardSetResumeTab = wizardSetResumeTab;
-if (!window.wizardHandleResumeDrop) window.wizardHandleResumeDrop = wizardHandleResumeDrop;
-if (!window.wizardHandleResumeFile) window.wizardHandleResumeFile = wizardHandleResumeFile;
-if (!window.wizardProcessResumeFile) window.wizardProcessResumeFile = wizardProcessResumeFile;
-if (!window.wizardClearResumeFile) window.wizardClearResumeFile = wizardClearResumeFile;
-if (!window.wizardCheckResumeReady) window.wizardCheckResumeReady = wizardCheckResumeReady;
-if (!window.wizardSkipParsing) window.wizardSkipParsing = wizardSkipParsing;
-if (!window.renderWizardStep2LinkedIn) window.renderWizardStep2LinkedIn = renderWizardStep2LinkedIn;
-if (!window.wizardHandleLinkedInDrop) window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
-if (!window.wizardHandleLinkedInFile) window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
-if (!window.renderWizardStep3) window.renderWizardStep3 = renderWizardStep3;
-if (!window.renderWizardStep4) window.renderWizardStep4 = renderWizardStep4;
-if (!window.wizardField) window.wizardField = wizardField;
-if (!window.wizardSaveProfile) window.wizardSaveProfile = wizardSaveProfile;
-if (!window.renderWizardStep5) window.renderWizardStep5 = renderWizardStep5;
-if (!window.wizardSaveEnrichment) window.wizardSaveEnrichment = wizardSaveEnrichment;
-if (!window.renderWizardStep6) window.renderWizardStep6 = renderWizardStep6;
-if (!window.wizardSaveSkills) window.wizardSaveSkills = wizardSaveSkills;
-if (!window.renderWizardStep7) window.renderWizardStep7 = renderWizardStep7;
-if (!window.wizardToggleValue) window.wizardToggleValue = wizardToggleValue;
-if (!window.wizardEditValueDesc) window.wizardEditValueDesc = wizardEditValueDesc;
-if (!window.wizardAddCustomValue) window.wizardAddCustomValue = wizardAddCustomValue;
-if (!window.wizardSaveValues) window.wizardSaveValues = wizardSaveValues;
-if (!window.renderWizardStep8) window.renderWizardStep8 = renderWizardStep8;
-if (!window.wizardSavePurpose) window.wizardSavePurpose = wizardSavePurpose;
-if (!window.renderWizardStep9) window.renderWizardStep9 = renderWizardStep9;
-if (!window.wizardApplyContentOpts) window.wizardApplyContentOpts = wizardApplyContentOpts;
-if (!window.wizardBuildUserData) window.wizardBuildUserData = wizardBuildUserData;
-if (!window.wizardSaveAndGo) window.wizardSaveAndGo = wizardSaveAndGo;
-if (!window.wizardDownloadBackup) window.wizardDownloadBackup = wizardDownloadBackup;
-if (!window.wizardLaunchOnly) window.wizardLaunchOnly = wizardLaunchOnly;
-if (!window.wizardApplyAndLaunch) window.wizardApplyAndLaunch = wizardApplyAndLaunch;
+window.showOnboardingWizard = showOnboardingWizard;
+window.closeWizard = closeWizard;
+window.renderWizardStep = renderWizardStep;
+window.wizardNext = wizardNext;
+window.wizardBack = wizardBack;
+window.confirmExitWizard = confirmExitWizard;
+window.wizardHeading = wizardHeading;
+window.wizardBtn = wizardBtn;
+window.openMergeComparisonModal = openMergeComparisonModal;
+window.mergeToggleAll = mergeToggleAll;
+window.applyMergeSelections = applyMergeSelections;
+window.renderWizardStep1 = renderWizardStep1;
+window.wizardOverwriteGuard = wizardOverwriteGuard;
+window.wizardQuickExport = wizardQuickExport;
+window.wizardChooseUpload = wizardChooseUpload;
+window.wizardChooseLinkedIn = wizardChooseLinkedIn;
+window.wizardChooseManual = wizardChooseManual;
+window.wizardChooseImport = wizardChooseImport;
+window.wizardImportProfile = wizardImportProfile;
+window.renderWizardStep2 = renderWizardStep2;
+window.wizardSetResumeTab = wizardSetResumeTab;
+window.wizardHandleResumeDrop = wizardHandleResumeDrop;
+window.wizardHandleResumeFile = wizardHandleResumeFile;
+window.wizardProcessResumeFile = wizardProcessResumeFile;
+window.wizardClearResumeFile = wizardClearResumeFile;
+window.wizardCheckResumeReady = wizardCheckResumeReady;
+window.wizardSkipParsing = wizardSkipParsing;
+window.renderWizardStep2LinkedIn = renderWizardStep2LinkedIn;
+window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
+window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
+window.renderWizardStep3 = renderWizardStep3;
+window.renderWizardStep4 = renderWizardStep4;
+window.wizardField = wizardField;
+window.wizardSaveProfile = wizardSaveProfile;
+window.renderWizardStep5 = renderWizardStep5;
+window.wizardSaveEnrichment = wizardSaveEnrichment;
+window.renderWizardStep6 = renderWizardStep6;
+window.wizardSaveSkills = wizardSaveSkills;
+window.renderWizardStep7 = renderWizardStep7;
+window.wizardToggleValue = wizardToggleValue;
+window.wizardEditValueDesc = wizardEditValueDesc;
+window.wizardAddCustomValue = wizardAddCustomValue;
+window.wizardSaveValues = wizardSaveValues;
+window.renderWizardStep8 = renderWizardStep8;
+window.wizardSavePurpose = wizardSavePurpose;
+window.renderWizardStep9 = renderWizardStep9;
+window.wizardApplyContentOpts = wizardApplyContentOpts;
+window.wizardBuildUserData = wizardBuildUserData;
+window.wizardSaveAndGo = wizardSaveAndGo;
+window.wizardDownloadBackup = wizardDownloadBackup;
+window.wizardLaunchOnly = wizardLaunchOnly;
+window.wizardApplyAndLaunch = wizardApplyAndLaunch;
