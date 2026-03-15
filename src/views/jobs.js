@@ -2517,6 +2517,7 @@ export function resolveTitle(rawTitle) {
     function buildResult(soc, confidence, alts) {
         var primary = cw.occupations[soc];
         if (!primary) return null;
+        var inputWords = norm.split(' ').filter(function(w) { return w.length > 2; });
         return {
             soc: soc,
             title: primary.title,
@@ -2524,13 +2525,24 @@ export function resolveTitle(rawTitle) {
             confidence: confidence,
             alternatives: (alts || []).slice(0, 4).map(function(s) {
                 var o = cw.occupations[s];
-                return o ? { soc: s, title: o.title, family: o.family } : null;
+                if (!o) return null;
+                var altTitleWords = o.title.toLowerCase().split(/\W+/).filter(function(w) { return w.length > 2; });
+                var hasWordOverlap = inputWords.some(function(iw) {
+                    return altTitleWords.some(function(aw) { return iw === aw || (iw.length > 4 && aw.indexOf(iw) >= 0) || (aw.length > 4 && iw.indexOf(aw) >= 0); });
+                });
+                var sameFamily = o.family === primary.family;
+                if (!hasWordOverlap && !sameFamily) return null;
+                return { soc: s, title: o.title, family: o.family };
             }).filter(Boolean)
         };
     }
 
     // Step 1: Exact alias match
-    if (cw.aliases[norm]) {
+    // Guard: single-word generic terms that alias to unrelated occupations in O*NET
+    var _genericAliases = { 'owner':1, 'chief':1, 'head':1, 'lead':1, 'manager':1, 'officer':1,
+        'surgeon':1, 'physician':1, 'doctor':1, 'rector':1, 'pilot':1, 'creator':1, 'maker':1 };
+    var normWordCount = norm.split(' ').filter(function(w) { return w.length > 1; }).length;
+    if (cw.aliases[norm] && !(normWordCount === 1 && _genericAliases[norm])) {
         var socs = cw.aliases[norm];
         var r = buildResult(socs[0], 1.0, socs.slice(1));
         if (r) return r;
@@ -2564,10 +2576,20 @@ export function resolveTitle(rawTitle) {
     }
 
     // Step 3: Partial substring match
+    // Require alias to be at least 40% of input length to avoid "rector" matching inside "director"
     var partialMatches = [];
-    for (var alias in cw.aliases) {
-        if (alias.length < 4) continue;
-        if (norm.indexOf(alias) !== -1 || alias.indexOf(norm) !== -1) {
+    var _runPartial = function(input) {
+        for (var alias in cw.aliases) {
+            if (alias.length < 4) continue;
+            var isSubstringOfInput = input.indexOf(alias) !== -1;
+            var inputIsSubstringOfAlias = alias.indexOf(input) !== -1;
+            if (!isSubstringOfInput && !inputIsSubstringOfAlias) continue;
+            // Require the shorter string to cover >= 50% of the longer string
+            var shorter = Math.min(alias.length, input.length);
+            var longer = Math.max(alias.length, input.length);
+            if (shorter / longer < 0.5) continue;
+            // Skip single-word generic aliases
+            if (_genericAliases[alias]) continue;
             var socs = cw.aliases[alias];
             for (var i = 0; i < socs.length; i++) {
                 if (cw.occupations[socs[i]]) {
@@ -2575,23 +2597,10 @@ export function resolveTitle(rawTitle) {
                 }
             }
         }
-    }
-    // Also try stripped version for partial matching
-    if (stripped !== norm) {
-        for (var alias in cw.aliases) {
-            if (alias.length < 4) continue;
-            if (stripped.indexOf(alias) !== -1 || alias.indexOf(stripped) !== -1) {
-                var socs = cw.aliases[alias];
-                for (var i = 0; i < socs.length; i++) {
-                    if (cw.occupations[socs[i]]) {
-                        partialMatches.push({ soc: socs[i], alias: alias, len: alias.length });
-                    }
-                }
-            }
-        }
-    }
+    };
+    _runPartial(norm);
+    if (stripped !== norm) _runPartial(stripped);
     if (partialMatches.length > 0) {
-        // Prefer longest alias match (more specific)
         partialMatches.sort(function(a, b) { return b.len - a.len; });
         var seen = {};
         var unique = partialMatches.filter(function(m) {
@@ -2659,13 +2668,13 @@ export function resolveTitle(rawTitle) {
         if (r) return r;
     }
 
-    // Step 6: Last resort — scan occupation primary titles
+    // Step 6: Last resort — scan occupation primary titles (high threshold to avoid garbage)
     var bestOccDice = 0;
     var bestOccSoc = null;
     for (var soc in cw.occupations) {
         var occTitle = cw.occupations[soc].title.toLowerCase();
         var score = crosswalkDice(stripped || norm, occTitle);
-        if (score > bestOccDice && score >= 0.5) {
+        if (score > bestOccDice && score >= 0.65) {
             bestOccDice = score;
             bestOccSoc = soc;
         }

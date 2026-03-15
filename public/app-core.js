@@ -21744,15 +21744,33 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 }
             });
 
-            // Resolve all titles
+            // Split compound titles (e.g. "Co-Founder/Chief Pilot") into segments
+            var expandedTitles = [];
+            var _genericFragments = { 'owner':1, 'co founder':1, 'cofounder':1, 'founder':1, 'creative':1,
+                'partner':1, 'member':1, 'associate':1, 'specialist':1, 'coordinator':1 };
+            titles.forEach(function(t) {
+                expandedTitles.push(t);
+                if (/[\/&]|\band\b/i.test(t.label)) {
+                    var parts = t.label.split(/\s*[\/&]\s*|\s+and\s+/i).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 3; });
+                    parts.forEach(function(part) {
+                        var normPart = part.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+                        var wordCount = normPart.split(' ').filter(function(w) { return w.length > 2; }).length;
+                        if (wordCount < 2 || _genericFragments[normPart]) return;
+                        expandedTitles.push({ label: part, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
+                    });
+                }
+            });
+
+            // Resolve all titles — group by role, filter low-confidence matches
             var resolutions = [];
             var seenSocs = {};
-            titles.forEach(function(t) {
+            var MIN_ALT_CONFIDENCE = 0.65;
+            expandedTitles.forEach(function(t) {
                 var result = resolveTitle(t.label);
                 if (result && !seenSocs[result.soc] && result.confidence >= 0.60) {
                     seenSocs[result.soc] = true;
                     resolutions.push({
-                        inputTitle: t.label,
+                        inputTitle: t._parentTitle || t.label,
                         source: t.source,
                         company: t.company || '',
                         years: t.years || '',
@@ -21761,6 +21779,27 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                         family: result.family,
                         confidence: result.confidence,
                         alternatives: result.alternatives || []
+                    });
+                }
+                if (result && result.alternatives) {
+                    var altCount = 0;
+                    result.alternatives.forEach(function(alt) {
+                        var altConf = (result.confidence || 0.8) * 0.85;
+                        if (!seenSocs[alt.soc] && altConf >= MIN_ALT_CONFIDENCE && altCount < 2) {
+                            seenSocs[alt.soc] = true;
+                            altCount++;
+                            resolutions.push({
+                                inputTitle: t._parentTitle || t.label,
+                                source: t.source,
+                                company: t.company || '',
+                                years: t.years || '',
+                                soc: alt.soc,
+                                occTitle: alt.title,
+                                family: alt.family,
+                                confidence: altConf,
+                                alternatives: []
+                            });
+                        }
                     });
                 }
             });
@@ -38307,6 +38346,7 @@ body {
             function buildResult(soc, confidence, alts) {
                 var primary = cw.occupations[soc];
                 if (!primary) return null;
+                var inputWords = norm.split(' ').filter(function(w) { return w.length > 2; });
                 return {
                     soc: soc,
                     title: primary.title,
@@ -38314,13 +38354,24 @@ body {
                     confidence: confidence,
                     alternatives: (alts || []).slice(0, 4).map(function(s) {
                         var o = cw.occupations[s];
-                        return o ? { soc: s, title: o.title, family: o.family } : null;
+                        if (!o) return null;
+                        var altTitleWords = o.title.toLowerCase().split(/\W+/).filter(function(w) { return w.length > 2; });
+                        var hasWordOverlap = inputWords.some(function(iw) {
+                            return altTitleWords.some(function(aw) { return iw === aw || (iw.length > 4 && aw.indexOf(iw) >= 0) || (aw.length > 4 && iw.indexOf(aw) >= 0); });
+                        });
+                        var sameFamily = o.family === primary.family;
+                        if (!hasWordOverlap && !sameFamily) return null;
+                        return { soc: s, title: o.title, family: o.family };
                     }).filter(Boolean)
                 };
             }
 
             // Step 1: Exact alias match
-            if (cw.aliases[norm]) {
+            // Guard: single-word generic terms that alias to unrelated occupations in O*NET
+            var _genericAliases = { 'owner':1, 'chief':1, 'head':1, 'lead':1, 'manager':1, 'officer':1,
+                'surgeon':1, 'physician':1, 'doctor':1, 'rector':1, 'pilot':1, 'creator':1, 'maker':1 };
+            var normWordCount = norm.split(' ').filter(function(w) { return w.length > 1; }).length;
+            if (cw.aliases[norm] && !(normWordCount === 1 && _genericAliases[norm])) {
                 var socs = cw.aliases[norm];
                 var r = buildResult(socs[0], 1.0, socs.slice(1));
                 if (r) return r;
@@ -38383,10 +38434,18 @@ body {
             }
 
             // Step 3: Partial substring match
+            // Require alias to cover >= 50% of input length to avoid "rector" matching "director"
             var partialMatches = [];
-            for (var alias in cw.aliases) {
-                if (alias.length < 4) continue;
-                if (norm.indexOf(alias) !== -1 || alias.indexOf(norm) !== -1) {
+            var _runPartial = function(input) {
+                for (var alias in cw.aliases) {
+                    if (alias.length < 4) continue;
+                    var isSubstringOfInput = input.indexOf(alias) !== -1;
+                    var inputIsSubstringOfAlias = alias.indexOf(input) !== -1;
+                    if (!isSubstringOfInput && !inputIsSubstringOfAlias) continue;
+                    var shorter = Math.min(alias.length, input.length);
+                    var longer = Math.max(alias.length, input.length);
+                    if (shorter / longer < 0.5) continue;
+                    if (_genericAliases[alias]) continue;
                     var socs = cw.aliases[alias];
                     for (var i = 0; i < socs.length; i++) {
                         if (cw.occupations[socs[i]]) {
@@ -38394,23 +38453,10 @@ body {
                         }
                     }
                 }
-            }
-            // Also try stripped version for partial matching
-            if (stripped !== norm) {
-                for (var alias in cw.aliases) {
-                    if (alias.length < 4) continue;
-                    if (stripped.indexOf(alias) !== -1 || alias.indexOf(stripped) !== -1) {
-                        var socs = cw.aliases[alias];
-                        for (var i = 0; i < socs.length; i++) {
-                            if (cw.occupations[socs[i]]) {
-                                partialMatches.push({ soc: socs[i], alias: alias, len: alias.length });
-                            }
-                        }
-                    }
-                }
-            }
+            };
+            _runPartial(norm);
+            if (stripped !== norm) _runPartial(stripped);
             if (partialMatches.length > 0) {
-                // Prefer longest alias match (more specific)
                 partialMatches.sort(function(a, b) { return b.len - a.len; });
                 var seen = {};
                 var unique = partialMatches.filter(function(m) {
@@ -38484,7 +38530,7 @@ body {
             for (var soc in cw.occupations) {
                 var occTitle = cw.occupations[soc].title.toLowerCase();
                 var score = crosswalkDice(stripped || norm, occTitle);
-                if (score > bestOccDice && score >= 0.5) {
+                if (score > bestOccDice && score >= 0.65) {
                     bestOccDice = score;
                     bestOccSoc = soc;
                 }

@@ -6885,12 +6885,18 @@ export function renderWizardStep5(el) {
     });
 
     // Split compound titles (e.g. "Co-Founder/Chief Pilot") into segments and resolve each
+    // Only keep fragments with >= 2 meaningful words to avoid single-word garbage matches
     var expandedTitles = [];
+    var _genericFragments = { 'owner':1, 'co founder':1, 'cofounder':1, 'founder':1, 'creative':1,
+        'partner':1, 'member':1, 'associate':1, 'specialist':1, 'coordinator':1 };
     titles.forEach(function(t) {
         expandedTitles.push(t);
         if (/[\/&]|\band\b/i.test(t.label)) {
             var parts = t.label.split(/\s*[\/&]\s*|\s+and\s+/i).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 3; });
             parts.forEach(function(part) {
+                var normPart = part.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+                var wordCount = normPart.split(' ').filter(function(w) { return w.length > 2; }).length;
+                if (wordCount < 2 || _genericFragments[normPart]) return;
                 expandedTitles.push({ label: part, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
             });
         }
