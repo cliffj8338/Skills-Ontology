@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.90 - BUILD 20260314-security-hardening
-        var BP_VERSION = 'v4.46.98';
+        var BP_VERSION = 'v4.46.99';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -19192,6 +19192,7 @@
         };
 
         function showOnboardingWizard() {
+            if (window.showOnboardingWizard && window.showOnboardingWizard !== showOnboardingWizard) return window.showOnboardingWizard();
             if (readOnlyGuard()) return;
             if (demoGate('Build Your Blueprint')) return;
             // Remove any existing wizard
@@ -19220,6 +19221,7 @@
         }
 
         function renderWizardStep() {
+            if (window.renderWizardStep && window.renderWizardStep !== renderWizardStep) return window.renderWizardStep();
             const overlay = document.getElementById('onboardingWizard');
             if (!overlay) return;
 
@@ -19303,27 +19305,33 @@
                 </div>
             `;
 
-            // Render the current step content
+            // Render the current step content — delegate to window (module overrides)
             const inner = document.getElementById('wizardInner');
-            switch(wizardState.step) {
-                case 1: renderWizardStep1(inner); break;
-                case 2: renderWizardStep2(inner); break;
-                case 3: renderWizardStep3(inner); break;
-                case 4: renderWizardStep4(inner); break;
-                case 5: renderWizardStep5(inner); break;
-                case 6: renderWizardStep6(inner); break;
-                case 7: renderWizardStep7(inner); break;
-                case 8: renderWizardStep8(inner); break;
-                case 9: renderWizardStep9(inner); break;
+            var stepFn = window['renderWizardStep' + wizardState.step];
+            if (typeof stepFn === 'function') { stepFn(inner); }
+            else {
+                switch(wizardState.step) {
+                    case 1: renderWizardStep1(inner); break;
+                    case 2: renderWizardStep2(inner); break;
+                    case 3: renderWizardStep3(inner); break;
+                    case 4: renderWizardStep4(inner); break;
+                    case 5: renderWizardStep5(inner); break;
+                    case 6: renderWizardStep6(inner); break;
+                    case 7: renderWizardStep7(inner); break;
+                    case 8: renderWizardStep8(inner); break;
+                    case 9: renderWizardStep9(inner); break;
+                }
             }
         }
 
         function wizardNext() {
+            if (window.wizardNext && window.wizardNext !== wizardNext) return window.wizardNext();
             wizardState.step = Math.min(wizardState.step + 1, wizardState.totalSteps);
             renderWizardStep();
         }
 
         function wizardBack() {
+            if (window.wizardBack && window.wizardBack !== wizardBack) return window.wizardBack();
             var newStep = wizardState.step - 1;
             // Skip Step 3 (AI parsing) when going back from Step 4 in linkedin or manual mode
             if (wizardState.step === 4 && (wizardState.entryMode === 'linkedin' || wizardState.entryMode === 'manual')) {
@@ -19334,6 +19342,7 @@
         }
 
         function confirmExitWizard() {
+            if (window.confirmExitWizard && window.confirmExitWizard !== confirmExitWizard) return window.confirmExitWizard();
             if (wizardState.step > 2) {
                 if (!confirm('Exit the wizard? Your progress will be lost.')) return;
             }
@@ -20201,6 +20210,7 @@
         // wizardQuickExport exposed by ES module
         
         function wizardChooseUpload() {
+            if (window.wizardChooseUpload && window.wizardChooseUpload !== wizardChooseUpload) return window.wizardChooseUpload();
             wizardOverwriteGuard(function() {
                 wizardState.entryMode = 'upload';
                 wizardNext();
@@ -20215,6 +20225,7 @@
         }
 
         function wizardChooseManual() {
+            if (window.wizardChooseManual && window.wizardChooseManual !== wizardChooseManual) return window.wizardChooseManual();
             wizardOverwriteGuard(function() {
                 wizardState.entryMode = 'manual';
                 wizardState.step = 4;
@@ -20461,18 +20472,19 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
         }
 
         function wizardSkipParsing() {
+            if (window.wizardSkipParsing && window.wizardSkipParsing !== wizardSkipParsing) return window.wizardSkipParsing();
             wizardState.entryMode = 'manual';
             wizardState.step = 4;
             renderWizardStep();
         }
 
         async function wizardStartParsing() {
+            if (window.wizardStartParsing && window.wizardStartParsing !== wizardStartParsing) return window.wizardStartParsing();
             const t1 = document.getElementById('wizardResumeText')?.value?.trim() || '';
             const t2 = document.getElementById('wizardLinkedInText')?.value?.trim() || '';
             wizardState.resumeText = t1 || t2;
-            // File upload takes priority if present
             wizardState.useFileUpload = !!wizardState.resumeFileBase64 && !wizardState.resumeText;
-            wizardNext(); // Go to step 3 (parsing/loading)
+            wizardNext();
             try {
                 await wizardRunParsing();
             } catch(e) {
@@ -21201,6 +21213,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             return null;
         }
         async function wizardRunParsing() {
+            if (window.wizardRunParsing && window.wizardRunParsing !== wizardRunParsing) return window.wizardRunParsing();
             const setStatus = (msg, pct) => {
                 const s = document.getElementById('wizardParsingStatus');
                 const p = document.getElementById('wizardParseProgress');
@@ -21458,6 +21471,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
         }
 
         function wizardSaveProfile() {
+            if (window.wizardSaveProfile && window.wizardSaveProfile !== wizardSaveProfile) return window.wizardSaveProfile();
             if (readOnlyGuard()) return;
             wizardState.profile = {
                 name: document.getElementById('wizardName')?.value?.trim() || '',
@@ -21664,6 +21678,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
         }
 
         function wizardSaveEnrichment() {
+            if (window.wizardSaveEnrichment && window.wizardSaveEnrichment !== wizardSaveEnrichment) return window.wizardSaveEnrichment();
             if (readOnlyGuard()) return;
             var enrichment = wizardState.enrichment;
             if (!enrichment || !enrichment.gapSkills) {
@@ -21762,6 +21777,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
         }
 
         function wizardSaveSkills() {
+            if (window.wizardSaveSkills && window.wizardSaveSkills !== wizardSaveSkills) return window.wizardSaveSkills();
             if (readOnlyGuard()) return;
             // Filter to only checked skills
             wizardState.skills = wizardState.skills.filter((s, i) => {
@@ -21951,6 +21967,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
         // wizardAddCustomValue, wizardEditValueDesc exposed by ES module
 
         function wizardSaveValues() {
+            if (window.wizardSaveValues && window.wizardSaveValues !== wizardSaveValues) return window.wizardSaveValues();
             if (readOnlyGuard()) return;
             wizardNext();
         }
@@ -22056,6 +22073,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         function wizardSavePurpose() {
+            if (window.wizardSavePurpose && window.wizardSavePurpose !== wizardSavePurpose) return window.wizardSavePurpose();
             if (readOnlyGuard()) return;
             wizardState.purpose = document.getElementById('wizardPurpose')?.value?.trim() || '';
             wizardNext();
@@ -22191,6 +22209,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         function wizardSaveAndGo() {
+            if (window.wizardSaveAndGo && window.wizardSaveAndGo !== wizardSaveAndGo) return window.wizardSaveAndGo();
             var built = wizardBuildUserData();
             // Download JSON if checkbox is checked
             var dlCheck = document.getElementById('wizardDownloadCheck');
@@ -22224,6 +22243,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         function wizardApplyAndLaunch(built) {
+            if (window.wizardApplyAndLaunch && window.wizardApplyAndLaunch !== wizardApplyAndLaunch) return window.wizardApplyAndLaunch(built);
             userData = built;
             userData.initialized = true; _markUserDataReady();
             window._userData = userData;
