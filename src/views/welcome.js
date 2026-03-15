@@ -6494,11 +6494,14 @@ PURPOSE: Write a compelling, authentic purpose statement capturing this person's
                 model: 'claude-sonnet-4-20250514',
                 max_tokens: 16000,
                 system: systemPrompt,
-                messages: [{ role: 'user', content: userContent }]
+                messages: [
+                    { role: 'user', content: userContent },
+                    { role: 'assistant', content: '{' }
+                ]
             }, wizardApiKey, 'resume-parse');
         thinkingTimers.forEach(function(t) { clearTimeout(t); });
         setStatus('Structuring your profile data...', 70);
-        const rawText = data.content[0]?.text || '';
+        const rawText = '{' + (data.content[0]?.text || '');
 
         setStatus('Extracting skills and evidence...', 80);
 

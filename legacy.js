@@ -21168,15 +21168,22 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 16000,
                         system: systemPrompt,
-                        messages: [{ role: 'user', content: userContent }]
+                        messages: [
+                            { role: 'user', content: userContent },
+                            { role: 'assistant', content: '{' }
+                        ]
                     }, wizardApiKey, 'resume-parse');
                 setStatus('Structuring your profile data...', 55);
-                const rawText = data.content[0]?.text || '';
+                const rawText = '{' + (data.content[0]?.text || '');
 
                 setStatus('Extracting skills and evidence...', 75);
 
                 // Strip markdown fences if present
-                const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+                var clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+                if (clean.length > 0 && clean[0] !== '{') {
+                    var jsonStart = clean.indexOf('{');
+                    if (jsonStart >= 0) clean = clean.substring(jsonStart);
+                }
                 var parsed; try { parsed = JSON.parse(clean); } catch(jsonErr) { parsed = wizardRepairJSON(clean); if (!parsed) throw jsonErr; console.warn("Parsing: repaired truncated JSON"); }
 
                 setStatus('Building your Blueprint...', 95);
