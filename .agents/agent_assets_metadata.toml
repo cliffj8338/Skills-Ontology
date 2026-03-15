@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Ib5KCeujbTxROs5pMzUeW"
+uri = "file://.local/handoff-2026-03-15.md"
+type = "text"
+title = "Blueprint Handoff Document — March 14-15, 2026"
