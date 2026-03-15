@@ -152,25 +152,43 @@ export default async function handler(req, res) {
             body.max_tokens = maxTokenCeiling;
         }
         
-        const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': anthropicKey,
-                'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify(body)
-        });
-        
+        console.log('[ai.js] Forwarding to Anthropic, model:', body.model, 'max_tokens:', body.max_tokens);
+        const startTime = Date.now();
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 55000);
+
+        let anthropicRes;
+        try {
+            anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': anthropicKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify(body),
+                signal: controller.signal
+            });
+        } catch (fetchErr) {
+            clearTimeout(timeout);
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            console.error('[ai.js] Anthropic fetch failed after', elapsed + 's:', fetchErr.message);
+            if (fetchErr.name === 'AbortError') {
+                return res.status(504).json({ error: 'AI request timed out after ' + elapsed + 's. Try pasting resume text instead of uploading a PDF.' });
+            }
+            throw fetchErr;
+        }
+        clearTimeout(timeout);
+
         const data = await anthropicRes.json();
-        
-        // Set CORS header on response
-        res.setHeader('Access-Control-Allow-Origin', 'https://myblueprint.work');
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log('[ai.js] Anthropic responded:', anthropicRes.status, 'in', elapsed + 's');
         
         return res.status(anthropicRes.status).json(data);
         
     } catch (err) {
         console.error('Anthropic API error:', err.message);
-        return res.status(502).json({ error: 'AI service temporarily unavailable' });
+        return res.status(502).json({ error: 'AI service temporarily unavailable: ' + err.message });
     }
 };

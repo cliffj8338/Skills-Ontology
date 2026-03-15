@@ -6510,15 +6510,39 @@ PURPOSE: Write a compelling, authentic purpose statement capturing this person's
             userContent = 'Parse this resume:\n\n' + wizardState.resumeText;
         }
 
-        var data = await callAnthropicAPI({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 16000,
-                system: systemPrompt,
-                messages: [
-                    { role: 'user', content: userContent },
-                    { role: 'assistant', content: '{' }
-                ]
-            }, wizardApiKey, 'resume-parse');
+        console.log('[BP Parse] Starting API call...',
+            wizardState.useFileUpload ? 'PDF upload' : 'text (' + (wizardState.resumeText || '').length + ' chars)',
+            wizardApiKey ? 'direct-key' : 'proxy');
+
+        var safetyTimeout = setTimeout(function() {
+            console.error('[BP Parse] SAFETY TIMEOUT - 100s elapsed without response');
+            thinkingTimers.forEach(function(t) { clearTimeout(t); });
+            var status = document.getElementById('wizardParsingStatus');
+            if (status && !status.innerHTML.includes('failed')) {
+                status.innerHTML = '<span style="color:var(--danger);">Parsing timed out. The AI service may be slow or overloaded.</span><br><br>' +
+                    '<button onclick="wizardState.step=2; renderWizardStep();" style="background:var(--accent); color:#fff; border:none; padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em; margin-right:10px;">← Try Again</button>' +
+                    '<button onclick="wizardSkipParsing()" style="background:none; border:1px solid var(--border); color:var(--text-secondary); padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em;">Skip → Enter Manually</button>';
+            }
+        }, 100000);
+
+        var data;
+        try {
+            data = await callAnthropicAPI({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 16000,
+                    system: systemPrompt,
+                    messages: [
+                        { role: 'user', content: userContent },
+                        { role: 'assistant', content: '{' }
+                    ]
+                }, wizardApiKey, 'resume-parse');
+        } catch (apiErr) {
+            clearTimeout(safetyTimeout);
+            throw apiErr;
+        }
+        clearTimeout(safetyTimeout);
+        console.log('[BP Parse] API response received, status:', data?.type, 'content length:', data?.content?.[0]?.text?.length || 0);
+
         thinkingTimers.forEach(function(t) { clearTimeout(t); });
         setStatus('Structuring your profile data...', 70);
         const rawText = '{' + (data.content[0]?.text || '');

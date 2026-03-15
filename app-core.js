@@ -247,23 +247,29 @@
         
         async function callAnthropicAPI(requestBody, userApiKey, featureTag) {
             trackAICall(featureTag);
+            console.log('[BP API] callAnthropicAPI called for:', featureTag, 'model:', requestBody.model);
             var idToken = null;
             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) { console.warn('Failed to get Firebase ID token:', e.message); }
             }
+            console.log('[BP API] idToken:', idToken ? 'obtained' : 'none', 'proxyAvailable:', AI_PROXY_AVAILABLE, 'directKey:', !!userApiKey);
             if (idToken && AI_PROXY_AVAILABLE !== false) {
                 var proxyApiError = null;
                 try {
+                    console.log('[BP API] Fetching proxy:', AI_PROXY_URL);
                     var proxyRes = await fetch(AI_PROXY_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
                         body: JSON.stringify(requestBody),
                         signal: AbortSignal.timeout(90000)
                     });
+                    console.log('[BP API] Proxy response:', proxyRes.status, proxyRes.statusText);
                     if (proxyRes.ok) {
                         AI_PROXY_AVAILABLE = true;
                         recordApiHealth('anthropic-proxy', 'ok', 'Operational');
-                        return await proxyRes.json();
+                        var jsonData = await proxyRes.json();
+                        console.log('[BP API] Proxy success, response type:', jsonData?.type);
+                        return jsonData;
                     }
                     if (proxyRes.status === 429) {
                         AI_PROXY_AVAILABLE = true;
@@ -290,6 +296,7 @@
                         logIncident('critical', 'anthropic-proxy', 'AI proxy server error (HTTP ' + proxyRes.status + ')', { status: proxyRes.status });
                     }
                 } catch (e) {
+                    console.error('[BP API] Proxy fetch error:', e.name, e.message);
                     if (e.message.includes('Rate limit')) throw e;
                     if (e.name === 'TimeoutError' || e.message.includes('timed out') || e.message.includes('aborted')) {
                         recordApiHealth('anthropic-proxy', 'degraded', 'Request timed out', { error: e.message });
@@ -299,11 +306,15 @@
                         AI_PROXY_AVAILABLE = false;
                         recordApiHealth('anthropic-proxy', 'down', 'Unreachable', { error: e.message });
                     }
+                    console.log('[BP API] Proxy failed, falling through to direct...');
                 }
-                // Throw 4xx errors after catch so they propagate to the caller
                 if (proxyApiError) throw proxyApiError;
             }
-            if (!userApiKey) throw new Error('AI features require sign-in or an API key in Settings.');
+            if (!userApiKey) {
+                console.error('[BP API] No direct API key available, cannot fallback');
+                throw new Error('AI features require sign-in or an API key in Settings.');
+            }
+            console.log('[BP API] Trying direct Anthropic API...');
             var directRes = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-api-key': userApiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
@@ -21449,15 +21460,36 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                     userContent = 'Parse this resume:\n\n' + wizardState.resumeText;
                 }
 
-                var data = await callAnthropicAPI({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 16000,
-                        system: systemPrompt,
-                        messages: [
-                            { role: 'user', content: userContent },
-                            { role: 'assistant', content: '{' }
-                        ]
-                    }, wizardApiKey, 'resume-parse');
+                console.log('[BP Parse] Starting API call (legacy path)...',
+                    wizardState.useFileUpload ? 'PDF upload' : 'text (' + (wizardState.resumeText || '').length + ' chars)');
+
+                var safetyTimeout = setTimeout(function() {
+                    console.error('[BP Parse] SAFETY TIMEOUT - 100s elapsed without response');
+                    var status = document.getElementById('wizardParsingStatus');
+                    if (status && !status.innerHTML.includes('failed')) {
+                        status.innerHTML = '<span style="color:var(--danger);">Parsing timed out. The AI service may be slow or overloaded.</span><br><br>' +
+                            '<button onclick="wizardState.step=2; renderWizardStep();" style="background:var(--accent); color:#fff; border:none; padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em; margin-right:10px;">\u2190 Try Again</button>' +
+                            '<button onclick="wizardSkipParsing()" style="background:none; border:1px solid var(--border); color:var(--text-secondary); padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em;">Skip \u2192 Enter Manually</button>';
+                    }
+                }, 100000);
+
+                var data;
+                try {
+                    data = await callAnthropicAPI({
+                            model: 'claude-sonnet-4-20250514',
+                            max_tokens: 16000,
+                            system: systemPrompt,
+                            messages: [
+                                { role: 'user', content: userContent },
+                                { role: 'assistant', content: '{' }
+                            ]
+                        }, wizardApiKey, 'resume-parse');
+                } catch (apiErr) {
+                    clearTimeout(safetyTimeout);
+                    throw apiErr;
+                }
+                clearTimeout(safetyTimeout);
+                console.log('[BP Parse] API response received');
                 setStatus('Structuring your profile data...', 55);
                 const rawText = '{' + (data.content[0]?.text || '');
 
