@@ -257,7 +257,8 @@
                     var proxyRes = await fetch(AI_PROXY_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
-                        body: JSON.stringify(requestBody)
+                        body: JSON.stringify(requestBody),
+                        signal: AbortSignal.timeout(90000)
                     });
                     if (proxyRes.ok) {
                         AI_PROXY_AVAILABLE = true;
@@ -290,6 +291,10 @@
                     }
                 } catch (e) {
                     if (e.message.includes('Rate limit')) throw e;
+                    if (e.name === 'TimeoutError' || e.message.includes('timed out') || e.message.includes('aborted')) {
+                        recordApiHealth('anthropic-proxy', 'degraded', 'Request timed out', { error: e.message });
+                        throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
+                    }
                     if (AI_PROXY_AVAILABLE === null) {
                         AI_PROXY_AVAILABLE = false;
                         recordApiHealth('anthropic-proxy', 'down', 'Unreachable', { error: e.message });
@@ -302,7 +307,8 @@
             var directRes = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-api-key': userApiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify(requestBody),
+                signal: AbortSignal.timeout(120000)
             });
             if (!directRes.ok) {
                 var errData = {}; try { errData = await directRes.json(); } catch(e) {}

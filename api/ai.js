@@ -2,6 +2,10 @@
 // Validates Firebase ID token, forwards to Anthropic API with server-side key.
 // Deploy: place in /api/ai.js, set ANTHROPIC_API_KEY in Vercel Environment Variables.
 
+export const config = {
+    maxDuration: 60
+};
+
 import crypto from 'crypto';
 
 // Firebase project config
