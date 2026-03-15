@@ -4164,7 +4164,7 @@ window.importProfile = function(event) {
 // Multi-step guided profile builder with AI resume parsing
 // =====================================================================
 
-let wizardState = {
+var wizardState = window.wizardState || {
     step: 1,
     totalSteps: 9,
     resumeText: '',
@@ -4179,13 +4179,13 @@ let wizardState = {
 export function showOnboardingWizard() {
     if (readOnlyGuard()) return;
     if (demoGate('Build Your Blueprint')) return;
-    // Remove any existing wizard
     const existing = document.getElementById('onboardingWizard');
     if (existing) existing.remove();
 
     wizardState = { step: 1, totalSteps: 9, resumeText: '', parsedData: null,
                     profile: {}, skills: [], values: [], purpose: '', processing: false,
                     resumeFileBase64: null, resumeFileName: null, resumeFileSize: null, useFileUpload: false };
+    window.wizardState = wizardState;
 
     const overlay = document.createElement('div');
     overlay.id = 'onboardingWizard';
@@ -6373,6 +6373,14 @@ async function wizardRunParsing() {
     try {
         logAnalyticsEvent('resume_parse', {});
         setStatus('Reading your resume...', 10);
+
+        if (!wizardState.resumeText && !wizardState.resumeFileBase64) {
+            console.error('[BP Parse] No resume data to parse!');
+            showToast('No resume data found. Please go back and paste your resume or upload a PDF.', 'warning', 6000);
+            wizardState.step = 2;
+            renderWizardStep();
+            return;
+        }
 
         var thinkingPhases = [
             { msg: 'Identifying career roles...', pct: 20, delay: 2500 },

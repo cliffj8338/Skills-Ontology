@@ -19028,7 +19028,7 @@
         // Multi-step guided profile builder with AI resume parsing
         // =====================================================================
 
-        let wizardState = {
+        var wizardState = {
             step: 1,
             totalSteps: 9,
             resumeText: '',
@@ -19051,6 +19051,7 @@
             wizardState = { step: 1, totalSteps: 9, resumeText: '', parsedData: null,
                             profile: {}, skills: [], values: [], purpose: '', processing: false,
                             resumeFileBase64: null, resumeFileName: null, resumeFileSize: null, useFileUpload: false };
+            window.wizardState = wizardState;
 
             const overlay = document.createElement('div');
             overlay.id = 'onboardingWizard';
@@ -21190,6 +21191,14 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             try {
                 logAnalyticsEvent('resume_parse', {});
                 setStatus('Parsing your resume...', 15);
+
+                if (!wizardState.resumeText && !wizardState.resumeFileBase64) {
+                    console.error('[BP Parse] No resume data to parse!');
+                    showToast('No resume data found. Please go back and paste your resume or upload a PDF.', 'warning', 6000);
+                    wizardState.step = 2;
+                    renderWizardStep();
+                    return;
+                }
 
                 var wizardApiKey = safeGet('wbAnthropicKey');
                 if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
