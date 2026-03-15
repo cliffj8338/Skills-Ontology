@@ -2636,7 +2636,7 @@ export function resolveTitle(rawTitle) {
                 }
             }
         }
-        if (bestWordScore >= 0.5 && bestWordSocs && bestWordSocs.length > 0) {
+        if (bestWordScore >= 0.55 && bestWordSocs && bestWordSocs.length > 0) {
             var confidence = Math.round((0.6 + bestWordScore * 0.2) * 100) / 100;
             var r = buildResult(bestWordSocs[0], Math.min(confidence, 0.8), bestWordSocs.slice(1));
             if (r) return r;
@@ -2649,7 +2649,7 @@ export function resolveTitle(rawTitle) {
     for (var alias in cw.aliases) {
         if (alias.length < 4) continue;
         var score = crosswalkDice(norm, alias);
-        if (score > bestDice && score >= 0.55) {
+        if (score > bestDice && score >= 0.65) {
             bestDice = score;
             bestDiceSocs = cw.aliases[alias];
         }

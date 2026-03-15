@@ -21749,7 +21749,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
             var seenSocs = {};
             titles.forEach(function(t) {
                 var result = resolveTitle(t.label);
-                if (result && !seenSocs[result.soc]) {
+                if (result && !seenSocs[result.soc] && result.confidence >= 0.60) {
                     seenSocs[result.soc] = true;
                     resolutions.push({
                         inputTitle: t.label,
@@ -21813,24 +21813,37 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                     <div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">
                         Occupation Matches
                     </div>
-                    ${resolutions.map(function(r) {
-                        return '<div style="display:flex; align-items:center; gap:12px; padding:10px 0;'
-                            + 'border-bottom:1px solid var(--border);">'
-                            + '<div style="flex:1; min-width:0;">'
-                            + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
-                            + escapeHtml(r.inputTitle)
-                            + (r.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(r.company) + '</span>' : '')
-                            + '</div>'
-                            + '<div style="font-size:0.8em; color:var(--text-secondary); margin-top:2px;">'
-                            + '\u2192 ' + escapeHtml(r.occTitle) + ' <span style="color:var(--text-muted);">(' + r.soc + ')</span>'
-                            + '</div>'
-                            + '</div>'
-                            + '<div style="display:flex; align-items:center; gap:6px;">'
-                            + '<div style="width:8px; height:8px; border-radius:50%; background:' + confidenceColor(r.confidence) + ';"></div>'
-                            + '<span style="font-size:0.78em; color:var(--text-secondary);">' + Math.round(r.confidence * 100) + '%</span>'
-                            + '</div>'
-                            + '</div>';
-                    }).join('')}
+                    ${(function() {
+                        var grouped = {};
+                        var groupOrder = [];
+                        resolutions.forEach(function(r) {
+                            var key = r.inputTitle + '|||' + (r.company || '');
+                            if (!grouped[key]) {
+                                grouped[key] = { inputTitle: r.inputTitle, company: r.company, source: r.source, matches: [] };
+                                groupOrder.push(key);
+                            }
+                            grouped[key].matches.push(r);
+                        });
+                        return groupOrder.map(function(key) {
+                            var g = grouped[key];
+                            return '<div style="padding:10px 0; border-bottom:1px solid var(--border);">'
+                                + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em; margin-bottom:8px;">'
+                                + escapeHtml(g.inputTitle)
+                                + (g.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(g.company) + '</span>' : '')
+                                + '</div>'
+                                + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
+                                + g.matches.map(function(m) {
+                                    return '<div style="display:inline-flex; align-items:center; gap:6px;'
+                                        + ' background:var(--bg-surface); border:1px solid var(--border);'
+                                        + ' border-radius:8px; padding:4px 10px; font-size:0.8em;">'
+                                        + '<div style="width:7px; height:7px; border-radius:50%; background:' + confidenceColor(m.confidence) + '; flex-shrink:0;"></div>'
+                                        + '<span style="color:var(--text-secondary);">' + escapeHtml(m.occTitle) + '</span>'
+                                        + '<span style="color:var(--text-muted); font-size:0.85em;">' + Math.round(m.confidence * 100) + '%</span>'
+                                        + '</div>';
+                                }).join('')
+                                + '</div></div>';
+                        }).join('');
+                    })()}
                 </div>
                 ` : ''}
 
@@ -38202,7 +38215,7 @@ body {
                         }
                     }
                 }
-                if (bestWordScore >= 0.5 && bestWordSocs && bestWordSocs.length > 0) {
+                if (bestWordScore >= 0.55 && bestWordSocs && bestWordSocs.length > 0) {
                     var confidence = Math.round((0.6 + bestWordScore * 0.2) * 100) / 100;
                     var r = buildResult(bestWordSocs[0], Math.min(confidence, 0.8), bestWordSocs.slice(1));
                     if (r) return r;
@@ -38215,7 +38228,7 @@ body {
             for (var alias in cw.aliases) {
                 if (alias.length < 4) continue;
                 var score = crosswalkDice(norm, alias);
-                if (score > bestDice && score >= 0.55) {
+                if (score > bestDice && score >= 0.65) {
                     bestDice = score;
                     bestDiceSocs = cw.aliases[alias];
                 }

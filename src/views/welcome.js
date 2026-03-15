@@ -6896,12 +6896,13 @@ export function renderWizardStep5(el) {
         }
     });
 
-    // Resolve all titles
+    // Resolve all titles — group by role, filter low-confidence matches
     var resolutions = [];
     var seenSocs = {};
+    var MIN_ALT_CONFIDENCE = 0.65;
     expandedTitles.forEach(function(t) {
         var result = resolveTitle(t.label);
-        if (result && !seenSocs[result.soc]) {
+        if (result && !seenSocs[result.soc] && result.confidence >= 0.60) {
             seenSocs[result.soc] = true;
             resolutions.push({
                 inputTitle: t._parentTitle || t.label,
@@ -6916,9 +6917,12 @@ export function renderWizardStep5(el) {
             });
         }
         if (result && result.alternatives) {
+            var altCount = 0;
             result.alternatives.forEach(function(alt) {
-                if (!seenSocs[alt.soc]) {
+                var altConf = (result.confidence || 0.8) * 0.85;
+                if (!seenSocs[alt.soc] && altConf >= MIN_ALT_CONFIDENCE && altCount < 2) {
                     seenSocs[alt.soc] = true;
+                    altCount++;
                     resolutions.push({
                         inputTitle: t._parentTitle || t.label,
                         source: t.source,
@@ -6927,7 +6931,7 @@ export function renderWizardStep5(el) {
                         soc: alt.soc,
                         occTitle: alt.title,
                         family: alt.family,
-                        confidence: (result.confidence || 0.8) * 0.85,
+                        confidence: altConf,
                         alternatives: []
                     });
                 }
@@ -7092,32 +7096,42 @@ export function renderWizardStep5(el) {
                 ? 'We matched your roles to O*NET occupations and found skills you may want to add.'
                 : 'No role titles could be matched. Continue to review your skills.')}
 
-        ${resolutions.length > 0 ? `
-        <div style="background:var(--bg-elevated); border:1px solid var(--border);
-                    border-radius:14px; padding:20px; margin-bottom:20px;">
-            <div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">
-                Occupation Matches
-            </div>
-            ${resolutions.map(function(r) {
-                return '<div style="display:flex; align-items:center; gap:12px; padding:10px 0;'
-                    + 'border-bottom:1px solid var(--border);">'
-                    + '<div style="flex:1; min-width:0;">'
-                    + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
-                    + escapeHtml(r.inputTitle)
-                    + (r.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(r.company) + '</span>' : '')
-                    + '</div>'
-                    + '<div style="font-size:0.8em; color:var(--text-secondary); margin-top:2px;">'
-                    + '\u2192 ' + escapeHtml(r.occTitle) + ' <span style="color:var(--text-muted);">(' + r.soc + ')</span>'
-                    + '</div>'
-                    + '</div>'
-                    + '<div style="display:flex; align-items:center; gap:6px;">'
-                    + '<div style="width:8px; height:8px; border-radius:50%; background:' + confidenceColor(r.confidence) + ';"></div>'
-                    + '<span style="font-size:0.78em; color:var(--text-secondary);">' + Math.round(r.confidence * 100) + '%</span>'
-                    + '</div>'
-                    + '</div>';
-            }).join('')}
-        </div>
-        ` : ''}
+        ${resolutions.length > 0 ? (function() {
+            var grouped = {};
+            var groupOrder = [];
+            resolutions.forEach(function(r) {
+                var key = r.inputTitle + '|||' + (r.company || '');
+                if (!grouped[key]) {
+                    grouped[key] = { inputTitle: r.inputTitle, company: r.company, source: r.source, matches: [] };
+                    groupOrder.push(key);
+                }
+                grouped[key].matches.push(r);
+            });
+            return '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+                + 'border-radius:14px; padding:20px; margin-bottom:20px;">'
+                + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">'
+                + 'Occupation Matches</div>'
+                + groupOrder.map(function(key) {
+                    var g = grouped[key];
+                    return '<div style="padding:10px 0; border-bottom:1px solid var(--border);">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em; margin-bottom:8px;">'
+                        + escapeHtml(g.inputTitle)
+                        + (g.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(g.company) + '</span>' : '')
+                        + '</div>'
+                        + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
+                        + g.matches.map(function(m) {
+                            return '<div style="display:inline-flex; align-items:center; gap:6px;'
+                                + ' background:var(--bg-surface); border:1px solid var(--border);'
+                                + ' border-radius:8px; padding:4px 10px; font-size:0.8em;">'
+                                + '<div style="width:7px; height:7px; border-radius:50%; background:' + confidenceColor(m.confidence) + '; flex-shrink:0;"></div>'
+                                + '<span style="color:var(--text-secondary);">' + escapeHtml(m.occTitle) + '</span>'
+                                + '<span style="color:var(--text-muted); font-size:0.85em;">' + Math.round(m.confidence * 100) + '%</span>'
+                                + '</div>';
+                        }).join('')
+                        + '</div></div>';
+                }).join('')
+                + '</div>';
+        })() : ''}
 
         ${gapSkills.length > 0 ? `
         <div style="background:var(--bg-elevated); border:1px solid var(--border);
