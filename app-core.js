@@ -21947,8 +21947,11 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
             var roles = (wizardState.parsedData && wizardState.parsedData.roles) ? wizardState.parsedData.roles.map(function(r) { return (r.title || r.name || '') + ' at ' + (r.company || ''); }).join('; ') : '';
             var industry = (wizardState.profile && wizardState.profile.industry) || '';
 
+            var funcArea = wizardDetectFunctionalArea();
+
             var prompt = 'You are a career market intelligence analyst. Analyze this professional\'s skills against current market demand for their role/industry.\n\n'
                 + 'Current Title: ' + title + '\n'
+                + 'Functional Area: ' + funcArea + '\n'
                 + 'Industry: ' + industry + '\n'
                 + 'Career History: ' + roles + '\n'
                 + 'Current Skills: ' + skillsList + '\n\n'
@@ -21980,7 +21983,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 if (!result.dropSkills) result.dropSkills = [];
                 if (!result.growthSkills) result.growthSkills = [];
 
-                var baseAnchor = wizardEstimateBaseAnchor();
+                var baseAnchor = wizardGetMarketBaseAnchor();
                 result.growthSkills.forEach(function(g) {
                     var pct = Math.min(Math.max(g.valueAddPct || 2, 1), 8);
                     g.estimatedValueAdd = Math.round(baseAnchor * pct / 100 / 1000) * 1000;
@@ -21996,7 +21999,29 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
         }
         window.wizardFetchMarketIntelligence = wizardFetchMarketIntelligence;
 
-        function wizardEstimateBaseAnchor() {
+        function wizardDetectFunctionalArea() {
+            var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
+            if (/\b(software|developer|engineer|tech|data|devops|cloud|cyber|ai|ml)\b/.test(title)) return 'technology';
+            if (/\b(market|brand|content|seo|growth|digital)\b/.test(title)) return 'marketing';
+            if (/\b(sales|account exec|business develop)\b/.test(title)) return 'sales';
+            if (/\b(financ|accounting|cfo|controller|treasury)\b/.test(title)) return 'finance';
+            if (/\b(operation|logistics|supply|procurement)\b/.test(title)) return 'operations';
+            if (/\b(strateg|consult|advisory|management consult)\b/.test(title)) return 'strategy';
+            if (/\b(nurse|doctor|physician|clinical|medical|health)\b/.test(title)) return 'healthcare';
+            if (/\b(hr|human resource|people|talent|recruit)\b/.test(title)) return 'hr';
+            if (/\b(legal|attorney|counsel|lawyer|paralegal)\b/.test(title)) return 'legal';
+            if (/\b(teacher|professor|instructor|principal|dean)\b/.test(title)) return 'education';
+            if (/\b(mechanic|electric|plumb|weld|construct)\b/.test(title)) return 'trades';
+            return 'general';
+        }
+
+        function wizardGetMarketBaseAnchor() {
+            if (typeof calculateTotalMarketValue === 'function') {
+                try {
+                    var mv = calculateTotalMarketValue('evidence');
+                    if (mv && mv.marketRate && mv.marketRate > 0) return mv.marketRate;
+                } catch (e) {}
+            }
             var SALARY_TABLE_LOCAL = {
                 education: [29120, 62340, 83010, 132550, 165820],
                 engineering: [53230, 102320, 130290, 152670, 238291],
@@ -22012,26 +22037,13 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 technology: [76360, 133080, 169000, 216220, 248652],
                 trades: [29060, 62350, 81730, 100200, 176990]
             };
+            var func = wizardDetectFunctionalArea();
             var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
-            var func = 'general';
-            if (/\b(software|developer|engineer|tech|data|devops|cloud|cyber|ai|ml)\b/.test(title)) func = 'technology';
-            else if (/\b(market|brand|content|seo|growth|digital)\b/.test(title)) func = 'marketing';
-            else if (/\b(sales|account exec|business develop)\b/.test(title)) func = 'sales';
-            else if (/\b(financ|accounting|cfo|controller|treasury)\b/.test(title)) func = 'finance';
-            else if (/\b(operation|logistics|supply|procurement)\b/.test(title)) func = 'operations';
-            else if (/\b(strateg|consult|advisory|management consult)\b/.test(title)) func = 'strategy';
-            else if (/\b(nurse|doctor|physician|clinical|medical|health)\b/.test(title)) func = 'healthcare';
-            else if (/\b(hr|human resource|people|talent|recruit)\b/.test(title)) func = 'hr';
-            else if (/\b(legal|attorney|counsel|lawyer|paralegal)\b/.test(title)) func = 'legal';
-            else if (/\b(teacher|professor|instructor|principal|dean)\b/.test(title)) func = 'education';
-            else if (/\b(engineer|mechanic|electric|plumb|weld|construct)\b/.test(title)) func = 'trades';
-
             var seniority = 1;
             if (/\b(vp|vice president|c-suite|ceo|cto|cfo|coo|chief|svp|evp)\b/.test(title)) seniority = 4;
             else if (/\b(director|head of|principal)\b/.test(title)) seniority = 3;
             else if (/\b(senior|sr|lead|staff)\b/.test(title)) seniority = 2;
             else if (/\b(junior|jr|entry|associate|intern)\b/.test(title)) seniority = 0;
-
             return SALARY_TABLE_LOCAL[func][seniority];
         }
 
@@ -22053,12 +22065,16 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                         + (accepted ? '<span style="font-size:0.68em; background:#10b981; color:#fff; padding:1px 6px; border-radius:4px; margin-left:6px; font-weight:700;">KEY</span>' : '')
                         + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
                         + escapeHtml(k.rationale) + '</span></div>'
-                        + '<button onclick="wizardAcceptKeep(' + ki + ')" id="keep-btn-' + ki + '"'
+                        + (k._dismissed ? '' : '<button onclick="wizardAcceptKeep(' + ki + ')" id="keep-btn-' + ki + '"'
                         + (accepted ? ' disabled' : '')
                         + ' style="background:' + (accepted ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)') + '; border:1px solid rgba(16,185,129,0.3);'
                         + ' color:#10b981; border-radius:6px; padding:2px 10px; cursor:pointer;'
                         + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
-                        + (accepted ? ' opacity:0.7;' : '') + '">' + (accepted ? '\u2713 Key Skill' : 'Mark Key') + '</button>'
+                        + (accepted ? ' opacity:0.7;' : '') + '">' + (accepted ? '\u2713 Key Skill' : 'Mark Key') + '</button>')
+                        + (k._dismissed || accepted ? '' : '<button onclick="wizardDismissRec(\'keep\',' + ki + ')"'
+                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
+                        + ' title="Dismiss this recommendation">\u2715</button>')
                         + '</div>';
                 });
                 html += '</div>';
@@ -22077,12 +22093,16 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                         + escapeHtml(d.name) + '</span>'
                         + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
                         + escapeHtml(d.rationale) + '</span></div>'
-                        + '<button onclick="wizardAcceptDrop(' + di + ')" id="drop-btn-' + di + '"'
+                        + (d._dismissed ? '' : '<button onclick="wizardAcceptDrop(' + di + ')" id="drop-btn-' + di + '"'
                         + (d._accepted ? ' disabled' : '')
                         + ' style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3);'
                         + ' color:#ef4444; border-radius:6px; padding:2px 10px; cursor:pointer;'
                         + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
-                        + (d._accepted ? ' opacity:0.5;' : '') + '">' + (d._accepted ? 'Removed' : 'Remove') + '</button>'
+                        + (d._accepted ? ' opacity:0.5;' : '') + '">' + (d._accepted ? 'Removed' : 'Remove') + '</button>')
+                        + (d._dismissed || d._accepted ? '' : '<button onclick="wizardDismissRec(\'drop\',' + di + ')"'
+                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
+                        + ' title="Keep this skill">\u2715</button>')
                         + '</div>';
                 });
                 html += '</div>';
@@ -22105,10 +22125,14 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                         + dollarStr + '</span>'
                         + '<div style="font-size:0.74em; color:var(--text-secondary); margin-top:2px;">'
                         + escapeHtml(g.rationale) + '</div></div>'
-                        + '<button onclick="wizardAddGrowthSkill(' + gi + ')" id="growth-btn-' + gi + '"'
+                        + (g._dismissed ? '' : '<button onclick="wizardAddGrowthSkill(' + gi + ')" id="growth-btn-' + gi + '"'
                         + ' style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3);'
                         + ' color:#3b82f6; border-radius:6px; padding:2px 10px; cursor:pointer;'
-                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;">+ Add</button>'
+                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;">+ Add</button>')
+                        + (g._dismissed || g._added ? '' : '<button onclick="wizardDismissRec(\'growth\',' + gi + ')"'
+                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
+                        + ' title="Skip this suggestion">\u2715</button>')
                         + '</div>';
                 });
                 html += '</div>';
@@ -22117,6 +22141,18 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
             html += '</div>';
             return html;
         }
+
+        function wizardDismissRec(type, idx) {
+            var intel = wizardState.marketIntel;
+            if (!intel) return;
+            var arr = type === 'keep' ? intel.keepSkills : type === 'drop' ? intel.dropSkills : intel.growthSkills;
+            if (!arr || !arr[idx]) return;
+            arr[idx]._dismissed = true;
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep6(el);
+            showToast('Recommendation dismissed.', 'info', 1500);
+        }
+        window.wizardDismissRec = wizardDismissRec;
 
         function wizardAcceptKeep(keepIdx) {
             var intel = wizardState.marketIntel;
