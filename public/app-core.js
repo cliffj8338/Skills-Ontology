@@ -20198,7 +20198,7 @@
                 btn.style.borderColor = '#ef4444';
             }
         }
-        window.wizardQuickExport = wizardQuickExport;
+        // wizardQuickExport exposed by ES module
         
         function wizardChooseUpload() {
             wizardOverwriteGuard(function() {
@@ -21948,8 +21948,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
             var inner = document.getElementById('wizardInner');
             if (inner) renderWizardStep7(inner);
         }
-        window.wizardAddCustomValue = wizardAddCustomValue;
-        window.wizardEditValueDesc = wizardEditValueDesc;
+        // wizardAddCustomValue, wizardEditValueDesc exposed by ES module
 
         function wizardSaveValues() {
             if (readOnlyGuard()) return;
@@ -22134,7 +22133,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (postCb && !postCb.checked) { wizardState.richMedia = []; if (wizardState.parsedData) wizardState.parsedData.richMedia = []; }
             if (learnCb && !learnCb.checked) { wizardState.learning = []; if (wizardState.parsedData) wizardState.parsedData.learning = []; }
         }
-        window.wizardApplyContentOpts = wizardApplyContentOpts;
+        // wizardApplyContentOpts exposed by ES module
 
         function wizardBuildUserData() {
             return {
@@ -22305,35 +22304,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             skillsData.roles = userData.roles || skillsData.roles;
             skillsData.skillDetails = userData.skillDetails || {};
 
-        // Expose wizard and nav functions to global scope for onclick handlers
-        window.showOnboardingWizard = showOnboardingWizard;
-        window.wizardChooseUpload = wizardChooseUpload;
-        window.wizardChooseLinkedIn = wizardChooseLinkedIn;
-        window.wizardChooseManual = wizardChooseManual;
-        window.wizardChooseImport = wizardChooseImport;
-        window.wizardImportProfile = wizardImportProfile;
-        window.wizardBack = wizardBack;
-        window.wizardNext = wizardNext;
-        window.wizardSetResumeTab = wizardSetResumeTab;
-        window.wizardHandleResumeDrop = wizardHandleResumeDrop;
-        window.wizardHandleResumeFile = wizardHandleResumeFile;
-        window.wizardClearResumeFile = wizardClearResumeFile;
-        window.wizardSkipParsing = wizardSkipParsing;
-        window.wizardStartParsing = wizardStartParsing;
-        window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
-        window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
-        window.wizardSaveProfile = wizardSaveProfile;
-        window.wizardSaveSkills = wizardSaveSkills;
-        window.wizardToggleValue = wizardToggleValue;
-        window.wizardSaveValues = wizardSaveValues;
-        window.wizardSavePurpose = wizardSavePurpose;
-        window.wizardRegeneratePurpose = wizardRegeneratePurpose;
-        window.wizardDownloadBackup = wizardDownloadBackup;
-        window.wizardLaunchOnly = wizardLaunchOnly;
-        window.wizardSaveAndGo = wizardSaveAndGo;
-        window.confirmExitWizard = confirmExitWizard;
-        window.toggleFilterPanel = toggleFilterPanel;
-        window.renderFilterChips = renderFilterChips;
+        // Wizard functions exposed by ES module (src/views/welcome.js) — do NOT re-assign here
+        // Legacy assignments removed to prevent clobbering module overrides on auth callback
 
             // Render dynamic filter chips from profile data
             renderFilterChips();

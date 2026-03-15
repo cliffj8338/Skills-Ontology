@@ -8,6 +8,7 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - **Deployment**: Vercel auto-deploys from GitHub `main` branch. Runs `vite build` → `dist/`.
 - **Dev server**: `npm run dev` (Vite dev server on port 5000 with HMR)
 - **Dual-load pattern**: `index.html` loads `public/app-core.js` (regular script) AND `src/main.js` (ES module). Legacy runs its own DOMContentLoaded with `initializeApp()`. Module DOMContentLoaded is gated by `window._legacyInitComplete` to prevent double init.
+- **CRITICAL: Module MUST override legacy**: All wizard functions in `src/views/welcome.js` use unconditional `window.X = X` (NOT `if (!window.X)`) so the module version always wins. The legacy `initializeMainApp()` in `app-core.js`/`legacy.js` must NOT re-assign wizard window globals — those lines were removed in v4.46.98 to prevent the Firebase auth callback from clobbering module overrides.
 
 ## Project Structure
 - `src/core/constants.js` — Single source of truth for `BP_VERSION`, `BP_BUILD`

@@ -6494,8 +6494,16 @@ PURPOSE: Write a compelling, authentic purpose statement capturing this person's
         try {
             parsed = JSON.parse(clean);
         } catch (jsonErr) {
-            parsed = wizardRepairJSON(clean);
-            if (!parsed) throw jsonErr;
+            var jsonStart = clean.indexOf('{');
+            if (jsonStart > 0) {
+                try { parsed = JSON.parse(clean.substring(jsonStart)); }
+                catch(e2) { parsed = wizardRepairJSON(clean.substring(jsonStart)); }
+            }
+            if (!parsed) parsed = wizardRepairJSON(clean);
+            if (!parsed) {
+                console.error('AI returned non-JSON:', clean.substring(0, 200));
+                throw new Error('AI returned text instead of structured data. Please try again.');
+            }
             console.warn('Parsing: repaired truncated JSON response');
         }
 
