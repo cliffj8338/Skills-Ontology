@@ -1,13 +1,9 @@
 // views/welcome.js — Blueprint v4.46.21
 // Phase 7e extraction — Welcome page, onboarding wizard, skill valuation
 
-import { bpIcon }                                 from '../ui/icons.js';
-import { escapeHtml, sanitizeImport, safeGet }    from '../core/security.js';
-import { showToast }                              from '../ui/toast.js';
-import { _sd, _bd, waitForUserData }              from '../core/data-helpers.js';
 
 // ===== WELCOME / LANDING PAGE =====
-export function renderWelcomePage() {
+function renderWelcomePage() {
     var el = document.getElementById('welcomeView');
     if (!el) return;
     var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -196,7 +192,7 @@ export function renderWelcomePage() {
 if (!window.renderWelcomePage) window.renderWelcomePage = renderWelcomePage;
 
 // ===== ANIMATED HERO NETWORK =====
-export function initHeroNetwork() {
+function initHeroNetwork() {
     var canvas = document.getElementById('heroNetworkCanvas');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
@@ -469,7 +465,7 @@ export function initHeroNetwork() {
     window._heroNetworkCleanup = function() { if (animId) cancelAnimationFrame(animId); observer.disconnect(); };
 }
 
-export function viewSampleProfile() {
+function viewSampleProfile() {
     var el = document.getElementById('welcomeView');
     if (!el) return;
     
@@ -604,7 +600,7 @@ export function viewSampleProfile() {
 }
 if (!window.viewSampleProfile) window.viewSampleProfile = viewSampleProfile;
 
-export function selectShowCollection(showId) {
+function selectShowCollection(showId) {
     var collections = window._sampleCollections;
     if (!collections) return;
     var col = collections.find(function(c) { return c.id === showId; });
@@ -688,7 +684,7 @@ export function selectShowCollection(showId) {
 }
 if (!window.selectShowCollection) window.selectShowCollection = selectShowCollection;
 
-export function showWelcomeView() {
+function showWelcomeView() {
     switchView('welcome');
 }
 if (!window.showWelcomeView) window.showWelcomeView = showWelcomeView;
@@ -1086,7 +1082,7 @@ var BLS_FUNCTION_LABELS = {
     trades: 'Trades & Skilled Labor'
 };
 
-export function showBlsCategoryEditor() {
+function showBlsCategoryEditor() {
     var tv = calculateTotalMarketValue();
     var current = tv.detectedFunction || 'general';
     var auto = tv.autoDetectedFunction || 'general';
@@ -1127,7 +1123,7 @@ export function showBlsCategoryEditor() {
 }
 if (!window.showBlsCategoryEditor) window.showBlsCategoryEditor = showBlsCategoryEditor;
 
-export function saveBlsCategoryOverride() {
+function saveBlsCategoryOverride() {
     var sel = document.getElementById('blsCategorySelect');
     if (!sel) return;
     if (!window._userData.preferences) window._userData.preferences = {};
@@ -1139,7 +1135,7 @@ export function saveBlsCategoryOverride() {
 }
 if (!window.saveBlsCategoryOverride) window.saveBlsCategoryOverride = saveBlsCategoryOverride;
 
-export function clearBlsCategoryOverride() {
+function clearBlsCategoryOverride() {
     if (!window._userData.preferences) window._userData.preferences = {};
     delete window._userData.preferences.blsFunctionOverride;
     saveUserData();
@@ -1149,7 +1145,7 @@ export function clearBlsCategoryOverride() {
 }
 if (!window.clearBlsCategoryOverride) window.clearBlsCategoryOverride = clearBlsCategoryOverride;
 
-export function setValuationMode(mode) {
+function setValuationMode(mode) {
     valuationMode = mode;
     // Re-render the Blueprint content directly
     if (typeof renderBlueprint === 'function') {
@@ -1164,7 +1160,7 @@ if (!window.setValuationMode) window.setValuationMode = setValuationMode;
 // Under $1M: full number "$185,000"
 // $1M+: abbreviated "$4.5M"
 // $1B+: abbreviated "$1.2B"
-export function formatCompValue(value) {
+function formatCompValue(value) {
     if (!value || value <= 0) return '';
     if (value >= 1e9) {
         var b = value / 1e9;
@@ -1208,7 +1204,7 @@ var DEMO_COMP = {
 
 // Get the effective compensation to display
 // Priority: 1) user-reported comp  2) curated demo value  3) algorithm estimate
-export function getEffectiveComp() {
+function getEffectiveComp() {
     var calculated = calculateTotalMarketValue();
     var templateId = window._userData.templateId || '';
     
@@ -1280,7 +1276,7 @@ var evidenceConfig = {
 };
 
 // Load/save admin-configured thresholds
-export function loadEvidenceConfig() {
+function loadEvidenceConfig() {
     try {
         var stored = safeGet('wbEvidenceConfig');
         if (stored) {
@@ -1294,7 +1290,7 @@ export function loadEvidenceConfig() {
 }
 loadEvidenceConfig();
 
-export function saveEvidenceConfig() {
+function saveEvidenceConfig() {
     if (readOnlyGuard()) return;
     try {
         safeSet('wbEvidenceConfig', JSON.stringify(evidenceConfig));
@@ -1302,7 +1298,7 @@ export function saveEvidenceConfig() {
 }
 
 // Score a single outcome text: returns 1-5 based on impact signals
-export function scoreOutcome(text) {
+function scoreOutcome(text) {
     if (!text || typeof text !== 'string') return 1;
     var score = 1; // Base: any outcome is worth 1 point
     var t = text.toLowerCase();
@@ -1332,7 +1328,7 @@ export function scoreOutcome(text) {
 }
 
 // Calculate total evidence points for a skill
-export function calculateEvidencePoints(skill) {
+function calculateEvidencePoints(skill) {
     if (!skill) return 0;
     var points = 0;
     var evidence = skill.evidence || [];
@@ -1395,12 +1391,12 @@ export function calculateEvidencePoints(skill) {
 }
 
 // Map evidence points to effective level
-export function getEffectiveLevel(skill) {
+function getEffectiveLevel(skill) {
     var points = calculateEvidencePoints(skill);
     return getEffectiveLevelFromPoints(points);
 }
 
-export function getEffectiveLevelFromPoints(points) {
+function getEffectiveLevelFromPoints(points) {
     var t = evidenceConfig.thresholds;
     if (points >= t['Mastery']) return 'Mastery';
     if (points >= t['Expert']) return 'Expert';
@@ -1411,7 +1407,7 @@ export function getEffectiveLevelFromPoints(points) {
 }
 
 // Check if a skill has a linked certification (manual links OR library maps)
-export function hasLinkedCertification(skillName) {
+function hasLinkedCertification(skillName) {
     var certs = window._userData.certifications || [];
     var sn = skillName.toLowerCase();
     return certs.some(function(c) {
@@ -1428,7 +1424,7 @@ export function hasLinkedCertification(skillName) {
 }
 
 // Get the highest cert tier that links to this skill
-export function getHighestCertTier(skillName) {
+function getHighestCertTier(skillName) {
     var certs = window._userData.certifications || [];
     var sn = skillName.toLowerCase();
     var highestTier = 0;
@@ -1454,14 +1450,14 @@ export function getHighestCertTier(skillName) {
 }
 
 // Get verifications for a skill (from verifications array on userData)
-export function getSkillVerifications(skillName) {
+function getSkillVerifications(skillName) {
     var all = window._userData.verifications || [];
     return all.filter(function(v) { return v.skillName === skillName; });
 }
 
 // Get the level used for valuation: min(claimed, effective) or effective if higher
 // The valuation engine uses the evidence-backed level, not the claim
-export function getValuationLevel(skill) {
+function getValuationLevel(skill) {
     var claimed = skill.level || 'Novice';
     var effective = getEffectiveLevel(skill);
     var claimedVal = proficiencyValue(claimed);
@@ -1475,7 +1471,7 @@ export function getValuationLevel(skill) {
 }
 
 // Summary stats for a skill's evidence status
-export function getEvidenceSummary(skill) {
+function getEvidenceSummary(skill) {
     var points = calculateEvidencePoints(skill);
     var effectiveLevel = getEffectiveLevelFromPoints(points);
     var claimed = skill.level || 'Novice';
@@ -1531,7 +1527,7 @@ if (!window.getValuationLevel) window.getValuationLevel = getValuationLevel;
 // ===== VERIFICATION SYSTEM (v4.16.0) =====
 // Note: window._userData.verifications initialized in userData declaration and template loading
 
-export function requestVerification(skillNames) {
+function requestVerification(skillNames) {
     if (readOnlyGuard()) return;
     if (!Array.isArray(skillNames)) skillNames = [skillNames];
     
@@ -1591,7 +1587,7 @@ export function requestVerification(skillNames) {
     modal.style.display = 'flex';
 }
 
-export function sendVerificationRequest() {
+function sendVerificationRequest() {
     var skillNames = Array.from(arguments);
     var verifierName = document.getElementById('verifyName').value.trim();
     var verifierEmail = document.getElementById('verifyEmail').value.trim();
@@ -1673,7 +1669,7 @@ export function sendVerificationRequest() {
 }
 
 // Mark a verification as confirmed with optional level suggestion
-export function confirmVerification(verificationId, confirmedLevel) {
+function confirmVerification(verificationId, confirmedLevel) {
     var vIdx = (window._userData.verifications || []).findIndex(function(v) { return v.id === verificationId; });
     if (vIdx >= 0) {
         window._userData.verifications[vIdx].status = 'confirmed';
@@ -1688,7 +1684,7 @@ export function confirmVerification(verificationId, confirmedLevel) {
     }
 }
 
-export function declineVerification(verificationId) {
+function declineVerification(verificationId) {
     var vIdx = (window._userData.verifications || []).findIndex(function(v) { return v.id === verificationId; });
     if (vIdx >= 0) {
         window._userData.verifications[vIdx].status = 'declined';
@@ -1699,7 +1695,7 @@ export function declineVerification(verificationId) {
 }
 
 // Profile-level verification stats
-export function getVerificationStats() {
+function getVerificationStats() {
     var skills = _sd().skills || [];
     var total = skills.length;
     var verifications = window._userData.verifications || [];
@@ -1727,7 +1723,7 @@ if (!window.getVerificationStats) window.getVerificationStats = getVerificationS
 
 // ===== VERIFICATION EXPIRY (v4.44.35) =====
 // Auto-expire pending verifications older than configured TTL
-export function expireStalePendingVerifications() {
+function expireStalePendingVerifications() {
     var verifications = window._userData.verifications || [];
     var ttlMs = (evidenceConfig.verificationExpiryDays || 30) * 24 * 60 * 60 * 1000;
     var now = Date.now();
@@ -1749,7 +1745,7 @@ export function expireStalePendingVerifications() {
 }
 
 // Get credibility weight label for display
-export function getCredibilityLabel(relationship) {
+function getCredibilityLabel(relationship) {
     var weight = evidenceConfig.credibilityWeights[relationship] || 1.2;
     if (weight >= 2.0) return { label: 'Highest', color: '#10b981', weight: weight };
     if (weight >= 1.8) return { label: 'High', color: '#60a5fa', weight: weight };
@@ -1761,7 +1757,7 @@ if (!window.expireStalePendingVerifications) window.expireStalePendingVerificati
 
 // ===== VERIFIER LANDING PAGE (v4.44.35) =====
 // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
-export function checkVerificationLandingPage() {
+function checkVerificationLandingPage() {
     var params = new URLSearchParams(window.location.search);
     var token = params.get('verify');
     var uid = params.get('uid');
@@ -1776,7 +1772,7 @@ export function checkVerificationLandingPage() {
 // URL: myblueprint.work?showcase=blueprint-demo-2026
 // Loads admin profile as read-only with full admin UI, no auth required
 // Sensitive data (emails, API keys, user PII) redacted
-export function checkShowcaseMode() {
+function checkShowcaseMode() {
     var params = new URLSearchParams(window.location.search);
     var key = params.get('showcase');
     if (!key || key !== SHOWCASE_CONFIG.key) return false;
@@ -1945,7 +1941,7 @@ async function initShowcaseMode() {
     console.log('🎭 Showcase mode ready');
 }
 
-export function showVerifierLandingPage(token, uid) {
+function showVerifierLandingPage(token, uid) {
     // Hide all normal app UI
     Array.from(document.body.children).forEach(function(child) {
         if (child.nodeType === 1) child.style.display = 'none';
@@ -1971,7 +1967,7 @@ export function showVerifierLandingPage(token, uid) {
     fetchVerificationData(token, uid);
 }
 
-export function fetchVerificationData(token, uid) {
+function fetchVerificationData(token, uid) {
     var el = document.getElementById('verifyLandingContent');
     
     // Try the serverless API first
@@ -2015,7 +2011,7 @@ export function fetchVerificationData(token, uid) {
         });
 }
 
-export function renderVerifierForm(records, profileName, token, uid) {
+function renderVerifierForm(records, profileName, token, uid) {
     var el = document.getElementById('verifyLandingContent');
     
     var skillCards = records.map(function(rec, idx) {
@@ -2066,7 +2062,7 @@ export function renderVerifierForm(records, profileName, token, uid) {
         + '</div>';
 }
 
-export function submitVerifierResponse(token, uid, count) {
+function submitVerifierResponse(token, uid, count) {
     var responses = [];
     for (var i = 0; i < count; i++) {
         var sel = document.getElementById('verifyLevel_' + i);
@@ -2121,17 +2117,17 @@ if (!window.submitVerifierResponse) window.submitVerifierResponse = submitVerifi
 
 // ===== EVIDENCE CRUD (v4.16.1) =====
 
-export function addOutcomeToSkill(skillName) {
+function addOutcomeToSkill(skillName) {
     if (readOnlyGuard()) return;
     showOutcomeForm(skillName, -1);
 }
 
-export function editSkillOutcome(skillName, idx) {
+function editSkillOutcome(skillName, idx) {
     if (readOnlyGuard()) return;
     showOutcomeForm(skillName, idx);
 }
 
-export function removeOutcome(skillName, idx) {
+function removeOutcome(skillName, idx) {
     if (readOnlyGuard()) return;
     var skill = (_sd().skills || []).find(function(s) { return s.name === skillName; });
     var userSkill = (window._userData.skills || []).find(function(s) { return s.name === skillName; });
@@ -2147,7 +2143,7 @@ export function removeOutcome(skillName, idx) {
     showToast('Outcome removed.', 'info');
 }
 
-export function showOutcomeForm(skillName, idx) {
+function showOutcomeForm(skillName, idx) {
     var skill = (_sd().skills || []).find(function(s) { return s.name === skillName; });
     if (!skill) return;
     if (!skill.evidence) skill.evidence = [];
@@ -2215,7 +2211,7 @@ export function showOutcomeForm(skillName, idx) {
     if (resultField) resultField.focus();
 }
 
-export function updateOutcomeScorePreview() {
+function updateOutcomeScorePreview() {
     var result = (document.getElementById('outcomeResult') || {}).value || '';
     var desc = (document.getElementById('outcomeDescription') || {}).value || '';
     var text = (result + ' ' + desc).trim();
@@ -2228,7 +2224,7 @@ export function updateOutcomeScorePreview() {
     }
 }
 
-export function saveOutcomeForm(skillName, idx) {
+function saveOutcomeForm(skillName, idx) {
     if (readOnlyGuard()) return;
     var result = (document.getElementById('outcomeResult') || {}).value.trim();
     var desc = (document.getElementById('outcomeDescription') || {}).value.trim();
@@ -2259,7 +2255,7 @@ export function saveOutcomeForm(skillName, idx) {
     showToast(idx >= 0 ? 'Outcome updated.' : 'Outcome added. Evidence points recalculated.', 'success');
 }
 
-export function cancelOutcomeForm(skillName) {
+function cancelOutcomeForm(skillName) {
     var form = document.getElementById('outcomeFormContainer');
     if (form) form.remove();
 }
@@ -2331,7 +2327,7 @@ fetch('certification_library.json')
 
 
 // Get skill associations for a cert (curated first, fallback to category matching)
-export function getCertSkillAssociations(cert) {
+function getCertSkillAssociations(cert) {
     if (!cert) return [];
     // Curated maps take priority
     if (cert.skills && cert.skills.length > 0) return cert.skills.slice();
@@ -2340,7 +2336,7 @@ export function getCertSkillAssociations(cert) {
 }
 
 // Fallback: keyword matching between cert description/category and profile skills
-export function getFallbackSkillMatches(cert) {
+function getFallbackSkillMatches(cert) {
     if (!cert) return [];
     var keywords = (cert.description + ' ' + cert.category + ' ' + cert.name)
         .toLowerCase().split(/[\s,.\-\/]+/).filter(function(w) { return w.length > 3; });
@@ -2359,7 +2355,7 @@ export function getFallbackSkillMatches(cert) {
 }
 
 // Get cert floor level based on tier
-export function getCertFloorLevel(cert) {
+function getCertFloorLevel(cert) {
     if (!cert) return evidenceConfig.certFloor;
     return cert.tier === 2 ? 'Advanced' : 'Proficient';
 }
@@ -2545,7 +2541,7 @@ let valuesLibrary = [];
 // Removed checkUserProfile - using template-based loading instead
 
 // Build profile selector dropdown from manifest
-export function buildProfileSelector(profiles) {
+function buildProfileSelector(profiles) {
     // Hidden select (kept for backward compatibility)
     const selector = document.getElementById('profileSelector');
     const currentId = safeGet('currentProfile') || profiles[0]?.id;
@@ -2569,7 +2565,7 @@ export function buildProfileSelector(profiles) {
 }
 
 // Switch to a different profile (admin functionality)
-export function switchProfile(templateId) {
+function switchProfile(templateId) {
     console.log('🔄 Switching profile to:', templateId);
     
     // Demo mode routing: if in demo mode, route sample switches through switchDemoProfile
@@ -3112,7 +3108,7 @@ function adminBlockSkillFromInput() {
 // searchSkills — provided by imported module
 
 
-export function getCategoryColor(category) {
+function getCategoryColor(category) {
     const colors = {
         'Technology': '#3b82f6',
         'Business & Management': '#8b5cf6',
@@ -3128,7 +3124,7 @@ export function getCategoryColor(category) {
     return colors[category] || '#9ca3af';
 }
 
-export function isSkillAlreadyAdded(skillName) {
+function isSkillAlreadyAdded(skillName) {
     return window._userData.skills.some(s => 
         s.name.toLowerCase() === skillName.toLowerCase()
     );
@@ -3146,7 +3142,7 @@ if (!window.deduplicateSkills) window.deduplicateSkills = deduplicateSkills;
 if (!window.canAddSkill) window.canAddSkill = canAddSkill;
 
 // Over-cap triage: forces user to remove skills until at/below PROFILE_SKILL_CAP
-export function showSkillCapTriage() {
+function showSkillCapTriage() {
     var skills = window._userData.skills || [];
     if (skills.length <= PROFILE_SKILL_CAP) return;
     
@@ -3223,7 +3219,7 @@ export function showSkillCapTriage() {
 }
 if (!window.showSkillCapTriage) window.showSkillCapTriage = showSkillCapTriage;
 
-export function updateTriageCount() {
+function updateTriageCount() {
     var checks = document.querySelectorAll('[data-triage-idx]:checked');
     var countEl = document.getElementById('triageCount');
     var btn = document.getElementById('triageConfirmBtn');
@@ -3236,7 +3232,7 @@ export function updateTriageCount() {
 }
 if (!window.updateTriageCount) window.updateTriageCount = updateTriageCount;
 
-export function confirmSkillCapTriage() {
+function confirmSkillCapTriage() {
     var checks = document.querySelectorAll('[data-triage-idx]:checked');
     var excess = (window._userData.skills || []).length - PROFILE_SKILL_CAP;
     if (checks.length < excess) {
@@ -3269,7 +3265,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Load template into userData
 // ===== SAMPLE JOBS FOR DEMO PROFILES =====
-export function getSampleJobsForProfile(templateId, template) {
+function getSampleJobsForProfile(templateId, template) {
     var allRoles = (template.roles || []).map(function(r) { return r.name.toLowerCase(); }).join(' ');
     var titleStr = ((template.profile || {}).currentTitle || '').toLowerCase();
     var profileName = (template.profile && template.profile.name) || '';
@@ -3850,7 +3846,7 @@ export function getSampleJobsForProfile(templateId, template) {
     return jobs;
 }
 
-export function loadTemplate(templateId) {
+function loadTemplate(templateId) {
     const template = templates[templateId];
     if (!template) {
         console.error('Template not found:', templateId);
@@ -4176,7 +4172,7 @@ var wizardState = window.wizardState || {
     processing: false
 };
 
-export function showOnboardingWizard() {
+function showOnboardingWizard() {
     if (readOnlyGuard()) return;
     if (demoGate('Build Your Blueprint')) return;
     const existing = document.getElementById('onboardingWizard');
@@ -4199,12 +4195,12 @@ export function showOnboardingWizard() {
     renderWizardStep();
 }
 
-export function closeWizard() {
+function closeWizard() {
     const el = document.getElementById('onboardingWizard');
     if (el) el.remove();
 }
 
-export function renderWizardStep() {
+function renderWizardStep() {
     const overlay = document.getElementById('onboardingWizard');
     if (!overlay) return;
 
@@ -4303,12 +4299,12 @@ export function renderWizardStep() {
     }
 }
 
-export function wizardNext() {
+function wizardNext() {
     wizardState.step = Math.min(wizardState.step + 1, wizardState.totalSteps);
     renderWizardStep();
 }
 
-export function wizardBack() {
+function wizardBack() {
     var newStep = wizardState.step - 1;
     // Skip Step 3 (AI parsing) when going back from Step 4 in linkedin or manual mode
     if (wizardState.step === 4 && (wizardState.entryMode === 'linkedin' || wizardState.entryMode === 'manual')) {
@@ -4318,7 +4314,7 @@ export function wizardBack() {
     renderWizardStep();
 }
 
-export function confirmExitWizard() {
+function confirmExitWizard() {
     if (wizardState.step > 2) {
         if (!confirm('Exit the wizard? Your progress will be lost.')) return;
     }
@@ -4328,7 +4324,7 @@ export function confirmExitWizard() {
 // ── Shared UI helpers ─────────────────────────────────────────────────
 // [removed] wizardCard — dead code cleanup v4.22.0
 
-export function wizardHeading(icon, title, subtitle) {
+function wizardHeading(icon, title, subtitle) {
     return `<div style="text-align:center; margin-bottom:32px;">
                 <div style="font-size:2.8em; margin-bottom:12px;">${icon}</div>
                 <h2 style="color:var(--text-primary); font-size:1.6em; font-weight:700;
@@ -4338,7 +4334,7 @@ export function wizardHeading(icon, title, subtitle) {
             </div>`;
 }
 
-export function wizardBtn(label, onclick, style='primary') {
+function wizardBtn(label, onclick, style='primary') {
     const styles = {
         primary: `background:var(--accent); color:#fff; border:none;`,
         secondary: `background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border);`,
@@ -4559,7 +4555,7 @@ async function handleLinkedInMerge(input) {
 }
 if (!window.handleLinkedInMerge) window.handleLinkedInMerge = handleLinkedInMerge;
 
-export function openMergeComparisonModal(parsed) {
+function openMergeComparisonModal(parsed) {
     var modal = document.getElementById('exportModal');
     var mc = modal.querySelector('.modal-content');
     
@@ -4814,14 +4810,14 @@ export function openMergeComparisonModal(parsed) {
     modal.style.display = 'flex';
 }
 
-export function mergeToggleAll(sectionKey, checked) {
+function mergeToggleAll(sectionKey, checked) {
     document.querySelectorAll('[data-merge-section="' + sectionKey + '"]').forEach(function(cb) {
         cb.checked = checked;
     });
 }
 if (!window.mergeToggleAll) window.mergeToggleAll = mergeToggleAll;
 
-export function applyMergeSelections() {
+function applyMergeSelections() {
     var parsed = window._mergeParsed;
     var diff = window._mergeDiff;
     if (!parsed || !diff) { showToast('No merge data found.', 'error'); return; }
@@ -4963,7 +4959,7 @@ if (!window.applyMergeSelections) window.applyMergeSelections = applyMergeSelect
 
 // ── STEP 1: Entry point ───────────────────────────────────────────────
 
-export function renderWizardStep1(el) {
+function renderWizardStep1(el) {
     var hasExistingProfile = (_sd().skills || []).length > 0 || (window._userData.workHistory || []).length > 0;
     
     el.innerHTML = `
@@ -5068,7 +5064,7 @@ export function renderWizardStep1(el) {
 }
 
 // ── Overwrite safety gate for existing profiles ──
-export function wizardOverwriteGuard(proceedFn) {
+function wizardOverwriteGuard(proceedFn) {
     var hasSkills = (_sd().skills || []).length > 0;
     var hasWork = (window._userData.workHistory || []).length > 0;
     var hasEd = (window._userData.education || []).length > 0;
@@ -5143,7 +5139,7 @@ export function wizardOverwriteGuard(proceedFn) {
     window._wizardOverwriteProceed = proceedFn;
 }
 
-export function wizardQuickExport() {
+function wizardQuickExport() {
     var exportData = {
         profile: window._userData.profile || {},
         skills: _sd().skills || [],
@@ -5185,21 +5181,21 @@ export function wizardQuickExport() {
 }
 window.wizardQuickExport = wizardQuickExport;
 
-export function wizardChooseUpload() {
+function wizardChooseUpload() {
     wizardOverwriteGuard(function() {
         wizardState.entryMode = 'upload';
         wizardNext();
     });
 }
 
-export function wizardChooseLinkedIn() {
+function wizardChooseLinkedIn() {
     wizardOverwriteGuard(function() {
         wizardState.entryMode = 'linkedin';
         wizardNext();
     });
 }
 
-export function wizardChooseManual() {
+function wizardChooseManual() {
     wizardOverwriteGuard(function() {
         wizardState.entryMode = 'manual';
         wizardState.step = 4;
@@ -5207,12 +5203,12 @@ export function wizardChooseManual() {
     });
 }
 
-export function wizardChooseImport() {
+function wizardChooseImport() {
     if (readOnlyGuard()) return;
     document.getElementById('wizardImportFile').click();
 }
 
-export function wizardImportProfile(event) {
+function wizardImportProfile(event) {
     if (readOnlyGuard()) return;
     const file = event.target.files[0];
     if (!file) return;
@@ -5241,7 +5237,7 @@ export function wizardImportProfile(event) {
 
 // ── STEP 2: Resume input OR LinkedIn .zip upload ─────────────────────
 
-export function renderWizardStep2(el) {
+function renderWizardStep2(el) {
     if (wizardState.entryMode === 'linkedin') {
         return renderWizardStep2LinkedIn(el);
     }
@@ -5345,7 +5341,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
     `;
 }
 
-export function wizardSetResumeTab(tab) {
+function wizardSetResumeTab(tab) {
     var upload = document.getElementById('rtab-upload-content');
     var paste = document.getElementById('rtab-paste-content');
     var li = document.getElementById('rtab-linkedin-content');
@@ -5382,17 +5378,17 @@ export function wizardSetResumeTab(tab) {
 
 // ── Resume PDF file handling ────────────────────────────────────────
 
-export function wizardHandleResumeDrop(event) {
+function wizardHandleResumeDrop(event) {
     var file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
     if (file) wizardProcessResumeFile(file);
 }
 
-export function wizardHandleResumeFile(event) {
+function wizardHandleResumeFile(event) {
     var file = event.target && event.target.files && event.target.files[0];
     if (file) wizardProcessResumeFile(file);
 }
 
-export function wizardProcessResumeFile(file) {
+function wizardProcessResumeFile(file) {
     if (!file.name.toLowerCase().endsWith('.pdf')) {
         showToast('Please upload a PDF file.', 'warning');
         return;
@@ -5456,7 +5452,7 @@ export function wizardProcessResumeFile(file) {
     reader.readAsArrayBuffer(file);
 }
 
-export function wizardClearResumeFile() {
+function wizardClearResumeFile() {
     wizardState.resumeFileBase64 = null;
     wizardState.resumeFileName = null;
     wizardState.resumeFileSize = null;
@@ -5472,7 +5468,7 @@ export function wizardClearResumeFile() {
     wizardCheckResumeReady();
 }
 
-export function wizardCheckResumeReady() {
+function wizardCheckResumeReady() {
     const t1 = document.getElementById('wizardResumeText')?.value?.trim() || '';
     const t2 = document.getElementById('wizardLinkedInText')?.value?.trim() || '';
     const hasText = t1.length > 50 || t2.length > 50;
@@ -5486,7 +5482,7 @@ export function wizardCheckResumeReady() {
     }
 }
 
-export function wizardSkipParsing() {
+function wizardSkipParsing() {
     wizardState.entryMode = 'manual';
     wizardState.step = 4;
     renderWizardStep();
@@ -5504,7 +5500,7 @@ async function wizardStartParsing() {
 
 // ── STEP 2 (LinkedIn): .zip upload + CSV parsing ────────────────────
 
-export function renderWizardStep2LinkedIn(el) {
+function renderWizardStep2LinkedIn(el) {
     el.innerHTML = `
         ${wizardHeading(
             '<svg width="22" height="22" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>',
@@ -5574,7 +5570,7 @@ export function renderWizardStep2LinkedIn(el) {
     `;
 }
 
-export function wizardHandleLinkedInDrop(event) {
+function wizardHandleLinkedInDrop(event) {
     const file = event.dataTransfer?.files?.[0];
     if (file && file.name.endsWith('.zip')) {
         wizardParseLinkedInZip(file);
@@ -5583,7 +5579,7 @@ export function wizardHandleLinkedInDrop(event) {
     }
 }
 
-export function wizardHandleLinkedInFile(event) {
+function wizardHandleLinkedInFile(event) {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!file.name.endsWith('.zip')) {
@@ -6174,7 +6170,7 @@ async function wizardParseLinkedInZip(file) {
 
 // ── STEP 3: AI Parsing ────────────────────────────────────────────────
 
-export function renderWizardStep3(el) {
+function renderWizardStep3(el) {
     el.innerHTML = `
         <div style="display:flex; flex-direction:column; align-items:center;
                     min-height:420px; text-align:center; gap:12px; padding-top:12px;">
@@ -6683,7 +6679,7 @@ PURPOSE: Write a compelling, authentic purpose statement capturing this person's
 
 // ── STEP 4: Profile review ─────────────────────────────────────────────
 
-export function renderWizardStep4(el) {
+function renderWizardStep4(el) {
     const p = wizardState.profile;
     const isFromResume = !!wizardState.parsedData;
 
@@ -6811,7 +6807,7 @@ function wizardSelectLens(lensId) {
 }
 window.wizardSelectLens = wizardSelectLens;
 
-export function wizardField(label, id, value, placeholder) {
+function wizardField(label, id, value, placeholder) {
     return `<div>
         <label style="display:block; font-size:0.82em; font-weight:600;
                       color:var(--text-secondary); margin-bottom:6px;
@@ -6829,7 +6825,7 @@ export function wizardField(label, id, value, placeholder) {
     </div>`;
 }
 
-export function wizardSaveProfile() {
+function wizardSaveProfile() {
     if (readOnlyGuard()) return;
     wizardState.profile = {
         name: document.getElementById('wizardName')?.value?.trim() || '',
@@ -6852,7 +6848,7 @@ export function wizardSaveProfile() {
 
 // ── STEP 5: O*NET Occupation Enrichment ─────────────────────────────
 
-export function renderWizardStep5(el) {
+function renderWizardStep5(el) {
     // If crosswalk not loaded, skip enrichment
     if (!window.onetCrosswalk) {
         el.innerHTML = `
@@ -7426,7 +7422,7 @@ function wizardSelectAllEnrichSkills() {
 }
 window.wizardSelectAllEnrichSkills = wizardSelectAllEnrichSkills;
 
-export function wizardSaveEnrichment() {
+function wizardSaveEnrichment() {
     if (readOnlyGuard()) return;
     var enrichment = wizardState.enrichment || {};
     var gapSkills = enrichment.gapSkills || [];
@@ -7758,7 +7754,7 @@ function wizardAddGrowthSkill(growthIdx) {
 }
 window.wizardAddGrowthSkill = wizardAddGrowthSkill;
 
-export function renderWizardStep6(el) {
+function renderWizardStep6(el) {
     var skills = wizardState.skills;
     var isFromResume = skills.length > 0;
     var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
@@ -8302,7 +8298,7 @@ function wizardToggleAllSkills() {
 }
 window.wizardToggleAllSkills = wizardToggleAllSkills;
 
-export function wizardSaveSkills() {
+function wizardSaveSkills() {
     if (readOnlyGuard()) return;
     wizardState.skills = wizardState.skills.filter(function(s, i) {
         var cb = document.getElementById('skill-check-' + i);
@@ -8330,7 +8326,7 @@ export function wizardSaveSkills() {
 
 // ── STEP 7: Values ────────────────────────────────────────────────────
 
-export function renderWizardStep7(el) {
+function renderWizardStep7(el) {
     var hasAIValues = wizardState.values.length > 0 && wizardState.values.some(function(v) { return v._fromAI; });
     if (wizardState.values.length === 0) {
         wizardState.values = [
@@ -8447,7 +8443,7 @@ export function renderWizardStep7(el) {
     `;
 }
 
-export function wizardToggleValue(i) {
+function wizardToggleValue(i) {
     if (readOnlyGuard()) return;
     wizardState.values[i].selected = !wizardState.values[i].selected;
     // Re-render the grid and counter (avoids fragile DOM patching)
@@ -8482,7 +8478,7 @@ export function wizardToggleValue(i) {
     if (countEl) countEl.textContent = wizardState.values.filter(function(v) { return v.selected; }).length + ' selected';
 }
 
-export function wizardEditValueDesc(i, el) {
+function wizardEditValueDesc(i, el) {
     var v = wizardState.values[i];
     var current = v.description || '';
     var input = document.createElement('input');
@@ -8499,7 +8495,7 @@ export function wizardEditValueDesc(i, el) {
     input.focus();
 }
 
-export function wizardAddCustomValue() {
+function wizardAddCustomValue() {
     if (readOnlyGuard()) return;
     var nameEl = document.getElementById('wizardCustomValueName');
     var descEl = document.getElementById('wizardCustomValueDesc');
@@ -8578,14 +8574,14 @@ async function wizardAISuggestValues() {
 }
 window.wizardAISuggestValues = wizardAISuggestValues;
 
-export function wizardSaveValues() {
+function wizardSaveValues() {
     if (readOnlyGuard()) return;
     wizardNext();
 }
 
 // ── STEP 8: Purpose ───────────────────────────────────────────────────
 
-export function renderWizardStep8(el) {
+function renderWizardStep8(el) {
     const purpose = wizardState.purpose;
     const isFromResume = !!wizardState.parsedData;
 
@@ -8732,7 +8728,7 @@ async function wizardRefinePromptPurpose() {
 }
 window.wizardRefinePromptPurpose = wizardRefinePromptPurpose;
 
-export function wizardSavePurpose() {
+function wizardSavePurpose() {
     if (readOnlyGuard()) return;
     wizardState.purpose = document.getElementById('wizardPurpose')?.value?.trim() || '';
     wizardNext();
@@ -8740,7 +8736,7 @@ export function wizardSavePurpose() {
 
 // ── STEP 9: Complete — Instant Value Reveal ──────────────────────────
 
-export function renderWizardStep9(el) {
+function renderWizardStep9(el) {
     var skillCount = wizardState.skills.length;
     var valueCount = wizardState.values.filter(function(v) { return v.selected; }).length;
     var evidenceCount = wizardState.skills.reduce(function(n, s) { return n + (s.evidence ? s.evidence.length : 0); }, 0);
@@ -8964,7 +8960,7 @@ function wizardAnimateValueCounter() {
     requestAnimationFrame(tick);
 }
 
-export function wizardApplyContentOpts() {
+function wizardApplyContentOpts() {
     var artCb = document.getElementById('wiz-opt-articles');
     var postCb = document.getElementById('wiz-opt-posts');
     var learnCb = document.getElementById('wiz-opt-learning');
@@ -8974,7 +8970,7 @@ export function wizardApplyContentOpts() {
 }
 window.wizardApplyContentOpts = wizardApplyContentOpts;
 
-export function wizardBuildUserData() {
+function wizardBuildUserData() {
     var builtRoles = (wizardState.parsedData?.roles || []).map((r, i) => ({
         id: r.id || `role${i+1}`,
         name: r.name || r.company || `Role ${i+1}`,
@@ -9059,7 +9055,7 @@ export function wizardBuildUserData() {
     };
 }
 
-export function wizardSaveAndGo() {
+function wizardSaveAndGo() {
     var built = wizardBuildUserData();
     // Download JSON if checkbox is checked
     var dlCheck = document.getElementById('wizardDownloadCheck');
@@ -9075,7 +9071,7 @@ export function wizardSaveAndGo() {
     wizardApplyAndLaunch(built);
 }
 
-export function wizardDownloadBackup() {
+function wizardDownloadBackup() {
     const built = wizardBuildUserData();
     // Download JSON backup
     const blob = new Blob([JSON.stringify(built, null, 2)], { type: 'application/json' });
@@ -9088,11 +9084,11 @@ export function wizardDownloadBackup() {
     showToast('Backup downloaded.', 'info');
 }
 
-export function wizardLaunchOnly() {
+function wizardLaunchOnly() {
     wizardApplyAndLaunch(wizardBuildUserData());
 }
 
-export function wizardApplyAndLaunch(built) {
+function wizardApplyAndLaunch(built) {
     userData = built;
     window._userData.initialized = true;
     window._userData = userData;
