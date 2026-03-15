@@ -1,4 +1,4 @@
-// views/welcome.js — Blueprint v4.46.99
+// views/welcome.js — Blueprint v4.47.00
 // Phase 7e extraction — Welcome page, onboarding wizard, skill valuation
 
 import { bpIcon }                                 from '../ui/icons.js';
