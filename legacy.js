@@ -20284,24 +20284,58 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 return;
             }
 
+            var info = document.getElementById('resumeFileInfo');
+            var nameEl = document.getElementById('resumeFileName');
+            var dropZone = document.getElementById('resumeDropZone');
+            if (info) info.style.display = 'flex';
+            if (nameEl) nameEl.textContent = file.name + ' — extracting text...';
+            if (dropZone) dropZone.style.display = 'none';
+
             var reader = new FileReader();
-            reader.onload = function(e) {
-                var base64 = e.target.result.split(',')[1];
+            reader.onload = async function(e) {
+                var arrayBuffer = e.target.result;
+                var base64 = btoa(new Uint8Array(arrayBuffer).reduce(function(data, byte) { return data + String.fromCharCode(byte); }, ''));
                 wizardState.resumeFileBase64 = base64;
                 wizardState.resumeFileName = file.name;
                 wizardState.resumeFileSize = file.size;
 
-                // Show file info
-                var info = document.getElementById('resumeFileInfo');
-                var nameEl = document.getElementById('resumeFileName');
-                var dropZone = document.getElementById('resumeDropZone');
-                if (info) info.style.display = 'flex';
-                if (nameEl) nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
-                if (dropZone) dropZone.style.display = 'none';
+                try {
+                    if (!window.pdfjsLib) {
+                        var script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                        document.head.appendChild(script);
+                        await new Promise(function(resolve, reject) {
+                            script.onload = resolve;
+                            script.onerror = function() { reject(new Error('Failed to load PDF library')); };
+                            setTimeout(function() { reject(new Error('PDF library load timeout')); }, 10000);
+                        });
+                    }
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    var pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    var allText = [];
+                    for (var i = 1; i <= pdf.numPages; i++) {
+                        var page = await pdf.getPage(i);
+                        var content = await page.getTextContent();
+                        var pageText = content.items.map(function(item) { return item.str; }).join(' ');
+                        allText.push(pageText);
+                    }
+                    var extractedText = allText.join('\n\n');
+                    if (extractedText.trim().length > 20) {
+                        wizardState.resumeFileExtractedText = extractedText;
+                        console.log('[BP Parse] PDF text extracted:', extractedText.length, 'chars from', pdf.numPages, 'pages');
+                    } else {
+                        console.warn('[BP Parse] PDF text extraction yielded little text, will send as base64');
+                        wizardState.resumeFileExtractedText = null;
+                    }
+                } catch (pdfErr) {
+                    console.warn('[BP Parse] PDF text extraction failed, will send as base64:', pdfErr.message);
+                    wizardState.resumeFileExtractedText = null;
+                }
 
+                if (nameEl) nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
                 wizardCheckResumeReady();
             };
-            reader.readAsDataURL(file);
+            reader.readAsArrayBuffer(file);
         }
 
         function wizardClearResumeFile() {
@@ -21281,9 +21315,11 @@ VALUES: Infer 4-7 values from career patterns, volunteer work, personal mission,
 
 PURPOSE: Write a compelling, authentic purpose statement that captures this person's unique career narrative.`;
 
-                // Build message content: PDF document or plain text
+                // Build message content: prefer extracted text, fall back to base64 PDF, then pasted text
                 var userContent;
-                if (wizardState.useFileUpload && wizardState.resumeFileBase64) {
+                if (wizardState.useFileUpload && wizardState.resumeFileExtractedText) {
+                    userContent = 'Parse this resume (extracted from PDF: ' + (wizardState.resumeFileName || 'upload') + '):\n\n' + wizardState.resumeFileExtractedText;
+                } else if (wizardState.useFileUpload && wizardState.resumeFileBase64) {
                     userContent = [
                         {
                             type: 'document',
