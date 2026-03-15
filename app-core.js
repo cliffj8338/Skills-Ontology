@@ -21712,6 +21712,27 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
 
         // ── STEP 5: O*NET Occupation Enrichment ─────────────────────────────
 
+
+        function wizardToggleRoleHidden(whIdx) {
+            var wh = wizardState.workHistory;
+            if (!wh || !wh[whIdx]) return;
+            wh[whIdx].hidden = !wh[whIdx].hidden;
+            var hiddenCount = wh.filter(function(j) { return j.hidden; }).length;
+            var visibleCount = wh.length - hiddenCount;
+            if (visibleCount === 0) {
+                wh[whIdx].hidden = false;
+                showToast('You need at least one visible role.', 'warning');
+                return;
+            }
+            showToast(wh[whIdx].hidden
+                ? 'Role hidden — skills from this role are still kept.'
+                : 'Role visible again.',
+                'info', 2000);
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep5(el);
+        }
+        window.wizardToggleRoleHidden = wizardToggleRoleHidden;
+
         function renderWizardStep5(el) {
             // If crosswalk not loaded, skip enrichment
             if (!window.onetCrosswalk) {
@@ -21840,35 +21861,69 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 return '\u{1F4A1}';
             };
 
+            var allRoles = (wizardState.parsedData && wizardState.parsedData.roles) || [];
+            var whItems = wizardState.workHistory || [];
+            var hasMultipleRoles = allRoles.length > 3 || whItems.length > 3;
+
             el.innerHTML = `
                 ${wizardHeading(bpIcon('target',22), 'Occupation Match & Skill Enrichment',
                     resolutions.length > 0
                         ? 'We matched your roles to O*NET occupations and found skills you may want to add.'
                         : 'No role titles could be matched. Continue to review your skills.')}
 
-                ${resolutions.length > 0 ? `
-                <div style="background:var(--bg-elevated); border:1px solid var(--border);
-                            border-radius:14px; padding:20px; margin-bottom:20px;">
-                    <div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">
-                        Occupation Matches
-                    </div>
-                    ${(function() {
-                        var grouped = {};
-                        var groupOrder = [];
-                        resolutions.forEach(function(r) {
-                            var key = r.inputTitle + '|||' + (r.company || '');
-                            if (!grouped[key]) {
-                                grouped[key] = { inputTitle: r.inputTitle, company: r.company, source: r.source, matches: [] };
-                                groupOrder.push(key);
-                            }
-                            grouped[key].matches.push(r);
-                        });
-                        return groupOrder.map(function(key) {
+                ${hasMultipleRoles ? '<div style="background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04)); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
+                    + '<div style="font-weight:700; color:#f59e0b; font-size:0.82em; margin-bottom:6px;">\uD83D\uDCA1 Pro Tip: Less is More</div>'
+                    + '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.5;">'
+                    + 'Listing more than your past 3 roles isn\'t necessary. You can <strong>hide a role but keep the skills</strong>. '
+                    + 'This way you demonstrate currency and relevance to the market without showing past roles that may create more noise than signal.</div>'
+                    + '</div>' : ''}
+
+                ${resolutions.length > 0 ? (function() {
+                    var grouped = {};
+                    var groupOrder = [];
+                    resolutions.forEach(function(r) {
+                        var key = r.inputTitle + '|||' + (r.company || '');
+                        if (!grouped[key]) {
+                            grouped[key] = { inputTitle: r.inputTitle, company: r.company, source: r.source, matches: [] };
+                            groupOrder.push(key);
+                        }
+                        grouped[key].matches.push(r);
+                    });
+
+                    var findWhIdx = function(title, company) {
+                        var tLow = (title || '').toLowerCase().trim();
+                        var cLow = (company || '').toLowerCase().trim();
+                        for (var i = 0; i < whItems.length; i++) {
+                            var whTitle = (whItems[i].title || '').toLowerCase().trim();
+                            var whCompany = (whItems[i].company || '').toLowerCase().trim();
+                            if (whTitle === tLow && (!cLow || !whCompany || whCompany === cLow)) return i;
+                        }
+                        for (var i = 0; i < whItems.length; i++) {
+                            if ((whItems[i].title || '').toLowerCase().trim() === tLow) return i;
+                        }
+                        return -1;
+                    };
+
+                    return '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+                        + 'border-radius:14px; padding:20px; margin-bottom:20px;">'
+                        + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">'
+                        + 'Your Roles</div>'
+                        + groupOrder.map(function(key, gi) {
                             var g = grouped[key];
-                            return '<div style="padding:10px 0; border-bottom:1px solid var(--border);">'
-                                + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em; margin-bottom:8px;">'
+                            var whIdx = findWhIdx(g.inputTitle, g.company);
+                            var isHidden = whIdx >= 0 && whItems[whIdx].hidden === true;
+                            return '<div style="padding:10px 0; border-bottom:1px solid var(--border);'
+                                + (isHidden ? ' opacity:0.5;' : '') + '">'
+                                + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
+                                + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
                                 + escapeHtml(g.inputTitle)
                                 + (g.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(g.company) + '</span>' : '')
+                                + '</div>'
+                                + (whIdx >= 0 ? '<button onclick="wizardToggleRoleHidden(' + whIdx + ')" title="' + (isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills') + '"'
+                                    + ' style="background:' + (isHidden ? 'rgba(245,158,11,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#f59e0b' : 'var(--border)') + ';'
+                                    + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
+                                    + ' white-space:nowrap; transition:all 0.15s;">'
+                                    + (isHidden ? '\uD83D\uDC41 Hidden \u2014 skills kept' : '\uD83D\uDC41 Hide role') + '</button>' : '')
                                 + '</div>'
                                 + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
                                 + g.matches.map(function(m) {
@@ -21881,10 +21936,37 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                                         + '</div>';
                                 }).join('')
                                 + '</div></div>';
-                        }).join('');
-                    })()}
-                </div>
-                ` : ''}
+                        }).join('')
+                        + '</div>';
+                })() : ''}
+
+                ${(function() {
+                    var matchedTitles = new Set();
+                    resolutions.forEach(function(r) { matchedTitles.add((r.inputTitle || '').toLowerCase().trim()); });
+                    var unmatchedRoles = whItems.filter(function(wh) {
+                        return !matchedTitles.has((wh.title || '').toLowerCase().trim());
+                    });
+                    if (unmatchedRoles.length === 0) return '';
+                    return '<div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin-bottom:14px;">'
+                        + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:10px; font-size:0.88em;">Other Roles</div>'
+                        + unmatchedRoles.map(function(wh) {
+                            var origIdx = whItems.indexOf(wh);
+                            var isHidden = wh.hidden === true;
+                            return '<div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0;'
+                                + ' border-bottom:1px solid var(--border);' + (isHidden ? ' opacity:0.5;' : '') + '">'
+                                + '<div style="font-size:0.86em; color:var(--text-primary);">'
+                                + escapeHtml(wh.title || 'Untitled')
+                                + (wh.company ? ' <span style="color:var(--text-muted);">at ' + escapeHtml(wh.company) + '</span>' : '')
+                                + '</div>'
+                                + '<button onclick="wizardToggleRoleHidden(' + origIdx + ')" title="' + (isHidden ? 'Show role' : 'Hide role, keep skills') + '"'
+                                + ' style="background:' + (isHidden ? 'rgba(245,158,11,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#f59e0b' : 'var(--border)') + ';'
+                                + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
+                                + ' white-space:nowrap;">'
+                                + (isHidden ? '\uD83D\uDC41 Hidden' : '\uD83D\uDC41 Hide') + '</button>'
+                                + '</div>';
+                        }).join('')
+                        + '</div>';
+                })()}
 
                 ${gapSkills.length > 0 ? `
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -22983,6 +23065,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 values: wizardState.values,
                 purpose: wizardState.purpose,
                 workHistory: wizardState.workHistory || [],
+                pastRolesSummary: (function() {
+                    var wh = wizardState.workHistory || [];
+                    var hidden = wh.filter(function(j) { return j.hidden; });
+                    if (hidden.length === 0) return '';
+                    var titles = hidden.map(function(j) { return j.title; }).filter(Boolean);
+                    if (titles.length === 0) return '';
+                    return 'Beyond what you see in my network, I held past roles in ' + titles.join(', ') + '.';
+                })(),
                 companyTenures: wizardState.companyTenures || [],
                 education: wizardState.education || [],
                 certifications: wizardState.certifications || [],
