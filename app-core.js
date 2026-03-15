@@ -21963,7 +21963,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 + '}\n\n'
                 + 'Rules:\n'
                 + '- keepSkills: 3-6 highest market-value skills from their current list. Focus on skills that differentiate.\n'
-                + '- dropSkills: 1-4 skills that are commoditized, outdated, or dilute their profile. Be direct.\n'
+                + '- dropSkills: 1-4 skills that are commoditized, outdated, or dilute their profile. Be direct — if a skill appears in <3% of job postings for their role or is assumed knowledge, flag it.\n'
                 + '- growthSkills: 2-4 skills they do NOT have but would significantly increase market value. valueAddPct is estimated salary increase (1-8 range).\n'
                 + '- Be constructively honest. Data-backed. No fluff.\n'
                 + '- Every skill in keepSkills and dropSkills MUST match an exact name from their Current Skills list.';
@@ -22201,6 +22201,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 sourceRole: (wizardState.profile && wizardState.profile.currentTitle) || '',
                 sourceIndustry: (wizardState.profile && wizardState.profile.industry) || ''
             });
+            g._added = true;
             var btn = document.getElementById('growth-btn-' + growthIdx);
             if (btn) { btn.textContent = '\u2713 Added'; btn.disabled = true; btn.style.background = 'rgba(16,185,129,0.1)'; btn.style.borderColor = 'rgba(16,185,129,0.3)'; btn.style.color = '#10b981'; }
             showToast('"' + g.name + '" added to your Growth Plan.', 'success', 2500);

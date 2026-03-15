@@ -7419,7 +7419,7 @@ async function wizardFetchMarketIntelligence() {
         + '}\n\n'
         + 'Rules:\n'
         + '- keepSkills: 3-6 highest market-value skills from their current list. Focus on skills that differentiate.\n'
-        + '- dropSkills: 1-4 skills that are commoditized, outdated, or dilute their profile. Be direct — if a skill appears in <5% of job postings for their role or is assumed knowledge, flag it.\n'
+        + '- dropSkills: 1-4 skills that are commoditized, outdated, or dilute their profile. Be direct — if a skill appears in <3% of job postings for their role or is assumed knowledge, flag it.\n'
         + '- growthSkills: 2-4 skills they do NOT have but would significantly increase market value for their trajectory. valueAddPct is estimated salary increase (1-8 range).\n'
         + '- Be constructively honest. Data-backed. No fluff.\n'
         + '- Every skill in keepSkills and dropSkills MUST match an exact name from their Current Skills list.';
@@ -7681,6 +7681,7 @@ function wizardAddGrowthSkill(growthIdx) {
         sourceRole: (wizardState.profile && wizardState.profile.currentTitle) || '',
         sourceIndustry: (wizardState.profile && wizardState.profile.industry) || ''
     });
+    g._added = true;
     var btn = document.getElementById('growth-btn-' + growthIdx);
     if (btn) {
         btn.textContent = '\u2713 Added';
