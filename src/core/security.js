@@ -97,7 +97,7 @@ export function sanitizeImport(raw) {
     delete clean.role; delete clean.isAdmin;
     if (clean.profile && typeof clean.profile === 'object') {
         Object.keys(clean.profile).forEach(function(k) {
-            if (typeof clean.profile[k] === 'string') clean.profile[k] = clean.profile[k].slice(0, 2000);
+            if (typeof clean.profile[k] === 'string' && k !== 'photo') clean.profile[k] = clean.profile[k].slice(0, 2000);
         });
     }
     if (Array.isArray(clean.skills)) {

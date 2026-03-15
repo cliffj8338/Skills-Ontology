@@ -427,7 +427,7 @@
             // Sanitize profile strings
             if (clean.profile && typeof clean.profile === 'object') {
                 Object.keys(clean.profile).forEach(function(k) {
-                    if (typeof clean.profile[k] === 'string') {
+                    if (typeof clean.profile[k] === 'string' && k !== 'photo') {
                         clean.profile[k] = clean.profile[k].slice(0, 2000);
                     }
                 });
@@ -29933,10 +29933,13 @@ body {
         function updateValuesBadge() {
             var count = blueprintData.values.filter(function(v) { return v.selected; }).length;
             var tabs = document.querySelectorAll('.bp-tab');
-            if (tabs.length > 1) {
-                var badge = tabs[1].querySelector('.bp-tab-count');
-                if (badge) badge.textContent = count;
-            }
+            tabs.forEach(function(tab) {
+                var label = tab.querySelector('.bp-tab-label');
+                if (label && label.textContent.trim() === 'Values') {
+                    var badge = tab.querySelector('.bp-tab-count');
+                    if (badge) badge.textContent = count;
+                }
+            });
         }
         
         function toggleValuesPicker() {
