@@ -23054,6 +23054,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // ── STEP 9: Complete ──────────────────────────────────────────────────
 
         function renderWizardStep9(el) {
+            if (window.renderWizardStep9 && window.renderWizardStep9 !== renderWizardStep9) return window.renderWizardStep9(el);
             const skillCount = wizardState.skills.length;
             const valueCount = wizardState.values.filter(v => v.selected).length;
             const evidenceCount = wizardState.skills.reduce((n, s) => n + (s.evidence?.length || 0), 0);

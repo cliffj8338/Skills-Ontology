@@ -7074,13 +7074,15 @@ export function renderWizardStep5(el) {
         var occ = window.onetCrosswalk && window.onetCrosswalk.occupations[r.soc];
         if (occ && (!occ.skills || occ.skills.length === 0)) socsWithNoSkills[r.soc] = true;
     });
-    var needsCertSkills = Object.keys(socsWithNoSkills).length > 0 || resolutions.some(function(r) { return r.source === 'certification'; });
+    var hasPilotInHistory = (wizardState.workHistory || []).some(function(wh) { return /pilot|aviati|flight/i.test(wh.title || ''); });
+    var needsCertSkills = Object.keys(socsWithNoSkills).length > 0 || resolutions.some(function(r) { return r.source === 'certification'; }) || hasPilotInHistory;
     var certSkillMap = {
         'private pilot': [
             { name: 'Flight Operations', level: 'Expert', category: 'skill' },
             { name: 'Instrument Flying (IFR)', level: 'Expert', category: 'skill' },
             { name: 'Aviation Safety Management', level: 'Expert', category: 'knowledge' },
             { name: 'Aeronautical Decision Making', level: 'Expert', category: 'ability' },
+            { name: 'Complex Systems Management', level: 'Expert', category: 'ability' },
             { name: 'Pre-Flight Planning', level: 'Advanced', category: 'skill' },
             { name: 'Weather Analysis & Interpretation', level: 'Advanced', category: 'knowledge' },
             { name: 'Navigation Systems', level: 'Advanced', category: 'skill' },
@@ -7088,7 +7090,21 @@ export function renderWizardStep5(el) {
             { name: 'Emergency Procedures', level: 'Expert', category: 'skill' },
             { name: 'Crew Resource Management (CRM)', level: 'Advanced', category: 'ability' },
             { name: 'FAA Regulatory Compliance', level: 'Advanced', category: 'knowledge' },
-            { name: 'Risk Assessment', level: 'Expert', category: 'ability' }
+            { name: 'Risk Assessment', level: 'Expert', category: 'ability' },
+            { name: 'Situational Awareness', level: 'Expert', category: 'ability' },
+            { name: 'Multi-Engine Operations', level: 'Advanced', category: 'skill' }
+        ],
+        'pilot': [
+            { name: 'Flight Operations', level: 'Expert', category: 'skill' },
+            { name: 'Aviation Safety Management', level: 'Expert', category: 'knowledge' },
+            { name: 'Aeronautical Decision Making', level: 'Expert', category: 'ability' },
+            { name: 'Complex Systems Management', level: 'Expert', category: 'ability' },
+            { name: 'Pre-Flight Planning', level: 'Advanced', category: 'skill' },
+            { name: 'Aircraft Systems Knowledge', level: 'Advanced', category: 'knowledge' },
+            { name: 'Emergency Procedures', level: 'Expert', category: 'skill' },
+            { name: 'Crew Resource Management (CRM)', level: 'Advanced', category: 'ability' },
+            { name: 'Risk Assessment', level: 'Expert', category: 'ability' },
+            { name: 'Situational Awareness', level: 'Expert', category: 'ability' }
         ],
         'instrument rating': [
             { name: 'Instrument Flying (IFR)', level: 'Expert', category: 'skill' },
@@ -7122,6 +7138,33 @@ export function renderWizardStep5(el) {
                                 occupationLevel: cs.level,
                                 importance: 75,
                                 _fromOcc: cert.name + ' (certification)'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    });
+
+    // Also check work history titles for certification-implied skills (e.g. "Private Pilot" as a job title)
+    var workHistoryTitles = (wizardState.workHistory || []).map(function(wh) { return (wh.title || '').toLowerCase(); });
+    var currentTitleLow = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
+    var allTitlesToCheck = workHistoryTitles.concat([currentTitleLow]);
+    allTitlesToCheck.forEach(function(titleLow) {
+        if (!titleLow) return;
+        for (var key in certSkillMap) {
+            if (titleLow.includes(key)) {
+                certSkillMap[key].forEach(function(cs) {
+                    if (!gapSkillNames[cs.name.toLowerCase()] && !isGapRedundant(cs.name)) {
+                        var alreadyHas = wizardState.skills.some(function(s) { return s.name.toLowerCase() === cs.name.toLowerCase(); });
+                        if (!alreadyHas) {
+                            gapSkillNames[cs.name.toLowerCase()] = true;
+                            gapSkills.push({
+                                name: cs.name,
+                                category: cs.category,
+                                occupationLevel: cs.level,
+                                importance: 75,
+                                _fromOcc: titleLow + ' (work history)'
                             });
                         }
                     }
@@ -7764,6 +7807,9 @@ export function renderWizardStep6(el) {
     var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
     var levels = ['Novice','Proficient','Advanced','Expert','Mastery'];
 
+    // Clear actual outcomes cache so it recalculates each render
+    wizardState._actualOutcomes = null;
+
     if (!isFromResume) {
         el.innerHTML = wizardHeading(bpIcon('compass',22), 'Your Skills',
             'Add your key skills. You can build this out further after setup.')
@@ -7938,76 +7984,118 @@ function wizardSuggestOutcomes() {
         executive: {
             match: /\b(vp|vice president|c-suite|ceo|cto|cfo|coo|chief|svp|evp|president|managing director)\b/,
             outcomes: [
-                { text: 'Drove organizational strategy resulting in measurable revenue or efficiency gains', skills: ['strategy','leadership','management','communication','business development'] },
-                { text: 'Built and led high-performing teams across multiple functions', skills: ['leadership','management','team building','communication','mentoring'] },
-                { text: 'Established strategic partnerships and market positioning', skills: ['strategy','business development','negotiation','communication','sales'] },
-                { text: 'Delivered operational transformation improving efficiency and reducing costs', skills: ['operations','process improvement','management','analytics','strategy'] }
+                { text: 'Drove organizational strategy resulting in X% revenue growth over Y quarters', skills: ['strategy','leadership','management','communication','business development'], hasMetric: true },
+                { text: 'Built and led high-performing teams of X people across Y functions', skills: ['leadership','management','team building','communication','mentoring'], hasMetric: true },
+                { text: 'Established X strategic partnerships generating $Y in pipeline value', skills: ['strategy','business development','negotiation','communication','sales'], hasMetric: true },
+                { text: 'Delivered operational transformation improving efficiency by X% and reducing costs by $Y', skills: ['operations','process improvement','management','analytics','strategy'], hasMetric: true },
+                { text: 'Led M&A integration or organizational restructuring affecting X employees', skills: ['strategy','leadership','management','change management'], hasMetric: true },
+                { text: 'Grew business unit revenue from $X to $Y over Z years', skills: ['strategy','business development','leadership','revenue growth'], hasMetric: true },
+                { text: 'Presented strategic vision to board/investors resulting in $X funding or approval', skills: ['communication','strategy','leadership','stakeholder management'], hasMetric: true },
+                { text: 'Mentored X direct reports, with Y promoted to senior roles', skills: ['mentoring','leadership','coaching','talent development'], hasMetric: true }
             ]
         },
         director: {
             match: /\b(director|head of|principal)\b/,
             outcomes: [
-                { text: 'Scaled department operations to support business growth', skills: ['management','leadership','operations','strategy','process improvement'] },
-                { text: 'Drove cross-functional initiatives with measurable business impact', skills: ['project management','leadership','communication','strategy','stakeholder management'] },
-                { text: 'Developed talent pipeline through mentoring and team development', skills: ['leadership','mentoring','management','coaching','communication'] },
-                { text: 'Implemented systems and processes that improved team productivity', skills: ['technology','operations','process improvement','management','analytics'] }
+                { text: 'Scaled department from X to Y people while maintaining quality metrics', skills: ['management','leadership','operations','strategy','process improvement'], hasMetric: true },
+                { text: 'Drove X cross-functional initiatives with $Y measurable business impact', skills: ['project management','leadership','communication','strategy','stakeholder management'], hasMetric: true },
+                { text: 'Developed talent pipeline resulting in X internal promotions over Y years', skills: ['leadership','mentoring','management','coaching','communication'], hasMetric: true },
+                { text: 'Implemented systems and processes that improved team productivity by X%', skills: ['technology','operations','process improvement','management','analytics'], hasMetric: true },
+                { text: 'Managed annual budget of $X with Y% efficiency improvement year over year', skills: ['management','budgeting','operations','analytics'], hasMetric: true },
+                { text: 'Launched X new programs or initiatives generating Y% growth in key metrics', skills: ['strategy','leadership','project management','innovation'], hasMetric: true }
             ]
         },
         technology: {
             match: /\b(software|developer|engineer|architect|technical|tech lead|devops|cloud|data|ai|ml)\b/,
             outcomes: [
-                { text: 'Architected and delivered production systems serving real users at scale', skills: ['software','architecture','engineering','programming','systems design','javascript','python','react','node'] },
-                { text: 'Improved system reliability, performance, or security measurably', skills: ['devops','cloud','aws','security','monitoring','kubernetes','infrastructure'] },
-                { text: 'Led technical decision-making and mentored engineering teams', skills: ['leadership','mentoring','architecture','code review','technical strategy'] },
-                { text: 'Automated workflows reducing manual effort and operational costs', skills: ['automation','scripting','python','devops','ci/cd','process improvement'] }
+                { text: 'Architected and delivered production systems serving X users at Y% uptime', skills: ['software','architecture','engineering','programming','systems design','javascript','python','react','node'], hasMetric: true },
+                { text: 'Improved system performance by X% reducing latency from Y to Z ms', skills: ['devops','cloud','aws','security','monitoring','kubernetes','infrastructure'], hasMetric: true },
+                { text: 'Led technical team of X engineers delivering Y features per quarter', skills: ['leadership','mentoring','architecture','code review','technical strategy'], hasMetric: true },
+                { text: 'Automated X workflows reducing manual effort by Y hours per week', skills: ['automation','scripting','python','devops','ci/cd','process improvement'], hasMetric: true },
+                { text: 'Reduced infrastructure costs by X% through optimization and right-sizing', skills: ['cloud','aws','infrastructure','cost optimization'], hasMetric: true },
+                { text: 'Migrated legacy systems to modern architecture improving deployment frequency by X%', skills: ['architecture','devops','engineering','modernization'], hasMetric: true }
             ]
         },
         creative: {
             match: /\b(creative|designer|design|ux|ui|brand|content|multimedia|art|visual|writer)\b/,
             outcomes: [
-                { text: 'Created design systems and visual assets adopted across the organization', skills: ['design','branding','visual design','ux','ui','creative direction'] },
-                { text: 'Improved user experience metrics through research-driven design', skills: ['ux','user research','design','analytics','prototyping','testing'] },
-                { text: 'Built and led creative teams delivering on brand and business objectives', skills: ['creative direction','leadership','management','branding','communication'] },
-                { text: 'Produced multimedia content that drove engagement and reach', skills: ['content','multimedia','video','writing','social media','marketing'] }
+                { text: 'Created design systems adopted by X product teams reducing design time by Y%', skills: ['design','branding','visual design','ux','ui','creative direction'], hasMetric: true },
+                { text: 'Improved user task completion rates by X% through research-driven UX redesign', skills: ['ux','user research','design','analytics','prototyping','testing'], hasMetric: true },
+                { text: 'Built and led creative team of X producing Y assets per month', skills: ['creative direction','leadership','management','branding','communication'], hasMetric: true },
+                { text: 'Produced content that drove X% increase in engagement and Y% reach growth', skills: ['content','multimedia','video','writing','social media','marketing'], hasMetric: true }
             ]
         },
         sales_biz: {
             match: /\b(sales|business development|account|revenue|partnerships)\b/,
             outcomes: [
-                { text: 'Consistently exceeded revenue targets and grew key accounts', skills: ['sales','negotiation','account management','business development','communication'] },
-                { text: 'Built and managed strategic partnerships generating measurable value', skills: ['business development','partnerships','negotiation','strategy','relationship management'] },
-                { text: 'Developed sales processes and playbooks adopted by the team', skills: ['sales','process improvement','training','leadership','crm'] }
+                { text: 'Exceeded revenue targets by X%, achieving $Y in annual sales', skills: ['sales','negotiation','account management','business development','communication'], hasMetric: true },
+                { text: 'Built X strategic partnerships generating $Y in measurable value', skills: ['business development','partnerships','negotiation','strategy','relationship management'], hasMetric: true },
+                { text: 'Developed sales processes adopted by X reps, improving close rate by Y%', skills: ['sales','process improvement','training','leadership','crm'], hasMetric: true },
+                { text: 'Grew key account portfolio from $X to $Y in ARR over Z months', skills: ['account management','sales','relationship management','revenue growth'], hasMetric: true }
             ]
         },
         marketing: {
             match: /\b(market|brand|content|seo|growth|digital marketing|demand)\b/,
             outcomes: [
-                { text: 'Executed campaigns that generated qualified pipeline and revenue', skills: ['marketing','digital marketing','analytics','content','demand generation'] },
-                { text: 'Built brand presence and increased market awareness', skills: ['branding','content','social media','pr','communication','marketing'] },
-                { text: 'Improved conversion and engagement through data-driven optimization', skills: ['analytics','a/b testing','marketing','seo','growth'] }
+                { text: 'Executed campaigns generating X qualified leads per quarter at $Y CPL', skills: ['marketing','digital marketing','analytics','content','demand generation'], hasMetric: true },
+                { text: 'Increased brand awareness by X% and market share by Y% in Z months', skills: ['branding','content','social media','pr','communication','marketing'], hasMetric: true },
+                { text: 'Improved conversion rates by X% through systematic A/B testing over Y experiments', skills: ['analytics','a/b testing','marketing','seo','growth'], hasMetric: true }
             ]
         },
         consulting: {
             match: /\b(consult|advisory|strateg|analyst)\b/,
             outcomes: [
-                { text: 'Delivered strategic recommendations that drove client business outcomes', skills: ['strategy','consulting','analytics','communication','research'] },
-                { text: 'Led client engagements from discovery through implementation', skills: ['project management','consulting','communication','stakeholder management','strategy'] },
-                { text: 'Built frameworks and methodologies adopted across the practice', skills: ['strategy','process improvement','knowledge management','training','communication'] }
+                { text: 'Delivered X strategic engagements generating $Y in measurable client value', skills: ['strategy','consulting','analytics','communication','research'], hasMetric: true },
+                { text: 'Led client engagements with X stakeholders from discovery through implementation', skills: ['project management','consulting','communication','stakeholder management','strategy'], hasMetric: true },
+                { text: 'Built frameworks adopted by X consultants reducing engagement ramp-up by Y%', skills: ['strategy','process improvement','knowledge management','training','communication'], hasMetric: true }
             ]
         },
         operations: {
             match: /\b(operation|logistics|supply|procurement|program)\b/,
             outcomes: [
-                { text: 'Streamlined operations reducing costs and improving delivery timelines', skills: ['operations','process improvement','logistics','management','analytics'] },
-                { text: 'Managed complex programs coordinating across multiple teams and stakeholders', skills: ['program management','project management','communication','operations','stakeholder management'] },
-                { text: 'Implemented quality and compliance frameworks meeting industry standards', skills: ['quality','compliance','process improvement','operations','risk management'] }
+                { text: 'Streamlined operations reducing costs by X% and improving delivery by Y days', skills: ['operations','process improvement','logistics','management','analytics'], hasMetric: true },
+                { text: 'Managed X concurrent programs coordinating Y teams and Z stakeholders', skills: ['program management','project management','communication','operations','stakeholder management'], hasMetric: true },
+                { text: 'Implemented compliance frameworks achieving X% audit pass rate', skills: ['quality','compliance','process improvement','operations','risk management'], hasMetric: true }
             ]
         },
         education: {
             match: /\b(teach|professor|instructor|training|education|curriculum|coach)\b/,
             outcomes: [
-                { text: 'Developed curriculum and training programs adopted at scale', skills: ['curriculum','training','education','instructional design','communication'] },
-                { text: 'Mentored and coached individuals to measurable professional growth', skills: ['mentoring','coaching','leadership','communication','training'] }
+                { text: 'Developed curriculum reaching X learners with Y% completion rate', skills: ['curriculum','training','education','instructional design','communication'], hasMetric: true },
+                { text: 'Mentored X individuals, with Y achieving promotions or certifications', skills: ['mentoring','coaching','leadership','communication','training'], hasMetric: true }
+            ]
+        },
+        nonprofit: {
+            match: /\b(foundation|nonprofit|non-profit|charity|volunteer|philanthrop|executive director)\b/,
+            outcomes: [
+                { text: 'Led nonprofit organization serving X beneficiaries annually', skills: ['leadership','management','nonprofit','community engagement'], hasMetric: true },
+                { text: 'Grew fundraising from $X to $Y over Z years through donor cultivation', skills: ['fundraising','development','communication','relationship management'], hasMetric: true },
+                { text: 'Built volunteer program of X volunteers contributing Y hours annually', skills: ['leadership','volunteer management','community engagement','operations'], hasMetric: true },
+                { text: 'Secured X grants totaling $Y for program expansion', skills: ['grant writing','fundraising','communication','strategy'], hasMetric: true }
+            ]
+        },
+        aviation: {
+            match: /\b(pilot|aviation|flight|aircraft|airline)\b/,
+            outcomes: [
+                { text: 'Maintained X flight hours with zero incidents across Y years', skills: ['flight operations','aviation safety','risk assessment'], hasMetric: true },
+                { text: 'Completed X IFR approaches in challenging weather conditions', skills: ['instrument flying','weather analysis','decision making'], hasMetric: true },
+                { text: 'Managed complex multi-system aircraft operations across X flight hours', skills: ['complex systems management','aircraft systems','flight operations'], hasMetric: true },
+                { text: 'Trained or mentored X pilots on safety procedures and best practices', skills: ['mentoring','aviation safety','crew resource management'], hasMetric: true }
+            ]
+        },
+        finance: {
+            match: /\b(financ|accounting|cpa|controller|treasury|audit|investment|portfolio)\b/,
+            outcomes: [
+                { text: 'Managed financial portfolio of $X with Y% return over benchmark', skills: ['finance','investment','portfolio management','analytics'], hasMetric: true },
+                { text: 'Reduced operational costs by $X through financial process optimization', skills: ['finance','process improvement','analytics','budgeting'], hasMetric: true },
+                { text: 'Led audit processes achieving X% compliance rate across Y entities', skills: ['audit','compliance','accounting','risk management'], hasMetric: true }
+            ]
+        },
+        hr: {
+            match: /\b(human resource|hr |talent|recrui|people ops|workforce)\b/,
+            outcomes: [
+                { text: 'Improved employee retention by X% through engagement and culture programs', skills: ['hr','talent management','employee engagement','culture'], hasMetric: true },
+                { text: 'Built recruiting pipeline filling X roles per quarter with Y% offer acceptance', skills: ['recruiting','talent acquisition','communication','hr'], hasMetric: true }
             ]
         }
     };
@@ -8023,86 +8111,200 @@ function wizardSuggestOutcomes() {
                     var relevantSkills = o.skills.filter(function(os) {
                         return skillNames.some(function(sn) { return sn.indexOf(os) >= 0 || os.indexOf(sn) >= 0; });
                     });
-                    if (relevantSkills.length > 0 || matched.length < 4) {
-                        matched.push({ text: o.text, relatedSkills: relevantSkills, _selected: false, _editing: false });
+                    if (relevantSkills.length > 0 || matched.length < 6) {
+                        matched.push({ text: o.text, relatedSkills: relevantSkills, _selected: false, _editing: false, _type: 'suggested', hasMetric: o.hasMetric || false });
                     }
                 }
             });
         }
     }
 
-    if (matched.length < 3) {
+    // Generate skill-specific suggested outcomes for skills that lack evidence
+    var skillOutcomeTemplates = {
+        'leadership': 'Led team of X people achieving Y% improvement in key performance metrics',
+        'management': 'Managed department of X with $Y budget delivering Z% efficiency gains',
+        'strategy': 'Developed strategic plan resulting in X% growth over Y quarters',
+        'communication': 'Presented to audiences of X stakeholders driving Y key decisions',
+        'negotiation': 'Negotiated X deals totaling $Y in contract value',
+        'project management': 'Delivered X projects on time and under budget saving $Y',
+        'analytics': 'Built analytics capabilities generating X actionable insights per quarter',
+        'process improvement': 'Redesigned X processes reducing cycle time by Y% and errors by Z%',
+        'team building': 'Built and scaled team from X to Y people maintaining top engagement scores',
+        'stakeholder management': 'Managed relationships with X key stakeholders across Y organizations',
+        'mentoring': 'Mentored X professionals with Y achieving promotions within Z months',
+        'coaching': 'Coached X individuals improving their performance ratings by Y level',
+        'innovation': 'Introduced X innovations generating $Y in new revenue or savings',
+        'change management': 'Led organizational change affecting X employees with Y% adoption rate',
+        'risk management': 'Identified and mitigated X risks saving $Y in potential losses',
+        'budgeting': 'Managed budgets totaling $X with Y% cost efficiency improvement',
+        'customer success': 'Improved customer satisfaction from X to Y NPS across Z accounts',
+        'product development': 'Launched X products generating $Y in first-year revenue',
+        'quality assurance': 'Implemented QA processes reducing defects by X% across Y releases',
+        'data analysis': 'Analyzed X datasets uncovering Y insights that drove $Z in value',
+        'business development': 'Generated $X in pipeline through Y new partnerships and Z outreach campaigns',
+        'training': 'Designed and delivered training for X employees improving proficiency by Y%',
+        'problem solving': 'Resolved X critical issues reducing downtime by Y% and saving $Z',
+        'critical thinking': 'Applied analytical frameworks to X complex decisions with Y% success rate',
+        'decision making': 'Made X high-stakes decisions under pressure with Y% positive outcomes',
+        'complex systems management': 'Managed X interconnected systems maintaining Y% operational reliability',
+        'operations management': 'Oversaw operations serving X clients/users with Y% SLA compliance',
+        'vendor management': 'Managed X vendor relationships reducing costs by Y% while improving quality',
+        'compliance': 'Achieved X% compliance rate across Y regulatory frameworks',
+        'cross-functional collaboration': 'Led X cross-functional initiatives involving Y departments and Z people'
+    };
+    skills.forEach(function(s) {
+        var sn = (s.name || '').toLowerCase();
+        var hasEvidence = s.evidence && s.evidence.length > 0;
+        if (!hasEvidence) {
+            for (var tKey in skillOutcomeTemplates) {
+                if (sn.indexOf(tKey) >= 0 || tKey.indexOf(sn) >= 0) {
+                    var txt = skillOutcomeTemplates[tKey];
+                    if (!seenTexts[txt]) {
+                        seenTexts[txt] = true;
+                        matched.push({ text: txt, relatedSkills: [sn], _selected: false, _editing: false, _type: 'suggested', _forSkill: s.name, hasMetric: true });
+                    }
+                    break;
+                }
+            }
+        }
+    });
+
+    if (matched.length < 4) {
         var generic = [
-            { text: 'Delivered measurable results that advanced organizational goals', relatedSkills: [], _selected: false, _editing: false },
-            { text: 'Built and maintained key stakeholder relationships', relatedSkills: [], _selected: false, _editing: false },
-            { text: 'Identified and resolved problems proactively improving outcomes', relatedSkills: [], _selected: false, _editing: false }
+            { text: 'Delivered measurable results advancing organizational goals by X% over Y period', relatedSkills: [], _selected: false, _editing: false, _type: 'suggested', hasMetric: true },
+            { text: 'Built and maintained X key stakeholder relationships driving Y strategic decisions', relatedSkills: [], _selected: false, _editing: false, _type: 'suggested', hasMetric: true },
+            { text: 'Identified and resolved X problems proactively saving $Y in costs or risks', relatedSkills: [], _selected: false, _editing: false, _type: 'suggested', hasMetric: true }
         ];
         generic.forEach(function(g) {
-            if (!seenTexts[g.text] && matched.length < 6) {
+            if (!seenTexts[g.text] && matched.length < 8) {
                 seenTexts[g.text] = true;
                 matched.push(g);
             }
         });
     }
 
-    wizardState._suggestedOutcomes = matched.slice(0, 8);
+    wizardState._suggestedOutcomes = matched.slice(0, 20);
     return wizardState._suggestedOutcomes;
+}
+
+function wizardGetActualOutcomes() {
+    if (wizardState._actualOutcomes) return wizardState._actualOutcomes;
+    var actual = [];
+    var seenTexts = {};
+    var skills = wizardState.skills || [];
+    skills.forEach(function(s) {
+        if (s.evidence && s.evidence.length > 0) {
+            s.evidence.forEach(function(e) {
+                var desc = e.description || e.outcome || '';
+                if (desc && !seenTexts[desc] && e.source !== 'suggested-outcome' && e.source !== 'common-outcome') {
+                    seenTexts[desc] = true;
+                    actual.push({ text: desc, skillName: s.name, _selected: true, source: e.source || 'resume' });
+                }
+            });
+        }
+    });
+    wizardState._actualOutcomes = actual;
+    return actual;
 }
 
 function wizardRenderOutcomePanel() {
     var outcomes = wizardSuggestOutcomes();
-    if (!outcomes || outcomes.length === 0) return '';
+    var actuals = wizardGetActualOutcomes();
     var title = ((wizardState.profile && wizardState.profile.currentTitle) || 'your role');
+    var html = '';
 
-    var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-        + ' border-radius:12px; padding:16px; margin-bottom:14px;">'
-        + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em; margin-bottom:4px;">'
-        + '\uD83C\uDFAF Suggested Outcomes</div>'
-        + '<p style="font-size:0.78em; color:var(--text-muted); margin-bottom:12px;">'
-        + 'Common outcomes for <strong>' + escapeHtml(title) + '</strong>. Select the ones that fit, then edit to make them your own.</p>';
+    // Section 1: Actual Outcomes from resume/profile
+    if (actuals && actuals.length > 0) {
+        html += '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+            + ' border-radius:12px; padding:16px; margin-bottom:14px; max-width:100%; overflow:hidden;">'
+            + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em; margin-bottom:4px;">'
+            + '\u2705 Actual Outcomes <span style="font-weight:400; font-size:0.85em; color:var(--text-muted);">(' + actuals.length + ')</span></div>'
+            + '<p style="font-size:0.78em; color:var(--text-muted); margin-bottom:12px;">'
+            + 'These outcomes were extracted from your resume and profile data.</p>';
 
-    outcomes.forEach(function(o, i) {
-        var selected = o._selected;
-        html += '<div style="display:flex; align-items:start; gap:10px; padding:8px 10px;'
-            + ' border:1px solid ' + (selected ? 'rgba(16,185,129,0.4)' : 'var(--border)') + ';'
-            + ' background:' + (selected ? 'rgba(16,185,129,0.06)' : 'var(--bg-surface)') + ';'
-            + ' border-radius:8px; margin-bottom:6px; transition:all 0.15s;">';
-
-        if (o._editing) {
-            html += '<div style="flex:1;">'
-                + '<input type="text" id="outcome-edit-' + i + '" value="' + escapeHtml(o.text).replace(/"/g, '&quot;') + '"'
-                + ' style="width:100%; padding:6px 8px; border:1px solid var(--accent); border-radius:6px;'
-                + ' background:var(--bg-surface); color:var(--text-primary); font-size:0.85em; outline:none;"'
-                + ' onkeydown="if(event.key===\'Enter\')wizardSaveOutcomeEdit(' + i + ')">'
-                + '<div style="display:flex; gap:6px; margin-top:6px;">'
-                + '<button onclick="wizardSaveOutcomeEdit(' + i + ')"'
-                + ' style="background:var(--accent); color:#fff; border:none; border-radius:5px;'
-                + ' padding:3px 12px; font-size:0.76em; cursor:pointer; font-weight:600;">Save</button>'
-                + '<button onclick="wizardCancelOutcomeEdit(' + i + ')"'
-                + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
-                + ' border-radius:5px; padding:3px 10px; font-size:0.76em; cursor:pointer;">Cancel</button>'
+        actuals.forEach(function(a, i) {
+            html += '<div style="display:flex; align-items:start; gap:10px; padding:8px 10px;'
+                + ' border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.04);'
+                + ' border-radius:8px; margin-bottom:6px; max-width:100%; box-sizing:border-box; overflow:hidden;">'
+                + '<span style="color:#10b981; font-size:0.8em; flex-shrink:0; margin-top:2px;">\u2713</span>'
+                + '<div style="flex:1; min-width:0; overflow:hidden;">'
+                + '<div style="font-size:0.85em; color:var(--text-primary); word-wrap:break-word; overflow-wrap:break-word;">'
+                + escapeHtml(a.text) + '</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;">From: '
+                + escapeHtml(a.skillName) + '</div>'
                 + '</div></div>';
-        } else {
-            html += '<input type="checkbox" ' + (selected ? 'checked' : '') + ' onchange="wizardToggleSuggestedOutcome(' + i + ')"'
-                + ' style="margin-top:3px; accent-color:#10b981; flex-shrink:0; cursor:pointer;">'
-                + '<div style="flex:1; min-width:0;">'
-                + '<div style="font-size:0.85em; color:var(--text-primary);' + (selected ? ' font-weight:600;' : '') + '">'
-                + escapeHtml(o.text) + '</div>';
-            if (o.relatedSkills && o.relatedSkills.length > 0) {
-                html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;">Uses: '
-                    + o.relatedSkills.slice(0, 5).map(function(s) { return escapeHtml(s); }).join(', ') + '</div>';
+        });
+        html += '</div>';
+    }
+
+    // Section 2: Suggested Outcomes with metric placeholders
+    if (outcomes && outcomes.length > 0) {
+        html += '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+            + ' border-radius:12px; padding:16px; margin-bottom:14px; max-width:100%; overflow:hidden;">'
+            + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em; margin-bottom:4px;">'
+            + '\uD83C\uDFAF Suggested Outcomes <span style="font-weight:400; font-size:0.85em; color:var(--text-muted);">(' + outcomes.length + ')</span></div>'
+            + '<p style="font-size:0.78em; color:var(--text-muted); margin-bottom:12px;">'
+            + 'Common outcomes for <strong>' + escapeHtml(title) + '</strong>. Select the ones that fit, then <strong>Edit</strong> to insert your actual metrics (replace X, Y, Z with your numbers).</p>';
+
+        outcomes.forEach(function(o, i) {
+            var selected = o._selected;
+            html += '<div style="display:flex; align-items:start; gap:10px; padding:8px 10px;'
+                + ' border:1px solid ' + (selected ? 'rgba(16,185,129,0.4)' : 'var(--border)') + ';'
+                + ' background:' + (selected ? 'rgba(16,185,129,0.06)' : 'var(--bg-surface)') + ';'
+                + ' border-radius:8px; margin-bottom:6px; max-width:100%; box-sizing:border-box; overflow:hidden;'
+                + ' transition:all 0.15s;">';
+
+            if (o._editing) {
+                html += '<div style="flex:1; min-width:0; overflow:hidden;">'
+                    + '<input type="text" id="outcome-edit-' + i + '" value="' + escapeHtml(o.text).replace(/"/g, '&quot;') + '"'
+                    + ' style="width:100%; padding:6px 8px; border:1px solid var(--accent); border-radius:6px;'
+                    + ' background:var(--bg-surface); color:var(--text-primary); font-size:0.85em; outline:none;'
+                    + ' box-sizing:border-box;"'
+                    + ' onkeydown="if(event.key===\'Enter\')wizardSaveOutcomeEdit(' + i + ')">'
+                    + '<div style="font-size:0.72em; color:#f59e0b; margin-top:4px; font-style:italic;">'
+                    + '\uD83D\uDCA1 Replace X, Y, Z with your actual numbers to make this outcome specific and powerful.</div>'
+                    + '<div style="display:flex; gap:6px; margin-top:6px;">'
+                    + '<button onclick="wizardSaveOutcomeEdit(' + i + ')"'
+                    + ' style="background:var(--accent); color:#fff; border:none; border-radius:5px;'
+                    + ' padding:3px 12px; font-size:0.76em; cursor:pointer; font-weight:600;">Save</button>'
+                    + '<button onclick="wizardCancelOutcomeEdit(' + i + ')"'
+                    + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                    + ' border-radius:5px; padding:3px 10px; font-size:0.76em; cursor:pointer;">Cancel</button>'
+                    + '</div></div>';
+            } else {
+                html += '<input type="checkbox" ' + (selected ? 'checked' : '') + ' onchange="wizardToggleSuggestedOutcome(' + i + ')"'
+                    + ' style="margin-top:3px; accent-color:#10b981; flex-shrink:0; cursor:pointer;">'
+                    + '<div style="flex:1; min-width:0; overflow:hidden;">'
+                    + '<div style="font-size:0.85em; color:var(--text-primary); word-wrap:break-word; overflow-wrap:break-word;'
+                    + (selected ? ' font-weight:600;' : '') + '">'
+                    + escapeHtml(o.text) + '</div>';
+                if (o._forSkill) {
+                    html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;">For: '
+                        + escapeHtml(o._forSkill) + '</div>';
+                } else if (o.relatedSkills && o.relatedSkills.length > 0) {
+                    html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;">Uses: '
+                        + o.relatedSkills.slice(0, 5).map(function(s) { return escapeHtml(s); }).join(', ') + '</div>';
+                }
+                html += '</div>';
+                if (selected) {
+                    html += '<button onclick="wizardEditOutcome(' + i + ')" title="Edit to insert your metrics"'
+                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                        + ' border-radius:5px; padding:2px 8px; cursor:pointer; font-size:0.72em; flex-shrink:0; white-space:nowrap;">Edit</button>';
+                }
             }
             html += '</div>';
-            if (selected) {
-                html += '<button onclick="wizardEditOutcome(' + i + ')" title="Edit to make it yours"'
-                    + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
-                    + ' border-radius:5px; padding:2px 8px; cursor:pointer; font-size:0.72em; flex-shrink:0;">Edit</button>';
-            }
-        }
-        html += '</div>';
-    });
+        });
 
-    html += '</div>';
+        html += '</div>';
+    }
+
+    if (!html) {
+        html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+            + ' border-radius:12px; padding:16px; margin-bottom:14px;">'
+            + '<p style="font-size:0.85em; color:var(--text-muted);">No outcomes found. Add evidence to your skills to build your outcome portfolio.</p>'
+            + '</div>';
+    }
+
     return html;
 }
 
@@ -8787,20 +8989,57 @@ export function renderWizardStep9(el) {
             + '<div style="font-size:0.72em; color:var(--text-muted);">' + escapeHtml(ts.level) + '</div></div>';
     }).join('') + '</div>' : '')
 
-    + '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;">'
-    + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-    + ' border-radius:10px; padding:14px; text-align:center;">'
-    + '<div style="font-size:1.5em; font-weight:800; color:var(--accent);">' + skillCount + '</div>'
-    + '<div style="font-size:0.75em; color:var(--text-muted);">Skills</div></div>'
-    + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-    + ' border-radius:10px; padding:14px; text-align:center;">'
-    + '<div style="font-size:1.5em; font-weight:800; color:' + strengthColor + ';">' + evidenceCount + '</div>'
-    + '<div style="font-size:0.75em; color:var(--text-muted);">Evidence</div></div>'
-    + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-    + ' border-radius:10px; padding:14px; text-align:center;">'
-    + '<div style="font-size:1.5em; font-weight:800; color:var(--text-primary);">' + strengthLabel + '</div>'
-    + '<div style="font-size:0.75em; color:var(--text-muted);">Profile Strength</div></div>'
-    + '</div>'
+    + (function() {
+        var rareCount = wizardState.skills.filter(function(s) { return (s._rarity || '').toLowerCase() === 'rare'; }).length;
+        var uncommonCount = wizardState.skills.filter(function(s) { return (s._rarity || '').toLowerCase() === 'uncommon'; }).length;
+        var outcomeCount = (wizardState.selectedOutcomes || []).length;
+        var strengthScore = 0;
+        if (skillCount >= 20) strengthScore += 20; else if (skillCount >= 10) strengthScore += 15; else if (skillCount >= 5) strengthScore += 10; else strengthScore += 5;
+        if (evidenceCount >= 15) strengthScore += 25; else if (evidenceCount >= 8) strengthScore += 20; else if (evidenceCount >= 3) strengthScore += 12; else strengthScore += 5;
+        if (rareCount >= 5) strengthScore += 20; else if (rareCount >= 2) strengthScore += 15; else if (rareCount >= 1) strengthScore += 8;
+        if (uncommonCount >= 3) strengthScore += 10; else if (uncommonCount >= 1) strengthScore += 5;
+        if (outcomeCount >= 5) strengthScore += 15; else if (outcomeCount >= 3) strengthScore += 10; else if (outcomeCount >= 1) strengthScore += 5;
+        var hasVerified = wizardState.skills.some(function(s) { return s.verified; });
+        if (hasVerified) strengthScore += 10;
+        strengthScore = Math.min(strengthScore, 100);
+        var meterLabel = strengthScore >= 85 ? 'Elite' : strengthScore >= 70 ? 'Strong' : strengthScore >= 50 ? 'Good' : strengthScore >= 30 ? 'Building' : 'Early';
+        var meterColor = strengthScore >= 85 ? '#10b981' : strengthScore >= 70 ? '#3b82f6' : strengthScore >= 50 ? '#60a5fa' : strengthScore >= 30 ? '#f59e0b' : '#94a3b8';
+
+        var suggestions = [];
+        if (evidenceCount < 15) suggestions.push('Add outcomes/evidence to skills (' + evidenceCount + '/15)');
+        if (rareCount < 3) suggestions.push('Add rare skills to stand out (' + rareCount + '/3)');
+        if (outcomeCount < 3) suggestions.push('Select suggested outcomes (' + outcomeCount + '/3)');
+        if (!hasVerified) suggestions.push('Get skills verified via certifications');
+        if (skillCount < 15) suggestions.push('Add more skills to your profile (' + skillCount + '/15)');
+
+        return '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;">'
+        + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+        + ' border-radius:10px; padding:14px; text-align:center;">'
+        + '<div style="font-size:1.5em; font-weight:800; color:var(--accent);">' + skillCount + '</div>'
+        + '<div style="font-size:0.75em; color:var(--text-muted);">Skills</div></div>'
+        + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+        + ' border-radius:10px; padding:14px; text-align:center;">'
+        + '<div style="font-size:1.5em; font-weight:800; color:' + strengthColor + ';">' + evidenceCount + '</div>'
+        + '<div style="font-size:0.75em; color:var(--text-muted);">Evidence</div></div>'
+        + '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+        + ' border-radius:10px; padding:14px; text-align:center;">'
+        + '<div style="font-size:1.1em; font-weight:700; color:' + meterColor + '; margin-bottom:6px;">'
+        + meterLabel + ' (' + strengthScore + '%)</div>'
+        + '<div style="width:100%; height:8px; background:rgba(148,163,184,0.2); border-radius:4px; overflow:hidden;">'
+        + '<div style="width:' + strengthScore + '%; height:100%; background:' + meterColor + ';'
+        + ' border-radius:4px; transition:width 0.5s ease;"></div></div>'
+        + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:4px;">Profile Strength</div>'
+        + '</div></div>'
+        + (suggestions.length > 0
+            ? '<div style="background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.2);'
+            + ' border-radius:10px; padding:12px 16px; margin-bottom:16px;">'
+            + '<div style="font-size:0.82em; font-weight:600; color:var(--text-primary); margin-bottom:6px;">'
+            + '\uD83D\uDCA1 Boost Your Profile Strength</div>'
+            + '<ul style="margin:0; padding-left:18px;">'
+            + suggestions.slice(0, 4).map(function(s) { return '<li style="font-size:0.78em; color:var(--text-secondary); margin-bottom:3px;">' + s + '</li>'; }).join('')
+            + '</ul></div>'
+            : '');
+    })()
 
     + (wizardState.purpose ? '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
     + ' border-radius:12px; padding:16px; margin-bottom:16px;">'
@@ -9100,6 +9339,11 @@ export function wizardApplyAndLaunch(built) {
 
     // Store wizard profile in templates so it loads on reload
     templates['wizard-built'] = built;
+
+    // Ensure reportedComp persists via localStorage for Settings and Blueprint pages
+    if (window._userData.profile && window._userData.profile.reportedComp) {
+        try { localStorage.setItem('bp_reportedComp', String(window._userData.profile.reportedComp)); } catch(e) {}
+    }
 
     // Update all data structures BEFORE saving to Firestore
     // (saveToFirestore reads from skillsData and blueprintData, not userData directly)
