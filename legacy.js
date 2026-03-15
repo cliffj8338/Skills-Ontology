@@ -20000,25 +20000,26 @@
         }
         
         function wizardQuickExport() {
+            var _ud = window._userData || userData;
             var exportData = {
-                profile: userData.profile || {},
+                profile: _ud.profile || {},
                 skills: skillsData.skills || [],
                 roles: skillsData.roles || [],
                 values: blueprintData.values || [],
                 purpose: blueprintData.purpose || '',
                 outcomes: blueprintData.outcomes || [],
-                preferences: userData.preferences || {},
-                workHistory: userData.workHistory || [],
-                education: userData.education || [],
-                certifications: userData.certifications || [],
-                verifications: userData.verifications || [],
-                savedJobs: userData.savedJobs || [],
-                linkedinContent: userData.linkedinContent || {},
-                companyTenures: userData.companyTenures || [],
-                importStats: userData.importStats || {},
-                contentVisibility: userData.contentVisibility || {},
+                preferences: _ud.preferences || {},
+                workHistory: _ud.workHistory || [],
+                education: _ud.education || [],
+                certifications: _ud.certifications || [],
+                verifications: _ud.verifications || [],
+                savedJobs: _ud.savedJobs || [],
+                linkedinContent: _ud.linkedinContent || {},
+                companyTenures: _ud.companyTenures || [],
+                importStats: _ud.importStats || {},
+                contentVisibility: _ud.contentVisibility || {},
                 exportedAt: new Date().toISOString(),
-                exportedFor: (userData.profile || {}).name || 'backup',
+                exportedFor: (_ud.profile || {}).name || 'backup',
                 version: BP_VERSION
             };
             
@@ -32366,16 +32367,27 @@ body {
                 return;
             }
             logAnalyticsEvent('export_' + format, { format: format });
+            var _ud = window._userData || userData;
             var sharedData = {
-                profile: userData.profile || {},
-                outcomes: blueprintData.outcomes.filter(function(o) { return o.shared; }),
-                values: blueprintData.values.filter(function(v) { return v.selected; }),
-                purpose: blueprintData.purpose,
-                skills: (skillsData.skills || []).map(function(s) {
-                    return { name: s.name, level: s.level, category: s.category, key: s.key, roles: s.roles };
-                }),
+                profile: _ud.profile || {},
+                outcomes: blueprintData.outcomes || [],
+                values: blueprintData.values || [],
+                purpose: blueprintData.purpose || '',
+                skills: skillsData.skills || [],
                 roles: skillsData.roles || [],
-                exportedAt: new Date().toISOString()
+                preferences: _ud.preferences || {},
+                workHistory: _ud.workHistory || [],
+                education: _ud.education || [],
+                certifications: _ud.certifications || [],
+                verifications: _ud.verifications || [],
+                savedJobs: _ud.savedJobs || [],
+                linkedinContent: _ud.linkedinContent || {},
+                companyTenures: _ud.companyTenures || [],
+                importStats: _ud.importStats || {},
+                contentVisibility: _ud.contentVisibility || {},
+                exportedAt: new Date().toISOString(),
+                exportedFor: (_ud.profile || {}).name || 'backup',
+                version: BP_VERSION
             };
             
             if (format === 'json') {
@@ -32384,7 +32396,7 @@ body {
                 var url = URL.createObjectURL(dataBlob);
                 var link = document.createElement('a');
                 link.href = url;
-                var safeName = ((userData.profile && userData.profile.name) || 'profile').replace(/\s+/g, '-').toLowerCase();
+                var safeName = ((_ud.profile && _ud.profile.name) || 'profile').replace(/\s+/g, '-').toLowerCase();
                 link.download = 'blueprint-' + safeName + '.json';
                 link.click();
                 URL.revokeObjectURL(url);
