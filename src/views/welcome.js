@@ -7743,6 +7743,7 @@ export function renderWizardStep6(el) {
         + ' onmouseover="this.style.background=\'rgba(96,165,250,0.1)\'"'
         + ' onmouseout="this.style.background=\'none\'">Deselect All</button>'
         + '</div>' : '')
+    + (isFromResume ? wizardRenderOutcomePanel() : '')
     + (isFromResume ? wizardRenderSkillCards(skills, levels, levelColors) : wizardRenderEmptySkills())
     + (hasGaps ? wizardRenderGapSection(gapSkills, levelColors) : '')
     + '<div style="display:flex; justify-content:space-between; margin-top:20px;">'
@@ -7765,80 +7766,107 @@ export function renderWizardStep6(el) {
     }
 }
 
+function wizardRenderSkillCard(s, i, levels, levelColors, compact) {
+    var evCount = s.evidence ? s.evidence.length : 0;
+    var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+        + ' border-radius:10px; padding:' + (compact ? '8px 10px' : '12px') + '; margin-bottom:' + (compact ? '6' : '8') + 'px;" id="skill-card-' + i + '">'
+        + '<div style="display:flex; align-items:center; gap:10px;' + (compact ? '' : ' margin-bottom:8px;') + '">'
+        + '<input type="checkbox" id="skill-check-' + i + '" checked'
+        + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">'
+        + '<div style="flex:1; min-width:0; font-weight:600; color:var(--text-primary); font-size:' + (compact ? '0.84' : '0.9') + 'em;">'
+        + escapeHtml(s.name)
+        + (s._marketKeep ? ' <span style="font-size:0.65em; background:#10b981; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">KEY</span>' : '')
+        + '</div>'
+        + '<button onclick="event.stopPropagation(); wizardAIEvidence(' + i + ')" title="AI: Generate evidence"'
+        + ' style="background:none; border:1px solid rgba(168,85,247,0.3); border-radius:6px;'
+        + ' padding:2px 7px; cursor:pointer; font-size:0.72em; color:#a78bfa;'
+        + ' transition:all 0.15s; line-height:1.4;"'
+        + ' onmouseover="this.style.background=\'rgba(168,85,247,0.12)\'"'
+        + ' onmouseout="this.style.background=\'none\'">\u2728</button>'
+        + '<span style="font-size:0.72em; color:var(--text-muted);">'
+        + evCount + ' ev</span>'
+        + '</div>';
+
+    if (!compact) {
+        html += '<div style="display:flex; gap:4px;">';
+        levels.forEach(function(lvl) {
+            var active = s.level === lvl;
+            html += '<button onclick="wizardSetSkillLevel(' + i + ',\'' + lvl + '\')"'
+                + ' style="flex:1; padding:4px 2px; border-radius:6px; border:1.5px solid '
+                + (active ? levelColors[lvl] : 'var(--border)') + ';'
+                + ' background:' + (active ? levelColors[lvl] + '22' : 'transparent') + ';'
+                + ' color:' + (active ? levelColors[lvl] : 'var(--text-muted)') + ';'
+                + ' font-size:0.68em; font-weight:' + (active ? '700' : '500') + ';'
+                + ' cursor:pointer; transition:all 0.15s; line-height:1.3;">'
+                + lvl.substring(0, 3) + '</button>';
+        });
+        html += '</div>';
+    }
+    html += '</div>';
+    return html;
+}
+
 function wizardRenderSkillCards(skills, levels, levelColors) {
-    var roleMap = {};
-    skills.forEach(function(s, i) {
-        var roleKey = (s.roles && s.roles.length > 0) ? s.roles[0] : '_general';
-        if (!roleMap[roleKey]) roleMap[roleKey] = [];
-        roleMap[roleKey].push({ skill: s, idx: i });
+    var selectedOutcomes = wizardState.selectedOutcomes || [];
+    var assignedIdx = {};
+
+    if (selectedOutcomes.length > 0) {
+        skills.forEach(function(s, i) {
+            if (s.evidence) {
+                s.evidence.forEach(function(e) {
+                    if (e.source === 'suggested-outcome' && selectedOutcomes.indexOf(e.description) >= 0) {
+                        if (!assignedIdx[e.description]) assignedIdx[e.description] = [];
+                        if (assignedIdx[e.description].indexOf(i) < 0) assignedIdx[e.description].push(i);
+                    }
+                });
+            }
+        });
+    }
+
+    var allAssigned = {};
+    selectedOutcomes.forEach(function(oc) {
+        (assignedIdx[oc] || []).forEach(function(idx) { allAssigned[idx] = true; });
     });
 
     var html = '<div style="max-height:440px; overflow-y:auto; margin-bottom:12px;">';
-    var roleKeys = Object.keys(roleMap);
-    roleKeys.forEach(function(roleKey) {
-        var items = roleMap[roleKey];
-        var roleName = roleKey === '_general' ? 'General Skills' : roleKey;
-        if (roleKeys.length > 1) {
-            html += '<details open style="margin-bottom:8px;">'
+
+    if (selectedOutcomes.length > 0) {
+        selectedOutcomes.forEach(function(outcomeText) {
+            var idxs = assignedIdx[outcomeText] || [];
+            if (idxs.length === 0) return;
+            html += '<details open style="margin-bottom:10px;">'
+                + '<summary style="cursor:pointer; font-weight:700; font-size:0.84em; color:var(--text-primary);'
+                + ' padding:8px 0; display:flex; align-items:start; gap:8px;">'
+                + '<span style="color:#10b981; flex-shrink:0;">\uD83C\uDFAF</span>'
+                + '<span style="flex:1;">' + escapeHtml(outcomeText)
+                + ' <span style="font-weight:400; color:var(--text-muted); font-size:0.85em;">(' + idxs.length + ' skills)</span></span>'
+                + '</summary>';
+            idxs.forEach(function(idx) {
+                html += wizardRenderSkillCard(skills[idx], idx, levels, levelColors, true);
+            });
+            html += '</details>';
+        });
+    }
+
+    var ungrouped = [];
+    skills.forEach(function(s, i) {
+        if (!allAssigned[i]) ungrouped.push({ skill: s, idx: i });
+    });
+
+    if (ungrouped.length > 0) {
+        var groupLabel = selectedOutcomes.length > 0 ? 'Other Skills' : 'All Skills';
+        if (selectedOutcomes.length > 0) {
+            html += '<details ' + (ungrouped.length <= 10 ? 'open' : '') + ' style="margin-bottom:8px;">'
                 + '<summary style="cursor:pointer; font-weight:700; font-size:0.85em; color:var(--text-secondary);'
                 + ' padding:8px 0; text-transform:uppercase; letter-spacing:0.04em;">'
-                + escapeHtml(roleName) + ' (' + items.length + ')</summary>';
+                + escapeHtml(groupLabel) + ' (' + ungrouped.length + ')</summary>';
         }
-        items.forEach(function(item) {
-            var s = item.skill;
-            var i = item.idx;
-            var outcomes = wizardGetCommonOutcomes(s.name, s.category);
-            html += '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-                + ' border-radius:10px; padding:12px; margin-bottom:8px;" id="skill-card-' + i + '">'
-                + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                + '<input type="checkbox" id="skill-check-' + i + '" checked'
-                + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">'
-                + '<div style="flex:1; min-width:0; font-weight:600; color:var(--text-primary); font-size:0.9em;">'
-                + escapeHtml(s.name)
-                + (s._marketKeep ? ' <span style="font-size:0.65em; background:#10b981; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">KEY</span>' : '')
-                + '</div>'
-                + '<button onclick="event.stopPropagation(); wizardAIEvidence(' + i + ')" title="AI: Generate evidence"'
-                + ' style="background:none; border:1px solid rgba(168,85,247,0.3); border-radius:6px;'
-                + ' padding:2px 7px; cursor:pointer; font-size:0.72em; color:#a78bfa;'
-                + ' transition:all 0.15s; line-height:1.4;"'
-                + ' onmouseover="this.style.background=\'rgba(168,85,247,0.12)\'"'
-                + ' onmouseout="this.style.background=\'none\'">✨</button>'
-                + '<span style="font-size:0.72em; color:var(--text-muted);">'
-                + (s.evidence ? s.evidence.length : 0) + ' ev</span>'
-                + '</div>';
-
-            html += '<div style="display:flex; gap:4px; margin-bottom:' + (outcomes.length > 0 ? '8' : '0') + 'px;">';
-            levels.forEach(function(lvl) {
-                var active = s.level === lvl;
-                html += '<button onclick="wizardSetSkillLevel(' + i + ',\'' + lvl + '\')"'
-                    + ' style="flex:1; padding:4px 2px; border-radius:6px; border:1.5px solid '
-                    + (active ? levelColors[lvl] : 'var(--border)') + ';'
-                    + ' background:' + (active ? levelColors[lvl] + '22' : 'transparent') + ';'
-                    + ' color:' + (active ? levelColors[lvl] : 'var(--text-muted)') + ';'
-                    + ' font-size:0.68em; font-weight:' + (active ? '700' : '500') + ';'
-                    + ' cursor:pointer; transition:all 0.15s; line-height:1.3;">'
-                    + lvl.substring(0, 3) + '</button>';
-            });
-            html += '</div>';
-
-            if (outcomes.length > 0) {
-                html += '<div style="border-top:1px solid var(--border); padding-top:6px;">';
-                outcomes.forEach(function(outcome, oi) {
-                    var alreadyHas = s.evidence && s.evidence.some(function(e) { return e.description === outcome; });
-                    html += '<label style="display:flex; align-items:start; gap:8px; padding:3px 0;'
-                        + ' font-size:0.78em; color:var(--text-secondary); cursor:pointer;">'
-                        + '<input type="checkbox" id="outcome-' + i + '-' + oi + '"'
-                        + (alreadyHas ? ' checked disabled' : '')
-                        + ' onchange="wizardToggleOutcome(' + i + ',' + oi + ')"'
-                        + ' style="margin-top:2px; accent-color:var(--accent); flex-shrink:0;">'
-                        + escapeHtml(outcome) + '</label>';
-                });
-                html += '</div>';
-            }
-            html += '</div>';
+        ungrouped.forEach(function(item) {
+            html += wizardRenderSkillCard(item.skill, item.idx, levels, levelColors, false);
         });
-        if (roleKeys.length > 1) html += '</details>';
-    });
+        if (selectedOutcomes.length > 0) html += '</details>';
+    }
+
     html += '</div>';
     return html;
 }
@@ -7912,6 +7940,261 @@ function wizardGetCommonOutcomes(skillName, category) {
     if (category === 'ability') return ['Demonstrated capability under pressure in high-stakes situations','Applied skill consistently across diverse project contexts'];
     return [];
 }
+
+function wizardSuggestOutcomes() {
+    if (wizardState._suggestedOutcomes) return wizardState._suggestedOutcomes;
+    var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
+    var industry = ((wizardState.profile && wizardState.profile.industry) || '').toLowerCase();
+    var skills = wizardState.skills || [];
+    var skillNames = skills.map(function(s) { return (s.name || '').toLowerCase(); });
+
+    var outcomeTemplates = {
+        executive: {
+            match: /\b(vp|vice president|c-suite|ceo|cto|cfo|coo|chief|svp|evp|president|managing director)\b/,
+            outcomes: [
+                { text: 'Drove organizational strategy resulting in measurable revenue or efficiency gains', skills: ['strategy','leadership','management','communication','business development'] },
+                { text: 'Built and led high-performing teams across multiple functions', skills: ['leadership','management','team building','communication','mentoring'] },
+                { text: 'Established strategic partnerships and market positioning', skills: ['strategy','business development','negotiation','communication','sales'] },
+                { text: 'Delivered operational transformation improving efficiency and reducing costs', skills: ['operations','process improvement','management','analytics','strategy'] }
+            ]
+        },
+        director: {
+            match: /\b(director|head of|principal)\b/,
+            outcomes: [
+                { text: 'Scaled department operations to support business growth', skills: ['management','leadership','operations','strategy','process improvement'] },
+                { text: 'Drove cross-functional initiatives with measurable business impact', skills: ['project management','leadership','communication','strategy','stakeholder management'] },
+                { text: 'Developed talent pipeline through mentoring and team development', skills: ['leadership','mentoring','management','coaching','communication'] },
+                { text: 'Implemented systems and processes that improved team productivity', skills: ['technology','operations','process improvement','management','analytics'] }
+            ]
+        },
+        technology: {
+            match: /\b(software|developer|engineer|architect|technical|tech lead|devops|cloud|data|ai|ml)\b/,
+            outcomes: [
+                { text: 'Architected and delivered production systems serving real users at scale', skills: ['software','architecture','engineering','programming','systems design','javascript','python','react','node'] },
+                { text: 'Improved system reliability, performance, or security measurably', skills: ['devops','cloud','aws','security','monitoring','kubernetes','infrastructure'] },
+                { text: 'Led technical decision-making and mentored engineering teams', skills: ['leadership','mentoring','architecture','code review','technical strategy'] },
+                { text: 'Automated workflows reducing manual effort and operational costs', skills: ['automation','scripting','python','devops','ci/cd','process improvement'] }
+            ]
+        },
+        creative: {
+            match: /\b(creative|designer|design|ux|ui|brand|content|multimedia|art|visual|writer)\b/,
+            outcomes: [
+                { text: 'Created design systems and visual assets adopted across the organization', skills: ['design','branding','visual design','ux','ui','creative direction'] },
+                { text: 'Improved user experience metrics through research-driven design', skills: ['ux','user research','design','analytics','prototyping','testing'] },
+                { text: 'Built and led creative teams delivering on brand and business objectives', skills: ['creative direction','leadership','management','branding','communication'] },
+                { text: 'Produced multimedia content that drove engagement and reach', skills: ['content','multimedia','video','writing','social media','marketing'] }
+            ]
+        },
+        sales_biz: {
+            match: /\b(sales|business development|account|revenue|partnerships)\b/,
+            outcomes: [
+                { text: 'Consistently exceeded revenue targets and grew key accounts', skills: ['sales','negotiation','account management','business development','communication'] },
+                { text: 'Built and managed strategic partnerships generating measurable value', skills: ['business development','partnerships','negotiation','strategy','relationship management'] },
+                { text: 'Developed sales processes and playbooks adopted by the team', skills: ['sales','process improvement','training','leadership','crm'] }
+            ]
+        },
+        marketing: {
+            match: /\b(market|brand|content|seo|growth|digital marketing|demand)\b/,
+            outcomes: [
+                { text: 'Executed campaigns that generated qualified pipeline and revenue', skills: ['marketing','digital marketing','analytics','content','demand generation'] },
+                { text: 'Built brand presence and increased market awareness', skills: ['branding','content','social media','pr','communication','marketing'] },
+                { text: 'Improved conversion and engagement through data-driven optimization', skills: ['analytics','a/b testing','marketing','seo','growth'] }
+            ]
+        },
+        consulting: {
+            match: /\b(consult|advisory|strateg|analyst)\b/,
+            outcomes: [
+                { text: 'Delivered strategic recommendations that drove client business outcomes', skills: ['strategy','consulting','analytics','communication','research'] },
+                { text: 'Led client engagements from discovery through implementation', skills: ['project management','consulting','communication','stakeholder management','strategy'] },
+                { text: 'Built frameworks and methodologies adopted across the practice', skills: ['strategy','process improvement','knowledge management','training','communication'] }
+            ]
+        },
+        operations: {
+            match: /\b(operation|logistics|supply|procurement|program)\b/,
+            outcomes: [
+                { text: 'Streamlined operations reducing costs and improving delivery timelines', skills: ['operations','process improvement','logistics','management','analytics'] },
+                { text: 'Managed complex programs coordinating across multiple teams and stakeholders', skills: ['program management','project management','communication','operations','stakeholder management'] },
+                { text: 'Implemented quality and compliance frameworks meeting industry standards', skills: ['quality','compliance','process improvement','operations','risk management'] }
+            ]
+        },
+        education: {
+            match: /\b(teach|professor|instructor|training|education|curriculum|coach)\b/,
+            outcomes: [
+                { text: 'Developed curriculum and training programs adopted at scale', skills: ['curriculum','training','education','instructional design','communication'] },
+                { text: 'Mentored and coached individuals to measurable professional growth', skills: ['mentoring','coaching','leadership','communication','training'] }
+            ]
+        }
+    };
+
+    var matched = [];
+    var seenTexts = {};
+    for (var key in outcomeTemplates) {
+        var tmpl = outcomeTemplates[key];
+        if (tmpl.match.test(title) || tmpl.match.test(industry)) {
+            tmpl.outcomes.forEach(function(o) {
+                if (!seenTexts[o.text]) {
+                    seenTexts[o.text] = true;
+                    var relevantSkills = o.skills.filter(function(os) {
+                        return skillNames.some(function(sn) { return sn.indexOf(os) >= 0 || os.indexOf(sn) >= 0; });
+                    });
+                    if (relevantSkills.length > 0 || matched.length < 4) {
+                        matched.push({ text: o.text, relatedSkills: relevantSkills, _selected: false, _editing: false });
+                    }
+                }
+            });
+        }
+    }
+
+    if (matched.length < 3) {
+        var generic = [
+            { text: 'Delivered measurable results that advanced organizational goals', relatedSkills: [], _selected: false, _editing: false },
+            { text: 'Built and maintained key stakeholder relationships', relatedSkills: [], _selected: false, _editing: false },
+            { text: 'Identified and resolved problems proactively improving outcomes', relatedSkills: [], _selected: false, _editing: false }
+        ];
+        generic.forEach(function(g) {
+            if (!seenTexts[g.text] && matched.length < 6) {
+                seenTexts[g.text] = true;
+                matched.push(g);
+            }
+        });
+    }
+
+    wizardState._suggestedOutcomes = matched.slice(0, 8);
+    return wizardState._suggestedOutcomes;
+}
+
+function wizardRenderOutcomePanel() {
+    var outcomes = wizardSuggestOutcomes();
+    if (!outcomes || outcomes.length === 0) return '';
+    var title = ((wizardState.profile && wizardState.profile.currentTitle) || 'your role');
+
+    var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+        + ' border-radius:12px; padding:16px; margin-bottom:14px;">'
+        + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em; margin-bottom:4px;">'
+        + '\uD83C\uDFAF Suggested Outcomes</div>'
+        + '<p style="font-size:0.78em; color:var(--text-muted); margin-bottom:12px;">'
+        + 'Common outcomes for <strong>' + escapeHtml(title) + '</strong>. Select the ones that fit, then edit to make them your own.</p>';
+
+    outcomes.forEach(function(o, i) {
+        var selected = o._selected;
+        html += '<div style="display:flex; align-items:start; gap:10px; padding:8px 10px;'
+            + ' border:1px solid ' + (selected ? 'rgba(16,185,129,0.4)' : 'var(--border)') + ';'
+            + ' background:' + (selected ? 'rgba(16,185,129,0.06)' : 'var(--bg-surface)') + ';'
+            + ' border-radius:8px; margin-bottom:6px; transition:all 0.15s;">';
+
+        if (o._editing) {
+            html += '<div style="flex:1;">'
+                + '<input type="text" id="outcome-edit-' + i + '" value="' + escapeHtml(o.text).replace(/"/g, '&quot;') + '"'
+                + ' style="width:100%; padding:6px 8px; border:1px solid var(--accent); border-radius:6px;'
+                + ' background:var(--bg-surface); color:var(--text-primary); font-size:0.85em; outline:none;"'
+                + ' onkeydown="if(event.key===\'Enter\')wizardSaveOutcomeEdit(' + i + ')">'
+                + '<div style="display:flex; gap:6px; margin-top:6px;">'
+                + '<button onclick="wizardSaveOutcomeEdit(' + i + ')"'
+                + ' style="background:var(--accent); color:#fff; border:none; border-radius:5px;'
+                + ' padding:3px 12px; font-size:0.76em; cursor:pointer; font-weight:600;">Save</button>'
+                + '<button onclick="wizardCancelOutcomeEdit(' + i + ')"'
+                + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                + ' border-radius:5px; padding:3px 10px; font-size:0.76em; cursor:pointer;">Cancel</button>'
+                + '</div></div>';
+        } else {
+            html += '<input type="checkbox" ' + (selected ? 'checked' : '') + ' onchange="wizardToggleSuggestedOutcome(' + i + ')"'
+                + ' style="margin-top:3px; accent-color:#10b981; flex-shrink:0; cursor:pointer;">'
+                + '<div style="flex:1; min-width:0;">'
+                + '<div style="font-size:0.85em; color:var(--text-primary);' + (selected ? ' font-weight:600;' : '') + '">'
+                + escapeHtml(o.text) + '</div>';
+            if (o.relatedSkills && o.relatedSkills.length > 0) {
+                html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;">Uses: '
+                    + o.relatedSkills.slice(0, 5).map(function(s) { return escapeHtml(s); }).join(', ') + '</div>';
+            }
+            html += '</div>';
+            if (selected) {
+                html += '<button onclick="wizardEditOutcome(' + i + ')" title="Edit to make it yours"'
+                    + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                    + ' border-radius:5px; padding:2px 8px; cursor:pointer; font-size:0.72em; flex-shrink:0;">Edit</button>';
+            }
+        }
+        html += '</div>';
+    });
+
+    html += '</div>';
+    return html;
+}
+
+function wizardToggleSuggestedOutcome(idx) {
+    var outcomes = wizardState._suggestedOutcomes;
+    if (!outcomes || !outcomes[idx]) return;
+    outcomes[idx]._selected = !outcomes[idx]._selected;
+    if (outcomes[idx]._selected) {
+        if (!wizardState.selectedOutcomes) wizardState.selectedOutcomes = [];
+        wizardState.selectedOutcomes.push(outcomes[idx].text);
+        outcomes[idx].relatedSkills.forEach(function(skillKey) {
+            wizardState.skills.forEach(function(s, si) {
+                var sn = (s.name || '').toLowerCase();
+                if (sn.indexOf(skillKey) >= 0 || skillKey.indexOf(sn) >= 0) {
+                    if (!s.evidence) s.evidence = [];
+                    var already = s.evidence.some(function(e) { return e.description === outcomes[idx].text; });
+                    if (!already) {
+                        s.evidence.push({ description: outcomes[idx].text, type: 'outcome', source: 'suggested-outcome', date: new Date().toISOString().substring(0, 10) });
+                    }
+                }
+            });
+        });
+    } else {
+        if (wizardState.selectedOutcomes) {
+            wizardState.selectedOutcomes = wizardState.selectedOutcomes.filter(function(t) { return t !== outcomes[idx].text; });
+        }
+    }
+    var el = document.getElementById('wizardStepContent');
+    if (el) renderWizardStep6(el);
+}
+window.wizardToggleSuggestedOutcome = wizardToggleSuggestedOutcome;
+
+function wizardEditOutcome(idx) {
+    var outcomes = wizardState._suggestedOutcomes;
+    if (!outcomes || !outcomes[idx]) return;
+    outcomes[idx]._editing = true;
+    var el = document.getElementById('wizardStepContent');
+    if (el) renderWizardStep6(el);
+    setTimeout(function() {
+        var input = document.getElementById('outcome-edit-' + idx);
+        if (input) { input.focus(); input.select(); }
+    }, 50);
+}
+window.wizardEditOutcome = wizardEditOutcome;
+
+function wizardSaveOutcomeEdit(idx) {
+    var outcomes = wizardState._suggestedOutcomes;
+    if (!outcomes || !outcomes[idx]) return;
+    var input = document.getElementById('outcome-edit-' + idx);
+    if (input && input.value.trim()) {
+        var oldText = outcomes[idx].text;
+        outcomes[idx].text = input.value.trim();
+        outcomes[idx]._editing = false;
+        wizardState.skills.forEach(function(s) {
+            if (s.evidence) {
+                s.evidence.forEach(function(e) {
+                    if (e.description === oldText) e.description = outcomes[idx].text;
+                });
+            }
+        });
+        if (wizardState.selectedOutcomes) {
+            wizardState.selectedOutcomes = wizardState.selectedOutcomes.map(function(t) { return t === oldText ? outcomes[idx].text : t; });
+        }
+        showToast('Outcome updated.', 'success', 1500);
+    }
+    var el = document.getElementById('wizardStepContent');
+    if (el) renderWizardStep6(el);
+}
+window.wizardSaveOutcomeEdit = wizardSaveOutcomeEdit;
+
+function wizardCancelOutcomeEdit(idx) {
+    var outcomes = wizardState._suggestedOutcomes;
+    if (!outcomes || !outcomes[idx]) return;
+    outcomes[idx]._editing = false;
+    var el = document.getElementById('wizardStepContent');
+    if (el) renderWizardStep6(el);
+}
+window.wizardCancelOutcomeEdit = wizardCancelOutcomeEdit;
 
 function wizardSetSkillLevel(idx, level) {
     if (idx >= 0 && idx < wizardState.skills.length) {
