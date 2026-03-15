@@ -415,7 +415,8 @@
             if (!raw || typeof raw !== 'object') throw new Error('Invalid import: not an object');
             var allowed = ['profile','skills','roles','values','purpose','outcomes','preferences',
                 'applications','workHistory','education','certifications','verifications',
-                'savedJobs','initialized','templateId'];
+                'savedJobs','initialized','templateId','linkedinContent','companyTenures',
+                'importStats','contentVisibility','careerLens'];
             var clean = {};
             allowed.forEach(function(key) {
                 if (raw[key] !== undefined) clean[key] = raw[key];
