@@ -1273,8 +1273,9 @@
         }
         
         function _buildFirestoreData() {
+            var _ud = window._userData || userData;
             var data = {
-                profile: userData.profile || {},
+                profile: _ud.profile || {},
                 skills: (skillsData && skillsData.skills) ? skillsData.skills.map(function(s) {
                     var mapped = { name: s.name || '', level: s.level || 1, category: s.category || '', key: s.key || s.name || '', roles: s.roles || [], evidence: s.evidence || [] };
                     if (s.endorsements) mapped.endorsements = s.endorsements;
@@ -1290,18 +1291,18 @@
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
                 values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values
-                    : (userData.values && userData.values.length > 0) ? userData.values
+                    : (_ud.values && _ud.values.length > 0) ? _ud.values
                     : (window._lastKnownValues && window._lastKnownValues.length > 0) ? window._lastKnownValues
                     : [],
-                purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
+                purpose: blueprintData.purpose || _ud.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
-                preferences: userData.preferences || {},
-                applications: userData.applications || [],
-                workHistory: userData.workHistory || [],
-                education: userData.education || [],
-                certifications: userData.certifications || [],
-                verifications: userData.verifications || [],
-                savedJobs: (userData.savedJobs || []).map(function(j) {
+                preferences: _ud.preferences || {},
+                applications: _ud.applications || [],
+                workHistory: _ud.workHistory || [],
+                education: _ud.education || [],
+                certifications: _ud.certifications || [],
+                verifications: _ud.verifications || [],
+                savedJobs: (_ud.savedJobs || []).map(function(j) {
                     return { id: j.id || '', title: j.title || '', company: j.company || '', sourceUrl: j.sourceUrl || '', sourceNote: j.sourceNote || '',
                         rawText: j.rawText || '', parsedSkills: j.parsedSkills || [], parsedRoles: j.parsedRoles || [],
                         seniority: j.seniority || '', matchData: j.matchData || {}, addedAt: j.addedAt || new Date().toISOString(),
@@ -1309,14 +1310,12 @@
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            // LinkedIn-derived content & metadata
-            if (userData.linkedinContent) data.linkedinContent = userData.linkedinContent;
-            if (userData.contentVisibility) data.contentVisibility = userData.contentVisibility;
-            if (userData.companyTenures) data.companyTenures = userData.companyTenures;
-            if (userData.importStats) data.importStats = userData.importStats;
-            // Privacy: blind mode defaults + audit log
-            if (userData.blindDefaults) data.blindDefaults = userData.blindDefaults;
-            if (userData.privacyLog && userData.privacyLog.length > 0) data.privacyLog = userData.privacyLog.slice(-100);
+            if (_ud.linkedinContent) data.linkedinContent = _ud.linkedinContent;
+            if (_ud.contentVisibility) data.contentVisibility = _ud.contentVisibility;
+            if (_ud.companyTenures) data.companyTenures = _ud.companyTenures;
+            if (_ud.importStats) data.importStats = _ud.importStats;
+            if (_ud.blindDefaults) data.blindDefaults = _ud.blindDefaults;
+            if (_ud.privacyLog && _ud.privacyLog.length > 0) data.privacyLog = _ud.privacyLog.slice(-100);
             // Dev velocity stats (admin)
             if (window._blueprintDevStats) data.devStats = window._blueprintDevStats;
             

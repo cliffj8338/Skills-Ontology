@@ -286,9 +286,9 @@ export function saveToFirestore() {
 window.saveToFirestore = saveToFirestore;
 
 function _buildFirestoreData() {
-    var ud = typeof userData !== 'undefined' ? userData : {};
-    var sd = typeof skillsData !== 'undefined' ? skillsData : {};
-    var bd = typeof blueprintData !== 'undefined' ? blueprintData : {};
+    var ud = window._userData || (typeof userData !== 'undefined' ? userData : {});
+    var sd = window._skillsData || (typeof skillsData !== 'undefined' ? skillsData : {});
+    var bd = window._blueprintData || (typeof blueprintData !== 'undefined' ? blueprintData : {});
     var data = {
         profile: ud.profile || {},
         skills: (sd.skills || []).map(function(s) {
