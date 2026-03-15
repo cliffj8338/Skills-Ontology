@@ -6884,11 +6884,21 @@ export function renderWizardStep5(el) {
         }
     });
 
+    // Also add workHistory titles that aren't already in parsedData roles
+    var whItems = wizardState.workHistory || [];
+    var existingTitleSet = {};
+    titles.forEach(function(t) { existingTitleSet[t.label.toLowerCase()] = true; });
+    whItems.forEach(function(wh) {
+        var whTitle = (wh.title || '').trim();
+        if (whTitle && !existingTitleSet[whTitle.toLowerCase()]) {
+            existingTitleSet[whTitle.toLowerCase()] = true;
+            titles.push({ label: whTitle, source: 'history', company: wh.company || '', years: '' });
+        }
+    });
+
     // Split compound titles (e.g. "Co-Founder/Chief Pilot") into segments and resolve each
-    // Only keep fragments with >= 2 meaningful words to avoid single-word garbage matches
     var expandedTitles = [];
-    var _genericFragments = { 'owner':1, 'co founder':1, 'cofounder':1, 'founder':1, 'creative':1,
-        'partner':1, 'member':1, 'associate':1, 'specialist':1, 'coordinator':1 };
+    var _genericFragments = { 'creative':1, 'member':1, 'associate':1, 'coordinator':1 };
     titles.forEach(function(t) {
         expandedTitles.push(t);
         if (/[\/&]|\band\b/i.test(t.label)) {
@@ -6899,6 +6909,37 @@ export function renderWizardStep5(el) {
                 if (wordCount < 2 || _genericFragments[normPart]) return;
                 expandedTitles.push({ label: part, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
             });
+        }
+    });
+
+    // For titles with "Founder/Owner/Partner" + a company name containing clues, infer a role
+    var _founderInferMap = {
+        'foundation': 'Executive Director',
+        'nonprofit': 'Nonprofit Executive Director',
+        'non-profit': 'Nonprofit Executive Director',
+        'charity': 'Nonprofit Executive Director',
+        'consulting': 'Management Consultant',
+        'media': 'Media Director',
+        'tech': 'Technology Director',
+        'software': 'Software Development Manager',
+        'design': 'Creative Director',
+        'marketing': 'Marketing Director',
+        'health': 'Healthcare Administrator'
+    };
+    titles.forEach(function(t) {
+        var labelLow = t.label.toLowerCase();
+        if (/\b(founder|owner|partner|co-founder|cofounder)\b/i.test(labelLow)) {
+            var companyLow = (t.company || '').toLowerCase();
+            for (var key in _founderInferMap) {
+                if (companyLow.includes(key)) {
+                    var inferredTitle = _founderInferMap[key];
+                    if (!existingTitleSet[inferredTitle.toLowerCase()]) {
+                        existingTitleSet[inferredTitle.toLowerCase()] = true;
+                        expandedTitles.push({ label: inferredTitle, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
+                    }
+                    break;
+                }
+            }
         }
     });
 
@@ -7111,21 +7152,116 @@ export function renderWizardStep5(el) {
         return '\u{1F4A1}';
     };
 
+    var impactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
+    function getGapRarity(g) {
+        if (typeof window.getSkillImpact === 'function') {
+            try {
+                var impact = window.getSkillImpact({ name: g.name, level: g.occupationLevel || 'Proficient', category: g.category || 'skill', onetId: g.elementId });
+                return impactToRarity[(impact && impact.level) || 'moderate'] || 'common';
+            } catch(e) {}
+        }
+        var imp = g.importance || 0;
+        if (imp >= 60) return 'rare';
+        if (imp >= 40) return 'uncommon';
+        return 'common';
+    }
+
+    var rareTiers = { rare: [], uncommon: [], common: [] };
+    gapSkills.forEach(function(g) {
+        var r = getGapRarity(g);
+        g._rarity = r;
+        g._recommended = (r === 'rare' || (r === 'uncommon' && (g.importance || 0) >= 45));
+        rareTiers[r].push(g);
+    });
+
+    var baseMarketValue = wizardGetMarketBaseAnchor();
+    var currentSkillCount = wizardState.skills.length;
+    var recommendedCount = gapSkills.filter(function(g) { return g._recommended; }).length;
+
     var allRoles = (wizardState.parsedData && wizardState.parsedData.roles) || [];
-    var whItems = wizardState.workHistory || [];
     var hasMultipleRoles = allRoles.length > 3 || whItems.length > 3;
 
-    el.innerHTML = `
-        ${wizardHeading(bpIcon('target',22), 'Occupation Match & Skill Enrichment',
-            resolutions.length > 0
-                ? 'We matched your roles to O*NET occupations and found skills you may want to add.'
-                : 'No role titles could be matched. Continue to review your skills.')}
+    var rarityColors = { rare: '#f59e0b', uncommon: '#8b5cf6', common: '#60a5fa' };
+    var rarityLabels = { rare: 'Rare & High Value', uncommon: 'Uncommon', common: 'Common' };
+    var rarityIcons = { rare: '\uD83D\uDC8E', uncommon: '\u2B50', common: '\u{1F4A1}' };
 
-        ${hasMultipleRoles ? '<div style="background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04)); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
-            + '<div style="font-weight:700; color:#f59e0b; font-size:0.82em; margin-bottom:6px;">💡 Pro Tip: Less is More</div>'
-            + '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.5;">'
-            + 'Listing more than your past 3 roles isn\'t necessary. You can <strong>hide a role but keep the skills</strong>. '
-            + 'This way you demonstrate currency and relevance to the market without showing past roles that may create more noise than signal.</div>'
+    function renderRarityTier(tierKey, skills, startIdx) {
+        if (skills.length === 0) return '';
+        var color = rarityColors[tierKey];
+        var html = '<div style="margin-bottom:14px;">'
+            + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
+            + '<span style="font-size:1em;">' + rarityIcons[tierKey] + '</span>'
+            + '<span style="font-weight:700; font-size:0.85em; color:' + color + ';">'
+            + rarityLabels[tierKey] + '</span>'
+            + '<span style="font-size:0.72em; color:var(--text-muted);">(' + skills.length + ')</span>'
+            + '</div>';
+        skills.forEach(function(g, i) {
+            var idx = startIdx + i;
+            html += '<label style="display:flex; align-items:center; gap:10px; padding:7px 8px; cursor:pointer;'
+                + ' border-bottom:1px solid var(--border); border-radius:6px; transition:background 0.1s;"'
+                + ' onmouseover="this.style.background=\'rgba(99,102,241,0.04)\'"'
+                + ' onmouseout="this.style.background=\'none\'">'
+                + '<input type="checkbox" id="enrich-skill-' + idx + '"' + (g._recommended ? ' checked' : '')
+                + ' onchange="wizardUpdateMarketCounter()"'
+                + ' style="width:16px; height:16px; cursor:pointer; accent-color:' + color + '; flex-shrink:0;">'
+                + '<div style="width:5px; height:5px; border-radius:50%; background:' + color + '; flex-shrink:0;"></div>'
+                + '<div style="flex:1; min-width:0;">'
+                + '<div style="font-weight:600; color:var(--text-primary); font-size:0.86em;">'
+                + escapeHtml(g.name)
+                + (g._recommended ? ' <span style="font-size:0.62em; background:' + color + '; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">RECOMMENDED</span>' : '')
+                + '</div>'
+                + '<div style="font-size:0.73em; color:var(--text-muted);">'
+                + categoryIcon(g.category) + ' ' + (g.category || 'skill') + ' \u00B7 ' + (g.occupationLevel || 'Proficient')
+                + (g._fromOcc ? ' \u00B7 ' + escapeHtml(g._fromOcc) : '')
+                + '</div></div></label>';
+        });
+        html += '</div>';
+        return html;
+    }
+
+    var findWhIdx = function(title, company) {
+        var tLow = (title || '').toLowerCase().trim();
+        var cLow = (company || '').toLowerCase().trim();
+        for (var i = 0; i < whItems.length; i++) {
+            var whTitle = (whItems[i].title || '').toLowerCase().trim();
+            var whCompany = (whItems[i].company || '').toLowerCase().trim();
+            if (whTitle === tLow && (!cLow || !whCompany || whCompany === cLow)) return i;
+        }
+        for (var i = 0; i < whItems.length; i++) {
+            if ((whItems[i].title || '').toLowerCase().trim() === tLow) return i;
+        }
+        return -1;
+    };
+
+    el.innerHTML = `
+        ${wizardHeading(bpIcon('target',22), 'Skill Intelligence',
+            'Blueprint analyzed your career against O*NET occupational data. Add skills to strengthen your market position.')}
+
+        <div id="wizardMarketCounter" style="background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.06));
+                    border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px 20px;
+                    margin-bottom:18px; display:flex; align-items:center; justify-content:space-between;">
+            <div>
+                <div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">
+                    Estimated Market Value</div>
+                <div style="display:flex; align-items:baseline; gap:8px;">
+                    <span id="marketValueDisplay" style="font-size:1.8em; font-weight:800; color:#10b981;">
+                        $${Math.round(baseMarketValue / 1000)}K</span>
+                    <span id="marketValueDelta" style="font-size:0.82em; color:var(--text-muted); font-weight:600;"></span>
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:0.72em; color:var(--text-muted); margin-bottom:2px;">Skills in Profile</div>
+                <div style="display:flex; align-items:baseline; gap:6px; justify-content:flex-end;">
+                    <span id="skillCountDisplay" style="font-size:1.4em; font-weight:800; color:var(--accent);">${currentSkillCount}</span>
+                    <span id="skillCountDelta" style="font-size:0.78em; color:var(--text-muted);">+ <span id="addedSkillCount">0</span> selected</span>
+                </div>
+            </div>
+        </div>
+
+        ${hasMultipleRoles ? '<div style="background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04)); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:12px 14px; margin-bottom:14px;">'
+            + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.5;">'
+            + '<strong style="color:#f59e0b;">\uD83D\uDCA1 Pro Tip:</strong> You can <strong>hide a role but keep the skills</strong> \u2014 '
+            + 'show currency and relevance without noise from older positions.</div>'
             + '</div>' : ''}
 
         ${resolutions.length > 0 ? (function() {
@@ -7140,290 +7276,137 @@ export function renderWizardStep5(el) {
                 grouped[key].matches.push(r);
             });
 
-            var findWhIdx = function(title, company) {
-                var tLow = (title || '').toLowerCase().trim();
-                var cLow = (company || '').toLowerCase().trim();
-                for (var i = 0; i < whItems.length; i++) {
-                    var whTitle = (whItems[i].title || '').toLowerCase().trim();
-                    var whCompany = (whItems[i].company || '').toLowerCase().trim();
-                    if (whTitle === tLow && (!cLow || !whCompany || whCompany === cLow)) return i;
-                }
-                for (var i = 0; i < whItems.length; i++) {
-                    if ((whItems[i].title || '').toLowerCase().trim() === tLow) return i;
-                }
-                return -1;
-            };
-
-            return '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-                + 'border-radius:14px; padding:20px; margin-bottom:20px;">'
-                + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">'
-                + 'Your Roles</div>'
-                + groupOrder.map(function(key, gi) {
+            return '<details style="background:var(--bg-elevated); border:1px solid var(--border);'
+                + 'border-radius:14px; margin-bottom:16px;" open>'
+                + '<summary style="padding:14px 20px; cursor:pointer; font-weight:700; color:var(--text-primary);'
+                + ' font-size:0.88em; list-style:none; display:flex; align-items:center; justify-content:space-between;">'
+                + 'Your Roles <span style="font-size:0.78em; color:var(--text-muted); font-weight:400;">'
+                + resolutions.length + ' O*NET matches</span></summary>'
+                + '<div style="padding:0 20px 14px;">'
+                + groupOrder.map(function(key) {
                     var g = grouped[key];
                     var whIdx = findWhIdx(g.inputTitle, g.company);
                     var isHidden = whIdx >= 0 && whItems[whIdx].hidden === true;
-                    return '<div style="padding:10px 0; border-bottom:1px solid var(--border);'
+                    return '<div style="padding:8px 0; border-bottom:1px solid var(--border);'
                         + (isHidden ? ' opacity:0.5;' : '') + '">'
-                        + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
-                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
+                        + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.86em;">'
                         + escapeHtml(g.inputTitle)
                         + (g.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(g.company) + '</span>' : '')
                         + '</div>'
-                        + (whIdx >= 0 ? '<button onclick="wizardToggleRoleHidden(' + whIdx + ')" title="' + (isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills') + '"'
+                        + (whIdx >= 0 ? '<button onclick="wizardToggleRoleHidden(' + whIdx + ')"'
                             + ' style="background:' + (isHidden ? 'rgba(245,158,11,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#f59e0b' : 'var(--border)') + ';'
-                            + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
-                            + ' white-space:nowrap; transition:all 0.15s;">'
-                            + (isHidden ? '👁 Hidden — skills kept' : '👁 Hide role') + '</button>' : '')
+                            + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.7em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
+                            + ' white-space:nowrap;">'
+                            + (isHidden ? '\uD83D\uDC41 Hidden' : '\uD83D\uDC41 Hide') + '</button>' : '')
                         + '</div>'
-                        + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
+                        + '<div style="display:flex; flex-wrap:wrap; gap:4px;">'
                         + g.matches.map(function(m) {
-                            return '<div style="display:inline-flex; align-items:center; gap:6px;'
+                            return '<span style="display:inline-flex; align-items:center; gap:4px;'
                                 + ' background:var(--bg-surface); border:1px solid var(--border);'
-                                + ' border-radius:8px; padding:4px 10px; font-size:0.8em;">'
-                                + '<div style="width:7px; height:7px; border-radius:50%; background:' + confidenceColor(m.confidence) + '; flex-shrink:0;"></div>'
-                                + '<span style="color:var(--text-secondary);">' + escapeHtml(m.occTitle) + '</span>'
-                                + '<span style="color:var(--text-muted); font-size:0.85em;">' + Math.round(m.confidence * 100) + '%</span>'
-                                + '</div>';
+                                + ' border-radius:6px; padding:2px 8px; font-size:0.75em;">'
+                                + '<span style="width:6px; height:6px; border-radius:50%; background:' + confidenceColor(m.confidence) + ';"></span>'
+                                + escapeHtml(m.occTitle) + ' ' + Math.round(m.confidence * 100) + '%</span>';
                         }).join('')
                         + '</div></div>';
                 }).join('')
-                + '</div>';
+                + '</div></details>';
         })() : ''}
 
         ${(function() {
             var matchedTitles = new Set();
             resolutions.forEach(function(r) { matchedTitles.add((r.inputTitle || '').toLowerCase().trim()); });
-            var unmatchedRoles = whItems.filter(function(wh, idx) {
+            var unmatchedRoles = whItems.filter(function(wh) {
                 return !matchedTitles.has((wh.title || '').toLowerCase().trim());
             });
             if (unmatchedRoles.length === 0) return '';
-            return '<div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin-bottom:14px;">'
-                + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:10px; font-size:0.88em;">Other Roles</div>'
+            return '<details style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; margin-bottom:14px;">'
+                + '<summary style="padding:12px 20px; cursor:pointer; font-weight:700; color:var(--text-primary); font-size:0.85em;">Other Roles</summary>'
+                + '<div style="padding:0 20px 12px;">'
                 + unmatchedRoles.map(function(wh) {
                     var origIdx = whItems.indexOf(wh);
                     var isHidden = wh.hidden === true;
-                    return '<div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0;'
+                    return '<div style="display:flex; align-items:center; justify-content:space-between; padding:5px 0;'
                         + ' border-bottom:1px solid var(--border);' + (isHidden ? ' opacity:0.5;' : '') + '">'
-                        + '<div style="font-size:0.86em; color:var(--text-primary);">'
+                        + '<div style="font-size:0.84em; color:var(--text-primary);">'
                         + escapeHtml(wh.title || 'Untitled')
                         + (wh.company ? ' <span style="color:var(--text-muted);">at ' + escapeHtml(wh.company) + '</span>' : '')
                         + '</div>'
-                        + '<button onclick="wizardToggleRoleHidden(' + origIdx + ')" title="' + (isHidden ? 'Show role' : 'Hide role, keep skills') + '"'
+                        + '<button onclick="wizardToggleRoleHidden(' + origIdx + ')"'
                         + ' style="background:' + (isHidden ? 'rgba(245,158,11,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#f59e0b' : 'var(--border)') + ';'
-                        + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
+                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.7em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
                         + ' white-space:nowrap;">'
                         + (isHidden ? '\uD83D\uDC41 Hidden' : '\uD83D\uDC41 Hide') + '</button>'
                         + '</div>';
                 }).join('')
-                + '</div>';
+                + '</div></details>';
         })()}
 
         ${gapSkills.length > 0 ? `
         <div style="background:var(--bg-elevated); border:1px solid var(--border);
-                    border-radius:14px; padding:20px; margin-bottom:20px;">
+                    border-radius:14px; padding:20px; margin-bottom:16px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
                 <div style="font-weight:700; color:var(--text-primary); font-size:0.92em;">
-                    Suggested Skills from O*NET
+                    Skills to Strengthen Your Profile
                 </div>
                 <button onclick="wizardSelectAllEnrichSkills()" id="enrichSelectAllBtn"
                     style="background:none; border:1px solid var(--accent); border-radius:6px;
-                           padding:4px 12px; color:var(--accent); cursor:pointer; font-size:0.76em;
-                           font-weight:600; transition:all 0.15s;"
-                    onmouseover="this.style.background='rgba(96,165,250,0.1)'"
-                    onmouseout="this.style.background='none'">
-                    Select All
+                           padding:3px 10px; color:var(--accent); cursor:pointer; font-size:0.72em;
+                           font-weight:600;">
+                    ${recommendedCount > 0 ? 'Select All' : 'Select All'}
                 </button>
             </div>
-            <p style="font-size:0.82em; color:var(--text-muted); margin-bottom:14px;">
-                Based on ${resolutions.length > 1 ? resolutions.length + ' matched occupations' : escapeHtml(primaryRes.occTitle)}, these skills are typical for your roles but missing from your profile.
+            <p style="font-size:0.78em; color:var(--text-muted); margin-bottom:14px;">
+                Blueprint recommends skills based on O*NET occupational profiles for your roles.
+                Higher-rarity skills have more market impact. Recommended skills are pre-selected.
             </p>
-            <div style="max-height:340px; overflow-y:auto;">
-                ${gapSkills.map(function(g, i) {
-                    return '<div style="display:flex; align-items:center; gap:12px; padding:8px 0;'
-                        + 'border-bottom:1px solid var(--border);">'
-                        + '<input type="checkbox" id="enrich-skill-' + i + '"'
-                        + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent); flex-shrink:0;">'
-                        + '<span style="font-size:0.85em; flex-shrink:0;">' + categoryIcon(g.category) + '</span>'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">'
-                        + escapeHtml(g.name) + '</div>'
-                        + '<div style="font-size:0.76em; color:var(--text-muted);">'
-                        + (g.category || 'skill') + ' \u00B7 ' + (g.occupationLevel || 'Proficient')
-                        + (g._fromOcc ? ' \u00B7 <span style="color:var(--text-secondary);">' + escapeHtml(g._fromOcc) + '</span>' : '')
-                        + '</div></div></div>';
-                }).join('')}
+            <div style="max-height:400px; overflow-y:auto;">
+                ${renderRarityTier('rare', rareTiers.rare, 0)}
+                ${renderRarityTier('uncommon', rareTiers.uncommon, rareTiers.rare.length)}
+                ${renderRarityTier('common', rareTiers.common, rareTiers.rare.length + rareTiers.uncommon.length)}
             </div>
         </div>
-
-        ${gapResult ? `
-        <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-            <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
-                        border-radius:10px; padding:14px; text-align:center;">
-                <div style="font-size:1.5em; font-weight:800; color:var(--accent);">${gapResult.matchPercent}%</div>
-                <div style="font-size:0.78em; color:var(--text-muted);">Profile Match</div>
-            </div>
-            <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
-                        border-radius:10px; padding:14px; text-align:center;">
-                <div style="font-size:1.5em; font-weight:800; color:#10b981;">${gapResult.matched.length}</div>
-                <div style="font-size:0.78em; color:var(--text-muted);">Skills Matched</div>
-            </div>
-            <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
-                        border-radius:10px; padding:14px; text-align:center;">
-                <div style="font-size:1.5em; font-weight:800; color:#f59e0b;">${gapSkills.length}</div>
-                <div style="font-size:0.78em; color:var(--text-muted);">Gaps Found</div>
-            </div>
-        </div>
-        ` : ''}
         ` : `
         <div style="background:var(--bg-elevated); border:2px dashed var(--border);
-                    border-radius:14px; padding:32px; text-align:center; margin-bottom:20px;">
-            <p style="color:var(--text-secondary);">
-                No skill gaps identified. Your existing skills cover the matched occupation profile well.
+                    border-radius:14px; padding:24px; text-align:center; margin-bottom:16px;">
+            <p style="color:var(--text-secondary); font-size:0.88em;">
+                Your existing skills cover the matched occupation profiles well. No additional gaps found.
             </p>
         </div>
         `}
 
-        ${wizardState.parsedData && wizardState.parsedData.roles && wizardState.parsedData.roles.length > 0 ? `
-        <div style="background:linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.04));
-                    border:1px solid rgba(99,102,241,0.15); border-radius:14px; padding:20px; margin-bottom:20px;">
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-                <span style="font-size:1.3em;">🔍</span>
-                <div>
-                    <div style="font-weight:700; color:var(--text-primary); font-size:0.92em;">
-                        AI Deep Skill Discovery
-                    </div>
-                    <div style="font-size:0.78em; color:var(--text-secondary); margin-top:2px;">
-                        AI will analyze each of your roles in depth and suggest skills specific to your actual career — not just generic O*NET matches.
-                    </div>
-                </div>
-            </div>
-            <button onclick="wizardAIDeepDiscovery()" id="aiDeepDiscoveryBtn"
-                    style="width:100%; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;
-                           border:none; border-radius:8px; padding:10px 20px; cursor:pointer;
-                           font-size:0.88em; font-weight:600; transition:all 0.15s;">
-                ✨ Discover Skills From My Roles
-            </button>
-            <div id="aiDeepDiscoveryResults" style="margin-top:12px;"></div>
-        </div>
-        ` : ''}
-
         <div style="display:flex; justify-content:space-between;">
             ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
-            ${wizardBtn('Continue \u2192 Skills', 'wizardSaveEnrichment()', 'primary')}
+            ${wizardBtn('Continue \u2192 Skills & Outcomes', 'wizardSaveEnrichment()', 'primary')}
         </div>
     `;
+
+    wizardState._baseMarketValue = baseMarketValue;
+    wizardState._currentSkillCount = currentSkillCount;
+    setTimeout(function() { wizardUpdateMarketCounter(); }, 100);
 }
 
-async function wizardAIDeepDiscovery() {
-    var btn = document.getElementById('aiDeepDiscoveryBtn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Analyzing your roles...'; btn.style.opacity = '0.6'; }
-
-    var apiKey = safeGet('wbAnthropicKey');
-    if (!apiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
-        showToast('Sign in to use AI discovery.', 'warning');
-        if (btn) { btn.disabled = false; btn.textContent = '✨ Discover Skills From My Roles'; btn.style.opacity = '1'; }
-        return;
-    }
-
-    try {
-        var roles = (wizardState.parsedData?.roles || []).map(function(r) {
-            return (r.name || '') + (r.company ? ' at ' + r.company : '') + (r.years ? ' (' + r.years + ')' : '');
-        }).join('\n');
-
-        var existingSkills = wizardState.skills.map(function(s) { return s.name; }).join(', ');
-
-        var data = await callAnthropicAPI({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 4000,
-            messages: [{
-                role: 'user',
-                content: 'You are a career skills expert. Given these roles, identify 20-30 SPECIFIC skills that someone in these exact positions would have. Think deeply about what each role actually requires day-to-day.\n\nRoles:\n' + roles
-                    + '\n\nSkills they ALREADY have (do NOT repeat these): ' + existingSkills
-                    + '\n\nFor each skill, provide the name, a suggested proficiency level (Mastery/Expert/Advanced/Proficient), and which role it primarily comes from.'
-                    + '\n\nIMPORTANT: Be SPECIFIC and ROLE-RELEVANT. Not generic business skills — what does THIS specific role at THIS type of company actually require?'
-                    + ' A pilot needs actual aviation skills (IFR flying, CRM, weather analysis). A VP of Strategy needs actual strategy skills (scenario planning, M&A due diligence, portfolio strategy).'
-                    + '\n\nReturn ONLY a JSON array: [{"name":"Skill Name","level":"Expert","category":"skill|knowledge|ability|unique","role":"Which Role"}]'
-            }]
-        }, apiKey, 'deep-discovery');
-
-        var text = (data.content[0]?.text || '').trim();
-        var clean = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-        var suggestions;
-        try {
-            suggestions = JSON.parse(clean);
-        } catch(jsonErr) {
-            var arrMatch = clean.match(/\[[\s\S]*\]/);
-            if (arrMatch) {
-                try { suggestions = JSON.parse(arrMatch[0]); } catch(e2) { suggestions = []; }
-            } else { suggestions = []; }
-        }
-        if (!Array.isArray(suggestions)) suggestions = [];
-
-        var container = document.getElementById('aiDeepDiscoveryResults');
-        if (!container) return;
-
-        if (!wizardState.enrichment) wizardState.enrichment = {};
-        wizardState.enrichment.aiDiscovery = suggestions;
-
-        var existingMap = {};
-        wizardState.skills.forEach(function(s) { existingMap[s.name.toLowerCase()] = true; });
-        var unique = suggestions.filter(function(s) { return s.name && !existingMap[s.name.toLowerCase()]; });
-
-        if (unique.length === 0) {
-            container.innerHTML = '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px;">No additional unique skills found.</div>';
-            return;
-        }
-
-        var groupedByRole = {};
-        unique.forEach(function(s) {
-            var role = s.role || 'General';
-            if (!groupedByRole[role]) groupedByRole[role] = [];
-            groupedByRole[role].push(s);
-        });
-
-        var html = '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
-            + '<div style="font-weight:600; font-size:0.85em; color:var(--text-primary);">' + unique.length + ' skills discovered</div>'
-            + '<button onclick="wizardSelectAllAIDiscovery()" id="aiDiscoverySelectAllBtn"'
-            + ' style="background:none; border:1px solid var(--accent); border-radius:6px;'
-            + ' padding:4px 12px; color:var(--accent); cursor:pointer; font-size:0.76em;'
-            + ' font-weight:600;">Select All</button></div>';
-
-        var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
-
-        Object.keys(groupedByRole).forEach(function(role) {
-            html += '<div style="font-size:0.76em; color:var(--text-muted); font-weight:600; margin:10px 0 4px; text-transform:uppercase; letter-spacing:0.5px;">' + escapeHtml(role) + '</div>';
-            groupedByRole[role].forEach(function(s, i) {
-                var gIdx = 'ai-disc-' + role.replace(/[^a-z0-9]/gi,'') + '-' + i;
-                var c = levelColors[s.level] || '#60a5fa';
-                html += '<label style="display:flex; align-items:center; gap:10px; padding:6px 0; cursor:pointer; border-bottom:1px solid var(--border);">'
-                    + '<input type="checkbox" class="ai-discovery-cb" data-name="' + escapeAttr(s.name) + '" data-level="' + escapeAttr(s.level||'Proficient') + '" data-category="' + escapeAttr(s.category||'skill') + '"'
-                    + ' style="width:16px; height:16px; accent-color:var(--accent); flex-shrink:0;">'
-                    + '<div style="flex:1;">'
-                    + '<span style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(s.name) + '</span>'
-                    + ' <span style="font-size:0.72em; color:' + c + '; font-weight:500;">' + escapeHtml(s.level||'') + '</span>'
-                    + '</div></label>';
-            });
-        });
-
-        container.innerHTML = html;
-        if (btn) { btn.textContent = '✓ Discovery Complete'; btn.style.background = '#10b981'; }
-
-    } catch (err) {
-        showToast('Discovery failed: ' + err.message, 'error');
-        if (btn) { btn.disabled = false; btn.textContent = '✨ Discover Skills From My Roles'; btn.style.opacity = '1'; }
-    }
+function wizardUpdateMarketCounter() {
+    var gapSkills = (wizardState.enrichment && wizardState.enrichment.gapSkills) || [];
+    var checkedCount = 0;
+    gapSkills.forEach(function(g, i) {
+        var cb = document.getElementById('enrich-skill-' + i);
+        if (cb && cb.checked) checkedCount++;
+    });
+    var baseVal = wizardState._baseMarketValue || 100000;
+    var bump = checkedCount * Math.round(baseVal * 0.004);
+    var newVal = baseVal + bump;
+    var display = document.getElementById('marketValueDisplay');
+    var delta = document.getElementById('marketValueDelta');
+    var skillCount = document.getElementById('skillCountDisplay');
+    var addedCount = document.getElementById('addedSkillCount');
+    if (display) display.textContent = '$' + Math.round(newVal / 1000) + 'K';
+    if (delta && bump > 0) delta.textContent = '+$' + Math.round(bump / 1000) + 'K';
+    else if (delta) delta.textContent = '';
+    if (skillCount) skillCount.textContent = (wizardState._currentSkillCount || 0) + checkedCount;
+    if (addedCount) addedCount.textContent = checkedCount;
 }
-window.wizardAIDeepDiscovery = wizardAIDeepDiscovery;
-
-function wizardSelectAllAIDiscovery() {
-    var cbs = document.querySelectorAll('.ai-discovery-cb');
-    var allChecked = true;
-    cbs.forEach(function(cb) { if (!cb.checked) allChecked = false; });
-    cbs.forEach(function(cb) { cb.checked = !allChecked; });
-    var btn = document.getElementById('aiDiscoverySelectAllBtn');
-    if (btn) btn.textContent = allChecked ? 'Select All' : 'Deselect All';
-}
-window.wizardSelectAllAIDiscovery = wizardSelectAllAIDiscovery;
+window.wizardUpdateMarketCounter = wizardUpdateMarketCounter;
 
 function wizardSelectAllEnrichSkills() {
     var enrichment = wizardState.enrichment || {};
@@ -7439,6 +7422,7 @@ function wizardSelectAllEnrichSkills() {
     }
     var btn = document.getElementById('enrichSelectAllBtn');
     if (btn) btn.textContent = allChecked ? 'Select All' : 'Deselect All';
+    wizardUpdateMarketCounter();
 }
 window.wizardSelectAllEnrichSkills = wizardSelectAllEnrichSkills;
 
@@ -7458,36 +7442,16 @@ export function wizardSaveEnrichment() {
                     level: g.occupationLevel || 'Proficient',
                     category: g.category || 'skill',
                     roles: [],
-                    key: false,
+                    key: g._recommended || false,
                     evidence: [],
-                    _fromEnrich: true
+                    _fromEnrich: true,
+                    _rarity: g._rarity || 'common'
                 });
                 added++;
             }
         }
     }
-    var aiCbs = document.querySelectorAll('.ai-discovery-cb');
-    aiCbs.forEach(function(cb) {
-        if (cb.checked) {
-            var name = cb.getAttribute('data-name');
-            var level = cb.getAttribute('data-level') || 'Proficient';
-            var category = cb.getAttribute('data-category') || 'skill';
-            var already = wizardState.skills.some(function(s) { return s.name.toLowerCase() === name.toLowerCase(); });
-            if (!already) {
-                wizardState.skills.push({
-                    name: name,
-                    level: level,
-                    category: category,
-                    roles: [],
-                    key: false,
-                    evidence: [],
-                    _fromAIDiscovery: true
-                });
-                added++;
-            }
-        }
-    });
-    if (added > 0) showToast(added + ' skills added to your profile.', 'success', 3000);
+    if (added > 0) showToast(added + ' skill' + (added > 1 ? 's' : '') + ' added to your profile.', 'success', 3000);
     wizardNext();
 }
 
@@ -7799,60 +7763,75 @@ export function renderWizardStep6(el) {
     var isFromResume = skills.length > 0;
     var levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
     var levels = ['Novice','Proficient','Advanced','Expert','Mastery'];
-    var enrichment = wizardState.enrichment || {};
-    var gapSkills = (enrichment.gapSkills || []).slice(0, 20);
-    var hasGaps = gapSkills.length > 0;
-    var intel = wizardState.marketIntel || null;
+
+    if (!isFromResume) {
+        el.innerHTML = wizardHeading(bpIcon('compass',22), 'Your Skills',
+            'Add your key skills. You can build this out further after setup.')
+            + wizardRenderEmptySkills()
+            + '<div style="display:flex; justify-content:space-between; margin-top:20px;">'
+            + wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')
+            + wizardBtn('Continue \u2192 Values', 'wizardSaveSkills()', 'primary')
+            + '</div>';
+        return;
+    }
+
+    var baseMarketValue = wizardState._baseMarketValue || wizardGetMarketBaseAnchor();
+    var enrichedCount = skills.filter(function(s) { return s._fromEnrich; }).length;
+    var totalBump = enrichedCount * Math.round(baseMarketValue * 0.004);
+    var estimatedValue = baseMarketValue + totalBump;
+
+    var outcomes = wizardSuggestOutcomes();
+    var hasCerts = wizardState.parsedData && wizardState.parsedData.certifications && wizardState.parsedData.certifications.length > 0;
 
     el.innerHTML = wizardHeading(bpIcon('compass',22),
-        isFromResume ? skills.length + ' Skills Found' : 'Your Skills',
-        isFromResume ? 'Market intelligence applied. Adjust proficiency levels and review recommendations below.'
-                     : 'Add your key skills. You can build this out further after setup.')
-    + (intel ? wizardRenderMarketIntel(intel) : (isFromResume ? '<div id="marketIntelLoading" style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.06));'
-        + ' border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px;'
-        + ' display:flex; align-items:center; gap:10px; margin-bottom:12px;">'
-        + '<span style="font-size:1.1em;">&#9889;</span>'
-        + '<div style="font-size:0.8em; color:var(--text-secondary);">Analyzing market value of your skills...</div>'
-        + '<span class="ai-dots" style="font-size:0.8em; color:var(--accent);">\u21BB</span></div>' : ''))
-    + (isFromResume ? '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">'
-        + '<div style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.06));'
-        + ' border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:10px 14px;'
-        + ' display:flex; align-items:center; gap:10px; flex:1;">'
-        + '<span style="font-size:1.1em;">\u2728</span>'
-        + '<div style="font-size:0.76em; color:var(--text-secondary);">Click the sparkle button on any skill to generate outcome statements from your career context.</div>'
-        + '</div>'
-        + '<button onclick="wizardToggleAllSkills()" id="skillsSelectAllBtn"'
-        + ' style="background:none; border:1px solid var(--accent); border-radius:6px;'
-        + ' padding:4px 12px; color:var(--accent); cursor:pointer; font-size:0.76em;'
-        + ' font-weight:600; transition:all 0.15s; margin-left:10px; white-space:nowrap;"'
-        + ' onmouseover="this.style.background=\'rgba(96,165,250,0.1)\'"'
-        + ' onmouseout="this.style.background=\'none\'">Deselect All</button>'
-        + '</div>' : '')
-    + (isFromResume ? wizardRenderOutcomePanel() : '')
-    + (isFromResume ? wizardRenderSkillCards(skills, levels, levelColors) : wizardRenderEmptySkills())
-    + (hasGaps ? wizardRenderGapSection(gapSkills, levelColors) : '')
+        'Skills & Outcomes',
+        'Review your ' + skills.length + ' skills, adjust proficiency, and add outcome statements to strengthen your profile.')
+
+    + '<div id="wizardMarketCounter6" style="background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.06));'
+    + ' border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:14px 18px;'
+    + ' margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">'
+    + '<div>'
+    + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Estimated Market Value</div>'
+    + '<span style="font-size:1.6em; font-weight:800; color:#10b981;">$' + Math.round(estimatedValue / 1000) + 'K</span>'
+    + (totalBump > 0 ? ' <span style="font-size:0.78em; color:#10b981; font-weight:600;">+$' + Math.round(totalBump / 1000) + 'K from enrichment</span>' : '')
+    + '</div>'
+    + '<div style="text-align:right;">'
+    + '<div style="font-size:0.7em; color:var(--text-muted); margin-bottom:2px;">Skills in Profile</div>'
+    + '<span style="font-size:1.3em; font-weight:800; color:var(--accent);">' + skills.length + '</span>'
+    + '</div></div>'
+
+    + '<div style="background:linear-gradient(135deg, rgba(168,85,247,0.06), rgba(59,130,246,0.04));'
+    + ' border:1px solid rgba(168,85,247,0.2); border-radius:10px; padding:10px 14px;'
+    + ' display:flex; align-items:center; gap:10px; margin-bottom:14px;">'
+    + '<span style="font-size:1em;">\u2728</span>'
+    + '<div style="font-size:0.76em; color:var(--text-secondary);">'
+    + 'Select outcomes that describe your impact. Edit them to make them yours. '
+    + 'Click the <span style="color:#a78bfa; font-weight:600;">\u2728</span> button on any skill for AI-generated evidence.'
+    + (hasCerts ? ' <span style="color:#10b981; font-weight:600;">\u2713 Verified</span> badges apply to certifications only.' : '')
+    + '</div></div>'
+
+    + wizardRenderOutcomePanel()
+
+    + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
+    + '<div style="font-weight:700; color:var(--text-primary); font-size:0.88em;">'
+    + 'All Skills (' + skills.length + ')</div>'
+    + '<button onclick="wizardToggleAllSkills()" id="skillsSelectAllBtn"'
+    + ' style="background:none; border:1px solid var(--accent); border-radius:6px;'
+    + ' padding:3px 10px; color:var(--accent); cursor:pointer; font-size:0.72em;'
+    + ' font-weight:600;">Deselect All</button>'
+    + '</div>'
+
+    + wizardRenderSkillCards(skills, levels, levelColors)
+
     + '<div style="display:flex; justify-content:space-between; margin-top:20px;">'
     + wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')
     + wizardBtn('Continue \u2192 Values', 'wizardSaveSkills()', 'primary')
     + '</div>';
-
-    if (isFromResume && !intel) {
-        wizardFetchMarketIntelligence().then(function(result) {
-            if (result) {
-                var panel = document.getElementById('marketIntelLoading');
-                if (panel) {
-                    panel.outerHTML = wizardRenderMarketIntel(result);
-                }
-            } else {
-                var loading = document.getElementById('marketIntelLoading');
-                if (loading) loading.remove();
-            }
-        });
-    }
 }
 
 function wizardRenderSkillCard(s, i, levels, levelColors, compact) {
     var evCount = s.evidence ? s.evidence.length : 0;
+    var rarityColor = { rare: '#f59e0b', uncommon: '#8b5cf6', common: '#60a5fa' }[s._rarity] || '';
     var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
         + ' border-radius:10px; padding:' + (compact ? '8px 10px' : '12px') + '; margin-bottom:' + (compact ? '6' : '8') + 'px;" id="skill-card-' + i + '">'
         + '<div style="display:flex; align-items:center; gap:10px;' + (compact ? '' : ' margin-bottom:8px;') + '">'
@@ -7860,7 +7839,8 @@ function wizardRenderSkillCard(s, i, levels, levelColors, compact) {
         + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">'
         + '<div style="flex:1; min-width:0; font-weight:600; color:var(--text-primary); font-size:' + (compact ? '0.84' : '0.9') + 'em;">'
         + escapeHtml(s.name)
-        + (s._marketKeep ? ' <span style="font-size:0.65em; background:#10b981; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">KEY</span>' : '')
+        + ((s._marketKeep || s.marketKeep) ? ' <span style="font-size:0.65em; background:#10b981; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">KEY</span>' : '')
+        + (s._rarity === 'rare' ? ' <span style="font-size:0.62em; background:#f59e0b; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">RARE</span>' : '')
         + '</div>'
         + '<button onclick="event.stopPropagation(); wizardAIEvidence(' + i + ')" title="AI: Generate evidence"'
         + ' style="background:none; border:1px solid rgba(168,85,247,0.3); border-radius:6px;'
@@ -7892,66 +7872,10 @@ function wizardRenderSkillCard(s, i, levels, levelColors, compact) {
 }
 
 function wizardRenderSkillCards(skills, levels, levelColors) {
-    var selectedOutcomes = wizardState.selectedOutcomes || [];
-    var assignedIdx = {};
-
-    if (selectedOutcomes.length > 0) {
-        skills.forEach(function(s, i) {
-            if (s.evidence) {
-                s.evidence.forEach(function(e) {
-                    if (e.source === 'suggested-outcome' && selectedOutcomes.indexOf(e.description) >= 0) {
-                        if (!assignedIdx[e.description]) assignedIdx[e.description] = [];
-                        if (assignedIdx[e.description].indexOf(i) < 0) assignedIdx[e.description].push(i);
-                    }
-                });
-            }
-        });
-    }
-
-    var allAssigned = {};
-    selectedOutcomes.forEach(function(oc) {
-        (assignedIdx[oc] || []).forEach(function(idx) { allAssigned[idx] = true; });
-    });
-
     var html = '<div style="max-height:440px; overflow-y:auto; margin-bottom:12px;">';
-
-    if (selectedOutcomes.length > 0) {
-        selectedOutcomes.forEach(function(outcomeText) {
-            var idxs = assignedIdx[outcomeText] || [];
-            if (idxs.length === 0) return;
-            html += '<details open style="margin-bottom:10px;">'
-                + '<summary style="cursor:pointer; font-weight:700; font-size:0.84em; color:var(--text-primary);'
-                + ' padding:8px 0; display:flex; align-items:start; gap:8px;">'
-                + '<span style="color:#10b981; flex-shrink:0;">\uD83C\uDFAF</span>'
-                + '<span style="flex:1;">' + escapeHtml(outcomeText)
-                + ' <span style="font-weight:400; color:var(--text-muted); font-size:0.85em;">(' + idxs.length + ' skills)</span></span>'
-                + '</summary>';
-            idxs.forEach(function(idx) {
-                html += wizardRenderSkillCard(skills[idx], idx, levels, levelColors, true);
-            });
-            html += '</details>';
-        });
-    }
-
-    var ungrouped = [];
     skills.forEach(function(s, i) {
-        if (!allAssigned[i]) ungrouped.push({ skill: s, idx: i });
+        html += wizardRenderSkillCard(s, i, levels, levelColors, false);
     });
-
-    if (ungrouped.length > 0) {
-        var groupLabel = selectedOutcomes.length > 0 ? 'Other Skills' : 'All Skills';
-        if (selectedOutcomes.length > 0) {
-            html += '<details ' + (ungrouped.length <= 10 ? 'open' : '') + ' style="margin-bottom:8px;">'
-                + '<summary style="cursor:pointer; font-weight:700; font-size:0.85em; color:var(--text-secondary);'
-                + ' padding:8px 0; text-transform:uppercase; letter-spacing:0.04em;">'
-                + escapeHtml(groupLabel) + ' (' + ungrouped.length + ')</summary>';
-        }
-        ungrouped.forEach(function(item) {
-            html += wizardRenderSkillCard(item.skill, item.idx, levels, levelColors, false);
-        });
-        if (selectedOutcomes.length > 0) html += '</details>';
-    }
-
     html += '</div>';
     return html;
 }
@@ -7963,29 +7887,6 @@ function wizardRenderEmptySkills() {
         + 'Skills are best built from your resume. You can add them manually in the Skills tab after setup.</p>'
         + '<p style="color:var(--text-muted); font-size:0.85em;">'
         + 'The system includes 90+ O*NET standard skills you can browse and add.</p></div>';
-}
-
-function wizardRenderGapSection(gapSkills, levelColors) {
-    var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-        + ' border-radius:12px; padding:14px; margin-top:8px;">'
-        + '<div style="font-weight:700; color:var(--text-primary); font-size:0.88em; margin-bottom:8px;">'
-        + '\uD83C\uDFAF Suggested from O*NET</div>';
-    gapSkills.forEach(function(g, i) {
-        var c = levelColors[g.occupationLevel] || '#6b7280';
-        html += '<label style="display:flex; align-items:center; gap:10px; padding:6px 0;'
-            + ' border-bottom:1px solid var(--border); cursor:pointer;">'
-            + '<input type="checkbox" id="enrich-skill-' + i + '"'
-            + ' style="width:15px; height:15px; accent-color:var(--accent); flex-shrink:0;">'
-            + '<div style="width:8px; height:8px; border-radius:50%; background:' + c + '; flex-shrink:0;"></div>'
-            + '<div style="flex:1; min-width:0;">'
-            + '<span style="font-weight:600; font-size:0.85em; color:var(--text-primary);">'
-            + escapeHtml(g.name) + '</span>'
-            + ' <span style="font-size:0.72em; color:var(--text-muted);">'
-            + escapeHtml(g.occupationLevel || 'Proficient') + '</span>'
-            + '</div></label>';
-    });
-    html += '</div>';
-    return html;
 }
 
 function wizardGetCommonOutcomes(skillName, category) {
@@ -8403,26 +8304,6 @@ window.wizardToggleAllSkills = wizardToggleAllSkills;
 
 export function wizardSaveSkills() {
     if (readOnlyGuard()) return;
-    var enrichment = wizardState.enrichment;
-    if (enrichment && enrichment.gapSkills) {
-        var existingNames = {};
-        wizardState.skills.forEach(function(s) { existingNames[s.name.toLowerCase()] = true; });
-        var addedCount = 0;
-        enrichment.gapSkills.forEach(function(g, i) {
-            var cb = document.getElementById('enrich-skill-' + i);
-            if (cb && cb.checked && !existingNames[g.name.toLowerCase()]) {
-                var levelMap = { 'Mastery':'Mastery', 'Expert':'Expert', 'Advanced':'Advanced', 'Proficient':'Proficient', 'Novice':'Novice' };
-                wizardState.skills.push({
-                    name: g.name, level: levelMap[g.occupationLevel] || 'Proficient',
-                    category: g.category || 'skill', roles: [], key: false, evidence: [],
-                    onetId: g.elementId || null, sources: ['onet-enrichment:' + new Date().toISOString().substring(0, 10)]
-                });
-                existingNames[g.name.toLowerCase()] = true;
-                addedCount++;
-            }
-        });
-        if (addedCount > 0) showToast(addedCount + ' skill' + (addedCount > 1 ? 's' : '') + ' added from O*NET.', 'success');
-    }
     wizardState.skills = wizardState.skills.filter(function(s, i) {
         var cb = document.getElementById('skill-check-' + i);
         return !cb || cb.checked;

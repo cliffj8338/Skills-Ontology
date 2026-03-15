@@ -21591,7 +21591,7 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
 
             // Split compound titles (e.g. "Co-Founder/Chief Pilot") into segments
             var expandedTitles = [];
-            var _genericFragments = { 'owner':1, 'co founder':1, 'cofounder':1, 'founder':1, 'creative':1,
+            var _genericFragments = { 'creative':1,
                 'partner':1, 'member':1, 'associate':1, 'specialist':1, 'coordinator':1 };
             titles.forEach(function(t) {
                 expandedTitles.push(t);
