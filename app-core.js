@@ -21190,26 +21190,133 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
         function renderWizardStep3(el) {
             el.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center;
-                            justify-content:center; min-height:320px; text-align:center; gap:24px;">
-                    <div id="wizardParsingIcon" style="animation:spin 2s linear infinite;">${bpIcon("settings",48)}</div>
+                            min-height:420px; text-align:center; gap:12px; padding-top:12px;">
+                    <div style="position:relative; width:320px; height:240px;">
+                        <canvas id="wizardNetCanvas" width="640" height="480"
+                            style="width:320px; height:240px;"></canvas>
+                    </div>
                     <div>
-                        <h2 style="color:var(--text-primary); font-size:1.4em; margin-bottom:10px;">
-                            Parsing your resume
+                        <h2 style="color:var(--text-primary); font-size:1.2em; margin-bottom:4px;">
+                            Building your Blueprint
                         </h2>
-                        <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.9em;">
-                            Extracting skills, evidence, and outcomes...
+                        <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.85em;">
+                            Analyzing your resume...
                         </p>
                     </div>
-                    <div style="width:280px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
+                    <div style="width:300px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
                         <div id="wizardParseProgress" style="height:100%; width:0%;
                                     background:linear-gradient(90deg,var(--accent),#818cf8);
                                     border-radius:4px; transition:width 0.5s ease;"></div>
                     </div>
-                    <p style="color:var(--text-muted); font-size:0.8em;">This can take 30–45 seconds</p>
+                    <div id="wizardDiscoveryFeed" style="width:100%; max-width:440px; min-height:200px;
+                                text-align:left; margin-top:4px;"></div>
                 </div>
             `;
+            _wizardStartNetworkAnim();
         }
 
+        function _wizardStartNetworkAnim() {
+            var canvas = document.getElementById('wizardNetCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            var W = canvas.width, H = canvas.height;
+            var nodes = [];
+            var edges = [];
+            var colors = ['#3b82f6','#a78bfa','#10b981','#fb923c','#60a5fa','#f59e0b','#ec4899','#818cf8'];
+            var tick = 0;
+            var maxNodes = 28;
+            var addInterval = 320;
+            var lastAdd = 0;
+
+            function addNode() {
+                var angle = Math.random() * Math.PI * 2;
+                var dist = 80 + Math.random() * 140;
+                var x = W/2 + Math.cos(angle) * dist;
+                var y = H/2 + Math.sin(angle) * dist;
+                var r = 4 + Math.random() * 8;
+                var node = { x:x, y:y, r:r, color:colors[nodes.length%colors.length], alpha:0, targetAlpha:0.9,
+                             vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3 };
+                nodes.push(node);
+                if (nodes.length > 2) {
+                    var closest = -1, closestDist = Infinity;
+                    for (var j=0; j<nodes.length-1; j++) {
+                        var d = Math.hypot(nodes[j].x-x, nodes[j].y-y);
+                        if (d < closestDist) { closestDist=d; closest=j; }
+                    }
+                    if (closest >= 0) edges.push({ a:closest, b:nodes.length-1, alpha:0 });
+                    if (nodes.length > 4 && Math.random() > 0.4) {
+                        var second = Math.floor(Math.random() * (nodes.length-1));
+                        if (second !== closest) edges.push({ a:second, b:nodes.length-1, alpha:0 });
+                    }
+                }
+            }
+
+            function draw() {
+                if (!canvas.isConnected) return;
+                ctx.clearRect(0,0,W,H);
+                tick++;
+                if (tick - lastAdd > addInterval/16 && nodes.length < maxNodes) {
+                    addNode(); lastAdd = tick;
+                }
+                if (nodes.length >= maxNodes && tick % 120 === 0) {
+                    var removeIdx = Math.floor(Math.random() * nodes.length);
+                    nodes[removeIdx].targetAlpha = 0;
+                    edges = edges.filter(function(e) { return e.a !== removeIdx && e.b !== removeIdx; });
+                    setTimeout(function() {
+                        if (nodes[removeIdx]) {
+                            var angle = Math.random() * Math.PI * 2;
+                            var dist = 80 + Math.random() * 140;
+                            nodes[removeIdx].x = W/2 + Math.cos(angle) * dist;
+                            nodes[removeIdx].y = H/2 + Math.sin(angle) * dist;
+                            nodes[removeIdx].targetAlpha = 0.9;
+                            nodes[removeIdx].color = colors[Math.floor(Math.random() * colors.length)];
+                            nodes[removeIdx].vx = (Math.random()-0.5)*0.4;
+                            nodes[removeIdx].vy = (Math.random()-0.5)*0.4;
+                            var closest = -1, closestDist = Infinity;
+                            for (var j=0; j<nodes.length; j++) {
+                                if (j === removeIdx) continue;
+                                var d = Math.hypot(nodes[j].x - nodes[removeIdx].x, nodes[j].y - nodes[removeIdx].y);
+                                if (d < closestDist) { closestDist=d; closest=j; }
+                            }
+                            if (closest >= 0) edges.push({ a:closest, b:removeIdx, alpha:0 });
+                        }
+                    }, 600);
+                }
+                for (var i=0; i<nodes.length; i++) {
+                    var n = nodes[i];
+                    n.alpha += (n.targetAlpha - n.alpha) * 0.06;
+                    n.x += n.vx; n.y += n.vy;
+                    n.vx *= 0.995; n.vy *= 0.995;
+                    if (n.x<30||n.x>W-30) n.vx*=-1;
+                    if (n.y<30||n.y>H-30) n.vy*=-1;
+                }
+                for (var e=0; e<edges.length; e++) {
+                    var edge = edges[e];
+                    edge.alpha += (0.35 - edge.alpha) * 0.04;
+                    var a = nodes[edge.a], b = nodes[edge.b];
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+                    ctx.strokeStyle = 'rgba(96,165,250,' + (edge.alpha * Math.min(a.alpha,b.alpha)) + ')';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                for (var i=0; i<nodes.length; i++) {
+                    var n = nodes[i];
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r + Math.sin(tick*0.03+i)*0.8, 0, Math.PI*2);
+                    ctx.fillStyle = n.color;
+                    ctx.globalAlpha = n.alpha;
+                    ctx.fill();
+                    ctx.globalAlpha = n.alpha * 0.25;
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r*2.5, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+                requestAnimationFrame(draw);
+            }
+            requestAnimationFrame(draw);
+        }
 
         function wizardRepairJSON(text) {
             var trimmed = text.trim();
@@ -21250,8 +21357,6 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 var wizardApiKey = safeGet('wbAnthropicKey');
                 if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
                     setStatus('', 0);
-                    var icon = document.getElementById('wizardParsingIcon');
-                    if (icon) icon.style.animation = 'none';
                     showToast('Sign in or add an Anthropic API key in Settings to use AI parsing.', 'warning', 6000);
                     return;
                 }
@@ -21416,8 +21521,6 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
 
             } catch (err) {
                 console.error('Parsing error:', err);
-                const el = document.getElementById('wizardParsingIcon');
-                if (el) el.style.animation = 'none';
                 const status = document.getElementById('wizardParsingStatus');
                 if (status) status.innerHTML = `
                     <span style="color:var(--danger);">

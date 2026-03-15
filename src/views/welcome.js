@@ -6144,11 +6144,9 @@ export function renderWizardStep3(el) {
     el.innerHTML = `
         <div style="display:flex; flex-direction:column; align-items:center;
                     min-height:420px; text-align:center; gap:12px; padding-top:12px;">
-            <div style="position:relative; width:280px; height:200px;">
-                <canvas id="wizardNetCanvas" width="560" height="400"
-                    style="width:280px; height:200px;"></canvas>
-                <div id="wizardParsingIcon" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-                    animation:spin 2.5s linear infinite; opacity:0.5;">${bpIcon("settings",28)}</div>
+            <div style="position:relative; width:320px; height:240px;">
+                <canvas id="wizardNetCanvas" width="640" height="480"
+                    style="width:320px; height:240px;"></canvas>
             </div>
             <div>
                 <h2 style="color:var(--text-primary); font-size:1.2em; margin-bottom:4px;">
@@ -6174,7 +6172,7 @@ function wizardStartNetworkAnim() {
     var canvas = document.getElementById('wizardNetCanvas');
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
-    var W = 560, H = 400;
+    var W = canvas.width, H = canvas.height;
     var nodes = [];
     var edges = [];
     var colors = ['#3b82f6','#a78bfa','#10b981','#fb923c','#60a5fa','#f59e0b','#ec4899','#818cf8'];
@@ -6185,10 +6183,10 @@ function wizardStartNetworkAnim() {
 
     function addNode() {
         var angle = Math.random() * Math.PI * 2;
-        var dist = 60 + Math.random() * 110;
+        var dist = 80 + Math.random() * 140;
         var x = W/2 + Math.cos(angle) * dist;
         var y = H/2 + Math.sin(angle) * dist;
-        var r = 3 + Math.random() * 6;
+        var r = 4 + Math.random() * 8;
         var node = { x:x, y:y, r:r, color:colors[nodes.length%colors.length], alpha:0, targetAlpha:0.9,
                      vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3 };
         nodes.push(node);
@@ -6212,6 +6210,30 @@ function wizardStartNetworkAnim() {
         tick++;
         if (tick - lastAdd > addInterval/16 && nodes.length < maxNodes) {
             addNode(); lastAdd = tick;
+        }
+        if (nodes.length >= maxNodes && tick % 120 === 0) {
+            var removeIdx = Math.floor(Math.random() * nodes.length);
+            nodes[removeIdx].targetAlpha = 0;
+            edges = edges.filter(function(e) { return e.a !== removeIdx && e.b !== removeIdx; });
+            setTimeout(function() {
+                if (nodes[removeIdx]) {
+                    var angle = Math.random() * Math.PI * 2;
+                    var dist = 80 + Math.random() * 140;
+                    nodes[removeIdx].x = W/2 + Math.cos(angle) * dist;
+                    nodes[removeIdx].y = H/2 + Math.sin(angle) * dist;
+                    nodes[removeIdx].targetAlpha = 0.9;
+                    nodes[removeIdx].color = colors[Math.floor(Math.random() * colors.length)];
+                    nodes[removeIdx].vx = (Math.random()-0.5)*0.4;
+                    nodes[removeIdx].vy = (Math.random()-0.5)*0.4;
+                    var closest = -1, closestDist = Infinity;
+                    for (var j=0; j<nodes.length; j++) {
+                        if (j === removeIdx) continue;
+                        var d = Math.hypot(nodes[j].x - nodes[removeIdx].x, nodes[j].y - nodes[removeIdx].y);
+                        if (d < closestDist) { closestDist=d; closest=j; }
+                    }
+                    if (closest >= 0) edges.push({ a:closest, b:removeIdx, alpha:0 });
+                }
+            }, 600);
         }
         for (var i=0; i<nodes.length; i++) {
             var n = nodes[i];
@@ -6370,8 +6392,6 @@ async function wizardRunParsing() {
         if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
             thinkingTimers.forEach(function(t) { clearTimeout(t); });
             setStatus('', 0);
-            var icon = document.getElementById('wizardParsingIcon');
-            if (icon) icon.style.animation = 'none';
             showToast('Sign in or add an Anthropic API key in Settings to use AI parsing.', 'warning', 6000);
             return;
         }
@@ -6524,9 +6544,6 @@ PURPOSE: Write a compelling, authentic purpose statement capturing this person's
         }
 
         setStatus('Discoveries from your resume:', 90);
-        var parsingIcon = document.getElementById('wizardParsingIcon');
-        if (parsingIcon) parsingIcon.style.display = 'none';
-
         wizardState.parsedData = parsed;
         wizardState.profile = parsed.profile || {};
         wizardState.skills = parsed.skills || [];
@@ -6577,8 +6594,6 @@ PURPOSE: Write a compelling, authentic purpose statement capturing this person's
     } catch (err) {
         thinkingTimers.forEach(function(t) { clearTimeout(t); });
         console.error('Parsing error:', err);
-        const el = document.getElementById('wizardParsingIcon');
-        if (el) el.style.animation = 'none';
         const status = document.getElementById('wizardParsingStatus');
         if (status) status.innerHTML = `
             <span style="color:var(--danger);">
