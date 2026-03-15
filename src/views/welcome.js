@@ -6536,8 +6536,8 @@ PURPOSE: Write a compelling, authentic purpose statement capturing this person's
         var data;
         try {
             data = await callAnthropicAPI({
-                    model: 'claude-sonnet-4-20250514',
-                    max_tokens: 16000,
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 8000,
                     system: systemPrompt,
                     messages: [
                         { role: 'user', content: userContent },

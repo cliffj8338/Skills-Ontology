@@ -290,6 +290,10 @@
                         }
                         proxyApiError = new Error(errMsg);
                     }
+                    if (proxyRes.status === 504) {
+                        recordApiHealth('anthropic-proxy', 'degraded', 'Gateway timeout', { status: 504 });
+                        throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
+                    }
                     if (proxyRes.status >= 500) {
                         AI_PROXY_AVAILABLE = false;
                         recordApiHealth('anthropic-proxy', 'down', 'Server error', { status: proxyRes.status });
@@ -21307,8 +21311,8 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                 var data;
                 try {
                     data = await callAnthropicAPI({
-                            model: 'claude-sonnet-4-20250514',
-                            max_tokens: 16000,
+                            model: 'claude-haiku-4-5-20251001',
+                            max_tokens: 8000,
                             system: systemPrompt,
                             messages: [
                                 { role: 'user', content: userContent },
