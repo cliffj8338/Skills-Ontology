@@ -22126,9 +22126,10 @@ PURPOSE: Write a compelling, authentic purpose statement that captures this pers
                         + '<div style="font-size:0.74em; color:var(--text-secondary); margin-top:2px;">'
                         + escapeHtml(g.rationale) + '</div></div>'
                         + (g._dismissed ? '' : '<button onclick="wizardAddGrowthSkill(' + gi + ')" id="growth-btn-' + gi + '"'
-                        + ' style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3);'
-                        + ' color:#3b82f6; border-radius:6px; padding:2px 10px; cursor:pointer;'
-                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;">+ Add</button>')
+                        + (g._added ? ' disabled' : '')
+                        + ' style="background:' + (g._added ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)') + '; border:1px solid ' + (g._added ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)') + ';'
+                        + ' color:' + (g._added ? '#10b981' : '#3b82f6') + '; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;">' + (g._added ? '\u2713 Added' : '+ Add') + '</button>')
                         + (g._dismissed || g._added ? '' : '<button onclick="wizardDismissRec(\'growth\',' + gi + ')"'
                         + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
                         + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
