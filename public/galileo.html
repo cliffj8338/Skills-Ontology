@@ -1027,35 +1027,23 @@
   /* HEADER GALILEO — absolute positioned, no grid interference */
   .header {
     position: relative;
-    padding-left: 220px !important;
-    padding-right: 260px !important;
+    padding-left: 180px !important;
     overflow: hidden;
   }
   .header-galileo {
     position: absolute;
-    left: 38px;
+    left: 20px;
     top: 50%;
-    transform: translateY(-50%);
-    width: 160px;
+    transform: translateY(-48%);
+    width: 150px;
     height: auto;
-    opacity: 0.18;
-    filter: grayscale(1) contrast(1.4);
+    opacity: 0.35;
+    filter: grayscale(1) contrast(1.1);
     pointer-events: none;
-    animation: eyeroll 8s ease-in-out infinite;
-  }
-  body.light .header-galileo {
-    opacity: 0.14;
-    filter: grayscale(1) contrast(1.6);
   }
   body:not(.light) .header-galileo {
-    opacity: 0.15;
-    filter: grayscale(1) invert(1) contrast(1.2);
-  }
-  @keyframes eyeroll {
-    0%, 80%, 100% { transform: translateY(-50%) rotate(0deg); }
-    85% { transform: translateY(-50%) rotate(-3deg) scale(1.02); }
-    90% { transform: translateY(-50%) rotate(3deg) scale(1.02); }
-    95% { transform: translateY(-50%) rotate(0deg); }
+    opacity: 0.2;
+    filter: grayscale(1) invert(1) contrast(1.0);
   }
   @media (max-width: 768px) {
     .header { padding-left: 20px !important; }
