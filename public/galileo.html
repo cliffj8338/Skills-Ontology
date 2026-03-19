@@ -1032,25 +1032,25 @@
   }
   .header-galileo {
     position: absolute;
-    left: -40px;
-    top: 30px;
-    width: 220px;
+    left: -60px;
+    top: 50%;
+    transform: translateY(-45%);
+    width: 240px;
     height: auto;
-    opacity: 0.55;
-    filter: grayscale(1) contrast(1.2);
+    opacity: 0.6;
     pointer-events: none;
     z-index: 1;
   }
   body:not(.light) .header-galileo {
-    opacity: 0.3;
-    filter: grayscale(1) invert(1) contrast(1.1);
+    opacity: 0.25;
+    filter: invert(1) contrast(1.1);
   }
   @media (max-width: 768px) {
-    .header { padding-left: 130px !important; }
+    .header { padding-left: 120px !important; }
     .header-galileo {
-      left: -30px;
-      width: 150px;
-      opacity: 0.4;
+      left: -50px;
+      width: 160px;
+      opacity: 0.45;
     }
   }
 </style>
