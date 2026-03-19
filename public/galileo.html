@@ -1024,34 +1024,22 @@
     .author-note { text-align: left; }
   }
 
-  /* HEADER GALILEO — positioned to bleed off left, text starts at face edge */
-  .header {
-    position: relative;
-    overflow: visible;
-    padding-left: 150px !important;
-  }
-  .header-galileo {
-    position: absolute;
-    left: -55px;
-    top: 50%;
-    transform: translateY(-45%);
-    width: 220px;
+  /* HEADER GRAPHIC — desktop: pre-made image, mobile: text fallback */
+  .header-graphic {
+    display: block;
+    max-width: 520px;
+    width: 100%;
     height: auto;
-    opacity: 0.55;
-    pointer-events: none;
-    z-index: 0;
   }
-  .header > *:not(.header-galileo) {
-    position: relative;
-    z-index: 1;
-  }
-  body:not(.light) .header-galileo {
-    opacity: 0.25;
-    filter: invert(1) contrast(1.1);
-  }
+  .header-graphic-dark { display: none; }
+  body:not(.light) .header-graphic-light { display: none; }
+  body:not(.light) .header-graphic-dark { display: block; }
+  .header-text-fallback { display: none; }
+  .header-galileo { display: none; }
   @media (max-width: 768px) {
-    .header { padding-left: 20px !important; }
-    .header-galileo { display: none; }
+    .header-graphic { display: none !important; }
+    .header-graphic-dark { display: none !important; }
+    .header-text-fallback { display: block; }
   }
 </style>
 </head>
@@ -1070,11 +1058,14 @@
 
 <!-- HEADER -->
 <div class="header">
-  <img class="header-galileo" src="/galileo-portrait.png" alt="Galileo Galilei rolling his eyes">
   <div>
-    <div class="eyebrow">Analyst Accountability Project — Nobody Asked For This. You're Welcome.</div>
-    <h1>The Galileo<sup>TM</sup><span>Mention Counter</span></h1>
-    <p class="header-sub">Tracking every time Josh Bersin's &#8216;independent analysis&#8217; independently concludes you should buy Josh Bersin&#8217;s product. We&#8217;re just here to help. That&#8217;s all. We&#8217;re helpers.</p>
+    <img class="header-graphic header-graphic-light" src="/galileo-header-light.png" alt="The Galileo™ Mention Counter">
+    <img class="header-graphic header-graphic-dark" src="/galileo-header-dark.png" alt="The Galileo™ Mention Counter">
+    <div class="header-text-fallback">
+      <div class="eyebrow">Analyst Accountability Project — Nobody Asked For This. You're Welcome.</div>
+      <h1>The Galileo<sup>TM</sup><span>Mention Counter</span></h1>
+      <p class="header-sub">Tracking every time Josh Bersin's &#8216;independent analysis&#8217; independently concludes you should buy Josh Bersin&#8217;s product. We&#8217;re just here to help. That&#8217;s all. We&#8217;re helpers.</p>
+    </div>
   </div>
   <div class="update-badge" style="align-items:flex-end">
     <div class="live-badge" style="align-self:flex-end"><div class="live-dot"></div> TRACKING LIVE</div>
