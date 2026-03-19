@@ -8643,6 +8643,7 @@
             var ACCENT = [59, 130, 246], DARK = [15, 23, 42], MID = [51, 65, 85], MUTED = [100, 116, 139];
             var GREEN = [16, 185, 129], PURPLE = [139, 92, 246], WHITE = [255, 255, 255];
             var hcr = d.hiddenCompRows || [];
+            var _pdfShowComp = _jdcCompMode === 'with';
 
             function checkPage(need) { if (y + need > 280) { doc.addPage(); y = 12; } }
             function wrappedText(text, x, fontSize, color, bold, maxW) {
@@ -8745,10 +8746,20 @@
                 });
             }
 
+            if (_pdfShowComp && d.bls && d.bls.median) {
+                var _premMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
+                var _premPool = Math.round(d.bls.median * 0.15);
+                var _premTotalW = (d.skills || []).reduce(function(sum, s) { return sum + ((_premMults[s.blueprintLevel]) ? ((s.importance || 50) * _premMults[s.blueprintLevel]) : 0); }, 0);
+                (d.skills || []).forEach(function(s) {
+                    if (!_premMults[s.blueprintLevel]) { s.compValue = 0; return; }
+                    s.compValue = Math.round(_premPool * ((s.importance || 50) * _premMults[s.blueprintLevel]) / (_premTotalW || 1));
+                });
+            }
+
             sectionHead('Skills & Expected Outcomes');
             var skills = d.skills || [];
             if (skills.length > 0) {
-                var colSkill = M, colOutcome = M + 55, colProf = MR - 22;
+                var colSkill = M, colOutcome = M + 55, colProf = _pdfShowComp ? MR - 42 : MR - 22, colPrem = MR - 18;
                 checkPage(8);
                 doc.setFillColor(248, 250, 252);
                 doc.rect(M, y - 4, CW, 7, 'F');
@@ -8757,10 +8768,12 @@
                 doc.text('SKILL', colSkill + 2, y);
                 doc.text('EXPECTED OUTCOME', colOutcome, y);
                 doc.text('LEVEL', colProf, y);
+                if (_pdfShowComp) { doc.setTextColor.apply(doc, GREEN); doc.text('PREMIUM', colPrem, y); }
                 y += 5;
                 drawLine(M, y, MR, [226, 232, 240], 0.5);
                 y += 3;
 
+                var _pdfTotalComp = 0;
                 skills.forEach(function(s, i) {
                     checkPage(10);
                     if (i % 2 === 1) {
@@ -8776,17 +8789,70 @@
                     var lvlColor = lvl === 'Expert' || lvl === 'Mastery' ? GREEN : (lvl === 'Advanced' ? ACCENT : MUTED);
                     doc.setFontSize(7); doc.setTextColor.apply(doc, lvlColor); doc.setFont('helvetica', 'bold');
                     doc.text(lvl, colProf, y);
+                    if (_pdfShowComp && s.compValue) {
+                        _pdfTotalComp += s.compValue;
+                        doc.setFontSize(7); doc.setTextColor.apply(doc, GREEN); doc.setFont('helvetica', 'bold');
+                        doc.text('$' + s.compValue.toLocaleString(), colPrem, y);
+                    }
                     y += Math.max(outcomeLines.slice(0, 2).length * 3.5, 6) + 2;
                 });
+                if (_pdfShowComp && _pdfTotalComp > 0) {
+                    checkPage(10);
+                    doc.setFillColor(240, 253, 244);
+                    doc.roundedRect(M, y - 2, CW, 9, 1.5, 1.5, 'F');
+                    doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
+                    doc.text('Total Skill Premiums', colProf - 30, y + 4);
+                    doc.setFontSize(9); doc.setTextColor.apply(doc, GREEN); doc.setFont('helvetica', 'bold');
+                    doc.text('+$' + _pdfTotalComp.toLocaleString(), colPrem, y + 4);
+                    y += 12;
+                }
                 y += 2;
             }
 
             if (d.bls) {
                 sectionHead(_pdfShowComp ? 'Compensation Overview (Skills Comp Model)' : 'Compensation Overview', GREEN);
-                var _pdfCompCtx2 = _pdfShowComp ? (_pdfCompCtx || null) : (d.compContext || (typeof _jdcDetectCompContext === 'function' ? _jdcDetectCompContext(d.company, d.industry, d._rawJD || '') : null));
+                var _pdfCompCtx2 = d.compContext || (typeof _jdcDetectCompContext === 'function' ? _jdcDetectCompContext(d.company, d.industry, d._rawJD || '') : null);
                 var _pdfCtxMult2 = (_pdfCompCtx2 && _pdfCompCtx2.multiplier > 1.0) ? _pdfCompCtx2.multiplier : 1.0;
                 var _pdfGeoMult2 = d._geoMult || 1.0;
                 var _pdfAdjMult = _pdfGeoMult2 * _pdfCtxMult2;
+
+                if (_pdfShowComp) {
+                    var _pJdRange = (d.compensation && d.compensation.range) ? d.compensation.range : (d.compensationRange || '');
+                    var _pSen = (d.seniority || 'mid').toLowerCase();
+                    var _pSenKey = (_pSen === 'entry' || _pSen === 'junior') ? 'pct25' : (_pSen === 'senior' || _pSen === 'lead' || _pSen === 'staff' || _pSen === 'director' || _pSen === 'principal') ? 'pct75' : (_pSen === 'executive' || _pSen === 'vp') ? 'pct90' : 'median';
+                    var _pLo = Math.round((d.bls.pct25 || d.bls.median || 0) * _pdfAdjMult);
+                    var _pHi = Math.round((d.bls[_pSenKey] || d.bls.median || 0) * _pdfAdjMult);
+                    var _pBpRange = (_pLo > 0 && _pHi > 0) ? '$' + (Math.round(_pLo/1000)*1000).toLocaleString() + ' \u2013 $' + (Math.round(_pHi/1000)*1000).toLocaleString() : '';
+                    var _pActiveRange = d.activeCompRange || _pJdRange || _pBpRange || '';
+                    var halfW = (CW - 6) / 2;
+                    checkPage(32);
+                    doc.setFillColor(248, 250, 252);
+                    doc.roundedRect(M, y - 2, halfW, 22, 2, 2, 'F');
+                    doc.setFontSize(6); doc.setTextColor.apply(doc, MUTED); doc.setFont('helvetica', 'bold');
+                    doc.text('POSTED IN JD', M + 4, y + 3);
+                    doc.setFontSize(10); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
+                    doc.text(_pJdRange || 'Not posted', M + 4, y + 12);
+                    doc.setFillColor(240, 253, 244);
+                    doc.roundedRect(M + halfW + 6, y - 2, halfW, 22, 2, 2, 'F');
+                    doc.setDrawColor(16, 185, 129); doc.setLineWidth(0.5);
+                    doc.roundedRect(M + halfW + 6, y - 2, halfW, 22, 2, 2, 'S');
+                    doc.setFontSize(6); doc.setTextColor.apply(doc, GREEN); doc.setFont('helvetica', 'bold');
+                    doc.text('BLUEPRINT CALCULATED', M + halfW + 10, y + 3);
+                    doc.setFontSize(10); doc.setTextColor.apply(doc, GREEN); doc.setFont('helvetica', 'bold');
+                    doc.text(_pBpRange || 'N/A', M + halfW + 10, y + 12);
+                    if (_pdfCompCtx2 && _pdfCompCtx2.active) {
+                        doc.setFontSize(5.5); doc.setFont('helvetica', 'normal');
+                        doc.text('BLS + ' + Math.round((_pdfCtxMult2 - 1) * 100) + '% market adj. \u00B7 ' + (_pdfCompCtx2.label || 'Technology'), M + halfW + 10, y + 17);
+                    }
+                    y += 24;
+                    if (_pActiveRange) {
+                        doc.setFontSize(7); doc.setTextColor.apply(doc, MID); doc.setFont('helvetica', 'normal');
+                        doc.text('Use for this Blueprint:  ', M + 2, y + 2);
+                        doc.setFont('helvetica', 'bold'); doc.setTextColor.apply(doc, DARK);
+                        doc.text(_pActiveRange, M + 35, y + 2);
+                        y += 7;
+                    }
+                }
                 var compData = [
                     { key: 'pct10', label: '10th Percentile', val: Math.round((d.bls.pct10 || 0) * _pdfAdjMult) },
                     { key: 'pct25', label: '25th Percentile', val: Math.round((d.bls.pct25 || 0) * _pdfAdjMult) },
