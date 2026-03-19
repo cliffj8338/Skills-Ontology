@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.90 - BUILD 20260314-security-hardening
-        var BP_VERSION = 'v4.46.91';
+        // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
+        var BP_VERSION = 'v4.47.09';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -14,9 +14,9 @@
         // competency frameworks use 12-25, resume best practice is 5-10 core competencies.
         // Blueprint needs broader coverage for multi-job matching across diverse roles.
         // 50 balances signal-to-noise: ~5 mastery + ~10 expert + ~15 advanced + ~20 foundational.
-        var PROFILE_SKILL_CAP = 50;       // Max skills on personal profile
+        var PROFILE_SKILL_CAP = 75;       // Max skills on personal profile
         var WB_SKILL_CAP = 20;            // Max skills per Work Blueprint
-        var SKILL_CAP_WARN = 45;          // Show warning at this threshold
+        var SKILL_CAP_WARN = 65;          // Show warning at this threshold
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
@@ -247,22 +247,29 @@
         
         async function callAnthropicAPI(requestBody, userApiKey, featureTag) {
             trackAICall(featureTag);
+            console.log('[BP API] callAnthropicAPI called for:', featureTag, 'model:', requestBody.model);
             var idToken = null;
             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) { console.warn('Failed to get Firebase ID token:', e.message); }
             }
+            console.log('[BP API] idToken:', idToken ? 'obtained' : 'none', 'proxyAvailable:', AI_PROXY_AVAILABLE, 'directKey:', !!userApiKey);
             if (idToken && AI_PROXY_AVAILABLE !== false) {
                 var proxyApiError = null;
                 try {
+                    console.log('[BP API] Fetching proxy:', AI_PROXY_URL);
                     var proxyRes = await fetch(AI_PROXY_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
-                        body: JSON.stringify(requestBody)
+                        body: JSON.stringify(requestBody),
+                        signal: AbortSignal.timeout(90000)
                     });
+                    console.log('[BP API] Proxy response:', proxyRes.status, proxyRes.statusText);
                     if (proxyRes.ok) {
                         AI_PROXY_AVAILABLE = true;
                         recordApiHealth('anthropic-proxy', 'ok', 'Operational');
-                        return await proxyRes.json();
+                        var jsonData = await proxyRes.json();
+                        console.log('[BP API] Proxy success, response type:', jsonData?.type);
+                        return jsonData;
                     }
                     if (proxyRes.status === 429) {
                         AI_PROXY_AVAILABLE = true;
@@ -283,26 +290,40 @@
                         }
                         proxyApiError = new Error(errMsg);
                     }
+                    if (proxyRes.status === 504) {
+                        recordApiHealth('anthropic-proxy', 'degraded', 'Gateway timeout', { status: 504 });
+                        throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
+                    }
                     if (proxyRes.status >= 500) {
                         AI_PROXY_AVAILABLE = false;
                         recordApiHealth('anthropic-proxy', 'down', 'Server error', { status: proxyRes.status });
                         logIncident('critical', 'anthropic-proxy', 'AI proxy server error (HTTP ' + proxyRes.status + ')', { status: proxyRes.status });
                     }
                 } catch (e) {
+                    console.error('[BP API] Proxy fetch error:', e.name, e.message);
                     if (e.message.includes('Rate limit')) throw e;
+                    if (e.name === 'TimeoutError' || e.message.includes('timed out') || e.message.includes('aborted')) {
+                        recordApiHealth('anthropic-proxy', 'degraded', 'Request timed out', { error: e.message });
+                        throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
+                    }
                     if (AI_PROXY_AVAILABLE === null) {
                         AI_PROXY_AVAILABLE = false;
                         recordApiHealth('anthropic-proxy', 'down', 'Unreachable', { error: e.message });
                     }
+                    console.log('[BP API] Proxy failed, falling through to direct...');
                 }
-                // Throw 4xx errors after catch so they propagate to the caller
                 if (proxyApiError) throw proxyApiError;
             }
-            if (!userApiKey) throw new Error('AI features require sign-in or an API key in Settings.');
+            if (!userApiKey) {
+                console.error('[BP API] No direct API key available, cannot fallback');
+                throw new Error('AI features require sign-in or an API key in Settings.');
+            }
+            console.log('[BP API] Trying direct Anthropic API...');
             var directRes = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-api-key': userApiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify(requestBody),
+                signal: AbortSignal.timeout(120000)
             });
             if (!directRes.ok) {
                 var errData = {}; try { errData = await directRes.json(); } catch(e) {}
@@ -415,7 +436,8 @@
             if (!raw || typeof raw !== 'object') throw new Error('Invalid import: not an object');
             var allowed = ['profile','skills','roles','values','purpose','outcomes','preferences',
                 'applications','workHistory','education','certifications','verifications',
-                'savedJobs','initialized','templateId'];
+                'savedJobs','initialized','templateId','linkedinContent','companyTenures',
+                'importStats','contentVisibility','careerLens'];
             var clean = {};
             allowed.forEach(function(key) {
                 if (raw[key] !== undefined) clean[key] = raw[key];
@@ -426,7 +448,7 @@
             // Sanitize profile strings
             if (clean.profile && typeof clean.profile === 'object') {
                 Object.keys(clean.profile).forEach(function(k) {
-                    if (typeof clean.profile[k] === 'string') {
+                    if (typeof clean.profile[k] === 'string' && k !== 'photo') {
                         clean.profile[k] = clean.profile[k].slice(0, 2000);
                     }
                 });
@@ -642,7 +664,7 @@
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
             console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c   Build: 20260305-mobile-admin                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c   Build: 20260314-security-hardening                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
             console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
             console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         }
@@ -1272,8 +1294,9 @@
         }
         
         function _buildFirestoreData() {
+            var _ud = window._userData || userData;
             var data = {
-                profile: userData.profile || {},
+                profile: _ud.profile || {},
                 skills: (skillsData && skillsData.skills) ? skillsData.skills.map(function(s) {
                     var mapped = { name: s.name || '', level: s.level || 1, category: s.category || '', key: s.key || s.name || '', roles: s.roles || [], evidence: s.evidence || [] };
                     if (s.endorsements) mapped.endorsements = s.endorsements;
@@ -1289,18 +1312,18 @@
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
                 values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values
-                    : (userData.values && userData.values.length > 0) ? userData.values
+                    : (_ud.values && _ud.values.length > 0) ? _ud.values
                     : (window._lastKnownValues && window._lastKnownValues.length > 0) ? window._lastKnownValues
                     : [],
-                purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
+                purpose: blueprintData.purpose || _ud.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
-                preferences: userData.preferences || {},
-                applications: userData.applications || [],
-                workHistory: userData.workHistory || [],
-                education: userData.education || [],
-                certifications: userData.certifications || [],
-                verifications: userData.verifications || [],
-                savedJobs: (userData.savedJobs || []).map(function(j) {
+                preferences: _ud.preferences || {},
+                applications: _ud.applications || [],
+                workHistory: _ud.workHistory || [],
+                education: _ud.education || [],
+                certifications: _ud.certifications || [],
+                verifications: _ud.verifications || [],
+                savedJobs: (_ud.savedJobs || []).map(function(j) {
                     return { id: j.id || '', title: j.title || '', company: j.company || '', sourceUrl: j.sourceUrl || '', sourceNote: j.sourceNote || '',
                         rawText: j.rawText || '', parsedSkills: j.parsedSkills || [], parsedRoles: j.parsedRoles || [],
                         seniority: j.seniority || '', matchData: j.matchData || {}, addedAt: j.addedAt || new Date().toISOString(),
@@ -1308,14 +1331,13 @@
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            // LinkedIn-derived content & metadata
-            if (userData.linkedinContent) data.linkedinContent = userData.linkedinContent;
-            if (userData.contentVisibility) data.contentVisibility = userData.contentVisibility;
-            if (userData.companyTenures) data.companyTenures = userData.companyTenures;
-            if (userData.importStats) data.importStats = userData.importStats;
-            // Privacy: blind mode defaults + audit log
-            if (userData.blindDefaults) data.blindDefaults = userData.blindDefaults;
-            if (userData.privacyLog && userData.privacyLog.length > 0) data.privacyLog = userData.privacyLog.slice(-100);
+            if (_ud.linkedinContent) data.linkedinContent = _ud.linkedinContent;
+            if (_ud.contentVisibility) data.contentVisibility = _ud.contentVisibility;
+            if (_ud.companyTenures) data.companyTenures = _ud.companyTenures;
+            if (_ud.importStats) data.importStats = _ud.importStats;
+            if (_ud.blindDefaults) data.blindDefaults = _ud.blindDefaults;
+            data.growthSkills = (_ud.growthSkills && _ud.growthSkills.length > 0) ? _ud.growthSkills : [];
+            if (_ud.privacyLog && _ud.privacyLog.length > 0) data.privacyLog = _ud.privacyLog.slice(-100);
             // Dev velocity stats (admin)
             if (window._blueprintDevStats) data.devStats = window._blueprintDevStats;
             
@@ -1529,6 +1551,7 @@
                     userData.companyTenures = data.companyTenures || [];
                     userData.importStats = data.importStats || {};
                     userData.blindDefaults = data.blindDefaults || {};
+                    userData.growthSkills = data.growthSkills || [];
                     userData.privacyLog = data.privacyLog || [];
                     // Restore sharing preset
                     if ((data.preferences || {}).sharingPreset && typeof currentPreset !== 'undefined') {
@@ -3594,6 +3617,7 @@
                         { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. v4.45.66: Filtered allSkills→visibleSkills to exclude skills whose only roles are hidden. Report now shows correct skill count, domain distribution, proficiency breakdown, and network graph reflecting only visible positions.' },
                         { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. hideRoleFromNetwork() handles orphan roles directly. v4.45.66: Moved roleInfoCard from controlsBar to body level to fix z-index stacking — card was trapped in parent stacking context, making × close and Hide Role buttons unclickable. Now renders above SVG network correctly.' },
                         { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
+                        { id: 'p2-7a', name: 'Email sign-in going to junk/spam', status: 'planned', category: 'bug', priority: 'high', notes: 'Firebase default sender noreply@work-blueprint.firebaseapp.com has no SPF/DKIM alignment with myblueprint.work domain. Sign-in emails (magic links, verification) land in spam. Fix: Configure custom SMTP in Firebase Console → Authentication → Templates → SMTP Settings using Resend or similar with myblueprint.work domain. Requires DNS SPF/DKIM records.' },
                         { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' },
                         { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
                         { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'done', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched to post-render SVG recoloring via injected script. Polls SVG circles, reads __data__.category, applies main app palette. v4.46.80: MutationObserver replaces blind polling — fires recolorNetwork() instantly as D3 appends SVG nodes, eliminating color flash. bpColors map realigned to getCategoryColor() exactly. Added lvColors proficiency fallback. Safety net polling runs at 200ms for 3s then disconnects. base.html template also updated natively: levelColor, levelColorLight, renderProfGrid cols, and profGrid hardcoded HTML all corrected to main app palette (Mastery=#10b981, Expert=#fb923c, Advanced=#a78bfa, Proficient=#60a5fa, Novice=#94a3b8).' },
@@ -8643,7 +8667,6 @@
             var ACCENT = [59, 130, 246], DARK = [15, 23, 42], MID = [51, 65, 85], MUTED = [100, 116, 139];
             var GREEN = [16, 185, 129], PURPLE = [139, 92, 246], WHITE = [255, 255, 255];
             var hcr = d.hiddenCompRows || [];
-            var _pdfShowComp = _jdcCompMode === 'with';
 
             function checkPage(need) { if (y + need > 280) { doc.addPage(); y = 12; } }
             function wrappedText(text, x, fontSize, color, bold, maxW) {
@@ -8733,6 +8756,84 @@
             wrappedText(d.summary || '', M + 6, 9, MID, false, CW - 6);
             y += 2;
 
+            if (d.keyResponsibilities && d.keyResponsibilities.length > 0) {
+                sectionHead('Key Responsibilities');
+                d.keyResponsibilities.forEach(function(cat) {
+                    wrappedText(cat.category, M + 6, 9, DARK, true, CW - 6);
+                    cat.items.forEach(function(item) {
+                        checkPage(6);
+                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.8, 'F');
+                        wrappedText(item, M + 12, 8, MID, false, CW - 14);
+                    });
+                    y += 2;
+                });
+            }
+
+            sectionHead('Skills & Expected Outcomes');
+            var skills = d.skills || [];
+            if (skills.length > 0) {
+                var colSkill = M, colOutcome = M + 55, colProf = MR - 22;
+                checkPage(8);
+                doc.setFillColor(248, 250, 252);
+                doc.rect(M, y - 4, CW, 7, 'F');
+                doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+                doc.setTextColor.apply(doc, ACCENT);
+                doc.text('SKILL', colSkill + 2, y);
+                doc.text('EXPECTED OUTCOME', colOutcome, y);
+                doc.text('LEVEL', colProf, y);
+                y += 5;
+                drawLine(M, y, MR, [226, 232, 240], 0.5);
+                y += 3;
+
+                skills.forEach(function(s, i) {
+                    checkPage(10);
+                    if (i % 2 === 1) {
+                        doc.setFillColor(248, 250, 252);
+                        doc.rect(M, y - 4, CW, 8, 'F');
+                    }
+                    doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
+                    doc.text((s.name || '').substring(0, 30), colSkill + 2, y);
+                    doc.setFont('helvetica', 'normal'); doc.setTextColor.apply(doc, MID);
+                    var outcomeLines = doc.splitTextToSize(s.outcome || '', colProf - colOutcome - 3);
+                    doc.text(outcomeLines.slice(0, 2), colOutcome, y);
+                    var lvl = s.blueprintLevel || 'Proficient';
+                    var lvlColor = lvl === 'Expert' || lvl === 'Mastery' ? GREEN : (lvl === 'Advanced' ? ACCENT : MUTED);
+                    doc.setFontSize(7); doc.setTextColor.apply(doc, lvlColor); doc.setFont('helvetica', 'bold');
+                    doc.text(lvl, colProf, y);
+                    y += Math.max(outcomeLines.slice(0, 2).length * 3.5, 6) + 2;
+                });
+                y += 2;
+            }
+
+            if (d.bls) {
+                sectionHead('Compensation Overview', GREEN);
+                var compData = [
+                    { key: 'pct10', label: '10th Percentile', val: d.bls.pct10 },
+                    { key: 'pct25', label: '25th Percentile', val: d.bls.pct25 },
+                    { key: 'median', label: '50th (Median)', val: d.bls.median },
+                    { key: 'pct75', label: '75th Percentile', val: d.bls.pct75 },
+                    { key: 'pct90', label: '90th Percentile', val: d.bls.pct90 }
+                ].filter(function(p) { return hcr.indexOf(p.key) === -1; });
+                if (compData.length > 0) {
+                    var barW = (CW - 4) / compData.length;
+                    checkPage(22);
+                    compData.forEach(function(p, i) {
+                        var bx = M + 2 + i * barW;
+                        var isMedian = p.key === 'median';
+                        doc.setFillColor.apply(doc, isMedian ? [16, 185, 129] : [240, 253, 244]);
+                        doc.roundedRect(bx, y - 2, barW - 3, 18, 2, 2, 'F');
+                        doc.setFontSize(6); doc.setTextColor.apply(doc, isMedian ? WHITE : MUTED); doc.setFont('helvetica', 'normal');
+                        doc.text(p.label, bx + (barW - 3) / 2, y + 3, { align: 'center' });
+                        doc.setFontSize(10); doc.setTextColor.apply(doc, isMedian ? WHITE : GREEN); doc.setFont('helvetica', 'bold');
+                        doc.text('$' + (p.val || 0).toLocaleString(), bx + (barW - 3) / 2, y + 11, { align: 'center' });
+                    });
+                    y += 20;
+                    doc.setFontSize(6); doc.setTextColor.apply(doc, MUTED); doc.setFont('helvetica', 'normal');
+                    doc.text('Source: BLS OEWS ' + (d.bls.source || 'May 2024') + ' \u00B7 SOC: ' + (d.bls.soc || ''), M + 2, y);
+                    y += 4;
+                }
+            }
+
             if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length) || (d.qualifications && d.qualifications.length)) {
                 sectionHead('Requirements');
                 if (d.yearsRequired && d.yearsRequired.length) {
@@ -8768,82 +8869,6 @@
                 }
             }
 
-            if (_pdfShowComp && d.bls && d.bls.median) {
-                var _premMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
-                var _premPool = Math.round(d.bls.median * 0.15);
-                var _premTotalW = (d.skills || []).reduce(function(sum, s) { return sum + ((_premMults[s.blueprintLevel]) ? ((s.importance || 50) * _premMults[s.blueprintLevel]) : 0); }, 0);
-                (d.skills || []).forEach(function(s) {
-                    if (!_premMults[s.blueprintLevel]) { s.compValue = 0; return; }
-                    s.compValue = Math.round(_premPool * ((s.importance || 50) * _premMults[s.blueprintLevel]) / (_premTotalW || 1));
-                });
-            }
-
-            sectionHead('Skills & Expected Outcomes');
-            var skills = d.skills || [];
-            if (skills.length > 0) {
-                var colSkill = M, colOutcome = M + 55, colProf = _pdfShowComp ? MR - 42 : MR - 22, colPrem = MR - 18;
-                checkPage(8);
-                doc.setFillColor(248, 250, 252);
-                doc.rect(M, y - 4, CW, 7, 'F');
-                doc.setFontSize(7); doc.setFont('helvetica', 'bold');
-                doc.setTextColor.apply(doc, ACCENT);
-                doc.text('SKILL', colSkill + 2, y);
-                doc.text('EXPECTED OUTCOME', colOutcome, y);
-                doc.text('LEVEL', colProf, y);
-                if (_pdfShowComp) { doc.setTextColor.apply(doc, GREEN); doc.text('PREMIUM', colPrem, y); }
-                y += 5;
-                drawLine(M, y, MR, [226, 232, 240], 0.5);
-                y += 3;
-
-                var _pdfTotalComp = 0;
-                skills.forEach(function(s, i) {
-                    checkPage(10);
-                    if (i % 2 === 1) {
-                        doc.setFillColor(248, 250, 252);
-                        doc.rect(M, y - 4, CW, 8, 'F');
-                    }
-                    doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
-                    doc.text((s.name || '').substring(0, 30), colSkill + 2, y);
-                    doc.setFont('helvetica', 'normal'); doc.setTextColor.apply(doc, MID);
-                    var outcomeLines = doc.splitTextToSize(s.outcome || '', colProf - colOutcome - 3);
-                    doc.text(outcomeLines.slice(0, 2), colOutcome, y);
-                    var lvl = s.blueprintLevel || 'Proficient';
-                    var lvlColor = lvl === 'Expert' || lvl === 'Mastery' ? GREEN : (lvl === 'Advanced' ? ACCENT : MUTED);
-                    doc.setFontSize(7); doc.setTextColor.apply(doc, lvlColor); doc.setFont('helvetica', 'bold');
-                    doc.text(lvl, colProf, y);
-                    if (_pdfShowComp && s.compValue) {
-                        _pdfTotalComp += s.compValue;
-                        doc.setFontSize(7); doc.setTextColor.apply(doc, GREEN); doc.setFont('helvetica', 'bold');
-                        doc.text('$' + s.compValue.toLocaleString(), colPrem, y);
-                    }
-                    y += Math.max(outcomeLines.slice(0, 2).length * 3.5, 6) + 2;
-                });
-                if (_pdfShowComp && _pdfTotalComp > 0) {
-                    checkPage(10);
-                    doc.setFillColor(240, 253, 244);
-                    doc.roundedRect(M, y - 2, CW, 9, 1.5, 1.5, 'F');
-                    doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
-                    doc.text('Total Skill Premiums', colProf - 30, y + 4);
-                    doc.setFontSize(9); doc.setTextColor.apply(doc, GREEN); doc.setFont('helvetica', 'bold');
-                    doc.text('+$' + _pdfTotalComp.toLocaleString(), colPrem, y + 4);
-                    y += 12;
-                }
-                y += 2;
-            }
-
-            if (d.demonstrated) {
-                sectionHead('Demonstrated Experience');
-                (d.demonstrated.evidence || []).forEach(function(e) {
-                    checkPage(6);
-                    doc.setFillColor(139, 92, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
-                    wrappedText(e, M + 12, 8, MID, false, CW - 14);
-                });
-                if (d.demonstrated.artifacts) {
-                    y += 2;
-                    wrappedText('Artifacts: ' + d.demonstrated.artifacts, M + 6, 7, MUTED, false, CW - 6);
-                }
-            }
-
             sectionHead('Values & Purpose', PURPLE);
             (d.values || []).forEach(function(v) {
                 checkPage(8);
@@ -8855,76 +8880,16 @@
                 y += Math.max(descLines.slice(0, 2).length * 3.5, 4) + 4;
             });
 
-            if (d.bls) {
-                sectionHead(_pdfShowComp ? 'Compensation Overview (Skills Comp Model)' : 'Compensation Overview', GREEN);
-                var _pdfCompCtx2 = d.compContext || (typeof _jdcDetectCompContext === 'function' ? _jdcDetectCompContext(d.company, d.industry, d._rawJD || '') : null);
-                var _pdfCtxMult2 = (_pdfCompCtx2 && _pdfCompCtx2.multiplier > 1.0) ? _pdfCompCtx2.multiplier : 1.0;
-                var _pdfGeoMult2 = d._geoMult || 1.0;
-                var _pdfAdjMult = _pdfGeoMult2 * _pdfCtxMult2;
-
-                if (_pdfShowComp) {
-                    var _pJdRange = (d.compensation && d.compensation.range) ? d.compensation.range : (d.compensationRange || '');
-                    var _pSen = (d.seniority || 'mid').toLowerCase();
-                    var _pSenKey = (_pSen === 'entry' || _pSen === 'junior') ? 'pct25' : (_pSen === 'senior' || _pSen === 'lead' || _pSen === 'staff' || _pSen === 'director' || _pSen === 'principal') ? 'pct75' : (_pSen === 'executive' || _pSen === 'vp') ? 'pct90' : 'median';
-                    var _pLo = Math.round((d.bls.pct25 || d.bls.median || 0) * _pdfAdjMult);
-                    var _pHi = Math.round((d.bls[_pSenKey] || d.bls.median || 0) * _pdfAdjMult);
-                    var _pBpRange = (_pLo > 0 && _pHi > 0) ? '$' + (Math.round(_pLo/1000)*1000).toLocaleString() + ' \u2013 $' + (Math.round(_pHi/1000)*1000).toLocaleString() : '';
-                    var _pActiveRange = d.activeCompRange || _pJdRange || _pBpRange || '';
-                    var halfW = (CW - 6) / 2;
-                    checkPage(32);
-                    doc.setFillColor(248, 250, 252);
-                    doc.roundedRect(M, y - 2, halfW, 22, 2, 2, 'F');
-                    doc.setFontSize(6); doc.setTextColor.apply(doc, MUTED); doc.setFont('helvetica', 'bold');
-                    doc.text('POSTED IN JD', M + 4, y + 3);
-                    doc.setFontSize(10); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
-                    doc.text(_pJdRange || 'Not posted', M + 4, y + 12);
-                    doc.setFillColor(240, 253, 244);
-                    doc.roundedRect(M + halfW + 6, y - 2, halfW, 22, 2, 2, 'F');
-                    doc.setDrawColor(16, 185, 129); doc.setLineWidth(0.5);
-                    doc.roundedRect(M + halfW + 6, y - 2, halfW, 22, 2, 2, 'S');
-                    doc.setFontSize(6); doc.setTextColor.apply(doc, GREEN); doc.setFont('helvetica', 'bold');
-                    doc.text('BLUEPRINT CALCULATED', M + halfW + 10, y + 3);
-                    doc.setFontSize(10); doc.setTextColor.apply(doc, GREEN); doc.setFont('helvetica', 'bold');
-                    doc.text(_pBpRange || 'N/A', M + halfW + 10, y + 12);
-                    if (_pdfCompCtx2 && _pdfCompCtx2.active) {
-                        doc.setFontSize(5.5); doc.setFont('helvetica', 'normal');
-                        doc.text('BLS + ' + Math.round((_pdfCtxMult2 - 1) * 100) + '% market adj. \u00B7 ' + (_pdfCompCtx2.label || 'Technology'), M + halfW + 10, y + 17);
-                    }
-                    y += 24;
-                    if (_pActiveRange) {
-                        doc.setFontSize(7); doc.setTextColor.apply(doc, MID); doc.setFont('helvetica', 'normal');
-                        doc.text('Use for this Blueprint:  ', M + 2, y + 2);
-                        doc.setFont('helvetica', 'bold'); doc.setTextColor.apply(doc, DARK);
-                        doc.text(_pActiveRange, M + 35, y + 2);
-                        y += 7;
-                    }
-                }
-                var compData = [
-                    { key: 'pct10', label: '10th Percentile', val: Math.round((d.bls.pct10 || 0) * _pdfAdjMult) },
-                    { key: 'pct25', label: '25th Percentile', val: Math.round((d.bls.pct25 || 0) * _pdfAdjMult) },
-                    { key: 'median', label: '50th (Median)', val: Math.round((d.bls.median || 0) * _pdfAdjMult) },
-                    { key: 'pct75', label: '75th Percentile', val: Math.round((d.bls.pct75 || 0) * _pdfAdjMult) },
-                    { key: 'pct90', label: '90th Percentile', val: Math.round((d.bls.pct90 || 0) * _pdfAdjMult) }
-                ].filter(function(p) { return hcr.indexOf(p.key) === -1; });
-                if (compData.length > 0) {
-                    var barW = (CW - 4) / compData.length;
-                    checkPage(22);
-                    compData.forEach(function(p, i) {
-                        var bx = M + 2 + i * barW;
-                        var isMedian = p.key === 'median';
-                        doc.setFillColor.apply(doc, isMedian ? [16, 185, 129] : [240, 253, 244]);
-                        doc.roundedRect(bx, y - 2, barW - 3, 18, 2, 2, 'F');
-                        doc.setFontSize(6); doc.setTextColor.apply(doc, isMedian ? WHITE : MUTED); doc.setFont('helvetica', 'normal');
-                        doc.text(p.label, bx + (barW - 3) / 2, y + 3, { align: 'center' });
-                        doc.setFontSize(10); doc.setTextColor.apply(doc, isMedian ? WHITE : GREEN); doc.setFont('helvetica', 'bold');
-                        doc.text('$' + (p.val || 0).toLocaleString(), bx + (barW - 3) / 2, y + 11, { align: 'center' });
-                    });
-                    y += 20;
-                    doc.setFontSize(6); doc.setTextColor.apply(doc, MUTED); doc.setFont('helvetica', 'normal');
-                    var _srcNote = 'Source: BLS OEWS ' + (d.bls.source || 'May 2024') + ' \u00B7 SOC: ' + (d.bls.soc || '');
-                    if (_pdfAdjMult > 1.0) _srcNote += ' \u00B7 +' + Math.round((_pdfAdjMult - 1) * 100) + '% market adjustment';
-                    doc.text(_srcNote, M + 2, y);
-                    y += 4;
+            if (d.demonstrated) {
+                sectionHead('Demonstrated Experience');
+                (d.demonstrated.evidence || []).forEach(function(e) {
+                    checkPage(6);
+                    doc.setFillColor(139, 92, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                    wrappedText(e, M + 12, 8, MID, false, CW - 14);
+                });
+                if (d.demonstrated.artifacts) {
+                    y += 2;
+                    wrappedText('Artifacts: ' + d.demonstrated.artifacts, M + 6, 7, MUTED, false, CW - 6);
                 }
             }
 
@@ -15618,8 +15583,9 @@
             };
             
             var functionPatterns = [
+                { fn: 'technology', patterns: /\b(software|developer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|data engineer|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
+                { fn: 'engineering', patterns: /\b(chemist|chemistry|chemical engineer|biotech|biotechnology|biolog|biochem|research scient|laboratory|lab manager|physicist|materials scien|pharmaceutical|r&d|mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ },
                 { fn: 'strategy', patterns: /\b(strategy|strategic|futurist|evangelist|thought leader|advisory|consulting|consultant)\b/ },
-                { fn: 'technology', patterns: /\b(software|developer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
                 { fn: 'recruiting', patterns: /\b(recruit|talent acqui|sourcing|hiring|ats|applicant|staffing|headhunt)\b/ },
                 { fn: 'hr', patterns: /\b(human resource|hr |shrm|people ops|workforce|talent manage|employee relation|compensation|benefits|hris|organizational develop|learning.+develop|training and develop|talent acquisition|people partner)\b/ },
                 { fn: 'marketing', patterns: /\b(marketing|brand|content|seo|digital market|growth|demand gen|product market|communications|pr |public relation)\b/ },
@@ -15629,7 +15595,6 @@
                 { fn: 'healthcare', patterns: /\b(nurse|clinical|patient|medical|pharma|health|hospital|physician|therapy|diagnostic)\b/ },
                 { fn: 'education', patterns: /\b(teaching|teacher|professor|instructor|curriculum|education|academic|school)\b/ },
                 { fn: 'legal', patterns: /\b(legal|attorney|lawyer|litigation|compliance|regulatory|paralegal|contract law|bar exam)\b/ },
-                { fn: 'engineering', patterns: /\b(mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ },
                 { fn: 'trades', patterns: /\b(hair|stylist|cosmetolog|barber|plumb|electri|weld|hvac|carpenter|mechanic|technician|maintenance|repair|install)\b/ },
                 { fn: 'retail', patterns: /\b(cashier|retail|store|merchandise|stock|inventory clerk|customer service rep|point of sale|pos )\b/ }
             ];
@@ -19220,11 +19185,18 @@
             reader.onload = function(e) {
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
+                    imported.initialized = true;
                     userData = imported;
-                    userData.initialized = true; _markUserDataReady();
                     window._userData = userData;
-                    saveUserData();
-                    location.reload();
+                    _markUserDataReady();
+                    skillsData.skills = imported.skills || [];
+                    skillsData.roles = imported.roles || [];
+                    skillsData.skillDetails = {};
+                    blueprintData.values = imported.values || [];
+                    blueprintData.purpose = imported.purpose || '';
+                    blueprintData.outcomes = imported.outcomes || [];
+                    normalizeUserRoles();
+                    saveToFirestore().then(function() { location.reload(); });
                 } catch (error) {
                     showToast('Import error: ' + error.message, 'error');
                 }
@@ -19234,10 +19206,10 @@
         
         // =====================================================================
         // ONBOARDING WIZARD v1.0
-        // Multi-step guided profile builder with Claude AI resume parsing
+        // Multi-step guided profile builder with AI resume parsing
         // =====================================================================
 
-        let wizardState = {
+        var wizardState = {
             step: 1,
             totalSteps: 9,
             resumeText: '',
@@ -19248,8 +19220,10 @@
             purpose: '',
             processing: false
         };
+        window.wizardState = wizardState;
 
         function showOnboardingWizard() {
+            if (window.showOnboardingWizard && window.showOnboardingWizard !== showOnboardingWizard) return window.showOnboardingWizard();
             if (readOnlyGuard()) return;
             if (demoGate('Build Your Blueprint')) return;
             // Remove any existing wizard
@@ -19259,6 +19233,7 @@
             wizardState = { step: 1, totalSteps: 9, resumeText: '', parsedData: null,
                             profile: {}, skills: [], values: [], purpose: '', processing: false,
                             resumeFileBase64: null, resumeFileName: null, resumeFileSize: null, useFileUpload: false };
+            window.wizardState = wizardState;
 
             const overlay = document.createElement('div');
             overlay.id = 'onboardingWizard';
@@ -19278,6 +19253,7 @@
         }
 
         function renderWizardStep() {
+            if (window.renderWizardStep && window.renderWizardStep !== renderWizardStep) return window.renderWizardStep();
             const overlay = document.getElementById('onboardingWizard');
             if (!overlay) return;
 
@@ -19354,34 +19330,40 @@
                 </div>
 
                 <!-- Step content -->
-                <div id="wizardStepContent" style="flex:1; overflow-y:auto; padding:32px 28px;">
+                <div id="wizardStepContent" style="flex:1; overflow-y:scroll; padding:32px 28px;">
                     <div style="max-width:700px; margin:0 auto;" id="wizardInner">
                         <!-- Populated per step -->
                     </div>
                 </div>
             `;
 
-            // Render the current step content
+            // Render the current step content — delegate to window (module overrides)
             const inner = document.getElementById('wizardInner');
-            switch(wizardState.step) {
-                case 1: renderWizardStep1(inner); break;
-                case 2: renderWizardStep2(inner); break;
-                case 3: renderWizardStep3(inner); break;
-                case 4: renderWizardStep4(inner); break;
-                case 5: renderWizardStep5(inner); break;
-                case 6: renderWizardStep6(inner); break;
-                case 7: renderWizardStep7(inner); break;
-                case 8: renderWizardStep8(inner); break;
-                case 9: renderWizardStep9(inner); break;
+            var stepFn = window['renderWizardStep' + wizardState.step];
+            if (typeof stepFn === 'function') { stepFn(inner); }
+            else {
+                switch(wizardState.step) {
+                    case 1: renderWizardStep1(inner); break;
+                    case 2: renderWizardStep2(inner); break;
+                    case 3: renderWizardStep3(inner); break;
+                    case 4: renderWizardStep4(inner); break;
+                    case 5: renderWizardStep5(inner); break;
+                    case 6: renderWizardStep6(inner); break;
+                    case 7: renderWizardStep7(inner); break;
+                    case 8: renderWizardStep8(inner); break;
+                    case 9: renderWizardStep9(inner); break;
+                }
             }
         }
 
         function wizardNext() {
+            if (window.wizardNext && window.wizardNext !== wizardNext) return window.wizardNext();
             wizardState.step = Math.min(wizardState.step + 1, wizardState.totalSteps);
             renderWizardStep();
         }
 
         function wizardBack() {
+            if (window.wizardBack && window.wizardBack !== wizardBack) return window.wizardBack();
             var newStep = wizardState.step - 1;
             // Skip Step 3 (AI parsing) when going back from Step 4 in linkedin or manual mode
             if (wizardState.step === 4 && (wizardState.entryMode === 'linkedin' || wizardState.entryMode === 'manual')) {
@@ -19392,6 +19374,7 @@
         }
 
         function confirmExitWizard() {
+            if (window.confirmExitWizard && window.confirmExitWizard !== confirmExitWizard) return window.confirmExitWizard();
             if (wizardState.step > 2) {
                 if (!confirm('Exit the wizard? Your progress will be lost.')) return;
             }
@@ -20076,7 +20059,7 @@
                         <div style="margin-bottom:12px;">${bpIcon("file-text",32)}</div>
                         <div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">Upload Resume</div>
                         <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">
-                            PDF or paste text. Claude reads it and builds your profile automatically.
+                            PDF or paste text. AI reads it and builds your profile automatically.
                         </div>
                         <div style="margin-top:14px; font-size:0.78em; color:var(--accent); font-weight:600;">
                             RECOMMENDED
@@ -20217,25 +20200,26 @@
         }
         
         function wizardQuickExport() {
+            var _ud = window._userData || userData;
             var exportData = {
-                profile: userData.profile || {},
+                profile: _ud.profile || {},
                 skills: skillsData.skills || [],
                 roles: skillsData.roles || [],
                 values: blueprintData.values || [],
                 purpose: blueprintData.purpose || '',
                 outcomes: blueprintData.outcomes || [],
-                preferences: userData.preferences || {},
-                workHistory: userData.workHistory || [],
-                education: userData.education || [],
-                certifications: userData.certifications || [],
-                verifications: userData.verifications || [],
-                savedJobs: userData.savedJobs || [],
-                linkedinContent: userData.linkedinContent || {},
-                companyTenures: userData.companyTenures || [],
-                importStats: userData.importStats || {},
-                contentVisibility: userData.contentVisibility || {},
+                preferences: _ud.preferences || {},
+                workHistory: _ud.workHistory || [],
+                education: _ud.education || [],
+                certifications: _ud.certifications || [],
+                verifications: _ud.verifications || [],
+                savedJobs: _ud.savedJobs || [],
+                linkedinContent: _ud.linkedinContent || {},
+                companyTenures: _ud.companyTenures || [],
+                importStats: _ud.importStats || {},
+                contentVisibility: _ud.contentVisibility || {},
                 exportedAt: new Date().toISOString(),
-                exportedFor: (userData.profile || {}).name || 'backup',
+                exportedFor: (_ud.profile || {}).name || 'backup',
                 version: BP_VERSION
             };
             
@@ -20256,9 +20240,10 @@
                 btn.style.borderColor = '#ef4444';
             }
         }
-        window.wizardQuickExport = wizardQuickExport;
+        // wizardQuickExport exposed by ES module
         
         function wizardChooseUpload() {
+            if (window.wizardChooseUpload && window.wizardChooseUpload !== wizardChooseUpload) return window.wizardChooseUpload();
             wizardOverwriteGuard(function() {
                 wizardState.entryMode = 'upload';
                 wizardNext();
@@ -20273,6 +20258,7 @@
         }
 
         function wizardChooseManual() {
+            if (window.wizardChooseManual && window.wizardChooseManual !== wizardChooseManual) return window.wizardChooseManual();
             wizardOverwriteGuard(function() {
                 wizardState.entryMode = 'manual';
                 wizardState.step = 4;
@@ -20286,6 +20272,7 @@
         }
 
         function wizardImportProfile(event) {
+            if (window.wizardImportProfile && window.wizardImportProfile !== wizardImportProfile) return window.wizardImportProfile(event);
             if (readOnlyGuard()) return;
             const file = event.target.files[0];
             if (!file) return;
@@ -20293,11 +20280,18 @@
             reader.onload = function(e) {
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
-                    userData = { ...imported, initialized: true };
+                    imported.initialized = true;
+                    userData = imported;
                     window._userData = userData;
-                    saveUserData();
+                    skillsData.skills = imported.skills || [];
+                    skillsData.roles = imported.roles || [];
+                    skillsData.skillDetails = {};
+                    blueprintData.values = imported.values || [];
+                    blueprintData.purpose = imported.purpose || '';
+                    blueprintData.outcomes = imported.outcomes || [];
+                    normalizeUserRoles();
                     closeWizard();
-                    location.reload();
+                    saveToFirestore().then(function() { location.reload(); });
                 } catch(err) {
                     showToast('File read error: ' + err.message, 'error');
                 }
@@ -20313,7 +20307,7 @@
             }
             el.innerHTML = `
                 ${wizardHeading(bpIcon('file-text',22), 'Add Your Resume',
-                    'Upload a PDF, paste resume text, or copy your LinkedIn profile. Claude will extract your skills, experience, and outcomes automatically.')}
+                    'Upload a PDF, paste resume text, or copy your LinkedIn profile. AI will extract your skills, experience, and outcomes automatically.')}
 
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
                             border-radius:14px; padding:24px; margin-bottom:20px;">
@@ -20365,7 +20359,7 @@
                     </div>
 
                     <div id="rtab-paste-content" style="display:none;">
-                        <textarea id="wizardResumeText" placeholder="Paste your full resume here \u2014 the more detail, the better the profile Claude builds for you.
+                        <textarea id="wizardResumeText" placeholder="Paste your full resume here \u2014 the more detail, the better the profile we build for you.
 
 Include: job titles, companies, dates, responsibilities, achievements, metrics, skills, education, certifications..."
                                   style="width:100%; min-height:280px; background:var(--input-bg);
@@ -20404,7 +20398,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                                 style="background:var(--accent); color:#fff; border:none;
                                        padding:11px 28px; border-radius:9px; cursor:pointer;
                                        font-size:0.9em; font-weight:600; opacity:0.5; transition:opacity 0.2s;">
-                            Parse with Claude \u2192
+                            Parse Resume \u2192
                         </button>
                     </div>
                 </div>
@@ -20468,24 +20462,58 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 return;
             }
 
+            var info = document.getElementById('resumeFileInfo');
+            var nameEl = document.getElementById('resumeFileName');
+            var dropZone = document.getElementById('resumeDropZone');
+            if (info) info.style.display = 'flex';
+            if (nameEl) nameEl.textContent = file.name + ' — extracting text...';
+            if (dropZone) dropZone.style.display = 'none';
+
             var reader = new FileReader();
-            reader.onload = function(e) {
-                var base64 = e.target.result.split(',')[1];
+            reader.onload = async function(e) {
+                var arrayBuffer = e.target.result;
+                var base64 = btoa(new Uint8Array(arrayBuffer).reduce(function(data, byte) { return data + String.fromCharCode(byte); }, ''));
                 wizardState.resumeFileBase64 = base64;
                 wizardState.resumeFileName = file.name;
                 wizardState.resumeFileSize = file.size;
 
-                // Show file info
-                var info = document.getElementById('resumeFileInfo');
-                var nameEl = document.getElementById('resumeFileName');
-                var dropZone = document.getElementById('resumeDropZone');
-                if (info) info.style.display = 'flex';
-                if (nameEl) nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
-                if (dropZone) dropZone.style.display = 'none';
+                try {
+                    if (!window.pdfjsLib) {
+                        var script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                        document.head.appendChild(script);
+                        await new Promise(function(resolve, reject) {
+                            script.onload = resolve;
+                            script.onerror = function() { reject(new Error('Failed to load PDF library')); };
+                            setTimeout(function() { reject(new Error('PDF library load timeout')); }, 10000);
+                        });
+                    }
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    var pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    var allText = [];
+                    for (var i = 1; i <= pdf.numPages; i++) {
+                        var page = await pdf.getPage(i);
+                        var content = await page.getTextContent();
+                        var pageText = content.items.map(function(item) { return item.str; }).join(' ');
+                        allText.push(pageText);
+                    }
+                    var extractedText = allText.join('\n\n');
+                    if (extractedText.trim().length > 20) {
+                        wizardState.resumeFileExtractedText = extractedText;
+                        console.log('[BP Parse] PDF text extracted:', extractedText.length, 'chars from', pdf.numPages, 'pages');
+                    } else {
+                        console.warn('[BP Parse] PDF text extraction yielded little text, will send as base64');
+                        wizardState.resumeFileExtractedText = null;
+                    }
+                } catch (pdfErr) {
+                    console.warn('[BP Parse] PDF text extraction failed, will send as base64:', pdfErr.message);
+                    wizardState.resumeFileExtractedText = null;
+                }
 
+                if (nameEl) nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
                 wizardCheckResumeReady();
             };
-            reader.readAsDataURL(file);
+            reader.readAsArrayBuffer(file);
         }
 
         function wizardClearResumeFile() {
@@ -20519,18 +20547,19 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
         }
 
         function wizardSkipParsing() {
+            if (window.wizardSkipParsing && window.wizardSkipParsing !== wizardSkipParsing) return window.wizardSkipParsing();
             wizardState.entryMode = 'manual';
             wizardState.step = 4;
             renderWizardStep();
         }
 
         async function wizardStartParsing() {
+            if (window.wizardStartParsing && window.wizardStartParsing !== wizardStartParsing) return window.wizardStartParsing();
             const t1 = document.getElementById('wizardResumeText')?.value?.trim() || '';
             const t2 = document.getElementById('wizardLinkedInText')?.value?.trim() || '';
             wizardState.resumeText = t1 || t2;
-            // File upload takes priority if present
             wizardState.useFileUpload = !!wizardState.resumeFileBase64 && !wizardState.resumeText;
-            wizardNext(); // Go to step 3 (parsing/loading)
+            wizardNext();
             try {
                 await wizardRunParsing();
             } catch(e) {
@@ -21214,27 +21243,159 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
         function renderWizardStep3(el) {
             el.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center;
-                            justify-content:center; min-height:320px; text-align:center; gap:24px;">
-                    <div id="wizardParsingIcon" style="animation:spin 2s linear infinite;">${bpIcon("settings",48)}</div>
+                            min-height:420px; text-align:center; gap:12px; padding-top:12px;">
+                    <div style="position:relative; width:320px; height:240px;">
+                        <canvas id="wizardNetCanvas" width="640" height="480"
+                            style="width:320px; height:240px;"></canvas>
+                    </div>
                     <div>
-                        <h2 style="color:var(--text-primary); font-size:1.4em; margin-bottom:10px;">
-                            Claude is reading your resume
+                        <h2 style="color:var(--text-primary); font-size:1.2em; margin-bottom:4px;">
+                            Building your Blueprint
                         </h2>
-                        <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.9em;">
-                            Extracting skills, evidence, and outcomes...
+                        <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.85em;">
+                            Analyzing your resume...
                         </p>
                     </div>
-                    <div style="width:280px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
+                    <div style="width:300px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
                         <div id="wizardParseProgress" style="height:100%; width:0%;
                                     background:linear-gradient(90deg,var(--accent),#818cf8);
                                     border-radius:4px; transition:width 0.5s ease;"></div>
                     </div>
-                    <p style="color:var(--text-muted); font-size:0.8em;">Usually takes 10–20 seconds</p>
+                    <div id="wizardDiscoveryFeed" style="width:100%; max-width:440px; min-height:200px;
+                                text-align:left; margin-top:4px;"></div>
                 </div>
             `;
+            _wizardStartNetworkAnim();
         }
 
+        function _wizardStartNetworkAnim() {
+            var canvas = document.getElementById('wizardNetCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            var W = canvas.width, H = canvas.height;
+            var nodes = [];
+            var edges = [];
+            var colors = ['#3b82f6','#a78bfa','#10b981','#fb923c','#60a5fa','#f59e0b','#ec4899','#818cf8'];
+            var tick = 0;
+            var maxNodes = 28;
+            var addInterval = 320;
+            var lastAdd = 0;
+
+            function addNode() {
+                var angle = Math.random() * Math.PI * 2;
+                var dist = 80 + Math.random() * 140;
+                var x = W/2 + Math.cos(angle) * dist;
+                var y = H/2 + Math.sin(angle) * dist;
+                var r = 4 + Math.random() * 8;
+                var node = { x:x, y:y, r:r, color:colors[nodes.length%colors.length], alpha:0, targetAlpha:0.9,
+                             vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3 };
+                nodes.push(node);
+                if (nodes.length > 2) {
+                    var closest = -1, closestDist = Infinity;
+                    for (var j=0; j<nodes.length-1; j++) {
+                        var d = Math.hypot(nodes[j].x-x, nodes[j].y-y);
+                        if (d < closestDist) { closestDist=d; closest=j; }
+                    }
+                    if (closest >= 0) edges.push({ a:closest, b:nodes.length-1, alpha:0 });
+                    if (nodes.length > 4 && Math.random() > 0.4) {
+                        var second = Math.floor(Math.random() * (nodes.length-1));
+                        if (second !== closest) edges.push({ a:second, b:nodes.length-1, alpha:0 });
+                    }
+                }
+            }
+
+            function draw() {
+                if (!canvas.isConnected) return;
+                ctx.clearRect(0,0,W,H);
+                tick++;
+                if (tick - lastAdd > addInterval/16 && nodes.length < maxNodes) {
+                    addNode(); lastAdd = tick;
+                }
+                if (nodes.length >= maxNodes && tick % 120 === 0) {
+                    var removeIdx = Math.floor(Math.random() * nodes.length);
+                    nodes[removeIdx].targetAlpha = 0;
+                    edges = edges.filter(function(e) { return e.a !== removeIdx && e.b !== removeIdx; });
+                    setTimeout(function() {
+                        if (nodes[removeIdx]) {
+                            var angle = Math.random() * Math.PI * 2;
+                            var dist = 80 + Math.random() * 140;
+                            nodes[removeIdx].x = W/2 + Math.cos(angle) * dist;
+                            nodes[removeIdx].y = H/2 + Math.sin(angle) * dist;
+                            nodes[removeIdx].targetAlpha = 0.9;
+                            nodes[removeIdx].color = colors[Math.floor(Math.random() * colors.length)];
+                            nodes[removeIdx].vx = (Math.random()-0.5)*0.4;
+                            nodes[removeIdx].vy = (Math.random()-0.5)*0.4;
+                            var closest = -1, closestDist = Infinity;
+                            for (var j=0; j<nodes.length; j++) {
+                                if (j === removeIdx) continue;
+                                var d = Math.hypot(nodes[j].x - nodes[removeIdx].x, nodes[j].y - nodes[removeIdx].y);
+                                if (d < closestDist) { closestDist=d; closest=j; }
+                            }
+                            if (closest >= 0) edges.push({ a:closest, b:removeIdx, alpha:0 });
+                        }
+                    }, 600);
+                }
+                for (var i=0; i<nodes.length; i++) {
+                    var n = nodes[i];
+                    n.alpha += (n.targetAlpha - n.alpha) * 0.06;
+                    n.x += n.vx; n.y += n.vy;
+                    n.vx *= 0.995; n.vy *= 0.995;
+                    if (n.x<30||n.x>W-30) n.vx*=-1;
+                    if (n.y<30||n.y>H-30) n.vy*=-1;
+                }
+                for (var e=0; e<edges.length; e++) {
+                    var edge = edges[e];
+                    edge.alpha += (0.35 - edge.alpha) * 0.04;
+                    var a = nodes[edge.a], b = nodes[edge.b];
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+                    ctx.strokeStyle = 'rgba(96,165,250,' + (edge.alpha * Math.min(a.alpha,b.alpha)) + ')';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                for (var i=0; i<nodes.length; i++) {
+                    var n = nodes[i];
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r + Math.sin(tick*0.03+i)*0.8, 0, Math.PI*2);
+                    ctx.fillStyle = n.color;
+                    ctx.globalAlpha = n.alpha;
+                    ctx.fill();
+                    ctx.globalAlpha = n.alpha * 0.25;
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r*2.5, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+                requestAnimationFrame(draw);
+            }
+            requestAnimationFrame(draw);
+        }
+
+        function wizardRepairJSON(text) {
+            var trimmed = text.trim();
+            if (trimmed.charAt(0) !== '{') return null;
+            var inStr = false, esc = false, depth = 0, arrDepth = 0;
+            var safePoints = [];
+            for (var i = 0; i < trimmed.length; i++) {
+                var c = trimmed.charCodeAt(i);
+                if (esc) { esc = false; continue; }
+                if (c === 92) { esc = true; continue; }
+                if (c === 34) { inStr = !inStr; continue; }
+                if (inStr) continue;
+                if (c === 123) depth++;
+                else if (c === 125) depth--;
+                else if (c === 91) arrDepth++;
+                else if (c === 93) arrDepth--;
+                if (c === 44 && depth === 1 && arrDepth === 0) safePoints.push(i);
+            }
+            for (var s = safePoints.length - 1; s >= 0; s--) {
+                var candidate = trimmed.substring(0, safePoints[s]) + '}';
+                try { return JSON.parse(candidate); } catch(e) {}
+            }
+            return null;
+        }
         async function wizardRunParsing() {
+            if (window.wizardRunParsing && window.wizardRunParsing !== wizardRunParsing) return window.wizardRunParsing();
             const setStatus = (msg, pct) => {
                 const s = document.getElementById('wizardParsingStatus');
                 const p = document.getElementById('wizardParseProgress');
@@ -21244,111 +21405,301 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
 
             try {
                 logAnalyticsEvent('resume_parse', {});
-                setStatus('Sending to Claude...', 15);
+                setStatus('Parsing your resume...', 15);
+
+                if (!wizardState.resumeText && !wizardState.resumeFileBase64) {
+                    console.error('[BP Parse] No resume data to parse! resumeText:', wizardState.resumeText, 'fileBase64:', !!wizardState.resumeFileBase64);
+                    showToast('No resume data found. Please go back and paste your resume or upload a PDF.', 'warning', 6000);
+                    wizardState.step = 2;
+                    renderWizardStep();
+                    return;
+                }
 
                 var wizardApiKey = safeGet('wbAnthropicKey');
                 if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
                     setStatus('', 0);
-                    var icon = document.getElementById('wizardParsingIcon');
-                    if (icon) icon.style.animation = 'none';
                     showToast('Sign in or add an Anthropic API key in Settings to use AI parsing.', 'warning', 6000);
                     return;
                 }
 
-                const systemPrompt = `You are a professional career analyst. Extract structured profile data from a resume or LinkedIn profile text.
+                // ── TWO-CALL PARSE ARCHITECTURE ─────────────────────────────────
+                // Call 1 (Haiku, ~5s): Structure — profile, workHistory, education, certs, roles, values, purpose
+                // Call 2 (Haiku, ~8s): Skills — domain-aware extraction using structured data from Call 1
+                // Total: ~15s, well under the 58s proxy abort. No Sonnet needed.
 
-Return ONLY valid JSON in this exact shape — no markdown, no explanation, just the JSON object:
-{
-  "profile": {
-    "name": "Full Name",
-    "currentTitle": "Current Job Title",
-    "location": "City, State or Remote",
-    "email": "",
-    "phone": "",
-    "yearsExperience": 10,
-    "executiveSummary": "2-3 sentence professional summary in first person"
-  },
-  "roles": [
-    { "id": "role1", "name": "Role Name", "years": "2019-Present", "company": "Company Name" }
-  ],
-  "skills": [
-    {
-      "name": "Skill Name",
-      "level": "Mastery|Expert|Advanced|Proficient|Novice",
-      "category": "skill|ability|workstyle|unique",
-      "roles": ["role1"],
-      "key": true,
-      "evidence": [
-        { "description": "What you did", "outcome": "Measurable result or impact" }
-      ]
-    }
-  ],
-  "values": [
-    { "name": "Value Name", "description": "Brief personal description of this value", "selected": true }
-  ],
-  "purpose": "One paragraph purpose statement in first person — what you do, who you help, how you do it differently"
-}
+                var wizardApiKey = safeGet('wbAnthropicKey');
+                if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
+                    setStatus('', 0);
+                    showToast('Sign in or add an Anthropic API key in Settings to use AI parsing.', 'warning', 6000);
+                    return;
+                }
 
-Rules:
-- Extract 15-40 skills. Include technical skills, soft skills, leadership abilities, and unique differentiators.
-- Level guide: Mastery=career-defining expertise (15+ yrs), Expert=deep proficiency (8-15 yrs), Advanced=strong competency (4-8 yrs), Proficient=solid (1-4 yrs), Novice=learning.
-- For each skill, extract 1-3 evidence items from the resume. Outcomes must be specific — include numbers, percentages, dollar amounts wherever present in the text.
-- Infer 4-6 values from the resume's tone, achievements, and career pattern. Make them personal, not generic.
-- Write the purpose statement to be compelling and authentic to this person's actual experience.
-- category="unique" for skills not in standard O*NET taxonomy (industry-specific, rare combinations).`;
-
-                // Build message content: PDF document or plain text
+                // Build user content from available resume data
                 var userContent;
-                if (wizardState.useFileUpload && wizardState.resumeFileBase64) {
+                if (wizardState.useFileUpload && wizardState.resumeFileExtractedText) {
+                    userContent = 'Parse this resume (extracted from PDF: ' + (wizardState.resumeFileName || 'upload') + '):\n\n' + wizardState.resumeFileExtractedText;
+                } else if (wizardState.useFileUpload && wizardState.resumeFileBase64) {
                     userContent = [
-                        {
-                            type: 'document',
-                            source: {
-                                type: 'base64',
-                                media_type: 'application/pdf',
-                                data: wizardState.resumeFileBase64
-                            }
-                        },
-                        { type: 'text', text: 'Parse this resume PDF and extract structured profile data.' }
+                        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: wizardState.resumeFileBase64 } },
+                        { type: 'text', text: 'Extract structured career profile data from this resume PDF.' }
                     ];
                 } else {
                     userContent = 'Parse this resume:\n\n' + wizardState.resumeText;
                 }
 
-                var data = await callAnthropicAPI({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 4000,
-                        system: systemPrompt,
-                        messages: [{ role: 'user', content: userContent }]
+                // ── CALL 1: STRUCTURE ────────────────────────────────────────────────
+                const structPrompt = `Extract career structure from this resume/LinkedIn PDF into JSON. Return ONLY valid JSON, no markdown.
+
+LINKEDIN PDF: Text is in sidebars and columns. Left sidebar has Top Skills, Certifications, Honors. Right column has Experience/Education. Read ALL sections including sidebars.
+
+CERT vs JOB — MOST CRITICAL RULE. These are ALWAYS certifications in certifications[], NEVER in workHistory:
+- FAA licenses: Private Pilot, Instrument Rating, Commercial Pilot, ATP, CFI, CFII
+- Agile/PM: CSM, Certified ScrumMaster, Scrum Master, PMP, PRINCE2
+- Cloud/Tech: AWS Certified, Google Cloud, Azure, Salesforce
+- Other: Leadership in AI, Six Sigma, CPA, CISSP, CFA
+If you see "CSM", "Private Pilot", "Instrument Rating", "Leadership in AI" anywhere — certifications[] ONLY.
+
+These ARE work history entries (workHistory[]):
+- Co-Founder, Owner, Managing Partner, President, VP, Director = jobs
+- "Co-Founder/Chief Pilot at Kyle's Wish Foundation" = title:"Co-Founder/Chief Pilot", company:"Kyle's Wish Foundation"
+- Kyle's Wish Foundation is a real nonprofit 501(c)(3) — treat it as a real employer
+- Executive Board Member, Advisory Board Member = jobs
+
+Return this exact structure:
+{"profile":{"name":"","currentTitle":"","currentCompany":"","location":"","email":"","phone":"","linkedinUrl":"","yearsExperience":0,"executiveSummary":"2-4 sentence first-person summary"},"roles":[{"id":"r1","name":"","years":"","company":"","description":"2-3 sentence summary"}],"workHistory":[{"title":"","company":"","startDate":"","endDate":"","description":"key achievements"}],"education":[{"school":"","degree":"","field":"","years":""}],"certifications":[{"name":"","issuer":"","year":""}],"values":[{"name":"","description":"career-evidence description","selected":true}],"purpose":"first-person purpose statement"}
+
+Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 specific inferred values. Purpose: authentic first-person narrative.`;
+
+                setStatus('Reading your career history...', 20);
+                console.log('[BP Parse] Call 1 — structure extraction (Haiku)');
+
+                var safetyTimeout = setTimeout(function() {
+                    var status = document.getElementById('wizardParsingStatus');
+                    if (status && !status.innerHTML.includes('failed')) {
+                        status.innerHTML = '<span style="color:var(--danger);">Parsing timed out. Please try again.</span><br><br>' +
+                            '<button onclick="wizardState.step=2; renderWizardStep();" style="background:var(--accent); color:#fff; border:none; padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em; margin-right:10px;">\u2190 Try Again</button>' +
+                            '<button onclick="wizardSkipParsing()" style="background:none; border:1px solid var(--border); color:var(--text-secondary); padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em;">Skip \u2192 Enter Manually</button>';
+                    }
+                }, 100000);
+
+                var data1;
+                try {
+                    data1 = await callAnthropicAPI({
+                        model: 'claude-haiku-4-5-20251001',
+                        max_tokens: 5000,
+                        system: structPrompt,
+                        messages: [
+                            { role: 'user', content: userContent },
+                            { role: 'assistant', content: '{' }
+                        ]
                     }, wizardApiKey, 'resume-parse');
-                setStatus('Structuring your profile data...', 55);
-                const rawText = data.content[0]?.text || '';
+                } catch (apiErr) {
+                    clearTimeout(safetyTimeout);
+                    throw apiErr;
+                }
 
-                setStatus('Extracting skills and evidence...', 75);
+                setStatus('Extracting your skills...', 45);
+                console.log('[BP Parse] Call 1 complete — starting skill extraction (Haiku)');
 
-                // Strip markdown fences if present
-                const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-                const parsed = JSON.parse(clean);
+                var raw1 = '{' + (data1.content[0]?.text || '');
+                var clean1 = raw1.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+                if (clean1[0] !== '{') { var j1 = clean1.indexOf('{'); if (j1 >= 0) clean1 = clean1.substring(j1); }
+                var struct; try { struct = JSON.parse(clean1); } catch(e) { struct = wizardRepairJSON(clean1) || {}; }
+
+                // ── CALL 2: SKILLS ────────────────────────────────────────────────────
+                // Build context from Call 1 result so skill extraction is informed
+                var roles1 = (struct.workHistory || []).map(function(wh) {
+                    return (wh.title || '') + ' at ' + (wh.company || '') + (wh.description ? ': ' + wh.description.substring(0, 150) : '');
+                }).join('\n');
+                var certs1 = (struct.certifications || []).map(function(c) { return c.name || ''; }).join(', ');
+
+                const skillPrompt = 'Extract 40-60 professional skills from this career profile. Return ONLY a JSON array, no markdown.\n\n' +
+                    'CAREER PROFILE:\n' +
+                    'Current Title: ' + ((struct.profile || {}).currentTitle || '') + '\n' +
+                    'Current Company: ' + ((struct.profile || {}).currentCompany || '') + '\n' +
+                    'Experience: ' + ((struct.profile || {}).executiveSummary || '') + '\n' +
+                    'Work History:\n' + roles1 + '\n' +
+                    'Certifications: ' + certs1 + '\n\n' +
+                    'RULES:\n' +
+                    '- NEVER extract O*NET category labels: "Administration and Management", "Judgment and Decision Making", "Personnel and Human Resources", "Customer and Personal Service", "Systems Evaluation", "Management of Financial Resources" are NOT skills.\n' +
+                    '- AI/TECH: Person at AI or HR tech company = extract: Applied AI, Generative AI, Agentic AI, AI Strategy, AI Governance, Responsible AI, AI Fluency, AI Transformation, Enterprise AI Adoption, Prompt Engineering, AI Ethics, Talent Intelligence, Technology Evangelism, Thought Leadership. Executive at Applied AI company = AI Strategy at Mastery.\n' +
+                    '- AVIATION: Any FAA cert or pilot title = extract ALL: Instrument Flight Rules (IFR), Aeronautical Decision Making, Aviation Risk Assessment, Situational Awareness, Crew Resource Management, Cognitive Task Prioritization, Workload Management Under Pressure, Pattern Recognition, Contingency Planning, Stress Management Under Pressure, Adaptive Troubleshooting, Disciplined Adherence to Protocol, Rapid Information Synthesis, Bias Mitigation, Assertive Communication, Emotional Regulation, Professional Accountability, Spatial Orientation, Single-Pilot Resource Management.\n' +
+                    '- NONPROFIT: Founder of charity/foundation = extract: Nonprofit Leadership, 501(c)(3) Operations, Fundraising, Community Engagement, Volunteer Coordination, Mission-Driven Leadership, Mental Health Advocacy.\n' +
+                    '- MUSIC: Musician/drummer/performer = extract: Percussion Performance, Music Performance, Studio Recording, Live Performance, Performing Under Pressure.\n' +
+                    '- LEADERSHIP: VP/Director/C-suite = extract: Executive Strategy, Cross-Functional Leadership, Revenue Growth, Enterprise Sales, Customer Advisory, Board Engagement, Change Management, Strategic Planning, Go-to-Market Strategy.\n' +
+                    '- INFER: $200M+ revenue = Sales Strategy, Revenue Growth. Speaker at conferences = Public Speaking, Thought Leadership. Newsletter/publisher = Content Strategy, Personal Branding.\n' +
+                    '- Levels: Mastery=15+yrs/primary identity, Expert=8-15yrs, Advanced=4-8yrs, Proficient=1-4yrs, Novice=emerging.\n' +
+                    '- key=true for 8-12 identity-defining skills.\n\n' +
+                    'Return ONLY this JSON array (no wrapper object):\n' +
+                    '[{"name":"Skill Name","level":"Mastery|Expert|Advanced|Proficient|Novice","category":"skill|ability|workstyle|unique","key":true,"evidence":[{"description":"specific action","outcome":"measurable result"}]}]\n' +
+                    'Extract exactly 40-60 skills. Every domain represented in the profile must contribute skills.';
+
+                var data2;
+                try {
+                    data2 = await callAnthropicAPI({
+                        model: 'claude-haiku-4-5-20251001',
+                        max_tokens: 6000,
+                        messages: [{ role: 'user', content: skillPrompt }]
+                    }, wizardApiKey, 'resume-parse');
+                } catch (apiErr) {
+                    clearTimeout(safetyTimeout);
+                    throw apiErr;
+                }
+                clearTimeout(safetyTimeout);
+                console.log('[BP Parse] Call 2 complete — skills extracted');
+
+                setStatus('Building your Blueprint...', 85);
+
+                // Parse skills from Call 2
+                var raw2 = (data2.content[0]?.text || '').replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+                if (raw2[0] !== '[') { var j2 = raw2.indexOf('['); if (j2 >= 0) raw2 = raw2.substring(j2); }
+                var parsedSkills = [];
+                try { parsedSkills = JSON.parse(raw2); } catch(e) { console.warn('[BP Parse] Skill parse failed, using empty array', e.message); }
+
+                // ── Post-parse certification rescue — runs BEFORE parsed is built ─────
+                // Cleans both workHistory and roles so Step 5 occupation matching is clean.
+                var _certKeywords = /^(private pilot|instrument rating|ifr rating|commercial pilot|atp|airline transport|cfi|cfii|flight instructor|csm|certified scrum|scrum master|pmp|prince2|leadership in ai|aws certified|google cloud|azure certified|six sigma|cpa|cissp|cfa|cism|capm)\b/i;
+                var _certCompanies = /^(faa|federal aviation administration|scrum alliance|pmi|project management institute|amazon web services|microsoft|google|isc2|aicpa)$/i;
+                var _isCertEntry = function(titleStr, companyStr) {
+                    var isKnownCertTitle = _certKeywords.test(titleStr);
+                    var isKnownCertIssuer = _certCompanies.test(companyStr) && titleStr.length < 60 && !/co-founder|owner|director|manager|president|\bvp\b|pilot|executive|partner/i.test(titleStr);
+                    return isKnownCertTitle || isKnownCertIssuer;
+                };
+                var rescued = [];
+                var existingCertNamesLower = (struct.certifications || []).map(function(c) { return (c.name||''). toLowerCase(); });
+                function rescueToCerts(name, issuer, year) {
+                    if (!existingCertNamesLower.includes(name.toLowerCase())) {
+                        rescued.push({ name: name, issuer: issuer, year: year || '', status: 'active' });
+                        existingCertNamesLower.push(name.toLowerCase());
+                    }
+                }
+                struct.workHistory = (struct.workHistory || []).filter(function(wh) {
+                    if (_isCertEntry((wh.title||'').trim(), (wh.company||'').trim())) {
+                        rescueToCerts((wh.title||'').trim(), (wh.company||'').trim(), wh.startDate||'');
+                        return false;
+                    }
+                    return true;
+                });
+                struct.roles = (struct.roles || []).filter(function(r) {
+                    var rName = (r.name || r.title || '').trim();
+                    var rCompany = (r.company || '').trim();
+                    if (_isCertEntry(rName, rCompany)) {
+                        rescueToCerts(rName, rCompany, '');
+                        return false;
+                    }
+                    return true;
+                });
+                if (rescued.length > 0) {
+                    struct.certifications = (struct.certifications || []).concat(rescued);
+                    console.log('[BP Parse] Rescued ' + rescued.length + ' cert(s):', rescued.map(function(r){return r.name;}).join(', '));
+                }
+
+                // Merge into a unified parsed object (uses clean struct)
+                var parsed = Object.assign({}, struct, { skills: Array.isArray(parsedSkills) ? parsedSkills : [] });
 
                 setStatus('Building your Blueprint...', 95);
 
                 wizardState.parsedData = parsed;
                 wizardState.profile = parsed.profile || {};
-                wizardState.skills = parsed.skills || [];
+
+                // Strip O*NET category noise and apply quality filter
+                var _onetCategoryNoise = {
+                    'administration and management': 1, 'judgment and decision making': 1,
+                    'personnel and human resources': 1, 'customer and personal service': 1,
+                    'systems evaluation': 1, 'systems analysis': 1,
+                    'management of financial resources': 1, 'management of personnel resources': 1,
+                    'management of material resources': 1, 'operations analysis': 1,
+                    'operation monitoring': 1, 'operation and control': 1,
+                    'quality control analysis': 1, 'equipment maintenance': 1,
+                    'equipment selection': 1, 'installation': 1, 'repairing': 1,
+                    'science': 1, 'mathematics': 1, 'philosophy and theology': 1,
+                    'sociology and anthropology': 1, 'geography': 1,
+                    'foreign language': 1, 'fine arts': 1, 'history and archeology': 1,
+                    'therapy and counseling': 1, 'medicine and dentistry': 1
+                };
+                var rawSkills = (parsed.skills || []).filter(function(s) {
+                    return !_onetCategoryNoise[(s.name || '').toLowerCase().trim()];
+                });
+                wizardState.skills = typeof _wbSkillQualityFilter === 'function'
+                    ? _wbSkillQualityFilter(rawSkills) : rawSkills;
+
+                // ── Rarity enrichment pass ────────────────────────────────────────
+                // Assign rarity so welcome.js Step 6 can group into Rare/Uncommon/Common
+                // immediately, without waiting for market intel to load.
+                // Logic mirrors Blueprint skills view: key+Mastery/Expert = rare,
+                // Advanced/domain = uncommon, everything else = common.
+                wizardState.skills.forEach(function(s) {
+                    if (s.rarity) return; // already set
+                    var lvl = s.level || 'Proficient';
+                    var isKey = s.key || s.isKey;
+                    var cat = (s.category || '').toLowerCase();
+                    if (isKey && (lvl === 'Mastery' || lvl === 'Expert')) {
+                        s.rarity = 'rare';
+                    } else if (lvl === 'Mastery' || cat === 'unique' || cat === 'ability') {
+                        s.rarity = 'uncommon';
+                    } else if (lvl === 'Expert' || lvl === 'Advanced') {
+                        s.rarity = 'uncommon';
+                    } else {
+                        s.rarity = 'common';
+                    }
+                    // Domain-injected pilot/AI/nonprofit skills are always at least uncommon
+                    if (s.sources && s.sources.some(function(src) { return src.indexOf('cert-skill-map') >= 0; })) {
+                        if (s.rarity === 'common') s.rarity = 'uncommon';
+                    }
+                });
+
                 wizardState.values = (parsed.values || []).map(v => ({ ...v, selected: v.selected !== false }));
                 wizardState.purpose = parsed.purpose || '';
 
-                await new Promise(r => setTimeout(r, 600));
-                setStatus('Done! ✓', 100);
+                if (parsed.workHistory && parsed.workHistory.length > 0) {
+                    wizardState.workHistory = parsed.workHistory.map(function(wh) {
+                        return { title: wh.title || '', company: wh.company || '', startDate: wh.startDate || '', endDate: wh.endDate || '', description: wh.description || '' };
+                    });
+                }
+                if (parsed.education && parsed.education.length > 0) {
+                    wizardState.education = parsed.education.map(function(edu) {
+                        return { school: edu.school || edu.institution || '', degree: edu.degree || '', field: edu.field || edu.fieldOfStudy || '', years: edu.years || '' };
+                    });
+                }
+                if (parsed.certifications && parsed.certifications.length > 0) {
+                    wizardState.certifications = parsed.certifications.map(function(cert) {
+                        return { name: cert.name || '', issuer: cert.issuer || cert.organization || '', year: cert.year || '', status: 'active' };
+                    });
+                }
+
+                // ── Domain skill injection at parse time ──────────────────────────
+                // _getWizardDomainSkills() reads wizardState.certifications + workHistory.
+                // We inject here (not Step 5) because welcome.js owns Step 5 rendering
+                // via delegation guard and never calls our domain injection code.
+                var _existingSkillNamesLower = {};
+                wizardState.skills.forEach(function(s) { _existingSkillNamesLower[(s.name||'').toLowerCase()] = true; });
+
+                var domainSkillsToAdd = typeof _getWizardDomainSkills === 'function' ? _getWizardDomainSkills() : [];
+                domainSkillsToAdd.forEach(function(ds) {
+                    var nl = (ds.name || '').toLowerCase();
+                    if (_existingSkillNamesLower[nl]) return; // already extracted by AI
+                    _existingSkillNamesLower[nl] = true;
+                    var enriched = Object.assign({}, ds, {
+                        rarity: ds.key && (ds.level === 'Mastery' || ds.level === 'Expert') ? 'rare'
+                              : (ds.level === 'Mastery' || ds.category === 'ability' || ds.level === 'Expert') ? 'uncommon'
+                              : 'uncommon', // domain skills are always at least uncommon
+                        sources: ds.sources || ['cert-skill-map']
+                    });
+                    wizardState.skills.push(enriched);
+                });
+                if (domainSkillsToAdd.length > 0) {
+                    console.log('[BP Parse] Injected ' + domainSkillsToAdd.length + ' domain skills from cert/role map');
+                }
+
                 await new Promise(r => setTimeout(r, 400));
+                setStatus('Done! ✓', 100);
+                await new Promise(r => setTimeout(r, 300));
 
                 wizardState.step = 4;
                 renderWizardStep();
 
             } catch (err) {
                 console.error('Parsing error:', err);
-                const el = document.getElementById('wizardParsingIcon');
-                if (el) el.style.animation = 'none';
                 const status = document.getElementById('wizardParsingStatus');
                 if (status) status.innerHTML = `
                     <span style="color:var(--danger);">
@@ -21432,6 +21783,7 @@ Rules:
         }
 
         function wizardSaveProfile() {
+            if (window.wizardSaveProfile && window.wizardSaveProfile !== wizardSaveProfile) return window.wizardSaveProfile();
             if (readOnlyGuard()) return;
             wizardState.profile = {
                 name: document.getElementById('wizardName')?.value?.trim() || '',
@@ -21454,7 +21806,147 @@ Rules:
 
         // ── STEP 5: O*NET Occupation Enrichment ─────────────────────────────
 
+
+        function wizardToggleRoleHidden(whIdx) {
+            var wh = wizardState.workHistory;
+            if (!wh || !wh[whIdx]) return;
+            wh[whIdx].hidden = !wh[whIdx].hidden;
+            var hiddenCount = wh.filter(function(j) { return j.hidden; }).length;
+            var visibleCount = wh.length - hiddenCount;
+            if (visibleCount === 0) {
+                wh[whIdx].hidden = false;
+                showToast('You need at least one visible role.', 'warning');
+                return;
+            }
+            var isHidden = wh[whIdx].hidden;
+            showToast(isHidden
+                ? 'Role hidden — skills from this role are still kept.'
+                : 'Role visible again.',
+                'info', 2000);
+            var btns = document.querySelectorAll('[onclick*="wizardToggleRoleHidden(' + whIdx + ')"]');
+            btns.forEach(function(btn) {
+                var row = btn.closest('[style*="padding:10px 0"]');
+                if (row) row.style.opacity = isHidden ? '0.5' : '1';
+                btn.style.background = isHidden ? 'rgba(245,158,11,0.15)' : 'none';
+                btn.style.borderColor = isHidden ? '#f59e0b' : 'var(--border)';
+                btn.style.color = isHidden ? '#f59e0b' : 'var(--text-muted)';
+                btn.innerHTML = isHidden ? '👁 Hidden — skills kept' : '👁 Hide role';
+                btn.title = isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills';
+            });
+        }
+        window.wizardToggleRoleHidden = wizardToggleRoleHidden;
+
+        // ===== WIZARD CERT + DOMAIN SKILL MAP =====
+        // Maps certifications and work history titles → curated skill arrays.
+        // Used in Step 5 to surface domain skills when O*NET crosswalk arrays are empty.
+        function _getWizardDomainSkills() {
+            var domainSkills = [];
+            var addedNames = {};
+            function addSkill(name, level, category, key) {
+                var nl = name.toLowerCase();
+                if (addedNames[nl]) return;
+                addedNames[nl] = true;
+                // Don't re-add skills already in wizardState
+                var already = (wizardState.skills || []).some(function(s) {
+                    return (s.name || '').toLowerCase() === nl;
+                });
+                if (already) return;
+                domainSkills.push({ name: name, level: level || 'Advanced', category: category || 'skill', key: !!key, evidence: [], sources: ['cert-skill-map'] });
+            }
+
+            var certs = (wizardState.certifications || []).map(function(c) { return (c.name || '').toLowerCase(); });
+            var workTitles = (wizardState.workHistory || []).map(function(wh) { return (wh.title || '').toLowerCase(); });
+            var allText = certs.concat(workTitles).join(' ');
+
+            // ── FAA PILOT CERTIFICATIONS ──────────────────────────────────────
+            var hasPilot = /private pilot|instrument rating|instrument rated|commercial pilot|atp|airline transport|cfii?|flight instructor|chief pilot|co-founder.*pilot|pilot.*co-founder/i.test(allText);
+            if (hasPilot) {
+                // Core aviation skills
+                addSkill('Instrument Flight Rules (IFR)', 'Expert', 'skill', true);
+                addSkill('Aeronautical Decision Making', 'Expert', 'skill', true);
+                addSkill('Aviation Risk Assessment', 'Expert', 'ability', true);
+                addSkill('Situational Awareness', 'Mastery', 'ability', true);
+                addSkill('Crew Resource Management', 'Expert', 'skill', false);
+                addSkill('Single-Pilot Resource Management', 'Expert', 'skill', false);
+                // Transferable cognitive/leadership skills
+                addSkill('Cognitive Task Prioritization', 'Expert', 'ability', true);
+                addSkill('Workload Management Under Pressure', 'Mastery', 'ability', true);
+                addSkill('Pattern Recognition', 'Expert', 'ability', false);
+                addSkill('Contingency Planning', 'Expert', 'skill', false);
+                addSkill('Rapid Information Synthesis', 'Expert', 'ability', true);
+                addSkill('Stress Management Under Pressure', 'Mastery', 'ability', false);
+                addSkill('Adaptive Troubleshooting', 'Expert', 'skill', false);
+                addSkill('Environmental Threat Assessment', 'Expert', 'ability', false);
+                addSkill('Disciplined Adherence to Protocol', 'Mastery', 'workstyle', false);
+                addSkill('Bias Mitigation', 'Expert', 'ability', false);
+                addSkill('Assertive Communication', 'Expert', 'skill', false);
+                addSkill('Emotional Regulation', 'Expert', 'ability', false);
+                addSkill('Professional Accountability', 'Mastery', 'workstyle', false);
+                addSkill('Sensory Integration', 'Expert', 'ability', false);
+                addSkill('Spatial Orientation', 'Expert', 'ability', false);
+                addSkill('Trauma Response Protocols', 'Advanced', 'skill', false);
+            }
+
+            // ── KYLE'S WISH / CHIEF PILOT + FOUNDATION ───────────────────────
+            var hasChiefPilot = /chief pilot/i.test(allText);
+            var hasFoundation = (wizardState.workHistory || []).some(function(wh) {
+                return /chief pilot|co-founder.*pilot|pilot.*founder/i.test(wh.title || '') ||
+                       /foundation|wish|charity|nonprofit|non-profit/i.test(wh.company || '');
+            });
+            if (hasChiefPilot || hasFoundation) {
+                addSkill('Nonprofit Leadership', 'Expert', 'skill', true);
+                addSkill('501(c)(3) Operations', 'Expert', 'skill', false);
+                addSkill('Aviation Program Management', 'Expert', 'skill', false);
+                addSkill('Fundraising', 'Advanced', 'skill', false);
+                addSkill('Community Engagement', 'Expert', 'skill', false);
+                addSkill('Volunteer Coordination', 'Advanced', 'skill', false);
+                addSkill('Mental Health Advocacy', 'Expert', 'skill', true);
+                addSkill('Mission-Driven Leadership', 'Mastery', 'workstyle', true);
+                addSkill('Stakeholder Engagement', 'Expert', 'skill', false);
+                addSkill('Charitable Program Management', 'Expert', 'skill', false);
+            }
+
+            // ── LEADERSHIP IN AI CERTIFICATION ────────────────────────────────
+            var hasLeadershipAI = /leadership in ai|leadership.*artificial intelligence/i.test(allText);
+            if (hasLeadershipAI) {
+                addSkill('AI Strategy', 'Expert', 'skill', true);
+                addSkill('AI Governance', 'Expert', 'skill', true);
+                addSkill('Responsible AI', 'Expert', 'skill', false);
+                addSkill('AI Fluency', 'Expert', 'skill', true);
+                addSkill('AI Transformation', 'Expert', 'skill', true);
+                addSkill('Enterprise AI Adoption', 'Expert', 'skill', false);
+                addSkill('AI Ethics', 'Advanced', 'skill', false);
+                addSkill('AI Risk Management', 'Advanced', 'skill', false);
+                addSkill('Machine Learning Fundamentals', 'Advanced', 'skill', false);
+            }
+
+            // ── CSM / SCRUM ───────────────────────────────────────────────────
+            var hasCsm = /\bcsm\b|certified scrum master|scrum master/i.test(allText);
+            if (hasCsm) {
+                addSkill('Agile Methodology', 'Advanced', 'skill', false);
+                addSkill('Scrum Framework', 'Advanced', 'skill', false);
+                addSkill('Sprint Planning', 'Advanced', 'skill', false);
+                addSkill('Agile Coaching', 'Advanced', 'skill', false);
+            }
+
+            // ── MUSICIAN / PERFORMER ──────────────────────────────────────────
+            var hasMusician = /musician|drummer|drum|percuss|touring|studio.*music|music.*studio/i.test(allText);
+            if (hasMusician) {
+                addSkill('Percussion Performance', 'Mastery', 'skill', true);
+                addSkill('Music Performance', 'Mastery', 'skill', false);
+                addSkill('Studio Recording', 'Expert', 'skill', false);
+                addSkill('Live Performance', 'Mastery', 'skill', false);
+                addSkill('Creative Collaboration', 'Expert', 'skill', false);
+                addSkill('Performing Under Pressure', 'Mastery', 'ability', false);
+                addSkill('Rhythmic Pattern Recognition', 'Mastery', 'ability', false);
+            }
+
+            return domainSkills;
+        }
+        window._getWizardDomainSkills = _getWizardDomainSkills;
+
         function renderWizardStep5(el) {
+            if (window.renderWizardStep5 && window.renderWizardStep5 !== renderWizardStep5) return window.renderWizardStep5(el);
             // If crosswalk not loaded, skip enrichment
             if (!window.onetCrosswalk) {
                 el.innerHTML = `
@@ -21486,15 +21978,74 @@ Rules:
                 }
             });
 
-            // Resolve all titles
+            // Also add workHistory titles that aren't already in parsedData roles
+            var whItems = wizardState.workHistory || [];
+            var existingTitleSet = {};
+            titles.forEach(function(t) { existingTitleSet[t.label.toLowerCase()] = true; });
+            whItems.forEach(function(wh) {
+                var whTitle = (wh.title || '').trim();
+                if (whTitle && !existingTitleSet[whTitle.toLowerCase()]) {
+                    existingTitleSet[whTitle.toLowerCase()] = true;
+                    titles.push({ label: whTitle, source: 'history', company: wh.company || '', years: '' });
+                }
+            });
+
+            // Split compound titles (e.g. "Co-Founder/Chief Pilot") into segments
+            var expandedTitles = [];
+            var _genericFragments = { 'creative':1, 'member':1, 'associate':1, 'coordinator':1 };
+            titles.forEach(function(t) {
+                expandedTitles.push(t);
+                if (/[\/&]|\band\b/i.test(t.label)) {
+                    var parts = t.label.split(/\s*[\/&]\s*|\s+and\s+/i).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 3; });
+                    parts.forEach(function(part) {
+                        var normPart = part.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+                        var wordCount = normPart.split(' ').filter(function(w) { return w.length > 2; }).length;
+                        if (wordCount < 2 || _genericFragments[normPart]) return;
+                        expandedTitles.push({ label: part, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
+                    });
+                }
+            });
+
+            // For founder/owner titles + company name clues, infer a role
+            var _founderInferMap = {
+                'foundation': 'Executive Director',
+                'nonprofit': 'Nonprofit Executive Director',
+                'non-profit': 'Nonprofit Executive Director',
+                'charity': 'Nonprofit Executive Director',
+                'consulting': 'Management Consultant',
+                'media': 'Media Director',
+                'tech': 'Technology Director',
+                'software': 'Software Development Manager',
+                'design': 'Creative Director',
+                'marketing': 'Marketing Director',
+                'health': 'Healthcare Administrator'
+            };
+            titles.forEach(function(t) {
+                var labelLow = t.label.toLowerCase();
+                if (/\b(founder|owner|partner|co-founder|cofounder)\b/i.test(labelLow)) {
+                    var companyLow = (t.company || '').toLowerCase();
+                    for (var key in _founderInferMap) {
+                        if (companyLow.includes(key)) {
+                            var inferredTitle = _founderInferMap[key];
+                            if (!existingTitleSet[inferredTitle.toLowerCase()]) {
+                                existingTitleSet[inferredTitle.toLowerCase()] = true;
+                                expandedTitles.push({ label: inferredTitle, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
+                            }
+                            break;
+                        }
+                    }
+                }
+            });
+            // Resolve all titles — group by role, filter low-confidence matches
             var resolutions = [];
             var seenSocs = {};
-            titles.forEach(function(t) {
+            var MIN_ALT_CONFIDENCE = 0.65;
+            expandedTitles.forEach(function(t) {
                 var result = resolveTitle(t.label);
-                if (result && !seenSocs[result.soc]) {
+                if (result && !seenSocs[result.soc] && result.confidence >= 0.60) {
                     seenSocs[result.soc] = true;
                     resolutions.push({
-                        inputTitle: t.label,
+                        inputTitle: t._parentTitle || t.label,
                         source: t.source,
                         company: t.company || '',
                         years: t.years || '',
@@ -21505,21 +22056,90 @@ Rules:
                         alternatives: result.alternatives || []
                     });
                 }
+                if (result && result.alternatives) {
+                    var altCount = 0;
+                    result.alternatives.forEach(function(alt) {
+                        var altConf = (result.confidence || 0.8) * 0.85;
+                        if (!seenSocs[alt.soc] && altConf >= MIN_ALT_CONFIDENCE && altCount < 2) {
+                            seenSocs[alt.soc] = true;
+                            altCount++;
+                            resolutions.push({
+                                inputTitle: t._parentTitle || t.label,
+                                source: t.source,
+                                company: t.company || '',
+                                years: t.years || '',
+                                soc: alt.soc,
+                                occTitle: alt.title,
+                                family: alt.family,
+                                confidence: altConf,
+                                alternatives: []
+                            });
+                        }
+                    });
+                }
             });
 
-            // Run gap analysis for primary occupation (highest confidence current title, or first match)
+            // Run gap analysis for ALL matched occupations with fuzzy dedup
             var primaryRes = resolutions.find(function(r) { return r.source === 'current'; }) || resolutions[0];
             var gapResult = null;
             var gapSkills = [];
-            if (primaryRes) {
-                gapResult = suggestMissingSkills(wizardState.skills, primaryRes.soc);
-                if (gapResult) {
-                    // Filter to meaningful gaps (importance > 40, not already in user skills)
-                    gapSkills = gapResult.gaps.filter(function(g) {
-                        return (g.importance || 0) >= 40;
-                    }).slice(0, 20);
-                }
+            var gapSkillNames = {};
+            var existingSkillWords = {};
+            wizardState.skills.forEach(function(s) {
+                var words = (s.name || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2; });
+                words.forEach(function(w) { existingSkillWords[w] = true; });
+            });
+            var existingSkillNamesLower = {};
+            wizardState.skills.forEach(function(s) { existingSkillNamesLower[s.name.toLowerCase()] = true; });
+            function isGapRedundant(gapName) {
+                var gLow = gapName.toLowerCase();
+                if (existingSkillNamesLower[gLow]) return true;
+                var gapWords = gLow.replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2; });
+                if (gapWords.length === 0) return false;
+                var overlap = gapWords.filter(function(w) { return existingSkillWords[w]; }).length;
+                return overlap / gapWords.length >= 0.6;
             }
+            resolutions.forEach(function(res) {
+                var result = suggestMissingSkills(wizardState.skills, res.soc);
+                if (result) {
+                    if (!gapResult || (res.source === 'current' && !gapResult._isPrimary)) {
+                        gapResult = result;
+                        gapResult._isPrimary = res.source === 'current';
+                    }
+                    result.gaps.forEach(function(g) {
+                        if ((g.importance || 0) >= 25 && !gapSkillNames[g.name.toLowerCase()] && !isGapRedundant(g.name)) {
+                        // Also block O*NET category labels from surfacing as gap suggestions
+                        var _gapNoise = {'administration and management':1,'judgment and decision making':1,'personnel and human resources':1,'customer and personal service':1,'systems evaluation':1,'systems analysis':1,'management of financial resources':1,'management of personnel resources':1,'management of material resources':1,'operations analysis':1,'operation monitoring':1,'operation and control':1,'quality control analysis':1,'fine arts':1,'oral comprehension':1,'written comprehension':1,'oral expression':1,'written expression':1,'speech clarity':1,'speech recognition':1,'information ordering':1,'deductive reasoning':1,'inductive reasoning':1};
+                        if (_gapNoise[(g.name||'').toLowerCase().trim()]) return;
+                        gapSkillNames[g.name.toLowerCase()] = true;
+                            g._fromOcc = res.occTitle;
+                            gapSkills.push(g);
+                        }
+                    });
+                }
+            });
+            gapSkills.sort(function(a, b) { return (b.importance || 0) - (a.importance || 0); });
+            gapSkills = gapSkills.slice(0, 20);
+
+            // ── Domain skill injection ────────────────────────────────────────
+            // Cert/domain skills (pilot, AI certs, nonprofit, musician) that O*NET
+            // crosswalk arrays don't cover. Injected as pre-checked gap suggestions.
+            var domainSkills = _getWizardDomainSkills();
+            domainSkills.forEach(function(ds) {
+                var nameLow = ds.name.toLowerCase();
+                if (!gapSkillNames[nameLow] && !isGapRedundant(ds.name)) {
+                    gapSkillNames[nameLow] = true;
+                    gapSkills.push({
+                        name: ds.name,
+                        category: ds.category || 'skill',
+                        importance: 70,
+                        occupationLevel: ds.level || 'Advanced',
+                        _fromOcc: 'Domain Expertise',
+                        _domain: true,
+                        key: ds.key || false
+                    });
+                }
+            });
 
             // Store enrichment state for the save function
             wizardState.enrichment = {
@@ -21543,38 +22163,112 @@ Rules:
                 return '\u{1F4A1}';
             };
 
+            var allRoles = (wizardState.parsedData && wizardState.parsedData.roles) || [];
+            var whItems = wizardState.workHistory || [];
+            var hasMultipleRoles = allRoles.length > 3 || whItems.length > 3;
+
             el.innerHTML = `
                 ${wizardHeading(bpIcon('target',22), 'Occupation Match & Skill Enrichment',
                     resolutions.length > 0
                         ? 'We matched your roles to O*NET occupations and found skills you may want to add.'
                         : 'No role titles could be matched. Continue to review your skills.')}
 
-                ${resolutions.length > 0 ? `
-                <div style="background:var(--bg-elevated); border:1px solid var(--border);
-                            border-radius:14px; padding:20px; margin-bottom:20px;">
-                    <div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">
-                        Occupation Matches
-                    </div>
-                    ${resolutions.map(function(r) {
-                        return '<div style="display:flex; align-items:center; gap:12px; padding:10px 0;'
-                            + 'border-bottom:1px solid var(--border);">'
-                            + '<div style="flex:1; min-width:0;">'
-                            + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
-                            + escapeHtml(r.inputTitle)
-                            + (r.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(r.company) + '</span>' : '')
-                            + '</div>'
-                            + '<div style="font-size:0.8em; color:var(--text-secondary); margin-top:2px;">'
-                            + '\u2192 ' + escapeHtml(r.occTitle) + ' <span style="color:var(--text-muted);">(' + r.soc + ')</span>'
-                            + '</div>'
-                            + '</div>'
-                            + '<div style="display:flex; align-items:center; gap:6px;">'
-                            + '<div style="width:8px; height:8px; border-radius:50%; background:' + confidenceColor(r.confidence) + ';"></div>'
-                            + '<span style="font-size:0.78em; color:var(--text-secondary);">' + Math.round(r.confidence * 100) + '%</span>'
-                            + '</div>'
-                            + '</div>';
-                    }).join('')}
-                </div>
-                ` : ''}
+                ${hasMultipleRoles ? '<div style="background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04)); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
+                    + '<div style="font-weight:700; color:#f59e0b; font-size:0.82em; margin-bottom:6px;">\uD83D\uDCA1 Pro Tip: Less is More</div>'
+                    + '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.5;">'
+                    + 'Listing more than your past 3 roles isn\'t necessary. You can <strong>hide a role but keep the skills</strong>. '
+                    + 'This way you demonstrate currency and relevance to the market without showing past roles that may create more noise than signal.</div>'
+                    + '</div>' : ''}
+
+                ${resolutions.length > 0 ? (function() {
+                    var grouped = {};
+                    var groupOrder = [];
+                    resolutions.forEach(function(r) {
+                        var key = r.inputTitle + '|||' + (r.company || '');
+                        if (!grouped[key]) {
+                            grouped[key] = { inputTitle: r.inputTitle, company: r.company, source: r.source, matches: [] };
+                            groupOrder.push(key);
+                        }
+                        grouped[key].matches.push(r);
+                    });
+
+                    var findWhIdx = function(title, company) {
+                        var tLow = (title || '').toLowerCase().trim();
+                        var cLow = (company || '').toLowerCase().trim();
+                        for (var i = 0; i < whItems.length; i++) {
+                            var whTitle = (whItems[i].title || '').toLowerCase().trim();
+                            var whCompany = (whItems[i].company || '').toLowerCase().trim();
+                            if (whTitle === tLow && (!cLow || !whCompany || whCompany === cLow)) return i;
+                        }
+                        for (var i = 0; i < whItems.length; i++) {
+                            if ((whItems[i].title || '').toLowerCase().trim() === tLow) return i;
+                        }
+                        return -1;
+                    };
+
+                    return '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+                        + 'border-radius:14px; padding:20px; margin-bottom:20px;">'
+                        + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">'
+                        + 'Your Roles</div>'
+                        + groupOrder.map(function(key, gi) {
+                            var g = grouped[key];
+                            var whIdx = findWhIdx(g.inputTitle, g.company);
+                            var isHidden = whIdx >= 0 && whItems[whIdx].hidden === true;
+                            return '<div style="padding:10px 0; border-bottom:1px solid var(--border);'
+                                + (isHidden ? ' opacity:0.5;' : '') + '">'
+                                + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
+                                + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
+                                + escapeHtml(g.inputTitle)
+                                + (g.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(g.company) + '</span>' : '')
+                                + '</div>'
+                                + (whIdx >= 0 ? '<button onclick="wizardToggleRoleHidden(' + whIdx + ')" title="' + (isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills') + '"'
+                                    + ' style="background:' + (isHidden ? 'rgba(245,158,11,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#f59e0b' : 'var(--border)') + ';'
+                                    + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
+                                    + ' white-space:nowrap; transition:all 0.15s;">'
+                                    + (isHidden ? '\uD83D\uDC41 Hidden \u2014 skills kept' : '\uD83D\uDC41 Hide role') + '</button>' : '')
+                                + '</div>'
+                                + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
+                                + g.matches.map(function(m) {
+                                    return '<div style="display:inline-flex; align-items:center; gap:6px;'
+                                        + ' background:var(--bg-surface); border:1px solid var(--border);'
+                                        + ' border-radius:8px; padding:4px 10px; font-size:0.8em;">'
+                                        + '<div style="width:7px; height:7px; border-radius:50%; background:' + confidenceColor(m.confidence) + '; flex-shrink:0;"></div>'
+                                        + '<span style="color:var(--text-secondary);">' + escapeHtml(m.occTitle) + '</span>'
+                                        + '<span style="color:var(--text-muted); font-size:0.85em;">' + Math.round(m.confidence * 100) + '%</span>'
+                                        + '</div>';
+                                }).join('')
+                                + '</div></div>';
+                        }).join('')
+                        + '</div>';
+                })() : ''}
+
+                ${(function() {
+                    var matchedTitles = new Set();
+                    resolutions.forEach(function(r) { matchedTitles.add((r.inputTitle || '').toLowerCase().trim()); });
+                    var unmatchedRoles = whItems.filter(function(wh) {
+                        return !matchedTitles.has((wh.title || '').toLowerCase().trim());
+                    });
+                    if (unmatchedRoles.length === 0) return '';
+                    return '<div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin-bottom:14px;">'
+                        + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:10px; font-size:0.88em;">Other Roles</div>'
+                        + unmatchedRoles.map(function(wh) {
+                            var origIdx = whItems.indexOf(wh);
+                            var isHidden = wh.hidden === true;
+                            return '<div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0;'
+                                + ' border-bottom:1px solid var(--border);' + (isHidden ? ' opacity:0.5;' : '') + '">'
+                                + '<div style="font-size:0.86em; color:var(--text-primary);">'
+                                + escapeHtml(wh.title || 'Untitled')
+                                + (wh.company ? ' <span style="color:var(--text-muted);">at ' + escapeHtml(wh.company) + '</span>' : '')
+                                + '</div>'
+                                + '<button onclick="wizardToggleRoleHidden(' + origIdx + ')" title="' + (isHidden ? 'Show role' : 'Hide role, keep skills') + '"'
+                                + ' style="background:' + (isHidden ? 'rgba(245,158,11,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#f59e0b' : 'var(--border)') + ';'
+                                + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
+                                + ' white-space:nowrap;">'
+                                + (isHidden ? '\uD83D\uDC41 Hidden' : '\uD83D\uDC41 Hide') + '</button>'
+                                + '</div>';
+                        }).join('')
+                        + '</div>';
+                })()}
 
                 ${gapSkills.length > 0 ? `
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -21587,16 +22281,18 @@ Rules:
                     </p>
                     <div style="max-height:340px; overflow-y:auto;">
                         ${gapSkills.map(function(g, i) {
-                            return '<div style="display:flex; align-items:center; gap:12px; padding:8px 0;'
-                                + 'border-bottom:1px solid var(--border);">'
+                            var isDomain = !!g._domain;
+                            return '<div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--border);">'
                                 + '<input type="checkbox" id="enrich-skill-' + i + '"'
+                                + (isDomain ? ' checked' : '')
                                 + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent); flex-shrink:0;">'
                                 + '<span style="font-size:0.85em; flex-shrink:0;">' + categoryIcon(g.category) + '</span>'
                                 + '<div style="flex:1; min-width:0;">'
                                 + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">'
                                 + escapeHtml(g.name) + '</div>'
                                 + '<div style="font-size:0.76em; color:var(--text-muted);">'
-                                + (g.category || 'skill') + ' \u00B7 ' + (g.occupationLevel || 'Proficient')
+                                + (g.category || 'skill') + ' · ' + (g.occupationLevel || 'Proficient')
+                                + (isDomain ? ' · <span style="color:#60a5fa; font-weight:600;">Domain</span>' : '')
                                 + '</div></div></div>';
                         }).join('')}
                     </div>
@@ -21638,6 +22334,7 @@ Rules:
         }
 
         function wizardSaveEnrichment() {
+            if (window.wizardSaveEnrichment && window.wizardSaveEnrichment !== wizardSaveEnrichment) return window.wizardSaveEnrichment();
             if (readOnlyGuard()) return;
             var enrichment = wizardState.enrichment;
             if (!enrichment || !enrichment.gapSkills) {
@@ -21677,16 +22374,544 @@ Rules:
 
         // ── STEP 6: Skills review ──────────────────────────────────────────────
 
+
+        // ── Market Intelligence Engine ──
+        async function wizardFetchMarketIntelligence() {
+            if (wizardState.marketIntel) return wizardState.marketIntel;
+            if (!wizardState.skills || wizardState.skills.length === 0) return null;
+
+            // Cap at top 40 skills by level to keep prompt under Haiku's sweet spot
+            var levelRank = { 'Mastery': 5, 'Expert': 4, 'Advanced': 3, 'Proficient': 2, 'Novice': 1 };
+            var topSkills = wizardState.skills.slice()
+                .sort(function(a, b) {
+                    var la = (a.key ? 10 : 0) + (levelRank[a.level] || 2);
+                    var lb = (b.key ? 10 : 0) + (levelRank[b.level] || 2);
+                    return lb - la;
+                })
+                .slice(0, 40);
+
+            var skillsList = topSkills.map(function(s) { return s.name + ' (' + s.level + ')'; }).join(', ');
+            var title = (wizardState.profile && wizardState.profile.currentTitle) || '';
+            var roles = (wizardState.parsedData && wizardState.parsedData.roles) ? wizardState.parsedData.roles.map(function(r) { return (r.title || r.name || '') + ' at ' + (r.company || ''); }).join('; ') : '';
+            var industry = (wizardState.profile && wizardState.profile.industry) || '';
+
+            var funcArea = wizardDetectFunctionalArea();
+
+            var prompt = 'You are a career market intelligence analyst. Analyze this professional\'s skills against current market demand for their role/industry.\n\n'
+                + 'Current Title: ' + title + '\n'
+                + 'Functional Area: ' + funcArea + '\n'
+                + 'Industry: ' + industry + '\n'
+                + 'Career History: ' + roles + '\n'
+                + 'Current Skills: ' + skillsList + '\n\n'
+                + 'Return ONLY valid JSON (no markdown) with exactly this structure:\n'
+                + '{\n'
+                + '  "keepSkills": [{"name": "exact skill name from list", "rationale": "1 sentence why this is high-value"}],\n'
+                + '  "dropSkills": [{"name": "exact skill name from list", "rationale": "1 sentence with market data why this is low-value"}],\n'
+                + '  "growthSkills": [{"name": "skill name to add", "rationale": "1 sentence why", "valueAddPct": 3}]\n'
+                + '}\n\n'
+                + 'Rules:\n'
+                + '- keepSkills: 3-6 highest market-value skills from their current list. Focus on skills that differentiate.\n'
+                + '- dropSkills: 1-4 skills that are commoditized, outdated, or dilute their profile. Be direct — if a skill appears in <3% of job postings for their role or is assumed knowledge, flag it.\n'
+                + '- growthSkills: 2-4 skills they do NOT have but would significantly increase market value. valueAddPct is estimated salary increase (1-8 range).\n'
+                + '- Be constructively honest. Data-backed. No fluff.\n'
+                + '- Every skill in keepSkills and dropSkills MUST match an exact name from their Current Skills list.';
+
+            try {
+                var aiKey = safeGet('wbAnthropicKey');
+                var data = await callAnthropicAPI({
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 1500,
+                    messages: [{ role: 'user', content: prompt }]
+                }, aiKey, 'skill-market-intel');
+
+                var text = (data.content[0] && data.content[0].text) || '';
+                var clean = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+                var result = JSON.parse(clean);
+                if (!result.keepSkills) result.keepSkills = [];
+                if (!result.dropSkills) result.dropSkills = [];
+                if (!result.growthSkills) result.growthSkills = [];
+
+                var baseAnchor = wizardGetMarketBaseAnchor();
+                result.growthSkills.forEach(function(g) {
+                    var pct = Math.min(Math.max(g.valueAddPct || 2, 1), 8);
+                    g.estimatedValueAdd = Math.round(baseAnchor * pct / 100 / 1000) * 1000;
+                    g.valueAddPct = pct;
+                });
+
+                wizardState.marketIntel = result;
+                return result;
+            } catch (err) {
+                console.warn('[BP] Market intelligence failed:', err.message);
+                return null;
+            }
+        }
+        window.wizardFetchMarketIntelligence = wizardFetchMarketIntelligence;
+
+        function wizardDetectFunctionalArea() {
+            var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
+            if (/\b(software|developer|engineer|tech|data|devops|cloud|cyber|ai|ml)\b/.test(title)) return 'technology';
+            if (/\b(market|brand|content|seo|growth|digital)\b/.test(title)) return 'marketing';
+            if (/\b(sales|account exec|business develop)\b/.test(title)) return 'sales';
+            if (/\b(financ|accounting|cfo|controller|treasury)\b/.test(title)) return 'finance';
+            if (/\b(operation|logistics|supply|procurement)\b/.test(title)) return 'operations';
+            if (/\b(strateg|consult|advisory|management consult)\b/.test(title)) return 'strategy';
+            if (/\b(nurse|doctor|physician|clinical|medical|health)\b/.test(title)) return 'healthcare';
+            if (/\b(hr|human resource|people|talent|recruit)\b/.test(title)) return 'hr';
+            if (/\b(legal|attorney|counsel|lawyer|paralegal)\b/.test(title)) return 'legal';
+            if (/\b(teacher|professor|instructor|principal|dean)\b/.test(title)) return 'education';
+            if (/\b(mechanic|electric|plumb|weld|construct)\b/.test(title)) return 'trades';
+            return 'general';
+        }
+
+        function wizardGetMarketBaseAnchor() {
+            if (typeof calculateTotalMarketValue === 'function') {
+                try {
+                    var mv = calculateTotalMarketValue('evidence');
+                    if (mv && mv.marketRate && mv.marketRate > 0) return mv.marketRate;
+                } catch (e) {}
+            }
+            var SALARY_TABLE_LOCAL = {
+                education: [29120, 62340, 83010, 132550, 165820],
+                engineering: [53230, 102320, 130290, 152670, 238291],
+                finance: [41390, 81680, 132050, 214210, 246341],
+                general: [27780, 43630, 82340, 164130, 206000],
+                healthcare: [30370, 62340, 107960, 162420, 219080],
+                hr: [42360, 72910, 91550, 189960, 218453],
+                legal: [48190, 61010, 215420, 247732, 284891],
+                marketing: [56220, 76950, 95940, 211080, 242741],
+                operations: [53190, 101190, 133140, 164130, 188749],
+                sales: [29140, 66260, 97570, 201490, 231713],
+                strategy: [76770, 101190, 133140, 164130, 230000],
+                technology: [76360, 133080, 169000, 216220, 248652],
+                trades: [29060, 62350, 81730, 100200, 176990]
+            };
+            var func = wizardDetectFunctionalArea();
+            var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
+            var seniority = 1;
+            if (/\b(vp|vice president|c-suite|ceo|cto|cfo|coo|chief|svp|evp)\b/.test(title)) seniority = 4;
+            else if (/\b(director|head of|principal)\b/.test(title)) seniority = 3;
+            else if (/\b(senior|sr|lead|staff)\b/.test(title)) seniority = 2;
+            else if (/\b(junior|jr|entry|associate|intern)\b/.test(title)) seniority = 0;
+            return SALARY_TABLE_LOCAL[func][seniority];
+        }
+
+        function wizardRenderMarketIntel(intel) {
+            if (!intel) return '';
+            var html = '<div id="marketIntelPanel" style="margin-bottom:16px;">';
+
+            if (intel.keepSkills.length > 0) {
+                html += '<div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25);'
+                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:#10b981; margin-bottom:8px;">'
+                    + '\uD83D\uDCC8 Keep & Highlight \u2014 Your Strongest Market Assets</div>';
+                intel.keepSkills.forEach(function(k, ki) {
+                    var accepted = k._accepted;
+                    html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
+                        + '<span style="color:#10b981; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2713</span>'
+                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
+                        + escapeHtml(k.name) + '</span>'
+                        + (accepted ? '<span style="font-size:0.68em; background:#10b981; color:#fff; padding:1px 6px; border-radius:4px; margin-left:6px; font-weight:700;">KEY</span>' : '')
+                        + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
+                        + escapeHtml(k.rationale) + '</span></div>'
+                        + (k._dismissed ? '' : '<button onclick="wizardAcceptKeep(' + ki + ')" id="keep-btn-' + ki + '"'
+                        + (accepted ? ' disabled' : '')
+                        + ' style="background:' + (accepted ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)') + '; border:1px solid rgba(16,185,129,0.3);'
+                        + ' color:#10b981; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
+                        + (accepted ? ' opacity:0.7;' : '') + '">' + (accepted ? '\u2713 Key Skill' : 'Mark Key') + '</button>')
+                        + (k._dismissed || accepted ? '' : '<button onclick="wizardDismissRec(\'keep\',' + ki + ')"'
+                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
+                        + ' title="Dismiss this recommendation">\u2715</button>')
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+
+            if (intel.dropSkills.length > 0) {
+                html += '<div style="background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.2);'
+                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:#ef4444; margin-bottom:8px;">'
+                    + '\u2702 Consider Removing \u2014 Low Market Signal</div>';
+                intel.dropSkills.forEach(function(d, di) {
+                    html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
+                        + '<span style="color:#ef4444; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2717</span>'
+                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);'
+                        + ' text-decoration:line-through; opacity:0.7;">'
+                        + escapeHtml(d.name) + '</span>'
+                        + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
+                        + escapeHtml(d.rationale) + '</span></div>'
+                        + (d._dismissed ? '' : '<button onclick="wizardAcceptDrop(' + di + ')" id="drop-btn-' + di + '"'
+                        + (d._accepted ? ' disabled' : '')
+                        + ' style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3);'
+                        + ' color:#ef4444; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
+                        + (d._accepted ? ' opacity:0.5;' : '') + '">' + (d._accepted ? 'Removed' : 'Remove') + '</button>')
+                        + (d._dismissed || d._accepted ? '' : '<button onclick="wizardDismissRec(\'drop\',' + di + ')"'
+                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
+                        + ' title="Keep this skill">\u2715</button>')
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+
+            if (intel.growthSkills.length > 0) {
+                html += '<div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.25);'
+                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:#3b82f6; margin-bottom:8px;">'
+                    + '\uD83D\uDE80 Growth Opportunities \u2014 Add These to Increase Market Value</div>';
+                intel.growthSkills.forEach(function(g, gi) {
+                    var dollarStr = g.estimatedValueAdd >= 1000
+                        ? '+~$' + (g.estimatedValueAdd / 1000).toFixed(0) + 'K/yr'
+                        : '+~$' + g.estimatedValueAdd + '/yr';
+                    html += '<div style="display:flex; align-items:start; gap:8px; padding:5px 0;">'
+                        + '<span style="color:#3b82f6; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2191</span>'
+                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
+                        + escapeHtml(g.name) + '</span>'
+                        + '<span style="font-size:0.75em; color:#f59e0b; font-weight:700; margin-left:6px;">'
+                        + dollarStr + '</span>'
+                        + '<div style="font-size:0.74em; color:var(--text-secondary); margin-top:2px;">'
+                        + escapeHtml(g.rationale) + '</div></div>'
+                        + (g._dismissed ? '' : '<button onclick="wizardAddGrowthSkill(' + gi + ')" id="growth-btn-' + gi + '"'
+                        + (g._added ? ' disabled' : '')
+                        + ' style="background:' + (g._added ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)') + '; border:1px solid ' + (g._added ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)') + ';'
+                        + ' color:' + (g._added ? '#10b981' : '#3b82f6') + '; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;">' + (g._added ? '\u2713 Added' : '+ Add') + '</button>')
+                        + (g._dismissed || g._added ? '' : '<button onclick="wizardDismissRec(\'growth\',' + gi + ')"'
+                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
+                        + ' title="Skip this suggestion">\u2715</button>')
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function wizardDismissRec(type, idx) {
+            var intel = wizardState.marketIntel;
+            if (!intel) return;
+            var arr = type === 'keep' ? intel.keepSkills : type === 'drop' ? intel.dropSkills : intel.growthSkills;
+            if (!arr || !arr[idx]) return;
+            arr[idx]._dismissed = true;
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep6(el);
+            showToast('Recommendation dismissed.', 'info', 1500);
+        }
+        window.wizardDismissRec = wizardDismissRec;
+
+        function wizardAcceptKeep(keepIdx) {
+            var intel = wizardState.marketIntel;
+            if (!intel || !intel.keepSkills[keepIdx]) return;
+            var keep = intel.keepSkills[keepIdx];
+            if (keep._accepted) return;
+            var keepName = keep.name.toLowerCase();
+            var skill = wizardState.skills.find(function(s) { return s.name.toLowerCase() === keepName; });
+            if (skill) { skill.key = true; skill._marketKeep = true; }
+            keep._accepted = true;
+            var btn = document.getElementById('keep-btn-' + keepIdx);
+            if (btn) { btn.textContent = '\u2713 Key Skill'; btn.disabled = true; btn.style.opacity = '0.7'; }
+            showToast('"' + keep.name + '" marked as a Key Skill.', 'success', 2500);
+        }
+        window.wizardAcceptKeep = wizardAcceptKeep;
+
+        function wizardAcceptDrop(dropIdx) {
+            var intel = wizardState.marketIntel;
+            if (!intel || !intel.dropSkills[dropIdx]) return;
+            var drop = intel.dropSkills[dropIdx];
+            if (drop._accepted) return;
+            var dropName = drop.name.toLowerCase();
+            wizardState.skills = wizardState.skills.filter(function(s) {
+                return s.name.toLowerCase() !== dropName;
+            });
+            drop._accepted = true;
+            var btn = document.getElementById('drop-btn-' + dropIdx);
+            if (btn) { btn.textContent = 'Removed'; btn.disabled = true; btn.style.opacity = '0.5'; }
+            showToast('Removed "' + drop.name + '" from your skills.', 'info', 2500);
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep6(el);
+        }
+        window.wizardAcceptDrop = wizardAcceptDrop;
+
+        function wizardAddGrowthSkill(growthIdx) {
+            var intel = wizardState.marketIntel;
+            if (!intel || !intel.growthSkills[growthIdx]) return;
+            var g = intel.growthSkills[growthIdx];
+            if (!wizardState.growthSkills) wizardState.growthSkills = [];
+            var alreadyAdded = wizardState.growthSkills.some(function(gs) { return gs.name.toLowerCase() === g.name.toLowerCase(); });
+            if (alreadyAdded) { showToast('"' + g.name + '" is already in your growth plan.', 'info', 2000); return; }
+            wizardState.growthSkills.push({
+                name: g.name, rationale: g.rationale,
+                estimatedValueAdd: g.estimatedValueAdd, valueAddPct: g.valueAddPct,
+                dateAdded: new Date().toISOString().substring(0, 10), source: 'market-intel',
+                sourceRole: (wizardState.profile && wizardState.profile.currentTitle) || '',
+                sourceIndustry: (wizardState.profile && wizardState.profile.industry) || ''
+            });
+            g._added = true;
+            var btn = document.getElementById('growth-btn-' + growthIdx);
+            if (btn) { btn.textContent = '\u2713 Added'; btn.disabled = true; btn.style.background = 'rgba(16,185,129,0.1)'; btn.style.borderColor = 'rgba(16,185,129,0.3)'; btn.style.color = '#10b981'; }
+            showToast('"' + g.name + '" added to your Growth Plan.', 'success', 2500);
+        }
+        window.wizardAddGrowthSkill = wizardAddGrowthSkill;
+
+
+        function wizardSuggestOutcomes() {
+            if (wizardState._suggestedOutcomes) return wizardState._suggestedOutcomes;
+            var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
+            var industry = ((wizardState.profile && wizardState.profile.industry) || '').toLowerCase();
+            var skills = wizardState.skills || [];
+            var skillNames = skills.map(function(s) { return (s.name || '').toLowerCase(); });
+
+            var outcomeTemplates = {
+                executive: { match: /\b(vp|vice president|c-suite|ceo|cto|cfo|coo|chief|svp|evp|president|managing director)\b/,
+                    outcomes: [
+                        { text: 'Drove organizational strategy resulting in measurable revenue or efficiency gains', skills: ['strategy','leadership','management','communication','business development'] },
+                        { text: 'Built and led high-performing teams across multiple functions', skills: ['leadership','management','team building','communication','mentoring'] },
+                        { text: 'Established strategic partnerships and market positioning', skills: ['strategy','business development','negotiation','communication','sales'] },
+                        { text: 'Delivered operational transformation improving efficiency and reducing costs', skills: ['operations','process improvement','management','analytics','strategy'] }
+                    ] },
+                director: { match: /\b(director|head of|principal)\b/,
+                    outcomes: [
+                        { text: 'Scaled department operations to support business growth', skills: ['management','leadership','operations','strategy','process improvement'] },
+                        { text: 'Drove cross-functional initiatives with measurable business impact', skills: ['project management','leadership','communication','strategy','stakeholder management'] },
+                        { text: 'Developed talent pipeline through mentoring and team development', skills: ['leadership','mentoring','management','coaching','communication'] },
+                        { text: 'Implemented systems and processes that improved team productivity', skills: ['technology','operations','process improvement','management','analytics'] }
+                    ] },
+                technology: { match: /\b(software|developer|engineer|architect|technical|tech lead|devops|cloud|data|ai|ml)\b/,
+                    outcomes: [
+                        { text: 'Architected and delivered production systems serving real users at scale', skills: ['software','architecture','engineering','programming','systems design','javascript','python','react','node'] },
+                        { text: 'Improved system reliability, performance, or security measurably', skills: ['devops','cloud','aws','security','monitoring','kubernetes','infrastructure'] },
+                        { text: 'Led technical decision-making and mentored engineering teams', skills: ['leadership','mentoring','architecture','code review','technical strategy'] },
+                        { text: 'Automated workflows reducing manual effort and operational costs', skills: ['automation','scripting','python','devops','ci/cd','process improvement'] }
+                    ] },
+                creative: { match: /\b(creative|designer|design|ux|ui|brand|content|multimedia|art|visual|writer)\b/,
+                    outcomes: [
+                        { text: 'Created design systems and visual assets adopted across the organization', skills: ['design','branding','visual design','ux','ui','creative direction'] },
+                        { text: 'Improved user experience metrics through research-driven design', skills: ['ux','user research','design','analytics','prototyping','testing'] },
+                        { text: 'Built and led creative teams delivering on brand and business objectives', skills: ['creative direction','leadership','management','branding','communication'] },
+                        { text: 'Produced multimedia content that drove engagement and reach', skills: ['content','multimedia','video','writing','social media','marketing'] }
+                    ] },
+                sales_biz: { match: /\b(sales|business development|account|revenue|partnerships)\b/,
+                    outcomes: [
+                        { text: 'Consistently exceeded revenue targets and grew key accounts', skills: ['sales','negotiation','account management','business development','communication'] },
+                        { text: 'Built and managed strategic partnerships generating measurable value', skills: ['business development','partnerships','negotiation','strategy','relationship management'] },
+                        { text: 'Developed sales processes and playbooks adopted by the team', skills: ['sales','process improvement','training','leadership','crm'] }
+                    ] },
+                marketing: { match: /\b(market|brand|content|seo|growth|digital marketing|demand)\b/,
+                    outcomes: [
+                        { text: 'Executed campaigns that generated qualified pipeline and revenue', skills: ['marketing','digital marketing','analytics','content','demand generation'] },
+                        { text: 'Built brand presence and increased market awareness', skills: ['branding','content','social media','pr','communication','marketing'] },
+                        { text: 'Improved conversion and engagement through data-driven optimization', skills: ['analytics','a/b testing','marketing','seo','growth'] }
+                    ] },
+                consulting: { match: /\b(consult|advisory|strateg|analyst)\b/,
+                    outcomes: [
+                        { text: 'Delivered strategic recommendations that drove client business outcomes', skills: ['strategy','consulting','analytics','communication','research'] },
+                        { text: 'Led client engagements from discovery through implementation', skills: ['project management','consulting','communication','stakeholder management','strategy'] },
+                        { text: 'Built frameworks and methodologies adopted across the practice', skills: ['strategy','process improvement','knowledge management','training','communication'] }
+                    ] },
+                operations: { match: /\b(operation|logistics|supply|procurement|program)\b/,
+                    outcomes: [
+                        { text: 'Streamlined operations reducing costs and improving delivery timelines', skills: ['operations','process improvement','logistics','management','analytics'] },
+                        { text: 'Managed complex programs coordinating across multiple teams and stakeholders', skills: ['program management','project management','communication','operations','stakeholder management'] },
+                        { text: 'Implemented quality and compliance frameworks meeting industry standards', skills: ['quality','compliance','process improvement','operations','risk management'] }
+                    ] },
+                education: { match: /\b(teach|professor|instructor|training|education|curriculum|coach)\b/,
+                    outcomes: [
+                        { text: 'Developed curriculum and training programs adopted at scale', skills: ['curriculum','training','education','instructional design','communication'] },
+                        { text: 'Mentored and coached individuals to measurable professional growth', skills: ['mentoring','coaching','leadership','communication','training'] }
+                    ] }
+            };
+
+            var matched = [];
+            var seenTexts = {};
+            for (var key in outcomeTemplates) {
+                var tmpl = outcomeTemplates[key];
+                if (tmpl.match.test(title) || tmpl.match.test(industry)) {
+                    tmpl.outcomes.forEach(function(o) {
+                        if (!seenTexts[o.text]) {
+                            seenTexts[o.text] = true;
+                            var relevantSkills = o.skills.filter(function(os) {
+                                return skillNames.some(function(sn) { return sn.indexOf(os) >= 0 || os.indexOf(sn) >= 0; });
+                            });
+                            if (relevantSkills.length > 0 || matched.length < 4) {
+                                matched.push({ text: o.text, relatedSkills: relevantSkills, _selected: false, _editing: false });
+                            }
+                        }
+                    });
+                }
+            }
+
+            if (matched.length < 3) {
+                var generic = [
+                    { text: 'Delivered measurable results that advanced organizational goals', relatedSkills: [], _selected: false, _editing: false },
+                    { text: 'Built and maintained key stakeholder relationships', relatedSkills: [], _selected: false, _editing: false },
+                    { text: 'Identified and resolved problems proactively improving outcomes', relatedSkills: [], _selected: false, _editing: false }
+                ];
+                generic.forEach(function(g) {
+                    if (!seenTexts[g.text] && matched.length < 6) {
+                        seenTexts[g.text] = true;
+                        matched.push(g);
+                    }
+                });
+            }
+
+            wizardState._suggestedOutcomes = matched.slice(0, 8);
+            return wizardState._suggestedOutcomes;
+        }
+
+        function wizardRenderOutcomePanel() {
+            var outcomes = wizardSuggestOutcomes();
+            if (!outcomes || outcomes.length === 0) return '';
+            var title = ((wizardState.profile && wizardState.profile.currentTitle) || 'your role');
+
+            var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+                + ' border-radius:12px; padding:16px; margin-bottom:14px;">'
+                + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em; margin-bottom:4px;">'
+                + '\uD83C\uDFAF Suggested Outcomes</div>'
+                + '<p style="font-size:0.78em; color:var(--text-muted); margin-bottom:12px;">'
+                + 'Common outcomes for <strong>' + escapeHtml(title) + '</strong>. Select the ones that fit, then edit to make them your own.</p>';
+
+            outcomes.forEach(function(o, i) {
+                var selected = o._selected;
+                html += '<div style="display:flex; align-items:start; gap:10px; padding:8px 10px;'
+                    + ' border:1px solid ' + (selected ? 'rgba(16,185,129,0.4)' : 'var(--border)') + ';'
+                    + ' background:' + (selected ? 'rgba(16,185,129,0.06)' : 'var(--bg-surface)') + ';'
+                    + ' border-radius:8px; margin-bottom:6px; transition:all 0.15s;'
+                    + ' box-sizing:border-box; max-width:100%; overflow:hidden;">';
+
+                if (o._editing) {
+                    html += '<div style="flex:1;">'
+                        + '<input type="text" id="outcome-edit-' + i + '" value="' + escapeHtml(o.text).replace(/"/g, '&quot;') + '"'
+                        + ' style="width:100%; padding:6px 8px; border:1px solid var(--accent); border-radius:6px;'
+                        + ' background:var(--bg-surface); color:var(--text-primary); font-size:0.85em; outline:none;"'
+                        + ' onkeydown="if(event.key===\'Enter\')wizardSaveOutcomeEdit(' + i + ')">'
+                        + '<div style="display:flex; gap:6px; margin-top:6px;">'
+                        + '<button onclick="wizardSaveOutcomeEdit(' + i + ')"'
+                        + ' style="background:var(--accent); color:#fff; border:none; border-radius:5px;'
+                        + ' padding:3px 12px; font-size:0.76em; cursor:pointer; font-weight:600;">Save</button>'
+                        + '<button onclick="wizardCancelOutcomeEdit(' + i + ')"'
+                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                        + ' border-radius:5px; padding:3px 10px; font-size:0.76em; cursor:pointer;">Cancel</button>'
+                        + '</div></div>';
+                } else {
+                    html += '<input type="checkbox" ' + (selected ? 'checked' : '') + ' onchange="wizardToggleSuggestedOutcome(' + i + ')"'
+                        + ' style="margin-top:3px; accent-color:#10b981; flex-shrink:0; cursor:pointer;">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-size:0.85em; color:var(--text-primary);' + (selected ? ' font-weight:600;' : '') + '">'
+                        + escapeHtml(o.text) + '</div>';
+                    if (o.relatedSkills && o.relatedSkills.length > 0) {
+                        html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;">Uses: '
+                            + o.relatedSkills.slice(0, 5).map(function(s) { return escapeHtml(s); }).join(', ') + '</div>';
+                    }
+                    html += '</div>';
+                    if (selected) {
+                        html += '<button onclick="wizardEditOutcome(' + i + ')" title="Edit to make it yours"'
+                            + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
+                            + ' border-radius:5px; padding:2px 8px; cursor:pointer; font-size:0.72em; flex-shrink:0;">Edit</button>';
+                    }
+                }
+                html += '</div>';
+            });
+
+            html += '</div>';
+            return html;
+        }
+
+        function wizardToggleSuggestedOutcome(idx) {
+            var outcomes = wizardState._suggestedOutcomes;
+            if (!outcomes || !outcomes[idx]) return;
+            outcomes[idx]._selected = !outcomes[idx]._selected;
+            if (outcomes[idx]._selected) {
+                if (!wizardState.selectedOutcomes) wizardState.selectedOutcomes = [];
+                wizardState.selectedOutcomes.push(outcomes[idx].text);
+                outcomes[idx].relatedSkills.forEach(function(skillKey) {
+                    wizardState.skills.forEach(function(s, si) {
+                        var sn = (s.name || '').toLowerCase();
+                        if (sn.indexOf(skillKey) >= 0 || skillKey.indexOf(sn) >= 0) {
+                            if (!s.evidence) s.evidence = [];
+                            var already = s.evidence.some(function(e) { return e.description === outcomes[idx].text; });
+                            if (!already) {
+                                s.evidence.push({ description: outcomes[idx].text, type: 'outcome', source: 'suggested-outcome', date: new Date().toISOString().substring(0, 10) });
+                            }
+                        }
+                    });
+                });
+            } else {
+                if (wizardState.selectedOutcomes) {
+                    wizardState.selectedOutcomes = wizardState.selectedOutcomes.filter(function(t) { return t !== outcomes[idx].text; });
+                }
+            }
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep6(el);
+        }
+        window.wizardToggleSuggestedOutcome = wizardToggleSuggestedOutcome;
+
+        function wizardEditOutcome(idx) {
+            var outcomes = wizardState._suggestedOutcomes;
+            if (!outcomes || !outcomes[idx]) return;
+            outcomes[idx]._editing = true;
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep6(el);
+            setTimeout(function() {
+                var input = document.getElementById('outcome-edit-' + idx);
+                if (input) { input.focus(); input.select(); }
+            }, 50);
+        }
+        window.wizardEditOutcome = wizardEditOutcome;
+
+        function wizardSaveOutcomeEdit(idx) {
+            var outcomes = wizardState._suggestedOutcomes;
+            if (!outcomes || !outcomes[idx]) return;
+            var input = document.getElementById('outcome-edit-' + idx);
+            if (input && input.value.trim()) {
+                var oldText = outcomes[idx].text;
+                outcomes[idx].text = input.value.trim();
+                outcomes[idx]._editing = false;
+                wizardState.skills.forEach(function(s) {
+                    if (s.evidence) {
+                        s.evidence.forEach(function(e) {
+                            if (e.description === oldText) e.description = outcomes[idx].text;
+                        });
+                    }
+                });
+                if (wizardState.selectedOutcomes) {
+                    wizardState.selectedOutcomes = wizardState.selectedOutcomes.map(function(t) { return t === oldText ? outcomes[idx].text : t; });
+                }
+                showToast('Outcome updated.', 'success', 1500);
+            }
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep6(el);
+        }
+        window.wizardSaveOutcomeEdit = wizardSaveOutcomeEdit;
+
+        function wizardCancelOutcomeEdit(idx) {
+            var outcomes = wizardState._suggestedOutcomes;
+            if (!outcomes || !outcomes[idx]) return;
+            outcomes[idx]._editing = false;
+            var el = document.getElementById('wizardStepContent');
+            if (el) renderWizardStep6(el);
+        }
+        window.wizardCancelOutcomeEdit = wizardCancelOutcomeEdit;
+
         function renderWizardStep6(el) {
+            if (window.renderWizardStep6 && window.renderWizardStep6 !== renderWizardStep6) return window.renderWizardStep6(el);
             const skills = wizardState.skills;
             const isFromResume = skills.length > 0;
             const levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
+            var intel = wizardState.marketIntel || null;
 
             el.innerHTML = `
                 ${wizardHeading(bpIcon('compass',22),
-                    isFromResume ? `${skills.length} Skills Extracted` : 'Your Skills',
-                    isFromResume ? 'Claude identified these from your resume. Toggle any off you do not want to include. You can add more later.'
+                    isFromResume ? `${skills.length} Skills Found` : 'Your Skills',
+                    isFromResume ? 'Market intelligence applied. Adjust proficiency levels and review recommendations below.'
                                  : 'Add your key skills. You can build this out further after setup.')}
+
+                ${intel ? wizardRenderMarketIntel(intel) : (isFromResume ? '<div id="marketIntelLoading" style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.06)); border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px; display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:1.1em;">&#9889;</span><div style="font-size:0.8em; color:var(--text-secondary);">Analyzing market value of your skills...</div><span style="font-size:0.8em; color:var(--accent);">\u21BB</span></div>' : '')}
+
+                ${isFromResume ? wizardRenderOutcomePanel() : ''}
 
                 ${isFromResume ? `
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -21700,10 +22925,10 @@ Rules:
                                         background:${levelColors[s.level] || '#6b7280'};"></div>
                             <div style="flex:1; min-width:0;">
                                 <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
-                                    ${escapeHtml(s.name)}
+                                    ${escapeHtml(s.name)}${s._marketKeep ? ' <span style="font-size:0.65em; background:#10b981; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">KEY</span>' : ''}
                                 </div>
                                 <div style="font-size:0.78em; color:var(--text-muted);">
-                                    ${escapeHtml(s.level)} · ${s.evidence?.length || 0} evidence items
+                                    ${escapeHtml(s.level)} \u00b7 ${s.evidence?.length || 0} evidence items
                                 </div>
                             </div>
                             <span style="font-size:0.75em; padding:3px 9px; border-radius:10px;
@@ -21729,19 +22954,47 @@ Rules:
                 `}
 
                 <div style="display:flex; justify-content:space-between;">
-                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
-                    ${wizardBtn('Continue → Values', 'wizardSaveSkills()', 'primary')}
+                    ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
+                    ${wizardBtn('Continue \u2192 Values', 'wizardSaveSkills()', 'primary')}
                 </div>
             `;
+
+            if (isFromResume && !intel) {
+                wizardFetchMarketIntelligence().then(function(result) {
+                    if (result) {
+                        var panel = document.getElementById('marketIntelLoading');
+                        if (panel) panel.outerHTML = wizardRenderMarketIntel(result);
+                    } else {
+                        var loading = document.getElementById('marketIntelLoading');
+                        if (loading) loading.remove();
+                    }
+                });
+            }
         }
 
         function wizardSaveSkills() {
+            if (window.wizardSaveSkills && window.wizardSaveSkills !== wizardSaveSkills) return window.wizardSaveSkills();
             if (readOnlyGuard()) return;
-            // Filter to only checked skills
-            wizardState.skills = wizardState.skills.filter((s, i) => {
-                const cb = document.getElementById(`skill-check-${i}`);
+            wizardState.skills = wizardState.skills.filter(function(s, i) {
+                var cb = document.getElementById('skill-check-' + i);
                 return !cb || cb.checked;
             });
+            if (wizardState.skills.length > 50) {
+                wizardState.skills.sort(function(a, b) {
+                    var pa = (a.key || a.isKey) ? 3 : (a._marketKeep || a.marketKeep) ? 2 : 0;
+                    var pb = (b.key || b.isKey) ? 3 : (b._marketKeep || b.marketKeep) ? 2 : 0;
+                    if (pb !== pa) return pb - pa;
+                    var la = ['Novice','Proficient','Advanced','Expert','Mastery'].indexOf(a.level || 'Proficient');
+                    var lb = ['Novice','Proficient','Advanced','Expert','Mastery'].indexOf(b.level || 'Proficient');
+                    if (lb !== la) return lb - la;
+                    return (b.evidence ? b.evidence.length : 0) - (a.evidence ? a.evidence.length : 0);
+                });
+                wizardState.skills = wizardState.skills.slice(0, 50);
+            }
+            if (wizardState.growthSkills && wizardState.growthSkills.length > 0) {
+                var _ud = window._userData || userData;
+                _ud.growthSkills = wizardState.growthSkills;
+            }
             wizardNext();
         }
 
@@ -21771,7 +23024,7 @@ Rules:
             var selectedCount = vals.filter(function(v) { return v.selected; }).length;
 
             var subtitle = hasAIValues
-                ? 'Claude suggested these from your career history. Select the ones that resonate, edit descriptions, or add your own.'
+                ? 'These were suggested from your career history. Select the ones that resonate, edit descriptions, or add your own.'
                 : 'Select the values that define how you work, or add your own. Click a description to edit it.';
 
             el.innerHTML = `
@@ -21922,10 +23175,10 @@ Rules:
             var inner = document.getElementById('wizardInner');
             if (inner) renderWizardStep7(inner);
         }
-        window.wizardAddCustomValue = wizardAddCustomValue;
-        window.wizardEditValueDesc = wizardEditValueDesc;
+        // wizardAddCustomValue, wizardEditValueDesc exposed by ES module
 
         function wizardSaveValues() {
+            if (window.wizardSaveValues && window.wizardSaveValues !== wizardSaveValues) return window.wizardSaveValues();
             if (readOnlyGuard()) return;
             wizardNext();
         }
@@ -21939,7 +23192,7 @@ Rules:
             el.innerHTML = `
                 ${wizardHeading(bpIcon('edit',22),
                     'Your Purpose Statement',
-                    isFromResume ? 'Claude drafted this from your resume. Often the hardest thing to write about yourself — edit it until it sounds like you.'
+                    isFromResume ? 'This was drafted from your resume. Often the hardest thing to write about yourself — edit it until it sounds like you.'
                                  : 'Write a brief statement about what you do, who you help, and what makes your approach distinctive.')}
 
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -21960,7 +23213,7 @@ Rules:
                                    cursor:pointer; font-size:0.82em; transition:all 0.18s;"
                             onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"
                             onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
-                        ↺ Regenerate with Claude
+                        ↺ Regenerate
                     </button>` : ''}
                 </div>
 
@@ -22027,10 +23280,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 showToast(toastMsg, 'error', 6000);
             }
 
-            if (btn) { btn.textContent = '↺ Regenerate with Claude'; btn.disabled = false; }
+            if (btn) { btn.textContent = '↺ Regenerate'; btn.disabled = false; }
         }
 
         function wizardSavePurpose() {
+            if (window.wizardSavePurpose && window.wizardSavePurpose !== wizardSavePurpose) return window.wizardSavePurpose();
             if (readOnlyGuard()) return;
             wizardState.purpose = document.getElementById('wizardPurpose')?.value?.trim() || '';
             wizardNext();
@@ -22039,6 +23293,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // ── STEP 9: Complete ──────────────────────────────────────────────────
 
         function renderWizardStep9(el) {
+            if (window.renderWizardStep9 && window.renderWizardStep9 !== renderWizardStep9) return window.renderWizardStep9(el);
             const skillCount = wizardState.skills.length;
             const valueCount = wizardState.values.filter(v => v.selected).length;
             const evidenceCount = wizardState.skills.reduce((n, s) => n + (s.evidence?.length || 0), 0);
@@ -22108,9 +23363,22 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (postCb && !postCb.checked) { wizardState.richMedia = []; if (wizardState.parsedData) wizardState.parsedData.richMedia = []; }
             if (learnCb && !learnCb.checked) { wizardState.learning = []; if (wizardState.parsedData) wizardState.parsedData.learning = []; }
         }
-        window.wizardApplyContentOpts = wizardApplyContentOpts;
+        // wizardApplyContentOpts exposed by ES module
 
         function wizardBuildUserData() {
+            var builtRoles = (wizardState.parsedData?.roles || []).map((r, i) => ({
+                id: r.id || `role${i+1}`,
+                name: r.name || r.company || `Role ${i+1}`,
+                company: r.company || '',
+                years: r.years || '',
+                progression: r.progression || null,
+                totalYears: r.totalYears || null,
+                color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
+            }));
+            var validRoleIds = new Set();
+            builtRoles.forEach(function(r) { validRoleIds.add(r.id); validRoleIds.add(r.name); });
+            var allRoleIds = builtRoles.map(function(r) { return r.id; });
+
             return {
                 initialized: true,
                 templateId: 'wizard-built',
@@ -22118,26 +23386,41 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     ...wizardState.profile,
                     headline: `${wizardState.profile.currentTitle || ''} · ${wizardState.profile.yearsExperience || ''}+ Years`
                 },
-                skills: wizardState.skills.map(s => ({
-                    ...s,
-                    roles: s.roles || [],
-                    key: s.key || false,
-                    onetId: s.onetId || null,
-                    endorsements: s.endorsements || 0,
-                    endorsementBoosted: s.endorsementBoosted || false
-                })),
-                roles: (wizardState.parsedData?.roles || []).map((r, i) => ({
-                    id: r.id || `role${i+1}`,
-                    name: r.name || r.company || `Role ${i+1}`,
-                    company: r.company || '',
-                    years: r.years || '',
-                    progression: r.progression || null,
-                    totalYears: r.totalYears || null,
-                    color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
-                })),
+                skills: wizardState.skills.map(function(s) {
+                    var isKey = s.key || false;
+                    var lens = wizardState.selectedLens || '';
+                    if (lens && !isKey) {
+                        var n = (s.name || '').toLowerCase();
+                        if (lens === 'technical' && /python|javascript|typescript|react|node|sql|aws|azure|cloud|data|software|api|devops|infrastructure|architecture|kubernetes|docker|engineering|machine learning|ai/i.test(n)) isKey = true;
+                        else if (lens === 'strategic' && /leadership|management|team|strategy|vision|stakeholder|cross-functional|coaching|mentoring|hiring|budget/i.test(n)) isKey = true;
+                        else if (lens === 'builder' && /product|growth|revenue|launch|startup|scale|market|customer|entrepreneur|mvp|gtm/i.test(n)) isKey = true;
+                        else if (lens === 'expert' && /research|analysis|specialist|domain|certification|compliance|regulatory|methodology|framework|consulting/i.test(n)) isKey = true;
+                    }
+                    var skillRoles = (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); });
+                    if (skillRoles.length === 0 && allRoleIds.length > 0) {
+                        skillRoles = allRoleIds.slice();
+                    }
+                    return {
+                        ...s,
+                        roles: skillRoles,
+                        key: isKey,
+                        onetId: s.onetId || null,
+                        endorsements: s.endorsements || 0,
+                        endorsementBoosted: s.endorsementBoosted || false
+                    };
+                }),
+                roles: builtRoles,
                 values: wizardState.values,
                 purpose: wizardState.purpose,
                 workHistory: wizardState.workHistory || [],
+                pastRolesSummary: (function() {
+                    var wh = wizardState.workHistory || [];
+                    var hidden = wh.filter(function(j) { return j.hidden; });
+                    if (hidden.length === 0) return '';
+                    var titles = hidden.map(function(j) { return j.title; }).filter(Boolean);
+                    if (titles.length === 0) return '';
+                    return 'Beyond what you see in my network, I held past roles in ' + titles.join(', ') + '.';
+                })(),
                 companyTenures: wizardState.companyTenures || [],
                 education: wizardState.education || [],
                 certifications: wizardState.certifications || [],
@@ -22160,12 +23443,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     networkSize: wizardState.networkSize || 0
                 },
                 importStats: wizardState.importStats || {},
+                growthSkills: wizardState.growthSkills || [],
                 preferences: { seniorityLevel: 'Senior', minimumMatchScore: 60, minimumSkillMatches: 3 },
                 applications: []
             };
         }
 
         function wizardSaveAndGo() {
+            if (window.wizardSaveAndGo && window.wizardSaveAndGo !== wizardSaveAndGo) return window.wizardSaveAndGo();
             var built = wizardBuildUserData();
             // Download JSON if checkbox is checked
             var dlCheck = document.getElementById('wizardDownloadCheck');
@@ -22199,6 +23484,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         function wizardApplyAndLaunch(built) {
+            if (window.wizardApplyAndLaunch && window.wizardApplyAndLaunch !== wizardApplyAndLaunch) return window.wizardApplyAndLaunch(built);
             userData = built;
             userData.initialized = true; _markUserDataReady();
             window._userData = userData;
@@ -22279,35 +23565,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             skillsData.roles = userData.roles || skillsData.roles;
             skillsData.skillDetails = userData.skillDetails || {};
 
-        // Expose wizard and nav functions to global scope for onclick handlers
-        window.showOnboardingWizard = showOnboardingWizard;
-        window.wizardChooseUpload = wizardChooseUpload;
-        window.wizardChooseLinkedIn = wizardChooseLinkedIn;
-        window.wizardChooseManual = wizardChooseManual;
-        window.wizardChooseImport = wizardChooseImport;
-        window.wizardImportProfile = wizardImportProfile;
-        window.wizardBack = wizardBack;
-        window.wizardNext = wizardNext;
-        window.wizardSetResumeTab = wizardSetResumeTab;
-        window.wizardHandleResumeDrop = wizardHandleResumeDrop;
-        window.wizardHandleResumeFile = wizardHandleResumeFile;
-        window.wizardClearResumeFile = wizardClearResumeFile;
-        window.wizardSkipParsing = wizardSkipParsing;
-        window.wizardStartParsing = wizardStartParsing;
-        window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
-        window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
-        window.wizardSaveProfile = wizardSaveProfile;
-        window.wizardSaveSkills = wizardSaveSkills;
-        window.wizardToggleValue = wizardToggleValue;
-        window.wizardSaveValues = wizardSaveValues;
-        window.wizardSavePurpose = wizardSavePurpose;
-        window.wizardRegeneratePurpose = wizardRegeneratePurpose;
-        window.wizardDownloadBackup = wizardDownloadBackup;
-        window.wizardLaunchOnly = wizardLaunchOnly;
-        window.wizardSaveAndGo = wizardSaveAndGo;
-        window.confirmExitWizard = confirmExitWizard;
-        window.toggleFilterPanel = toggleFilterPanel;
-        window.renderFilterChips = renderFilterChips;
+        // Wizard functions exposed by ES module (src/views/welcome.js) — do NOT re-assign here
+        // Legacy assignments removed to prevent clobbering module overrides on auth callback
 
             // Render dynamic filter chips from profile data
             renderFilterChips();
@@ -30092,10 +31351,13 @@ body {
         function updateValuesBadge() {
             var count = blueprintData.values.filter(function(v) { return v.selected; }).length;
             var tabs = document.querySelectorAll('.bp-tab');
-            if (tabs.length > 1) {
-                var badge = tabs[1].querySelector('.bp-tab-count');
-                if (badge) badge.textContent = count;
-            }
+            tabs.forEach(function(tab) {
+                var label = tab.querySelector('.bp-tab-label');
+                if (label && label.textContent.trim() === 'Values') {
+                    var badge = tab.querySelector('.bp-tab-count');
+                    if (badge) badge.textContent = count;
+                }
+            });
         }
         
         function toggleValuesPicker() {
@@ -32522,16 +33784,27 @@ body {
                 return;
             }
             logAnalyticsEvent('export_' + format, { format: format });
+            var _ud = window._userData || userData;
             var sharedData = {
-                profile: userData.profile || {},
-                outcomes: blueprintData.outcomes.filter(function(o) { return o.shared; }),
-                values: blueprintData.values.filter(function(v) { return v.selected; }),
-                purpose: blueprintData.purpose,
-                skills: (skillsData.skills || []).map(function(s) {
-                    return { name: s.name, level: s.level, category: s.category, key: s.key, roles: s.roles };
-                }),
+                profile: _ud.profile || {},
+                outcomes: blueprintData.outcomes || [],
+                values: blueprintData.values || [],
+                purpose: blueprintData.purpose || '',
+                skills: skillsData.skills || [],
                 roles: skillsData.roles || [],
-                exportedAt: new Date().toISOString()
+                preferences: _ud.preferences || {},
+                workHistory: _ud.workHistory || [],
+                education: _ud.education || [],
+                certifications: _ud.certifications || [],
+                verifications: _ud.verifications || [],
+                savedJobs: _ud.savedJobs || [],
+                linkedinContent: _ud.linkedinContent || {},
+                companyTenures: _ud.companyTenures || [],
+                importStats: _ud.importStats || {},
+                contentVisibility: _ud.contentVisibility || {},
+                exportedAt: new Date().toISOString(),
+                exportedFor: (_ud.profile || {}).name || 'backup',
+                version: BP_VERSION
             };
             
             if (format === 'json') {
@@ -32540,7 +33813,7 @@ body {
                 var url = URL.createObjectURL(dataBlob);
                 var link = document.createElement('a');
                 link.href = url;
-                var safeName = ((userData.profile && userData.profile.name) || 'profile').replace(/\s+/g, '-').toLowerCase();
+                var safeName = ((_ud.profile && _ud.profile.name) || 'profile').replace(/\s+/g, '-').toLowerCase();
                 link.download = 'blueprint-' + safeName + '.json';
                 link.click();
                 URL.revokeObjectURL(url);
@@ -36489,7 +37762,7 @@ body {
             
             var data = await callAnthropicAPI({
                     model: 'claude-sonnet-4-20250514',
-                    max_tokens: 4000,
+                    max_tokens: 8000,
                     system: systemPrompt,
                     messages: [{ role: 'user', content: userPrompt }]
                 }, apiKey, 'jd-analysis');
@@ -37511,6 +38784,7 @@ body {
             function buildResult(soc, confidence, alts) {
                 var primary = cw.occupations[soc];
                 if (!primary) return null;
+                var inputWords = norm.split(' ').filter(function(w) { return w.length > 2; });
                 return {
                     soc: soc,
                     title: primary.title,
@@ -37518,13 +38792,24 @@ body {
                     confidence: confidence,
                     alternatives: (alts || []).slice(0, 4).map(function(s) {
                         var o = cw.occupations[s];
-                        return o ? { soc: s, title: o.title, family: o.family } : null;
+                        if (!o) return null;
+                        var altTitleWords = o.title.toLowerCase().split(/\W+/).filter(function(w) { return w.length > 2; });
+                        var hasWordOverlap = inputWords.some(function(iw) {
+                            return altTitleWords.some(function(aw) { return iw === aw || (iw.length > 4 && aw.indexOf(iw) >= 0) || (aw.length > 4 && iw.indexOf(aw) >= 0); });
+                        });
+                        var sameFamily = o.family === primary.family;
+                        if (!hasWordOverlap && !sameFamily) return null;
+                        return { soc: s, title: o.title, family: o.family };
                     }).filter(Boolean)
                 };
             }
 
             // Step 1: Exact alias match
-            if (cw.aliases[norm]) {
+            // Guard: single-word generic terms that alias to unrelated occupations in O*NET
+            var _genericAliases = { 'owner':1, 'chief':1, 'head':1, 'lead':1, 'manager':1, 'officer':1,
+                'surgeon':1, 'physician':1, 'doctor':1, 'rector':1, 'pilot':1, 'creator':1, 'maker':1 };
+            var normWordCount = norm.split(' ').filter(function(w) { return w.length > 1; }).length;
+            if (cw.aliases[norm] && !(normWordCount === 1 && _genericAliases[norm])) {
                 var socs = cw.aliases[norm];
                 var r = buildResult(socs[0], 1.0, socs.slice(1));
                 if (r) return r;
@@ -37587,10 +38872,18 @@ body {
             }
 
             // Step 3: Partial substring match
+            // Require alias to cover >= 50% of input length to avoid "rector" matching "director"
             var partialMatches = [];
-            for (var alias in cw.aliases) {
-                if (alias.length < 4) continue;
-                if (norm.indexOf(alias) !== -1 || alias.indexOf(norm) !== -1) {
+            var _runPartial = function(input) {
+                for (var alias in cw.aliases) {
+                    if (alias.length < 4) continue;
+                    var isSubstringOfInput = input.indexOf(alias) !== -1;
+                    var inputIsSubstringOfAlias = alias.indexOf(input) !== -1;
+                    if (!isSubstringOfInput && !inputIsSubstringOfAlias) continue;
+                    var shorter = Math.min(alias.length, input.length);
+                    var longer = Math.max(alias.length, input.length);
+                    if (shorter / longer < 0.5) continue;
+                    if (_genericAliases[alias]) continue;
                     var socs = cw.aliases[alias];
                     for (var i = 0; i < socs.length; i++) {
                         if (cw.occupations[socs[i]]) {
@@ -37598,23 +38891,10 @@ body {
                         }
                     }
                 }
-            }
-            // Also try stripped version for partial matching
-            if (stripped !== norm) {
-                for (var alias in cw.aliases) {
-                    if (alias.length < 4) continue;
-                    if (stripped.indexOf(alias) !== -1 || alias.indexOf(stripped) !== -1) {
-                        var socs = cw.aliases[alias];
-                        for (var i = 0; i < socs.length; i++) {
-                            if (cw.occupations[socs[i]]) {
-                                partialMatches.push({ soc: socs[i], alias: alias, len: alias.length });
-                            }
-                        }
-                    }
-                }
-            }
+            };
+            _runPartial(norm);
+            if (stripped !== norm) _runPartial(stripped);
             if (partialMatches.length > 0) {
-                // Prefer longest alias match (more specific)
                 partialMatches.sort(function(a, b) { return b.len - a.len; });
                 var seen = {};
                 var unique = partialMatches.filter(function(m) {
@@ -37659,7 +38939,7 @@ body {
                         }
                     }
                 }
-                if (bestWordScore >= 0.5 && bestWordSocs && bestWordSocs.length > 0) {
+                if (bestWordScore >= 0.55 && bestWordSocs && bestWordSocs.length > 0) {
                     var confidence = Math.round((0.6 + bestWordScore * 0.2) * 100) / 100;
                     var r = buildResult(bestWordSocs[0], Math.min(confidence, 0.8), bestWordSocs.slice(1));
                     if (r) return r;
@@ -37672,7 +38952,7 @@ body {
             for (var alias in cw.aliases) {
                 if (alias.length < 4) continue;
                 var score = crosswalkDice(norm, alias);
-                if (score > bestDice && score >= 0.55) {
+                if (score > bestDice && score >= 0.65) {
                     bestDice = score;
                     bestDiceSocs = cw.aliases[alias];
                 }
@@ -37688,7 +38968,7 @@ body {
             for (var soc in cw.occupations) {
                 var occTitle = cw.occupations[soc].title.toLowerCase();
                 var score = crosswalkDice(stripped || norm, occTitle);
-                if (score > bestOccDice && score >= 0.5) {
+                if (score > bestOccDice && score >= 0.65) {
                     bestOccDice = score;
                     bestOccSoc = soc;
                 }
@@ -38020,6 +39300,36 @@ body {
 
             // Sort gaps by importance (highest first)
             gaps.sort(function(a, b) { return (b.importance || 0) - (a.importance || 0); });
+
+            // Strip O*NET category labels — these are bucket names, not real skills.
+            // Filtering here ensures all callers (app-core.js and welcome.js) get clean data.
+            var _smNoise = {
+                'administration and management':1,'judgment and decision making':1,
+                'personnel and human resources':1,'customer and personal service':1,
+                'systems evaluation':1,'systems analysis':1,'operations analysis':1,
+                'management of financial resources':1,'management of personnel resources':1,
+                'management of material resources':1,'operation monitoring':1,
+                'operation and control':1,'quality control analysis':1,
+                'fine arts':1,'oral comprehension':1,'written comprehension':1,
+                'oral expression':1,'written expression':1,'speech clarity':1,
+                'speech recognition':1,'information ordering':1,'deductive reasoning':1,
+                'inductive reasoning':1,'number facility':1,'memorization':1,
+                'perceptual speed':1,'spatial orientation':1,'visualization':1,
+                'fluency of ideas':1,'originality':1,'problem sensitivity':1,
+                'mathematical reasoning':1,'category flexibility':1,
+                'philosophy and theology':1,'sociology and anthropology':1,
+                'geography':1,'foreign language':1,'history and archeology':1,
+                'therapy and counseling':1,'medicine and dentistry':1,
+                'biology':1,'chemistry':1,'physics':1,'mathematics':1,'science':1,
+                'english language':1,'clerical':1,'economics and accounting':1,
+                'education and training':1,'law and government':1,
+                'computers and electronics':1,'telecommunications':1,
+                'mechanical':1,'engineering and technology':1,'building and construction':1,
+                'food production':1,'transportation':1
+            };
+            gaps = gaps.filter(function(g) {
+                return !_smNoise[(g.name || '').toLowerCase().trim()];
+            });
 
             return {
                 occupation: profile.title,
@@ -44716,7 +46026,7 @@ body {
         function showNegotiationGuide() { showNegotiationGuideV2(); }
 
         // ── Static Negotiation Guide for Demo Mode ────────────────────────────
-        function _buildStaticNegGuide(job) {
+        function _buildStaticNegGuide(job, tv) {
             var topSkills = (userData.skills || []).slice(0, 8).map(function(s) { return s.name; });
             var roles = (userData.roles || []).map(function(r) { return r.name; });
             var values = (userData.values || []).slice(0, 3);
@@ -44730,18 +46040,21 @@ body {
             var rawText = job.rawText || '';
             var tier = job.tier || 'mid';
 
-            var salaryRanges = {
-                'Entry': { low: 38000, mid: 48000, high: 58000 },
-                'Mid': { low: 55000, mid: 72000, high: 88000 },
-                'Senior': { low: 95000, mid: 125000, high: 155000 },
-                'Staff': { low: 145000, mid: 175000, high: 210000 },
-                'Director': { low: 155000, mid: 195000, high: 240000 },
-                'Executive': { low: 185000, mid: 245000, high: 320000 },
-                'C-Suite': { low: 280000, mid: 400000, high: 550000 }
-            };
-            var range = salaryRanges[seniority] || salaryRanges['Mid'];
-            var tierMult = tier === 'high' ? 1.0 : tier === 'mid' ? 1.1 : 1.25;
-            var askNum = Math.round(range.high * tierMult);
+            var conservative = tv ? (tv.conservativeOffer || 0) : 0;
+            var standard = tv ? (tv.standardOffer || 0) : 0;
+            var competitive = tv ? (tv.competitiveOffer || 0) : 0;
+            var justified = tv ? (tv.yourWorth || tv.total || 0) : 0;
+            if (justified === 0 && competitive === 0) {
+                var fallbackBands = { 'Entry': 48000, 'Mid': 72000, 'Senior': 125000, 'Staff': 175000, 'Director': 195000, 'Executive': 245000, 'C-Suite': 400000 };
+                justified = fallbackBands[seniority] || 72000;
+                conservative = Math.round(justified * 0.75);
+                standard = Math.round(justified * 0.85);
+                competitive = Math.round(justified * 0.95);
+            }
+            var tierMult = tier === 'high' ? 1.0 : tier === 'mid' ? 1.05 : 1.12;
+            var askNum = Math.round((justified > 0 ? justified : competitive) * tierMult);
+            var rangeLow = conservative > 0 ? conservative : askNum;
+            var rangeHigh = askNum;
 
             var relevantSkills = topSkills.filter(function(s) { return rawText.toLowerCase().indexOf(s.toLowerCase().split(' ')[0]) > -1; });
             if (relevantSkills.length < 2) relevantSkills = topSkills.slice(0, 3);
@@ -44798,14 +46111,14 @@ body {
                   mitigation: 'Research ' + company + '\u2019s recent hires for similar roles. Prepare specific examples that map your experience to their exact challenges.' },
                 { risk: 'Anchoring too high or too low',
                   why: 'Without knowing ' + company + '\u2019s internal bands, you could price yourself out or leave significant money on the table.',
-                  mitigation: 'Use the market data range ($' + Math.round(range.low / 1000) + 'K\u2013$' + Math.round(range.high * tierMult / 1000) + 'K) as your framework. Lead with value, not a number.' },
+                  mitigation: 'Use the market data range ($' + Math.round(rangeLow / 1000) + 'K\u2013$' + Math.round(rangeHigh / 1000) + 'K) as your framework. Lead with value, not a number.' },
                 { risk: 'Neglecting total compensation',
                   why: 'Base salary is only one component. ' + (seniority === 'Executive' || seniority === 'C-Suite' ? 'Equity, bonuses, and deferred comp' : 'Benefits, PTO, and growth opportunities') + ' could represent 20\u201340% of total value.',
                   mitigation: 'Prepare a total comp framework before negotiations. Know your minimum on base, but be flexible on structure.' }
             ];
 
             var counterOfferPlaybook = [
-                { scenario: '\u201cWe can\u2019t go above $' + Math.round(range.mid / 1000) + 'K for this role.\u201d',
+                { scenario: '\u201cWe can\u2019t go above $' + Math.round(standard / 1000) + 'K for this role.\u201d',
                   response: 'I understand budget constraints. Given my ' + yrsExp + '+ years of experience and the value I\u2019d bring to ' + company + ', could we explore a signing bonus, accelerated review timeline, or additional equity to bridge the gap?' },
                 { scenario: '\u201cWe need someone with more direct ' + (jobRoles[0] || 'industry') + ' experience.\u201d',
                   response: 'I respect that concern. Let me share how my ' + (roles[0] || 'background') + ' experience directly translates \u2014 [cite specific example]. I\u2019d also propose a 90-day milestone plan so you can see the ROI firsthand.' },
@@ -44832,7 +46145,7 @@ body {
                 theAsk: {
                     number: askNum,
                     justification: [
-                        'Market data for ' + seniority + '-level ' + (jobRoles[0] || 'professionals') + ' in this space ranges $' + Math.round(range.low / 1000) + 'K\u2013$' + Math.round(range.high * tierMult / 1000) + 'K.',
+                        'Market data for ' + seniority + '-level ' + (jobRoles[0] || 'professionals') + ' in this space ranges $' + Math.round(rangeLow / 1000) + 'K\u2013$' + Math.round(rangeHigh / 1000) + 'K.',
                         'My ' + yrsExp + '+ years of experience and expertise in ' + (relevantSkills.slice(0, 2).join(', ') || 'this domain') + ' place me in the upper quartile.',
                         'This number reflects the immediate value I bring \u2014 reducing ramp-up time and delivering measurable results from day one.'
                     ]
@@ -44860,7 +46173,7 @@ body {
                 job = { title: 'Target Role', company: 'Target Company', seniority: 'Mid', tier: 'high', parsedRoles: [], rawText: '' };
             }
 
-            var guide = _buildStaticNegGuide(job);
+            var guide = _buildStaticNegGuide(job, tv);
 
             var disclaimer = '<div style="padding:12px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
                 + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:#60a5fa;">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
@@ -48411,86 +49724,134 @@ body {
             function getWelcomeSteps() {
                 var profileName = (userData.profile && userData.profile.name) || 'this profile';
                 var skillCount = (skillsData.skills || []).length;
+                var jobCount = (userData.savedJobs || []).length;
+                var topJob = (userData.savedJobs || [])[0];
+                var topJobLabel = topJob ? (topJob.title || 'Target Role') + ' at ' + (topJob.company || 'Target Company') : '';
+                var topJobScore = topJob && topJob.matchData ? topJob.matchData.score : 0;
+                var tv = typeof calculateTotalMarketValue === 'function' ? calculateTotalMarketValue() : null;
+                var marketVal = tv && tv.yourWorth ? '$' + Math.round(tv.yourWorth / 1000) + 'K' : '';
+                var roleLevel = tv ? (tv.roleLevel || '') : '';
+                var valuesCount = ((blueprintData.values || []).filter(function(v) { return v.selected; })).length;
                 return [
-                    // 1. SKILLS ARCHITECTURE — the wow moment
                     {
-                        title: 'Your Skills, Fully Mapped',
-                        desc: 'Every node is a skill. <strong>Size</strong> = proficiency. <strong>Color</strong> = role cluster. Built on professional-grade <strong>O*NET</strong> and <strong>ESCO</strong> taxonomies.'
-                            + (skillCount > 0 ? ' This profile has <strong>' + skillCount + '</strong> mapped.' : '')
-                            + '<br><br><span style="color:#60a5fa;">Drag any node to rearrange. Tap one to see the evidence behind it.</span>',
+                        title: 'Welcome to Blueprint\u2122',
+                        desc: 'This is <strong>' + profileName + '</strong>\u2019s career intelligence profile \u2014 skills, market value, job fit, and negotiation strategy, all in one place.'
+                            + '<br><br>Let\u2019s walk through the key features. This takes about 2 minutes.',
+                        badge: 'Overview',
+                        target: null,
+                        beforeShow: function() { switchView('skills'); },
+                        delay: 600
+                    },
+                    {
+                        title: 'The Skills Network',
+                        desc: 'Every node is a skill. <strong>Size</strong> = proficiency level. <strong>Color</strong> = role cluster. Connected nodes share professional context.'
+                            + (skillCount > 0 ? '<br><br>This profile has <strong>' + skillCount + ' skills</strong> mapped across ' + ((userData.roles || []).length || 'multiple') + ' professional roles.' : '')
+                            + '<br><br><span style="color:#60a5fa;">Try it \u2014 drag nodes to rearrange, tap one to explore.</span>',
                         badge: 'Skills Architecture',
                         target: '#controlsBar',
                         spotlightPad: 6,
                         beforeShow: function() { switchView('skills'); },
-                        delay: 600
+                        delay: 500
                     },
-                    // 2. JOB INTELLIGENCE
                     {
-                        title: 'Test Yourself Against Any Job',
-                        desc: 'Paste any job description. Blueprint parses the requirements, scores your match, and shows exactly where you align <span style="color:#10b981;">&#9679;</span>, where the gaps are <span style="color:#ef4444;">&#9679;</span>, and where you have leverage <span style="color:#64748b;">&#9679;</span>.'
-                            + '<br><br>Then toggle the <strong>Match Overlay</strong> on the skills network to see it visually.',
+                        title: 'Evidence Behind Every Skill',
+                        desc: 'Each skill claim is backed by <strong>documented evidence</strong> \u2014 outcomes, metrics, and accomplishments that prove the level.'
+                            + '<br><br>No self-reported fluff. Blueprint tracks evidence points and calculates an <strong>effective level</strong> based on what you can actually prove.'
+                            + '<br><br><span style="color:#f59e0b;">Tap any skill node on the network to see its evidence.</span>',
+                        badge: 'Evidence System',
+                        target: null
+                    },
+                    {
+                        title: 'Job Match Intelligence',
+                        desc: 'Paste any job description and Blueprint parses the requirements, scores your match, and breaks down exactly where you align <span style="color:#10b981;">\u25cf</span>, where the gaps are <span style="color:#ef4444;">\u25cf</span>, and where you have leverage <span style="color:#64748b;">\u25cf</span>.'
+                            + (topJob ? '<br><br>This profile has <strong>' + jobCount + ' jobs</strong> analyzed. Top match: <strong>' + topJobLabel + '</strong> at <strong>' + topJobScore + '%</strong>.' : ''),
                         badge: 'Job Intelligence',
                         target: '#nav-jobs',
                         spotlightPad: 4,
-                        beforeShow: function() { switchView('jobs'); }
-                    },
-                    // 3. VALUES ALIGNMENT
-                    {
-                        title: 'Know the Fit Before You Walk In',
-                        desc: 'Blueprint surfaces your <strong>core professional values</strong> from career patterns \u2014 not a personality quiz. Then it maps them against company culture profiles so you can see alignment before you commit.'
-                            + '<br><br>Because the right job isn\u2019t just about skills. It\u2019s about fit.',
-                        badge: 'Values Alignment',
-                        target: '#nav-blueprint',
-                        spotlightPad: 4,
-                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('values'); },
+                        beforeShow: function() { switchView('jobs'); },
                         delay: 400
                     },
-                    // 4. SCOUTING REPORTS — the paradigm shift
                     {
-                        title: 'Attract Them to You',
-                        desc: 'Generate a <strong>Scouting Report</strong> \u2014 an interactive career intelligence page designed to be sent to recruiters and hiring managers. Your skills, match analysis, talking points, and values alignment in one shareable document.'
+                        title: 'Match Overlay on the Network',
+                        desc: 'Toggle the <strong>Match Overlay</strong> to see job fit directly on the skills network. Matched skills glow <span style="color:#10b981;">green</span>, gaps pulse <span style="color:#ef4444;">red</span>, surplus skills fade \u2014 giving you an instant visual read on any opportunity.'
+                            + '<br><br>This is the view that changes how you think about job fit.',
+                        badge: 'Visual Match',
+                        target: '#controlsBar',
+                        spotlightPad: 6,
+                        beforeShow: function() { switchView('skills'); },
+                        delay: 400
+                    },
+                    {
+                        title: 'Know Your Market Value',
+                        desc: 'Compensation powered by <strong>BLS wage data</strong>, calibrated to your function, seniority, and skill depth.'
+                            + (marketVal ? '<br><br>' + profileName + '\u2019s justified value: <strong>' + marketVal + '</strong> (' + roleLevel + ').' : '')
+                            + '<br><br>Two modes: <strong>Evidence-based</strong> (what your documented outcomes prove) and <strong>Potential</strong> (your full skill architecture).',
+                        badge: 'Market Valuation',
+                        target: null,
+                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
+                        delay: 400
+                    },
+                    {
+                        title: 'Negotiation Guide',
+                        desc: 'For each job, Blueprint generates a complete <strong>negotiation playbook</strong> \u2014 your opening move, the ask number, strengths to lead with, blind spots to watch for, and counter-offer responses.'
+                            + '<br><br>All built from your actual skills, experience, and BLS comp data. No generic advice.'
+                            + '<br><br><span style="color:#10b981;">Try it \u2014 click Negotiation Guide on any saved job.</span>',
+                        badge: 'Negotiation',
+                        target: null,
+                        beforeShow: function() { switchBlueprintTab('export'); },
+                        delay: 400
+                    },
+                    {
+                        title: 'Values Alignment',
+                        desc: 'Blueprint surfaces your <strong>core professional values</strong> from career patterns \u2014 not a personality quiz.'
+                            + (valuesCount > 0 ? ' This profile has <strong>' + valuesCount + ' values</strong> identified.' : '')
+                            + '<br><br>Then it maps them against <strong>company culture profiles</strong> so you can see alignment before you commit. The right job isn\u2019t just about skills \u2014 it\u2019s about fit.',
+                        badge: 'Values',
+                        target: null,
+                        beforeShow: function() { switchBlueprintTab('values'); },
+                        delay: 400
+                    },
+                    {
+                        title: 'The Career Dashboard',
+                        desc: 'The executive summary of your professional identity \u2014 market value, skill distribution, readiness score, purpose statement, and career trajectory in one view.'
+                            + '<br><br>Six tabs: <strong>Dashboard</strong> \u00B7 <strong>Skills</strong> \u00B7 <strong>Experience</strong> \u00B7 <strong>Outcomes</strong> \u00B7 <strong>Values</strong> \u00B7 <strong>Export</strong>.',
+                        badge: 'Blueprint Dashboard',
+                        target: '#blueprintSubnav',
+                        spotlightPad: 4,
+                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
+                        delay: 400
+                    },
+                    {
+                        title: 'Scouting Reports',
+                        desc: 'Generate a <strong>Scouting Report</strong> \u2014 an interactive career intelligence page designed to send to recruiters and hiring managers. Skills match, gap analysis, talking points, and values alignment in one shareable document.'
                             + '<br><br>This isn\u2019t a resume. It\u2019s a signal that you\u2019re a different kind of candidate.'
-                            + (isReadOnlyProfile ? '<br><span style="color:#10b981;">Try it \u2014 sample reports are available on the Reports page.</span>' : ''),
-                        badge: 'Scouting Reports',
+                            + (isReadOnlyProfile ? '<br><span style="color:#10b981;">Sample reports are available on the Reports page.</span>' : ''),
+                        badge: 'Reports',
                         target: '#nav-reports',
                         spotlightPad: 4,
                         beforeShow: function() { switchView('reports'); },
                         delay: 400
                     },
-                    // 5. MARKET VALUATION
                     {
-                        title: 'Know Your Number',
-                        desc: '<strong>Evidence-based</strong> valuation reflects what your documented outcomes prove. <strong>Potential</strong> reflects your full skill architecture. Both are powered by BLS salary data and skill rarity analysis.'
-                            + '<br><br>Walk into every compensation conversation knowing your range \u2014 and the evidence to justify it.',
-                        badge: 'Market Valuation',
-                        target: '#nav-blueprint',
-                        spotlightPad: 4,
-                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
-                        delay: 400
-                    },
-                    // 6. PURPOSE & NARRATIVE
-                    {
-                        title: 'Your Career Story, Distilled',
-                        desc: 'Blueprint synthesizes your skills, outcomes, and values into a <strong>purpose statement</strong> \u2014 the language that connects who you are with what the work demands.'
-                            + '<br><br>This is the narrative thread that ties your entire professional identity together.',
-                        badge: 'Purpose',
+                        title: '24 Characters. Real Blueprints.',
+                        desc: '<strong>Breaking Bad</strong> \u00B7 <strong>Stranger Things</strong> \u00B7 <strong>Succession</strong> \u00B7 <strong>Game of Thrones</strong> \u2014 six characters per show, each with a complete career Blueprint.'
+                            + '<br><br>Skills, values, job matches, market values \u2014 all fully built. Switch profiles anytime to explore.',
+                        badge: 'Sample Profiles',
                         target: null,
-                        beforeShow: function() { switchBlueprintTab('purpose'); },
-                        delay: 300
+                        beforeShow: function() { viewSampleProfile(); },
+                        delay: 500
                     },
-                    // 7. CLOSE — the handoff
                     {
-                        title: isReadOnlyProfile ? 'Ready to Build Your Own?' : 'Your Career Intelligence Starts Here',
+                        title: isReadOnlyProfile ? 'Ready to Build Yours?' : 'Your Career Intelligence',
                         desc: isReadOnlyProfile
-                            ? 'You\u2019ve seen what Blueprint can do with ' + profileName + '. Imagine this with <strong>your</strong> skills, <strong>your</strong> outcomes, <strong>your</strong> market value.'
-                                + '<br><br>Hit the <strong>?</strong> button anytime for help. Explore all 24 sample profiles. Then join the waitlist to build yours.'
-                            : 'That\u2019s Blueprint. Six lenses on one career. Hit the <strong>?</strong> button anytime for section-specific guides.'
-                                + '<br><br>Your data stays yours \u2014 export it, own it, take it anywhere.',
+                            ? 'You\u2019ve seen what Blueprint does with ' + profileName + '. Imagine this with <strong>your</strong> skills, <strong>your</strong> evidence, <strong>your</strong> market value.'
+                                + '<br><br>Hit <strong>?</strong> anytime for feature guides. Explore all 24 profiles. When you\u2019re ready \u2014 <strong>build yours</strong>.'
+                            : 'That\u2019s Blueprint \u2014 career intelligence across every dimension. Hit <strong>?</strong> anytime for section guides.'
+                                + '<br><br>Your data stays yours. Export it, own it, take it anywhere.',
                         badge: isReadOnlyProfile ? 'Get Started' : 'Let\u2019s Go',
                         target: '#tourHelpBtn',
                         spotlightPad: 6,
-                        spotlightRadius: '50%',
-                        beforeShow: function() { viewSampleProfile(); }
+                        spotlightRadius: '50%'
                     }
                 ];
             }
