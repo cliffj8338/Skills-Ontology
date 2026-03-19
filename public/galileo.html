@@ -1024,30 +1024,34 @@
     .author-note { text-align: left; }
   }
 
-  /* HEADER GALILEO — absolute positioned, no grid interference */
+  /* HEADER GALILEO — absolute positioned, bleeds off left edge */
   .header {
     position: relative;
-    padding-left: 180px !important;
-    overflow: hidden;
+    padding-left: 200px !important;
+    overflow: visible;
   }
   .header-galileo {
     position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-48%);
-    width: 150px;
+    left: -40px;
+    bottom: 0;
+    width: 220px;
     height: auto;
-    opacity: 0.35;
-    filter: grayscale(1) contrast(1.1);
+    opacity: 0.55;
+    filter: grayscale(1) contrast(1.2);
     pointer-events: none;
+    z-index: 1;
   }
   body:not(.light) .header-galileo {
-    opacity: 0.2;
-    filter: grayscale(1) invert(1) contrast(1.0);
+    opacity: 0.3;
+    filter: grayscale(1) invert(1) contrast(1.1);
   }
   @media (max-width: 768px) {
-    .header { padding-left: 20px !important; }
-    .header-galileo { display: none; }
+    .header { padding-left: 130px !important; }
+    .header-galileo {
+      left: -30px;
+      width: 150px;
+      opacity: 0.4;
+    }
   }
 </style>
 </head>
