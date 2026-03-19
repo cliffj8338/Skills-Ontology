@@ -8782,13 +8782,17 @@
             }
 
             if (d.bls) {
-                sectionHead('Compensation Overview', GREEN);
+                sectionHead(_pdfShowComp ? 'Compensation Overview (Skills Comp Model)' : 'Compensation Overview', GREEN);
+                var _pdfCompCtx2 = _pdfShowComp ? (_pdfCompCtx || null) : (d.compContext || (typeof _jdcDetectCompContext === 'function' ? _jdcDetectCompContext(d.company, d.industry, d._rawJD || '') : null));
+                var _pdfCtxMult2 = (_pdfCompCtx2 && _pdfCompCtx2.multiplier > 1.0) ? _pdfCompCtx2.multiplier : 1.0;
+                var _pdfGeoMult2 = d._geoMult || 1.0;
+                var _pdfAdjMult = _pdfGeoMult2 * _pdfCtxMult2;
                 var compData = [
-                    { key: 'pct10', label: '10th Percentile', val: d.bls.pct10 },
-                    { key: 'pct25', label: '25th Percentile', val: d.bls.pct25 },
-                    { key: 'median', label: '50th (Median)', val: d.bls.median },
-                    { key: 'pct75', label: '75th Percentile', val: d.bls.pct75 },
-                    { key: 'pct90', label: '90th Percentile', val: d.bls.pct90 }
+                    { key: 'pct10', label: '10th Percentile', val: Math.round((d.bls.pct10 || 0) * _pdfAdjMult) },
+                    { key: 'pct25', label: '25th Percentile', val: Math.round((d.bls.pct25 || 0) * _pdfAdjMult) },
+                    { key: 'median', label: '50th (Median)', val: Math.round((d.bls.median || 0) * _pdfAdjMult) },
+                    { key: 'pct75', label: '75th Percentile', val: Math.round((d.bls.pct75 || 0) * _pdfAdjMult) },
+                    { key: 'pct90', label: '90th Percentile', val: Math.round((d.bls.pct90 || 0) * _pdfAdjMult) }
                 ].filter(function(p) { return hcr.indexOf(p.key) === -1; });
                 if (compData.length > 0) {
                     var barW = (CW - 4) / compData.length;
@@ -8805,7 +8809,9 @@
                     });
                     y += 20;
                     doc.setFontSize(6); doc.setTextColor.apply(doc, MUTED); doc.setFont('helvetica', 'normal');
-                    doc.text('Source: BLS OEWS ' + (d.bls.source || 'May 2024') + ' \u00B7 SOC: ' + (d.bls.soc || ''), M + 2, y);
+                    var _srcNote = 'Source: BLS OEWS ' + (d.bls.source || 'May 2024') + ' \u00B7 SOC: ' + (d.bls.soc || '');
+                    if (_pdfAdjMult > 1.0) _srcNote += ' \u00B7 +' + Math.round((_pdfAdjMult - 1) * 100) + '% market adjustment';
+                    doc.text(_srcNote, M + 2, y);
                     y += 4;
                 }
             }
