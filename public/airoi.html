@@ -708,8 +708,8 @@
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">&#9790;<span class="btn-label"> Dark</span></button>
     <button class="theme-btn export-btn" onclick="openExportModal()" title="Export to PDF">&#8681;<span class="btn-label"> Export PDF</span></button>
     <div class="toggle">
-      <button class="toggle-btn" id="btn-side" onclick="setView('sideline')" title="">Sideline View <i class="tip-icon" data-tip-title="Sideline View" data-tip-body="Traditional ROI — labor savings only. Hours reclaimed multiplied by salary. No strategic assumptions, no speculation." data-tip-drivers="<strong>Shows:</strong> Productivity Floor only (Rc·μ·ΔMPL). Use this when you need a number you can defend in any room with hard data. Driven by FTEs, Adoption Rate, Salary, Cognitive Drag, AI Displacement.">i</i></button>
-      <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="">Press Box View <i class="tip-icon" data-tip-title="Press Box View" data-tip-body="Elastic ROI — adds strategic outcomes on top of labor savings. The full picture: productivity reclaimed plus work that becomes possible for the first time." data-tip-drivers="<strong>Adds:</strong> TVP (Φ term) = Revenue × Revealed Outcomes %. This is the value most ROI models leave on the table. Adjust Revealed Outcomes % to calibrate how much strategic upside you claim.">i</i></button>
+      <button class="toggle-btn" id="btn-side" onclick="setView('sideline')" title="">Sideline View <i class="tip-icon" data-tip-title="Sideline View" data-tip-body="The safe, conservative number. Only counts money saved by freeing up people's time — no guesses about new revenue or strategy." data-tip-drivers="<strong>Use this when:</strong> You need a number you can put in front of a CFO and defend with zero hand-waving. It only goes up when people adopt the tools and actually save time.">i</i></button>
+      <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="">Press Box View <i class="tip-icon" data-tip-title="Press Box View" data-tip-body="The full picture. Counts labor savings AND new revenue opportunities AI makes possible — things your team couldn't do before." data-tip-drivers="<strong>Use this when:</strong> You want to show the total upside, not just cost savings. The 'Revealed Outcomes' slider controls how much new-revenue credit you include — dial it down to be conservative.">i</i></button>
     </div>
   </div>
 </header>
@@ -864,7 +864,7 @@
         <span class="slider-label">Cognitive Drag %</span>
         <span class="slider-value" id="val-drag">40%</span>
       </div>
-      <div class="slider-sub">Time lost to admin, email, search &amp; coordination. McKinsey avg: 42%</div>
+      <div class="slider-sub">How much of the workday is wasted on busywork (emails, searching, meetings, admin). McKinsey avg: 42%</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-drag"></div>
         <input type="range" id="drag" min="10" max="80" step="1" value="40" oninput="update()">
@@ -876,7 +876,7 @@
         <span class="slider-label">AI Displacement Rate</span>
         <span class="slider-value" id="val-disp">35%</span>
       </div>
-      <div class="slider-sub">Drag work AI absorbs for proficient users. BCG/Harvard avg: 25&ndash;40%. Hard cap: 60%</div>
+      <div class="slider-sub">How much of that busywork AI can actually take off people's plates. BCG/Harvard avg: 25&ndash;40%</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-disp"></div>
         <input type="range" id="disp" min="20" max="90" step="1" value="35" oninput="update()">
@@ -888,7 +888,7 @@
         <span class="slider-label">Revealed Outcomes % of Revenue</span>
         <span class="slider-value" id="val-impos-pct">2%</span>
       </div>
-      <div class="slider-sub">Conservative: 1&ndash;3% &middot; Moderate: 4&ndash;8% &middot; Aggressive: 9&ndash;12% &middot; Breakthrough: 13&ndash;15% &middot; 53% of executives report 6&ndash;10% AI-attributed revenue growth (IDC/Microsoft, 2024)</div>
+      <div class="slider-sub">What % of revenue AI helps create (new deals, faster delivery, better products). Conservative: 1&ndash;3% &middot; Moderate: 4&ndash;8% &middot; Aggressive: 9%+. 53% of execs report 6&ndash;10% AI-attributed growth (IDC 2024)</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-impos-pct"></div>
         <input type="range" id="impos-pct" min="1" max="15" step="0.5" value="2" oninput="update()">
@@ -1014,30 +1014,30 @@
     <!-- KPI row: Investment (pain) → Return $ (payoff) → Multiple → Hours -->
     <div class="kpi-grid">
       <div class="kpi-card" id="tip-invest" style="border-top-color: var(--gold);">
-        <div class="kpi-label">Total Investment <i class="tip-icon" data-tip-title="Total Investment" data-tip-body="What you actually spend: seat licenses plus friction and obsolescence tax." data-tip-drivers="<strong>Driven by:</strong> FTEs × Adoption Rate × Cost/Adopter, plus O_trans (15% friction) and Ω (8% obsolescence risk)">i</i></div>
+        <div class="kpi-label">Total Investment <i class="tip-icon" data-tip-title="Total Investment" data-tip-body="The real cost of your AI rollout — not just software licenses, but also the hidden costs of getting people trained and replacing old tools." data-tip-drivers="<strong>What's included:</strong> License cost per person × number of adopters, plus ~15% for training/setup friction, plus ~8% for tools that become obsolete. Change the cost tier or adoption rate to see this move.">i</i></div>
         <div class="kpi-value" id="kpi-cost" style="color: var(--gold);">—</div>
         <div class="kpi-note">incl. friction &amp; obsolescence</div>
       </div>
       <div class="kpi-card" id="tip-floor" style="border-top-color: var(--emerald);">
-        <div class="kpi-label">Productivity Floor <i class="tip-icon" data-tip-title="Productivity Floor" data-tip-body="The defensible ROI — pure labor hours reclaimed, no strategic assumptions. What you can put in any boardroom." data-tip-drivers="<strong>Driven by:</strong> Salary, FTEs, Adoption Rate, Cognitive Drag %, AI Displacement Rate, Deployment Year (μ · ΔMPL applied)">i</i></div>
+        <div class="kpi-label">Productivity Floor <i class="tip-icon" data-tip-title="Productivity Floor" data-tip-body="The guaranteed minimum return — just the dollar value of time your people get back. No speculation, no maybes. Think of it as: hours saved × what those hours cost you." data-tip-drivers="<strong>What moves this:</strong> Average salary (higher salary = more valuable hours), adoption rate (more users = more hours saved), and how much busywork AI actually removes (Cognitive Drag and Displacement sliders).">i</i></div>
         <div class="kpi-value" id="kpi-floor" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-floor-note">Labor productivity only</div>
         <div style="margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">What you can defend in any room &mdash; measurable, no strategic assumptions.</div>
       </div>
       <div class="kpi-card" id="tip-ceiling" style="border-top-color: var(--emerald);">
-        <div class="kpi-label">TVP &mdash; Total Value Pool <i class="tip-icon" data-tip-title="TVP — Total Value Pool" data-tip-body="Labor value reclaimed plus outcomes that weren't possible before AI. The full ceiling — most organizations capture 50–70% of it." data-tip-drivers="<strong>Driven by:</strong> Everything in Productivity Floor, plus Revenue × Revealed Outcomes % (the Φ strategic term)">i</i></div>
+        <div class="kpi-label">TVP &mdash; Total Value Pool <i class="tip-icon" data-tip-title="TVP — Total Value Pool" data-tip-body="The total dollar value AI can create — time saved PLUS new revenue opportunities that weren't possible before. Most companies realistically capture 50–70% of this number." data-tip-drivers="<strong>Two parts:</strong> (1) Labor savings from the Productivity Floor, plus (2) new revenue your team can now chase because AI freed them up. Move the 'Revealed Outcomes' slider to adjust how much new-revenue credit you include.">i</i></div>
         <div class="kpi-value" id="kpi-return" style="color: var(--emerald);">—</div>
-        <div class="kpi-note" id="kpi-return-note">Labor savings + new outcomes unlocked</div>
+        <div class="kpi-note" id="kpi-return-note">Labor savings + new revenue opportunities unlocked</div>
         <div id="return-explain" style="display:none;"></div>
       </div>
       <div class="kpi-card" id="tip-roi" style="border-top-color: var(--emerald);" id="kpi-roi-card">
-        <div class="kpi-label">ROI Multiple <i class="tip-icon" data-tip-title="ROI Multiple" data-tip-body="TVP ÷ Total Investment. The 'elastic' return — most sensitive to Adoption Rate. Doubling adoption often more than doubles this number." data-tip-drivers="<strong>Driven by:</strong> All inputs. Adoption Rate has the highest leverage — a 10% increase typically moves this more than any other single slider.">i</i></div>
+        <div class="kpi-label">ROI Multiple <i class="tip-icon" data-tip-title="ROI Multiple" data-tip-body="For every $1 you spend on AI, this is how many dollars you get back. A 5× means $5 back for every $1 invested. The single most important number on this page." data-tip-drivers="<strong>Biggest lever:</strong> Adoption Rate. Getting more people to actually use the tools moves this number more than anything else. A 10% bump in adoption often more than doubles the return.">i</i></div>
         <div class="kpi-value" id="kpi-roi" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-roi-note">Elastic Return</div>
         <div id="roi-benchmark-note" style="display:none; margin-top:6px; font-size:10px; color:var(--gold); line-height:1.4;"></div>
       </div>
       <div class="kpi-card" id="tip-hours" style="border-top-color: var(--emerald);">
-        <div class="kpi-label">Reclaimed Hours / yr <i class="tip-icon" data-tip-title="Reclaimed Hours / yr" data-tip-body="Total productive hours freed across all adopters in a year. Per-adopter days = total ÷ adopters ÷ 8. This is the Rc term in the equation." data-tip-drivers="<strong>Driven by:</strong> FTEs, Adoption Rate, Cognitive Drag % (time lost to admin/search/coordination), AI Displacement Rate, Deployment Year ramp">i</i></div>
+        <div class="kpi-label">Reclaimed Hours / yr <i class="tip-icon" data-tip-title="Reclaimed Hours / yr" data-tip-body="The total hours your workforce gets back in a year thanks to AI handling busywork. Divide by your number of adopters to see how many days each person saves." data-tip-drivers="<strong>What moves this:</strong> More employees using AI = more total hours saved. The 'Cognitive Drag' slider sets how much busywork exists, and 'AI Displacement' sets how much of that busywork AI actually takes over.">i</i></div>
         <div class="kpi-value" id="kpi-hours" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-hours-note">—</div>
       </div>
@@ -1045,7 +1045,7 @@
 
     <!-- Benchmark Positioning Strip -->
     <div class="chart-card" style="padding:16px 22px; margin-bottom:20px;">
-      <div class="card-label" style="color:var(--dim); margin-bottom:14px;">Where You Stand <i class="tip-icon" data-tip-title="Where You Stand" data-tip-body="Your ROI Multiple plotted against industry benchmark bands from IDC/Microsoft 2024 enterprise data." data-tip-drivers="<strong>Bands:</strong> Below avg &lt;3×, Median 3–8×, Above median 8–15×, Outlier &gt;15×. Enterprise avg is ~3.70× return per $1 invested.">i</i></div>
+      <div class="card-label" style="color:var(--dim); margin-bottom:14px;">Where You Stand <i class="tip-icon" data-tip-title="Where You Stand" data-tip-body="How your AI return compares to other companies. The marker shows where you land on a scale from below average to outlier, based on real enterprise data." data-tip-drivers="<strong>The bands:</strong> Below 3× = below average. 3–8× = typical. 8–15× = above average. 15×+ = exceptional. The average company gets about $3.70 back per $1 spent (IDC/Microsoft 2024 data).">i</i></div>
       <div style="position:relative; margin-bottom:14px;">
         <div style="display:flex; height:20px; border-radius:4px; overflow:hidden; width:100%;">
           <div style="flex:0 0 calc(2/15*100%); background:rgba(148,163,184,0.18);"></div>
@@ -1073,13 +1073,13 @@
     <!-- Gauge + Equation -->
     <div class="mid-grid">
       <div class="card">
-        <div class="card-label" id="tip-gauge" style="color: var(--emerald);">Synthetic Capacity <i class="tip-icon" data-tip-title="Synthetic Capacity" data-tip-body="FTE-equivalents gained without hiring. Each adopter generates more output — the surplus is synthetic headcount. Capped at 25% of workforce (real-world ceiling)." data-tip-drivers="<strong>+N people:</strong> Adoption Rate drives the arc size. <strong>Days/yr per adopter:</strong> only moves with Cognitive Drag % and AI Displacement Rate — it is a per-person rate, not a headcount stat.">i</i></div>
+        <div class="card-label" id="tip-gauge" style="color: var(--emerald);">Synthetic Capacity <i class="tip-icon" data-tip-title="Synthetic Capacity" data-tip-body="Extra 'virtual employees' you gain without hiring anyone. AI makes each person more productive, so the total output increases as if you added headcount — but you didn't." data-tip-drivers="<strong>The +N number:</strong> Goes up as more people adopt AI. <strong>Days/yr per adopter:</strong> How many workdays each person saves per year — this only changes when you adjust Cognitive Drag or AI Displacement, not headcount.">i</i></div>
         <canvas id="gauge-canvas" width="460" height="300"></canvas>
         <div class="gauge-caption" id="gauge-caption">—</div>
       </div>
 
       <div class="card">
-        <div class="card-label" id="tip-equation" style="color: var(--gold);">Equation Breakdown <i class="tip-icon" data-tip-title="Equation Breakdown" data-tip-body="The full ROI formula decomposed. Numerator: strategic value (Φ) + productivity (Rc·μ·ΔMPL). Denominator: investment + friction + obsolescence." data-tip-drivers="<strong>Rc·μ·ΔMPL</strong> = hours reclaimed × redeployment efficiency × productivity multiplier. <strong>Φ(Oₙ·V)</strong> = revealed outcomes % × revenue. Fixed constants μ and ΔMPL are research-calibrated.">i</i></div>
+        <div class="card-label" id="tip-equation" style="color: var(--gold);">Equation Breakdown <i class="tip-icon" data-tip-title="Equation Breakdown" data-tip-body="The math behind the ROI number, shown step by step. Top of the fraction = value created (time savings + new revenue). Bottom = total cost (licenses + friction + obsolescence)." data-tip-drivers="<strong>Top line:</strong> Revenue opportunities + (hours saved × salary × efficiency adjustments). <strong>Bottom line:</strong> What you paid for licenses + training costs + tools that became obsolete. The constants (μ=0.60, ΔMPL=1.5×) come from published research.">i</i></div>
         <div class="eq-fraction">
           <div class="eq-num">Φ(Oₙ·V) + (Rc·μ·ΔMPL)</div>
           <div class="eq-line"></div>
@@ -1106,7 +1106,7 @@
     <div class="chart-card">
       <div class="chart-header">
         <div>
-          <div class="card-label" id="tip-adoption" style="color:var(--dim); margin-bottom:4px;">Adoption Curve <i class="tip-icon" data-tip-title="Adoption Curve" data-tip-body="ROI at every adoption level — shows the upside of pushing further. Y1–Y4 lines reflect the ramp: teams need time to reach full efficiency." data-tip-drivers="<strong>Driven by:</strong> Current Adoption Rate (your dot), Salary, Cognitive Drag, AI Displacement. Ramp efficiency: Y1=25%, Y2=50%, Y3=75%, Y4=100% of potential.">i</i></div>
+          <div class="card-label" id="tip-adoption" style="color:var(--dim); margin-bottom:4px;">Adoption Curve <i class="tip-icon" data-tip-title="Adoption Curve" data-tip-body="What happens to your ROI as more people actually use AI. The dot is where you are now — everything to the right shows the upside if you push adoption higher." data-tip-drivers="<strong>The 4 lines (Y1–Y4):</strong> Year 1 teams only capture 25% of the value (they're still learning). By Year 4, they capture 100%. The gap between the lines is the cost of rushing vs. giving teams time to ramp up.">i</i></div>
           <div style="font-size:11px; color: var(--slate2);">ROI at each adoption level — what’s your ceiling if you push further?</div>
         </div>
         <div class="chart-legend">
@@ -1123,7 +1123,7 @@
     <div class="chart-card" id="cashflow-card">
       <div class="chart-header" style="margin-bottom:8px;">
         <div>
-          <div class="card-label" id="tip-cashflow" style="color:var(--dim);margin-bottom:4px;">Investment vs. Return Timeline <i class="tip-icon" data-tip-title="Cashflow Timeline" data-tip-body="Investment is front-loaded (cost in Y1), returns compound as adoption matures. Breakeven typically Y1–Y2 for well-deployed programs." data-tip-drivers="<strong>Driven by:</strong> Total Investment, Productivity + Strategic returns scaled by ramp efficiency (25/50/75/100%) across Y1–Y4.">i</i></div>
+          <div class="card-label" id="tip-cashflow" style="color:var(--dim);margin-bottom:4px;">Investment vs. Return Timeline <i class="tip-icon" data-tip-title="Cashflow Timeline" data-tip-body="You pay most of the cost upfront (Year 1), but the returns grow every year as your team gets better with the tools. Most companies break even within the first 1–2 years." data-tip-drivers="<strong>How to read it:</strong> The bars show cost vs. return for each year. Year 1 returns are small (teams are learning), but by Year 3–4 the returns far exceed the investment.">i</i></div>
           <div style="font-size:11px;color:var(--slate2);">Investment is front-loaded. Returns compound as adoption matures.</div>
         </div>
       </div>
@@ -1151,7 +1151,7 @@
     <div class="chart-card">
       <div class="chart-header" style="margin-bottom:14px;">
         <div>
-          <div class="card-label" id="tip-vstack" style="color:var(--dim); margin-bottom:4px;">Value Stack <i class="tip-icon" data-tip-title="Value Stack" data-tip-body="Splits your total return into its two components: measurable productivity vs. strategic outcomes. A healthy model shows both — heavy Φ reliance is a risk flag." data-tip-drivers="<strong>Green = Productivity (Rc·μ·ΔMPL):</strong> hours × salary × efficiency. <strong>Gold = Strategic (Φ):</strong> revenue × outcomes %. Shift Revealed Outcomes % to see the balance change.">i</i></div>
+          <div class="card-label" id="tip-vstack" style="color:var(--dim); margin-bottom:4px;">Value Stack <i class="tip-icon" data-tip-title="Value Stack" data-tip-body="Shows where your return is coming from — time savings vs. new revenue opportunities. A good model has a healthy mix of both. If it's almost all gold, your case depends on optimistic assumptions." data-tip-drivers="<strong>Green bar = Time savings:</strong> the hard, measurable value from hours reclaimed. <strong>Gold bar = New revenue:</strong> strategic upside from work AI makes possible. Move the 'Revealed Outcomes' slider to see the balance shift. Too much gold = risky assumptions.">i</i></div>
           <div style="font-size:11px; color:var(--slate2);">What's inside your number — each layer earns its place or doesn't.</div>
         </div>
       </div>
@@ -2539,44 +2539,44 @@ function positionTip(e) { clampTip(e.clientX, e.clientY); }
 // ── GUIDED TOUR ──────────────────────────────────────────────
 var tourSteps = [
   { id: 'btn-side',    title: 'Sideline View',
-    body: 'Traditional ROI — pure labor savings. Hours reclaimed multiplied by fully-loaded salary. Zero speculation, 100% defensible.',
-    drivers: '<strong>Shows:</strong> Productivity Floor only. What you bring to a CFO with hard data. Driven by Salary, Adoption Rate, Cognitive Drag %, and AI Displacement Rate.' },
+    body: 'The safe, conservative number. Only counts money saved by freeing up people\'s time — no guesses about new revenue or strategy.',
+    drivers: '<strong>Use this when:</strong> You need a number you can defend in front of anyone. It only goes up when people adopt the tools and actually save time. Driven by Salary, Adoption Rate, Cognitive Drag %, and AI Displacement Rate.' },
   { id: 'btn-press',   title: 'Press Box View',
-    body: 'Elastic ROI — adds strategic outcomes on top of labor savings. The full picture: productivity reclaimed plus work that becomes possible for the first time.',
-    drivers: '<strong>Adds:</strong> the Φ (strategic) term = Revenue × Revealed Outcomes %. Adjust that slider to calibrate how much upside you claim beyond measurable productivity.' },
+    body: 'The full picture. Counts labor savings AND new revenue opportunities AI makes possible — things your team couldn\'t do before.',
+    drivers: '<strong>Use this when:</strong> You want to show total upside, not just cost savings. The \'Revealed Outcomes\' slider controls how much new-revenue credit you include — dial it down to be conservative.' },
   { id: 'tip-invest',   title: 'Total Investment',
-    body: 'What you actually spend: seat licenses plus two hidden costs most organizations miss.',
-    drivers: '<strong>Adopters × Cost/seat</strong> = base cost. Then +15% O_trans (change management, integration friction) and +8% Ω (obsolescence — tools you pay for that get replaced). Adjust FTEs, Adoption Rate, and Cost tier to shift this.' },
+    body: 'The real cost of your AI rollout — not just software licenses, but also the hidden costs of getting people trained and replacing old tools.',
+    drivers: '<strong>What\'s included:</strong> License cost per person × number of adopters, plus ~15% for training/setup friction, plus ~8% for tools that become obsolete. Change the cost tier or adoption rate to see this move.' },
   { id: 'tip-floor',    title: 'Productivity Floor',
-    body: 'The defensible ROI. Pure labor hours reclaimed, zero strategic assumptions. What you can put in any boardroom without hedging.',
-    drivers: '<strong>Salary × FTEs × Adoption × Cognitive Drag × Displacement</strong> = raw hours. Then × μ (0.60 redeployment efficiency) × ΔMPL (1.5× value multiplier). Move Cognitive Drag % and AI Displacement Rate to see this shift.' },
+    body: 'The guaranteed minimum return — just the dollar value of time your people get back. No speculation, no maybes. Hours saved × what those hours cost you.',
+    drivers: '<strong>What moves this:</strong> Average salary (higher salary = more valuable hours), adoption rate (more users = more hours saved), and how much busywork AI actually removes (Cognitive Drag and Displacement sliders).' },
   { id: 'tip-ceiling',  title: 'TVP — Total Value Pool',
-    body: 'The full value pool. Productivity plus work that becomes possible for the first time. Most orgs capture 50–70% of this number — the territory, not the destination.',
-    drivers: '<strong>Productivity Floor + Φ(Revenue × Outcomes %)</strong>. The Φ (strategic) term is entirely driven by Revenue and Revealed Outcomes %. High Φ reliance is a risk flag — see the Value Stack for your balance.' },
+    body: 'The total dollar value AI can create — time saved PLUS new revenue opportunities that weren\'t possible before. Most companies realistically capture 50–70% of this number.',
+    drivers: '<strong>Two parts:</strong> (1) Labor savings from the Productivity Floor, plus (2) new revenue your team can now chase because AI freed them up. Move the \'Revealed Outcomes\' slider to adjust how much new-revenue credit you include.' },
   { id: 'tip-roi',      title: 'ROI Multiple',
-    body: 'TVP ÷ Total Investment. The elastic return — most sensitive to Adoption Rate. Doubling adoption can more than double this number.',
-    drivers: '<strong>Most sensitive slider: Adoption Rate.</strong> A 10% increase here typically moves the multiple more than any other input. Watch the Adoption Curve chart to see the upside of pushing further.' },
+    body: 'For every $1 you spend on AI, this is how many dollars you get back. A 5× means $5 back for every $1 invested. The single most important number on this page.',
+    drivers: '<strong>Biggest lever: Adoption Rate.</strong> Getting more people to actually use the tools moves this number more than anything else. A 10% bump in adoption often more than doubles the return.' },
   { id: 'tip-hours',    title: 'Reclaimed Hours / yr',
-    body: 'Total productive hours freed across all adopters. Divide by adopters and by 8 for days/person/year — the Rc term in the master equation.',
-    drivers: '<strong>Cognitive Drag %</strong> sets the ceiling of what AI can absorb. <strong>AI Displacement Rate</strong> sets how much of that drag AI actually removes. Together they are the only two sliders that move the per-adopter days figure.' },
+    body: 'The total hours your workforce gets back in a year thanks to AI handling busywork. Divide by your number of adopters to see how many days each person saves.',
+    drivers: '<strong>What moves this:</strong> The \'Cognitive Drag\' slider sets how much busywork exists. \'AI Displacement\' sets how much of that busywork AI actually takes over. Together they\'re the only two sliders that change the per-person days figure.' },
   { id: null,           sel: '.chart-card:has(#bench-indicator)', title: 'Where You Stand',
-    body: 'Your ROI Multiple plotted against real enterprise data. The marker moves in real time as you adjust inputs.',
-    drivers: '<strong>&lt;3×</strong> Below avg · <strong>3–8×</strong> Median · <strong>8–15×</strong> Above median · <strong>&gt;15×</strong> Outlier. Enterprise avg ≈ 3.70× (IDC/Microsoft 2024). Getting above 8× usually requires adoption &gt;50% and strong redeployment discipline.' },
+    body: 'How your AI return compares to other companies. The marker shows where you land on a scale from below average to outlier, based on real enterprise data.',
+    drivers: '<strong>The bands:</strong> Below 3× = below average. 3–8× = typical. 8–15× = above average. 15×+ = exceptional. The average company gets about $3.70 back per $1 spent (IDC/Microsoft 2024 data).' },
   { id: 'tip-gauge',    title: 'Synthetic Capacity',
-    body: 'FTE-equivalents gained without hiring. Each adopter produces more output — the surplus is synthetic headcount you do not pay a salary.',
-    drivers: '<strong>+N people:</strong> scales with Adoption Rate and the ramp year. <strong>Days/yr per adopter:</strong> a per-person rate — it only changes when you move Cognitive Drag % or AI Displacement Rate, not when you change total FTEs.' },
+    body: 'Extra \'virtual employees\' you gain without hiring anyone. AI makes each person more productive, so the total output increases as if you added headcount — but you didn\'t.',
+    drivers: '<strong>The +N number:</strong> Goes up as more people adopt AI. <strong>Days/yr per adopter:</strong> How many workdays each person saves per year — this only changes when you adjust Cognitive Drag or AI Displacement, not headcount.' },
   { id: 'tip-adoption', title: 'Adoption Curve',
-    body: 'ROI at every adoption level from 5% to 100%. Shows what the ceiling looks like if you actually drive adoption.',
-    drivers: '<strong>Y1–Y4 lines:</strong> ramp efficiency 25/50/75/100% of full potential. The gap between Y1 and Y4 is the cost of slow rollout. Current adoption rate is your starting position on the X-axis.' },
+    body: 'What happens to your ROI as more people actually use AI. The dot is where you are now — everything to the right shows the upside if you push adoption higher.',
+    drivers: '<strong>The 4 lines (Y1–Y4):</strong> Year 1 teams only capture 25% of the value (they\'re still learning). By Year 4, they capture 100%. The gap between the lines is the cost of rushing vs. giving teams time to ramp up.' },
   { id: 'tip-cashflow', title: 'Investment vs. Return Timeline',
-    body: 'Cost is front-loaded. Returns compound as teams learn the tools. Breakeven for well-deployed programs is typically Y1–Y2.',
-    drivers: '<strong>Bar height</strong> = Investment (coral) vs. cumulative return (emerald) per year. The ramp efficiency constants shape the curve: Y1 captures only 25% of potential, Y4 captures 100%.' },
+    body: 'You pay most of the cost upfront (Year 1), but the returns grow every year as your team gets better with the tools. Most companies break even within the first 1–2 years.',
+    drivers: '<strong>How to read it:</strong> The bars show cost vs. return for each year. Year 1 returns are small (teams are learning), but by Year 3–4 the returns far exceed the investment.' },
   { id: 'tip-vstack',   title: 'Value Stack',
-    body: 'Splits total return into its two components. A tool for honest self-assessment: how much of your case rests on measurable productivity vs. speculative strategic outcomes?',
-    drivers: '<strong>Green = Productivity (Rc·μ·ΔMPL):</strong> what you can measure. <strong>Gold = Strategic (Φ):</strong> what you are betting on. Shift the Revealed Outcomes % slider to see the balance change. Heavy gold is a risk flag.' },
+    body: 'Shows where your return is coming from — time savings vs. new revenue opportunities. A good model has a healthy mix of both. If it\'s almost all gold, your case depends on optimistic assumptions.',
+    drivers: '<strong>Green bar = Time savings:</strong> the hard, measurable value from hours reclaimed. <strong>Gold bar = New revenue:</strong> strategic upside from work AI makes possible. Move the \'Revealed Outcomes\' slider to see the balance shift. Too much gold = risky assumptions.' },
   { id: 'tip-equation', title: 'Equation Breakdown',
-    body: 'The master formula decomposed into its components with live values. The denominator is your true cost of capital deployment.',
-    drivers: '<strong>Numerator:</strong> Strategic value (revenue x outcomes %) plus productivity (hours x salary x efficiency multipliers). <strong>Denominator:</strong> Seat cost plus O_trans friction (15%) plus obsolescence risk (8%). Fixed constants u=0.60 and DMPL=1.5x are sourced from NBER 2023 and McKinsey 2023.' }
+    body: 'The math behind the ROI number, shown step by step. Top of the fraction = value created (time savings + new revenue). Bottom = total cost (licenses + friction + obsolescence).',
+    drivers: '<strong>Top line:</strong> Revenue opportunities + (hours saved × salary × efficiency adjustments). <strong>Bottom line:</strong> What you paid for licenses + training costs + tools that became obsolete. The constants (μ=0.60, ΔMPL=1.5×) come from published research (NBER 2023, McKinsey 2023).' }
 ];
 
 var tourStep = 0;
