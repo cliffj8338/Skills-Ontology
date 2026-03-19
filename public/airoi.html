@@ -1996,7 +1996,7 @@ function update() {
   const displayReturn = view === 'pressbox' ? elasticN : savedDollars;
   document.getElementById('kpi-return').textContent = fmtC(displayReturn);
   document.getElementById('kpi-return').style.color = 'var(--emerald)';
-  document.getElementById('kpi-return-note').textContent = view === 'pressbox' ? 'Labor savings + new outcomes unlocked' : 'Labor value reclaimed';
+  document.getElementById('kpi-return-note').textContent = view === 'pressbox' ? 'Labor savings + new revenue opportunities unlocked' : 'Labor value reclaimed';
   // Equation breakdown — floor/ceiling split
   document.getElementById('eq-floor-roi').textContent = floorROI.toFixed(1) + '×';
   const ceilEl = document.getElementById('eq-ceil-roi');
