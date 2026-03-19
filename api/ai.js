@@ -143,28 +143,41 @@ export default async function handler(req, res) {
         if (!allowedModels.includes(body.model)) {
             body.model = 'claude-sonnet-4-20250514';
         }
-        if (!body.max_tokens || body.max_tokens > 4096) {
+        if (!body.max_tokens) {
             body.max_tokens = 4096;
+        } else if (body.max_tokens > 12000) {
+            body.max_tokens = 12000;
         }
         
-        const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': anthropicKey,
-                'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify(body)
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 58000);
         
-        const data = await anthropicRes.json();
-        
-        // Set CORS header on response
-        res.setHeader('Access-Control-Allow-Origin', 'https://myblueprint.work');
-        
-        return res.status(anthropicRes.status).json(data);
+        try {
+            const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': anthropicKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify(body),
+                signal: controller.signal
+            });
+            
+            const data = await anthropicRes.json();
+            
+            res.setHeader('Access-Control-Allow-Origin', 'https://myblueprint.work');
+            
+            return res.status(anthropicRes.status).json(data);
+        } finally {
+            clearTimeout(timeout);
+        }
         
     } catch (err) {
+        if (err.name === 'AbortError') {
+            console.error('Anthropic API timed out after 58s');
+            return res.status(504).json({ error: 'AI request timed out after 58s. Try pasting resume text instead of uploading a PDF.' });
+        }
         console.error('Anthropic API error:', err.message);
         return res.status(502).json({ error: 'AI service temporarily unavailable' });
     }

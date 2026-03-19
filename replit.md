@@ -54,7 +54,7 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.46.90. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field.
+Current: v4.47.09. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
 
@@ -101,6 +101,15 @@ JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse.
 - **Features Shipped**: Counted from `ROADMAP_DATA.phases[].items` with `status: 'done'`
 - **Calendar Time / Speed / Cost multipliers**: Computed from firstCommit date and other stats
 Only 4 manual fields remain in Edit Stats modal: Project Start Date, Avg Session Hours, AI Sub $/mo, Hosting $/mo
+
+## Standalone Pages
+- `public/galileo.html` — Analyst Accountability Project / Galileo Mention Counter. Custom header graphics (light/dark). GEO optimized.
+- `public/airoi.html` — AI ROI Elasticity Calculator (Jurkiewicz Synthetic Capacity Model). Full JSON-LD structured data with Person + WebApplication schemas for GEO.
+- Both accessible via clean URLs (`/galileo`, `/airoi`) through vercel.json rewrites.
+
+## API Configuration
+- `api/ai.js`: 58s AbortController timeout, max_tokens cap 12000 (allows 8K resume parse calls), 504 on timeout with user-friendly message.
+- `vercel.json`: `functions.api/ai.js.maxDuration: 60` (Vercel Pro plan, supports up to 300s).
 
 ## Key Features
 - Work Blueprint Wizard (JD → structured WB conversion)
