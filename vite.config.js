@@ -1,9 +1,30 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import fs from 'fs';
+
+function cleanUrlPlugin() {
+  return {
+    name: 'clean-urls',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url.split('?')[0];
+        if (url !== '/' && !url.includes('.')) {
+          const htmlPath = resolve(__dirname, 'public' + url + '.html');
+          if (fs.existsSync(htmlPath)) {
+            req.url = url + '.html';
+          }
+        }
+        next();
+      });
+    },
+  };
+}
 
 export default defineConfig({
   root: '.',
   base: '/',
+
+  plugins: [cleanUrlPlugin()],
 
   build: {
     outDir: 'dist',
@@ -14,12 +35,10 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
       },
       output: {
-        // Deterministic chunk names — easier to audit
         entryFileNames: 'assets/bp.[name].[hash].js',
         chunkFileNames: 'assets/bp.[name].[hash].js',
         assetFileNames: 'assets/bp.[name].[hash][extname]',
 
-        // Manual chunk splitting — keeps large modules out of the main bundle
         manualChunks: {
           'core':     [
             './src/core/constants.js',
@@ -64,17 +83,11 @@ export default defineConfig({
       },
     },
 
-    // Don't inline small assets — keep JSON data files as separate fetches
     assetsInlineLimit: 0,
-
-    // Source maps for debugging in production (can disable later)
     sourcemap: true,
-
-    // Target modern browsers — no need to support IE
     target: 'es2020',
   },
 
-  // Dev server config
   server: {
     port: 5000,
     host: '0.0.0.0',
