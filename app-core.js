@@ -28278,26 +28278,27 @@ body {
         }
         
         function extractOutcomesFromEvidence() {
+            var existing = blueprintData.outcomes || [];
+            if (existing.length > 0) {
+                userData.outcomes = existing;
+                return;
+            }
+
             const outcomes = [];
 
-            // Evidence now lives in userData.skills[].evidence as {description, outcome} objects.
-            // We pull from there first, then fall back to the legacy skillDetails strings.
             const skills = userData.skills || skillsData.skills || [];
 
             skills.forEach(skill => {
                 (skill.evidence || []).forEach(ev => {
-                    // ev is {description, outcome} — use the outcome field for display
                     const outcomeText = (ev.outcome || '').trim();
                     const descText   = (ev.description || '').trim();
                     if (!outcomeText && !descText) return;
 
-                    // Score the outcome — anything with a real metric qualifies
                     const combined = outcomeText + ' ' + descText;
                     const hasMetric = /\$[\d,]+[MBK]?|\d+%|\d+x|\d+ times|million|billion/i.test(combined);
                     const hasResult = /retained|increased|reduced|improved|delivered|generated|achieved|enabled|saved|prevented|launched|built|founded|established|designed|developed|created|published|advised|managed|led|maintained|predicted|grew|expanded|scaled|transformed|implemented|coordinated|negotiated|secured|trained|recognized|served|produced|completed|resolved|translated|tracked|identified|advocated|guided|proposed|calculated|commanded|influenced|shaped|architected|recruited|mentored|applied|aligned|evaluated|made|openly|reached|channeled|spent/i.test(combined);
 
                     if (hasMetric || hasResult) {
-                        // Build a combined display text: outcome is the headline, description adds context
                         const displayText = outcomeText
                             ? (descText ? `${outcomeText} (${descText.slice(0, 100)}${descText.length > 100 ? '…' : ''})` : outcomeText)
                             : descText;
@@ -28309,7 +28310,7 @@ body {
                             skill: skill.name,
                             level: skill.level,
                             category: categorizeOutcome(skill.name, combined),
-                            shared: !isSensitiveContent(combined), // sensitive items default to unshared
+                            shared: !isSensitiveContent(combined),
                             sensitive: isSensitiveContent(combined),
                             coachingSuggestion: generateCoachingFor(outcomeText || descText)
                         });
@@ -28317,7 +28318,6 @@ body {
                 });
             });
 
-            // Also check legacy skillDetails (skill_evidence.json strings) — only if no skill-based outcomes found
             if (outcomes.length === 0) {
                 const quantifiedPattern = /\$[\d,]+[MBK]?|\d+%|\d+ years?/gi;
                 Object.entries(skillsData.skillDetails || {}).forEach(([skillName, details]) => {
@@ -28339,7 +28339,6 @@ body {
                 });
             }
 
-            // Sort: unshared (sensitive) last, then by metric strength
             outcomes.sort((a, b) => {
                 if (a.sensitive && !b.sensitive) return 1;
                 if (!a.sensitive && b.sensitive) return -1;
