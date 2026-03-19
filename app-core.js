@@ -8733,17 +8733,39 @@
             wrappedText(d.summary || '', M + 6, 9, MID, false, CW - 6);
             y += 2;
 
-            if (d.keyResponsibilities && d.keyResponsibilities.length > 0) {
-                sectionHead('Key Responsibilities');
-                d.keyResponsibilities.forEach(function(cat) {
-                    wrappedText(cat.category, M + 6, 9, DARK, true, CW - 6);
-                    cat.items.forEach(function(item) {
-                        checkPage(6);
-                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.8, 'F');
-                        wrappedText(item, M + 12, 8, MID, false, CW - 14);
+            if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length) || (d.qualifications && d.qualifications.length)) {
+                sectionHead('Requirements');
+                if (d.yearsRequired && d.yearsRequired.length) {
+                    wrappedText('Experience', M + 6, 8, DARK, true, CW - 6);
+                    d.yearsRequired.forEach(function(yr) {
+                        checkPage(5);
+                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                        wrappedText(yr.range + ' years \u2014 ' + yr.area, M + 12, 8, MID, false, CW - 14);
                     });
                     y += 2;
-                });
+                }
+                if (d.education && d.education.length) {
+                    wrappedText('Education', M + 6, 8, DARK, true, CW - 6);
+                    d.education.forEach(function(ed) {
+                        checkPage(5);
+                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                        wrappedText(ed.level + (ed.field ? ' in ' + ed.field : '') + (ed.preferred ? ' (Preferred)' : ''), M + 12, 8, MID, false, CW - 14);
+                    });
+                    y += 2;
+                }
+                if (d.certifications && d.certifications.length) {
+                    wrappedText('Certifications', M + 6, 8, DARK, true, CW - 6);
+                    wrappedText(d.certifications.join(', '), M + 12, 8, MID, false, CW - 14);
+                    y += 2;
+                }
+                if (d.qualifications && d.qualifications.length) {
+                    wrappedText('Qualifications', M + 6, 8, DARK, true, CW - 6);
+                    d.qualifications.forEach(function(q) {
+                        checkPage(5);
+                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                        wrappedText(q, M + 12, 8, MID, false, CW - 14);
+                    });
+                }
             }
 
             if (_pdfShowComp && d.bls && d.bls.median) {
@@ -8808,6 +8830,30 @@
                 }
                 y += 2;
             }
+
+            if (d.demonstrated) {
+                sectionHead('Demonstrated Experience');
+                (d.demonstrated.evidence || []).forEach(function(e) {
+                    checkPage(6);
+                    doc.setFillColor(139, 92, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                    wrappedText(e, M + 12, 8, MID, false, CW - 14);
+                });
+                if (d.demonstrated.artifacts) {
+                    y += 2;
+                    wrappedText('Artifacts: ' + d.demonstrated.artifacts, M + 6, 7, MUTED, false, CW - 6);
+                }
+            }
+
+            sectionHead('Values & Purpose', PURPLE);
+            (d.values || []).forEach(function(v) {
+                checkPage(8);
+                doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
+                doc.text(v.name || '', M + 6, y);
+                doc.setFont('helvetica', 'normal'); doc.setTextColor.apply(doc, MID);
+                var descLines = doc.splitTextToSize(v.desc || v.description || '', CW - 8);
+                doc.text(descLines.slice(0, 2), M + 6, y + 4);
+                y += Math.max(descLines.slice(0, 2).length * 3.5, 4) + 4;
+            });
 
             if (d.bls) {
                 sectionHead(_pdfShowComp ? 'Compensation Overview (Skills Comp Model)' : 'Compensation Overview', GREEN);
@@ -8879,65 +8925,6 @@
                     if (_pdfAdjMult > 1.0) _srcNote += ' \u00B7 +' + Math.round((_pdfAdjMult - 1) * 100) + '% market adjustment';
                     doc.text(_srcNote, M + 2, y);
                     y += 4;
-                }
-            }
-
-            if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length) || (d.qualifications && d.qualifications.length)) {
-                sectionHead('Requirements');
-                if (d.yearsRequired && d.yearsRequired.length) {
-                    wrappedText('Experience', M + 6, 8, DARK, true, CW - 6);
-                    d.yearsRequired.forEach(function(yr) {
-                        checkPage(5);
-                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
-                        wrappedText(yr.range + ' years \u2014 ' + yr.area, M + 12, 8, MID, false, CW - 14);
-                    });
-                    y += 2;
-                }
-                if (d.education && d.education.length) {
-                    wrappedText('Education', M + 6, 8, DARK, true, CW - 6);
-                    d.education.forEach(function(ed) {
-                        checkPage(5);
-                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
-                        wrappedText(ed.level + (ed.field ? ' in ' + ed.field : '') + (ed.preferred ? ' (Preferred)' : ''), M + 12, 8, MID, false, CW - 14);
-                    });
-                    y += 2;
-                }
-                if (d.certifications && d.certifications.length) {
-                    wrappedText('Certifications', M + 6, 8, DARK, true, CW - 6);
-                    wrappedText(d.certifications.join(', '), M + 12, 8, MID, false, CW - 14);
-                    y += 2;
-                }
-                if (d.qualifications && d.qualifications.length) {
-                    wrappedText('Qualifications', M + 6, 8, DARK, true, CW - 6);
-                    d.qualifications.forEach(function(q) {
-                        checkPage(5);
-                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
-                        wrappedText(q, M + 12, 8, MID, false, CW - 14);
-                    });
-                }
-            }
-
-            sectionHead('Values & Purpose', PURPLE);
-            (d.values || []).forEach(function(v) {
-                checkPage(8);
-                doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
-                doc.text(v.name || '', M + 6, y);
-                doc.setFont('helvetica', 'normal'); doc.setTextColor.apply(doc, MID);
-                var descLines = doc.splitTextToSize(v.desc || v.description || '', CW - 8);
-                doc.text(descLines.slice(0, 2), M + 6, y + 4);
-                y += Math.max(descLines.slice(0, 2).length * 3.5, 4) + 4;
-            });
-
-            if (d.demonstrated) {
-                sectionHead('Demonstrated Experience');
-                (d.demonstrated.evidence || []).forEach(function(e) {
-                    checkPage(6);
-                    doc.setFillColor(139, 92, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
-                    wrappedText(e, M + 12, 8, MID, false, CW - 14);
-                });
-                if (d.demonstrated.artifacts) {
-                    y += 2;
-                    wrappedText('Artifacts: ' + d.demonstrated.artifacts, M + 6, 7, MUTED, false, CW - 6);
                 }
             }
 
