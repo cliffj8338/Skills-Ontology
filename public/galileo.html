@@ -1024,21 +1024,25 @@
     .author-note { text-align: left; }
   }
 
-  /* HEADER GALILEO — absolute positioned, bleeds off left edge */
+  /* HEADER GALILEO — positioned to bleed off left, text overlaps slightly */
   .header {
     position: relative;
-    padding-left: 200px !important;
     overflow: visible;
+    padding-left: 140px !important;
   }
   .header-galileo {
     position: absolute;
-    left: -60px;
+    left: -30px;
     top: 50%;
     transform: translateY(-45%);
-    width: 240px;
+    width: 200px;
     height: auto;
-    opacity: 0.6;
+    opacity: 0.55;
     pointer-events: none;
+    z-index: 0;
+  }
+  .header > *:not(.header-galileo) {
+    position: relative;
     z-index: 1;
   }
   body:not(.light) .header-galileo {
@@ -1046,12 +1050,8 @@
     filter: invert(1) contrast(1.1);
   }
   @media (max-width: 768px) {
-    .header { padding-left: 120px !important; }
-    .header-galileo {
-      left: -50px;
-      width: 160px;
-      opacity: 0.45;
-    }
+    .header { padding-left: 20px !important; }
+    .header-galileo { display: none; }
   }
 </style>
 </head>
