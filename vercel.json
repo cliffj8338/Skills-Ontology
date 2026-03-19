@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/galileo", "destination": "/galileo.html" },
     { "source": "/airoi", "destination": "/airoi.html" }
   ],
   "headers": [
