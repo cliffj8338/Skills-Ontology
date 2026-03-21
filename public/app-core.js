@@ -3154,6 +3154,17 @@
                 compSnap.forEach(function(doc) { var d = doc.data(); if (d.savedAt && d.savedAt.toDate) d.savedAt = d.savedAt.toDate().toISOString(); comps.push(d); });
                 showcaseData.saved_comparisons = comps;
             } catch(e) { console.warn('Comparison export failed:', e); showcaseData.saved_comparisons = []; }
+            try {
+                await fbDb.collection('meta').doc('showcase_data').set({
+                    work_blueprints: showcaseData.work_blueprints || [],
+                    saved_comparisons: showcaseData.saved_comparisons || [],
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: fbUser.uid
+                });
+                console.log('✓ Showcase data written to Firestore meta/showcase_data');
+            } catch(fsErr) {
+                console.warn('⚠ Could not write to Firestore meta/showcase_data:', fsErr.message);
+            }
             var blob = new Blob([JSON.stringify(showcaseData, null, 2)], { type: 'application/json' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
@@ -3161,7 +3172,7 @@
             a.download = 'admin-demo.json';
             a.click();
             URL.revokeObjectURL(url);
-            showToast('Showcase profile exported (' + (showcaseData.work_blueprints || []).length + ' WBs, ' + (showcaseData.saved_comparisons || []).length + ' comparisons). Replace public/profiles/showcase/admin-demo.json with this file.', 'success', 8000);
+            showToast('Showcase profile updated! (' + (showcaseData.work_blueprints || []).length + ' WBs, ' + (showcaseData.saved_comparisons || []).length + ' comparisons) — Live data synced to showcase.', 'success', 8000);
         }
         window.exportShowcaseProfile = exportShowcaseProfile;
 
@@ -16801,28 +16812,30 @@
                 console.log('✓ Showcase profile loaded:', userData.skills.length, 'skills');
                 
                 try {
-                    var apiUrl = '/api/showcase-data?key=' + encodeURIComponent(SHOWCASE_CONFIG.key) + '&type=all';
-                    var _scController = new AbortController();
-                    var _scTimeout = setTimeout(function() { _scController.abort(); }, 5000);
-                    var liveResp = await fetch(apiUrl, { signal: _scController.signal });
-                    clearTimeout(_scTimeout);
-                    if (liveResp.ok) {
-                        var live = await liveResp.json();
-                        if (live.work_blueprints && live.work_blueprints.length > 0) {
-                            _wbRepoCache = live.work_blueprints;
-                            _jdcRepoCache = live.work_blueprints;
-                            console.log('✓ Showcase WBs loaded LIVE:', _wbRepoCache.length);
+                    if (fbAuth && fbDb) {
+                        await fbAuth.signInAnonymously();
+                        console.log('✓ Showcase anonymous auth OK');
+                        var scDoc = await fbDb.collection('meta').doc('showcase_data').get();
+                        if (scDoc.exists) {
+                            var scData = scDoc.data();
+                            if (scData.work_blueprints && scData.work_blueprints.length > 0) {
+                                _wbRepoCache = scData.work_blueprints;
+                                _jdcRepoCache = scData.work_blueprints;
+                                console.log('✓ Showcase WBs loaded from Firestore:', _wbRepoCache.length);
+                            }
+                            if (scData.saved_comparisons && scData.saved_comparisons.length > 0) {
+                                _wbCompCache = scData.saved_comparisons;
+                                _wbCompCacheLoaded = true;
+                                console.log('✓ Showcase comparisons loaded from Firestore:', _wbCompCache.length);
+                            }
+                        } else {
+                            console.warn('⚠ No showcase_data doc in Firestore — admin needs to click "Update Showcase Profile"');
                         }
-                        if (live.saved_comparisons && live.saved_comparisons.length > 0) {
-                            _wbCompCache = live.saved_comparisons;
-                            _wbCompCacheLoaded = true;
-                            console.log('✓ Showcase comparisons loaded LIVE:', _wbCompCache.length);
-                        }
-                    } else {
-                        console.warn('⚠ Live showcase API returned:', liveResp.status);
+                        await fbAuth.signOut();
                     }
                 } catch(liveErr) {
-                    console.warn('⚠ Live showcase data not available, using JSON fallback:', liveErr.message);
+                    console.warn('⚠ Firestore showcase data not available, using JSON fallback:', liveErr.message);
+                    try { await fbAuth.signOut(); } catch(e) {}
                 }
             } catch(e) {
                 console.error('✗ Failed to load showcase profile:', e);
