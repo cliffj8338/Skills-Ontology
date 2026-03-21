@@ -2,17 +2,21 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const admin = require('firebase-admin');
 
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n')
-        })
-    });
+let db = null;
+try {
+    if (!admin.apps.length) {
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n')
+            })
+        });
+    }
+    db = admin.firestore();
+} catch (initErr) {
+    console.error('Firebase Admin init error:', initErr.message);
 }
-
-const db = admin.firestore();
 
 const SHOWCASE_KEY = 'bp-aKqWMR8AJli-tFPr8p3IJA32';
 const ADMIN_UID = process.env.SHOWCASE_ADMIN_UID || '';
@@ -47,32 +51,57 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'SHOWCASE_ADMIN_UID not configured' });
     }
 
+    if (!db) {
+        return res.status(500).json({ error: 'Firebase not initialized' });
+    }
+
     try {
         const type = req.query.type || 'all';
         const result = {};
 
         if (type === 'all' || type === 'blueprints') {
-            const wbSnap = await db.collection('users').doc(ADMIN_UID)
-                .collection('work_blueprints').orderBy('savedAt', 'desc').get();
-            result.work_blueprints = [];
-            wbSnap.forEach(doc => {
-                result.work_blueprints.push({ id: doc.id, ...doc.data() });
-            });
+            try {
+                const wbSnap = await db.collection('users').doc(ADMIN_UID)
+                    .collection('work_blueprints').orderBy('savedAt', 'desc').get();
+                result.work_blueprints = [];
+                wbSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.savedAt && data.savedAt.toDate) {
+                        data.savedAt = data.savedAt.toDate().toISOString();
+                    }
+                    if (data.createdAt && data.createdAt.toDate) {
+                        data.createdAt = data.createdAt.toDate().toISOString();
+                    }
+                    result.work_blueprints.push({ id: doc.id, ...data });
+                });
+            } catch (wbErr) {
+                console.error('WB fetch error:', wbErr.message);
+                result.work_blueprints = [];
+            }
         }
 
         if (type === 'all' || type === 'comparisons') {
-            const compSnap = await db.collection('users').doc(ADMIN_UID)
-                .collection('comparisons').orderBy('savedAt', 'desc').get();
-            result.saved_comparisons = [];
-            compSnap.forEach(doc => {
-                result.saved_comparisons.push({ id: doc.id, ...doc.data() });
-            });
+            try {
+                const compSnap = await db.collection('users').doc(ADMIN_UID)
+                    .collection('comparisons').orderBy('savedAt', 'desc').get();
+                result.saved_comparisons = [];
+                compSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.savedAt && data.savedAt.toDate) {
+                        data.savedAt = data.savedAt.toDate().toISOString();
+                    }
+                    result.saved_comparisons.push({ id: doc.id, ...data });
+                });
+            } catch (compErr) {
+                console.error('Comparison fetch error:', compErr.message);
+                result.saved_comparisons = [];
+            }
         }
 
         res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
         return res.status(200).json(result);
     } catch (err) {
         console.error('Showcase data fetch error:', err);
-        return res.status(500).json({ error: 'Failed to fetch showcase data' });
+        return res.status(500).json({ error: 'Failed to fetch showcase data', details: err.message });
     }
 }
