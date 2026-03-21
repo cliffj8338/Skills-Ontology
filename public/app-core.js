@@ -16790,15 +16790,33 @@
                 if (profileData.work_blueprints && profileData.work_blueprints.length > 0) {
                     _wbRepoCache = profileData.work_blueprints;
                     _jdcRepoCache = profileData.work_blueprints;
-                    console.log('✓ Showcase WBs loaded:', _wbRepoCache.length);
+                    console.log('✓ Showcase WBs loaded from JSON:', _wbRepoCache.length);
                 }
                 if (profileData.saved_comparisons && profileData.saved_comparisons.length > 0) {
                     _wbCompCache = profileData.saved_comparisons;
                     _wbCompCacheLoaded = true;
-                    console.log('✓ Showcase comparisons loaded:', _wbCompCache.length);
+                    console.log('✓ Showcase comparisons loaded from JSON:', _wbCompCache.length);
                 }
                 
                 console.log('✓ Showcase profile loaded:', userData.skills.length, 'skills');
+                
+                (function fetchShowcaseLiveData() {
+                    var apiUrl = '/api/showcase-data?key=' + encodeURIComponent(SHOWCASE_CONFIG.key) + '&type=all';
+                    fetch(apiUrl).then(function(r) { return r.json(); }).then(function(live) {
+                        if (live.work_blueprints && live.work_blueprints.length > 0) {
+                            _wbRepoCache = live.work_blueprints;
+                            _jdcRepoCache = live.work_blueprints;
+                            console.log('✓ Showcase WBs loaded LIVE:', _wbRepoCache.length);
+                        }
+                        if (live.saved_comparisons && live.saved_comparisons.length > 0) {
+                            _wbCompCache = live.saved_comparisons;
+                            _wbCompCacheLoaded = true;
+                            console.log('✓ Showcase comparisons loaded LIVE:', _wbCompCache.length);
+                        }
+                    }).catch(function(err) {
+                        console.warn('⚠ Live showcase data not available, using JSON fallback:', err.message);
+                    });
+                })();
             } catch(e) {
                 console.error('✗ Failed to load showcase profile:', e);
                 showcaseMode = false;
