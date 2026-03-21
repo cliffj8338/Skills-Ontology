@@ -16802,17 +16802,24 @@
                 
                 try {
                     var apiUrl = '/api/showcase-data?key=' + encodeURIComponent(SHOWCASE_CONFIG.key) + '&type=all';
-                    var liveResp = await fetch(apiUrl);
-                    var live = await liveResp.json();
-                    if (live.work_blueprints && live.work_blueprints.length > 0) {
-                        _wbRepoCache = live.work_blueprints;
-                        _jdcRepoCache = live.work_blueprints;
-                        console.log('✓ Showcase WBs loaded LIVE:', _wbRepoCache.length);
-                    }
-                    if (live.saved_comparisons && live.saved_comparisons.length > 0) {
-                        _wbCompCache = live.saved_comparisons;
-                        _wbCompCacheLoaded = true;
-                        console.log('✓ Showcase comparisons loaded LIVE:', _wbCompCache.length);
+                    var _scController = new AbortController();
+                    var _scTimeout = setTimeout(function() { _scController.abort(); }, 5000);
+                    var liveResp = await fetch(apiUrl, { signal: _scController.signal });
+                    clearTimeout(_scTimeout);
+                    if (liveResp.ok) {
+                        var live = await liveResp.json();
+                        if (live.work_blueprints && live.work_blueprints.length > 0) {
+                            _wbRepoCache = live.work_blueprints;
+                            _jdcRepoCache = live.work_blueprints;
+                            console.log('✓ Showcase WBs loaded LIVE:', _wbRepoCache.length);
+                        }
+                        if (live.saved_comparisons && live.saved_comparisons.length > 0) {
+                            _wbCompCache = live.saved_comparisons;
+                            _wbCompCacheLoaded = true;
+                            console.log('✓ Showcase comparisons loaded LIVE:', _wbCompCache.length);
+                        }
+                    } else {
+                        console.warn('⚠ Live showcase API returned:', liveResp.status);
                     }
                 } catch(liveErr) {
                     console.warn('⚠ Live showcase data not available, using JSON fallback:', liveErr.message);
