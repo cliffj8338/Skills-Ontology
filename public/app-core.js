@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.09';
+        var BP_VERSION = 'v4.47.10';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -15282,6 +15282,21 @@
         }
 
         function viewSampleProfile() {
+            if (showcaseMode && window._showcaseViewingSample && window._showcaseAdminSnapshot) {
+                var snap = window._showcaseAdminSnapshot;
+                userData = snap.userData;
+                window._userData = userData;
+                skillsData.roles = snap.skillsRoles;
+                skillsData.skills = snap.skillsSkills;
+                blueprintData.values = snap.values;
+                blueprintData.outcomes = snap.outcomes;
+                blueprintData.purpose = snap.purpose;
+                window._showcaseAdminSnapshot = null;
+                window._showcaseViewingSample = false;
+                normalizeUserRoles();
+                updateProfileChip(userData.profile.name || 'Admin Showcase');
+                updateShowcaseBanner();
+            }
             var el = document.getElementById('welcomeView');
             if (!el) return;
             
@@ -16811,6 +16826,60 @@
             console.log('🎭 Showcase mode ready');
         }
         
+        function returnToShowcaseAdmin() {
+            var snap = window._showcaseAdminSnapshot;
+            if (!snap) {
+                switchView('admin');
+                return;
+            }
+            userData = snap.userData;
+            window._userData = userData;
+            skillsData.roles = snap.skillsRoles;
+            skillsData.skills = snap.skillsSkills;
+            blueprintData.values = snap.values;
+            blueprintData.outcomes = snap.outcomes;
+            blueprintData.purpose = snap.purpose;
+            window._showcaseAdminSnapshot = null;
+            window._showcaseViewingSample = false;
+            normalizeUserRoles();
+            if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
+            window.blueprintInitialized = false;
+            window.opportunitiesInitialized = false;
+            window.reportsInitialized = false;
+            window.applicationsInitialized = false;
+            window.networkInitialized = false;
+            window.cardViewInitialized = false;
+            checkReadOnly();
+            updateProfileChip(userData.profile.name || 'Admin Showcase');
+            clearJobOverlay();
+            rebuildProfileDropdown();
+            updateShowcaseBanner();
+            switchView('admin');
+            setTimeout(function() { window.scrollTo(0, 0); }, 50);
+        }
+        window.returnToShowcaseAdmin = returnToShowcaseAdmin;
+        
+        function updateShowcaseBanner() {
+            var banner = document.getElementById('showcaseBanner');
+            if (!banner) return;
+            var viewingSample = window._showcaseViewingSample;
+            var sampleName = viewingSample ? escapeHtml((userData.profile && userData.profile.name) || 'Sample Profile') : '';
+            if (viewingSample) {
+                banner.innerHTML = '<span style="color:#fbbf24; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
+                    + ' &mdash; Viewing: <strong>' + sampleName + '</strong>'
+                    + ' &bull; <a href="#" onclick="event.preventDefault(); returnToShowcaseAdmin();" '
+                    + 'style="color:var(--accent); text-decoration:underline; font-weight:700;">&larr; Return to Admin Dashboard</a>'
+                    + ' &bull; <a href="#" onclick="event.preventDefault(); viewSampleProfile();" '
+                    + 'style="color:var(--accent); text-decoration:underline;">Browse Samples</a>'
+                    + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--text-muted); text-decoration:underline;">Exit showcase</a>';
+            } else {
+                banner.innerHTML = '<span style="color:#fbbf24; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
+                    + ' &mdash; ' + SHOWCASE_CONFIG.bannerText
+                    + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--accent); text-decoration:underline;">Exit showcase</a>';
+            }
+        }
+        window.updateShowcaseBanner = updateShowcaseBanner;
+        
         function showVerifierLandingPage(token, uid) {
             // Hide all normal app UI
             Array.from(document.body.children).forEach(function(child) {
@@ -17474,6 +17543,45 @@
         // Switch to a different profile (admin functionality)
         function switchProfile(templateId) {
             console.log('🔄 Switching profile to:', templateId);
+            
+            // Showcase mode: snapshot admin data before loading any sample
+            if (showcaseMode && templateId.indexOf('firestore-') !== 0) {
+                closeProfileDropdown();
+                if (!window._showcaseAdminSnapshot) {
+                    window._showcaseAdminSnapshot = {
+                        userData: JSON.parse(JSON.stringify(userData)),
+                        skillsRoles: JSON.parse(JSON.stringify(skillsData.roles || [])),
+                        skillsSkills: JSON.parse(JSON.stringify(skillsData.skills || [])),
+                        values: JSON.parse(JSON.stringify(blueprintData.values || [])),
+                        outcomes: JSON.parse(JSON.stringify(blueprintData.outcomes || [])),
+                        purpose: blueprintData.purpose || userData.purpose || ''
+                    };
+                }
+                window._showcaseViewingSample = true;
+                loadTemplate(templateId);
+                normalizeUserRoles();
+                skillsData.skills = userData.skills;
+                skillsData.roles = userData.roles;
+                blueprintData.values = [];
+                blueprintData.outcomes = [];
+                blueprintData.purpose = '';
+                inferValues();
+                extractOutcomesFromEvidence();
+                if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
+                window.blueprintInitialized = false;
+                window.opportunitiesInitialized = false;
+                window.reportsInitialized = false;
+                window.applicationsInitialized = false;
+                window.networkInitialized = false;
+                window.cardViewInitialized = false;
+                checkReadOnly();
+                rebuildProfileDropdown();
+                updateShowcaseBanner();
+                switchView('network');
+                setTimeout(function() { window.scrollTo(0, 0); }, 50);
+                setTimeout(function() { renderJobSelectorWidget(); }, 500);
+                return;
+            }
             
             // Demo mode routing: if in demo mode, route sample switches through switchDemoProfile
             if (appContext.mode === 'demo' && templateId.indexOf('firestore-') !== 0) {
@@ -26707,6 +26815,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (!fbIsAdmin && !showcaseMode) {
                     console.warn('[switchView] Admin access denied — not an admin and not in showcase mode.');
                     switchView('welcome');
+                    return;
+                }
+                if (showcaseMode && window._showcaseViewingSample) {
+                    returnToShowcaseAdmin();
                     return;
                 }
                 var av = document.getElementById('adminView');
