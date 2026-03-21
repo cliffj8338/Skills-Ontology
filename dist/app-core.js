@@ -16811,31 +16811,40 @@
                 
                 console.log('✓ Showcase profile loaded:', userData.skills.length, 'skills');
                 
-                try {
-                    if (fbAuth && fbDb) {
-                        await fbAuth.signInAnonymously();
-                        console.log('✓ Showcase anonymous auth OK');
-                        var scDoc = await fbDb.collection('meta').doc('showcase_data').get();
-                        if (scDoc.exists) {
-                            var scData = scDoc.data();
-                            if (scData.work_blueprints && scData.work_blueprints.length > 0) {
-                                _wbRepoCache = scData.work_blueprints;
-                                _jdcRepoCache = scData.work_blueprints;
-                                console.log('✓ Showcase WBs loaded from Firestore:', _wbRepoCache.length);
+                if (fbAuth && fbDb) {
+                    try {
+                        var _scFetchDone = false;
+                        var _scFetch = (async function() {
+                            try {
+                                await fbAuth.signInAnonymously();
+                                console.log('✓ Showcase anonymous auth OK');
+                                var scDoc = await fbDb.collection('meta').doc('showcase_data').get();
+                                if (scDoc.exists) {
+                                    var scData = scDoc.data();
+                                    if (scData.work_blueprints && scData.work_blueprints.length > 0) {
+                                        _wbRepoCache = scData.work_blueprints;
+                                        _jdcRepoCache = scData.work_blueprints;
+                                        console.log('✓ Showcase WBs loaded from Firestore:', _wbRepoCache.length);
+                                    }
+                                    if (scData.saved_comparisons && scData.saved_comparisons.length > 0) {
+                                        _wbCompCache = scData.saved_comparisons;
+                                        _wbCompCacheLoaded = true;
+                                        console.log('✓ Showcase comparisons loaded from Firestore:', _wbCompCache.length);
+                                    }
+                                } else {
+                                    console.warn('⚠ No showcase_data doc — click "Update Showcase Profile" in admin');
+                                }
+                            } catch(e) {
+                                console.warn('⚠ Showcase Firestore fetch failed:', e.message);
                             }
-                            if (scData.saved_comparisons && scData.saved_comparisons.length > 0) {
-                                _wbCompCache = scData.saved_comparisons;
-                                _wbCompCacheLoaded = true;
-                                console.log('✓ Showcase comparisons loaded from Firestore:', _wbCompCache.length);
-                            }
-                        } else {
-                            console.warn('⚠ No showcase_data doc in Firestore — admin needs to click "Update Showcase Profile"');
-                        }
-                        await fbAuth.signOut();
+                            _scFetchDone = true;
+                            try { await fbAuth.signOut(); } catch(e) {}
+                        })();
+                        var _scTimer = new Promise(function(r) { setTimeout(function() { if (!_scFetchDone) console.warn('⚠ Showcase data fetch timed out'); r(); }, 6000); });
+                        await Promise.race([_scFetch, _scTimer]);
+                    } catch(liveErr) {
+                        console.warn('⚠ Showcase data load error:', liveErr.message);
                     }
-                } catch(liveErr) {
-                    console.warn('⚠ Firestore showcase data not available, using JSON fallback:', liveErr.message);
-                    try { await fbAuth.signOut(); } catch(e) {}
                 }
             } catch(e) {
                 console.error('✗ Failed to load showcase profile:', e);
