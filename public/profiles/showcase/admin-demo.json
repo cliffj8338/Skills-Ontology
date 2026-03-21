@@ -1828,9 +1828,114 @@
       "business"
     ]
   },
+  "work_blueprints": [
+    {
+      "id": "wb_sr_manager_strategy",
+      "title": "Sr. Manager Strategy",
+      "company": "Phenom",
+      "location": "Remote",
+      "industry": "Human Resources Technology",
+      "seniorityLevel": "mid",
+      "employmentType": "Full-time",
+      "savedAt": "2026-03-20T12:00:00.000Z",
+      "createdAt": "2026-03-20T12:00:00.000Z",
+      "source": "wizard",
+      "skills": [
+        {"name": "Strategic Planning", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "AI Strategy", "category": "Technology", "proficiency": "expert"},
+        {"name": "Product Strategy", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Stakeholder Management", "category": "Business & Management", "proficiency": "advanced"},
+        {"name": "Change Management", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Market Analysis", "category": "Marketing & Sales", "proficiency": "advanced"},
+        {"name": "Competitive Analysis", "category": "Marketing & Sales", "proficiency": "advanced"},
+        {"name": "Cross-functional Leadership", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Data-Driven Decision Making", "category": "Technology", "proficiency": "advanced"},
+        {"name": "Executive Communication", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Talent Intelligence", "category": "Human Resources", "proficiency": "expert"},
+        {"name": "Innovation Management", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Go-to-Market Strategy", "category": "Marketing & Sales", "proficiency": "advanced"},
+        {"name": "Thought Leadership", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Business Development", "category": "Business & Management", "proficiency": "advanced"},
+        {"name": "Public Speaking", "category": "General Professional", "proficiency": "expert"},
+        {"name": "Future of Work", "category": "Human Resources", "proficiency": "expert"},
+        {"name": "Enterprise Software", "category": "Technology", "proficiency": "advanced"},
+        {"name": "Machine Learning", "category": "Technology", "proficiency": "intermediate"},
+        {"name": "Workforce Planning", "category": "Human Resources", "proficiency": "advanced"}
+      ]
+    },
+    {
+      "id": "wb_pde3_frontend",
+      "title": "Product Development Engineer III - Frontend Developer",
+      "company": "Phenom",
+      "location": "Hyderabad",
+      "industry": "Technology",
+      "seniorityLevel": "senior",
+      "employmentType": "Full-time",
+      "savedAt": "2026-03-12T12:00:00.000Z",
+      "createdAt": "2026-03-12T12:00:00.000Z",
+      "source": "converter",
+      "skills": [
+        {"name": "JavaScript", "category": "Technology", "proficiency": "expert"},
+        {"name": "React", "category": "Technology", "proficiency": "expert"},
+        {"name": "TypeScript", "category": "Technology", "proficiency": "advanced"},
+        {"name": "HTML/CSS", "category": "Technology", "proficiency": "expert"},
+        {"name": "Node.js", "category": "Technology", "proficiency": "advanced"},
+        {"name": "REST APIs", "category": "Technology", "proficiency": "advanced"},
+        {"name": "Git", "category": "Technology", "proficiency": "advanced"},
+        {"name": "Agile Methodologies", "category": "Business & Management", "proficiency": "advanced"},
+        {"name": "UI/UX Design", "category": "Creative & Design", "proficiency": "intermediate"},
+        {"name": "Performance Optimization", "category": "Technology", "proficiency": "advanced"},
+        {"name": "Unit Testing", "category": "Technology", "proficiency": "advanced"},
+        {"name": "Webpack", "category": "Technology", "proficiency": "intermediate"},
+        {"name": "GraphQL", "category": "Technology", "proficiency": "intermediate"},
+        {"name": "CI/CD", "category": "Technology", "proficiency": "intermediate"},
+        {"name": "Web Accessibility", "category": "Technology", "proficiency": "intermediate"},
+        {"name": "Code Review", "category": "Technology", "proficiency": "advanced"},
+        {"name": "Technical Documentation", "category": "Technology", "proficiency": "intermediate"},
+        {"name": "Cross-browser Compatibility", "category": "Technology", "proficiency": "advanced"},
+        {"name": "Responsive Design", "category": "Creative & Design", "proficiency": "advanced"}
+      ]
+    },
+    {
+      "id": "wb_sr_dir_bps",
+      "title": "Senior Director, Business Planning and Strategy",
+      "company": "Salesforce",
+      "location": "Indiana - Indianapolis Washington - Seattle Georgia - Atlanta",
+      "industry": "Technology",
+      "seniorityLevel": "director",
+      "employmentType": "Full-time",
+      "savedAt": "2026-02-27T12:00:00.000Z",
+      "createdAt": "2026-02-27T12:00:00.000Z",
+      "source": "converter",
+      "skills": [
+        {"name": "Business Planning", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Strategic Planning", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Financial Analysis", "category": "Finance & Accounting", "proficiency": "advanced"},
+        {"name": "Executive Leadership", "category": "Business & Management", "proficiency": "expert"},
+        {"name": "Market Strategy", "category": "Marketing & Sales", "proficiency": "advanced"},
+        {"name": "P&L Management", "category": "Finance & Accounting", "proficiency": "advanced"},
+        {"name": "Organizational Development", "category": "Human Resources", "proficiency": "advanced"}
+      ]
+    }
+  ],
+  "saved_comparisons": [
+    {
+      "id": "comp_alex_morgan",
+      "candidateName": "Alex Morgan",
+      "jobTitle": "Senior Director, Business Planning and Strategy",
+      "company": "Salesforce",
+      "wbScore": 74,
+      "jdScore": 24,
+      "savedAt": "2026-03-15T12:00:00.000Z",
+      "wbTitle": "Senior Director, Business Planning and Strategy",
+      "matchedSkills": ["Strategic Planning", "Business Planning", "Financial Analysis", "Executive Leadership", "Market Strategy"],
+      "missingSkills": ["Cloud Computing", "SaaS Operations"],
+      "totalSkillsCompared": 7
+    }
+  ],
   "_showcase": {
-    "exportedAt": "2026-02-25T18:59:43.122Z",
-    "exportedVersion": "v4.44.35",
+    "exportedAt": "2026-03-21T15:00:00.000Z",
+    "exportedVersion": "v4.47.10",
     "note": "Sanitized admin profile for showcase mode. Emails and tokens redacted."
   }
 }
