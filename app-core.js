@@ -2000,7 +2000,7 @@
 
                 + '<div id="adminLayout" style="display:flex; gap:24px; align-items:flex-start;">'
 
-                + '<div id="adminSidebarWrap" style="width:190px; flex-shrink:0; position:sticky; top:80px;">'
+                + '<div id="adminSidebarWrap" style="width:190px; flex-shrink:0; position:sticky; top:80px; max-height:calc(100vh - 100px); overflow-y:auto;">'
                   + '<div id="adminScrollLeft" onclick="document.getElementById(\'adminSidebar\').scrollBy({left:-120,behavior:\'smooth\'})" style="display:none; position:absolute; left:0; top:0; bottom:0; width:28px; z-index:2; background:linear-gradient(90deg, var(--c-surface-2) 60%, transparent); cursor:pointer; align-items:center; justify-content:center; color:var(--text-muted); font-size:1.1em; border-radius:12px 0 0 12px;">&#8249;</div>'
                   + '<nav id="adminSidebar" style="width:100%; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:6px; display:flex; flex-direction:column; gap:2px;">'
                 + _adminSidebarGroup('ops', 'Operations',
@@ -3113,7 +3113,7 @@
             el.innerHTML = html;
         }
         
-        function exportShowcaseProfile() {
+        async function exportShowcaseProfile() {
             if (!fbUser || !fbIsAdmin) { showToast('Admin access required.', 'error'); return; }
             var _ud = window._userData || userData;
             var showcaseData = {
@@ -3142,6 +3142,18 @@
                     if (v.verifierEmail) v.verifierEmail = v.verifierEmail.replace(/(.{2}).*(@.*)/, '$1••••$2');
                 });
             }
+            try {
+                var wbSnap = await fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').orderBy('savedAt', 'desc').get();
+                var wbs = [];
+                wbSnap.forEach(function(doc) { var d = doc.data(); d.id = doc.id; if (d.savedAt && d.savedAt.toDate) d.savedAt = d.savedAt.toDate().toISOString(); wbs.push(d); });
+                showcaseData.work_blueprints = wbs;
+            } catch(e) { console.warn('WB export failed:', e); showcaseData.work_blueprints = []; }
+            try {
+                var compSnap = await fbDb.collection('users').doc(fbUser.uid).collection('comparisons').orderBy('savedAt', 'desc').limit(50).get();
+                var comps = [];
+                compSnap.forEach(function(doc) { var d = doc.data(); if (d.savedAt && d.savedAt.toDate) d.savedAt = d.savedAt.toDate().toISOString(); comps.push(d); });
+                showcaseData.saved_comparisons = comps;
+            } catch(e) { console.warn('Comparison export failed:', e); showcaseData.saved_comparisons = []; }
             var blob = new Blob([JSON.stringify(showcaseData, null, 2)], { type: 'application/json' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
@@ -3149,7 +3161,7 @@
             a.download = 'admin-demo.json';
             a.click();
             URL.revokeObjectURL(url);
-            showToast('Showcase profile exported. Replace public/profiles/showcase/admin-demo.json with this file.', 'success', 6000);
+            showToast('Showcase profile exported (' + (showcaseData.work_blueprints || []).length + ' WBs, ' + (showcaseData.saved_comparisons || []).length + ' comparisons). Replace public/profiles/showcase/admin-demo.json with this file.', 'success', 8000);
         }
         window.exportShowcaseProfile = exportShowcaseProfile;
 
@@ -9964,7 +9976,12 @@
         window.renderAdminWBRepo = renderAdminWBRepo;
 
         function _wbRepoLoadData() {
-            if (showcaseMode || !fbUser || !fbDb) {
+            if (showcaseMode) {
+                if (_wbRepoCache === null) _wbRepoCache = [];
+                renderAdminWBRepo(document.getElementById('adminTabContent'));
+                return;
+            }
+            if (!fbUser || !fbDb) {
                 _wbRepoCache = [];
                 renderAdminWBRepo(document.getElementById('adminTabContent'));
                 return;
@@ -11659,7 +11676,12 @@
             }
 
             if (_wbRepoCache === null) {
-                if (showcaseMode || !fbUser || !fbDb) {
+                if (showcaseMode) {
+                    _wbRepoCache = [];
+                    _wbCompWizRenderStep();
+                    return;
+                }
+                if (!fbUser || !fbDb) {
                     _wbRepoCache = [];
                     _wbCompWizRenderStep();
                     return;
@@ -16765,11 +16787,22 @@
                 };
                 window._userData = userData;
                 
+                if (profileData.work_blueprints && profileData.work_blueprints.length > 0) {
+                    _wbRepoCache = profileData.work_blueprints;
+                    _jdcRepoCache = profileData.work_blueprints;
+                    console.log('✓ Showcase WBs loaded:', _wbRepoCache.length);
+                }
+                if (profileData.saved_comparisons && profileData.saved_comparisons.length > 0) {
+                    _wbCompCache = profileData.saved_comparisons;
+                    _wbCompCacheLoaded = true;
+                    console.log('✓ Showcase comparisons loaded:', _wbCompCache.length);
+                }
+                
                 console.log('✓ Showcase profile loaded:', userData.skills.length, 'skills');
             } catch(e) {
                 console.error('✗ Failed to load showcase profile:', e);
                 showcaseMode = false;
-                window.location.href = window.location.pathname; // Fallback to normal app
+                window.location.href = window.location.pathname;
                 return;
             }
             
