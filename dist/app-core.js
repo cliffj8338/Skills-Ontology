@@ -858,9 +858,9 @@
         // URL: myblueprint.work?showcase=KEY
         // Loads admin profile read-only with full admin UI visible
         var SHOWCASE_CONFIG = {
-            key: 'bp-aKqWMR8AJli-tFPr8p3IJA32',           // URL param value (change this to your own secret)
-            sourceUid: '',                         // Set to your Firebase UID (run fbUser.uid in console)
-            bannerText: 'Showcase Mode — All features visible, editing disabled'
+            key: 'bp-aKqWMR8AJli-tFPr8p3IJA32',
+            sourceUid: '',
+            bannerText: 'Interactive Demo — Explore all features. Data is view-only.'
         };
         
         try {
@@ -1385,6 +1385,7 @@
         }
 
         function saveToFirestore() {
+            if (showcaseMode) return Promise.resolve(false);
             if (!fbDb || !fbUser) return Promise.resolve(false);
             
             if (appContext.mode === 'demo') return Promise.resolve(false);
@@ -1716,6 +1717,7 @@
 
         // ===== GDPR DATA FUNCTIONS =====
         function exportMyData() {
+            if (showcaseExportGuard()) return;
             if (readOnlyGuard()) return;
             if (!fbDb || !fbUser) {
                 showToast('You must be signed in to export your data.', 'warning');
@@ -1749,6 +1751,7 @@
         window.exportMyData = exportMyData;
 
         function requestDataDeletion() {
+            if (showcaseExportGuard()) return;
             if (readOnlyGuard()) return;
             if (!fbDb || !fbUser) {
                 showToast('You must be signed in to request deletion.', 'warning');
@@ -2077,13 +2080,18 @@
             });
             html += '</div>';
             
-            // ===== SHOWCASE URL (v4.44.36) =====
             if (!showcaseMode) {
                 var showcaseUrl = window.location.origin + window.location.pathname + '?showcase=' + SHOWCASE_CONFIG.key;
-                html += '<div style="margin-bottom:24px; padding:14px 18px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(139,92,246,0.08)); border:1px solid rgba(251,191,36,0.2); border-radius:10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
-                    + '<div style="font-size:0.78em; color:#fbbf24; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Showcase URL</div>'
+                html += '<div style="margin-bottom:24px; padding:14px 18px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(139,92,246,0.08)); border:1px solid rgba(251,191,36,0.2); border-radius:10px;">'
+                    + '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
+                    + '<div style="font-size:0.78em; color:#fbbf24; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Investor Showcase</div>'
                     + '<code id="showcaseUrlText" style="flex:1; min-width:200px; font-size:0.82em; color:var(--text-secondary); background:var(--c-surface-2); padding:8px 12px; border-radius:6px; border:1px solid var(--c-surface-5); word-break:break-all; cursor:text; user-select:all;">' + escapeHtml(showcaseUrl) + '</code>'
                     + '<button onclick="navigator.clipboard.writeText(document.getElementById(\'showcaseUrlText\').textContent); this.textContent=\'Copied!\'; this.style.background=\'#10b981\'; setTimeout(function(){document.querySelector(\'[data-showcase-copy]\').textContent=\'Copy\'; document.querySelector(\'[data-showcase-copy]\').style.background=\'rgba(251,191,36,0.15)\';}, 1500);" data-showcase-copy style="padding:6px 16px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Copy</button>'
+                    + '</div>'
+                    + '<div style="margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">'
+                    + '<button onclick="exportShowcaseProfile()" style="padding:6px 14px; background:var(--c-surface-5); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('upload', 12) + ' Update Showcase Profile</button>'
+                    + '<span style="font-size:0.75em; color:var(--text-muted);">Exports your current profile as the showcase data file</span>'
+                    + '</div>'
                     + '</div>';
             }
             
@@ -3105,6 +3113,46 @@
             el.innerHTML = html;
         }
         
+        function exportShowcaseProfile() {
+            if (!fbUser || !fbIsAdmin) { showToast('Admin access required.', 'error'); return; }
+            var _ud = window._userData || userData;
+            var showcaseData = {
+                profile: Object.assign({}, _ud.profile || {}),
+                skills: JSON.parse(JSON.stringify(_ud.skills || [])),
+                skillDetails: JSON.parse(JSON.stringify(_ud.skillDetails || {})),
+                values: JSON.parse(JSON.stringify(_ud.values || [])),
+                purpose: _ud.purpose || '',
+                roles: JSON.parse(JSON.stringify(_ud.roles || [])),
+                workHistory: JSON.parse(JSON.stringify(_ud.workHistory || [])),
+                education: JSON.parse(JSON.stringify(_ud.education || [])),
+                certifications: JSON.parse(JSON.stringify(_ud.certifications || [])),
+                verifications: JSON.parse(JSON.stringify(_ud.verifications || [])),
+                preferences: JSON.parse(JSON.stringify(_ud.preferences || {})),
+                savedJobs: JSON.parse(JSON.stringify(_ud.savedJobs || [])),
+                linkedinContent: JSON.parse(JSON.stringify(_ud.linkedinContent || {})),
+                companyTenures: JSON.parse(JSON.stringify(_ud.companyTenures || [])),
+                importStats: JSON.parse(JSON.stringify(_ud.importStats || {})),
+                contentVisibility: JSON.parse(JSON.stringify(_ud.contentVisibility || {})),
+                blindDefaults: JSON.parse(JSON.stringify(_ud.blindDefaults || {})),
+                growthSkills: JSON.parse(JSON.stringify(_ud.growthSkills || []))
+            };
+            delete showcaseData.profile.email;
+            if (showcaseData.verifications) {
+                showcaseData.verifications.forEach(function(v) {
+                    if (v.verifierEmail) v.verifierEmail = v.verifierEmail.replace(/(.{2}).*(@.*)/, '$1••••$2');
+                });
+            }
+            var blob = new Blob([JSON.stringify(showcaseData, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'admin-demo.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Showcase profile exported. Replace public/profiles/showcase/admin-demo.json with this file.', 'success', 6000);
+        }
+        window.exportShowcaseProfile = exportShowcaseProfile;
+
         // ===== EDIT SAMPLE PROFILE =====
         function editSampleProfile(profileId) {
             if (showcaseMode) { showToast('Editing disabled in showcase mode', 'info'); return; }
@@ -14182,10 +14230,11 @@
         };
 
         function checkReadOnly() {
-            // v4.44.36: Showcase mode always stays read-only
             if (showcaseMode) {
                 isReadOnlyProfile = true;
                 document.body.classList.add('readonly-mode');
+                var sBanner = document.getElementById('showcaseBanner');
+                if (sBanner) sBanner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; background:linear-gradient(135deg, rgba(251,191,36,0.12), rgba(139,92,246,0.12)); border-bottom:1px solid rgba(251,191,36,0.25); color:var(--text-secondary);';
                 return;
             }
             var templateId = userData.templateId || '';
@@ -14253,6 +14302,13 @@
         function readOnlyGuard() {
             if (isReadOnlyProfile) {
                 demoGate('edit this profile');
+                return true;
+            }
+            return false;
+        }
+        function showcaseExportGuard(action) {
+            if (showcaseMode) {
+                showToast('Data export is disabled in showcase mode', 'info');
                 return true;
             }
             return false;
@@ -14329,8 +14385,15 @@
         function demoGate(featureName) {
             if (appMode === 'active' || appMode === 'invited') return false;
             
-            // v4.44.36: Showcase mode — simple toast, no waitlist gate
             if (showcaseMode) {
+                var allowedInShowcase = [
+                    'generate a cover letter', 'generate interview prep',
+                    'generate a LinkedIn profile', 'generate a scouting report',
+                    'run a scouting report', 'generate negotiation guide'
+                ];
+                var featureLower = (featureName || '').toLowerCase();
+                var isAllowed = allowedInShowcase.some(function(a) { return featureLower.indexOf(a) !== -1; });
+                if (isAllowed) return false;
                 showToast('Editing disabled in showcase mode', 'info');
                 return true;
             }
@@ -26510,7 +26573,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (view === 'welcome' || view === 'consent' || view === 'admin') {
                     roBanner.style.display = 'none';
                 } else if (isSampleViewing) {
+                    checkReadOnly();
                     roBanner.style.cssText = 'display:block !important; text-align:center; padding:10px 16px; font-size:0.88em; word-spacing:normal; white-space:normal;';
+                } else {
+                    roBanner.style.display = 'none';
                 }
             }
             
@@ -32359,7 +32425,7 @@ body {
         
         // ── Share to Firestore → get link ─────────────────────────
         function shareScoutingReport() {
-            // Demo lockdown: no sharing on sample profiles
+            if (showcaseExportGuard()) return;
             if (isReadOnlyProfile) {
                 showToast('Sharing is not available on sample profiles. Sign up to share your own reports.', 'info');
                 return;
@@ -32497,6 +32563,7 @@ body {
         // Uses buildReportData() for identical data to HTML reports
         // ============================================================
         function generateScoutingReportPDF(R) {
+            if (showcaseExportGuard()) return;
             var jsPDF = window.jspdf.jsPDF;
             var doc = new jsPDF({ unit: 'mm', format: 'a4' });
             var W = 210, H = 297, M = 14, MW = W - M * 2, y = 0, pg = 0;
@@ -33777,7 +33844,7 @@ body {
 
         
         function exportBlueprint(format) {
-            // Demo lockdown: no exports on sample profiles (scouting report PDF uses its own path)
+            if (showcaseExportGuard()) return;
             if (isReadOnlyProfile) {
                 demoGate('export your Blueprint');
                 return;
@@ -33823,6 +33890,7 @@ body {
         }
         
         function generatePDF(data, targetJob) {
+            if (showcaseExportGuard()) return;
             var jsPDF = window.jspdf.jsPDF;
             var doc = new jsPDF({ unit: 'mm', format: 'a4' });
             
@@ -35538,6 +35606,7 @@ body {
         }
 
         function copyCoverLetter() {
+            if (showcaseExportGuard()) return;
             var ta = document.getElementById('coverLetterOutput');
             if (ta) {
                 navigator.clipboard.writeText(ta.value).then(function() {
@@ -35548,6 +35617,7 @@ body {
         window.copyCoverLetter = copyCoverLetter;
 
         function downloadCoverLetter(company) {
+            if (showcaseExportGuard()) return;
             var ta = document.getElementById('coverLetterOutput');
             if (!ta) return;
             var blob = new Blob([ta.value], { type: 'text/plain' });
@@ -35753,6 +35823,7 @@ body {
         }
 
         function copyInterviewPrep() {
+            if (showcaseExportGuard()) return;
             var ta = document.getElementById('interviewPrepOutput');
             if (ta) {
                 navigator.clipboard.writeText(ta.value).then(function() {
@@ -35763,6 +35834,7 @@ body {
         window.copyInterviewPrep = copyInterviewPrep;
 
         function downloadInterviewPrep(company) {
+            if (showcaseExportGuard()) return;
             var ta = document.getElementById('interviewPrepOutput');
             if (!ta) return;
             var blob = new Blob([ta.value], { type: 'text/plain' });
@@ -44839,6 +44911,7 @@ body {
         // This comment replaces duplicate/conflicting definitions that were removed in v3.5.2.
         
         function exportFullProfile() {
+            if (showcaseExportGuard()) return;
             if (readOnlyGuard()) return;
             const fullData = {
                 userData: userData,
@@ -44863,6 +44936,7 @@ body {
         }
         
         function importFullProfile(fileInput) {
+            if (showcaseExportGuard()) return;
             if (readOnlyGuard()) return;
             const file = fileInput.files[0];
             if (!file) return;
