@@ -9801,6 +9801,10 @@
         var _jdcSaving = false;
         function jdcSaveToRepository() {
             if (!_jdcResult) { showToast('No blueprint to save.', 'warning'); return; }
+            if (showcaseMode) {
+                showToast('Repository saves are disabled in showcase mode — conversion results are view-only.', 'info');
+                return;
+            }
             if (!fbUser) { showToast('Sign in to save blueprints.', 'warning'); return; }
             if (_jdcSaving) { return; }
             _jdcSaving = true;
@@ -9863,6 +9867,7 @@
         window.jdcLoadFromRepo = jdcLoadFromRepo;
 
         function jdcDeleteFromRepo(id) {
+            if (showcaseMode) { showToast('Deleting is disabled in showcase mode.', 'info'); return; }
             if (!fbUser || !id) return;
             if (!confirm('Delete this Work Blueprint from your repository?')) return;
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(id).delete()
@@ -9889,7 +9894,7 @@
                 + '</div>'
                 + '</div>';
 
-            if (!fbUser) {
+            if (!fbUser && !showcaseMode) {
                 html += '<div style="padding:40px 20px; text-align:center; color:var(--text-muted);">'
                     + bpIcon('shield',32) + '<p style="margin-top:12px;">Sign in to access your Work Blueprint Repository.</p></div>';
                 el.innerHTML = html + '</div>';
@@ -9959,6 +9964,11 @@
         window.renderAdminWBRepo = renderAdminWBRepo;
 
         function _wbRepoLoadData() {
+            if (showcaseMode || !fbUser || !fbDb) {
+                _wbRepoCache = [];
+                renderAdminWBRepo(document.getElementById('adminTabContent'));
+                return;
+            }
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').orderBy('savedAt', 'desc').get()
                 .then(function(snapshot) {
                     _wbRepoCache = [];
@@ -9984,6 +9994,7 @@
         window.wbRepoView = wbRepoView;
 
         function wbRepoDelete(id) {
+            if (showcaseMode) { showToast('Deleting is disabled in showcase mode.', 'info'); return; }
             if (!fbUser) { showToast('You must be signed in to delete blueprints.', 'warning'); return; }
             if (!id) { showToast('Blueprint ID missing — cannot delete.', 'error'); return; }
             if (!fbDb) { showToast('Database not available. Try refreshing.', 'error'); return; }
@@ -11641,13 +11652,18 @@
                 + bpIcon('blueprint',18) + ' Select a Work Blueprint</div>'
                 + '<div style="font-size:0.84em; color:var(--c-muted); margin-bottom:16px;">Choose a blueprint from your repository to use as the structured comparison.</div>';
 
-            if (!fbUser) {
+            if (!fbUser && !showcaseMode) {
                 html += '<div style="text-align:center; padding:30px; color:var(--c-muted);">' + bpIcon('shield',28) + '<p style="margin-top:8px;">Sign in to access your blueprints.</p></div></div>';
                 body.innerHTML = html;
                 return;
             }
 
             if (_wbRepoCache === null) {
+                if (showcaseMode || !fbUser || !fbDb) {
+                    _wbRepoCache = [];
+                    _wbCompWizRenderStep();
+                    return;
+                }
                 html += '<div style="text-align:center; padding:30px;">'
                     + '<div class="loading-spinner" style="width:24px; height:24px; border-width:3px; margin:0 auto 10px;"></div>'
                     + '<p style="font-size:0.85em; color:var(--c-muted);">Loading blueprints...</p></div></div>';
@@ -14300,6 +14316,7 @@
         }
         window.checkReadOnly = checkReadOnly;
         function readOnlyGuard() {
+            if (showcaseMode && !window._showcaseViewingSample) return false;
             if (isReadOnlyProfile) {
                 demoGate('edit this profile');
                 return true;
@@ -14386,16 +14403,16 @@
             if (appMode === 'active' || appMode === 'invited') return false;
             
             if (showcaseMode) {
-                var allowedInShowcase = [
-                    'generate a cover letter', 'generate interview prep',
-                    'generate a LinkedIn profile', 'generate a scouting report',
-                    'run a scouting report', 'generate negotiation guide'
+                var blockedInShowcase = [
+                    'edit this profile'
                 ];
                 var featureLower = (featureName || '').toLowerCase();
-                var isAllowed = allowedInShowcase.some(function(a) { return featureLower.indexOf(a) !== -1; });
-                if (isAllowed) return false;
-                showToast('Editing disabled in showcase mode', 'info');
-                return true;
+                var isBlocked = blockedInShowcase.some(function(a) { return featureLower.indexOf(a) !== -1; });
+                if (isBlocked && window._showcaseViewingSample) {
+                    showToast('Editing disabled for sample profiles', 'info');
+                    return true;
+                }
+                return false;
             }
             
             var msg = appMode === 'waitlisted'
