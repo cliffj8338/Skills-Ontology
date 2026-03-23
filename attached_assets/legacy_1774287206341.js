@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.15';
+        // BLUEPRINT v4.46.89 - BUILD 20260313-neg-cors-fix
+        var BP_VERSION = 'v4.46.89';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -14,9 +14,9 @@
         // competency frameworks use 12-25, resume best practice is 5-10 core competencies.
         // Blueprint needs broader coverage for multi-job matching across diverse roles.
         // 50 balances signal-to-noise: ~5 mastery + ~10 expert + ~15 advanced + ~20 foundational.
-        var PROFILE_SKILL_CAP = 75;       // Max skills on personal profile
+        var PROFILE_SKILL_CAP = 50;       // Max skills on personal profile
         var WB_SKILL_CAP = 20;            // Max skills per Work Blueprint
-        var SKILL_CAP_WARN = 65;          // Show warning at this threshold
+        var SKILL_CAP_WARN = 45;          // Show warning at this threshold
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
@@ -247,29 +247,22 @@
         
         async function callAnthropicAPI(requestBody, userApiKey, featureTag) {
             trackAICall(featureTag);
-            console.log('[BP API] callAnthropicAPI called for:', featureTag, 'model:', requestBody.model);
             var idToken = null;
             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) { console.warn('Failed to get Firebase ID token:', e.message); }
             }
-            console.log('[BP API] idToken:', idToken ? 'obtained' : 'none', 'proxyAvailable:', AI_PROXY_AVAILABLE, 'directKey:', !!userApiKey);
             if (idToken && AI_PROXY_AVAILABLE !== false) {
                 var proxyApiError = null;
                 try {
-                    console.log('[BP API] Fetching proxy:', AI_PROXY_URL);
                     var proxyRes = await fetch(AI_PROXY_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
-                        body: JSON.stringify(requestBody),
-                        signal: AbortSignal.timeout(90000)
+                        body: JSON.stringify(requestBody)
                     });
-                    console.log('[BP API] Proxy response:', proxyRes.status, proxyRes.statusText);
                     if (proxyRes.ok) {
                         AI_PROXY_AVAILABLE = true;
                         recordApiHealth('anthropic-proxy', 'ok', 'Operational');
-                        var jsonData = await proxyRes.json();
-                        console.log('[BP API] Proxy success, response type:', jsonData?.type);
-                        return jsonData;
+                        return await proxyRes.json();
                     }
                     if (proxyRes.status === 429) {
                         AI_PROXY_AVAILABLE = true;
@@ -290,40 +283,26 @@
                         }
                         proxyApiError = new Error(errMsg);
                     }
-                    if (proxyRes.status === 504) {
-                        recordApiHealth('anthropic-proxy', 'degraded', 'Gateway timeout', { status: 504 });
-                        throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
-                    }
                     if (proxyRes.status >= 500) {
                         AI_PROXY_AVAILABLE = false;
                         recordApiHealth('anthropic-proxy', 'down', 'Server error', { status: proxyRes.status });
                         logIncident('critical', 'anthropic-proxy', 'AI proxy server error (HTTP ' + proxyRes.status + ')', { status: proxyRes.status });
                     }
                 } catch (e) {
-                    console.error('[BP API] Proxy fetch error:', e.name, e.message);
                     if (e.message.includes('Rate limit')) throw e;
-                    if (e.name === 'TimeoutError' || e.message.includes('timed out') || e.message.includes('aborted')) {
-                        recordApiHealth('anthropic-proxy', 'degraded', 'Request timed out', { error: e.message });
-                        throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
-                    }
                     if (AI_PROXY_AVAILABLE === null) {
                         AI_PROXY_AVAILABLE = false;
                         recordApiHealth('anthropic-proxy', 'down', 'Unreachable', { error: e.message });
                     }
-                    console.log('[BP API] Proxy failed, falling through to direct...');
                 }
+                // Throw 4xx errors after catch so they propagate to the caller
                 if (proxyApiError) throw proxyApiError;
             }
-            if (!userApiKey) {
-                console.error('[BP API] No direct API key available, cannot fallback');
-                throw new Error('AI features require sign-in or an API key in Settings.');
-            }
-            console.log('[BP API] Trying direct Anthropic API...');
+            if (!userApiKey) throw new Error('AI features require sign-in or an API key in Settings.');
             var directRes = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-api-key': userApiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-                body: JSON.stringify(requestBody),
-                signal: AbortSignal.timeout(120000)
+                body: JSON.stringify(requestBody)
             });
             if (!directRes.ok) {
                 var errData = {}; try { errData = await directRes.json(); } catch(e) {}
@@ -436,8 +415,7 @@
             if (!raw || typeof raw !== 'object') throw new Error('Invalid import: not an object');
             var allowed = ['profile','skills','roles','values','purpose','outcomes','preferences',
                 'applications','workHistory','education','certifications','verifications',
-                'savedJobs','initialized','templateId','linkedinContent','companyTenures',
-                'importStats','contentVisibility','careerLens'];
+                'savedJobs','initialized','templateId'];
             var clean = {};
             allowed.forEach(function(key) {
                 if (raw[key] !== undefined) clean[key] = raw[key];
@@ -448,7 +426,7 @@
             // Sanitize profile strings
             if (clean.profile && typeof clean.profile === 'object') {
                 Object.keys(clean.profile).forEach(function(k) {
-                    if (typeof clean.profile[k] === 'string' && k !== 'photo') {
+                    if (typeof clean.profile[k] === 'string') {
                         clean.profile[k] = clean.profile[k].slice(0, 2000);
                     }
                 });
@@ -661,13 +639,11 @@
 
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c   Build: 20260314-security-hardening                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        }
+        console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260305-mobile-admin                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
 
         // ===== DATE FORMATTING UTILITY =====
@@ -858,9 +834,9 @@
         // URL: myblueprint.work?showcase=KEY
         // Loads admin profile read-only with full admin UI visible
         var SHOWCASE_CONFIG = {
-            key: 'bp-aKqWMR8AJli-tFPr8p3IJA32',
-            sourceUid: '',
-            bannerText: 'Interactive Demo — Explore all features. Data is view-only.'
+            key: 'bp-aKqWMR8AJli-tFPr8p3IJA32',           // URL param value (change this to your own secret)
+            sourceUid: '',                         // Set to your Firebase UID (run fbUser.uid in console)
+            bannerText: 'Showcase Mode — All features visible, editing disabled'
         };
         
         try {
@@ -899,12 +875,6 @@
                         detectAppMode();
                         updateAuthUI();
                         rebuildProfileDropdown();
-                        authReadyResolve(user);
-                    }).catch(function(err) {
-                        console.error('Admin role check failed:', err.message);
-                        fbIsAdmin = false;
-                        detectAppMode();
-                        updateAuthUI();
                         authReadyResolve(user);
                     });
                 } else {
@@ -1093,10 +1063,10 @@
                 _wbCompCache = null;
                 _wbCompCacheLoaded = false;
                 
+                // SECURITY: Clear sensitive localStorage on sign-out
                 safeRemove('wbAnthropicKey');
                 safeRemove('wbValues');
                 safeRemove('wbPurpose');
-                window._lastKnownValues = null;
                 safeRemove('wbEvidenceConfig');
                 safeRemove('currentProfile');
                 safeRemove('blueprint_waitlist');
@@ -1106,9 +1076,6 @@
                 updateAuthUI();
                 rebuildProfileDropdown();
                 switchView('welcome');
-            }).catch(function(err) {
-                console.error('Sign-out error:', err.message);
-                showToast('Sign-out failed. Please try again.', 'error');
             });
         }
         window.authSignOut = authSignOut;
@@ -1294,9 +1261,8 @@
         }
         
         function _buildFirestoreData() {
-            var _ud = window._userData || userData;
             var data = {
-                profile: _ud.profile || {},
+                profile: userData.profile || {},
                 skills: (skillsData && skillsData.skills) ? skillsData.skills.map(function(s) {
                     var mapped = { name: s.name || '', level: s.level || 1, category: s.category || '', key: s.key || s.name || '', roles: s.roles || [], evidence: s.evidence || [] };
                     if (s.endorsements) mapped.endorsements = s.endorsements;
@@ -1311,19 +1277,17 @@
                     return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
-                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values
-                    : (_ud.values && _ud.values.length > 0) ? _ud.values
-                    : (window._lastKnownValues && window._lastKnownValues.length > 0) ? window._lastKnownValues
-                    : [],
-                purpose: blueprintData.purpose || _ud.purpose || window._lastKnownPurpose || '',
+                // Belt-and-suspenders: empty array is truthy so || won't help; use length check
+                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values : (userData.values || []),
+                purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
-                preferences: _ud.preferences || {},
-                applications: _ud.applications || [],
-                workHistory: _ud.workHistory || [],
-                education: _ud.education || [],
-                certifications: _ud.certifications || [],
-                verifications: _ud.verifications || [],
-                savedJobs: (_ud.savedJobs || []).map(function(j) {
+                preferences: userData.preferences || {},
+                applications: userData.applications || [],
+                workHistory: userData.workHistory || [],
+                education: userData.education || [],
+                certifications: userData.certifications || [],
+                verifications: userData.verifications || [],
+                savedJobs: (userData.savedJobs || []).map(function(j) {
                     return { id: j.id || '', title: j.title || '', company: j.company || '', sourceUrl: j.sourceUrl || '', sourceNote: j.sourceNote || '',
                         rawText: j.rawText || '', parsedSkills: j.parsedSkills || [], parsedRoles: j.parsedRoles || [],
                         seniority: j.seniority || '', matchData: j.matchData || {}, addedAt: j.addedAt || new Date().toISOString(),
@@ -1331,13 +1295,14 @@
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            if (_ud.linkedinContent) data.linkedinContent = _ud.linkedinContent;
-            if (_ud.contentVisibility) data.contentVisibility = _ud.contentVisibility;
-            if (_ud.companyTenures) data.companyTenures = _ud.companyTenures;
-            if (_ud.importStats) data.importStats = _ud.importStats;
-            if (_ud.blindDefaults) data.blindDefaults = _ud.blindDefaults;
-            data.growthSkills = (_ud.growthSkills && _ud.growthSkills.length > 0) ? _ud.growthSkills : [];
-            if (_ud.privacyLog && _ud.privacyLog.length > 0) data.privacyLog = _ud.privacyLog.slice(-100);
+            // LinkedIn-derived content & metadata
+            if (userData.linkedinContent) data.linkedinContent = userData.linkedinContent;
+            if (userData.contentVisibility) data.contentVisibility = userData.contentVisibility;
+            if (userData.companyTenures) data.companyTenures = userData.companyTenures;
+            if (userData.importStats) data.importStats = userData.importStats;
+            // Privacy: blind mode defaults + audit log
+            if (userData.blindDefaults) data.blindDefaults = userData.blindDefaults;
+            if (userData.privacyLog && userData.privacyLog.length > 0) data.privacyLog = userData.privacyLog.slice(-100);
             // Dev velocity stats (admin)
             if (window._blueprintDevStats) data.devStats = window._blueprintDevStats;
             
@@ -1357,13 +1322,11 @@
                 var payload = { ts: Date.now(), data: backup };
                 var serialized = JSON.stringify(payload);
                 if (serialized.length > 800000) {
-                    // Drop large optional arrays to get under limit
                     delete backup.verifications;
                     delete backup.outcomes;
                     serialized = JSON.stringify({ ts: Date.now(), data: backup });
                 }
                 if (serialized.length > 1500000) {
-                    // Trim skills and work history as last resort
                     if (backup.skills) backup.skills = backup.skills.slice(0, 100);
                     if (backup.workHistory) backup.workHistory = backup.workHistory.slice(0, 20);
                     serialized = JSON.stringify({ ts: Date.now(), data: backup });
@@ -1385,7 +1348,6 @@
         }
 
         function saveToFirestore() {
-            if (showcaseMode) return Promise.resolve(false);
             if (!fbDb || !fbUser) return Promise.resolve(false);
             
             if (appContext.mode === 'demo') return Promise.resolve(false);
@@ -1552,7 +1514,6 @@
                     userData.companyTenures = data.companyTenures || [];
                     userData.importStats = data.importStats || {};
                     userData.blindDefaults = data.blindDefaults || {};
-                    userData.growthSkills = data.growthSkills || [];
                     userData.privacyLog = data.privacyLog || [];
                     // Restore sharing preset
                     if ((data.preferences || {}).sharingPreset && typeof currentPreset !== 'undefined') {
@@ -1571,16 +1532,13 @@
                         skillsData.roles = data.roles || [];
                     }
                     
+                    // CRITICAL: Sync blueprintData BEFORE any dedup/migration saves fire.
+                    // saveToFirestore() reads blueprintData.values — if this sync happens after
+                    // the dedup/migration save, blueprintData.values is still [] and wipes Firestore.
                     if (typeof blueprintData !== 'undefined') {
                         blueprintData.purpose = data.purpose || '';
                         blueprintData.values = data.values && data.values.length > 0 ? data.values : (blueprintData.values && blueprintData.values.length > 0 ? blueprintData.values : []);
                         blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
-                        if (blueprintData.values && blueprintData.values.length > 0
-                                && blueprintData.values.some(function(v) { return v.selected; })) {
-                            window._lastKnownValues = JSON.parse(JSON.stringify(blueprintData.values));
-                            var valKey = 'bp_last_values' + (uid ? '_' + uid : '');
-                            try { sessionStorage.setItem(valKey, JSON.stringify(blueprintData.values)); } catch(e) {}
-                        }
                     }
                     
                     // Deduplicate skills on load
@@ -1717,7 +1675,6 @@
 
         // ===== GDPR DATA FUNCTIONS =====
         function exportMyData() {
-            if (showcaseExportGuard()) return;
             if (readOnlyGuard()) return;
             if (!fbDb || !fbUser) {
                 showToast('You must be signed in to export your data.', 'warning');
@@ -1743,15 +1700,11 @@
                     URL.revokeObjectURL(url);
                     
                     showToast('Your data has been exported.', 'success');
-                }).catch(function(err) {
-                    console.error('Export error:', err.message);
-                    showToast('Could not export data. Please try again.', 'error');
                 });
         }
         window.exportMyData = exportMyData;
 
         function requestDataDeletion() {
-            if (showcaseExportGuard()) return;
             if (readOnlyGuard()) return;
             if (!fbDb || !fbUser) {
                 showToast('You must be signed in to request deletion.', 'warning');
@@ -1809,9 +1762,7 @@
                     var data = doc.data();
                     
                     var modal = document.getElementById('exportModal');
-                    if (!modal) { showToast('Could not display data panel.', 'error'); return; }
                     var modalContent = modal.querySelector('.modal-content');
-                    if (!modalContent) { showToast('Could not display data panel.', 'error'); return; }
                     
                     var summary = 'Account: ' + escapeHtml(data.email || 'N/A')
                         + '\nCreated: ' + (data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'N/A')
@@ -1835,9 +1786,6 @@
                         + '</div></div>';
                     
                     history.pushState({ modal: true }, ''); modal.classList.add('active');
-                }).catch(function(err) {
-                    console.error('View data error:', err.message);
-                    showToast('Could not load your data. Please try again.', 'error');
                 });
         }
         window.viewMyData = viewMyData;
@@ -1848,51 +1796,6 @@
                 showToast('Admin access required.', 'error');
                 return;
             }
-            if (appContext.mode === 'demo') {
-                if (appContext.userSnapshot) {
-                    userData = appContext.userSnapshot;
-                    window._userData = userData;
-                    skillsData.roles = appContext.skillsSnapshot.roles;
-                    skillsData.skills = appContext.skillsSnapshot.skills;
-                    blueprintData.values = appContext.blueprintSnapshot.values;
-                    if (blueprintData.values.length === 0 && userData.values && userData.values.length > 0) {
-                        blueprintData.values = JSON.parse(JSON.stringify(userData.values));
-                    }
-                    blueprintData.outcomes = appContext.blueprintSnapshot.outcomes;
-                    blueprintData.purpose = appContext.blueprintSnapshot.purpose || userData.purpose || '';
-                    appContext.userSnapshot = null;
-                    appContext.skillsSnapshot = null;
-                    appContext.blueprintSnapshot = null;
-                } else if (fbUser && fbDb) {
-                    appContext.mode = 'live';
-                    loadUserFromFirestore(fbUser.uid).then(function() {
-                        normalizeUserRoles();
-                        window.blueprintInitialized = false;
-                        window.networkInitialized = false;
-                        window.cardViewInitialized = false;
-                        checkReadOnly();
-                        updateProfileChip(userData.profile.name || 'My Profile');
-                    });
-                    window._welcomePickerActive = false;
-                    switchView('admin');
-                    return;
-                }
-                appContext.mode = 'live';
-                normalizeUserRoles();
-                if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
-                window.blueprintInitialized = false;
-                window.opportunitiesInitialized = false;
-                window.reportsInitialized = false;
-                window.applicationsInitialized = false;
-                window.networkInitialized = false;
-                window.cardViewInitialized = false;
-                checkReadOnly();
-                updateDemoToggleUI();
-                updateProfileChip(userData.profile.name || 'My Profile');
-                clearJobOverlay();
-                rebuildProfileDropdown();
-            }
-            window._welcomePickerActive = false;
             switchView('admin');
         }
         window.showAdminPanel = showAdminPanel;
@@ -2000,7 +1903,7 @@
 
                 + '<div id="adminLayout" style="display:flex; gap:24px; align-items:flex-start;">'
 
-                + '<div id="adminSidebarWrap" style="width:190px; flex-shrink:0; position:sticky; top:80px; max-height:calc(100vh - 100px); overflow-y:auto;">'
+                + '<div id="adminSidebarWrap" style="width:190px; flex-shrink:0; position:sticky; top:80px;">'
                   + '<div id="adminScrollLeft" onclick="document.getElementById(\'adminSidebar\').scrollBy({left:-120,behavior:\'smooth\'})" style="display:none; position:absolute; left:0; top:0; bottom:0; width:28px; z-index:2; background:linear-gradient(90deg, var(--c-surface-2) 60%, transparent); cursor:pointer; align-items:center; justify-content:center; color:var(--text-muted); font-size:1.1em; border-radius:12px 0 0 12px;">&#8249;</div>'
                   + '<nav id="adminSidebar" style="width:100%; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:6px; display:flex; flex-direction:column; gap:2px;">'
                 + _adminSidebarGroup('ops', 'Operations',
@@ -2080,18 +1983,13 @@
             });
             html += '</div>';
             
+            // ===== SHOWCASE URL (v4.44.36) =====
             if (!showcaseMode) {
                 var showcaseUrl = window.location.origin + window.location.pathname + '?showcase=' + SHOWCASE_CONFIG.key;
-                html += '<div style="margin-bottom:24px; padding:14px 18px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(139,92,246,0.08)); border:1px solid rgba(251,191,36,0.2); border-radius:10px;">'
-                    + '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
-                    + '<div style="font-size:0.78em; color:#fbbf24; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Investor Showcase</div>'
+                html += '<div style="margin-bottom:24px; padding:14px 18px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(139,92,246,0.08)); border:1px solid rgba(251,191,36,0.2); border-radius:10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
+                    + '<div style="font-size:0.78em; color:#fbbf24; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Showcase URL</div>'
                     + '<code id="showcaseUrlText" style="flex:1; min-width:200px; font-size:0.82em; color:var(--text-secondary); background:var(--c-surface-2); padding:8px 12px; border-radius:6px; border:1px solid var(--c-surface-5); word-break:break-all; cursor:text; user-select:all;">' + escapeHtml(showcaseUrl) + '</code>'
                     + '<button onclick="navigator.clipboard.writeText(document.getElementById(\'showcaseUrlText\').textContent); this.textContent=\'Copied!\'; this.style.background=\'#10b981\'; setTimeout(function(){document.querySelector(\'[data-showcase-copy]\').textContent=\'Copy\'; document.querySelector(\'[data-showcase-copy]\').style.background=\'rgba(251,191,36,0.15)\';}, 1500);" data-showcase-copy style="padding:6px 16px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Copy</button>'
-                    + '</div>'
-                    + '<div style="margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">'
-                    + '<button onclick="exportShowcaseProfile()" style="padding:6px 14px; background:var(--c-surface-5); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('upload', 12) + ' Update Showcase Profile</button>'
-                    + '<span style="font-size:0.75em; color:var(--text-muted);">Exports your current profile as the showcase data file</span>'
-                    + '</div>'
                     + '</div>';
             }
             
@@ -2375,10 +2273,9 @@
                     var m = doc.data();
                     var jt = document.getElementById('adminJobsTile');
                     if (jt && m.totalJobs) {
-                        var jtVal = jt.querySelector('div[style*="font-size:1.5em"]');
-                        var jtDot = jt.querySelector('div[style*="top:8px"]');
-                        if (jtVal) jtVal.textContent = m.totalJobs.toLocaleString();
-                        if (jtDot) { jtDot.textContent = '\u25CF'; jtDot.style.color = '#10b981'; }
+                        jt.querySelector('div[style*="font-size:1.5em"]').textContent = m.totalJobs.toLocaleString();
+                        jt.querySelector('div[style*="top:8px"]').textContent = '\u25CF';
+                        jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
                         if (lc) lc.textContent = '14/14 libraries loaded';
@@ -3113,58 +3010,6 @@
             el.innerHTML = html;
         }
         
-        async function exportShowcaseProfile() {
-            if (!fbUser || !fbIsAdmin) { showToast('Admin access required.', 'error'); return; }
-            var _ud = window._userData || userData;
-            var showcaseData = {
-                profile: Object.assign({}, _ud.profile || {}),
-                skills: JSON.parse(JSON.stringify(_ud.skills || [])),
-                skillDetails: JSON.parse(JSON.stringify(_ud.skillDetails || {})),
-                values: JSON.parse(JSON.stringify(_ud.values || [])),
-                purpose: _ud.purpose || '',
-                roles: JSON.parse(JSON.stringify(_ud.roles || [])),
-                workHistory: JSON.parse(JSON.stringify(_ud.workHistory || [])),
-                education: JSON.parse(JSON.stringify(_ud.education || [])),
-                certifications: JSON.parse(JSON.stringify(_ud.certifications || [])),
-                verifications: JSON.parse(JSON.stringify(_ud.verifications || [])),
-                preferences: JSON.parse(JSON.stringify(_ud.preferences || {})),
-                savedJobs: JSON.parse(JSON.stringify(_ud.savedJobs || [])),
-                linkedinContent: JSON.parse(JSON.stringify(_ud.linkedinContent || {})),
-                companyTenures: JSON.parse(JSON.stringify(_ud.companyTenures || [])),
-                importStats: JSON.parse(JSON.stringify(_ud.importStats || {})),
-                contentVisibility: JSON.parse(JSON.stringify(_ud.contentVisibility || {})),
-                blindDefaults: JSON.parse(JSON.stringify(_ud.blindDefaults || {})),
-                growthSkills: JSON.parse(JSON.stringify(_ud.growthSkills || []))
-            };
-            delete showcaseData.profile.email;
-            if (showcaseData.verifications) {
-                showcaseData.verifications.forEach(function(v) {
-                    if (v.verifierEmail) v.verifierEmail = v.verifierEmail.replace(/(.{2}).*(@.*)/, '$1••••$2');
-                });
-            }
-            try {
-                var wbSnap = await fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').orderBy('savedAt', 'desc').get();
-                var wbs = [];
-                wbSnap.forEach(function(doc) { var d = doc.data(); d.id = doc.id; if (d.savedAt && d.savedAt.toDate) d.savedAt = d.savedAt.toDate().toISOString(); wbs.push(d); });
-                showcaseData.work_blueprints = wbs;
-            } catch(e) { console.warn('WB export failed:', e); showcaseData.work_blueprints = []; }
-            try {
-                var compSnap = await fbDb.collection('users').doc(fbUser.uid).collection('comparisons').orderBy('savedAt', 'desc').limit(50).get();
-                var comps = [];
-                compSnap.forEach(function(doc) { var d = doc.data(); if (d.savedAt && d.savedAt.toDate) d.savedAt = d.savedAt.toDate().toISOString(); comps.push(d); });
-                showcaseData.saved_comparisons = comps;
-            } catch(e) { console.warn('Comparison export failed:', e); showcaseData.saved_comparisons = []; }
-            var blob = new Blob([JSON.stringify(showcaseData, null, 2)], { type: 'application/json' });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'admin-demo.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Showcase profile updated! (' + (showcaseData.work_blueprints || []).length + ' WBs, ' + (showcaseData.saved_comparisons || []).length + ' comparisons) — Live data synced to showcase.', 'success', 8000);
-        }
-        window.exportShowcaseProfile = exportShowcaseProfile;
-
         // ===== EDIT SAMPLE PROFILE =====
         function editSampleProfile(profileId) {
             if (showcaseMode) { showToast('Editing disabled in showcase mode', 'info'); return; }
@@ -3677,7 +3522,6 @@
                         { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. v4.45.66: Filtered allSkills→visibleSkills to exclude skills whose only roles are hidden. Report now shows correct skill count, domain distribution, proficiency breakdown, and network graph reflecting only visible positions.' },
                         { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. hideRoleFromNetwork() handles orphan roles directly. v4.45.66: Moved roleInfoCard from controlsBar to body level to fix z-index stacking — card was trapped in parent stacking context, making × close and Hide Role buttons unclickable. Now renders above SVG network correctly.' },
                         { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
-                        { id: 'p2-7a', name: 'Email sign-in going to junk/spam', status: 'planned', category: 'bug', priority: 'high', notes: 'Firebase default sender noreply@work-blueprint.firebaseapp.com has no SPF/DKIM alignment with myblueprint.work domain. Sign-in emails (magic links, verification) land in spam. Fix: Configure custom SMTP in Firebase Console → Authentication → Templates → SMTP Settings using Resend or similar with myblueprint.work domain. Requires DNS SPF/DKIM records.' },
                         { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' },
                         { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
                         { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'done', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched to post-render SVG recoloring via injected script. Polls SVG circles, reads __data__.category, applies main app palette. v4.46.80: MutationObserver replaces blind polling — fires recolorNetwork() instantly as D3 appends SVG nodes, eliminating color flash. bpColors map realigned to getCategoryColor() exactly. Added lvColors proficiency fallback. Safety net polling runs at 200ms for 3s then disconnects. base.html template also updated natively: levelColor, levelColorLight, renderProfGrid cols, and profGrid hardcoded HTML all corrected to main app palette (Mastery=#10b981, Expert=#fb923c, Advanced=#a78bfa, Proficient=#60a5fa, Novice=#94a3b8).' },
@@ -3685,9 +3529,6 @@
                         { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
                         { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' },
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
-                        { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
-                        { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
-                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.80: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -3700,7 +3541,6 @@
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
                         { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
-                        { id: 'p2-7u', name: 'Values persistence v4: circuit breaker + deep-copy + triple fallback', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.91: Four-layer fix. (1) inferValues() now checks userData.values as backup if blueprintData.values is empty — prevents race where render fires before Firestore load. (2) _lastKnownValues circuit breaker (window + sessionStorage) — mirrors purpose circuit breaker — prevents values from ever being permanently lost. (3) saveValues() now deep-copies to userData.values (was reference assignment — later reassignment of blueprintData.values broke userData). (4) _buildFirestoreData() has triple fallback chain: blueprintData.values → userData.values → _lastKnownValues → []. Firestore load and saveValues both write to _lastKnownValues + sessionStorage.' },
                         { id: 'p2-7t', name: 'Values persistence: inferValues guard + note preservation', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.82: Two-part fix. (1) inferValues() now guards: if blueprintData.values already has selected values (loaded from Firestore), it returns immediately without overwriting — calls _inferPurposeOnly() instead. Previously, inferValues() called from the dashboard completeness check and initValuesNetwork would clobber already-loaded values. (2) inferValues() STEP 2 (userData.values path) now preserves the .note field — previously the map() only returned {name,selected,inferred,custom}, silently dropping any personal notes. _inferPurposeOnly() extracted as a separate function so the guard path still gets purpose inference.' },
                         { id: 'p2-7s', name: 'Purpose persistence v3: inferValues circuit breaker + sessionStorage', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.54: inferValues() now uses _lastKnownPurpose as final fallback before blanking purpose — prevents the blank-purpose-then-save race. _lastKnownPurpose backed to sessionStorage so it survives hard reload. updatePurpose() also writes to sessionStorage. This is the deepest fix yet: even if userData.purpose and blueprintData.purpose are both transiently empty (which CAN happen on rapid navigation), the circuit breaker restores from sessionStorage before any save can fire.' },
                         { id: 'p2-7r', name: 'CMD+K Command Palette', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.53: Global CMD+K / CTRL+K command palette. Searches skills, outcomes, saved jobs, work history in real time. Static actions list (Add Skill, New Report, Generate Purpose, Export, Bulk Import, Comp Review). Navigation shortcuts with keyboard badges. Arrow key navigation, Enter to execute, Esc to close. Search icon injected into header. Analytics event on open. CSS injected once on first open.' },
@@ -4632,18 +4472,18 @@
                     functions: ['inferSkillsDeterministic()', 'detectSeniority()', 'adjustLevel()', 'endorsement boost loop'], lines: '~8000-8200',
                     inputs: ['LinkedIn skills[]', 'Work history[]', 'Parsed roles[]', 'Endorsement counts{}'], outputs: ['Enriched skills with levels, evidence, categories, endorsement flags'],
                     deps: ['O*NET crosswalk', 'Skill libraries', 'LinkedIn endorsements'], debt: 'Fuzzy matching could use Levenshtein distance' }},
-                { id: 'jd-converter', name: 'JD → Blueprint Converter', layer: 'runtime', col: 3,
-                  color: '#f59e0b', icon: 'blueprint',
-                  detail: { desc: 'Converts raw job descriptions into structured Work Blueprints. Two-path extraction: convertJDToBlueprintAsync() uses Claude Sonnet (parseJobWithAPI, Job Schema v2.0) for signed-in users — targets 15–35 skills across 10 categories with tier/section/proficiency/source. Falls back to convertJDToBlueprint() local regex parser. Merges with O*NET SOC crosswalk skills and applies _wbSkillQualityFilter(). Detects: title, company, seniority, location, schedule (hybrid+days), travel, industry, compensation range, qualifications, responsibilities. Comp context applied at render time.',
-                    functions: ['convertJDToBlueprintAsync()', 'convertJDToBlueprint()', 'parseJobWithAPI()', '_jdcExtractSkillsFromText()', '_jdcDetectCompContext()', '_jdcExtractSchedule()', '_jdcExtractTextFromHTML()'], lines: '~6560–7400',
-                    inputs: ['Raw JD text (paste, URL fetch, bulk)', 'Firebase auth state (AI path decision)'], outputs: ['Work Blueprint object with skills[], bls, compContext, schedule, seniority'],
-                    deps: ['Claude Sonnet (AI path)', 'O*NET crosswalk', 'BLS wages', '_wbSkillQualityFilter'], debt: 'Bulk and file-upload paths still use local parser only. URL fetch HTML stripping may miss site-specific job containers.' }},
                 { id: 'match-engine', name: 'Match Scoring', layer: 'runtime', col: 4,
                   color: '#f59e0b', icon: 'target',
                   detail: { desc: 'Two tiers: quickScoreJob (Find Jobs, uses parseJobLocally pipeline for gap detection, capped 90%) and matchJobToProfile (Pipeline, 6-pass ontology matching). Find Jobs uses live API search by default.',
                     functions: ['quickScoreJob()', 'matchJobToProfile()', 'rescoreAllJobs()'], lines: '~22400-23700',
                     inputs: ['skillsData', 'Job description text or parsed skills'], outputs: ['Match %', 'Matched/gap/surplus arrays', 'BLS salary'],
                     deps: ['skillsData', 'BLS wage data', 'O*NET crosswalk'], debt: 'quickScore and pipeline scores diverge. Ideal: single engine.' }},
+                { id: 'jd-converter', name: 'JD → Blueprint Converter', layer: 'runtime', col: 3,
+                  color: '#f59e0b', icon: 'blueprint',
+                  detail: { desc: 'Converts raw job descriptions into structured Work Blueprints. Two-path extraction: convertJDToBlueprintAsync() uses Claude Sonnet (parseJobWithAPI, Job Schema v2.0) for signed-in users — targets 15–35 skills across 10 categories with tier/section/proficiency/source. Falls back to convertJDToBlueprint() local regex parser. Merges with O*NET SOC crosswalk skills and applies _wbSkillQualityFilter(). Detects: title, company, seniority, location, schedule (hybrid+days), travel, industry, compensation range, qualifications, responsibilities. Comp context applied at render time.',
+                    functions: ['convertJDToBlueprintAsync()', 'convertJDToBlueprint()', 'parseJobWithAPI()', '_jdcExtractSkillsFromText()', '_jdcDetectCompContext()', '_jdcExtractSchedule()', '_jdcExtractTextFromHTML()'], lines: '~6560–7400',
+                    inputs: ['Raw JD text (paste, URL fetch, bulk)', 'Firebase auth state (AI path decision)'], outputs: ['Work Blueprint object with skills[], bls, compContext, schedule, seniority'],
+                    deps: ['Claude Sonnet (AI path)', 'O*NET crosswalk', 'BLS wages', '_wbSkillQualityFilter'], debt: 'Bulk and file-upload paths still use local parser only. URL fetch HTML stripping may miss site-specific job containers.' }},
                 { id: 'valuation', name: 'Valuation Engine', layer: 'runtime', col: 5,
                   color: '#f59e0b', icon: 'money',
                   detail: { desc: 'Two-surface comp model. (1) Profile valuation: evidence-based and potential compensation from skill levels, O*NET importance, BLS wage data, and peer verification scores. (2) Work Blueprint comp: BLS percentile band adjusted by seniority, geo modifier, and _jdcDetectCompContext() industry+company-tier multiplier. Tech industry +22%, Financial Services +18%, Consulting +14%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture) +8%. Unknown companies use posted salary range as signal. Skill premium pool = 15% of adjusted median, distributed by O*NET importance × proficiency multiplier (Advanced 0.6×, Expert 0.9×, Mastery 1.2×).',
@@ -6679,9 +6519,9 @@
                 html += '<div style="margin-bottom:20px;">'
                     + '<textarea id="jdcInput" placeholder="Paste a job description here..." style="width:100%; box-sizing:border-box; min-height:180px; padding:14px; border:1px solid var(--c-surface-5); border-radius:10px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; line-height:1.6; resize:vertical; font-family:inherit;">' + escapeHtml((_jdcResult ? _jdcResult._rawJD : '') || '') + '</textarea>'
                     + '<div style="display:flex; gap:12px; margin-top:12px; align-items:center; flex-wrap:wrap;">'
-                    + '<button id="jdcConvertBtn" onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                    + '<button onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                     + bpIcon('zap',14) + ' Convert to Work Blueprint</button>'
-                    + '<span id="jdcConvertStatus" style="font-size:0.78em; color:var(--c-faint);">AI-powered extraction when signed in. Falls back to local parser.</span>'
+                    + '<span style="font-size:0.78em; color:var(--c-faint);">Deterministic engine: O*NET crosswalk + BLS wages. No AI API calls.</span>'
                     + '</div></div>';
             } else if (_jdcInputMode === 'url') {
                 html += '<div style="margin-bottom:20px;">'
@@ -6753,89 +6593,21 @@
             el.innerHTML = html;
         }
 
-        // ===== ASYNC JDC WRAPPER — AI skill extraction (Phase 3) =====
-        // Uses parseJobWithAPI for skill extraction when user is signed in.
-        // Falls back to convertJDToBlueprint (local regex) if AI unavailable or fails.
-        async function convertJDToBlueprintAsync(jdText) {
-            var hasProxy = !!(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
-            var local = convertJDToBlueprint(jdText);
-            if (!hasProxy) return local;
-
-            try {
-                var apiParsed = await parseJobWithAPI(jdText, null);
-                var tierImportance = { 'required': 80, 'preferred': 65, 'nice-to-have': 50 };
-                var apiSkills = (apiParsed.skills || []).map(function(s) {
-                    var importance = (tierImportance[s.tier] || 60) - (s.source === 'inferred' ? 10 : 0);
-                    return {
-                        name: s.name,
-                        importance: importance,
-                        blueprintLevel: s.proficiency || _jdcInferProficiency(s.name, jdText, local.seniority),
-                        source: 'jd',
-                        category: s.category || 'skill',
-                        outcome: _jdcGenerateOutcome(s.name, s.category || 'skill', local.seniority, local.title),
-                        compValue: 0,
-                        selected: true
-                    };
-                });
-
-                // Quality filter — same as all other skill paths
-                apiSkills = _wbSkillQualityFilter(apiSkills);
-                apiSkills.sort(function(a, b) { return b.importance - a.importance; });
-                apiSkills = apiSkills.slice(0, WB_SKILL_CAP);
-
-                // Recompute comp values against BLS if available
-                if (local.bls && local.bls.median && apiSkills.length) {
-                    var premMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
-                    var pool = Math.round(local.bls.median * 0.15);
-                    var qualSkills = apiSkills.filter(function(s) { return premMults[s.blueprintLevel]; });
-                    var totalW = qualSkills.reduce(function(sum, s) {
-                        return sum + (s.importance * (premMults[s.blueprintLevel] || 0));
-                    }, 0);
-                    apiSkills.forEach(function(s) {
-                        if (!premMults[s.blueprintLevel]) { s.compValue = 0; return; }
-                        s.compValue = Math.round(pool * (s.importance * premMults[s.blueprintLevel]) / (totalW || 1));
-                    });
-                }
-
-                local.skills = apiSkills;
-                // Use AI-extracted title/summary when better than local extraction
-                var badTitles = /^(what you'?ll do|about the role|about us|qualifications|responsibilities|requirements|job description|overview|summary|working conditions|benefits|experience will be|core competencies)/i;
-                if (apiParsed.title && !badTitles.test(apiParsed.title) && apiParsed.title !== 'Untitled Position') {
-                    local.title = apiParsed.title;
-                }
-                local._extractionMethod = 'api';
-                return local;
-            } catch(e) {
-                console.warn('[JDC] AI extraction failed, using local parser:', e.message);
-                local._extractionMethod = 'local';
-                return local;
-            }
-        }
-
-        async function runJDConverter() {
+        function runJDConverter() {
             var raw = (document.getElementById('jdcInput') || {}).value || '';
             if (!raw || raw.trim().length < 50) {
                 showToast('Paste a job description with at least a few sentences.', 'warning');
                 return;
             }
-            var btn = document.getElementById('jdcConvertBtn');
-            var statusEl = document.getElementById('jdcConvertStatus');
-            if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
-            if (statusEl) statusEl.innerHTML = bpIcon('loader', 12) + ' Extracting skills with AI...';
-
-            try {
-                _jdcResult = await convertJDToBlueprintAsync(raw.trim());
-                logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', method: _jdcResult._extractionMethod || 'local' });
-                _jdcCompMode = 'without';
-                _jdcBulkResults = [];
-                _jdcBulkViewIdx = -1;
-                _jdcEditMode = true;
-                _jdcFromRepo = false;
-                renderAdminJDConverter(document.getElementById('adminTabContent'));
-                _jdcShowStats(_jdcResult);
-            } finally {
-                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
-            }
+            _jdcResult = convertJDToBlueprint(raw.trim());
+            logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '' });
+            _jdcCompMode = 'without';
+            _jdcBulkResults = [];
+            _jdcBulkViewIdx = -1;
+            _jdcEditMode = true;
+            _jdcFromRepo = false;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+            _jdcShowStats(_jdcResult);
         }
         window.runJDConverter = runJDConverter;
 
@@ -6949,15 +6721,9 @@
                 .then(function(html) {
                     var text = _jdcExtractTextFromHTML(html);
                     if (text.length < 50) throw new Error('Could not extract meaningful text from the page.');
-                    if (statusEl) statusEl.innerHTML = '<span style="color:var(--accent);">' + bpIcon('loader',14) + ' Extracting skills with AI...</span>';
-                    return convertJDToBlueprintAsync(text).then(function(r) { return { result: r, text: text }; });
-                })
-                .then(function(payload) {
-                    var result = payload.result;
-                    var extractedText = payload.text;
-                    _jdcResult = result;
-                    _jdcResult._extractQuality = _jdcCheckExtractQuality(result, extractedText);
-                    logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url', method: _jdcResult._extractionMethod || 'local' });
+                    _jdcResult = convertJDToBlueprint(text);
+                    _jdcResult._extractQuality = _jdcCheckExtractQuality(_jdcResult, text);
+                    logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url' });
                     _jdcCompMode = 'without';
                     _jdcBulkResults = [];
                     _jdcBulkViewIdx = -1;
@@ -6993,24 +6759,8 @@
                 var els = tmp.querySelectorAll(tag);
                 for (var i = 0; i < els.length; i++) els[i].remove();
             });
-            // Remove cookie/consent/GDPR banners and other non-JD noise
-            var noiseSelectors = [
-                '#onetrust-banner-sdk','#onetrust-consent-sdk','.onetrust-pc-dark-filter',
-                '[id*="cookie"]','[class*="cookie"]','[id*="consent"]','[class*="consent"]',
-                '[id*="gdpr"]','[class*="gdpr"]','[aria-label*="cookie"]',
-                '.cookie-banner','.cookie-notice','.cookie-bar','.cookie-popup',
-                '[class*="CookieBanner"]','[class*="PrivacyBanner"]',
-                '[role="dialog"]','[aria-modal="true"]',
-                '.jobs-apply-button','[data-test="apply-button"]'
-            ];
-            noiseSelectors.forEach(function(sel) {
-                try {
-                    var els = tmp.querySelectorAll(sel);
-                    for (var i = 0; i < els.length; i++) els[i].remove();
-                } catch(e) {}
-            });
             var text = (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
-            // Strip any surviving cookie consent sentences
+            // Strip surviving cookie consent sentences
             text = text.replace(/By clicking [""]?Accept[^.]{0,120}\./gi, '');
             text = text.replace(/We (?:use|may) cookies[^.]{0,200}\./gi, '');
             text = text.replace(/This (?:site|website) uses? cookies[^.]{0,200}\./gi, '');
@@ -7102,9 +6852,7 @@
                 _jdcBulkViewIdx = 0;
                 jds.forEach(function(jd) {
                     try {
-                        if (_jdcBulkResults.length < 100) {
-                            _jdcBulkResults.push(convertJDToBlueprint(jd));
-                        }
+                        _jdcBulkResults.push(convertJDToBlueprint(jd));
                     } catch(err) {
                         console.warn('JDC file conversion error:', err);
                     }
@@ -7260,9 +7008,6 @@
             var industry = _jdcDetectIndustry(jdText);
             var keyResponsibilities = _jdcExtractResponsibilities(jdText);
 
-            var compContext = typeof _jdcDetectCompContext === 'function'
-                ? _jdcDetectCompContext(company, industry, jdText) : null;
-
             return {
                 title: title,
                 company: company,
@@ -7285,7 +7030,6 @@
                 keyResponsibilities: keyResponsibilities,
                 skills: skills,
                 bls: bls,
-                compContext: compContext,
                 values: values,
                 demonstrated: demoExperience,
                 _rawJD: jdText
@@ -7413,13 +7157,6 @@
         function _jdcExtractSchedule(jdText) {
             var text = jdText.toLowerCase();
             if (/\b(?:shift|rotating\s+shifts|night\s+shift|swing\s+shift)\b/.test(text)) return 'Shift-based';
-            // Hybrid: X days in office / hybrid keyword
-            var hybridDays = text.match(/(\d)\s*days?\s+(?:per\s+week\s+)?(?:in\s+(?:the\s+)?office|on[-\s]?site|in[-\s]?person)/);
-            if (hybridDays) return 'Hybrid \u00B7 ' + hybridDays[1] + ' days in office';
-            var hybridDays2 = text.match(/(?:in\s+(?:the\s+)?office|on[-\s]?site)\s+(\d)\s*days?\s+(?:per\s+week|a\s+week)/);
-            if (hybridDays2) return 'Hybrid \u00B7 ' + hybridDays2[1] + ' days in office';
-            if (/\bhybrid\b/.test(text)) return 'Hybrid';
-            if (/\b(?:fully?\s+remote|100%\s+remote|work\s+from\s+home|wfh|fully?\s+distributed)\b/.test(text)) return 'Remote';
             if (/\b(?:flex(?:ible)?\s+(?:hours|schedule)|flexible\s+work)\b/.test(text)) return 'Flexible';
             if (/\b(?:9[\s\-]?(?:to|-)[\s\-]?5|standard\s+(?:business\s+)?hours|monday[\s\-]friday)\b/.test(text)) return 'Standard business hours';
             return '';
@@ -8201,7 +7938,6 @@
         }
         window.jdcCloseBlueprint = jdcCloseBlueprint;
 
-
         function renderWorkBlueprint(data, showComp, opts) {
             opts = opts || {};
             var html = '';
@@ -8477,26 +8213,13 @@
                 else if (seniority === 'director' || seniority === 'principal') { seniorityPctKey = 'pct75'; seniorityLabel = '75th'; }
                 else if (seniority === 'executive' || seniority === 'vp' || seniority === 'c-suite') { seniorityPctKey = 'pct90'; seniorityLabel = '90th'; }
 
-                // Company/industry comp context multiplier
-                var compCtx = data.compContext || (typeof _jdcDetectCompContext === 'function' ? _jdcDetectCompContext(data.company, data.industry, data._rawJD || '') : null);
-                var ctxMult = (compCtx && compCtx.multiplier > 1.0) ? compCtx.multiplier : 1.0;
-
-                var blsBase = Math.round((bls[seniorityPctKey] || bls.median || 0) * geo * ctxMult);
-                var blsMedian = Math.round((bls.median || 0) * geo * ctxMult);
+                var blsBase = Math.round((bls[seniorityPctKey] || bls.median || 0) * geo);
+                var blsMedian = Math.round((bls.median || 0) * geo);
 
                 // ── Total comp summary box ──────────────────────────────────
-                var justifiedBase75 = Math.round((bls.pct75 || bls.median || 0) * geo * ctxMult);
+                var justifiedBase75 = Math.round((bls.pct75 || bls.median || 0) * geo);
                 var totalJustified = justifiedBase75 + (showComp ? totalComp : 0);
-                var justifiedMax = Math.round((bls.pct90 || bls.pct75 || 0) * geo * ctxMult) + (showComp ? totalComp : 0);
-
-                // Comp context badge
-                if (compCtx && compCtx.active) {
-                    html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.2); border-radius:8px; font-size:0.75em; color:var(--c-muted); display:flex; align-items:center; gap:8px;">'
-                        + bpIcon('trending-up', 12)
-                        + ' <span><strong style="color:#fbbf24;">Market Adjustment: ' + Math.round((compCtx.multiplier - 1) * 100) + '% above BLS baseline</strong>'
-                        + (compCtx.label ? ' &nbsp;&middot;&nbsp; ' + escapeHtml(compCtx.label) : '')
-                        + ' &nbsp;&middot;&nbsp; BLS cross-industry data adjusted for employer market position</span></div>';
-                }
+                var justifiedMax = Math.round((bls.pct90 || bls.pct75 || 0) * geo) + (showComp ? totalComp : 0);
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr' + (showComp ? ' 1fr' : '') + '; gap:10px; margin-bottom:20px;">';
 
                 html += '<div style="padding:14px 16px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:10px;">'
@@ -8526,21 +8249,20 @@
                     { key: 'pct75', label: '75th', val: bls.pct75 },
                     { key: 'pct90', label: '90th', val: bls.pct90 }
                 ];
-                var minVal = (bls.pct10 || 0) * ctxMult;
-                var maxVal = (bls.pct90 || 1) * ctxMult;
+                var minVal = bls.pct10 || 0;
+                var maxVal = bls.pct90 || 1;
                 var range = maxVal - minVal || 1;
-                var targetVal = (bls[seniorityPctKey] || bls.median || 0) * ctxMult;
+                var targetVal = bls[seniorityPctKey] || bls.median || 0;
                 var markerPct = Math.round(((targetVal - minVal) / range) * 100);
-                var bandLabel = 'Market-Adjusted Salary Band' + (compCtx && compCtx.active ? ' (+' + Math.round((compCtx.multiplier-1)*100) + '% context)' : '') + (geo !== 1.0 ? ' \u00B7 ' + geoLabel + ' adj.' : '');
 
                 html += '<div style="margin-bottom:20px;">'
-                    + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">' + bandLabel + '</div>'
+                    + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">BLS Salary Band' + (geo !== 1.0 ? ' \u00B7 ' + geoLabel + ' adj.' : '') + '</div>'
                     + '<div style="position:relative; height:10px; border-radius:5px; background:linear-gradient(to right, #1e3a2f, #10b981 50%, #fbbf24); margin-bottom:6px;">'
                     + '<div style="position:absolute; top:-4px; left:' + markerPct + '%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:#60a5fa; border:2px solid var(--c-surface-1); box-shadow:0 0 0 2px #60a5fa44;" title="' + seniorityLabel + ' target"></div>'
                     + '</div>'
                     + '<div style="display:flex; justify-content:space-between;">';
                 pctBandData.forEach(function(p) {
-                    var v = Math.round((p.val || 0) * geo * ctxMult);
+                    var v = Math.round((p.val || 0) * geo);
                     var isTarget = p.key === seniorityPctKey;
                     html += '<div style="text-align:center; flex:1;">'
                         + '<div style="font-size:0.68em; color:' + (isTarget ? '#60a5fa' : 'var(--c-faint)') + '; font-weight:' + (isTarget ? '700' : '500') + ';">' + p.label + '</div>'
@@ -8573,7 +8295,7 @@
                     if (isExportMode && isHidden) return;
                     var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
                     var isTarget = p.key === seniorityPctKey;
-                    var displayVal = Math.round((p.val || 0) * geo * ctxMult);
+                    var displayVal = Math.round((p.val || 0) * geo);
                     var eyeIcon = isHidden ? bpIcon('eye-off',14) : bpIcon('eye',14);
                     var toggleColor = isHidden ? '#ef4444' : '#10b981';
                     html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isTarget ? 'font-weight:700;' : '') + (isHidden ? ' opacity:0.45;' : '') + '">'
@@ -9107,7 +8829,7 @@
 
         var _jdcEditMode = false;
         var _jdcFromRepo = false;
-        var _jdcSavedState = false; // true after save; false after edit/new conversion
+        var _jdcSavedState = false;
         function jdcEditBlueprint() {
             if (!_jdcResult) return;
             if (!_jdcResult.skills) _jdcResult.skills = [];
@@ -9813,10 +9535,6 @@
         var _jdcSaving = false;
         function jdcSaveToRepository() {
             if (!_jdcResult) { showToast('No blueprint to save.', 'warning'); return; }
-            if (showcaseMode) {
-                showToast('Repository saves are disabled in showcase mode — conversion results are view-only.', 'info');
-                return;
-            }
             if (!fbUser) { showToast('Sign in to save blueprints.', 'warning'); return; }
             if (_jdcSaving) { return; }
             _jdcSaving = true;
@@ -9879,7 +9597,6 @@
         window.jdcLoadFromRepo = jdcLoadFromRepo;
 
         function jdcDeleteFromRepo(id) {
-            if (showcaseMode) { showToast('Deleting is disabled in showcase mode.', 'info'); return; }
             if (!fbUser || !id) return;
             if (!confirm('Delete this Work Blueprint from your repository?')) return;
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(id).delete()
@@ -9906,7 +9623,7 @@
                 + '</div>'
                 + '</div>';
 
-            if (!fbUser && !showcaseMode) {
+            if (!fbUser) {
                 html += '<div style="padding:40px 20px; text-align:center; color:var(--text-muted);">'
                     + bpIcon('shield',32) + '<p style="margin-top:12px;">Sign in to access your Work Blueprint Repository.</p></div>';
                 el.innerHTML = html + '</div>';
@@ -9976,16 +9693,6 @@
         window.renderAdminWBRepo = renderAdminWBRepo;
 
         function _wbRepoLoadData() {
-            if (showcaseMode) {
-                if (_wbRepoCache === null) _wbRepoCache = [];
-                renderAdminWBRepo(document.getElementById('adminTabContent'));
-                return;
-            }
-            if (!fbUser || !fbDb) {
-                _wbRepoCache = [];
-                renderAdminWBRepo(document.getElementById('adminTabContent'));
-                return;
-            }
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').orderBy('savedAt', 'desc').get()
                 .then(function(snapshot) {
                     _wbRepoCache = [];
@@ -10011,7 +9718,6 @@
         window.wbRepoView = wbRepoView;
 
         function wbRepoDelete(id) {
-            if (showcaseMode) { showToast('Deleting is disabled in showcase mode.', 'info'); return; }
             if (!fbUser) { showToast('You must be signed in to delete blueprints.', 'warning'); return; }
             if (!id) { showToast('Blueprint ID missing — cannot delete.', 'error'); return; }
             if (!fbDb) { showToast('Database not available. Try refreshing.', 'error'); return; }
@@ -10084,9 +9790,6 @@
             return fetch('profiles/demo/comparison-candidate.json?v=' + Date.now()).then(function(r) { return r.json(); }).then(function(data) {
                 _wbCompareCandidate = data;
                 return data;
-            }).catch(function(err) {
-                console.warn('Failed to load comparison candidate:', err.message);
-                return null;
             });
         }
 
@@ -10380,9 +10083,7 @@
                 return true;
             });
 
-            // Soft-skill downgrade pass — these pass quality filter but should never surface as
-            // critical gaps. Downgrade requirement to 'Nice to Have' regardless of AI extraction.
-            // Keeps them visible in the skill list but removes them from gap score denominator.
+            // Soft-skill downgrade pass — downgrade to 'Nice to Have' regardless of AI extraction.
             var softSkillPhrases = {
                 'cross-functional collaboration': 1, 'cross functional collaboration': 1,
                 'verbal and written communication': 1, 'written and verbal communication': 1,
@@ -10405,7 +10106,6 @@
             };
             return skills.map(function(s) {
                 var lower = (s.name || '').toLowerCase().trim();
-                // Strip trailing "skills/abilities/competencies" for lookup
                 var normalized = lower.replace(/\s+(skills?|abilities?|competenc(?:y|ies))$/i, '').trim();
                 if (softSkillPhrases[lower] || softSkillPhrases[normalized]) {
                     return Object.assign({}, s, { requirement: 'Nice to Have' });
@@ -10588,12 +10288,12 @@
             var companyValObj = null;
             if (workBlueprint._resolvedCompanyValues) {
                 companyValObj = workBlueprint._resolvedCompanyValues;
-                
+                console.log('[COMPARE] Company values (pre-resolved): ' + (companyValObj.primary || []).join(', '));
             } else if (workBlueprint.company && window.companyDataLoaded) {
                 var lookedUp = getCompanyValues(workBlueprint.company, '');
                 if (lookedUp && !lookedUp.inferred && lookedUp.primary && lookedUp.primary.length > 0) {
                     companyValObj = lookedUp;
-                    
+                    console.log('[COMPARE] Company values from DB: ' + workBlueprint.company + ' → ' + (lookedUp.primary || []).join(', '));
                 }
             }
             // Fallback: construct from WB stored values
@@ -10608,7 +10308,7 @@
             if (wbValues.length > 0 && candidateProfile.values) {
                 valResult = _wbCompareFuzzyValues(candidateProfile.values, companyValObj);
                 if (valResult) {
-                    
+                    console.log('[COMPARE] Values: company=' + (companyValObj.primary || []).join(', ') + ' | aligned=' + (valResult.aligned || []).map(function(a) { return a.name; }).join(', ') + ' | score=' + valResult.score + '%');
                 }
             }
 
@@ -10657,7 +10357,8 @@
         function _wbCompareRunBoth(rawJDText, wb, candidate) {
             var rawResult = _wbCompareRawJDMatch(rawJDText, candidate);
             var structResult = _wbCompareStructuredMatch(wb, candidate);
-            
+            console.log('[COMPARE] Raw JD: ' + rawResult.skillsExtracted + ' skills extracted, ' + rawResult.matched.length + ' matched, score=' + rawResult.score);
+            console.log('[COMPARE] WB: ' + structResult.skillsUsed + ' skills (' + (structResult.skillsFiltered || 0) + ' filtered), ' + structResult.matched.length + ' matched, score=' + structResult.score + ' (bonus=' + (structResult.structuredBonus || 0) + ')');
             return { raw: rawResult, struct: structResult };
         }
 
@@ -11363,8 +11064,6 @@
                 showToast('Comparison failed: ' + err.message, 'error');
             }
         }
-        window.wbRepoCompare = wbRepoCompare;
-
         // ── WB → Scouting Report Pipeline ────────────────────────────────────
         // Builds the identical REPORT_DATA shape as buildReportData(jobIdx),
         // but sourced from a Work Blueprint instead of a pipeline job.
@@ -11669,23 +11368,13 @@
                 + bpIcon('blueprint',18) + ' Select a Work Blueprint</div>'
                 + '<div style="font-size:0.84em; color:var(--c-muted); margin-bottom:16px;">Choose a blueprint from your repository to use as the structured comparison.</div>';
 
-            if (!fbUser && !showcaseMode) {
+            if (!fbUser) {
                 html += '<div style="text-align:center; padding:30px; color:var(--c-muted);">' + bpIcon('shield',28) + '<p style="margin-top:8px;">Sign in to access your blueprints.</p></div></div>';
                 body.innerHTML = html;
                 return;
             }
 
             if (_wbRepoCache === null) {
-                if (showcaseMode) {
-                    _wbRepoCache = [];
-                    _wbCompWizRenderStep();
-                    return;
-                }
-                if (!fbUser || !fbDb) {
-                    _wbRepoCache = [];
-                    _wbCompWizRenderStep();
-                    return;
-                }
                 html += '<div style="text-align:center; padding:30px;">'
                     + '<div class="loading-spinner" style="width:24px; height:24px; border-width:3px; margin:0 auto 10px;"></div>'
                     + '<p style="font-size:0.85em; color:var(--c-muted);">Loading blueprints...</p></div></div>';
@@ -12162,9 +11851,6 @@
                 });
                 html += '</div>';
                 container.innerHTML = html;
-            }).catch(function(err) {
-                console.warn('Comparison repo render error:', err.message);
-                container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--c-muted); font-size:0.85em;">Could not load saved comparisons.</div>';
             });
         }
 
@@ -12176,7 +11862,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.catch(function(err) { console.warn('Comparison lookup error:', err.message); return null; }).then(function(entry) {
+            lookup.then(function(entry) {
                 if (!entry || !entry.wb || !entry.rawResult || !entry.structResult) {
                     showToast('Comparison data not available.', 'warning');
                     return;
@@ -12227,7 +11913,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.catch(function(err) { console.warn('Share lookup error:', err.message); return null; }).then(function(entry) {
+            lookup.then(function(entry) {
                 if (!entry) { showToast('Comparison not found.', 'warning'); return; }
                 // If already shared, re-surface URL
                 if (entry.shareToken && entry.shareId) {
@@ -12381,7 +12067,7 @@
                 : (_wbCompFSPath()
                     ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
                     : Promise.resolve(null));
-            lookup.catch(function(err) { console.warn('PDF export lookup error:', err.message); return null; }).then(function(entry) {
+            lookup.then(function(entry) {
                 if (!entry) { showToast('Comparison not found.', 'warning'); return; }
                 _wbCompPDFThemeChoice(function(theme) {
                     _wbCompBuildPDF(entry.wb, entry.rawResult, entry.structResult, entry.candidate, theme);
@@ -12881,7 +12567,6 @@
                 showToast('Job audit fetch failed: ' + e.message, 'error');
             }
         }
-
 
         function renderAdminWBAbout(el) {
             // Reads live constants from the codebase — always in sync
@@ -14268,11 +13953,10 @@
         };
 
         function checkReadOnly() {
+            // v4.44.36: Showcase mode always stays read-only
             if (showcaseMode) {
                 isReadOnlyProfile = true;
                 document.body.classList.add('readonly-mode');
-                var sBanner = document.getElementById('showcaseBanner');
-                if (sBanner) sBanner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; background:linear-gradient(135deg, rgba(251,191,36,0.12), rgba(139,92,246,0.12)); border-bottom:1px solid rgba(251,191,36,0.25); color:var(--text-secondary);';
                 return;
             }
             var templateId = userData.templateId || '';
@@ -14338,16 +14022,8 @@
         }
         window.checkReadOnly = checkReadOnly;
         function readOnlyGuard() {
-            if (showcaseMode && !window._showcaseViewingSample) return false;
             if (isReadOnlyProfile) {
                 demoGate('edit this profile');
-                return true;
-            }
-            return false;
-        }
-        function showcaseExportGuard(action) {
-            if (showcaseMode) {
-                showToast('Data export is disabled in showcase mode', 'info');
                 return true;
             }
             return false;
@@ -14424,17 +14100,10 @@
         function demoGate(featureName) {
             if (appMode === 'active' || appMode === 'invited') return false;
             
+            // v4.44.36: Showcase mode — simple toast, no waitlist gate
             if (showcaseMode) {
-                var blockedInShowcase = [
-                    'edit this profile'
-                ];
-                var featureLower = (featureName || '').toLowerCase();
-                var isBlocked = blockedInShowcase.some(function(a) { return featureLower.indexOf(a) !== -1; });
-                if (isBlocked && window._showcaseViewingSample) {
-                    showToast('Editing disabled for sample profiles', 'info');
-                    return true;
-                }
-                return false;
+                showToast('Editing disabled in showcase mode', 'info');
+                return true;
             }
             
             var msg = appMode === 'waitlisted'
@@ -14483,13 +14152,10 @@
                 roles: JSON.parse(JSON.stringify(skillsData.roles || [])),
                 skills: JSON.parse(JSON.stringify(skillsData.skills || []))
             };
-            var snapshotValues = (blueprintData.values && blueprintData.values.length > 0)
-                ? blueprintData.values
-                : (userData.values && userData.values.length > 0 ? userData.values : []);
             appContext.blueprintSnapshot = {
-                values: JSON.parse(JSON.stringify(snapshotValues)),
+                values: JSON.parse(JSON.stringify(blueprintData.values || [])),
                 outcomes: JSON.parse(JSON.stringify(blueprintData.outcomes || [])),
-                purpose: blueprintData.purpose || userData.purpose || ''
+                purpose: blueprintData.purpose || ''
             };
             
             // Track current view for return
@@ -14556,16 +14222,14 @@
                 return;
             }
             
+            // Restore user state from snapshot
             userData = appContext.userSnapshot;
             window._userData = userData;
             skillsData.roles = appContext.skillsSnapshot.roles;
             skillsData.skills = appContext.skillsSnapshot.skills;
             blueprintData.values = appContext.blueprintSnapshot.values;
-            if (blueprintData.values.length === 0 && userData.values && userData.values.length > 0) {
-                blueprintData.values = JSON.parse(JSON.stringify(userData.values));
-            }
             blueprintData.outcomes = appContext.blueprintSnapshot.outcomes;
-            blueprintData.purpose = appContext.blueprintSnapshot.purpose || userData.purpose || '';
+            blueprintData.purpose = appContext.blueprintSnapshot.purpose;
             
             // Clear snapshots
             appContext.userSnapshot = null;
@@ -14907,26 +14571,16 @@
                     + '</div>'
                     
                     // CTAs
-                    + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:32px;">'
+                    + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:32px;">'
                     + '<button onclick="showOnboardingWizard()" style="'
-                    + 'padding:18px; border-radius:10px; font-size:1em; cursor:pointer; text-align:center; '
-                    + 'background:var(--accent); color:#fff; border:1px solid var(--accent); transition:all 0.2s; '
+                    + 'padding:16px 40px; border-radius:10px; font-size:1em; font-weight:600; cursor:pointer; '
+                    + 'background:var(--accent); color:#fff; border:2px solid var(--accent); transition:all 0.2s; '
                     + 'animation:ctaGlow 2.5s ease-in-out infinite;">'
-                    + '<div style="font-weight:700; margin-bottom:4px;">' + bpIcon('zap',16) + ' Get Started</div>'
-                    + '<div style="font-size:0.75em; font-weight:400; opacity:0.85;">Build your Blueprint in ~5 min</div>'
-                    + '</button>'
+                    + bpIcon('zap',16) + ' Get Started</button>'
                     + '<button onclick="viewSampleProfile()" style="'
-                    + 'padding:18px; border-radius:10px; font-size:1em; cursor:pointer; text-align:center; '
-                    + 'background:var(--bg-card); color:var(--text-secondary); border:1px solid var(--border-subtle); transition:all 0.2s;">'
-                    + '<div style="font-weight:700; margin-bottom:4px;">' + bpIcon('users',16) + ' See a Demo First</div>'
-                    + '<div style="font-size:0.75em; font-weight:400; color:var(--text-muted);">Explore a sample profile</div>'
-                    + '</button>'
-                    + '<button onclick="if(window._bpTour)window._bpTour.startWelcome();" style="'
-                    + 'padding:18px; border-radius:10px; font-size:1em; cursor:pointer; text-align:center; '
-                    + 'background:var(--bg-card); color:var(--text-secondary); border:1px solid var(--border-subtle); transition:all 0.2s;">'
-                    + '<div style="font-weight:700; margin-bottom:4px;">' + bpIcon('help',16) + ' Tour Blueprint</div>'
-                    + '<div style="font-size:0.75em; font-weight:400; color:var(--text-muted);">Guided walkthrough</div>'
-                    + '</button>'
+                    + 'padding:16px 28px; border-radius:10px; font-size:1em; font-weight:600; cursor:pointer; '
+                    + 'background:transparent; color:var(--text-secondary); border:2px solid var(--border-subtle); transition:all 0.2s;">'
+                    + bpIcon('users',16) + ' See a Demo First</button>'
                     + '</div>'
                     
                     // Sign in nudge
@@ -14957,31 +14611,19 @@
                 + 'The Resume <span style="white-space:nowrap;">is Dead.</span><br>Here is Your Blueprint.<span style="font-size:0.45em; font-weight:400; vertical-align:super;">\u2122</span></h2>'
                 + '<p style="font-size:1.08em; color:var(--text-secondary); line-height:1.7; max-width:620px; margin:0 auto 28px;">'
                 + 'The resume is a relic of a broken system. It\u2019s a static record of where you\u2019ve been, not a projection of what you can do. We built Blueprint to dismantle that limitation. It maps your actual capabilities, calculates your market worth, and defines your trajectory. Stop guessing your value and start negotiating with data. This isn\u2019t a profile. It\u2019s your\u00a0leverage.</p>'
-                + '<div class="hero-ctas" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-bottom:40px;">'
+                + '<div class="hero-ctas" style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">'
                 + '<button onclick="viewSampleProfile()" style="'
-                + 'padding:16px 20px; border-radius:10px; font-size:0.95em; cursor:pointer; text-align:center; '
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
                 + 'background:transparent; color:var(--accent); border:2px solid var(--accent); transition:all 0.2s; animation:ctaGlow 2.5s ease-in-out infinite;'
-                + '"><div style="font-weight:700;">' + bpIcon('users',16) + ' See It In Action</div>'
-                + '<div style="font-size:0.75em; font-weight:400; color:var(--text-muted); margin-top:4px;">Explore a sample profile</div>'
-                + '</button>'
+                + '">' + bpIcon('users',16) + ' See It In Action</button>'
                 + '<button onclick="handleBuildMyBlueprint()" style="'
-                + 'padding:16px 20px; border-radius:10px; font-size:0.95em; cursor:pointer; text-align:center; '
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
                 + 'background:var(--accent); color:#fff; border:2px solid var(--accent); transition:all 0.2s;'
-                + '"><div style="font-weight:700;">' + bpIcon('zap',16) + ' Build My Blueprint</div>'
-                + '<div style="font-size:0.75em; font-weight:400; opacity:0.85; margin-top:4px;">Map your skills in ~5 min</div>'
-                + '</button>'
+                + '">' + bpIcon('zap',16) + ' Build My Blueprint</button>'
                 + '<button onclick="showAbout()" style="'
-                + 'padding:16px 20px; border-radius:10px; font-size:0.95em; cursor:pointer; text-align:center; '
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
                 + 'background:transparent; color:#10b981; border:2px solid #10b981; transition:all 0.2s;'
-                + '"><div style="font-weight:700;">' + bpIcon('about',16) + ' Why Blueprint</div>'
-                + '<div style="font-size:0.75em; font-weight:400; color:var(--text-muted); margin-top:4px;">The intelligence behind it</div>'
-                + '</button>'
-                + '<button onclick="if(window._bpTour)window._bpTour.startWelcome();" style="'
-                + 'padding:16px 20px; border-radius:10px; font-size:0.95em; cursor:pointer; text-align:center; '
-                + 'background:transparent; color:var(--text-secondary); border:2px solid var(--border-subtle); transition:all 0.2s;'
-                + '"><div style="font-weight:700;">' + bpIcon('help',16) + ' Tour Blueprint</div>'
-                + '<div style="font-size:0.75em; font-weight:400; color:var(--text-muted); margin-top:4px;">Guided walkthrough</div>'
-                + '</button>'
+                + '">' + bpIcon('about',16) + ' Why Blueprint</button>'
                 + '</div>'
                 + '</div>'
                 
@@ -15321,21 +14963,6 @@
         }
 
         function viewSampleProfile() {
-            if (showcaseMode && window._showcaseViewingSample && window._showcaseAdminSnapshot) {
-                var snap = window._showcaseAdminSnapshot;
-                userData = snap.userData;
-                window._userData = userData;
-                skillsData.roles = snap.skillsRoles;
-                skillsData.skills = snap.skillsSkills;
-                blueprintData.values = snap.values;
-                blueprintData.outcomes = snap.outcomes;
-                blueprintData.purpose = snap.purpose;
-                window._showcaseAdminSnapshot = null;
-                window._showcaseViewingSample = false;
-                normalizeUserRoles();
-                updateProfileChip(userData.profile.name || 'Admin Showcase');
-                updateShowcaseBanner();
-            }
             var el = document.getElementById('welcomeView');
             if (!el) return;
             
@@ -15700,9 +15327,8 @@
             };
             
             var functionPatterns = [
-                { fn: 'technology', patterns: /\b(software|developer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|data engineer|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
-                { fn: 'engineering', patterns: /\b(chemist|chemistry|chemical engineer|biotech|biotechnology|biolog|biochem|research scient|laboratory|lab manager|physicist|materials scien|pharmaceutical|r&d|mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ },
                 { fn: 'strategy', patterns: /\b(strategy|strategic|futurist|evangelist|thought leader|advisory|consulting|consultant)\b/ },
+                { fn: 'technology', patterns: /\b(software|developer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
                 { fn: 'recruiting', patterns: /\b(recruit|talent acqui|sourcing|hiring|ats|applicant|staffing|headhunt)\b/ },
                 { fn: 'hr', patterns: /\b(human resource|hr |shrm|people ops|workforce|talent manage|employee relation|compensation|benefits|hris|organizational develop|learning.+develop|training and develop|talent acquisition|people partner)\b/ },
                 { fn: 'marketing', patterns: /\b(marketing|brand|content|seo|digital market|growth|demand gen|product market|communications|pr |public relation)\b/ },
@@ -15712,6 +15338,7 @@
                 { fn: 'healthcare', patterns: /\b(nurse|clinical|patient|medical|pharma|health|hospital|physician|therapy|diagnostic)\b/ },
                 { fn: 'education', patterns: /\b(teaching|teacher|professor|instructor|curriculum|education|academic|school)\b/ },
                 { fn: 'legal', patterns: /\b(legal|attorney|lawyer|litigation|compliance|regulatory|paralegal|contract law|bar exam)\b/ },
+                { fn: 'engineering', patterns: /\b(mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ },
                 { fn: 'trades', patterns: /\b(hair|stylist|cosmetolog|barber|plumb|electri|weld|hvac|carpenter|mechanic|technician|maintenance|repair|install)\b/ },
                 { fn: 'retail', patterns: /\b(cashier|retail|store|merchandise|stock|inventory clerk|customer service rep|point of sale|pos )\b/ }
             ];
@@ -16505,23 +16132,16 @@
             var token = 'vrf-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8);
             var profileName = userData.profile.name || 'A professional';
             
+            // Create verification records
             var records = skillNames.map(function(sn) {
                 var skill = (skillsData.skills || []).find(function(s) { return s.name === sn; });
-                var outcomes = [];
-                if (skill && skill.evidence && skill.evidence.length > 0) {
-                    skill.evidence.forEach(function(e) {
-                        if (e.outcome) outcomes.push(e.outcome.substring(0, 200));
-                        else if (e.description) outcomes.push(e.description.substring(0, 200));
-                    });
-                }
-                var evidenceText = outcomes.length > 0 ? outcomes.slice(0, 5).join('; ') : '';
+                var evidence = skill ? (skill.evidence || []).map(function(e) { return (e.outcome || '') + ' ' + (e.description || ''); }).join('; ') : '';
                 
                 var record = {
                     id: token + '-' + sn.replace(/\s+/g, '-').toLowerCase().substring(0, 20),
                     skillName: sn,
                     claimedLevel: skill ? skill.level : 'Unknown',
-                    evidenceSummary: evidenceText.substring(0, 500),
-                    outcomes: outcomes.slice(0, 5),
+                    evidenceSummary: evidence.substring(0, 500),
                     verifierName: verifierName,
                     verifierEmail: verifierEmail,
                     relationship: relationship,
@@ -16533,12 +16153,14 @@
                     respondedAt: null
                 };
                 
+                // Store locally
                 if (!userData.verifications) userData.verifications = [];
                 userData.verifications.push(record);
                 
                 return record;
             });
             
+            // Save to Firestore if available
             if (fbUser && fbDb) {
                 records.forEach(function(rec) {
                     fbDb.collection('users').doc(fbUser.uid).collection('verifications').doc(rec.id).set(rec)
@@ -16548,44 +16170,28 @@
             }
             saveAll();
             
-            var baseUrl = window.location.origin;
+            // Build verification URL
+            var baseUrl = window.location.origin + window.location.pathname;
             var verifyUrl = baseUrl + '?verify=' + token + (fbUser ? '&uid=' + fbUser.uid : '');
             
+            // Build email
             var skillsSummary = records.map(function(r) {
-                var block = '  \u2022 ' + r.skillName + ' \u2014 Claimed Level: ' + r.claimedLevel;
-                if (r.outcomes && r.outcomes.length > 0) {
-                    block += '\n    Outcomes & Evidence:';
-                    r.outcomes.forEach(function(o) {
-                        block += '\n      - ' + o;
-                    });
-                }
-                return block;
+                return '  • ' + r.skillName + ' (claimed: ' + r.claimedLevel + ')\n    Evidence: ' + (r.evidenceSummary || 'None provided').substring(0, 200);
             }).join('\n\n');
             
             var subject = encodeURIComponent('Skill Verification Request from ' + profileName);
             var body = encodeURIComponent(
                 'Hi ' + verifierName + ',\n\n'
                 + (personalNote ? personalNote + '\n\n' : '')
-                + profileName + ' is asking you to verify their proficiency in the following skill'
-                + (records.length > 1 ? 's' : '') + '.\n\n'
-                + 'Based on your professional relationship (' + relationship + '), your verification '
-                + 'carries significant weight in validating their expertise.\n\n'
-                + '--- SKILLS TO VERIFY ---\n\n'
+                + profileName + ' is requesting your verification of the following professional skills:\n\n'
                 + skillsSummary + '\n\n'
-                + '--- HOW TO RESPOND ---\n\n'
-                + 'Click the link below to open the verification form:\n'
-                + verifyUrl + '\n\n'
-                + 'You will be able to:\n'
-                + '  \u2713 Confirm the claimed proficiency level\n'
-                + '  \u2191 Suggest a higher or lower level\n'
-                + '  \u270D Add a comment with your observations\n'
-                + '  \u2717 Decline if you cannot verify\n\n'
-                + 'The link expires in 30 days. No account or sign-in is required.\n\n'
+                + 'To verify, please visit:\n' + verifyUrl + '\n\n'
+                + 'You can confirm, suggest a different level, or decline. Your response helps validate professional expertise through Blueprint.\n\n'
                 + 'Thank you for your time.\n\n'
-                + '---\nGenerated by Blueprint\u2122 Career Intelligence\n'
-                + new Date().toLocaleDateString() + ' \u00B7 myblueprint.work'
+                + '---\nGenerated by Blueprint\u2122 · ' + new Date().toLocaleDateString() + ' · myblueprint.work'
             );
             
+            // Open mailto
             window.open('mailto:' + verifierEmail + '?subject=' + subject + '&body=' + body);
             
             closeExportModal();
@@ -16787,31 +16393,11 @@
                 };
                 window._userData = userData;
                 
-                if (profileData.work_blueprints && profileData.work_blueprints.length > 0) {
-                    _wbRepoCache = profileData.work_blueprints;
-                    _jdcRepoCache = profileData.work_blueprints;
-                    console.log('✓ Showcase WBs loaded from JSON:', _wbRepoCache.length);
-                }
-                if (profileData.saved_comparisons && profileData.saved_comparisons.length > 0) {
-                    _wbCompCache = profileData.saved_comparisons;
-                    _wbCompCacheLoaded = true;
-                    console.log('✓ Showcase comparisons loaded from JSON:', _wbCompCache.length);
-                }
-                
                 console.log('✓ Showcase profile loaded:', userData.skills.length, 'skills');
-                
-                if (!_wbRepoCache || _wbRepoCache.length === 0) {
-                    _wbRepoCache = [];
-                    _jdcRepoCache = [];
-                }
-                if (!_wbCompCacheLoaded) {
-                    _wbCompCache = _wbCompCache || [];
-                    _wbCompCacheLoaded = true;
-                }
             } catch(e) {
                 console.error('✗ Failed to load showcase profile:', e);
                 showcaseMode = false;
-                window.location.href = window.location.pathname;
+                window.location.href = window.location.pathname; // Fallback to normal app
                 return;
             }
             
@@ -16884,60 +16470,6 @@
             
             console.log('🎭 Showcase mode ready');
         }
-        
-        function returnToShowcaseAdmin() {
-            var snap = window._showcaseAdminSnapshot;
-            if (!snap) {
-                switchView('admin');
-                return;
-            }
-            userData = snap.userData;
-            window._userData = userData;
-            skillsData.roles = snap.skillsRoles;
-            skillsData.skills = snap.skillsSkills;
-            blueprintData.values = snap.values;
-            blueprintData.outcomes = snap.outcomes;
-            blueprintData.purpose = snap.purpose;
-            window._showcaseAdminSnapshot = null;
-            window._showcaseViewingSample = false;
-            normalizeUserRoles();
-            if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
-            window.blueprintInitialized = false;
-            window.opportunitiesInitialized = false;
-            window.reportsInitialized = false;
-            window.applicationsInitialized = false;
-            window.networkInitialized = false;
-            window.cardViewInitialized = false;
-            checkReadOnly();
-            updateProfileChip(userData.profile.name || 'Admin Showcase');
-            clearJobOverlay();
-            rebuildProfileDropdown();
-            updateShowcaseBanner();
-            switchView('admin');
-            setTimeout(function() { window.scrollTo(0, 0); }, 50);
-        }
-        window.returnToShowcaseAdmin = returnToShowcaseAdmin;
-        
-        function updateShowcaseBanner() {
-            var banner = document.getElementById('showcaseBanner');
-            if (!banner) return;
-            var viewingSample = window._showcaseViewingSample;
-            var sampleName = viewingSample ? escapeHtml((userData.profile && userData.profile.name) || 'Sample Profile') : '';
-            if (viewingSample) {
-                banner.innerHTML = '<span style="color:#fbbf24; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
-                    + ' &mdash; Viewing: <strong>' + sampleName + '</strong>'
-                    + ' &bull; <a href="#" onclick="event.preventDefault(); returnToShowcaseAdmin();" '
-                    + 'style="color:var(--accent); text-decoration:underline; font-weight:700;">&larr; Return to Admin Dashboard</a>'
-                    + ' &bull; <a href="#" onclick="event.preventDefault(); viewSampleProfile();" '
-                    + 'style="color:var(--accent); text-decoration:underline;">Browse Samples</a>'
-                    + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--text-muted); text-decoration:underline;">Exit showcase</a>';
-            } else {
-                banner.innerHTML = '<span style="color:#fbbf24; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
-                    + ' &mdash; ' + SHOWCASE_CONFIG.bannerText
-                    + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--accent); text-decoration:underline;">Exit showcase</a>';
-            }
-        }
-        window.updateShowcaseBanner = updateShowcaseBanner;
         
         function showVerifierLandingPage(token, uid) {
             // Hide all normal app UI
@@ -17013,34 +16545,22 @@
             var el = document.getElementById('verifyLandingContent');
             
             var skillCards = records.map(function(rec, idx) {
-                var outcomesHTML = '';
-                if (rec.outcomes && rec.outcomes.length > 0) {
-                    outcomesHTML = '<div style="margin:10px 0 12px; padding:10px 12px; background:rgba(96,165,250,0.06); border-left:3px solid rgba(96,165,250,0.3); border-radius:0 8px 8px 0;">'
-                        + '<div style="font-size:0.75em; color:#60a5fa; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Outcomes & Evidence</div>'
-                        + rec.outcomes.map(function(o) {
-                            return '<div style="font-size:0.82em; color:#cbd5e1; padding:3px 0; line-height:1.4;">\u2022 ' + escapeHtml(o) + '</div>';
-                        }).join('')
-                        + '</div>';
-                } else if (rec.evidenceSummary) {
-                    outcomesHTML = '<div style="font-size:0.82em; color:#94a3b8; margin-bottom:12px; line-height:1.5;">' + escapeHtml(rec.evidenceSummary).substring(0, 300) + '</div>';
-                }
-                
+                var cred = getCredibilityLabel(rec.relationship || 'Other');
                 return '<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:20px; margin-bottom:12px; text-align:left;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-weight:700; font-size:1.05em; color:#e2e8f0;">' + escapeHtml(rec.skillName) + '</div>'
                     + '<div style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.15); color:#60a5fa;">Claimed: ' + escapeHtml(rec.claimedLevel) + '</div>'
                     + '</div>'
-                    + outcomesHTML
+                    + (rec.evidenceSummary ? '<div style="font-size:0.82em; color:#94a3b8; margin-bottom:12px; line-height:1.5;">' + escapeHtml(rec.evidenceSummary).substring(0, 300) + '</div>' : '')
                     + '<div style="margin-bottom:8px;">'
-                    + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your assessment:</label>'
+                    + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your assessment of this skill level:</label>'
                     + '<select id="verifyLevel_' + idx + '" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.9em;">'
                     + '<option value="confirm">\u2713 Confirm ' + escapeHtml(rec.claimedLevel) + ' level</option>'
-                    + '<option value="Mastery">\u2191 Suggest: Mastery</option>'
-                    + '<option value="Expert">\u2191 Suggest: Expert</option>'
-                    + '<option value="Advanced">\u2191 Suggest: Advanced</option>'
-                    + '<option value="Proficient">\u2191 Suggest: Proficient</option>'
-                    + '<option value="Novice">\u2193 Suggest: Novice</option>'
-                    + '<option value="comment">\u270D Comment only (add context without confirming)</option>'
+                    + '<option value="Mastery">Suggest: Mastery</option>'
+                    + '<option value="Expert">Suggest: Expert</option>'
+                    + '<option value="Advanced">Suggest: Advanced</option>'
+                    + '<option value="Proficient">Suggest: Proficient</option>'
+                    + '<option value="Competent">Suggest: Competent</option>'
                     + '<option value="decline">\u2717 Decline to verify</option>'
                     + '</select></div>'
                     + '</div>';
@@ -17050,15 +16570,16 @@
                 + '<div style="margin-bottom:20px;">'
                 + '<div style="font-size:1.2em; font-weight:700; color:#e2e8f0; margin-bottom:6px;">'
                 + escapeHtml(profileName) + ' has requested your verification</div>'
-                + '<div style="font-size:0.88em; color:#94a3b8; line-height:1.5;">Please review each skill below. You can confirm, suggest a different proficiency level, add a comment, or decline.</div>'
+                + '<div style="font-size:0.88em; color:#94a3b8; line-height:1.5;">Please review the skills below and confirm, suggest a different level, or decline. '
+                + 'Your verification strengthens their professional credibility.</div>'
                 + '</div>'
                 
                 + '<div style="margin-bottom:16px;">' + skillCards + '</div>'
                 
                 + '<div style="margin-bottom:16px;">'
-                + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your note (optional \u2014 required if commenting):</label>'
+                + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Add a note (optional):</label>'
                 + '<textarea id="verifyResponseNote" rows="3" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.88em; resize:vertical; box-sizing:border-box;" '
-                + 'placeholder="Share context about your professional experience with this person\u2019s skills\u2026"></textarea></div>'
+                + 'placeholder="Any additional context about your professional assessment\u2026"></textarea></div>'
                 
                 + '<div style="margin-bottom:16px;">'
                 + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your name (for attribution):</label>'
@@ -17080,13 +16601,6 @@
             var note = (document.getElementById('verifyResponseNote') || {}).value || '';
             var name = (document.getElementById('verifyResponseName') || {}).value || '';
             
-            var hasComment = responses.some(function(r) { return r === 'comment'; });
-            if (hasComment && !note.trim()) {
-                var noteEl = document.getElementById('verifyResponseNote');
-                if (noteEl) { noteEl.style.borderColor = '#ef4444'; noteEl.focus(); }
-                return;
-            }
-            
             var payload = {
                 token: token,
                 uid: uid,
@@ -17096,6 +16610,7 @@
                 respondedAt: new Date().toISOString()
             };
             
+            // Submit to serverless API
             var el = document.getElementById('verifyLandingContent');
             
             fetch('/api/verify', {
@@ -17603,45 +17118,6 @@
         function switchProfile(templateId) {
             console.log('🔄 Switching profile to:', templateId);
             
-            // Showcase mode: snapshot admin data before loading any sample
-            if (showcaseMode && templateId.indexOf('firestore-') !== 0) {
-                closeProfileDropdown();
-                if (!window._showcaseAdminSnapshot) {
-                    window._showcaseAdminSnapshot = {
-                        userData: JSON.parse(JSON.stringify(userData)),
-                        skillsRoles: JSON.parse(JSON.stringify(skillsData.roles || [])),
-                        skillsSkills: JSON.parse(JSON.stringify(skillsData.skills || [])),
-                        values: JSON.parse(JSON.stringify(blueprintData.values || [])),
-                        outcomes: JSON.parse(JSON.stringify(blueprintData.outcomes || [])),
-                        purpose: blueprintData.purpose || userData.purpose || ''
-                    };
-                }
-                window._showcaseViewingSample = true;
-                loadTemplate(templateId);
-                normalizeUserRoles();
-                skillsData.skills = userData.skills;
-                skillsData.roles = userData.roles;
-                blueprintData.values = [];
-                blueprintData.outcomes = [];
-                blueprintData.purpose = '';
-                inferValues();
-                extractOutcomesFromEvidence();
-                if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
-                window.blueprintInitialized = false;
-                window.opportunitiesInitialized = false;
-                window.reportsInitialized = false;
-                window.applicationsInitialized = false;
-                window.networkInitialized = false;
-                window.cardViewInitialized = false;
-                checkReadOnly();
-                rebuildProfileDropdown();
-                updateShowcaseBanner();
-                switchView('network');
-                setTimeout(function() { window.scrollTo(0, 0); }, 50);
-                setTimeout(function() { renderJobSelectorWidget(); }, 500);
-                return;
-            }
-            
             // Demo mode routing: if in demo mode, route sample switches through switchDemoProfile
             if (appContext.mode === 'demo' && templateId.indexOf('firestore-') !== 0) {
                 closeProfileDropdown();
@@ -17735,7 +17211,10 @@
             checkReadOnly();
             rebuildProfileDropdown();
             
-            currentSkillsView = 'network';
+            // Navigate to Skills view (network on desktop, card on mobile)
+            if (window.innerWidth <= 768) {
+                currentSkillsView = 'card';
+            }
             switchView('network');
             // Ensure we're at the top after view switch
             setTimeout(function() { window.scrollTo(0, 0); }, 50);
@@ -19182,44 +18661,24 @@
             fetch('onet-crosswalk.json').then(function(r) { return r.json(); }).then(function(data) {
                 window.onetCrosswalk = data;
                 // Inject custom aliases missing from O*NET — modern job titles not in the 2019 SOC system.
-                // Format: alias → [SOC code]. SOC must exist in data.occupations.
                 var customAliases = {
-                    // Revenue Operations — maps to Sales Managers (11-2022)
-                    'revenue operations': ['11-2022'],
-                    'revenue ops': ['11-2022'],
-                    'revops': ['11-2022'],
-                    'director of revenue operations': ['11-2022'],
-                    'vp of revenue operations': ['11-2022'],
-                    'head of revenue operations': ['11-2022'],
-                    // Total Rewards — maps to Compensation and Benefits Managers (11-3111)
-                    'total rewards': ['11-3111'],
-                    'director of total rewards': ['11-3111'],
-                    'vp of total rewards': ['11-3111'],
-                    'total rewards and people operations': ['11-3111'],
+                    'revenue operations': ['11-2022'], 'revenue ops': ['11-2022'],
+                    'revops': ['11-2022'], 'director of revenue operations': ['11-2022'],
+                    'vp of revenue operations': ['11-2022'], 'head of revenue operations': ['11-2022'],
+                    'total rewards': ['11-3111'], 'director of total rewards': ['11-3111'],
+                    'vp of total rewards': ['11-3111'], 'total rewards and people operations': ['11-3111'],
                     'director total rewards people operations': ['11-3111'],
-                    // People Operations — maps to HR Managers (11-3121)
-                    'people operations': ['11-3121'],
-                    'head of people operations': ['11-3121'],
+                    'people operations': ['11-3121'], 'head of people operations': ['11-3121'],
                     'vp of people operations': ['11-3121'],
-                    // GTM / Go-to-Market — maps to Marketing Managers (11-2021)
-                    'go to market': ['11-2021'],
-                    'gtm strategy': ['11-2021'],
-                    'head of gtm': ['11-2021'],
-                    // Talent Intelligence / Talent Strategy — maps to HR Managers (11-3121)
-                    'talent intelligence': ['11-3121'],
-                    'talent strategy': ['11-3121'],
+                    'go to market': ['11-2021'], 'gtm strategy': ['11-2021'], 'head of gtm': ['11-2021'],
+                    'talent intelligence': ['11-3121'], 'talent strategy': ['11-3121'],
                     'head of talent intelligence': ['11-3121'],
-                    // AI / ML Strategy roles — maps to Computer and Information Systems Managers (11-3021)
-                    'ai strategy': ['11-3021'],
-                    'head of ai': ['11-3021'],
-                    'vp of ai': ['11-3021']
+                    'ai strategy': ['11-3021'], 'head of ai': ['11-3021'], 'vp of ai': ['11-3021']
                 };
                 if (data.aliases && data.occupations) {
                     Object.keys(customAliases).forEach(function(alias) {
                         var socs = customAliases[alias].filter(function(s) { return data.occupations[s]; });
-                        if (socs.length > 0 && !data.aliases[alias]) {
-                            data.aliases[alias] = socs;
-                        }
+                        if (socs.length > 0 && !data.aliases[alias]) data.aliases[alias] = socs;
                     });
                 }
                 var occCount = Object.keys(data.occupations || {}).length;
@@ -19415,18 +18874,11 @@
             reader.onload = function(e) {
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
-                    imported.initialized = true;
                     userData = imported;
+                    userData.initialized = true; _markUserDataReady();
                     window._userData = userData;
-                    _markUserDataReady();
-                    skillsData.skills = imported.skills || [];
-                    skillsData.roles = imported.roles || [];
-                    skillsData.skillDetails = {};
-                    blueprintData.values = imported.values || [];
-                    blueprintData.purpose = imported.purpose || '';
-                    blueprintData.outcomes = imported.outcomes || [];
-                    normalizeUserRoles();
-                    saveToFirestore().then(function() { location.reload(); });
+                    saveUserData();
+                    location.reload();
                 } catch (error) {
                     showToast('Import error: ' + error.message, 'error');
                 }
@@ -19436,10 +18888,10 @@
         
         // =====================================================================
         // ONBOARDING WIZARD v1.0
-        // Multi-step guided profile builder with AI resume parsing
+        // Multi-step guided profile builder with Claude AI resume parsing
         // =====================================================================
 
-        var wizardState = {
+        let wizardState = {
             step: 1,
             totalSteps: 9,
             resumeText: '',
@@ -19450,10 +18902,8 @@
             purpose: '',
             processing: false
         };
-        window.wizardState = wizardState;
 
         function showOnboardingWizard() {
-            if (window.showOnboardingWizard && window.showOnboardingWizard !== showOnboardingWizard) return window.showOnboardingWizard();
             if (readOnlyGuard()) return;
             if (demoGate('Build Your Blueprint')) return;
             // Remove any existing wizard
@@ -19463,7 +18913,6 @@
             wizardState = { step: 1, totalSteps: 9, resumeText: '', parsedData: null,
                             profile: {}, skills: [], values: [], purpose: '', processing: false,
                             resumeFileBase64: null, resumeFileName: null, resumeFileSize: null, useFileUpload: false };
-            window.wizardState = wizardState;
 
             const overlay = document.createElement('div');
             overlay.id = 'onboardingWizard';
@@ -19483,7 +18932,6 @@
         }
 
         function renderWizardStep() {
-            if (window.renderWizardStep && window.renderWizardStep !== renderWizardStep) return window.renderWizardStep();
             const overlay = document.getElementById('onboardingWizard');
             if (!overlay) return;
 
@@ -19560,40 +19008,34 @@
                 </div>
 
                 <!-- Step content -->
-                <div id="wizardStepContent" style="flex:1; overflow-y:scroll; padding:32px 28px;">
+                <div id="wizardStepContent" style="flex:1; overflow-y:auto; padding:32px 28px;">
                     <div style="max-width:700px; margin:0 auto;" id="wizardInner">
                         <!-- Populated per step -->
                     </div>
                 </div>
             `;
 
-            // Render the current step content — delegate to window (module overrides)
+            // Render the current step content
             const inner = document.getElementById('wizardInner');
-            var stepFn = window['renderWizardStep' + wizardState.step];
-            if (typeof stepFn === 'function') { stepFn(inner); }
-            else {
-                switch(wizardState.step) {
-                    case 1: renderWizardStep1(inner); break;
-                    case 2: renderWizardStep2(inner); break;
-                    case 3: renderWizardStep3(inner); break;
-                    case 4: renderWizardStep4(inner); break;
-                    case 5: renderWizardStep5(inner); break;
-                    case 6: renderWizardStep6(inner); break;
-                    case 7: renderWizardStep7(inner); break;
-                    case 8: renderWizardStep8(inner); break;
-                    case 9: renderWizardStep9(inner); break;
-                }
+            switch(wizardState.step) {
+                case 1: renderWizardStep1(inner); break;
+                case 2: renderWizardStep2(inner); break;
+                case 3: renderWizardStep3(inner); break;
+                case 4: renderWizardStep4(inner); break;
+                case 5: renderWizardStep5(inner); break;
+                case 6: renderWizardStep6(inner); break;
+                case 7: renderWizardStep7(inner); break;
+                case 8: renderWizardStep8(inner); break;
+                case 9: renderWizardStep9(inner); break;
             }
         }
 
         function wizardNext() {
-            if (window.wizardNext && window.wizardNext !== wizardNext) return window.wizardNext();
             wizardState.step = Math.min(wizardState.step + 1, wizardState.totalSteps);
             renderWizardStep();
         }
 
         function wizardBack() {
-            if (window.wizardBack && window.wizardBack !== wizardBack) return window.wizardBack();
             var newStep = wizardState.step - 1;
             // Skip Step 3 (AI parsing) when going back from Step 4 in linkedin or manual mode
             if (wizardState.step === 4 && (wizardState.entryMode === 'linkedin' || wizardState.entryMode === 'manual')) {
@@ -19604,7 +19046,6 @@
         }
 
         function confirmExitWizard() {
-            if (window.confirmExitWizard && window.confirmExitWizard !== confirmExitWizard) return window.confirmExitWizard();
             if (wizardState.step > 2) {
                 if (!confirm('Exit the wizard? Your progress will be lost.')) return;
             }
@@ -20289,7 +19730,7 @@
                         <div style="margin-bottom:12px;">${bpIcon("file-text",32)}</div>
                         <div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">Upload Resume</div>
                         <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">
-                            PDF or paste text. AI reads it and builds your profile automatically.
+                            PDF or paste text. Claude reads it and builds your profile automatically.
                         </div>
                         <div style="margin-top:14px; font-size:0.78em; color:var(--accent); font-weight:600;">
                             RECOMMENDED
@@ -20430,26 +19871,25 @@
         }
         
         function wizardQuickExport() {
-            var _ud = window._userData || userData;
             var exportData = {
-                profile: _ud.profile || {},
+                profile: userData.profile || {},
                 skills: skillsData.skills || [],
                 roles: skillsData.roles || [],
                 values: blueprintData.values || [],
                 purpose: blueprintData.purpose || '',
                 outcomes: blueprintData.outcomes || [],
-                preferences: _ud.preferences || {},
-                workHistory: _ud.workHistory || [],
-                education: _ud.education || [],
-                certifications: _ud.certifications || [],
-                verifications: _ud.verifications || [],
-                savedJobs: _ud.savedJobs || [],
-                linkedinContent: _ud.linkedinContent || {},
-                companyTenures: _ud.companyTenures || [],
-                importStats: _ud.importStats || {},
-                contentVisibility: _ud.contentVisibility || {},
+                preferences: userData.preferences || {},
+                workHistory: userData.workHistory || [],
+                education: userData.education || [],
+                certifications: userData.certifications || [],
+                verifications: userData.verifications || [],
+                savedJobs: userData.savedJobs || [],
+                linkedinContent: userData.linkedinContent || {},
+                companyTenures: userData.companyTenures || [],
+                importStats: userData.importStats || {},
+                contentVisibility: userData.contentVisibility || {},
                 exportedAt: new Date().toISOString(),
-                exportedFor: (_ud.profile || {}).name || 'backup',
+                exportedFor: (userData.profile || {}).name || 'backup',
                 version: BP_VERSION
             };
             
@@ -20470,10 +19910,9 @@
                 btn.style.borderColor = '#ef4444';
             }
         }
-        // wizardQuickExport exposed by ES module
+        window.wizardQuickExport = wizardQuickExport;
         
         function wizardChooseUpload() {
-            if (window.wizardChooseUpload && window.wizardChooseUpload !== wizardChooseUpload) return window.wizardChooseUpload();
             wizardOverwriteGuard(function() {
                 wizardState.entryMode = 'upload';
                 wizardNext();
@@ -20488,7 +19927,6 @@
         }
 
         function wizardChooseManual() {
-            if (window.wizardChooseManual && window.wizardChooseManual !== wizardChooseManual) return window.wizardChooseManual();
             wizardOverwriteGuard(function() {
                 wizardState.entryMode = 'manual';
                 wizardState.step = 4;
@@ -20502,7 +19940,6 @@
         }
 
         function wizardImportProfile(event) {
-            if (window.wizardImportProfile && window.wizardImportProfile !== wizardImportProfile) return window.wizardImportProfile(event);
             if (readOnlyGuard()) return;
             const file = event.target.files[0];
             if (!file) return;
@@ -20510,18 +19947,11 @@
             reader.onload = function(e) {
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
-                    imported.initialized = true;
-                    userData = imported;
+                    userData = { ...imported, initialized: true };
                     window._userData = userData;
-                    skillsData.skills = imported.skills || [];
-                    skillsData.roles = imported.roles || [];
-                    skillsData.skillDetails = {};
-                    blueprintData.values = imported.values || [];
-                    blueprintData.purpose = imported.purpose || '';
-                    blueprintData.outcomes = imported.outcomes || [];
-                    normalizeUserRoles();
+                    saveUserData();
                     closeWizard();
-                    saveToFirestore().then(function() { location.reload(); });
+                    location.reload();
                 } catch(err) {
                     showToast('File read error: ' + err.message, 'error');
                 }
@@ -20537,7 +19967,7 @@
             }
             el.innerHTML = `
                 ${wizardHeading(bpIcon('file-text',22), 'Add Your Resume',
-                    'Upload a PDF, paste resume text, or copy your LinkedIn profile. AI will extract your skills, experience, and outcomes automatically.')}
+                    'Upload a PDF, paste resume text, or copy your LinkedIn profile. Claude will extract your skills, experience, and outcomes automatically.')}
 
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
                             border-radius:14px; padding:24px; margin-bottom:20px;">
@@ -20589,7 +20019,7 @@
                     </div>
 
                     <div id="rtab-paste-content" style="display:none;">
-                        <textarea id="wizardResumeText" placeholder="Paste your full resume here \u2014 the more detail, the better the profile we build for you.
+                        <textarea id="wizardResumeText" placeholder="Paste your full resume here \u2014 the more detail, the better the profile Claude builds for you.
 
 Include: job titles, companies, dates, responsibilities, achievements, metrics, skills, education, certifications..."
                                   style="width:100%; min-height:280px; background:var(--input-bg);
@@ -20628,7 +20058,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                                 style="background:var(--accent); color:#fff; border:none;
                                        padding:11px 28px; border-radius:9px; cursor:pointer;
                                        font-size:0.9em; font-weight:600; opacity:0.5; transition:opacity 0.2s;">
-                            Parse Resume \u2192
+                            Parse with Claude \u2192
                         </button>
                     </div>
                 </div>
@@ -20692,58 +20122,24 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 return;
             }
 
-            var info = document.getElementById('resumeFileInfo');
-            var nameEl = document.getElementById('resumeFileName');
-            var dropZone = document.getElementById('resumeDropZone');
-            if (info) info.style.display = 'flex';
-            if (nameEl) nameEl.textContent = file.name + ' — extracting text...';
-            if (dropZone) dropZone.style.display = 'none';
-
             var reader = new FileReader();
-            reader.onload = async function(e) {
-                var arrayBuffer = e.target.result;
-                var base64 = btoa(new Uint8Array(arrayBuffer).reduce(function(data, byte) { return data + String.fromCharCode(byte); }, ''));
+            reader.onload = function(e) {
+                var base64 = e.target.result.split(',')[1];
                 wizardState.resumeFileBase64 = base64;
                 wizardState.resumeFileName = file.name;
                 wizardState.resumeFileSize = file.size;
 
-                try {
-                    if (!window.pdfjsLib) {
-                        var script = document.createElement('script');
-                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-                        document.head.appendChild(script);
-                        await new Promise(function(resolve, reject) {
-                            script.onload = resolve;
-                            script.onerror = function() { reject(new Error('Failed to load PDF library')); };
-                            setTimeout(function() { reject(new Error('PDF library load timeout')); }, 10000);
-                        });
-                    }
-                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                    var pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    var allText = [];
-                    for (var i = 1; i <= pdf.numPages; i++) {
-                        var page = await pdf.getPage(i);
-                        var content = await page.getTextContent();
-                        var pageText = content.items.map(function(item) { return item.str; }).join(' ');
-                        allText.push(pageText);
-                    }
-                    var extractedText = allText.join('\n\n');
-                    if (extractedText.trim().length > 20) {
-                        wizardState.resumeFileExtractedText = extractedText;
-                        console.log('[BP Parse] PDF text extracted:', extractedText.length, 'chars from', pdf.numPages, 'pages');
-                    } else {
-                        console.warn('[BP Parse] PDF text extraction yielded little text, will send as base64');
-                        wizardState.resumeFileExtractedText = null;
-                    }
-                } catch (pdfErr) {
-                    console.warn('[BP Parse] PDF text extraction failed, will send as base64:', pdfErr.message);
-                    wizardState.resumeFileExtractedText = null;
-                }
-
+                // Show file info
+                var info = document.getElementById('resumeFileInfo');
+                var nameEl = document.getElementById('resumeFileName');
+                var dropZone = document.getElementById('resumeDropZone');
+                if (info) info.style.display = 'flex';
                 if (nameEl) nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+                if (dropZone) dropZone.style.display = 'none';
+
                 wizardCheckResumeReady();
             };
-            reader.readAsArrayBuffer(file);
+            reader.readAsDataURL(file);
         }
 
         function wizardClearResumeFile() {
@@ -20777,19 +20173,18 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
         }
 
         function wizardSkipParsing() {
-            if (window.wizardSkipParsing && window.wizardSkipParsing !== wizardSkipParsing) return window.wizardSkipParsing();
             wizardState.entryMode = 'manual';
             wizardState.step = 4;
             renderWizardStep();
         }
 
         async function wizardStartParsing() {
-            if (window.wizardStartParsing && window.wizardStartParsing !== wizardStartParsing) return window.wizardStartParsing();
             const t1 = document.getElementById('wizardResumeText')?.value?.trim() || '';
             const t2 = document.getElementById('wizardLinkedInText')?.value?.trim() || '';
             wizardState.resumeText = t1 || t2;
+            // File upload takes priority if present
             wizardState.useFileUpload = !!wizardState.resumeFileBase64 && !wizardState.resumeText;
-            wizardNext();
+            wizardNext(); // Go to step 3 (parsing/loading)
             try {
                 await wizardRunParsing();
             } catch(e) {
@@ -21473,159 +20868,27 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
         function renderWizardStep3(el) {
             el.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center;
-                            min-height:420px; text-align:center; gap:12px; padding-top:12px;">
-                    <div style="position:relative; width:320px; height:240px;">
-                        <canvas id="wizardNetCanvas" width="640" height="480"
-                            style="width:320px; height:240px;"></canvas>
-                    </div>
+                            justify-content:center; min-height:320px; text-align:center; gap:24px;">
+                    <div id="wizardParsingIcon" style="animation:spin 2s linear infinite;">${bpIcon("settings",48)}</div>
                     <div>
-                        <h2 style="color:var(--text-primary); font-size:1.2em; margin-bottom:4px;">
-                            Building your Blueprint
+                        <h2 style="color:var(--text-primary); font-size:1.4em; margin-bottom:10px;">
+                            Claude is reading your resume
                         </h2>
-                        <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.85em;">
-                            Analyzing your resume...
+                        <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.9em;">
+                            Extracting skills, evidence, and outcomes...
                         </p>
                     </div>
-                    <div style="width:300px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
+                    <div style="width:280px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
                         <div id="wizardParseProgress" style="height:100%; width:0%;
                                     background:linear-gradient(90deg,var(--accent),#818cf8);
                                     border-radius:4px; transition:width 0.5s ease;"></div>
                     </div>
-                    <div id="wizardDiscoveryFeed" style="width:100%; max-width:440px; min-height:200px;
-                                text-align:left; margin-top:4px;"></div>
+                    <p style="color:var(--text-muted); font-size:0.8em;">Usually takes 10–20 seconds</p>
                 </div>
             `;
-            _wizardStartNetworkAnim();
         }
 
-        function _wizardStartNetworkAnim() {
-            var canvas = document.getElementById('wizardNetCanvas');
-            if (!canvas) return;
-            var ctx = canvas.getContext('2d');
-            var W = canvas.width, H = canvas.height;
-            var nodes = [];
-            var edges = [];
-            var colors = ['#3b82f6','#a78bfa','#10b981','#fb923c','#60a5fa','#f59e0b','#ec4899','#818cf8'];
-            var tick = 0;
-            var maxNodes = 28;
-            var addInterval = 320;
-            var lastAdd = 0;
-
-            function addNode() {
-                var angle = Math.random() * Math.PI * 2;
-                var dist = 80 + Math.random() * 140;
-                var x = W/2 + Math.cos(angle) * dist;
-                var y = H/2 + Math.sin(angle) * dist;
-                var r = 4 + Math.random() * 8;
-                var node = { x:x, y:y, r:r, color:colors[nodes.length%colors.length], alpha:0, targetAlpha:0.9,
-                             vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3 };
-                nodes.push(node);
-                if (nodes.length > 2) {
-                    var closest = -1, closestDist = Infinity;
-                    for (var j=0; j<nodes.length-1; j++) {
-                        var d = Math.hypot(nodes[j].x-x, nodes[j].y-y);
-                        if (d < closestDist) { closestDist=d; closest=j; }
-                    }
-                    if (closest >= 0) edges.push({ a:closest, b:nodes.length-1, alpha:0 });
-                    if (nodes.length > 4 && Math.random() > 0.4) {
-                        var second = Math.floor(Math.random() * (nodes.length-1));
-                        if (second !== closest) edges.push({ a:second, b:nodes.length-1, alpha:0 });
-                    }
-                }
-            }
-
-            function draw() {
-                if (!canvas.isConnected) return;
-                ctx.clearRect(0,0,W,H);
-                tick++;
-                if (tick - lastAdd > addInterval/16 && nodes.length < maxNodes) {
-                    addNode(); lastAdd = tick;
-                }
-                if (nodes.length >= maxNodes && tick % 120 === 0) {
-                    var removeIdx = Math.floor(Math.random() * nodes.length);
-                    nodes[removeIdx].targetAlpha = 0;
-                    edges = edges.filter(function(e) { return e.a !== removeIdx && e.b !== removeIdx; });
-                    setTimeout(function() {
-                        if (nodes[removeIdx]) {
-                            var angle = Math.random() * Math.PI * 2;
-                            var dist = 80 + Math.random() * 140;
-                            nodes[removeIdx].x = W/2 + Math.cos(angle) * dist;
-                            nodes[removeIdx].y = H/2 + Math.sin(angle) * dist;
-                            nodes[removeIdx].targetAlpha = 0.9;
-                            nodes[removeIdx].color = colors[Math.floor(Math.random() * colors.length)];
-                            nodes[removeIdx].vx = (Math.random()-0.5)*0.4;
-                            nodes[removeIdx].vy = (Math.random()-0.5)*0.4;
-                            var closest = -1, closestDist = Infinity;
-                            for (var j=0; j<nodes.length; j++) {
-                                if (j === removeIdx) continue;
-                                var d = Math.hypot(nodes[j].x - nodes[removeIdx].x, nodes[j].y - nodes[removeIdx].y);
-                                if (d < closestDist) { closestDist=d; closest=j; }
-                            }
-                            if (closest >= 0) edges.push({ a:closest, b:removeIdx, alpha:0 });
-                        }
-                    }, 600);
-                }
-                for (var i=0; i<nodes.length; i++) {
-                    var n = nodes[i];
-                    n.alpha += (n.targetAlpha - n.alpha) * 0.06;
-                    n.x += n.vx; n.y += n.vy;
-                    n.vx *= 0.995; n.vy *= 0.995;
-                    if (n.x<30||n.x>W-30) n.vx*=-1;
-                    if (n.y<30||n.y>H-30) n.vy*=-1;
-                }
-                for (var e=0; e<edges.length; e++) {
-                    var edge = edges[e];
-                    edge.alpha += (0.35 - edge.alpha) * 0.04;
-                    var a = nodes[edge.a], b = nodes[edge.b];
-                    ctx.beginPath();
-                    ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-                    ctx.strokeStyle = 'rgba(96,165,250,' + (edge.alpha * Math.min(a.alpha,b.alpha)) + ')';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                }
-                for (var i=0; i<nodes.length; i++) {
-                    var n = nodes[i];
-                    ctx.beginPath();
-                    ctx.arc(n.x, n.y, n.r + Math.sin(tick*0.03+i)*0.8, 0, Math.PI*2);
-                    ctx.fillStyle = n.color;
-                    ctx.globalAlpha = n.alpha;
-                    ctx.fill();
-                    ctx.globalAlpha = n.alpha * 0.25;
-                    ctx.beginPath();
-                    ctx.arc(n.x, n.y, n.r*2.5, 0, Math.PI*2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-                requestAnimationFrame(draw);
-            }
-            requestAnimationFrame(draw);
-        }
-
-        function wizardRepairJSON(text) {
-            var trimmed = text.trim();
-            if (trimmed.charAt(0) !== '{') return null;
-            var inStr = false, esc = false, depth = 0, arrDepth = 0;
-            var safePoints = [];
-            for (var i = 0; i < trimmed.length; i++) {
-                var c = trimmed.charCodeAt(i);
-                if (esc) { esc = false; continue; }
-                if (c === 92) { esc = true; continue; }
-                if (c === 34) { inStr = !inStr; continue; }
-                if (inStr) continue;
-                if (c === 123) depth++;
-                else if (c === 125) depth--;
-                else if (c === 91) arrDepth++;
-                else if (c === 93) arrDepth--;
-                if (c === 44 && depth === 1 && arrDepth === 0) safePoints.push(i);
-            }
-            for (var s = safePoints.length - 1; s >= 0; s--) {
-                var candidate = trimmed.substring(0, safePoints[s]) + '}';
-                try { return JSON.parse(candidate); } catch(e) {}
-            }
-            return null;
-        }
         async function wizardRunParsing() {
-            if (window.wizardRunParsing && window.wizardRunParsing !== wizardRunParsing) return window.wizardRunParsing();
             const setStatus = (msg, pct) => {
                 const s = document.getElementById('wizardParsingStatus');
                 const p = document.getElementById('wizardParseProgress');
@@ -21635,301 +20898,111 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
 
             try {
                 logAnalyticsEvent('resume_parse', {});
-                setStatus('Parsing your resume...', 15);
-
-                if (!wizardState.resumeText && !wizardState.resumeFileBase64) {
-                    console.error('[BP Parse] No resume data to parse! resumeText:', wizardState.resumeText, 'fileBase64:', !!wizardState.resumeFileBase64);
-                    showToast('No resume data found. Please go back and paste your resume or upload a PDF.', 'warning', 6000);
-                    wizardState.step = 2;
-                    renderWizardStep();
-                    return;
-                }
+                setStatus('Sending to Claude...', 15);
 
                 var wizardApiKey = safeGet('wbAnthropicKey');
                 if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
                     setStatus('', 0);
+                    var icon = document.getElementById('wizardParsingIcon');
+                    if (icon) icon.style.animation = 'none';
                     showToast('Sign in or add an Anthropic API key in Settings to use AI parsing.', 'warning', 6000);
                     return;
                 }
 
-                // ── TWO-CALL PARSE ARCHITECTURE ─────────────────────────────────
-                // Call 1 (Haiku, ~5s): Structure — profile, workHistory, education, certs, roles, values, purpose
-                // Call 2 (Haiku, ~8s): Skills — domain-aware extraction using structured data from Call 1
-                // Total: ~15s, well under the 58s proxy abort. No Sonnet needed.
+                const systemPrompt = `You are a professional career analyst. Extract structured profile data from a resume or LinkedIn profile text.
 
-                var wizardApiKey = safeGet('wbAnthropicKey');
-                if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
-                    setStatus('', 0);
-                    showToast('Sign in or add an Anthropic API key in Settings to use AI parsing.', 'warning', 6000);
-                    return;
-                }
+Return ONLY valid JSON in this exact shape — no markdown, no explanation, just the JSON object:
+{
+  "profile": {
+    "name": "Full Name",
+    "currentTitle": "Current Job Title",
+    "location": "City, State or Remote",
+    "email": "",
+    "phone": "",
+    "yearsExperience": 10,
+    "executiveSummary": "2-3 sentence professional summary in first person"
+  },
+  "roles": [
+    { "id": "role1", "name": "Role Name", "years": "2019-Present", "company": "Company Name" }
+  ],
+  "skills": [
+    {
+      "name": "Skill Name",
+      "level": "Mastery|Expert|Advanced|Proficient|Novice",
+      "category": "skill|ability|workstyle|unique",
+      "roles": ["role1"],
+      "key": true,
+      "evidence": [
+        { "description": "What you did", "outcome": "Measurable result or impact" }
+      ]
+    }
+  ],
+  "values": [
+    { "name": "Value Name", "description": "Brief personal description of this value", "selected": true }
+  ],
+  "purpose": "One paragraph purpose statement in first person — what you do, who you help, how you do it differently"
+}
 
-                // Build user content from available resume data
+Rules:
+- Extract 15-40 skills. Include technical skills, soft skills, leadership abilities, and unique differentiators.
+- Level guide: Mastery=career-defining expertise (15+ yrs), Expert=deep proficiency (8-15 yrs), Advanced=strong competency (4-8 yrs), Proficient=solid (1-4 yrs), Novice=learning.
+- For each skill, extract 1-3 evidence items from the resume. Outcomes must be specific — include numbers, percentages, dollar amounts wherever present in the text.
+- Infer 4-6 values from the resume's tone, achievements, and career pattern. Make them personal, not generic.
+- Write the purpose statement to be compelling and authentic to this person's actual experience.
+- category="unique" for skills not in standard O*NET taxonomy (industry-specific, rare combinations).`;
+
+                // Build message content: PDF document or plain text
                 var userContent;
-                if (wizardState.useFileUpload && wizardState.resumeFileExtractedText) {
-                    userContent = 'Parse this resume (extracted from PDF: ' + (wizardState.resumeFileName || 'upload') + '):\n\n' + wizardState.resumeFileExtractedText;
-                } else if (wizardState.useFileUpload && wizardState.resumeFileBase64) {
+                if (wizardState.useFileUpload && wizardState.resumeFileBase64) {
                     userContent = [
-                        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: wizardState.resumeFileBase64 } },
-                        { type: 'text', text: 'Extract structured career profile data from this resume PDF.' }
+                        {
+                            type: 'document',
+                            source: {
+                                type: 'base64',
+                                media_type: 'application/pdf',
+                                data: wizardState.resumeFileBase64
+                            }
+                        },
+                        { type: 'text', text: 'Parse this resume PDF and extract structured profile data.' }
                     ];
                 } else {
                     userContent = 'Parse this resume:\n\n' + wizardState.resumeText;
                 }
 
-                // ── CALL 1: STRUCTURE ────────────────────────────────────────────────
-                const structPrompt = `Extract career structure from this resume/LinkedIn PDF into JSON. Return ONLY valid JSON, no markdown.
-
-LINKEDIN PDF: Text is in sidebars and columns. Left sidebar has Top Skills, Certifications, Honors. Right column has Experience/Education. Read ALL sections including sidebars.
-
-CERT vs JOB — MOST CRITICAL RULE. These are ALWAYS certifications in certifications[], NEVER in workHistory:
-- FAA licenses: Private Pilot, Instrument Rating, Commercial Pilot, ATP, CFI, CFII
-- Agile/PM: CSM, Certified ScrumMaster, Scrum Master, PMP, PRINCE2
-- Cloud/Tech: AWS Certified, Google Cloud, Azure, Salesforce
-- Other: Leadership in AI, Six Sigma, CPA, CISSP, CFA
-If you see "CSM", "Private Pilot", "Instrument Rating", "Leadership in AI" anywhere — certifications[] ONLY.
-
-These ARE work history entries (workHistory[]):
-- Co-Founder, Owner, Managing Partner, President, VP, Director = jobs
-- "Co-Founder/Chief Pilot at Kyle's Wish Foundation" = title:"Co-Founder/Chief Pilot", company:"Kyle's Wish Foundation"
-- Kyle's Wish Foundation is a real nonprofit 501(c)(3) — treat it as a real employer
-- Executive Board Member, Advisory Board Member = jobs
-
-Return this exact structure:
-{"profile":{"name":"","currentTitle":"","currentCompany":"","location":"","email":"","phone":"","linkedinUrl":"","yearsExperience":0,"executiveSummary":"2-4 sentence first-person summary"},"roles":[{"id":"r1","name":"","years":"","company":"","description":"2-3 sentence summary"}],"workHistory":[{"title":"","company":"","startDate":"","endDate":"","description":"key achievements"}],"education":[{"school":"","degree":"","field":"","years":""}],"certifications":[{"name":"","issuer":"","year":""}],"values":[{"name":"","description":"career-evidence description","selected":true}],"purpose":"first-person purpose statement"}
-
-Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 specific inferred values. Purpose: authentic first-person narrative.`;
-
-                setStatus('Reading your career history...', 20);
-                console.log('[BP Parse] Call 1 — structure extraction (Haiku)');
-
-                var safetyTimeout = setTimeout(function() {
-                    var status = document.getElementById('wizardParsingStatus');
-                    if (status && !status.innerHTML.includes('failed')) {
-                        status.innerHTML = '<span style="color:var(--danger);">Parsing timed out. Please try again.</span><br><br>' +
-                            '<button onclick="wizardState.step=2; renderWizardStep();" style="background:var(--accent); color:#fff; border:none; padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em; margin-right:10px;">\u2190 Try Again</button>' +
-                            '<button onclick="wizardSkipParsing()" style="background:none; border:1px solid var(--border); color:var(--text-secondary); padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em;">Skip \u2192 Enter Manually</button>';
-                    }
-                }, 100000);
-
-                var data1;
-                try {
-                    data1 = await callAnthropicAPI({
-                        model: 'claude-haiku-4-5-20251001',
-                        max_tokens: 5000,
-                        system: structPrompt,
-                        messages: [
-                            { role: 'user', content: userContent },
-                            { role: 'assistant', content: '{' }
-                        ]
+                var data = await callAnthropicAPI({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 4000,
+                        system: systemPrompt,
+                        messages: [{ role: 'user', content: userContent }]
                     }, wizardApiKey, 'resume-parse');
-                } catch (apiErr) {
-                    clearTimeout(safetyTimeout);
-                    throw apiErr;
-                }
+                setStatus('Structuring your profile data...', 55);
+                const rawText = data.content[0]?.text || '';
 
-                setStatus('Extracting your skills...', 45);
-                console.log('[BP Parse] Call 1 complete — starting skill extraction (Haiku)');
+                setStatus('Extracting skills and evidence...', 75);
 
-                var raw1 = '{' + (data1.content[0]?.text || '');
-                var clean1 = raw1.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-                if (clean1[0] !== '{') { var j1 = clean1.indexOf('{'); if (j1 >= 0) clean1 = clean1.substring(j1); }
-                var struct; try { struct = JSON.parse(clean1); } catch(e) { struct = wizardRepairJSON(clean1) || {}; }
-
-                // ── CALL 2: SKILLS ────────────────────────────────────────────────────
-                // Build context from Call 1 result so skill extraction is informed
-                var roles1 = (struct.workHistory || []).map(function(wh) {
-                    return (wh.title || '') + ' at ' + (wh.company || '') + (wh.description ? ': ' + wh.description.substring(0, 150) : '');
-                }).join('\n');
-                var certs1 = (struct.certifications || []).map(function(c) { return c.name || ''; }).join(', ');
-
-                const skillPrompt = 'Extract 40-60 professional skills from this career profile. Return ONLY a JSON array, no markdown.\n\n' +
-                    'CAREER PROFILE:\n' +
-                    'Current Title: ' + ((struct.profile || {}).currentTitle || '') + '\n' +
-                    'Current Company: ' + ((struct.profile || {}).currentCompany || '') + '\n' +
-                    'Experience: ' + ((struct.profile || {}).executiveSummary || '') + '\n' +
-                    'Work History:\n' + roles1 + '\n' +
-                    'Certifications: ' + certs1 + '\n\n' +
-                    'RULES:\n' +
-                    '- NEVER extract O*NET category labels: "Administration and Management", "Judgment and Decision Making", "Personnel and Human Resources", "Customer and Personal Service", "Systems Evaluation", "Management of Financial Resources" are NOT skills.\n' +
-                    '- AI/TECH: Person at AI or HR tech company = extract: Applied AI, Generative AI, Agentic AI, AI Strategy, AI Governance, Responsible AI, AI Fluency, AI Transformation, Enterprise AI Adoption, Prompt Engineering, AI Ethics, Talent Intelligence, Technology Evangelism, Thought Leadership. Executive at Applied AI company = AI Strategy at Mastery.\n' +
-                    '- AVIATION: Any FAA cert or pilot title = extract ALL: Instrument Flight Rules (IFR), Aeronautical Decision Making, Aviation Risk Assessment, Situational Awareness, Crew Resource Management, Cognitive Task Prioritization, Workload Management Under Pressure, Pattern Recognition, Contingency Planning, Stress Management Under Pressure, Adaptive Troubleshooting, Disciplined Adherence to Protocol, Rapid Information Synthesis, Bias Mitigation, Assertive Communication, Emotional Regulation, Professional Accountability, Spatial Orientation, Single-Pilot Resource Management.\n' +
-                    '- NONPROFIT: Founder of charity/foundation = extract: Nonprofit Leadership, 501(c)(3) Operations, Fundraising, Community Engagement, Volunteer Coordination, Mission-Driven Leadership, Mental Health Advocacy.\n' +
-                    '- MUSIC: Musician/drummer/performer = extract: Percussion Performance, Music Performance, Studio Recording, Live Performance, Performing Under Pressure.\n' +
-                    '- LEADERSHIP: VP/Director/C-suite = extract: Executive Strategy, Cross-Functional Leadership, Revenue Growth, Enterprise Sales, Customer Advisory, Board Engagement, Change Management, Strategic Planning, Go-to-Market Strategy.\n' +
-                    '- INFER: $200M+ revenue = Sales Strategy, Revenue Growth. Speaker at conferences = Public Speaking, Thought Leadership. Newsletter/publisher = Content Strategy, Personal Branding.\n' +
-                    '- Levels: Mastery=15+yrs/primary identity, Expert=8-15yrs, Advanced=4-8yrs, Proficient=1-4yrs, Novice=emerging.\n' +
-                    '- key=true for 8-12 identity-defining skills.\n\n' +
-                    'Return ONLY this JSON array (no wrapper object):\n' +
-                    '[{"name":"Skill Name","level":"Mastery|Expert|Advanced|Proficient|Novice","category":"skill|ability|workstyle|unique","key":true,"evidence":[{"description":"specific action","outcome":"measurable result"}]}]\n' +
-                    'Extract exactly 40-60 skills. Every domain represented in the profile must contribute skills.';
-
-                var data2;
-                try {
-                    data2 = await callAnthropicAPI({
-                        model: 'claude-haiku-4-5-20251001',
-                        max_tokens: 6000,
-                        messages: [{ role: 'user', content: skillPrompt }]
-                    }, wizardApiKey, 'resume-parse');
-                } catch (apiErr) {
-                    clearTimeout(safetyTimeout);
-                    throw apiErr;
-                }
-                clearTimeout(safetyTimeout);
-                console.log('[BP Parse] Call 2 complete — skills extracted');
-
-                setStatus('Building your Blueprint...', 85);
-
-                // Parse skills from Call 2
-                var raw2 = (data2.content[0]?.text || '').replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-                if (raw2[0] !== '[') { var j2 = raw2.indexOf('['); if (j2 >= 0) raw2 = raw2.substring(j2); }
-                var parsedSkills = [];
-                try { parsedSkills = JSON.parse(raw2); } catch(e) { console.warn('[BP Parse] Skill parse failed, using empty array', e.message); }
-
-                // ── Post-parse certification rescue — runs BEFORE parsed is built ─────
-                // Cleans both workHistory and roles so Step 5 occupation matching is clean.
-                var _certKeywords = /^(private pilot|instrument rating|ifr rating|commercial pilot|atp|airline transport|cfi|cfii|flight instructor|csm|certified scrum|scrum master|pmp|prince2|leadership in ai|aws certified|google cloud|azure certified|six sigma|cpa|cissp|cfa|cism|capm)\b/i;
-                var _certCompanies = /^(faa|federal aviation administration|scrum alliance|pmi|project management institute|amazon web services|microsoft|google|isc2|aicpa)$/i;
-                var _isCertEntry = function(titleStr, companyStr) {
-                    var isKnownCertTitle = _certKeywords.test(titleStr);
-                    var isKnownCertIssuer = _certCompanies.test(companyStr) && titleStr.length < 60 && !/co-founder|owner|director|manager|president|\bvp\b|pilot|executive|partner/i.test(titleStr);
-                    return isKnownCertTitle || isKnownCertIssuer;
-                };
-                var rescued = [];
-                var existingCertNamesLower = (struct.certifications || []).map(function(c) { return (c.name||''). toLowerCase(); });
-                function rescueToCerts(name, issuer, year) {
-                    if (!existingCertNamesLower.includes(name.toLowerCase())) {
-                        rescued.push({ name: name, issuer: issuer, year: year || '', status: 'active' });
-                        existingCertNamesLower.push(name.toLowerCase());
-                    }
-                }
-                struct.workHistory = (struct.workHistory || []).filter(function(wh) {
-                    if (_isCertEntry((wh.title||'').trim(), (wh.company||'').trim())) {
-                        rescueToCerts((wh.title||'').trim(), (wh.company||'').trim(), wh.startDate||'');
-                        return false;
-                    }
-                    return true;
-                });
-                struct.roles = (struct.roles || []).filter(function(r) {
-                    var rName = (r.name || r.title || '').trim();
-                    var rCompany = (r.company || '').trim();
-                    if (_isCertEntry(rName, rCompany)) {
-                        rescueToCerts(rName, rCompany, '');
-                        return false;
-                    }
-                    return true;
-                });
-                if (rescued.length > 0) {
-                    struct.certifications = (struct.certifications || []).concat(rescued);
-                    console.log('[BP Parse] Rescued ' + rescued.length + ' cert(s):', rescued.map(function(r){return r.name;}).join(', '));
-                }
-
-                // Merge into a unified parsed object (uses clean struct)
-                var parsed = Object.assign({}, struct, { skills: Array.isArray(parsedSkills) ? parsedSkills : [] });
+                // Strip markdown fences if present
+                const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+                const parsed = JSON.parse(clean);
 
                 setStatus('Building your Blueprint...', 95);
 
                 wizardState.parsedData = parsed;
                 wizardState.profile = parsed.profile || {};
-
-                // Strip O*NET category noise and apply quality filter
-                var _onetCategoryNoise = {
-                    'administration and management': 1, 'judgment and decision making': 1,
-                    'personnel and human resources': 1, 'customer and personal service': 1,
-                    'systems evaluation': 1, 'systems analysis': 1,
-                    'management of financial resources': 1, 'management of personnel resources': 1,
-                    'management of material resources': 1, 'operations analysis': 1,
-                    'operation monitoring': 1, 'operation and control': 1,
-                    'quality control analysis': 1, 'equipment maintenance': 1,
-                    'equipment selection': 1, 'installation': 1, 'repairing': 1,
-                    'science': 1, 'mathematics': 1, 'philosophy and theology': 1,
-                    'sociology and anthropology': 1, 'geography': 1,
-                    'foreign language': 1, 'fine arts': 1, 'history and archeology': 1,
-                    'therapy and counseling': 1, 'medicine and dentistry': 1
-                };
-                var rawSkills = (parsed.skills || []).filter(function(s) {
-                    return !_onetCategoryNoise[(s.name || '').toLowerCase().trim()];
-                });
-                wizardState.skills = typeof _wbSkillQualityFilter === 'function'
-                    ? _wbSkillQualityFilter(rawSkills) : rawSkills;
-
-                // ── Rarity enrichment pass ────────────────────────────────────────
-                // Assign rarity so welcome.js Step 6 can group into Rare/Uncommon/Common
-                // immediately, without waiting for market intel to load.
-                // Logic mirrors Blueprint skills view: key+Mastery/Expert = rare,
-                // Advanced/domain = uncommon, everything else = common.
-                wizardState.skills.forEach(function(s) {
-                    if (s.rarity) return; // already set
-                    var lvl = s.level || 'Proficient';
-                    var isKey = s.key || s.isKey;
-                    var cat = (s.category || '').toLowerCase();
-                    if (isKey && (lvl === 'Mastery' || lvl === 'Expert')) {
-                        s.rarity = 'rare';
-                    } else if (lvl === 'Mastery' || cat === 'unique' || cat === 'ability') {
-                        s.rarity = 'uncommon';
-                    } else if (lvl === 'Expert' || lvl === 'Advanced') {
-                        s.rarity = 'uncommon';
-                    } else {
-                        s.rarity = 'common';
-                    }
-                    // Domain-injected pilot/AI/nonprofit skills are always at least uncommon
-                    if (s.sources && s.sources.some(function(src) { return src.indexOf('cert-skill-map') >= 0; })) {
-                        if (s.rarity === 'common') s.rarity = 'uncommon';
-                    }
-                });
-
+                wizardState.skills = parsed.skills || [];
                 wizardState.values = (parsed.values || []).map(v => ({ ...v, selected: v.selected !== false }));
                 wizardState.purpose = parsed.purpose || '';
 
-                if (parsed.workHistory && parsed.workHistory.length > 0) {
-                    wizardState.workHistory = parsed.workHistory.map(function(wh) {
-                        return { title: wh.title || '', company: wh.company || '', startDate: wh.startDate || '', endDate: wh.endDate || '', description: wh.description || '' };
-                    });
-                }
-                if (parsed.education && parsed.education.length > 0) {
-                    wizardState.education = parsed.education.map(function(edu) {
-                        return { school: edu.school || edu.institution || '', degree: edu.degree || '', field: edu.field || edu.fieldOfStudy || '', years: edu.years || '' };
-                    });
-                }
-                if (parsed.certifications && parsed.certifications.length > 0) {
-                    wizardState.certifications = parsed.certifications.map(function(cert) {
-                        return { name: cert.name || '', issuer: cert.issuer || cert.organization || '', year: cert.year || '', status: 'active' };
-                    });
-                }
-
-                // ── Domain skill injection at parse time ──────────────────────────
-                // _getWizardDomainSkills() reads wizardState.certifications + workHistory.
-                // We inject here (not Step 5) because welcome.js owns Step 5 rendering
-                // via delegation guard and never calls our domain injection code.
-                var _existingSkillNamesLower = {};
-                wizardState.skills.forEach(function(s) { _existingSkillNamesLower[(s.name||'').toLowerCase()] = true; });
-
-                var domainSkillsToAdd = typeof _getWizardDomainSkills === 'function' ? _getWizardDomainSkills() : [];
-                domainSkillsToAdd.forEach(function(ds) {
-                    var nl = (ds.name || '').toLowerCase();
-                    if (_existingSkillNamesLower[nl]) return; // already extracted by AI
-                    _existingSkillNamesLower[nl] = true;
-                    var enriched = Object.assign({}, ds, {
-                        rarity: ds.key && (ds.level === 'Mastery' || ds.level === 'Expert') ? 'rare'
-                              : (ds.level === 'Mastery' || ds.category === 'ability' || ds.level === 'Expert') ? 'uncommon'
-                              : 'uncommon', // domain skills are always at least uncommon
-                        sources: ds.sources || ['cert-skill-map']
-                    });
-                    wizardState.skills.push(enriched);
-                });
-                if (domainSkillsToAdd.length > 0) {
-                    console.log('[BP Parse] Injected ' + domainSkillsToAdd.length + ' domain skills from cert/role map');
-                }
-
-                await new Promise(r => setTimeout(r, 400));
+                await new Promise(r => setTimeout(r, 600));
                 setStatus('Done! ✓', 100);
-                await new Promise(r => setTimeout(r, 300));
+                await new Promise(r => setTimeout(r, 400));
 
                 wizardState.step = 4;
                 renderWizardStep();
 
             } catch (err) {
                 console.error('Parsing error:', err);
+                const el = document.getElementById('wizardParsingIcon');
+                if (el) el.style.animation = 'none';
                 const status = document.getElementById('wizardParsingStatus');
                 if (status) status.innerHTML = `
                     <span style="color:var(--danger);">
@@ -22013,7 +21086,6 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
         }
 
         function wizardSaveProfile() {
-            if (window.wizardSaveProfile && window.wizardSaveProfile !== wizardSaveProfile) return window.wizardSaveProfile();
             if (readOnlyGuard()) return;
             wizardState.profile = {
                 name: document.getElementById('wizardName')?.value?.trim() || '',
@@ -22036,147 +21108,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
 
         // ── STEP 5: O*NET Occupation Enrichment ─────────────────────────────
 
-
-        function wizardToggleRoleHidden(whIdx) {
-            var wh = wizardState.workHistory;
-            if (!wh || !wh[whIdx]) return;
-            wh[whIdx].hidden = !wh[whIdx].hidden;
-            var hiddenCount = wh.filter(function(j) { return j.hidden; }).length;
-            var visibleCount = wh.length - hiddenCount;
-            if (visibleCount === 0) {
-                wh[whIdx].hidden = false;
-                showToast('You need at least one visible role.', 'warning');
-                return;
-            }
-            var isHidden = wh[whIdx].hidden;
-            showToast(isHidden
-                ? 'Role hidden — skills from this role are still kept.'
-                : 'Role visible again.',
-                'info', 2000);
-            var btns = document.querySelectorAll('[onclick*="wizardToggleRoleHidden(' + whIdx + ')"]');
-            btns.forEach(function(btn) {
-                var row = btn.closest('[style*="padding:10px 0"]');
-                if (row) row.style.opacity = isHidden ? '0.5' : '1';
-                btn.style.background = isHidden ? 'rgba(245,158,11,0.15)' : 'none';
-                btn.style.borderColor = isHidden ? '#f59e0b' : 'var(--border)';
-                btn.style.color = isHidden ? '#f59e0b' : 'var(--text-muted)';
-                btn.innerHTML = isHidden ? '👁 Hidden — skills kept' : '👁 Hide role';
-                btn.title = isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills';
-            });
-        }
-        window.wizardToggleRoleHidden = wizardToggleRoleHidden;
-
-        // ===== WIZARD CERT + DOMAIN SKILL MAP =====
-        // Maps certifications and work history titles → curated skill arrays.
-        // Used in Step 5 to surface domain skills when O*NET crosswalk arrays are empty.
-        function _getWizardDomainSkills() {
-            var domainSkills = [];
-            var addedNames = {};
-            function addSkill(name, level, category, key) {
-                var nl = name.toLowerCase();
-                if (addedNames[nl]) return;
-                addedNames[nl] = true;
-                // Don't re-add skills already in wizardState
-                var already = (wizardState.skills || []).some(function(s) {
-                    return (s.name || '').toLowerCase() === nl;
-                });
-                if (already) return;
-                domainSkills.push({ name: name, level: level || 'Advanced', category: category || 'skill', key: !!key, evidence: [], sources: ['cert-skill-map'] });
-            }
-
-            var certs = (wizardState.certifications || []).map(function(c) { return (c.name || '').toLowerCase(); });
-            var workTitles = (wizardState.workHistory || []).map(function(wh) { return (wh.title || '').toLowerCase(); });
-            var allText = certs.concat(workTitles).join(' ');
-
-            // ── FAA PILOT CERTIFICATIONS ──────────────────────────────────────
-            var hasPilot = /private pilot|instrument rating|instrument rated|commercial pilot|atp|airline transport|cfii?|flight instructor|chief pilot|co-founder.*pilot|pilot.*co-founder/i.test(allText);
-            if (hasPilot) {
-                // Core aviation skills
-                addSkill('Instrument Flight Rules (IFR)', 'Expert', 'skill', true);
-                addSkill('Aeronautical Decision Making', 'Expert', 'skill', true);
-                addSkill('Aviation Risk Assessment', 'Expert', 'ability', true);
-                addSkill('Situational Awareness', 'Mastery', 'ability', true);
-                addSkill('Crew Resource Management', 'Expert', 'skill', false);
-                addSkill('Single-Pilot Resource Management', 'Expert', 'skill', false);
-                // Transferable cognitive/leadership skills
-                addSkill('Cognitive Task Prioritization', 'Expert', 'ability', true);
-                addSkill('Workload Management Under Pressure', 'Mastery', 'ability', true);
-                addSkill('Pattern Recognition', 'Expert', 'ability', false);
-                addSkill('Contingency Planning', 'Expert', 'skill', false);
-                addSkill('Rapid Information Synthesis', 'Expert', 'ability', true);
-                addSkill('Stress Management Under Pressure', 'Mastery', 'ability', false);
-                addSkill('Adaptive Troubleshooting', 'Expert', 'skill', false);
-                addSkill('Environmental Threat Assessment', 'Expert', 'ability', false);
-                addSkill('Disciplined Adherence to Protocol', 'Mastery', 'workstyle', false);
-                addSkill('Bias Mitigation', 'Expert', 'ability', false);
-                addSkill('Assertive Communication', 'Expert', 'skill', false);
-                addSkill('Emotional Regulation', 'Expert', 'ability', false);
-                addSkill('Professional Accountability', 'Mastery', 'workstyle', false);
-                addSkill('Sensory Integration', 'Expert', 'ability', false);
-                addSkill('Spatial Orientation', 'Expert', 'ability', false);
-                addSkill('Trauma Response Protocols', 'Advanced', 'skill', false);
-            }
-
-            // ── KYLE'S WISH / CHIEF PILOT + FOUNDATION ───────────────────────
-            var hasChiefPilot = /chief pilot/i.test(allText);
-            var hasFoundation = (wizardState.workHistory || []).some(function(wh) {
-                return /chief pilot|co-founder.*pilot|pilot.*founder/i.test(wh.title || '') ||
-                       /foundation|wish|charity|nonprofit|non-profit/i.test(wh.company || '');
-            });
-            if (hasChiefPilot || hasFoundation) {
-                addSkill('Nonprofit Leadership', 'Expert', 'skill', true);
-                addSkill('501(c)(3) Operations', 'Expert', 'skill', false);
-                addSkill('Aviation Program Management', 'Expert', 'skill', false);
-                addSkill('Fundraising', 'Advanced', 'skill', false);
-                addSkill('Community Engagement', 'Expert', 'skill', false);
-                addSkill('Volunteer Coordination', 'Advanced', 'skill', false);
-                addSkill('Mental Health Advocacy', 'Expert', 'skill', true);
-                addSkill('Mission-Driven Leadership', 'Mastery', 'workstyle', true);
-                addSkill('Stakeholder Engagement', 'Expert', 'skill', false);
-                addSkill('Charitable Program Management', 'Expert', 'skill', false);
-            }
-
-            // ── LEADERSHIP IN AI CERTIFICATION ────────────────────────────────
-            var hasLeadershipAI = /leadership in ai|leadership.*artificial intelligence/i.test(allText);
-            if (hasLeadershipAI) {
-                addSkill('AI Strategy', 'Expert', 'skill', true);
-                addSkill('AI Governance', 'Expert', 'skill', true);
-                addSkill('Responsible AI', 'Expert', 'skill', false);
-                addSkill('AI Fluency', 'Expert', 'skill', true);
-                addSkill('AI Transformation', 'Expert', 'skill', true);
-                addSkill('Enterprise AI Adoption', 'Expert', 'skill', false);
-                addSkill('AI Ethics', 'Advanced', 'skill', false);
-                addSkill('AI Risk Management', 'Advanced', 'skill', false);
-                addSkill('Machine Learning Fundamentals', 'Advanced', 'skill', false);
-            }
-
-            // ── CSM / SCRUM ───────────────────────────────────────────────────
-            var hasCsm = /\bcsm\b|certified scrum master|scrum master/i.test(allText);
-            if (hasCsm) {
-                addSkill('Agile Methodology', 'Advanced', 'skill', false);
-                addSkill('Scrum Framework', 'Advanced', 'skill', false);
-                addSkill('Sprint Planning', 'Advanced', 'skill', false);
-                addSkill('Agile Coaching', 'Advanced', 'skill', false);
-            }
-
-            // ── MUSICIAN / PERFORMER ──────────────────────────────────────────
-            var hasMusician = /musician|drummer|drum|percuss|touring|studio.*music|music.*studio/i.test(allText);
-            if (hasMusician) {
-                addSkill('Percussion Performance', 'Mastery', 'skill', true);
-                addSkill('Music Performance', 'Mastery', 'skill', false);
-                addSkill('Studio Recording', 'Expert', 'skill', false);
-                addSkill('Live Performance', 'Mastery', 'skill', false);
-                addSkill('Creative Collaboration', 'Expert', 'skill', false);
-                addSkill('Performing Under Pressure', 'Mastery', 'ability', false);
-                addSkill('Rhythmic Pattern Recognition', 'Mastery', 'ability', false);
-            }
-
-            return domainSkills;
-        }
-        window._getWizardDomainSkills = _getWizardDomainSkills;
-
         function renderWizardStep5(el) {
-            if (window.renderWizardStep5 && window.renderWizardStep5 !== renderWizardStep5) return window.renderWizardStep5(el);
             // If crosswalk not loaded, skip enrichment
             if (!window.onetCrosswalk) {
                 el.innerHTML = `
@@ -22208,74 +21140,15 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 }
             });
 
-            // Also add workHistory titles that aren't already in parsedData roles
-            var whItems = wizardState.workHistory || [];
-            var existingTitleSet = {};
-            titles.forEach(function(t) { existingTitleSet[t.label.toLowerCase()] = true; });
-            whItems.forEach(function(wh) {
-                var whTitle = (wh.title || '').trim();
-                if (whTitle && !existingTitleSet[whTitle.toLowerCase()]) {
-                    existingTitleSet[whTitle.toLowerCase()] = true;
-                    titles.push({ label: whTitle, source: 'history', company: wh.company || '', years: '' });
-                }
-            });
-
-            // Split compound titles (e.g. "Co-Founder/Chief Pilot") into segments
-            var expandedTitles = [];
-            var _genericFragments = { 'creative':1, 'member':1, 'associate':1, 'coordinator':1 };
-            titles.forEach(function(t) {
-                expandedTitles.push(t);
-                if (/[\/&]|\band\b/i.test(t.label)) {
-                    var parts = t.label.split(/\s*[\/&]\s*|\s+and\s+/i).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 3; });
-                    parts.forEach(function(part) {
-                        var normPart = part.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-                        var wordCount = normPart.split(' ').filter(function(w) { return w.length > 2; }).length;
-                        if (wordCount < 2 || _genericFragments[normPart]) return;
-                        expandedTitles.push({ label: part, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
-                    });
-                }
-            });
-
-            // For founder/owner titles + company name clues, infer a role
-            var _founderInferMap = {
-                'foundation': 'Executive Director',
-                'nonprofit': 'Nonprofit Executive Director',
-                'non-profit': 'Nonprofit Executive Director',
-                'charity': 'Nonprofit Executive Director',
-                'consulting': 'Management Consultant',
-                'media': 'Media Director',
-                'tech': 'Technology Director',
-                'software': 'Software Development Manager',
-                'design': 'Creative Director',
-                'marketing': 'Marketing Director',
-                'health': 'Healthcare Administrator'
-            };
-            titles.forEach(function(t) {
-                var labelLow = t.label.toLowerCase();
-                if (/\b(founder|owner|partner|co-founder|cofounder)\b/i.test(labelLow)) {
-                    var companyLow = (t.company || '').toLowerCase();
-                    for (var key in _founderInferMap) {
-                        if (companyLow.includes(key)) {
-                            var inferredTitle = _founderInferMap[key];
-                            if (!existingTitleSet[inferredTitle.toLowerCase()]) {
-                                existingTitleSet[inferredTitle.toLowerCase()] = true;
-                                expandedTitles.push({ label: inferredTitle, source: t.source, company: t.company || '', years: t.years || '', _parentTitle: t.label });
-                            }
-                            break;
-                        }
-                    }
-                }
-            });
-            // Resolve all titles — group by role, filter low-confidence matches
+            // Resolve all titles
             var resolutions = [];
             var seenSocs = {};
-            var MIN_ALT_CONFIDENCE = 0.65;
-            expandedTitles.forEach(function(t) {
+            titles.forEach(function(t) {
                 var result = resolveTitle(t.label);
-                if (result && !seenSocs[result.soc] && result.confidence >= 0.60) {
+                if (result && !seenSocs[result.soc]) {
                     seenSocs[result.soc] = true;
                     resolutions.push({
-                        inputTitle: t._parentTitle || t.label,
+                        inputTitle: t.label,
                         source: t.source,
                         company: t.company || '',
                         years: t.years || '',
@@ -22286,90 +21159,21 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         alternatives: result.alternatives || []
                     });
                 }
-                if (result && result.alternatives) {
-                    var altCount = 0;
-                    result.alternatives.forEach(function(alt) {
-                        var altConf = (result.confidence || 0.8) * 0.85;
-                        if (!seenSocs[alt.soc] && altConf >= MIN_ALT_CONFIDENCE && altCount < 2) {
-                            seenSocs[alt.soc] = true;
-                            altCount++;
-                            resolutions.push({
-                                inputTitle: t._parentTitle || t.label,
-                                source: t.source,
-                                company: t.company || '',
-                                years: t.years || '',
-                                soc: alt.soc,
-                                occTitle: alt.title,
-                                family: alt.family,
-                                confidence: altConf,
-                                alternatives: []
-                            });
-                        }
-                    });
-                }
             });
 
-            // Run gap analysis for ALL matched occupations with fuzzy dedup
+            // Run gap analysis for primary occupation (highest confidence current title, or first match)
             var primaryRes = resolutions.find(function(r) { return r.source === 'current'; }) || resolutions[0];
             var gapResult = null;
             var gapSkills = [];
-            var gapSkillNames = {};
-            var existingSkillWords = {};
-            wizardState.skills.forEach(function(s) {
-                var words = (s.name || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2; });
-                words.forEach(function(w) { existingSkillWords[w] = true; });
-            });
-            var existingSkillNamesLower = {};
-            wizardState.skills.forEach(function(s) { existingSkillNamesLower[s.name.toLowerCase()] = true; });
-            function isGapRedundant(gapName) {
-                var gLow = gapName.toLowerCase();
-                if (existingSkillNamesLower[gLow]) return true;
-                var gapWords = gLow.replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function(w) { return w.length > 2; });
-                if (gapWords.length === 0) return false;
-                var overlap = gapWords.filter(function(w) { return existingSkillWords[w]; }).length;
-                return overlap / gapWords.length >= 0.6;
+            if (primaryRes) {
+                gapResult = suggestMissingSkills(wizardState.skills, primaryRes.soc);
+                if (gapResult) {
+                    // Filter to meaningful gaps (importance > 40, not already in user skills)
+                    gapSkills = gapResult.gaps.filter(function(g) {
+                        return (g.importance || 0) >= 40;
+                    }).slice(0, 20);
+                }
             }
-            resolutions.forEach(function(res) {
-                var result = suggestMissingSkills(wizardState.skills, res.soc);
-                if (result) {
-                    if (!gapResult || (res.source === 'current' && !gapResult._isPrimary)) {
-                        gapResult = result;
-                        gapResult._isPrimary = res.source === 'current';
-                    }
-                    result.gaps.forEach(function(g) {
-                        if ((g.importance || 0) >= 25 && !gapSkillNames[g.name.toLowerCase()] && !isGapRedundant(g.name)) {
-                        // Also block O*NET category labels from surfacing as gap suggestions
-                        var _gapNoise = {'administration and management':1,'judgment and decision making':1,'personnel and human resources':1,'customer and personal service':1,'systems evaluation':1,'systems analysis':1,'management of financial resources':1,'management of personnel resources':1,'management of material resources':1,'operations analysis':1,'operation monitoring':1,'operation and control':1,'quality control analysis':1,'fine arts':1,'oral comprehension':1,'written comprehension':1,'oral expression':1,'written expression':1,'speech clarity':1,'speech recognition':1,'information ordering':1,'deductive reasoning':1,'inductive reasoning':1};
-                        if (_gapNoise[(g.name||'').toLowerCase().trim()]) return;
-                        gapSkillNames[g.name.toLowerCase()] = true;
-                            g._fromOcc = res.occTitle;
-                            gapSkills.push(g);
-                        }
-                    });
-                }
-            });
-            gapSkills.sort(function(a, b) { return (b.importance || 0) - (a.importance || 0); });
-            gapSkills = gapSkills.slice(0, 20);
-
-            // ── Domain skill injection ────────────────────────────────────────
-            // Cert/domain skills (pilot, AI certs, nonprofit, musician) that O*NET
-            // crosswalk arrays don't cover. Injected as pre-checked gap suggestions.
-            var domainSkills = _getWizardDomainSkills();
-            domainSkills.forEach(function(ds) {
-                var nameLow = ds.name.toLowerCase();
-                if (!gapSkillNames[nameLow] && !isGapRedundant(ds.name)) {
-                    gapSkillNames[nameLow] = true;
-                    gapSkills.push({
-                        name: ds.name,
-                        category: ds.category || 'skill',
-                        importance: 70,
-                        occupationLevel: ds.level || 'Advanced',
-                        _fromOcc: 'Domain Expertise',
-                        _domain: true,
-                        key: ds.key || false
-                    });
-                }
-            });
 
             // Store enrichment state for the save function
             wizardState.enrichment = {
@@ -22393,112 +21197,38 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 return '\u{1F4A1}';
             };
 
-            var allRoles = (wizardState.parsedData && wizardState.parsedData.roles) || [];
-            var whItems = wizardState.workHistory || [];
-            var hasMultipleRoles = allRoles.length > 3 || whItems.length > 3;
-
             el.innerHTML = `
                 ${wizardHeading(bpIcon('target',22), 'Occupation Match & Skill Enrichment',
                     resolutions.length > 0
                         ? 'We matched your roles to O*NET occupations and found skills you may want to add.'
                         : 'No role titles could be matched. Continue to review your skills.')}
 
-                ${hasMultipleRoles ? '<div style="background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04)); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
-                    + '<div style="font-weight:700; color:#f59e0b; font-size:0.82em; margin-bottom:6px;">\uD83D\uDCA1 Pro Tip: Less is More</div>'
-                    + '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.5;">'
-                    + 'Listing more than your past 3 roles isn\'t necessary. You can <strong>hide a role but keep the skills</strong>. '
-                    + 'This way you demonstrate currency and relevance to the market without showing past roles that may create more noise than signal.</div>'
-                    + '</div>' : ''}
-
-                ${resolutions.length > 0 ? (function() {
-                    var grouped = {};
-                    var groupOrder = [];
-                    resolutions.forEach(function(r) {
-                        var key = r.inputTitle + '|||' + (r.company || '');
-                        if (!grouped[key]) {
-                            grouped[key] = { inputTitle: r.inputTitle, company: r.company, source: r.source, matches: [] };
-                            groupOrder.push(key);
-                        }
-                        grouped[key].matches.push(r);
-                    });
-
-                    var findWhIdx = function(title, company) {
-                        var tLow = (title || '').toLowerCase().trim();
-                        var cLow = (company || '').toLowerCase().trim();
-                        for (var i = 0; i < whItems.length; i++) {
-                            var whTitle = (whItems[i].title || '').toLowerCase().trim();
-                            var whCompany = (whItems[i].company || '').toLowerCase().trim();
-                            if (whTitle === tLow && (!cLow || !whCompany || whCompany === cLow)) return i;
-                        }
-                        for (var i = 0; i < whItems.length; i++) {
-                            if ((whItems[i].title || '').toLowerCase().trim() === tLow) return i;
-                        }
-                        return -1;
-                    };
-
-                    return '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-                        + 'border-radius:14px; padding:20px; margin-bottom:20px;">'
-                        + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">'
-                        + 'Your Roles</div>'
-                        + groupOrder.map(function(key, gi) {
-                            var g = grouped[key];
-                            var whIdx = findWhIdx(g.inputTitle, g.company);
-                            var isHidden = whIdx >= 0 && whItems[whIdx].hidden === true;
-                            return '<div style="padding:10px 0; border-bottom:1px solid var(--border);'
-                                + (isHidden ? ' opacity:0.5;' : '') + '">'
-                                + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
-                                + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
-                                + escapeHtml(g.inputTitle)
-                                + (g.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(g.company) + '</span>' : '')
-                                + '</div>'
-                                + (whIdx >= 0 ? '<button onclick="wizardToggleRoleHidden(' + whIdx + ')" title="' + (isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills') + '"'
-                                    + ' style="background:' + (isHidden ? 'rgba(245,158,11,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#f59e0b' : 'var(--border)') + ';'
-                                    + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
-                                    + ' white-space:nowrap; transition:all 0.15s;">'
-                                    + (isHidden ? '\uD83D\uDC41 Hidden \u2014 skills kept' : '\uD83D\uDC41 Hide role') + '</button>' : '')
-                                + '</div>'
-                                + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
-                                + g.matches.map(function(m) {
-                                    return '<div style="display:inline-flex; align-items:center; gap:6px;'
-                                        + ' background:var(--bg-surface); border:1px solid var(--border);'
-                                        + ' border-radius:8px; padding:4px 10px; font-size:0.8em;">'
-                                        + '<div style="width:7px; height:7px; border-radius:50%; background:' + confidenceColor(m.confidence) + '; flex-shrink:0;"></div>'
-                                        + '<span style="color:var(--text-secondary);">' + escapeHtml(m.occTitle) + '</span>'
-                                        + '<span style="color:var(--text-muted); font-size:0.85em;">' + Math.round(m.confidence * 100) + '%</span>'
-                                        + '</div>';
-                                }).join('')
-                                + '</div></div>';
-                        }).join('')
-                        + '</div>';
-                })() : ''}
-
-                ${(function() {
-                    var matchedTitles = new Set();
-                    resolutions.forEach(function(r) { matchedTitles.add((r.inputTitle || '').toLowerCase().trim()); });
-                    var unmatchedRoles = whItems.filter(function(wh) {
-                        return !matchedTitles.has((wh.title || '').toLowerCase().trim());
-                    });
-                    if (unmatchedRoles.length === 0) return '';
-                    return '<div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin-bottom:14px;">'
-                        + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:10px; font-size:0.88em;">Other Roles</div>'
-                        + unmatchedRoles.map(function(wh) {
-                            var origIdx = whItems.indexOf(wh);
-                            var isHidden = wh.hidden === true;
-                            return '<div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0;'
-                                + ' border-bottom:1px solid var(--border);' + (isHidden ? ' opacity:0.5;' : '') + '">'
-                                + '<div style="font-size:0.86em; color:var(--text-primary);">'
-                                + escapeHtml(wh.title || 'Untitled')
-                                + (wh.company ? ' <span style="color:var(--text-muted);">at ' + escapeHtml(wh.company) + '</span>' : '')
-                                + '</div>'
-                                + '<button onclick="wizardToggleRoleHidden(' + origIdx + ')" title="' + (isHidden ? 'Show role' : 'Hide role, keep skills') + '"'
-                                + ' style="background:' + (isHidden ? 'rgba(245,158,11,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#f59e0b' : 'var(--border)') + ';'
-                                + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#f59e0b' : 'var(--text-muted)') + ';'
-                                + ' white-space:nowrap;">'
-                                + (isHidden ? '\uD83D\uDC41 Hidden' : '\uD83D\uDC41 Hide') + '</button>'
-                                + '</div>';
-                        }).join('')
-                        + '</div>';
-                })()}
+                ${resolutions.length > 0 ? `
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:20px; margin-bottom:20px;">
+                    <div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">
+                        Occupation Matches
+                    </div>
+                    ${resolutions.map(function(r) {
+                        return '<div style="display:flex; align-items:center; gap:12px; padding:10px 0;'
+                            + 'border-bottom:1px solid var(--border);">'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
+                            + escapeHtml(r.inputTitle)
+                            + (r.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(r.company) + '</span>' : '')
+                            + '</div>'
+                            + '<div style="font-size:0.8em; color:var(--text-secondary); margin-top:2px;">'
+                            + '\u2192 ' + escapeHtml(r.occTitle) + ' <span style="color:var(--text-muted);">(' + r.soc + ')</span>'
+                            + '</div>'
+                            + '</div>'
+                            + '<div style="display:flex; align-items:center; gap:6px;">'
+                            + '<div style="width:8px; height:8px; border-radius:50%; background:' + confidenceColor(r.confidence) + ';"></div>'
+                            + '<span style="font-size:0.78em; color:var(--text-secondary);">' + Math.round(r.confidence * 100) + '%</span>'
+                            + '</div>'
+                            + '</div>';
+                    }).join('')}
+                </div>
+                ` : ''}
 
                 ${gapSkills.length > 0 ? `
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -22511,18 +21241,16 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                     </p>
                     <div style="max-height:340px; overflow-y:auto;">
                         ${gapSkills.map(function(g, i) {
-                            var isDomain = !!g._domain;
-                            return '<div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--border);">'
+                            return '<div style="display:flex; align-items:center; gap:12px; padding:8px 0;'
+                                + 'border-bottom:1px solid var(--border);">'
                                 + '<input type="checkbox" id="enrich-skill-' + i + '"'
-                                + (isDomain ? ' checked' : '')
                                 + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent); flex-shrink:0;">'
                                 + '<span style="font-size:0.85em; flex-shrink:0;">' + categoryIcon(g.category) + '</span>'
                                 + '<div style="flex:1; min-width:0;">'
                                 + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">'
                                 + escapeHtml(g.name) + '</div>'
                                 + '<div style="font-size:0.76em; color:var(--text-muted);">'
-                                + (g.category || 'skill') + ' · ' + (g.occupationLevel || 'Proficient')
-                                + (isDomain ? ' · <span style="color:#60a5fa; font-weight:600;">Domain</span>' : '')
+                                + (g.category || 'skill') + ' \u00B7 ' + (g.occupationLevel || 'Proficient')
                                 + '</div></div></div>';
                         }).join('')}
                     </div>
@@ -22564,7 +21292,6 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
         }
 
         function wizardSaveEnrichment() {
-            if (window.wizardSaveEnrichment && window.wizardSaveEnrichment !== wizardSaveEnrichment) return window.wizardSaveEnrichment();
             if (readOnlyGuard()) return;
             var enrichment = wizardState.enrichment;
             if (!enrichment || !enrichment.gapSkills) {
@@ -22604,544 +21331,16 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
 
         // ── STEP 6: Skills review ──────────────────────────────────────────────
 
-
-        // ── Market Intelligence Engine ──
-        async function wizardFetchMarketIntelligence() {
-            if (wizardState.marketIntel) return wizardState.marketIntel;
-            if (!wizardState.skills || wizardState.skills.length === 0) return null;
-
-            // Cap at top 40 skills by level to keep prompt under Haiku's sweet spot
-            var levelRank = { 'Mastery': 5, 'Expert': 4, 'Advanced': 3, 'Proficient': 2, 'Novice': 1 };
-            var topSkills = wizardState.skills.slice()
-                .sort(function(a, b) {
-                    var la = (a.key ? 10 : 0) + (levelRank[a.level] || 2);
-                    var lb = (b.key ? 10 : 0) + (levelRank[b.level] || 2);
-                    return lb - la;
-                })
-                .slice(0, 40);
-
-            var skillsList = topSkills.map(function(s) { return s.name + ' (' + s.level + ')'; }).join(', ');
-            var title = (wizardState.profile && wizardState.profile.currentTitle) || '';
-            var roles = (wizardState.parsedData && wizardState.parsedData.roles) ? wizardState.parsedData.roles.map(function(r) { return (r.title || r.name || '') + ' at ' + (r.company || ''); }).join('; ') : '';
-            var industry = (wizardState.profile && wizardState.profile.industry) || '';
-
-            var funcArea = wizardDetectFunctionalArea();
-
-            var prompt = 'You are a career market intelligence analyst. Analyze this professional\'s skills against current market demand for their role/industry.\n\n'
-                + 'Current Title: ' + title + '\n'
-                + 'Functional Area: ' + funcArea + '\n'
-                + 'Industry: ' + industry + '\n'
-                + 'Career History: ' + roles + '\n'
-                + 'Current Skills: ' + skillsList + '\n\n'
-                + 'Return ONLY valid JSON (no markdown) with exactly this structure:\n'
-                + '{\n'
-                + '  "keepSkills": [{"name": "exact skill name from list", "rationale": "1 sentence why this is high-value"}],\n'
-                + '  "dropSkills": [{"name": "exact skill name from list", "rationale": "1 sentence with market data why this is low-value"}],\n'
-                + '  "growthSkills": [{"name": "skill name to add", "rationale": "1 sentence why", "valueAddPct": 3}]\n'
-                + '}\n\n'
-                + 'Rules:\n'
-                + '- keepSkills: 3-6 highest market-value skills from their current list. Focus on skills that differentiate.\n'
-                + '- dropSkills: 1-4 skills that are commoditized, outdated, or dilute their profile. Be direct — if a skill appears in <3% of job postings for their role or is assumed knowledge, flag it.\n'
-                + '- growthSkills: 2-4 skills they do NOT have but would significantly increase market value. valueAddPct is estimated salary increase (1-8 range).\n'
-                + '- Be constructively honest. Data-backed. No fluff.\n'
-                + '- Every skill in keepSkills and dropSkills MUST match an exact name from their Current Skills list.';
-
-            try {
-                var aiKey = safeGet('wbAnthropicKey');
-                var data = await callAnthropicAPI({
-                    model: 'claude-haiku-4-5-20251001',
-                    max_tokens: 1500,
-                    messages: [{ role: 'user', content: prompt }]
-                }, aiKey, 'skill-market-intel');
-
-                var text = (data.content[0] && data.content[0].text) || '';
-                var clean = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-                var result = JSON.parse(clean);
-                if (!result.keepSkills) result.keepSkills = [];
-                if (!result.dropSkills) result.dropSkills = [];
-                if (!result.growthSkills) result.growthSkills = [];
-
-                var baseAnchor = wizardGetMarketBaseAnchor();
-                result.growthSkills.forEach(function(g) {
-                    var pct = Math.min(Math.max(g.valueAddPct || 2, 1), 8);
-                    g.estimatedValueAdd = Math.round(baseAnchor * pct / 100 / 1000) * 1000;
-                    g.valueAddPct = pct;
-                });
-
-                wizardState.marketIntel = result;
-                return result;
-            } catch (err) {
-                console.warn('[BP] Market intelligence failed:', err.message);
-                return null;
-            }
-        }
-        window.wizardFetchMarketIntelligence = wizardFetchMarketIntelligence;
-
-        function wizardDetectFunctionalArea() {
-            var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
-            if (/\b(software|developer|engineer|tech|data|devops|cloud|cyber|ai|ml)\b/.test(title)) return 'technology';
-            if (/\b(market|brand|content|seo|growth|digital)\b/.test(title)) return 'marketing';
-            if (/\b(sales|account exec|business develop)\b/.test(title)) return 'sales';
-            if (/\b(financ|accounting|cfo|controller|treasury)\b/.test(title)) return 'finance';
-            if (/\b(operation|logistics|supply|procurement)\b/.test(title)) return 'operations';
-            if (/\b(strateg|consult|advisory|management consult)\b/.test(title)) return 'strategy';
-            if (/\b(nurse|doctor|physician|clinical|medical|health)\b/.test(title)) return 'healthcare';
-            if (/\b(hr|human resource|people|talent|recruit)\b/.test(title)) return 'hr';
-            if (/\b(legal|attorney|counsel|lawyer|paralegal)\b/.test(title)) return 'legal';
-            if (/\b(teacher|professor|instructor|principal|dean)\b/.test(title)) return 'education';
-            if (/\b(mechanic|electric|plumb|weld|construct)\b/.test(title)) return 'trades';
-            return 'general';
-        }
-
-        function wizardGetMarketBaseAnchor() {
-            if (typeof calculateTotalMarketValue === 'function') {
-                try {
-                    var mv = calculateTotalMarketValue('evidence');
-                    if (mv && mv.marketRate && mv.marketRate > 0) return mv.marketRate;
-                } catch (e) {}
-            }
-            var SALARY_TABLE_LOCAL = {
-                education: [29120, 62340, 83010, 132550, 165820],
-                engineering: [53230, 102320, 130290, 152670, 238291],
-                finance: [41390, 81680, 132050, 214210, 246341],
-                general: [27780, 43630, 82340, 164130, 206000],
-                healthcare: [30370, 62340, 107960, 162420, 219080],
-                hr: [42360, 72910, 91550, 189960, 218453],
-                legal: [48190, 61010, 215420, 247732, 284891],
-                marketing: [56220, 76950, 95940, 211080, 242741],
-                operations: [53190, 101190, 133140, 164130, 188749],
-                sales: [29140, 66260, 97570, 201490, 231713],
-                strategy: [76770, 101190, 133140, 164130, 230000],
-                technology: [76360, 133080, 169000, 216220, 248652],
-                trades: [29060, 62350, 81730, 100200, 176990]
-            };
-            var func = wizardDetectFunctionalArea();
-            var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
-            var seniority = 1;
-            if (/\b(vp|vice president|c-suite|ceo|cto|cfo|coo|chief|svp|evp)\b/.test(title)) seniority = 4;
-            else if (/\b(director|head of|principal)\b/.test(title)) seniority = 3;
-            else if (/\b(senior|sr|lead|staff)\b/.test(title)) seniority = 2;
-            else if (/\b(junior|jr|entry|associate|intern)\b/.test(title)) seniority = 0;
-            return SALARY_TABLE_LOCAL[func][seniority];
-        }
-
-        function wizardRenderMarketIntel(intel) {
-            if (!intel) return '';
-            var html = '<div id="marketIntelPanel" style="margin-bottom:16px;">';
-
-            if (intel.keepSkills.length > 0) {
-                html += '<div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25);'
-                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
-                    + '<div style="font-weight:700; font-size:0.82em; color:#10b981; margin-bottom:8px;">'
-                    + '\uD83D\uDCC8 Keep & Highlight \u2014 Your Strongest Market Assets</div>';
-                intel.keepSkills.forEach(function(k, ki) {
-                    var accepted = k._accepted;
-                    html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
-                        + '<span style="color:#10b981; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2713</span>'
-                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
-                        + escapeHtml(k.name) + '</span>'
-                        + (accepted ? '<span style="font-size:0.68em; background:#10b981; color:#fff; padding:1px 6px; border-radius:4px; margin-left:6px; font-weight:700;">KEY</span>' : '')
-                        + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
-                        + escapeHtml(k.rationale) + '</span></div>'
-                        + (k._dismissed ? '' : '<button onclick="wizardAcceptKeep(' + ki + ')" id="keep-btn-' + ki + '"'
-                        + (accepted ? ' disabled' : '')
-                        + ' style="background:' + (accepted ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)') + '; border:1px solid rgba(16,185,129,0.3);'
-                        + ' color:#10b981; border-radius:6px; padding:2px 10px; cursor:pointer;'
-                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
-                        + (accepted ? ' opacity:0.7;' : '') + '">' + (accepted ? '\u2713 Key Skill' : 'Mark Key') + '</button>')
-                        + (k._dismissed || accepted ? '' : '<button onclick="wizardDismissRec(\'keep\',' + ki + ')"'
-                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
-                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
-                        + ' title="Dismiss this recommendation">\u2715</button>')
-                        + '</div>';
-                });
-                html += '</div>';
-            }
-
-            if (intel.dropSkills.length > 0) {
-                html += '<div style="background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.2);'
-                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
-                    + '<div style="font-weight:700; font-size:0.82em; color:#ef4444; margin-bottom:8px;">'
-                    + '\u2702 Consider Removing \u2014 Low Market Signal</div>';
-                intel.dropSkills.forEach(function(d, di) {
-                    html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
-                        + '<span style="color:#ef4444; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2717</span>'
-                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);'
-                        + ' text-decoration:line-through; opacity:0.7;">'
-                        + escapeHtml(d.name) + '</span>'
-                        + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
-                        + escapeHtml(d.rationale) + '</span></div>'
-                        + (d._dismissed ? '' : '<button onclick="wizardAcceptDrop(' + di + ')" id="drop-btn-' + di + '"'
-                        + (d._accepted ? ' disabled' : '')
-                        + ' style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3);'
-                        + ' color:#ef4444; border-radius:6px; padding:2px 10px; cursor:pointer;'
-                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
-                        + (d._accepted ? ' opacity:0.5;' : '') + '">' + (d._accepted ? 'Removed' : 'Remove') + '</button>')
-                        + (d._dismissed || d._accepted ? '' : '<button onclick="wizardDismissRec(\'drop\',' + di + ')"'
-                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
-                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
-                        + ' title="Keep this skill">\u2715</button>')
-                        + '</div>';
-                });
-                html += '</div>';
-            }
-
-            if (intel.growthSkills.length > 0) {
-                html += '<div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.25);'
-                    + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
-                    + '<div style="font-weight:700; font-size:0.82em; color:#3b82f6; margin-bottom:8px;">'
-                    + '\uD83D\uDE80 Growth Opportunities \u2014 Add These to Increase Market Value</div>';
-                intel.growthSkills.forEach(function(g, gi) {
-                    var dollarStr = g.estimatedValueAdd >= 1000
-                        ? '+~$' + (g.estimatedValueAdd / 1000).toFixed(0) + 'K/yr'
-                        : '+~$' + g.estimatedValueAdd + '/yr';
-                    html += '<div style="display:flex; align-items:start; gap:8px; padding:5px 0;">'
-                        + '<span style="color:#3b82f6; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2191</span>'
-                        + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
-                        + escapeHtml(g.name) + '</span>'
-                        + '<span style="font-size:0.75em; color:#f59e0b; font-weight:700; margin-left:6px;">'
-                        + dollarStr + '</span>'
-                        + '<div style="font-size:0.74em; color:var(--text-secondary); margin-top:2px;">'
-                        + escapeHtml(g.rationale) + '</div></div>'
-                        + (g._dismissed ? '' : '<button onclick="wizardAddGrowthSkill(' + gi + ')" id="growth-btn-' + gi + '"'
-                        + (g._added ? ' disabled' : '')
-                        + ' style="background:' + (g._added ? 'rgba(16,185,129,0.1)' : 'rgba(59,130,246,0.1)') + '; border:1px solid ' + (g._added ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)') + ';'
-                        + ' color:' + (g._added ? '#10b981' : '#3b82f6') + '; border-radius:6px; padding:2px 10px; cursor:pointer;'
-                        + ' font-size:0.72em; font-weight:600; white-space:nowrap;">' + (g._added ? '\u2713 Added' : '+ Add') + '</button>')
-                        + (g._dismissed || g._added ? '' : '<button onclick="wizardDismissRec(\'growth\',' + gi + ')"'
-                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
-                        + ' border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.72em; margin-left:4px;"'
-                        + ' title="Skip this suggestion">\u2715</button>')
-                        + '</div>';
-                });
-                html += '</div>';
-            }
-
-            html += '</div>';
-            return html;
-        }
-
-        function wizardDismissRec(type, idx) {
-            var intel = wizardState.marketIntel;
-            if (!intel) return;
-            var arr = type === 'keep' ? intel.keepSkills : type === 'drop' ? intel.dropSkills : intel.growthSkills;
-            if (!arr || !arr[idx]) return;
-            arr[idx]._dismissed = true;
-            var el = document.getElementById('wizardStepContent');
-            if (el) renderWizardStep6(el);
-            showToast('Recommendation dismissed.', 'info', 1500);
-        }
-        window.wizardDismissRec = wizardDismissRec;
-
-        function wizardAcceptKeep(keepIdx) {
-            var intel = wizardState.marketIntel;
-            if (!intel || !intel.keepSkills[keepIdx]) return;
-            var keep = intel.keepSkills[keepIdx];
-            if (keep._accepted) return;
-            var keepName = keep.name.toLowerCase();
-            var skill = wizardState.skills.find(function(s) { return s.name.toLowerCase() === keepName; });
-            if (skill) { skill.key = true; skill._marketKeep = true; }
-            keep._accepted = true;
-            var btn = document.getElementById('keep-btn-' + keepIdx);
-            if (btn) { btn.textContent = '\u2713 Key Skill'; btn.disabled = true; btn.style.opacity = '0.7'; }
-            showToast('"' + keep.name + '" marked as a Key Skill.', 'success', 2500);
-        }
-        window.wizardAcceptKeep = wizardAcceptKeep;
-
-        function wizardAcceptDrop(dropIdx) {
-            var intel = wizardState.marketIntel;
-            if (!intel || !intel.dropSkills[dropIdx]) return;
-            var drop = intel.dropSkills[dropIdx];
-            if (drop._accepted) return;
-            var dropName = drop.name.toLowerCase();
-            wizardState.skills = wizardState.skills.filter(function(s) {
-                return s.name.toLowerCase() !== dropName;
-            });
-            drop._accepted = true;
-            var btn = document.getElementById('drop-btn-' + dropIdx);
-            if (btn) { btn.textContent = 'Removed'; btn.disabled = true; btn.style.opacity = '0.5'; }
-            showToast('Removed "' + drop.name + '" from your skills.', 'info', 2500);
-            var el = document.getElementById('wizardStepContent');
-            if (el) renderWizardStep6(el);
-        }
-        window.wizardAcceptDrop = wizardAcceptDrop;
-
-        function wizardAddGrowthSkill(growthIdx) {
-            var intel = wizardState.marketIntel;
-            if (!intel || !intel.growthSkills[growthIdx]) return;
-            var g = intel.growthSkills[growthIdx];
-            if (!wizardState.growthSkills) wizardState.growthSkills = [];
-            var alreadyAdded = wizardState.growthSkills.some(function(gs) { return gs.name.toLowerCase() === g.name.toLowerCase(); });
-            if (alreadyAdded) { showToast('"' + g.name + '" is already in your growth plan.', 'info', 2000); return; }
-            wizardState.growthSkills.push({
-                name: g.name, rationale: g.rationale,
-                estimatedValueAdd: g.estimatedValueAdd, valueAddPct: g.valueAddPct,
-                dateAdded: new Date().toISOString().substring(0, 10), source: 'market-intel',
-                sourceRole: (wizardState.profile && wizardState.profile.currentTitle) || '',
-                sourceIndustry: (wizardState.profile && wizardState.profile.industry) || ''
-            });
-            g._added = true;
-            var btn = document.getElementById('growth-btn-' + growthIdx);
-            if (btn) { btn.textContent = '\u2713 Added'; btn.disabled = true; btn.style.background = 'rgba(16,185,129,0.1)'; btn.style.borderColor = 'rgba(16,185,129,0.3)'; btn.style.color = '#10b981'; }
-            showToast('"' + g.name + '" added to your Growth Plan.', 'success', 2500);
-        }
-        window.wizardAddGrowthSkill = wizardAddGrowthSkill;
-
-
-        function wizardSuggestOutcomes() {
-            if (wizardState._suggestedOutcomes) return wizardState._suggestedOutcomes;
-            var title = ((wizardState.profile && wizardState.profile.currentTitle) || '').toLowerCase();
-            var industry = ((wizardState.profile && wizardState.profile.industry) || '').toLowerCase();
-            var skills = wizardState.skills || [];
-            var skillNames = skills.map(function(s) { return (s.name || '').toLowerCase(); });
-
-            var outcomeTemplates = {
-                executive: { match: /\b(vp|vice president|c-suite|ceo|cto|cfo|coo|chief|svp|evp|president|managing director)\b/,
-                    outcomes: [
-                        { text: 'Drove organizational strategy resulting in measurable revenue or efficiency gains', skills: ['strategy','leadership','management','communication','business development'] },
-                        { text: 'Built and led high-performing teams across multiple functions', skills: ['leadership','management','team building','communication','mentoring'] },
-                        { text: 'Established strategic partnerships and market positioning', skills: ['strategy','business development','negotiation','communication','sales'] },
-                        { text: 'Delivered operational transformation improving efficiency and reducing costs', skills: ['operations','process improvement','management','analytics','strategy'] }
-                    ] },
-                director: { match: /\b(director|head of|principal)\b/,
-                    outcomes: [
-                        { text: 'Scaled department operations to support business growth', skills: ['management','leadership','operations','strategy','process improvement'] },
-                        { text: 'Drove cross-functional initiatives with measurable business impact', skills: ['project management','leadership','communication','strategy','stakeholder management'] },
-                        { text: 'Developed talent pipeline through mentoring and team development', skills: ['leadership','mentoring','management','coaching','communication'] },
-                        { text: 'Implemented systems and processes that improved team productivity', skills: ['technology','operations','process improvement','management','analytics'] }
-                    ] },
-                technology: { match: /\b(software|developer|engineer|architect|technical|tech lead|devops|cloud|data|ai|ml)\b/,
-                    outcomes: [
-                        { text: 'Architected and delivered production systems serving real users at scale', skills: ['software','architecture','engineering','programming','systems design','javascript','python','react','node'] },
-                        { text: 'Improved system reliability, performance, or security measurably', skills: ['devops','cloud','aws','security','monitoring','kubernetes','infrastructure'] },
-                        { text: 'Led technical decision-making and mentored engineering teams', skills: ['leadership','mentoring','architecture','code review','technical strategy'] },
-                        { text: 'Automated workflows reducing manual effort and operational costs', skills: ['automation','scripting','python','devops','ci/cd','process improvement'] }
-                    ] },
-                creative: { match: /\b(creative|designer|design|ux|ui|brand|content|multimedia|art|visual|writer)\b/,
-                    outcomes: [
-                        { text: 'Created design systems and visual assets adopted across the organization', skills: ['design','branding','visual design','ux','ui','creative direction'] },
-                        { text: 'Improved user experience metrics through research-driven design', skills: ['ux','user research','design','analytics','prototyping','testing'] },
-                        { text: 'Built and led creative teams delivering on brand and business objectives', skills: ['creative direction','leadership','management','branding','communication'] },
-                        { text: 'Produced multimedia content that drove engagement and reach', skills: ['content','multimedia','video','writing','social media','marketing'] }
-                    ] },
-                sales_biz: { match: /\b(sales|business development|account|revenue|partnerships)\b/,
-                    outcomes: [
-                        { text: 'Consistently exceeded revenue targets and grew key accounts', skills: ['sales','negotiation','account management','business development','communication'] },
-                        { text: 'Built and managed strategic partnerships generating measurable value', skills: ['business development','partnerships','negotiation','strategy','relationship management'] },
-                        { text: 'Developed sales processes and playbooks adopted by the team', skills: ['sales','process improvement','training','leadership','crm'] }
-                    ] },
-                marketing: { match: /\b(market|brand|content|seo|growth|digital marketing|demand)\b/,
-                    outcomes: [
-                        { text: 'Executed campaigns that generated qualified pipeline and revenue', skills: ['marketing','digital marketing','analytics','content','demand generation'] },
-                        { text: 'Built brand presence and increased market awareness', skills: ['branding','content','social media','pr','communication','marketing'] },
-                        { text: 'Improved conversion and engagement through data-driven optimization', skills: ['analytics','a/b testing','marketing','seo','growth'] }
-                    ] },
-                consulting: { match: /\b(consult|advisory|strateg|analyst)\b/,
-                    outcomes: [
-                        { text: 'Delivered strategic recommendations that drove client business outcomes', skills: ['strategy','consulting','analytics','communication','research'] },
-                        { text: 'Led client engagements from discovery through implementation', skills: ['project management','consulting','communication','stakeholder management','strategy'] },
-                        { text: 'Built frameworks and methodologies adopted across the practice', skills: ['strategy','process improvement','knowledge management','training','communication'] }
-                    ] },
-                operations: { match: /\b(operation|logistics|supply|procurement|program)\b/,
-                    outcomes: [
-                        { text: 'Streamlined operations reducing costs and improving delivery timelines', skills: ['operations','process improvement','logistics','management','analytics'] },
-                        { text: 'Managed complex programs coordinating across multiple teams and stakeholders', skills: ['program management','project management','communication','operations','stakeholder management'] },
-                        { text: 'Implemented quality and compliance frameworks meeting industry standards', skills: ['quality','compliance','process improvement','operations','risk management'] }
-                    ] },
-                education: { match: /\b(teach|professor|instructor|training|education|curriculum|coach)\b/,
-                    outcomes: [
-                        { text: 'Developed curriculum and training programs adopted at scale', skills: ['curriculum','training','education','instructional design','communication'] },
-                        { text: 'Mentored and coached individuals to measurable professional growth', skills: ['mentoring','coaching','leadership','communication','training'] }
-                    ] }
-            };
-
-            var matched = [];
-            var seenTexts = {};
-            for (var key in outcomeTemplates) {
-                var tmpl = outcomeTemplates[key];
-                if (tmpl.match.test(title) || tmpl.match.test(industry)) {
-                    tmpl.outcomes.forEach(function(o) {
-                        if (!seenTexts[o.text]) {
-                            seenTexts[o.text] = true;
-                            var relevantSkills = o.skills.filter(function(os) {
-                                return skillNames.some(function(sn) { return sn.indexOf(os) >= 0 || os.indexOf(sn) >= 0; });
-                            });
-                            if (relevantSkills.length > 0 || matched.length < 4) {
-                                matched.push({ text: o.text, relatedSkills: relevantSkills, _selected: false, _editing: false });
-                            }
-                        }
-                    });
-                }
-            }
-
-            if (matched.length < 3) {
-                var generic = [
-                    { text: 'Delivered measurable results that advanced organizational goals', relatedSkills: [], _selected: false, _editing: false },
-                    { text: 'Built and maintained key stakeholder relationships', relatedSkills: [], _selected: false, _editing: false },
-                    { text: 'Identified and resolved problems proactively improving outcomes', relatedSkills: [], _selected: false, _editing: false }
-                ];
-                generic.forEach(function(g) {
-                    if (!seenTexts[g.text] && matched.length < 6) {
-                        seenTexts[g.text] = true;
-                        matched.push(g);
-                    }
-                });
-            }
-
-            wizardState._suggestedOutcomes = matched.slice(0, 8);
-            return wizardState._suggestedOutcomes;
-        }
-
-        function wizardRenderOutcomePanel() {
-            var outcomes = wizardSuggestOutcomes();
-            if (!outcomes || outcomes.length === 0) return '';
-            var title = ((wizardState.profile && wizardState.profile.currentTitle) || 'your role');
-
-            var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
-                + ' border-radius:12px; padding:16px; margin-bottom:14px;">'
-                + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em; margin-bottom:4px;">'
-                + '\uD83C\uDFAF Suggested Outcomes</div>'
-                + '<p style="font-size:0.78em; color:var(--text-muted); margin-bottom:12px;">'
-                + 'Common outcomes for <strong>' + escapeHtml(title) + '</strong>. Select the ones that fit, then edit to make them your own.</p>';
-
-            outcomes.forEach(function(o, i) {
-                var selected = o._selected;
-                html += '<div style="display:flex; align-items:start; gap:10px; padding:8px 10px;'
-                    + ' border:1px solid ' + (selected ? 'rgba(16,185,129,0.4)' : 'var(--border)') + ';'
-                    + ' background:' + (selected ? 'rgba(16,185,129,0.06)' : 'var(--bg-surface)') + ';'
-                    + ' border-radius:8px; margin-bottom:6px; transition:all 0.15s;'
-                    + ' box-sizing:border-box; max-width:100%; overflow:hidden;">';
-
-                if (o._editing) {
-                    html += '<div style="flex:1;">'
-                        + '<input type="text" id="outcome-edit-' + i + '" value="' + escapeHtml(o.text).replace(/"/g, '&quot;') + '"'
-                        + ' style="width:100%; padding:6px 8px; border:1px solid var(--accent); border-radius:6px;'
-                        + ' background:var(--bg-surface); color:var(--text-primary); font-size:0.85em; outline:none;"'
-                        + ' onkeydown="if(event.key===\'Enter\')wizardSaveOutcomeEdit(' + i + ')">'
-                        + '<div style="display:flex; gap:6px; margin-top:6px;">'
-                        + '<button onclick="wizardSaveOutcomeEdit(' + i + ')"'
-                        + ' style="background:var(--accent); color:#fff; border:none; border-radius:5px;'
-                        + ' padding:3px 12px; font-size:0.76em; cursor:pointer; font-weight:600;">Save</button>'
-                        + '<button onclick="wizardCancelOutcomeEdit(' + i + ')"'
-                        + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
-                        + ' border-radius:5px; padding:3px 10px; font-size:0.76em; cursor:pointer;">Cancel</button>'
-                        + '</div></div>';
-                } else {
-                    html += '<input type="checkbox" ' + (selected ? 'checked' : '') + ' onchange="wizardToggleSuggestedOutcome(' + i + ')"'
-                        + ' style="margin-top:3px; accent-color:#10b981; flex-shrink:0; cursor:pointer;">'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-size:0.85em; color:var(--text-primary);' + (selected ? ' font-weight:600;' : '') + '">'
-                        + escapeHtml(o.text) + '</div>';
-                    if (o.relatedSkills && o.relatedSkills.length > 0) {
-                        html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;">Uses: '
-                            + o.relatedSkills.slice(0, 5).map(function(s) { return escapeHtml(s); }).join(', ') + '</div>';
-                    }
-                    html += '</div>';
-                    if (selected) {
-                        html += '<button onclick="wizardEditOutcome(' + i + ')" title="Edit to make it yours"'
-                            + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
-                            + ' border-radius:5px; padding:2px 8px; cursor:pointer; font-size:0.72em; flex-shrink:0;">Edit</button>';
-                    }
-                }
-                html += '</div>';
-            });
-
-            html += '</div>';
-            return html;
-        }
-
-        function wizardToggleSuggestedOutcome(idx) {
-            var outcomes = wizardState._suggestedOutcomes;
-            if (!outcomes || !outcomes[idx]) return;
-            outcomes[idx]._selected = !outcomes[idx]._selected;
-            if (outcomes[idx]._selected) {
-                if (!wizardState.selectedOutcomes) wizardState.selectedOutcomes = [];
-                wizardState.selectedOutcomes.push(outcomes[idx].text);
-                outcomes[idx].relatedSkills.forEach(function(skillKey) {
-                    wizardState.skills.forEach(function(s, si) {
-                        var sn = (s.name || '').toLowerCase();
-                        if (sn.indexOf(skillKey) >= 0 || skillKey.indexOf(sn) >= 0) {
-                            if (!s.evidence) s.evidence = [];
-                            var already = s.evidence.some(function(e) { return e.description === outcomes[idx].text; });
-                            if (!already) {
-                                s.evidence.push({ description: outcomes[idx].text, type: 'outcome', source: 'suggested-outcome', date: new Date().toISOString().substring(0, 10) });
-                            }
-                        }
-                    });
-                });
-            } else {
-                if (wizardState.selectedOutcomes) {
-                    wizardState.selectedOutcomes = wizardState.selectedOutcomes.filter(function(t) { return t !== outcomes[idx].text; });
-                }
-            }
-            var el = document.getElementById('wizardStepContent');
-            if (el) renderWizardStep6(el);
-        }
-        window.wizardToggleSuggestedOutcome = wizardToggleSuggestedOutcome;
-
-        function wizardEditOutcome(idx) {
-            var outcomes = wizardState._suggestedOutcomes;
-            if (!outcomes || !outcomes[idx]) return;
-            outcomes[idx]._editing = true;
-            var el = document.getElementById('wizardStepContent');
-            if (el) renderWizardStep6(el);
-            setTimeout(function() {
-                var input = document.getElementById('outcome-edit-' + idx);
-                if (input) { input.focus(); input.select(); }
-            }, 50);
-        }
-        window.wizardEditOutcome = wizardEditOutcome;
-
-        function wizardSaveOutcomeEdit(idx) {
-            var outcomes = wizardState._suggestedOutcomes;
-            if (!outcomes || !outcomes[idx]) return;
-            var input = document.getElementById('outcome-edit-' + idx);
-            if (input && input.value.trim()) {
-                var oldText = outcomes[idx].text;
-                outcomes[idx].text = input.value.trim();
-                outcomes[idx]._editing = false;
-                wizardState.skills.forEach(function(s) {
-                    if (s.evidence) {
-                        s.evidence.forEach(function(e) {
-                            if (e.description === oldText) e.description = outcomes[idx].text;
-                        });
-                    }
-                });
-                if (wizardState.selectedOutcomes) {
-                    wizardState.selectedOutcomes = wizardState.selectedOutcomes.map(function(t) { return t === oldText ? outcomes[idx].text : t; });
-                }
-                showToast('Outcome updated.', 'success', 1500);
-            }
-            var el = document.getElementById('wizardStepContent');
-            if (el) renderWizardStep6(el);
-        }
-        window.wizardSaveOutcomeEdit = wizardSaveOutcomeEdit;
-
-        function wizardCancelOutcomeEdit(idx) {
-            var outcomes = wizardState._suggestedOutcomes;
-            if (!outcomes || !outcomes[idx]) return;
-            outcomes[idx]._editing = false;
-            var el = document.getElementById('wizardStepContent');
-            if (el) renderWizardStep6(el);
-        }
-        window.wizardCancelOutcomeEdit = wizardCancelOutcomeEdit;
-
         function renderWizardStep6(el) {
-            if (window.renderWizardStep6 && window.renderWizardStep6 !== renderWizardStep6) return window.renderWizardStep6(el);
             const skills = wizardState.skills;
             const isFromResume = skills.length > 0;
             const levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
-            var intel = wizardState.marketIntel || null;
 
             el.innerHTML = `
                 ${wizardHeading(bpIcon('compass',22),
-                    isFromResume ? `${skills.length} Skills Found` : 'Your Skills',
-                    isFromResume ? 'Market intelligence applied. Adjust proficiency levels and review recommendations below.'
+                    isFromResume ? `${skills.length} Skills Extracted` : 'Your Skills',
+                    isFromResume ? 'Claude identified these from your resume. Toggle any off you do not want to include. You can add more later.'
                                  : 'Add your key skills. You can build this out further after setup.')}
-
-                ${intel ? wizardRenderMarketIntel(intel) : (isFromResume ? '<div id="marketIntelLoading" style="background:linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.06)); border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px; display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:1.1em;">&#9889;</span><div style="font-size:0.8em; color:var(--text-secondary);">Analyzing market value of your skills...</div><span style="font-size:0.8em; color:var(--accent);">\u21BB</span></div>' : '')}
-
-                ${isFromResume ? wizardRenderOutcomePanel() : ''}
 
                 ${isFromResume ? `
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -23155,10 +21354,10 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                                         background:${levelColors[s.level] || '#6b7280'};"></div>
                             <div style="flex:1; min-width:0;">
                                 <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
-                                    ${escapeHtml(s.name)}${s._marketKeep ? ' <span style="font-size:0.65em; background:#10b981; color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; vertical-align:middle;">KEY</span>' : ''}
+                                    ${escapeHtml(s.name)}
                                 </div>
                                 <div style="font-size:0.78em; color:var(--text-muted);">
-                                    ${escapeHtml(s.level)} \u00b7 ${s.evidence?.length || 0} evidence items
+                                    ${escapeHtml(s.level)} · ${s.evidence?.length || 0} evidence items
                                 </div>
                             </div>
                             <span style="font-size:0.75em; padding:3px 9px; border-radius:10px;
@@ -23184,47 +21383,19 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 `}
 
                 <div style="display:flex; justify-content:space-between;">
-                    ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
-                    ${wizardBtn('Continue \u2192 Values', 'wizardSaveSkills()', 'primary')}
+                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
+                    ${wizardBtn('Continue → Values', 'wizardSaveSkills()', 'primary')}
                 </div>
             `;
-
-            if (isFromResume && !intel) {
-                wizardFetchMarketIntelligence().then(function(result) {
-                    if (result) {
-                        var panel = document.getElementById('marketIntelLoading');
-                        if (panel) panel.outerHTML = wizardRenderMarketIntel(result);
-                    } else {
-                        var loading = document.getElementById('marketIntelLoading');
-                        if (loading) loading.remove();
-                    }
-                });
-            }
         }
 
         function wizardSaveSkills() {
-            if (window.wizardSaveSkills && window.wizardSaveSkills !== wizardSaveSkills) return window.wizardSaveSkills();
             if (readOnlyGuard()) return;
-            wizardState.skills = wizardState.skills.filter(function(s, i) {
-                var cb = document.getElementById('skill-check-' + i);
+            // Filter to only checked skills
+            wizardState.skills = wizardState.skills.filter((s, i) => {
+                const cb = document.getElementById(`skill-check-${i}`);
                 return !cb || cb.checked;
             });
-            if (wizardState.skills.length > 50) {
-                wizardState.skills.sort(function(a, b) {
-                    var pa = (a.key || a.isKey) ? 3 : (a._marketKeep || a.marketKeep) ? 2 : 0;
-                    var pb = (b.key || b.isKey) ? 3 : (b._marketKeep || b.marketKeep) ? 2 : 0;
-                    if (pb !== pa) return pb - pa;
-                    var la = ['Novice','Proficient','Advanced','Expert','Mastery'].indexOf(a.level || 'Proficient');
-                    var lb = ['Novice','Proficient','Advanced','Expert','Mastery'].indexOf(b.level || 'Proficient');
-                    if (lb !== la) return lb - la;
-                    return (b.evidence ? b.evidence.length : 0) - (a.evidence ? a.evidence.length : 0);
-                });
-                wizardState.skills = wizardState.skills.slice(0, 50);
-            }
-            if (wizardState.growthSkills && wizardState.growthSkills.length > 0) {
-                var _ud = window._userData || userData;
-                _ud.growthSkills = wizardState.growthSkills;
-            }
             wizardNext();
         }
 
@@ -23254,7 +21425,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             var selectedCount = vals.filter(function(v) { return v.selected; }).length;
 
             var subtitle = hasAIValues
-                ? 'These were suggested from your career history. Select the ones that resonate, edit descriptions, or add your own.'
+                ? 'Claude suggested these from your career history. Select the ones that resonate, edit descriptions, or add your own.'
                 : 'Select the values that define how you work, or add your own. Click a description to edit it.';
 
             el.innerHTML = `
@@ -23405,10 +21576,10 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             var inner = document.getElementById('wizardInner');
             if (inner) renderWizardStep7(inner);
         }
-        // wizardAddCustomValue, wizardEditValueDesc exposed by ES module
+        window.wizardAddCustomValue = wizardAddCustomValue;
+        window.wizardEditValueDesc = wizardEditValueDesc;
 
         function wizardSaveValues() {
-            if (window.wizardSaveValues && window.wizardSaveValues !== wizardSaveValues) return window.wizardSaveValues();
             if (readOnlyGuard()) return;
             wizardNext();
         }
@@ -23422,7 +21593,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             el.innerHTML = `
                 ${wizardHeading(bpIcon('edit',22),
                     'Your Purpose Statement',
-                    isFromResume ? 'This was drafted from your resume. Often the hardest thing to write about yourself — edit it until it sounds like you.'
+                    isFromResume ? 'Claude drafted this from your resume. Often the hardest thing to write about yourself — edit it until it sounds like you.'
                                  : 'Write a brief statement about what you do, who you help, and what makes your approach distinctive.')}
 
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -23443,7 +21614,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                                    cursor:pointer; font-size:0.82em; transition:all 0.18s;"
                             onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"
                             onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
-                        ↺ Regenerate
+                        ↺ Regenerate with Claude
                     </button>` : ''}
                 </div>
 
@@ -23510,11 +21681,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 showToast(toastMsg, 'error', 6000);
             }
 
-            if (btn) { btn.textContent = '↺ Regenerate'; btn.disabled = false; }
+            if (btn) { btn.textContent = '↺ Regenerate with Claude'; btn.disabled = false; }
         }
 
         function wizardSavePurpose() {
-            if (window.wizardSavePurpose && window.wizardSavePurpose !== wizardSavePurpose) return window.wizardSavePurpose();
             if (readOnlyGuard()) return;
             wizardState.purpose = document.getElementById('wizardPurpose')?.value?.trim() || '';
             wizardNext();
@@ -23523,7 +21693,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // ── STEP 9: Complete ──────────────────────────────────────────────────
 
         function renderWizardStep9(el) {
-            if (window.renderWizardStep9 && window.renderWizardStep9 !== renderWizardStep9) return window.renderWizardStep9(el);
             const skillCount = wizardState.skills.length;
             const valueCount = wizardState.values.filter(v => v.selected).length;
             const evidenceCount = wizardState.skills.reduce((n, s) => n + (s.evidence?.length || 0), 0);
@@ -23593,22 +21762,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (postCb && !postCb.checked) { wizardState.richMedia = []; if (wizardState.parsedData) wizardState.parsedData.richMedia = []; }
             if (learnCb && !learnCb.checked) { wizardState.learning = []; if (wizardState.parsedData) wizardState.parsedData.learning = []; }
         }
-        // wizardApplyContentOpts exposed by ES module
+        window.wizardApplyContentOpts = wizardApplyContentOpts;
 
         function wizardBuildUserData() {
-            var builtRoles = (wizardState.parsedData?.roles || []).map((r, i) => ({
-                id: r.id || `role${i+1}`,
-                name: r.name || r.company || `Role ${i+1}`,
-                company: r.company || '',
-                years: r.years || '',
-                progression: r.progression || null,
-                totalYears: r.totalYears || null,
-                color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
-            }));
-            var validRoleIds = new Set();
-            builtRoles.forEach(function(r) { validRoleIds.add(r.id); validRoleIds.add(r.name); });
-            var allRoleIds = builtRoles.map(function(r) { return r.id; });
-
             return {
                 initialized: true,
                 templateId: 'wizard-built',
@@ -23616,41 +21772,26 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     ...wizardState.profile,
                     headline: `${wizardState.profile.currentTitle || ''} · ${wizardState.profile.yearsExperience || ''}+ Years`
                 },
-                skills: wizardState.skills.map(function(s) {
-                    var isKey = s.key || false;
-                    var lens = wizardState.selectedLens || '';
-                    if (lens && !isKey) {
-                        var n = (s.name || '').toLowerCase();
-                        if (lens === 'technical' && /python|javascript|typescript|react|node|sql|aws|azure|cloud|data|software|api|devops|infrastructure|architecture|kubernetes|docker|engineering|machine learning|ai/i.test(n)) isKey = true;
-                        else if (lens === 'strategic' && /leadership|management|team|strategy|vision|stakeholder|cross-functional|coaching|mentoring|hiring|budget/i.test(n)) isKey = true;
-                        else if (lens === 'builder' && /product|growth|revenue|launch|startup|scale|market|customer|entrepreneur|mvp|gtm/i.test(n)) isKey = true;
-                        else if (lens === 'expert' && /research|analysis|specialist|domain|certification|compliance|regulatory|methodology|framework|consulting/i.test(n)) isKey = true;
-                    }
-                    var skillRoles = (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); });
-                    if (skillRoles.length === 0 && allRoleIds.length > 0) {
-                        skillRoles = allRoleIds.slice();
-                    }
-                    return {
-                        ...s,
-                        roles: skillRoles,
-                        key: isKey,
-                        onetId: s.onetId || null,
-                        endorsements: s.endorsements || 0,
-                        endorsementBoosted: s.endorsementBoosted || false
-                    };
-                }),
-                roles: builtRoles,
+                skills: wizardState.skills.map(s => ({
+                    ...s,
+                    roles: s.roles || [],
+                    key: s.key || false,
+                    onetId: s.onetId || null,
+                    endorsements: s.endorsements || 0,
+                    endorsementBoosted: s.endorsementBoosted || false
+                })),
+                roles: (wizardState.parsedData?.roles || []).map((r, i) => ({
+                    id: r.id || `role${i+1}`,
+                    name: r.name || r.company || `Role ${i+1}`,
+                    company: r.company || '',
+                    years: r.years || '',
+                    progression: r.progression || null,
+                    totalYears: r.totalYears || null,
+                    color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
+                })),
                 values: wizardState.values,
                 purpose: wizardState.purpose,
                 workHistory: wizardState.workHistory || [],
-                pastRolesSummary: (function() {
-                    var wh = wizardState.workHistory || [];
-                    var hidden = wh.filter(function(j) { return j.hidden; });
-                    if (hidden.length === 0) return '';
-                    var titles = hidden.map(function(j) { return j.title; }).filter(Boolean);
-                    if (titles.length === 0) return '';
-                    return 'Beyond what you see in my network, I held past roles in ' + titles.join(', ') + '.';
-                })(),
                 companyTenures: wizardState.companyTenures || [],
                 education: wizardState.education || [],
                 certifications: wizardState.certifications || [],
@@ -23673,14 +21814,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     networkSize: wizardState.networkSize || 0
                 },
                 importStats: wizardState.importStats || {},
-                growthSkills: wizardState.growthSkills || [],
                 preferences: { seniorityLevel: 'Senior', minimumMatchScore: 60, minimumSkillMatches: 3 },
                 applications: []
             };
         }
 
         function wizardSaveAndGo() {
-            if (window.wizardSaveAndGo && window.wizardSaveAndGo !== wizardSaveAndGo) return window.wizardSaveAndGo();
             var built = wizardBuildUserData();
             // Download JSON if checkbox is checked
             var dlCheck = document.getElementById('wizardDownloadCheck');
@@ -23714,7 +21853,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         function wizardApplyAndLaunch(built) {
-            if (window.wizardApplyAndLaunch && window.wizardApplyAndLaunch !== wizardApplyAndLaunch) return window.wizardApplyAndLaunch(built);
             userData = built;
             userData.initialized = true; _markUserDataReady();
             window._userData = userData;
@@ -23795,8 +21933,35 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             skillsData.roles = userData.roles || skillsData.roles;
             skillsData.skillDetails = userData.skillDetails || {};
 
-        // Wizard functions exposed by ES module (src/views/welcome.js) — do NOT re-assign here
-        // Legacy assignments removed to prevent clobbering module overrides on auth callback
+        // Expose wizard and nav functions to global scope for onclick handlers
+        window.showOnboardingWizard = showOnboardingWizard;
+        window.wizardChooseUpload = wizardChooseUpload;
+        window.wizardChooseLinkedIn = wizardChooseLinkedIn;
+        window.wizardChooseManual = wizardChooseManual;
+        window.wizardChooseImport = wizardChooseImport;
+        window.wizardImportProfile = wizardImportProfile;
+        window.wizardBack = wizardBack;
+        window.wizardNext = wizardNext;
+        window.wizardSetResumeTab = wizardSetResumeTab;
+        window.wizardHandleResumeDrop = wizardHandleResumeDrop;
+        window.wizardHandleResumeFile = wizardHandleResumeFile;
+        window.wizardClearResumeFile = wizardClearResumeFile;
+        window.wizardSkipParsing = wizardSkipParsing;
+        window.wizardStartParsing = wizardStartParsing;
+        window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
+        window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
+        window.wizardSaveProfile = wizardSaveProfile;
+        window.wizardSaveSkills = wizardSaveSkills;
+        window.wizardToggleValue = wizardToggleValue;
+        window.wizardSaveValues = wizardSaveValues;
+        window.wizardSavePurpose = wizardSavePurpose;
+        window.wizardRegeneratePurpose = wizardRegeneratePurpose;
+        window.wizardDownloadBackup = wizardDownloadBackup;
+        window.wizardLaunchOnly = wizardLaunchOnly;
+        window.wizardSaveAndGo = wizardSaveAndGo;
+        window.confirmExitWizard = confirmExitWizard;
+        window.toggleFilterPanel = toggleFilterPanel;
+        window.renderFilterChips = renderFilterChips;
 
             // Render dynamic filter chips from profile data
             renderFilterChips();
@@ -24168,11 +22333,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 { id: "center", name: centerName, type: "center", homeX: nameX, homeY: nameY, x: nameX, y: nameY, fx: nameX, fy: nameY }
             ];
 
+            // Add role nodes — orbit around network center, not the name node
             var visibleRoles = getVisibleRoles();
-            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.38 : 0.44);
             visibleRoles.forEach((role, i) => {
-                const angle = (i / visibleRoles.length) * 2 * Math.PI - Math.PI / 2;
-                const radius = roleOrbitR;
+                const angle = (i / visibleRoles.length) * 2 * Math.PI;
+                const radius = (isMobile ? 130 : 200) * scaleFactor;
                 var roleId = role.id || role.name;
                 nodes.push({
                     id: roleId,
@@ -24282,9 +22447,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
             });
 
-            var linkDist = isMobile ? [180, 90] : [240 * scaleFactor, 100 * scaleFactor];
-            var chargeStr = isMobile ? [-400, -220] : [-500 * scaleFactor, -250 * scaleFactor];
-            var collisionR = isMobile ? [55, 55, 40] : [70 * scaleFactor, 65 * scaleFactor, 50 * scaleFactor];
+            // Create simulation with viewport-scaled forces
+            var linkDist = isMobile ? [120, 105] : [140 * scaleFactor, 160 * scaleFactor];
+            var chargeStr = isMobile ? [-300, -140] : [-250 * scaleFactor, -180 * scaleFactor];
+            var collisionR = isMobile ? [55, 48, 30] : [70 * scaleFactor, 65 * scaleFactor, 45 * scaleFactor];
             var gravityCenter = isMobile ? height * 0.46 : height * 0.48;
             
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
@@ -24302,18 +22468,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "center") return collisionR[0];
                     if (d.type === "role") return collisionR[1];
                     return collisionR[2];
-                }).iterations(2))
-                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.06 : 0.04))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.06 : 0.05))
+                }))
+                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.08 : 0.06))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.08 : 0.08))
                 .force("radial", d3.forceRadial(d => {
-                    if (d.type === "role") return roleOrbitR;
-                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.10 : 0.14) * scaleFactor;
+                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.32 : 0.4) * scaleFactor;
                     return 0;
-                }, networkCenterX, gravityCenter).strength(d => {
-                    if (d.type === "role") return 0.8;
-                    if (d.type === "skill") return 0.2;
-                    return 0;
-                }));
+                }).strength(isMobile ? 0.08 : 0.1));
 
             // Draw links
             const link = svg.append("g").attr("class", "link-layer")
@@ -24413,19 +22574,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
                 node.attr("transform", d => `translate(${d.x},${d.y})`);
             });
-
-            simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
-            var _pad = isMobile ? 30 : 100;
-            nodes.forEach(function(d) {
-                if (d.type !== "center") {
-                    d.x = Math.max(_pad, Math.min(width - _pad, d.x));
-                    d.y = Math.max(_pad, Math.min(height - _pad, d.y));
-                }
-            });
-            link
-                .attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; })
-                .attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
-            node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
             window.networkData = { nodes, links, svg, link, node };
             setTimeout(applyLabelToggles, 100);
@@ -24616,8 +22764,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             svg.selectAll("*").remove();
             if (simulation) simulation.stop();
             
-            var centerX = isMobile ? width * 0.68 : width * 0.42;
-            var centerY = isMobile ? height * 0.18 : height * 0.28;
+            var centerX = isMobile ? width * 0.68 : width * 0.35;
+            var centerY = isMobile ? height * 0.18 : height * 0.22;
             var maxTitleLen = isMobile ? 20 : 30;
             var truncTitle = (job.title || "Job").length > maxTitleLen ? (job.title || "Job").substring(0, maxTitleLen - 2) + '\u2026' : (job.title || "Job");
             var nodes = [
@@ -24634,10 +22782,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
             
             var categories = Object.keys(categoryMap);
-            var jobRoleOrbitR = Math.min(width, height) * (isMobile ? 0.36 : 0.40);
             categories.forEach(function(cat, i) {
                 var angle = -Math.PI * 0.5 + (i / categories.length) * 2 * Math.PI;
-                var radius = jobRoleOrbitR;
+                var radius = (isMobile ? 160 : 220) * scaleFactor;
                 nodes.push({
                     id: 'role-' + cat,
                     name: cat,
@@ -24674,22 +22821,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             categories.forEach(function(cat) { links.push({ source: 'center', target: 'role-' + cat, type: 'role' }); });
             skillsToRender.forEach(function(entry, i) { links.push({ source: 'role-' + entry.cat, target: 'jskill-' + i, type: 'skill' }); });
             
+            // Simulation — spacious layout
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
-                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 180 : 220 * scaleFactor) : (isMobile ? 100 : 110 * scaleFactor); }))
-                .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -400 : -400) * scaleFactor : (isMobile ? -220 : -220) * scaleFactor; }))
-                .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 50 : 60) * scaleFactor : d.type === 'role' ? (isMobile ? 55 : 55) * scaleFactor : (isMobile ? 38 : 48) * scaleFactor; }).iterations(2))
-                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : (isMobile ? width * 0.40 : width * 0.46); }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.04 : 0.05); }))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.04 : 0.05))
-                .force("radial", d3.forceRadial(function(d) {
-                    if (d.type === 'role') return jobRoleOrbitR;
-                    if (d.type === 'skill') return Math.min(width, height) * (isMobile ? 0.14 : 0.18) * scaleFactor;
-                    return 0;
-                }, centerX, gravityCenter).strength(function(d) {
-                    if (d.type === 'role') return 0.7;
-                    if (d.type === 'skill') return 0.12;
-                    return 0;
-                }));
+                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 140 : 200 * scaleFactor) : (isMobile ? 120 : 160 * scaleFactor); }))
+                .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -400 : -350) * scaleFactor : (isMobile ? -180 : -150) * scaleFactor; }))
+                .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 50 : 60) * scaleFactor : d.type === 'role' ? (isMobile ? 55 : 50) * scaleFactor : (isMobile ? 35 : 35) * scaleFactor; }))
+                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : (isMobile ? width * 0.40 : width * 0.48); }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.03 : 0.04); }))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.03 : 0.04));
             
             // Draw - links layer BELOW nodes layer
             var isLtC = document.documentElement.getAttribute('data-theme') === 'light';
@@ -24788,10 +22927,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var gapSkills = new Set();
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
-            var nameX = isMobile ? width * 0.75 : width * 0.18;
+            // === LAYOUT: Name upper-right, Job Needs upper-left on mobile ===
+            var nameX = isMobile ? width * 0.75 : width * 0.22;
             var nameY = isMobile ? height * 0.12 : height * 0.38;
-            var networkBodyX = isMobile ? width * 0.50 : width * 0.32;
-            var jobX = isMobile ? width * 0.18 : width * 0.82;
+            var networkBodyX = isMobile ? width * 0.50 : width * 0.22;
+            var jobX = isMobile ? width * 0.18 : width * 0.78;
             var jobY = isMobile ? height * 0.12 : height * 0.32;
             
             var matchCenterName = userData.profile.name || "You";
@@ -24804,11 +22944,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 { id: "center", name: matchCenterName, type: "center", matchState: 'center', x: nameX, y: nameY, fx: nameX, fy: nameY, homeX: nameX, homeY: nameY }
             ];
             
+            // Use the user's actual roles — fan them out from network body center (not name pin)
             var matchVisibleRoles = getVisibleRoles();
-            var matchRoleOrbitR = Math.min(width, height) * (isMobile ? 0.34 : 0.38);
             matchVisibleRoles.forEach(function(role, i) {
                 var angle = -Math.PI * 0.6 + (i / Math.max(matchVisibleRoles.length - 1, 1)) * Math.PI * 1.2;
-                var radius = matchRoleOrbitR;
+                var radius = (isMobile ? 140 : 180) * scaleFactor;
                 var roleId = role.id || role.name;
                 nodes.push({
                     id: roleId, name: role.name, type: 'role', color: role.color, matchState: 'role',
@@ -24882,44 +23022,37 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 surplus: '#475569'  // slate grey (dimmed)
             };
             
+            // Simulation — left/right layout forces
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
-                    if (d.type === 'role') return (isMobile ? 160 : 200) * scaleFactor;
-                    if (d.type === 'match') return (isMobile ? 90 : 110) * scaleFactor;
-                    return (isMobile ? 100 : 110) * scaleFactor;
+                    if (d.type === 'role') return (isMobile ? 120 : 150) * scaleFactor;
+                    if (d.type === 'match') return (isMobile ? 80 : 100) * scaleFactor;
+                    return (isMobile ? 100 : 130) * scaleFactor;
                 }))
                 .force("charge", d3.forceManyBody().strength(function(d) {
                     if (d.type === 'center') return 0;
-                    if (d.type === 'role') return (isMobile ? -400 : -400) * scaleFactor;
-                    if (d.matchState === 'gap') return (isMobile ? -180 : -200) * scaleFactor;
-                    return (isMobile ? -200 : -220) * scaleFactor;
+                    if (d.type === 'role') return (isMobile ? -300 : -250) * scaleFactor;
+                    if (d.matchState === 'gap') return (isMobile ? -120 : -120) * scaleFactor;
+                    return (isMobile ? -160 : -150) * scaleFactor;
                 }))
                 .force("collision", d3.forceCollide().radius(function(d) {
                     if (d.type === 'center') return (isMobile ? 45 : 55) * scaleFactor;
-                    if (d.type === 'role') return (isMobile ? 50 : 55) * scaleFactor;
-                    return (isMobile ? 34 : 42) * scaleFactor;
-                }).iterations(2))
+                    if (d.type === 'role') return (isMobile ? 45 : 50) * scaleFactor;
+                    return (isMobile ? 28 : 30) * scaleFactor;
+                }))
                 .force("x", d3.forceX(function(d) {
                     if (d.type === 'center') return nameX;
                     if (d.id === 'role-job-req') return jobX;
-                    if (d.matchState === 'gap') return isMobile ? width * 0.25 : width * 0.68;
-                    if (d.matchState === 'matched') return isMobile ? width * 0.50 : width * 0.55;
-                    return isMobile ? width * 0.50 : width * 0.42;
+                    if (d.matchState === 'gap') return isMobile ? width * 0.25 : jobX;
+                    if (d.matchState === 'matched') return isMobile ? width * 0.50 : width * 0.5;
+                    return isMobile ? width * 0.55 : networkBodyX + width * 0.05;
                 }).strength(function(d) {
                     if (d.type === 'center' || d.id === 'role-job-req') return 0;
-                    if (d.matchState === 'matched') return 0.08;
-                    if (d.matchState === 'gap') return 0.06;
-                    return isMobile ? 0.04 : 0.06;
+                    if (d.matchState === 'matched') return 0.06;
+                    return isMobile ? 0.06 : 0.1;
                 }))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.03 : 0.04))
-                .force("radial", d3.forceRadial(function(d) {
-                    if (d.type === 'role' && d.id !== 'role-job-req') return matchRoleOrbitR;
-                    return 0;
-                }, networkBodyX, gravityCenter).strength(function(d) {
-                    if (d.type === 'role' && d.id !== 'role-job-req') return 0.7;
-                    return 0;
-                }));
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.04 : 0.06));
             
             // Draw links - BELOW nodes
             var isLt = document.documentElement.getAttribute('data-theme') === 'light';
@@ -25980,7 +24113,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else if (targetView === 'blueprint') {
                 switchView('blueprint');
             } else {
-                currentSkillsView = 'network';
+                // Default: show skills (lazy-init handles network rendering)
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    currentSkillsView = 'card';
+                }
                 switchView('network');
             }
             
@@ -26734,16 +24871,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (adminV) adminV.style.display = 'none';
             if (controls) controls.style.display = 'none';
             
+            // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
             var roBanner = document.getElementById('readonlyBanner');
             if (roBanner) {
-                var isSampleViewing = appContext.mode === 'demo' || isReadOnlyProfile;
                 if (view === 'welcome' || view === 'consent' || view === 'admin') {
                     roBanner.style.display = 'none';
-                } else if (isSampleViewing) {
-                    checkReadOnly();
+                } else if (isReadOnlyProfile) {
                     roBanner.style.cssText = 'display:block !important; text-align:center; padding:10px 16px; font-size:0.88em; word-spacing:normal; white-space:normal;';
-                } else {
-                    roBanner.style.display = 'none';
                 }
             }
             
@@ -26785,13 +24919,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     // Show network filter pill if role active
                     var nfp = document.getElementById('networkFilterPill');
                     if (nfp) nfp.style.display = (activeRole && activeRole !== 'all') ? 'flex' : 'none';
+                    // Lazy-init network SVG on first visit
                     if (!window.networkInitialized) {
-                        try {
-                            initNetwork();
-                            window.networkInitialized = true;
-                        } catch(e) {
-                            console.error('initNetwork error:', e);
-                        }
+                        initNetwork();
+                        window.networkInitialized = true;
                     }
                     // Always render job selector when entering network view
                     setTimeout(function() { renderJobSelectorWidget(); }, 100);
@@ -26876,10 +25007,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     switchView('welcome');
                     return;
                 }
-                if (showcaseMode && window._showcaseViewingSample) {
-                    returnToShowcaseAdmin();
-                    return;
-                }
                 var av = document.getElementById('adminView');
                 if (av) {
                     av.style.display = 'block';
@@ -26907,13 +25034,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // Show label toggles on desktop
                 var labelToggles = document.getElementById('networkLabelToggles');
                 if (labelToggles) labelToggles.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
+                // Lazy-init network if needed (e.g. after profile switch)
                 if (!window.networkInitialized) {
-                    try {
-                        initNetwork();
-                        window.networkInitialized = true;
-                    } catch(e) {
-                        console.error('initNetwork error:', e);
-                    }
+                    initNetwork();
+                    window.networkInitialized = true;
                 }
                 // Hide filter button/panel in network view (filtering via node clicks)
                 var filterBtn = document.getElementById('filterToggleBtn');
@@ -28515,27 +26639,26 @@ body {
         }
         
         function extractOutcomesFromEvidence() {
-            var existing = blueprintData.outcomes || [];
-            if (existing.length > 0) {
-                userData.outcomes = existing;
-                return;
-            }
-
             const outcomes = [];
 
+            // Evidence now lives in userData.skills[].evidence as {description, outcome} objects.
+            // We pull from there first, then fall back to the legacy skillDetails strings.
             const skills = userData.skills || skillsData.skills || [];
 
             skills.forEach(skill => {
                 (skill.evidence || []).forEach(ev => {
+                    // ev is {description, outcome} — use the outcome field for display
                     const outcomeText = (ev.outcome || '').trim();
                     const descText   = (ev.description || '').trim();
                     if (!outcomeText && !descText) return;
 
+                    // Score the outcome — anything with a real metric qualifies
                     const combined = outcomeText + ' ' + descText;
                     const hasMetric = /\$[\d,]+[MBK]?|\d+%|\d+x|\d+ times|million|billion/i.test(combined);
                     const hasResult = /retained|increased|reduced|improved|delivered|generated|achieved|enabled|saved|prevented|launched|built|founded|established|designed|developed|created|published|advised|managed|led|maintained|predicted|grew|expanded|scaled|transformed|implemented|coordinated|negotiated|secured|trained|recognized|served|produced|completed|resolved|translated|tracked|identified|advocated|guided|proposed|calculated|commanded|influenced|shaped|architected|recruited|mentored|applied|aligned|evaluated|made|openly|reached|channeled|spent/i.test(combined);
 
                     if (hasMetric || hasResult) {
+                        // Build a combined display text: outcome is the headline, description adds context
                         const displayText = outcomeText
                             ? (descText ? `${outcomeText} (${descText.slice(0, 100)}${descText.length > 100 ? '…' : ''})` : outcomeText)
                             : descText;
@@ -28547,7 +26670,7 @@ body {
                             skill: skill.name,
                             level: skill.level,
                             category: categorizeOutcome(skill.name, combined),
-                            shared: !isSensitiveContent(combined),
+                            shared: !isSensitiveContent(combined), // sensitive items default to unshared
                             sensitive: isSensitiveContent(combined),
                             coachingSuggestion: generateCoachingFor(outcomeText || descText)
                         });
@@ -28555,6 +26678,7 @@ body {
                 });
             });
 
+            // Also check legacy skillDetails (skill_evidence.json strings) — only if no skill-based outcomes found
             if (outcomes.length === 0) {
                 const quantifiedPattern = /\$[\d,]+[MBK]?|\d+%|\d+ years?/gi;
                 Object.entries(skillsData.skillDetails || {}).forEach(([skillName, details]) => {
@@ -28576,6 +26700,7 @@ body {
                 });
             }
 
+            // Sort: unshared (sensitive) last, then by metric strength
             outcomes.sort((a, b) => {
                 if (a.sensitive && !b.sensitive) return 1;
                 if (!a.sensitive && b.sensitive) return -1;
@@ -29002,18 +27127,14 @@ body {
 
         function saveValues() {
             if (readOnlyGuard()) return;
-            userData.values = JSON.parse(JSON.stringify(blueprintData.values));
-            if (blueprintData.purpose) userData.purpose = blueprintData.purpose;
-            if (blueprintData.values && blueprintData.values.length > 0
-                    && blueprintData.values.some(function(v) { return v.selected; })) {
-                window._lastKnownValues = JSON.parse(JSON.stringify(blueprintData.values));
-                var valKey = 'bp_last_values' + (fbUser && fbUser.uid ? '_' + fbUser.uid : '');
-                try { sessionStorage.setItem(valKey, JSON.stringify(blueprintData.values)); } catch(e) {}
-            }
+            // Sync to userData so Firestore write includes current values
+            userData.values = blueprintData.values;
+            if (blueprintData.purpose) userData.purpose = blueprintData.purpose; // keep in sync
             try {
                 safeSet('wbValues', JSON.stringify(blueprintData.values));
                 safeSet('wbPurpose', blueprintData.purpose || '');
             } catch (e) { /* quota exceeded or private mode */ }
+            // Persist to Firestore for signed-in users
             if (typeof fbUser !== 'undefined' && fbUser && typeof debouncedSave === 'function') {
                 debouncedSave();
             }
@@ -29138,42 +27259,13 @@ body {
         window.saveValueNote = saveValueNote;
 
         function inferValues() {
+            // GUARD: If blueprintData already has selected values, do NOT overwrite them.
+            // inferValues() is called from multiple render paths (dashboard, content tab, values network)
+            // and must not clobber values already loaded from Firestore.
             if (blueprintData.values && blueprintData.values.length > 0
                     && blueprintData.values.some(function(v) { return v.selected; })) {
                 _inferPurposeOnly();
                 return;
-            }
-            if ((!blueprintData.values || blueprintData.values.length === 0 ||
-                    !blueprintData.values.some(function(v) { return v.selected; }))
-                    && userData.values && userData.values.length > 0
-                    && userData.values.some(function(v) { return v.selected; })) {
-                blueprintData.values = JSON.parse(JSON.stringify(userData.values));
-                _inferPurposeOnly();
-                return;
-            }
-            if ((!blueprintData.values || blueprintData.values.length === 0)
-                    && window._lastKnownValues && window._lastKnownValues.length > 0) {
-                blueprintData.values = JSON.parse(JSON.stringify(window._lastKnownValues));
-                console.warn('⚡ Values circuit breaker: restored from _lastKnownValues');
-                _inferPurposeOnly();
-                return;
-            }
-            if ((!blueprintData.values || blueprintData.values.length === 0)
-                    && !window._lastKnownValues) {
-                try {
-                    var ssvKey = 'bp_last_values' + (typeof fbUser !== 'undefined' && fbUser && fbUser.uid ? '_' + fbUser.uid : '');
-                    var ssv = sessionStorage.getItem(ssvKey);
-                    if (ssv) {
-                        var parsed = JSON.parse(ssv);
-                        if (parsed && parsed.length > 0 && parsed.some(function(v) { return v.selected; })) {
-                            window._lastKnownValues = parsed;
-                            blueprintData.values = JSON.parse(JSON.stringify(parsed));
-                            console.warn('⚡ Values circuit breaker: restored from sessionStorage');
-                            _inferPurposeOnly();
-                            return;
-                        }
-                    }
-                } catch(e) {}
             }
             // Restore circuit breaker from sessionStorage if lost (e.g. hard reload)
             if (!window._lastKnownPurpose) {
@@ -31587,13 +29679,10 @@ body {
         function updateValuesBadge() {
             var count = blueprintData.values.filter(function(v) { return v.selected; }).length;
             var tabs = document.querySelectorAll('.bp-tab');
-            tabs.forEach(function(tab) {
-                var label = tab.querySelector('.bp-tab-label');
-                if (label && label.textContent.trim() === 'Values') {
-                    var badge = tab.querySelector('.bp-tab-count');
-                    if (badge) badge.textContent = count;
-                }
-            });
+            if (tabs.length > 1) {
+                var badge = tabs[1].querySelector('.bp-tab-count');
+                if (badge) badge.textContent = count;
+            }
         }
         
         function toggleValuesPicker() {
@@ -32377,7 +30466,7 @@ body {
             if (existing) existing.remove();
             
             // Fetch template, inject data, render in blob iframe
-            fetch('reports/templates/base.html?v=' + BP_VERSION)
+            fetch('reports/templates/base.html')
                 .then(function(res) {
                     if (!res.ok) throw new Error('Template not found');
                     return res.text();
@@ -32386,7 +30475,16 @@ body {
                     var safeDataStr = encodeURIComponent(JSON.stringify(reportData));
                     var injected = template.replace(/const REPORT_DATA = \{[\s\S]*?\n\};/, 'const REPORT_DATA = JSON.parse(decodeURIComponent("' + safeDataStr + '"));');
                     
-                    var patchScript = '';
+                    // Patch template: swap skills→networkSkills for D3 visualization
+                    // but preserve totalSkillCount for overview stats display
+                    var patchScript = '<script>'
+                        + 'if(typeof REPORT_DATA!=="undefined"&&REPORT_DATA.networkSkills){'
+                        + 'REPORT_DATA._allSkills=REPORT_DATA.skills;'
+                        + 'REPORT_DATA.skills=REPORT_DATA.networkSkills;'
+                        + 'REPORT_DATA.totalSkillCount=REPORT_DATA.totalSkillCount||REPORT_DATA._allSkills.length;'
+                        + 'REPORT_DATA.jobMatchSkills=REPORT_DATA.jobMatchSkills||REPORT_DATA.skills.filter(function(s){return s.k===1;});'
+                        + '}'
+                        + '<\/script>';
                     
                     // Inject CSS overrides for D3 networks to match main app aesthetic
                     var patchCSS = '<style>'
@@ -32504,31 +30602,40 @@ body {
                         + '      document.querySelectorAll("svg line").forEach(function(l) { l.style.display = ""; });'
                         + '    }'
                         + '  }'
-                        + '  [1500,2500,4000].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
-                        + '  document.addEventListener("click", function(e) {'
-                        + '    if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
-                        + '      setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 300);'
-                        + '    }'
+                        // Run immediately once (catches any synchronously-rendered nodes)
+                        + '  recolorNetwork(); filterJobMatch();'
+                        // MutationObserver: fires recolorNetwork the instant D3 adds SVG nodes
+                        // This eliminates the color flash — no waiting for a poll tick
+                        + '  var _obs = new MutationObserver(function(muts) {'
+                        + '    var hasSVG = muts.some(function(m) {'
+                        + '      return Array.from(m.addedNodes).some(function(n) {'
+                        + '        return n.nodeType === 1 && (n.tagName === "circle" || n.tagName === "line" || n.tagName === "g" || (n.querySelector && n.querySelector("circle")));'
+                        + '      });'
+                        + '    });'
+                        + '    if (hasSVG) { recolorNetwork(); filterJobMatch(); }'
+                        + '  });'
+                        + '  _obs.observe(document.body || document.documentElement, { childList: true, subtree: true });'
+                        // Safety net: fast polling for first 3s, then disconnect observer
+                        + '  var n = 0;'
+                        + '  var iv = setInterval(function() {'
+                        + '    recolorNetwork(); filterJobMatch();'
+                        + '    if (++n > 15) { clearInterval(iv); _obs.disconnect(); }'
+                        + '  }, 200);'
+                        + '  document.addEventListener("DOMContentLoaded", function() {'
+                        + '    [500,1200,2500].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
+                        // Re-apply on tab/button clicks
+                        + '    document.addEventListener("click", function(e) {'
+                        + '      if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 150);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 600);'
+                        + '      }'
+                        + '    });'
                         + '  });'
                         + '})();'
                         + '<\/script>';
                     
                     // Insert patches before </head>
-                    var headErrorHandler = '<script>window.onerror=function(m,s,l,c,e){var d=document.createElement("div");d.style.cssText="position:fixed;top:0;left:0;right:0;padding:16px 20px;background:#7f1d1d;color:#fca5a5;font-family:monospace;font-size:13px;z-index:9999;word-break:break-all;";d.textContent="Report error: "+m+" (line "+l+")";document.body.appendChild(d);console.error("Report render error:",m,s,l,c,e);return false;}<\/script>';
-                    injected = injected.replace('</head>', patchCSS + headErrorHandler + '</head>');
-                    
-                    var networkSwap = '\n'
-                        + 'if(typeof REPORT_DATA!=="undefined"&&REPORT_DATA.networkSkills){'
-                        + 'REPORT_DATA._allSkills=REPORT_DATA.skills;'
-                        + 'REPORT_DATA.skills=REPORT_DATA.networkSkills;'
-                        + 'REPORT_DATA.totalSkillCount=REPORT_DATA.totalSkillCount||REPORT_DATA._allSkills.length;'
-                        + 'REPORT_DATA.jobMatchSkills=REPORT_DATA.jobMatchSkills||REPORT_DATA.skills.filter(function(s){return s.k===1;});'
-                        + '}\n';
-                    injected = injected.replace(
-                        /\/\/ ── Derived globals/,
-                        networkSwap + '// ── Derived globals'
-                    );
-                    injected = injected.replace('</body>', patchColors + '</body>');
+                    injected = injected.replace('</head>', patchCSS + patchScript + patchColors + '</head>');
                     var blob = new Blob([injected], { type: 'text/html; charset=utf-8' });
                     var blobUrl = URL.createObjectURL(blob);
                     
@@ -32578,7 +30685,7 @@ body {
         
         // ── Share to Firestore → get link ─────────────────────────
         function shareScoutingReport() {
-            if (showcaseExportGuard()) return;
+            // Demo lockdown: no sharing on sample profiles
             if (isReadOnlyProfile) {
                 showToast('Sharing is not available on sample profiles. Sign up to share your own reports.', 'info');
                 return;
@@ -32716,7 +30823,6 @@ body {
         // Uses buildReportData() for identical data to HTML reports
         // ============================================================
         function generateScoutingReportPDF(R) {
-            if (showcaseExportGuard()) return;
             var jsPDF = window.jspdf.jsPDF;
             var doc = new jsPDF({ unit: 'mm', format: 'a4' });
             var W = 210, H = 297, M = 14, MW = W - M * 2, y = 0, pg = 0;
@@ -33137,31 +31243,24 @@ body {
                     d3links.push({ source: 'job-center', target: 'gap-' + gi, type: 'gap' });
                 });
                 
+                // D3 simulation — hubs pinned, only skills float
                 var sim = d3.forceSimulation(d3nodes)
                     .force('link', d3.forceLink(d3links).id(function(d) { return d.id; }).distance(function(d) {
                         if (d.type === 'hub') return hubRadius;
-                        if (d.type === 'gap') return hubRadius * 0.9;
-                        return hubRadius * 0.5;
+                        if (d.type === 'gap') return hubRadius * 1.3;
+                        return hubRadius * 0.7;
                     }).strength(1))
                     .force('charge', d3.forceManyBody().strength(function(d) {
                         if (d.fx !== undefined) return 0;
-                        return -1200;
+                        return -800;
                     }))
                     .force('collision', d3.forceCollide().radius(function(d) {
                         if (d.type === 'job') return 110;
                         if (d.type === 'role') return 90;
-                        return 75;
+                        return 60;
                     }).strength(1).iterations(3))
-                    .force('radial', d3.forceRadial(function(d) {
-                        if (d.type === 'skill') return hubRadius * 0.45;
-                        if (d.type === 'gap') return hubRadius * 0.6;
-                        return 0;
-                    }).strength(function(d) {
-                        if (d.type === 'skill' || d.type === 'gap') return 0.15;
-                        return 0;
-                    }))
-                    .force('x', d3.forceX(centerX).strength(0.02))
-                    .force('y', d3.forceY(centerY).strength(0.02))
+                    .force('x', d3.forceX(centerX).strength(0.015))
+                    .force('y', d3.forceY(centerY).strength(0.015))
                     .stop();
                 
                 for (var t = 0; t < 500; t++) sim.tick();
@@ -33352,28 +31451,22 @@ body {
                     });
                 });
                 
+                // D3 simulation — hubs pinned
                 var sim = d3.forceSimulation(d3nodes)
                     .force('link', d3.forceLink(d3links).id(function(d) { return d.id; }).distance(function(d) {
-                        return d.type === 'hub' ? hubRadius : hubRadius * 0.5;
+                        return d.type === 'hub' ? hubRadius : hubRadius * 0.7;
                     }).strength(1))
                     .force('charge', d3.forceManyBody().strength(function(d) {
                         if (d.fx !== undefined) return 0;
-                        return -1200;
+                        return -800;
                     }))
                     .force('collision', d3.forceCollide().radius(function(d) {
                         if (d.type === 'center') return 100;
                         if (d.type === 'role') return 90;
-                        return 75;
+                        return 60;
                     }).strength(1).iterations(3))
-                    .force('radial', d3.forceRadial(function(d) {
-                        if (d.type === 'skill') return hubRadius * 0.45;
-                        return 0;
-                    }).strength(function(d) {
-                        if (d.type === 'skill') return 0.15;
-                        return 0;
-                    }))
-                    .force('x', d3.forceX(centerX).strength(0.02))
-                    .force('y', d3.forceY(centerY).strength(0.02))
+                    .force('x', d3.forceX(centerX).strength(0.015))
+                    .force('y', d3.forceY(centerY).strength(0.015))
                     .stop();
                 
                 for (var t = 0; t < 500; t++) sim.tick();
@@ -33997,33 +32090,22 @@ body {
 
         
         function exportBlueprint(format) {
-            if (showcaseExportGuard()) return;
+            // Demo lockdown: no exports on sample profiles (scouting report PDF uses its own path)
             if (isReadOnlyProfile) {
                 demoGate('export your Blueprint');
                 return;
             }
             logAnalyticsEvent('export_' + format, { format: format });
-            var _ud = window._userData || userData;
             var sharedData = {
-                profile: _ud.profile || {},
-                outcomes: blueprintData.outcomes || [],
-                values: blueprintData.values || [],
-                purpose: blueprintData.purpose || '',
-                skills: skillsData.skills || [],
+                profile: userData.profile || {},
+                outcomes: blueprintData.outcomes.filter(function(o) { return o.shared; }),
+                values: blueprintData.values.filter(function(v) { return v.selected; }),
+                purpose: blueprintData.purpose,
+                skills: (skillsData.skills || []).map(function(s) {
+                    return { name: s.name, level: s.level, category: s.category, key: s.key, roles: s.roles };
+                }),
                 roles: skillsData.roles || [],
-                preferences: _ud.preferences || {},
-                workHistory: _ud.workHistory || [],
-                education: _ud.education || [],
-                certifications: _ud.certifications || [],
-                verifications: _ud.verifications || [],
-                savedJobs: _ud.savedJobs || [],
-                linkedinContent: _ud.linkedinContent || {},
-                companyTenures: _ud.companyTenures || [],
-                importStats: _ud.importStats || {},
-                contentVisibility: _ud.contentVisibility || {},
-                exportedAt: new Date().toISOString(),
-                exportedFor: (_ud.profile || {}).name || 'backup',
-                version: BP_VERSION
+                exportedAt: new Date().toISOString()
             };
             
             if (format === 'json') {
@@ -34032,7 +32114,7 @@ body {
                 var url = URL.createObjectURL(dataBlob);
                 var link = document.createElement('a');
                 link.href = url;
-                var safeName = ((_ud.profile && _ud.profile.name) || 'profile').replace(/\s+/g, '-').toLowerCase();
+                var safeName = ((userData.profile && userData.profile.name) || 'profile').replace(/\s+/g, '-').toLowerCase();
                 link.download = 'blueprint-' + safeName + '.json';
                 link.click();
                 URL.revokeObjectURL(url);
@@ -34043,7 +32125,6 @@ body {
         }
         
         function generatePDF(data, targetJob) {
-            if (showcaseExportGuard()) return;
             var jsPDF = window.jspdf.jsPDF;
             var doc = new jsPDF({ unit: 'mm', format: 'a4' });
             
@@ -35759,7 +33840,6 @@ body {
         }
 
         function copyCoverLetter() {
-            if (showcaseExportGuard()) return;
             var ta = document.getElementById('coverLetterOutput');
             if (ta) {
                 navigator.clipboard.writeText(ta.value).then(function() {
@@ -35770,7 +33850,6 @@ body {
         window.copyCoverLetter = copyCoverLetter;
 
         function downloadCoverLetter(company) {
-            if (showcaseExportGuard()) return;
             var ta = document.getElementById('coverLetterOutput');
             if (!ta) return;
             var blob = new Blob([ta.value], { type: 'text/plain' });
@@ -35976,7 +34055,6 @@ body {
         }
 
         function copyInterviewPrep() {
-            if (showcaseExportGuard()) return;
             var ta = document.getElementById('interviewPrepOutput');
             if (ta) {
                 navigator.clipboard.writeText(ta.value).then(function() {
@@ -35987,7 +34065,6 @@ body {
         window.copyInterviewPrep = copyInterviewPrep;
 
         function downloadInterviewPrep(company) {
-            if (showcaseExportGuard()) return;
             var ta = document.getElementById('interviewPrepOutput');
             if (!ta) return;
             var blob = new Blob([ta.value], { type: 'text/plain' });
@@ -36233,7 +34310,6 @@ body {
 
         async function renderFitForMe(el) {
             if (!el) return;
-            try {
             var userSkillCount = (skillsData.skills || []).length;
             var roleCount = (userData.roles || []).length;
 
@@ -36406,10 +34482,6 @@ body {
             }
 
             el.innerHTML = html;
-            } catch(e) {
-                console.warn('[FitForMe] Render error:', e.message);
-                if (el) el.innerHTML = '<div style="padding:20px; color:#ef4444;">Error loading Fit For Me: ' + escapeHtml(e.message) + '</div>';
-            }
         }
 
         function _fitAddToPipeline(idx) {
@@ -36503,25 +34575,18 @@ body {
         }
         
         // ── Internal Mobility (ex1-3) ─────────────────────────────────────────
-        var _internalRolesCache = null;   // null = unloaded, [] = empty, [...] = loaded
-        var _internalMatchExpanded = {};  // idx → bool
+        var _internalRolesCache = null;
+        var _internalMatchExpanded = {};
 
         function _internalLoadRoles(cb) {
             if (!fbUser || !fbDb) { _internalRolesCache = []; if (cb) cb(); return; }
             fbDb.collection('users').doc(fbUser.uid).collection('internal_roles').orderBy('savedAt', 'desc').get()
                 .then(function(snapshot) {
                     _internalRolesCache = [];
-                    snapshot.forEach(function(doc) {
-                        var d = doc.data(); d.id = doc.id;
-                        _internalRolesCache.push(d);
-                    });
+                    snapshot.forEach(function(doc) { var d = doc.data(); d.id = doc.id; _internalRolesCache.push(d); });
                     if (cb) cb();
                 })
-                .catch(function(err) {
-                    console.warn('Internal roles load error:', err);
-                    _internalRolesCache = [];
-                    if (cb) cb();
-                });
+                .catch(function(err) { console.warn('Internal roles load error:', err); _internalRolesCache = []; if (cb) cb(); });
         }
 
         function _internalSaveRole(entry, cb) {
@@ -36530,7 +34595,7 @@ body {
             var op = entry.id ? col.doc(entry.id).set(entry, { merge: true }) : col.add(entry);
             op.then(function(ref) {
                 if (!entry.id && ref) entry.id = ref.id;
-                _internalRolesCache = null; // invalidate cache
+                _internalRolesCache = null;
                 logAnalyticsEvent('internal_role_saved', { title: entry.title || '' });
                 if (cb) cb();
             }).catch(function(err) { showToast('Save failed: ' + err.message, 'error'); });
@@ -36613,15 +34678,12 @@ body {
                 var currentComp = (userData.preferences || {}).currentComp || null;
                 var html = '';
 
-                // ── Header ──
                 html += '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px;">'
                     + '<div>'
                     + '<h3 style="margin:0; font-size:1.1em; font-weight:700;">' + bpIcon('compass',16) + ' Internal Opportunities</h3>'
                     + '<p style="margin:4px 0 0; font-size:0.82em; color:var(--text-muted);">Match your profile against internal roles. See your readiness, skill gaps, and comp delta.</p>'
-                    + '</div>'
-                    + '</div>';
+                    + '</div></div>';
 
-                // ── Current Comp strip ──
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; margin-bottom:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
                     + '<div style="flex:1; min-width:180px;">'
                     + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:3px;">Your Current Compensation</div>'
@@ -36633,7 +34695,6 @@ body {
                     + '<button onclick="_internalSaveCurrentComp()" style="padding:7px 14px; background:var(--accent); color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.85em; font-weight:600;">Save</button>'
                     + '</div></div>';
 
-                // ── Paste JD ──
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; padding:16px; margin-bottom:20px;">'
                     + '<div style="font-weight:600; font-size:0.9em; margin-bottom:10px;">' + bpIcon('edit',14) + ' Add Internal Role</div>'
                     + '<textarea id="internalJDInput" placeholder="Paste an internal job description here…" style="width:100%; min-height:100px; padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--c-input-bg-soft); color:var(--text-primary); font-size:0.85em; resize:vertical; box-sizing:border-box;"></textarea>'
@@ -36642,7 +34703,6 @@ body {
                     + '<span style="font-size:0.78em; color:var(--c-faint);">AI-powered extraction when signed in.</span>'
                     + '</div></div>';
 
-                // ── Roles list ──
                 if (roles.length === 0) {
                     html += '<div style="text-align:center; padding:40px 20px; color:var(--text-muted);">'
                         + '<div style="opacity:0.25; margin-bottom:14px;">' + bpIcon('compass',44) + '</div>'
@@ -36652,14 +34712,10 @@ body {
                 } else {
                     roles.forEach(function(role, idx) {
                         var isExpanded = !!_internalMatchExpanded[idx];
-
-                        // Run match on the fly using existing engine
-                        var matchResult = null;
-                        var gaps = [], strengths = [], matchScore = 0;
+                        var matchResult = null, gaps = [], strengths = [], matchScore = 0;
                         try {
                             if (role.skills && role.skills.length > 0) {
-                                var wbForMatch = { title: role.title, skills: role.skills, seniority: role.seniority || 'mid' };
-                                matchResult = matchJobToProfile(wbForMatch);
+                                matchResult = matchJobToProfile({ title: role.title, skills: role.skills, seniority: role.seniority || 'mid' });
                                 matchScore = matchResult ? Math.round((matchResult.score || 0) * 100) : 0;
                                 if (matchResult) {
                                     gaps = (matchResult.gaps || []).filter(function(g) { return g.requirement !== 'Nice to Have'; }).slice(0, 6);
@@ -36668,114 +34724,78 @@ body {
                             }
                         } catch(e) { console.warn('Internal match error:', e); }
 
-                        // Comp delta
                         var blsMedian = role.bls && role.bls.median ? role.bls.median : null;
                         var compDelta = null, compDeltaDir = '';
-                        if (blsMedian && currentComp) {
-                            compDelta = blsMedian - currentComp;
-                            compDeltaDir = compDelta >= 0 ? 'up' : 'down';
-                        }
+                        if (blsMedian && currentComp) { compDelta = blsMedian - currentComp; compDeltaDir = compDelta >= 0 ? 'up' : 'down'; }
 
-                        // Score color
                         var scoreColor = matchScore >= 75 ? '#10b981' : matchScore >= 50 ? '#fb923c' : matchScore >= 30 ? '#a78bfa' : '#94a3b8';
                         var readinessLabel = matchScore >= 75 ? 'Ready Now' : matchScore >= 50 ? 'Near Ready' : matchScore >= 30 ? 'Developing' : 'Gap Heavy';
 
                         html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:12px; overflow:hidden;">';
-
-                        // Card header
                         html += '<div style="padding:14px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">';
-
-                        // Score ring
                         html += '<div style="flex-shrink:0; width:54px; height:54px; border-radius:50%; border:3px solid ' + scoreColor + '; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--c-surface-2);">'
                             + '<span style="font-size:1em; font-weight:800; color:' + scoreColor + '; line-height:1;">' + (matchScore || '–') + '</span>'
-                            + '<span style="font-size:0.55em; color:var(--text-muted); line-height:1; margin-top:1px;">%</span>'
-                            + '</div>';
-
-                        // Title / meta
+                            + '<span style="font-size:0.55em; color:var(--text-muted); line-height:1; margin-top:1px;">%</span></div>';
                         html += '<div style="flex:1; min-width:160px;">'
-                            + '<div style="font-weight:700; font-size:0.97em; color:var(--text-primary);">' + escapeHtml(role.title || 'Untitled') + '</div>'
+                            + '<div style="font-weight:700; font-size:0.97em;">' + escapeHtml(role.title || 'Untitled') + '</div>'
                             + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:2px;">'
                             + (role.company ? escapeHtml(role.company) + ' · ' : '')
                             + '<span style="color:' + scoreColor + '; font-weight:600;">' + readinessLabel + '</span>'
-                            + (blsMedian ? ' · Market: $' + Math.round(blsMedian / 1000) + 'K' : '')
-                            + '</div>';
-
-                        // Comp delta badge
+                            + (blsMedian ? ' · Market: $' + Math.round(blsMedian / 1000) + 'K' : '') + '</div>';
                         if (compDelta !== null) {
                             var deltaAbs = Math.abs(Math.round(compDelta / 1000));
                             var deltaBg = compDeltaDir === 'up' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
                             var deltaFg = compDeltaDir === 'up' ? '#10b981' : '#ef4444';
-                            var deltaArrow = compDeltaDir === 'up' ? '↑' : '↓';
                             html += '<div style="margin-top:5px; display:inline-block; background:' + deltaBg + '; color:' + deltaFg + '; border-radius:5px; padding:2px 8px; font-size:0.75em; font-weight:600;">'
-                                + deltaArrow + ' $' + deltaAbs + 'K vs your current comp'
-                                + '</div>';
+                                + (compDeltaDir === 'up' ? '↑' : '↓') + ' $' + deltaAbs + 'K vs your current comp</div>';
                         }
-                        html += '</div>'; // end title/meta
-
-                        // Actions
+                        html += '</div>';
                         html += '<div style="display:flex; gap:8px; flex-shrink:0;">'
-                            + '<button onclick="_internalRunMatch(' + idx + ')" style="padding:6px 14px; background:var(--c-surface-3); color:var(--text-primary); border:1px solid var(--c-surface-5); border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">'
-                            + (isExpanded ? '▲ Collapse' : '▼ Details') + '</button>'
+                            + '<button onclick="_internalRunMatch(' + idx + ')" style="padding:6px 14px; background:var(--c-surface-3); color:var(--text-primary); border:1px solid var(--c-surface-5); border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">' + (isExpanded ? '▲ Collapse' : '▼ Details') + '</button>'
                             + '<button onclick="_internalDeleteRole(\'' + escapeAttr(role.id) + '\')" style="padding:6px 10px; background:none; color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:7px; cursor:pointer; font-size:0.82em;" title="Remove">' + bpIcon('trash',13) + '</button>'
                             + '</div>';
+                        html += '</div>';
 
-                        html += '</div>'; // end card header
-
-                        // Expanded details
                         if (isExpanded && matchResult) {
                             html += '<div style="border-top:1px solid var(--c-surface-5); padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">';
-
-                            // Gaps
-                            html += '<div>'
-                                + '<div style="font-size:0.78em; font-weight:700; color:#ef4444; margin-bottom:8px; letter-spacing:0.03em;">SKILL GAPS TO CLOSE</div>';
+                            html += '<div><div style="font-size:0.78em; font-weight:700; color:#ef4444; margin-bottom:8px; letter-spacing:0.03em;">SKILL GAPS TO CLOSE</div>';
                             if (gaps.length === 0) {
                                 html += '<div style="font-size:0.82em; color:#10b981;">No critical gaps — strong match.</div>';
                             } else {
                                 gaps.forEach(function(g) {
                                     html += '<div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">'
                                         + '<span style="width:7px; height:7px; border-radius:50%; background:#ef4444; flex-shrink:0;"></span>'
-                                        + '<span style="font-size:0.83em; color:var(--text-primary); font-weight:500;">' + escapeHtml(g.name || '') + '</span>'
-                                        + '<span style="font-size:0.72em; color:var(--text-muted);">(' + (g.proficiency || g.required || 'Required') + ')</span>'
-                                        + '</div>';
+                                        + '<span style="font-size:0.83em; font-weight:500;">' + escapeHtml(g.name || '') + '</span>'
+                                        + '<span style="font-size:0.72em; color:var(--text-muted);">(' + (g.proficiency || g.required || 'Required') + ')</span></div>';
                                 });
                             }
                             html += '</div>';
-
-                            // Strengths
-                            html += '<div>'
-                                + '<div style="font-size:0.78em; font-weight:700; color:#10b981; margin-bottom:8px; letter-spacing:0.03em;">YOUR STRENGTHS</div>';
+                            html += '<div><div style="font-size:0.78em; font-weight:700; color:#10b981; margin-bottom:8px; letter-spacing:0.03em;">YOUR STRENGTHS</div>';
                             if (strengths.length === 0) {
                                 html += '<div style="font-size:0.82em; color:var(--text-muted);">Add more skills to your Blueprint to see matches.</div>';
                             } else {
                                 strengths.forEach(function(s) {
                                     html += '<div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">'
                                         + '<span style="width:7px; height:7px; border-radius:50%; background:#10b981; flex-shrink:0;"></span>'
-                                        + '<span style="font-size:0.83em; color:var(--text-primary); font-weight:500;">' + escapeHtml(s.name || '') + '</span>'
-                                        + '</div>';
+                                        + '<span style="font-size:0.83em; font-weight:500;">' + escapeHtml(s.name || '') + '</span></div>';
                                 });
                             }
-                            html += '</div>';
+                            html += '</div></div>';
 
-                            html += '</div>'; // end grid
-
-                            // Comp context detail
                             if (blsMedian) {
                                 html += '<div style="border-top:1px solid var(--c-surface-5); padding:12px 16px; display:flex; gap:20px; flex-wrap:wrap;">';
-                                var compFields = [
-                                    { label: 'BLS Market Median', val: '$' + Math.round(blsMedian / 1000) + 'K' },
-                                    { label: 'Your Current Comp', val: currentComp ? '$' + Math.round(currentComp / 1000) + 'K' : 'Not set' },
-                                    { label: 'Delta', val: compDelta !== null ? (compDelta >= 0 ? '+' : '') + '$' + Math.round(compDelta / 1000) + 'K' : '—' }
-                                ];
-                                if (role.bls && role.bls.p25) compFields.push({ label: 'P25', val: '$' + Math.round(role.bls.p25 / 1000) + 'K' });
-                                if (role.bls && role.bls.p75) compFields.push({ label: 'P75', val: '$' + Math.round(role.bls.p75 / 1000) + 'K' });
-                                compFields.forEach(function(f) {
+                                [{ label: 'BLS Market Median', val: '$' + Math.round(blsMedian / 1000) + 'K' },
+                                 { label: 'Your Current Comp', val: currentComp ? '$' + Math.round(currentComp / 1000) + 'K' : 'Not set' },
+                                 { label: 'Delta', val: compDelta !== null ? (compDelta >= 0 ? '+' : '') + '$' + Math.round(compDelta / 1000) + 'K' : '—' },
+                                 role.bls && role.bls.p25 ? { label: 'P25', val: '$' + Math.round(role.bls.p25 / 1000) + 'K' } : null,
+                                 role.bls && role.bls.p75 ? { label: 'P75', val: '$' + Math.round(role.bls.p75 / 1000) + 'K' } : null
+                                ].filter(Boolean).forEach(function(f) {
                                     html += '<div style="font-size:0.8em;"><span style="color:var(--text-muted);">' + f.label + '</span><br><strong>' + f.val + '</strong></div>';
                                 });
                                 html += '</div>';
                             }
                         }
-
-                        html += '</div>'; // end role card
+                        html += '</div>';
                     });
                 }
 
@@ -37517,66 +35537,6 @@ body {
         // ===== JOB ANALYSIS ENGINE =====
         
         // ===== BLS OCCUPATION MATCHING =====
-        // ===== COMP CONTEXT ENGINE =====
-        // Applies industry and company-tier multipliers to BLS national medians.
-        // BLS data is cross-industry averages — tech companies and known high-comp employers
-        // pay meaningfully above BLS medians. This is general-purpose: any company/industry.
-        function _jdcDetectCompContext(company, industry, jdText) {
-            var co = (company || '').toLowerCase();
-            var ind = (industry || '').toLowerCase();
-            var jd = (jdText || '').toLowerCase().substring(0, 2000);
-
-            // Industry premium (BLS cross-industry baseline → industry-adjusted)
-            var industryMult = 1.0;
-            var industryLabel = '';
-            if (/\b(software|technology|tech|saas|cloud|platform|ai|artificial intelligence|cybersecurity|semiconductor|fintech)\b/.test(ind + ' ' + jd.substring(0, 500))) {
-                industryMult = 1.22; industryLabel = 'Technology';
-            } else if (/\b(financial services|investment banking|private equity|hedge fund|venture capital|asset management|capital markets)\b/.test(ind + ' ' + co)) {
-                industryMult = 1.18; industryLabel = 'Financial Services';
-            } else if (/\b(consulting|management consulting|professional services|advisory)\b/.test(ind + ' ' + co)) {
-                industryMult = 1.14; industryLabel = 'Consulting';
-            } else if (/\b(pharmaceutical|biotech|biotechnology|medtech|life sciences)\b/.test(ind + ' ' + co)) {
-                industryMult = 1.10; industryLabel = 'Life Sciences';
-            } else if (/\b(healthcare|hospital|health system|medical)\b/.test(ind + ' ' + co)) {
-                industryMult = 1.05; industryLabel = 'Healthcare';
-            } else if (/\b(media|entertainment|streaming|gaming)\b/.test(ind + ' ' + co)) {
-                industryMult = 1.08; industryLabel = 'Media & Entertainment';
-            }
-
-            // Company tier premium (on top of industry)
-            // Tier 1: publicly known top-of-market tech/finance employers
-            var tier1 = /^(salesforce|google|alphabet|microsoft|apple|meta|amazon|netflix|nvidia|adobe|servicenow|workday|snowflake|databricks|stripe|square|block|palantir|uber|airbnb|lyft|doordash|coinbase|robinhood|goldman sachs|morgan stanley|jp morgan|jpmorgan|blackrock|citadel|two sigma|jane street|linkedin|twitter|x\.com|bytedance|tiktok|openai|anthropic|deepmind)$/;
-            var tier2 = /^(oracle|sap|ibm|cisco|intel|qualcomm|amd|vmware|dell|hp|hewlett|accenture|deloitte|mckinsey|bain|bcg|pwc|kpmg|ey|ernst|booz allen|leidos|saic|at&t|verizon|comcast|disney|warner|nbc|cbs|abc|fox|johnson|pfizer|merck|abbvie|eli lilly|bristol.myers|unitedhealth|anthem|aetna|humana|cvs|walgreens|lockheed|raytheon|boeing|northrop|ge|3m|honeywell|caterpillar|john deere|ford|gm|toyota|volkswagen|bmw)$/;
-
-            var compTierMult = 1.0;
-            var compTierLabel = '';
-            if (tier1.test(co)) {
-                compTierMult = 1.18; compTierLabel = 'Top-of-market employer';
-            } else if (tier2.test(co)) {
-                compTierMult = 1.08; compTierLabel = 'Large enterprise employer';
-            } else if (co.length > 2) {
-                // Unknown company — check if JD signals high comp (salary range in JD > 150K)
-                var salaryMatch = jdText.match(/\$\s*([\d,]+)\s*[-–]\s*\$?\s*([\d,]+)/);
-                if (salaryMatch) {
-                    var hiSal = parseInt(salaryMatch[2].replace(/,/g,''));
-                    if (hiSal > 200000) { compTierMult = 1.12; compTierLabel = 'High-comp employer (from posted range)'; }
-                    else if (hiSal > 150000) { compTierMult = 1.06; compTierLabel = 'Above-median employer (from posted range)'; }
-                }
-            }
-
-            var combined = Math.round(industryMult * compTierMult * 100) / 100;
-            var labels = [industryLabel, compTierLabel].filter(Boolean);
-            return {
-                multiplier: combined,
-                industryMult: industryMult,
-                compTierMult: compTierMult,
-                label: labels.join(' · '),
-                industryLabel: industryLabel,
-                compTierLabel: compTierLabel,
-                active: combined > 1.0
-            };
-        }
-
         function matchJobToBLS(titleText, descText) {
             if (!window.blsWages) return null;
             var bls = window.blsWages;
@@ -37986,7 +35946,7 @@ body {
             
             var data = await callAnthropicAPI({
                     model: 'claude-sonnet-4-20250514',
-                    max_tokens: 8000,
+                    max_tokens: 4000,
                     system: systemPrompt,
                     messages: [{ role: 'user', content: userPrompt }]
                 }, apiKey, 'jd-analysis');
@@ -39008,7 +36968,6 @@ body {
             function buildResult(soc, confidence, alts) {
                 var primary = cw.occupations[soc];
                 if (!primary) return null;
-                var inputWords = norm.split(' ').filter(function(w) { return w.length > 2; });
                 return {
                     soc: soc,
                     title: primary.title,
@@ -39016,24 +36975,13 @@ body {
                     confidence: confidence,
                     alternatives: (alts || []).slice(0, 4).map(function(s) {
                         var o = cw.occupations[s];
-                        if (!o) return null;
-                        var altTitleWords = o.title.toLowerCase().split(/\W+/).filter(function(w) { return w.length > 2; });
-                        var hasWordOverlap = inputWords.some(function(iw) {
-                            return altTitleWords.some(function(aw) { return iw === aw || (iw.length > 4 && aw.indexOf(iw) >= 0) || (aw.length > 4 && iw.indexOf(aw) >= 0); });
-                        });
-                        var sameFamily = o.family === primary.family;
-                        if (!hasWordOverlap && !sameFamily) return null;
-                        return { soc: s, title: o.title, family: o.family };
+                        return o ? { soc: s, title: o.title, family: o.family } : null;
                     }).filter(Boolean)
                 };
             }
 
             // Step 1: Exact alias match
-            // Guard: single-word generic terms that alias to unrelated occupations in O*NET
-            var _genericAliases = { 'owner':1, 'chief':1, 'head':1, 'lead':1, 'manager':1, 'officer':1,
-                'surgeon':1, 'physician':1, 'doctor':1, 'rector':1, 'pilot':1, 'creator':1, 'maker':1 };
-            var normWordCount = norm.split(' ').filter(function(w) { return w.length > 1; }).length;
-            if (cw.aliases[norm] && !(normWordCount === 1 && _genericAliases[norm])) {
+            if (cw.aliases[norm]) {
                 var socs = cw.aliases[norm];
                 var r = buildResult(socs[0], 1.0, socs.slice(1));
                 if (r) return r;
@@ -39069,19 +37017,16 @@ body {
             // Step 2b: Hybrid title split — titles with "&", "/", or "and" often have two functions.
             // Try each segment independently. First segment wins (it's the primary function).
             // e.g. "director total rewards people operations" → try "director total rewards" first
-            // e.g. "director revenue operations" → no split, falls through
             var splitChars = /\s*[&\/]\s*|\s+and\s+/;
             if (splitChars.test(norm)) {
                 var segments = norm.split(splitChars).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 3; });
                 for (var si = 0; si < segments.length; si++) {
                     var seg = segments[si];
-                    // Try exact alias on segment
                     if (cw.aliases[seg]) {
                         var socs = cw.aliases[seg];
                         var r = buildResult(socs[0], 0.9, socs.slice(1));
                         if (r) return r;
                     }
-                    // Also strip qualifiers from segment and retry
                     var segStripped = seg;
                     qualifiers.forEach(function(q) {
                         segStripped = segStripped.replace(new RegExp('\\b' + q + '\\b', 'g'), '');
@@ -39096,18 +37041,10 @@ body {
             }
 
             // Step 3: Partial substring match
-            // Require alias to cover >= 50% of input length to avoid "rector" matching "director"
             var partialMatches = [];
-            var _runPartial = function(input) {
-                for (var alias in cw.aliases) {
-                    if (alias.length < 4) continue;
-                    var isSubstringOfInput = input.indexOf(alias) !== -1;
-                    var inputIsSubstringOfAlias = alias.indexOf(input) !== -1;
-                    if (!isSubstringOfInput && !inputIsSubstringOfAlias) continue;
-                    var shorter = Math.min(alias.length, input.length);
-                    var longer = Math.max(alias.length, input.length);
-                    if (shorter / longer < 0.5) continue;
-                    if (_genericAliases[alias]) continue;
+            for (var alias in cw.aliases) {
+                if (alias.length < 4) continue;
+                if (norm.indexOf(alias) !== -1 || alias.indexOf(norm) !== -1) {
                     var socs = cw.aliases[alias];
                     for (var i = 0; i < socs.length; i++) {
                         if (cw.occupations[socs[i]]) {
@@ -39115,10 +37052,23 @@ body {
                         }
                     }
                 }
-            };
-            _runPartial(norm);
-            if (stripped !== norm) _runPartial(stripped);
+            }
+            // Also try stripped version for partial matching
+            if (stripped !== norm) {
+                for (var alias in cw.aliases) {
+                    if (alias.length < 4) continue;
+                    if (stripped.indexOf(alias) !== -1 || alias.indexOf(stripped) !== -1) {
+                        var socs = cw.aliases[alias];
+                        for (var i = 0; i < socs.length; i++) {
+                            if (cw.occupations[socs[i]]) {
+                                partialMatches.push({ soc: socs[i], alias: alias, len: alias.length });
+                            }
+                        }
+                    }
+                }
+            }
             if (partialMatches.length > 0) {
+                // Prefer longest alias match (more specific)
                 partialMatches.sort(function(a, b) { return b.len - a.len; });
                 var seen = {};
                 var unique = partialMatches.filter(function(m) {
@@ -39163,7 +37113,7 @@ body {
                         }
                     }
                 }
-                if (bestWordScore >= 0.55 && bestWordSocs && bestWordSocs.length > 0) {
+                if (bestWordScore >= 0.5 && bestWordSocs && bestWordSocs.length > 0) {
                     var confidence = Math.round((0.6 + bestWordScore * 0.2) * 100) / 100;
                     var r = buildResult(bestWordSocs[0], Math.min(confidence, 0.8), bestWordSocs.slice(1));
                     if (r) return r;
@@ -39176,7 +37126,7 @@ body {
             for (var alias in cw.aliases) {
                 if (alias.length < 4) continue;
                 var score = crosswalkDice(norm, alias);
-                if (score > bestDice && score >= 0.65) {
+                if (score > bestDice && score >= 0.55) {
                     bestDice = score;
                     bestDiceSocs = cw.aliases[alias];
                 }
@@ -39192,7 +37142,7 @@ body {
             for (var soc in cw.occupations) {
                 var occTitle = cw.occupations[soc].title.toLowerCase();
                 var score = crosswalkDice(stripped || norm, occTitle);
-                if (score > bestOccDice && score >= 0.65) {
+                if (score > bestOccDice && score >= 0.5) {
                     bestOccDice = score;
                     bestOccSoc = soc;
                 }
@@ -39524,36 +37474,6 @@ body {
 
             // Sort gaps by importance (highest first)
             gaps.sort(function(a, b) { return (b.importance || 0) - (a.importance || 0); });
-
-            // Strip O*NET category labels — these are bucket names, not real skills.
-            // Filtering here ensures all callers (app-core.js and welcome.js) get clean data.
-            var _smNoise = {
-                'administration and management':1,'judgment and decision making':1,
-                'personnel and human resources':1,'customer and personal service':1,
-                'systems evaluation':1,'systems analysis':1,'operations analysis':1,
-                'management of financial resources':1,'management of personnel resources':1,
-                'management of material resources':1,'operation monitoring':1,
-                'operation and control':1,'quality control analysis':1,
-                'fine arts':1,'oral comprehension':1,'written comprehension':1,
-                'oral expression':1,'written expression':1,'speech clarity':1,
-                'speech recognition':1,'information ordering':1,'deductive reasoning':1,
-                'inductive reasoning':1,'number facility':1,'memorization':1,
-                'perceptual speed':1,'spatial orientation':1,'visualization':1,
-                'fluency of ideas':1,'originality':1,'problem sensitivity':1,
-                'mathematical reasoning':1,'category flexibility':1,
-                'philosophy and theology':1,'sociology and anthropology':1,
-                'geography':1,'foreign language':1,'history and archeology':1,
-                'therapy and counseling':1,'medicine and dentistry':1,
-                'biology':1,'chemistry':1,'physics':1,'mathematics':1,'science':1,
-                'english language':1,'clerical':1,'economics and accounting':1,
-                'education and training':1,'law and government':1,
-                'computers and electronics':1,'telecommunications':1,
-                'mechanical':1,'engineering and technology':1,'building and construction':1,
-                'food production':1,'transportation':1
-            };
-            gaps = gaps.filter(function(g) {
-                return !_smNoise[(g.name || '').toLowerCase().trim()];
-            });
 
             return {
                 occupation: profile.title,
@@ -43357,7 +41277,7 @@ body {
                         var tenure     = lastYear && firstYear ? lastYear - firstYear : 0;
 
                         var grpBg = coColor(coName);
-                        html += '<div style="border:1px solid var(--c-accent-border-4b); border-top:3px solid var(--c-accent); border-radius:10px; overflow:hidden; grid-column:1/-1; background:' + grpBg + ';">';
+                        html += '<div style="border:1px solid var(--c-accent-border-4b); border-top:3px solid var(--c-accent); border-radius:10px; overflow:hidden; grid-column:1/-1; background:' + grpBg + ';">'; 
 
                         html += '<div style="padding:10px 14px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--c-surface-4);">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
@@ -45064,7 +42984,6 @@ body {
         // This comment replaces duplicate/conflicting definitions that were removed in v3.5.2.
         
         function exportFullProfile() {
-            if (showcaseExportGuard()) return;
             if (readOnlyGuard()) return;
             const fullData = {
                 userData: userData,
@@ -45089,7 +43008,6 @@ body {
         }
         
         function importFullProfile(fileInput) {
-            if (showcaseExportGuard()) return;
             if (readOnlyGuard()) return;
             const file = fileInput.files[0];
             if (!file) return;
@@ -46239,7 +44157,8 @@ body {
             
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Talking Points</div>'                + '<div style="display:grid; gap:8px;">';
             talkingPoints.forEach(function(tp) {
-                html += '<div style="padding:10px 14px; background:var(--c-surface-1); border-left:3px solid ' + tp.color + '; border-radius:0 8px 8px 0;">'                    + '<div style="font-size:0.75em; font-weight:700; color:' + tp.color + '; margin-bottom:4px;">' + escapeHtml(tp.title) + '</div>'                    + '<div style="font-size:0.82em; color:var(--c-text); line-height:1.5; font-style:italic;">' + escapeHtml(tp.text) + '</div>'                    + '</div>';
+                html += '<div style="padding:10px 14px; background:var(--c-surface-1); border-left:3px solid ' + tp.color + '; border-radius:0 8px 8px 0;">'                    + '<div style="font-size:0.75em; font-weight:700; color:' + tp.color +         function showNegotiationGuide() { showNegotiationGuideV2(); }
+
             });
             html += '</div></div>';
             
@@ -46249,182 +44168,9 @@ body {
         }
         window.showCompReviewGuide = showCompReviewGuide;
         
-        function showNegotiationGuide() { showNegotiationGuideV2(); }
-
-        // ── Static Negotiation Guide for Demo Mode ────────────────────────────
-        function _buildStaticNegGuide(job, tv) {
-            var topSkills = (userData.skills || []).slice(0, 8).map(function(s) { return s.name; });
-            var roles = (userData.roles || []).map(function(r) { return r.name; });
-            var values = (userData.values || []).slice(0, 3);
-            var workHistory = userData.workHistory || [];
-            var yrsExp = workHistory.reduce(function(sum, w) { return sum + (w.years || w.duration || 2); }, 0) || 5;
-
-            var jobTitle = job.title || 'Target Role';
-            var company = job.company || 'Target Company';
-            var seniority = job.seniority || 'Mid';
-            var jobRoles = job.parsedRoles || [];
-            var rawText = job.rawText || '';
-            var tier = job.tier || 'mid';
-
-            var conservative = tv ? (tv.conservativeOffer || 0) : 0;
-            var standard = tv ? (tv.standardOffer || 0) : 0;
-            var competitive = tv ? (tv.competitiveOffer || 0) : 0;
-            var justified = tv ? (tv.yourWorth || tv.total || 0) : 0;
-            if (justified === 0 && competitive === 0) {
-                var fallbackBands = { 'Entry': 48000, 'Mid': 72000, 'Senior': 125000, 'Staff': 175000, 'Director': 195000, 'Executive': 245000, 'C-Suite': 400000 };
-                justified = fallbackBands[seniority] || 72000;
-                conservative = Math.round(justified * 0.75);
-                standard = Math.round(justified * 0.85);
-                competitive = Math.round(justified * 0.95);
-            }
-            var tierMult = tier === 'high' ? 1.0 : tier === 'mid' ? 1.05 : 1.12;
-            var askNum = Math.round((justified > 0 ? justified : competitive) * tierMult);
-            var rangeLow = conservative > 0 ? conservative : askNum;
-            var rangeHigh = askNum;
-
-            var relevantSkills = topSkills.filter(function(s) { return rawText.toLowerCase().indexOf(s.toLowerCase().split(' ')[0]) > -1; });
-            if (relevantSkills.length < 2) relevantSkills = topSkills.slice(0, 3);
-
-            var openingMove;
-            if (seniority === 'C-Suite' || seniority === 'Executive') {
-                openingMove = 'Thank you for this opportunity. I\u2019m genuinely excited about the ' + jobTitle + ' role at ' + company + '. Over ' + yrsExp + '+ years, I\u2019ve built deep expertise in ' + (relevantSkills[0] || roles[0] || 'my field').toLowerCase() + ' and ' + (relevantSkills[1] || 'strategic leadership').toLowerCase() + ', and I see a compelling fit between what I bring and what ' + company + ' needs at this stage. I\u2019d like to discuss how we can structure something that reflects the impact I\u2019m prepared to deliver.';
-            } else if (seniority === 'Senior' || seniority === 'Staff' || seniority === 'Director') {
-                openingMove = 'I\u2019m very enthusiastic about this ' + jobTitle + ' opportunity at ' + company + '. My ' + yrsExp + '+ years in ' + (relevantSkills[0] || roles[0] || 'my field').toLowerCase() + ' and ' + (relevantSkills[1] || 'cross-functional work').toLowerCase() + ' have prepared me to make an immediate impact. Before we discuss specifics, I want to make sure we\u2019re aligned on the scope and expectations \u2014 because I want to deliver exceptional results from day one.';
-            } else {
-                openingMove = 'I\u2019m excited about the ' + jobTitle + ' role at ' + company + '. What draws me is the chance to apply my skills in ' + (relevantSkills[0] || roles[0] || 'my field').toLowerCase() + ' and ' + (relevantSkills[1] || 'hands-on work').toLowerCase() + ' in an environment where I can grow while making real contributions. I want to be transparent about my expectations so we can find an arrangement that works for both of us.';
-            }
-
-            var strengths = [
-                { title: relevantSkills[0] || roles[0] || 'Core Expertise',
-                  evidence: yrsExp + '+ years of demonstrated expertise in ' + (relevantSkills[0] || roles[0] || 'this field').toLowerCase() + ', directly applicable to ' + company + '\u2019s needs.',
-                  hook: 'My background in ' + (relevantSkills[0] || roles[0] || 'this area').toLowerCase() + ' means I can deliver impact from day one at ' + company + '.' },
-                { title: relevantSkills[1] || roles[1] || 'Leadership & Impact',
-                  evidence: 'Proven track record in ' + (relevantSkills[1] || roles[1] || 'leadership').toLowerCase() + ' with measurable outcomes across ' + (workHistory.length || 2) + '+ organizations.',
-                  hook: 'What sets me apart is my ability to combine ' + (relevantSkills[1] || 'technical depth').toLowerCase() + ' with practical execution \u2014 exactly what this ' + jobTitle + ' role demands.' },
-                { title: relevantSkills[2] || 'Cross-Functional Impact',
-                  evidence: 'Experience spanning ' + (roles.slice(0, 3).join(', ').toLowerCase() || 'multiple domains') + ' gives me the breadth to drive cross-functional results.',
-                  hook: 'I don\u2019t just do the work \u2014 I connect it to the bigger picture, which is critical for ' + company + '\u2019s mission.' }
-            ];
-
-            var weaknessNeutralizations = [];
-            if (tier === 'low' || tier === 'mid') {
-                weaknessNeutralizations.push({
-                    weakness: 'My background is more heavily weighted toward ' + (roles[0] || 'my primary domain') + ' than ' + (jobRoles[1] || jobRoles[0] || 'this specific area') + '.',
-                    reframe: 'This cross-functional perspective is actually an advantage \u2014 I bring proven methodologies from ' + (roles[0] || 'my field') + ' that translate directly to ' + (jobRoles[0] || 'this role') + '.',
-                    bridgeLine: 'The skills that made me successful in ' + (roles[0] || 'my current work') + ' \u2014 problem-solving, stakeholder management, strategic thinking \u2014 are exactly what ' + company + ' needs in this role.'
-                });
-            } else {
-                weaknessNeutralizations.push({
-                    weakness: 'Some might question whether my specific experience maps to ' + company + '\u2019s exact industry context.',
-                    reframe: 'My diverse experience across ' + (workHistory.length || 2) + '+ organizations means I bring fresh perspectives and battle-tested approaches that insiders often miss.',
-                    bridgeLine: 'I\u2019ve consistently delivered results when stepping into new contexts \u2014 that adaptability is a core strength, not a gap.'
-                });
-            }
-            weaknessNeutralizations.push({
-                weakness: 'The ' + jobTitle + ' role may require deeper expertise in ' + (jobRoles[1] || jobRoles[0] || 'certain areas') + ' than I\u2019ve demonstrated.',
-                reframe: 'I\u2019ve rapidly built expertise in new domains throughout my career. My learning velocity and existing foundation in ' + (relevantSkills[0] || 'related areas') + ' mean I\u2019ll close any gaps quickly.',
-                bridgeLine: 'I\u2019d rather hire someone who learns fast and thinks critically than someone who\u2019s done the exact same job \u2014 and I suspect ' + company + ' feels the same way.'
-            });
-            weaknessNeutralizations.push({
-                weakness: 'My compensation expectations may be above their initial range for this role.',
-                reframe: 'The value I bring \u2014 reducing ramp-up time, bringing proven frameworks, and delivering measurable results \u2014 far exceeds the incremental investment.',
-                bridgeLine: 'Let\u2019s focus on the ROI: my track record shows I deliver multiples of my compensation in organizational value within the first year.'
-            });
-
-            var blindSpots = [
-                { risk: 'Overvaluing your transferable skills',
-                  why: 'You may assume ' + company + ' values breadth as much as you do, but they may prioritize deep domain-specific experience for ' + jobTitle + '.',
-                  mitigation: 'Research ' + company + '\u2019s recent hires for similar roles. Prepare specific examples that map your experience to their exact challenges.' },
-                { risk: 'Anchoring too high or too low',
-                  why: 'Without knowing ' + company + '\u2019s internal bands, you could price yourself out or leave significant money on the table.',
-                  mitigation: 'Use the market data range ($' + Math.round(rangeLow / 1000) + 'K\u2013$' + Math.round(rangeHigh / 1000) + 'K) as your framework. Lead with value, not a number.' },
-                { risk: 'Neglecting total compensation',
-                  why: 'Base salary is only one component. ' + (seniority === 'Executive' || seniority === 'C-Suite' ? 'Equity, bonuses, and deferred comp' : 'Benefits, PTO, and growth opportunities') + ' could represent 20\u201340% of total value.',
-                  mitigation: 'Prepare a total comp framework before negotiations. Know your minimum on base, but be flexible on structure.' }
-            ];
-
-            var counterOfferPlaybook = [
-                { scenario: '\u201cWe can\u2019t go above $' + Math.round(standard / 1000) + 'K for this role.\u201d',
-                  response: 'I understand budget constraints. Given my ' + yrsExp + '+ years of experience and the value I\u2019d bring to ' + company + ', could we explore a signing bonus, accelerated review timeline, or additional equity to bridge the gap?' },
-                { scenario: '\u201cWe need someone with more direct ' + (jobRoles[0] || 'industry') + ' experience.\u201d',
-                  response: 'I respect that concern. Let me share how my ' + (roles[0] || 'background') + ' experience directly translates \u2014 [cite specific example]. I\u2019d also propose a 90-day milestone plan so you can see the ROI firsthand.' },
-                { scenario: '\u201cWe have other strong candidates at a lower price point.\u201d',
-                  response: 'I\u2019d encourage you to evaluate total value, not just cost. My ability to deliver results from day one \u2014 combined with ' + (relevantSkills.slice(0, 2).join(' and ') || 'my unique skill set') + ' \u2014 reduces your risk and accelerates your timeline.' }
-            ];
-
-            var valueConns = (values.length > 0 ? values : [{ name: 'Excellence' }, { name: 'Growth' }, { name: 'Impact' }]).slice(0, 3).map(function(v) {
-                return { value: v.name || v, connection: 'Your commitment to ' + (v.name || v).toLowerCase() + ' aligns with ' + company + '\u2019s emphasis on ' + (jobRoles[0] ? jobRoles[0].toLowerCase() : 'high performance') + '. Reference this shared value when explaining why ' + company + ' is your top choice.' };
-            });
-
-            var questionsToAsk = [
-                'What does success look like for the ' + jobTitle + ' role in the first 6 months?',
-                'How does ' + company + ' approach professional development and growth for people in this role?',
-                'What are the biggest challenges the team is facing right now that this hire would address?',
-                'Can you walk me through the compensation philosophy \u2014 how does ' + company + ' think about rewarding high performers?',
-                'What\u2019s the decision timeline, and is there anything else I can provide to support the process?'
-            ];
-
-            return {
-                roleTitle: jobTitle + ' \u2014 ' + company,
-                mode: 'external',
-                openingMove: openingMove,
-                theAsk: {
-                    number: askNum,
-                    justification: [
-                        'Market data for ' + seniority + '-level ' + (jobRoles[0] || 'professionals') + ' in this space ranges $' + Math.round(rangeLow / 1000) + 'K\u2013$' + Math.round(rangeHigh / 1000) + 'K.',
-                        'My ' + yrsExp + '+ years of experience and expertise in ' + (relevantSkills.slice(0, 2).join(', ') || 'this domain') + ' place me in the upper quartile.',
-                        'This number reflects the immediate value I bring \u2014 reducing ramp-up time and delivering measurable results from day one.'
-                    ]
-                },
-                strengths: strengths,
-                weaknessNeutralizations: weaknessNeutralizations,
-                blindSpots: blindSpots,
-                counterOfferPlaybook: counterOfferPlaybook,
-                valueConnections: valueConns,
-                questionsToAsk: questionsToAsk
-            };
-        }
-
-        function _showStaticNegGuide() {
-            var modal = document.getElementById('exportModal');
-            var mContent = modal ? modal.querySelector('.modal-content') : null;
-            if (!modal || !mContent) return;
-
-            var tv = typeof getEffectiveComp === 'function' ? getEffectiveComp() : (typeof calculateTotalMarketValue === 'function' ? calculateTotalMarketValue() : null);
-            var currentComp = tv ? (tv.reportedComp || 0) : 0;
-
-            var activeJob = (typeof activeJobForNetwork !== 'undefined') ? activeJobForNetwork : null;
-            var job = activeJob || (userData.savedJobs && userData.savedJobs.length > 0 ? userData.savedJobs[0] : null);
-            if (!job) {
-                job = { title: 'Target Role', company: 'Target Company', seniority: 'Mid', tier: 'high', parsedRoles: [], rawText: '' };
-            }
-
-            var guide = _buildStaticNegGuide(job, tv);
-
-            var disclaimer = '<div style="padding:12px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
-                + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:#60a5fa;">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
-
-            var renderFn = function(html) {
-                var bodyStart = html.indexOf('<div class="modal-body"');
-                if (bodyStart > -1) {
-                    var bodyTagEnd = html.indexOf('>', bodyStart) + 1;
-                    html = html.substring(0, bodyTagEnd) + disclaimer + html.substring(bodyTagEnd);
-                }
-                mContent.innerHTML = html;
-            };
-
-            history.pushState({ modal: true }, '');
-            modal.classList.add('active');
-
-            if (typeof _renderNegGuide === 'function') {
-                _renderNegGuide(guide, tv, currentComp, guide.mode || 'external', renderFn);
-            }
-        }
-        window._showStaticNegGuide = _showStaticNegGuide;
-
         // ── Negotiation Guide V2 — AI-powered, role-aware ─────────────────────
         function showNegotiationGuideV2(preselectedMode, preselectedRole) {
-            if (isReadOnlyProfile) { _showStaticNegGuide(); return; }
+            if (isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
 
             var modal    = document.getElementById('exportModal');
             var mContent = modal.querySelector('.modal-content');
@@ -46433,7 +44179,6 @@ body {
             var tv       = getEffectiveComp();
             var pipeline = (userData.savedJobs || []).slice(0, 10);
             var internal = (_internalRolesCache || []).slice(0, 10);
-            var hasComp  = tv && tv.total > 0;
 
             function openModal(html) {
                 mContent.innerHTML = html;
@@ -46441,13 +44186,11 @@ body {
                 modal.classList.add('active');
             }
 
-            // ── If role/mode passed directly, skip picker ──────────────────
             if (preselectedMode && preselectedRole) {
                 _buildNegGuideWithAI(preselectedMode, preselectedRole, tv, openModal);
                 return;
             }
 
-            // ── Role picker UI ─────────────────────────────────────────────
             var pickerHtml = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
                 + '<h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2>'
@@ -46457,7 +44200,6 @@ body {
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px 28px; max-height:72vh; overflow-y:auto;">';
 
-            // Mode cards
             var modes = [
                 { id: 'external', icon: 'briefcase', color: '#60a5fa', label: 'External Offer', sub: 'Negotiating a new job offer', roles: pipeline, roleLabel: 'pipeline job' },
                 { id: 'internal', icon: 'compass',   color: '#a78bfa', label: 'Internal Move',  sub: 'Advocating for a role change or promotion', roles: internal, roleLabel: 'internal role' },
@@ -46466,34 +44208,29 @@ body {
 
             pickerHtml += '<div style="display:grid; gap:10px; margin-bottom:20px;">';
             modes.forEach(function(m) {
-                var hasRoles = m.roles.length > 0 || m.id === 'review';
-                pickerHtml += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:14px 16px; cursor:pointer;">'
+                pickerHtml += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:14px 16px;">'
                     + '<div style="font-weight:700; font-size:0.95em; color:' + m.color + '; margin-bottom:4px;">' + bpIcon(m.icon,14) + ' ' + m.label + '</div>'
                     + '<div style="font-size:0.8em; color:var(--c-muted); margin-bottom:10px;">' + m.sub + '</div>';
 
                 if (m.id === 'review') {
                     pickerHtml += '<button onclick="_negGuideSelectMode(\'review\', null)" style="padding:7px 16px; background:' + m.color + '; color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.82em; font-weight:600;">Build Review Guide</button>';
                 } else if (m.roles.length === 0) {
-                    pickerHtml += '<div style="font-size:0.78em; color:var(--c-faint); font-style:italic;">No ' + m.roleLabel + 's saved yet — add some in the ' + (m.id === 'external' ? 'Pipeline' : 'Internal') + ' tab.</div>';
+                    pickerHtml += '<div style="font-size:0.78em; color:var(--c-faint); font-style:italic;">No ' + m.roleLabel + 's saved yet.</div>';
                 } else {
                     pickerHtml += '<div style="display:grid; gap:6px;">';
                     m.roles.forEach(function(r, idx) {
-                        var roleTitle = escapeHtml(r.title || 'Untitled');
-                        var roleCo    = r.company ? ' · ' + escapeHtml(r.company) : '';
                         pickerHtml += '<button data-neg-mode="' + m.id + '" data-neg-idx="' + idx + '" onclick="_negGuideSelectMode(this.dataset.negMode, parseInt(this.dataset.negIdx))" style="text-align:left; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; color:var(--text-primary); font-weight:500;">'
-                            + '<span style="color:' + m.color + '; font-weight:700;">' + roleTitle + '</span>'
-                            + '<span style="color:var(--c-muted);">' + roleCo + '</span></button>';
+                            + '<span style="color:' + m.color + '; font-weight:700;">' + escapeHtml(r.title || 'Untitled') + '</span>'
+                            + (r.company ? '<span style="color:var(--c-muted);"> · ' + escapeHtml(r.company) + '</span>' : '')
+                            + '</button>';
                     });
                     pickerHtml += '</div>';
                 }
-
                 pickerHtml += '</div>';
             });
             pickerHtml += '</div></div>';
 
             openModal(pickerHtml);
-
-            // Store refs for picker callback
             window._negGuidePipelineRoles = pipeline;
             window._negGuideInternalRoles = internal;
             window._negGuideTv            = tv;
@@ -46508,13 +44245,11 @@ body {
             var modal = document.getElementById('exportModal');
             var mContent = modal ? modal.querySelector('.modal-content') : null;
             if (!mContent) return;
-            function openModal(html) { mContent.innerHTML = html; }
-            _buildNegGuideWithAI(mode, role, tv, openModal);
+            _buildNegGuideWithAI(mode, role, tv, function(html) { mContent.innerHTML = html; });
         }
         window._negGuideSelectMode = _negGuideSelectMode;
 
         async function _buildNegGuideWithAI(mode, role, tv, renderFn) {
-            // ── Loading state ──────────────────────────────────────────────
             renderFn('<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Building Your Guide…</h2></div>'
                 + '<button class="modal-close" onclick="closeExportModal()">×</button></div>'
                 + '<div class="modal-body" style="padding:40px 28px; text-align:center;">'
@@ -46523,7 +44258,6 @@ body {
 
             logAnalyticsEvent('negotiation_guide', { mode: mode, hasRole: !!role });
 
-            // ── Assemble context ───────────────────────────────────────────
             var allSkills   = (skillsData && skillsData.skills) || userData.skills || [];
             var topSkills   = allSkills.filter(function(s) { return ['Mastery','Expert','Advanced'].indexOf(s.level) > -1; })
                                 .slice(0, 12).map(function(s) { return s.level + ': ' + s.name; });
@@ -46542,8 +44276,7 @@ body {
             var compaRatio  = (marketRate > 0 && currentComp > 0) ? Math.round((currentComp / marketRate) * 100) : 0;
             var roleTitle   = role ? (role.title || '') : userTitle;
             var roleCo      = role ? (role.company || userCo) : userCo;
-            var roleGaps    = role && role.skills ? (role.skills.filter(function(s) { return s.requirement === 'Required' || s.requirement === 'Nice to Have'; }).slice(0, 6).map(function(s) { return s.name; })) : [];
-            var roleMatchSc = role && role._lastMatchScore ? role._lastMatchScore : null;
+            var roleGaps    = role && role.skills ? role.skills.filter(function(s) { return s.requirement === 'Required'; }).slice(0, 6).map(function(s) { return s.name; }) : [];
             var modeLabel   = mode === 'external' ? 'external offer negotiation' : mode === 'internal' ? 'internal role move / promotion' : 'performance review / comp discussion';
 
             var prompt = [
@@ -46568,20 +44301,9 @@ body {
                 'Compa-ratio: ' + compaRatio + '%',
                 (roleGaps.length ? 'Role skill gaps: ' + roleGaps.join(', ') : ''),
                 '',
-                'Return ONLY a JSON object (no markdown, no explanation):',
-                '{',
-                '  "mode": "' + mode + '",',
-                '  "roleTitle": "string",',
-                '  "openingMove": "string — one sentence to open the comp conversation, specific and confident",',
-                '  "theAsk": { "number": number, "justification": ["step1", "step2", "step3"] },',
-                '  "strengths": [{ "title": "string", "evidence": "string", "hook": "string — how to say it in conversation" }],',
-                '  "weaknessNeutralizations": [{ "weakness": "string", "reframe": "string", "bridgeLine": "string — actual sentence to say" }],',
-                '  "blindSpots": [{ "risk": "string", "why": "string", "mitigation": "string" }],',
-                '  "counterOfferPlaybook": [{ "scenario": "string", "response": "string — scripted" }],',
-                '  "valueConnections": [{ "value": "string", "connection": "string — tie to role/company" }],',
-                '  "questionsToAsk": ["string", "string", "string"]',
-                '}',
-                'Rules: exactly 3 strengths, exactly 3 weakness neutralizations, 1-3 blind spots, exactly 3 counter-offer scenarios, 2-3 value connections, 2-3 questions. Specific to candidate data, no generic advice.'
+                'Return ONLY a JSON object (no markdown):',
+                '{"mode":"' + mode + '","roleTitle":"string","openingMove":"string","theAsk":{"number":number,"justification":["step1","step2","step3"]},"strengths":[{"title":"string","evidence":"string","hook":"string"}],"weaknessNeutralizations":[{"weakness":"string","reframe":"string","bridgeLine":"string"}],"blindSpots":[{"risk":"string","why":"string","mitigation":"string"}],"counterOfferPlaybook":[{"scenario":"string","response":"string"}],"valueConnections":[{"value":"string","connection":"string"}],"questionsToAsk":["string","string","string"]}',
+                'Rules: exactly 3 strengths, 3 weakness neutralizations, 1-3 blind spots, 3 counter-offer scenarios, 2-3 value connections, 2-3 questions. Specific to candidate data, no generic advice.'
             ].filter(Boolean).join('\n');
 
             try {
@@ -46590,31 +44312,24 @@ body {
                     max_tokens: 1800,
                     messages: [{ role: 'user', content: prompt }]
                 }, null, 'negotiation_guide');
-                var raw = (data.content || []).map(function(b) { return b.text || ''; }).join('');
-                raw = raw.replace(/```json|```/g, '').trim();
+                var raw = (data.content || []).map(function(b) { return b.text || ''; }).join('').replace(/```json|```/g, '').trim();
                 var guide = JSON.parse(raw);
                 _renderNegGuide(guide, tv, currentComp, mode, renderFn);
             } catch(e) {
                 console.warn('[NegGuide] AI call failed:', e);
-                _renderNegGuideError(renderFn);
+                renderFn('<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('alert',18) + ' Guide Unavailable</h2></div>'
+                    + '<button class="modal-close" onclick="closeExportModal()">×</button></div>'
+                    + '<div class="modal-body" style="padding:32px 28px; text-align:center;">'
+                    + '<p style="color:var(--c-muted);">Could not generate your guide. Check your connection and try again.</p>'
+                    + '<button onclick="closeExportModal()" style="margin-top:20px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Close</button></div>');
             }
         }
         window._buildNegGuideWithAI = _buildNegGuideWithAI;
-
-        function _renderNegGuideError(renderFn) {
-            renderFn('<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('alert',18) + ' Guide Unavailable</h2></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">×</button></div>'
-                + '<div class="modal-body" style="padding:32px 28px; text-align:center;">'
-                + '<p style="color:var(--c-muted);">Could not generate your guide — please check your connection and try again.</p>'
-                + '<button onclick="closeExportModal()" style="margin-top:20px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Close</button>'
-                + '</div>');
-        }
 
         function _renderNegGuide(g, tv, currentComp, mode, renderFn) {
             var conservative = tv ? (tv.conservativeOffer || 0) : 0;
             var standard     = tv ? (tv.standardOffer || 0) : 0;
             var competitive  = tv ? (tv.competitiveOffer || 0) : 0;
-            var justified    = tv ? (tv.yourWorth || tv.total || 0) : 0;
             var modeColor    = mode === 'external' ? '#60a5fa' : mode === 'internal' ? '#a78bfa' : '#10b981';
             var modeLabel    = mode === 'external' ? 'External Offer' : mode === 'internal' ? 'Internal Move' : 'Performance Review';
 
@@ -46623,108 +44338,78 @@ body {
                     + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:' + color + '; margin-bottom:10px;">' + title + '</div>'
                     + content + '</div>';
             }
-            function pill(text, color) {
-                return '<span style="display:inline-block; background:' + color + '22; color:' + color + '; border-radius:5px; padding:2px 8px; font-size:0.72em; font-weight:700; margin-right:4px;">' + escapeHtml(text) + '</span>';
-            }
 
             var html = '<div class="modal-header">'
-                + '<div class="modal-header-left">'
-                + '<h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2>'
-                + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.83em;">' + pill(modeLabel, modeColor) + (g.roleTitle ? escapeHtml(g.roleTitle) : '') + '</p>'
-                + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">×</button>'
-                + '</div>'
+                + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('target',18) + ' Negotiation Guide</h2>'
+                + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.83em;"><span style="display:inline-block; background:' + modeColor + '22; color:' + modeColor + '; border-radius:5px; padding:2px 8px; font-size:0.9em; font-weight:700; margin-right:6px;">' + modeLabel + '</span>' + (g.roleTitle ? escapeHtml(g.roleTitle) : '') + '</p>'
+                + '</div><button class="modal-close" onclick="closeExportModal()">×</button></div>'
                 + '<div class="modal-body" style="padding:20px 24px; max-height:74vh; overflow-y:auto;">';
 
-            // ── Comp snapshot ──
-            var compRows = [
-                { label: 'Conservative', val: conservative, color: '#94a3b8' },
-                { label: 'Standard',     val: standard,     color: '#60a5fa' },
-                { label: 'Competitive',  val: competitive,  color: '#10b981' }
-            ];
+            // Comp snapshot
             var compHtml = '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;">';
-            compRows.forEach(function(r) {
+            [{ label:'Conservative', val:conservative, color:'#94a3b8' },
+             { label:'Standard', val:standard, color:'#60a5fa' },
+             { label:'Competitive', val:competitive, color:'#10b981' }].forEach(function(r) {
                 compHtml += '<div style="text-align:center; padding:10px 8px; background:var(--c-surface-2); border-radius:8px; border-top:2px solid ' + r.color + ';">'
                     + '<div style="font-size:0.68em; color:' + r.color + '; font-weight:700; margin-bottom:4px;">' + r.label + '</div>'
-                    + '<div style="font-size:0.95em; font-weight:800; color:var(--c-heading);">$' + Math.round(r.val / 1000) + 'K</div>'
-                    + '</div>';
+                    + '<div style="font-size:0.95em; font-weight:800; color:var(--c-heading);">$' + Math.round(r.val/1000) + 'K</div></div>';
             });
             compHtml += '</div>';
             if (g.theAsk && g.theAsk.number) {
                 compHtml += '<div style="padding:10px 14px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); border-radius:8px;">'
                     + '<div style="font-size:0.78em; font-weight:700; color:#fbbf24; margin-bottom:4px;">' + bpIcon('target',12) + ' YOUR ASK: $' + Math.round(g.theAsk.number).toLocaleString() + '</div>'
-                    + (g.theAsk.justification || []).map(function(j, i) {
-                        return '<div style="font-size:0.76em; color:var(--c-muted); margin-top:3px;">' + (i+1) + '. ' + escapeHtml(j) + '</div>';
-                    }).join('') + '</div>';
+                    + (g.theAsk.justification || []).map(function(j,i) { return '<div style="font-size:0.76em; color:var(--c-muted); margin-top:3px;">' + (i+1) + '. ' + escapeHtml(j) + '</div>'; }).join('') + '</div>';
             }
             html += section(bpIcon('dollar',12) + ' Compensation', '#fbbf24', compHtml);
 
-            // ── Opening move ──
             if (g.openingMove) {
                 html += section(bpIcon('activity',12) + ' Opening Move', '#60a5fa',
-                    '<div style="font-style:italic; font-size:0.88em; color:var(--c-text); line-height:1.6; padding:10px 14px; background:rgba(96,165,250,0.06); border-left:3px solid #60a5fa; border-radius:0 8px 8px 0;">'
-                    + '"' + escapeHtml(g.openingMove) + '"</div>');
+                    '<div style="font-style:italic; font-size:0.88em; color:var(--c-text); line-height:1.6; padding:10px 14px; background:rgba(96,165,250,0.06); border-left:3px solid #60a5fa; border-radius:0 8px 8px 0;">"' + escapeHtml(g.openingMove) + '"</div>');
             }
 
-            // ── Strengths ──
             var strHtml = '<div style="display:grid; gap:8px;">';
             (g.strengths || []).forEach(function(s) {
                 strHtml += '<div style="padding:10px 14px; background:rgba(16,185,129,0.06); border-radius:8px; border-left:3px solid #10b981;">'
-                    + '<div style="font-size:0.84em; font-weight:700; color:#10b981; margin-bottom:3px;">' + escapeHtml(s.title || '') + '</div>'
-                    + '<div style="font-size:0.79em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(s.evidence || '') + '</div>'
-                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(s.hook || '') + '"</div>'
-                    + '</div>';
+                    + '<div style="font-size:0.84em; font-weight:700; color:#10b981; margin-bottom:3px;">' + escapeHtml(s.title||'') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(s.evidence||'') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(s.hook||'') + '"</div></div>';
             });
-            strHtml += '</div>';
-            html += section(bpIcon('check',12) + ' Your Strengths', '#10b981', strHtml);
+            html += section(bpIcon('check',12) + ' Your Strengths', '#10b981', strHtml + '</div>');
 
-            // ── Weakness neutralizations ──
             var weakHtml = '<div style="display:grid; gap:8px;">';
             (g.weaknessNeutralizations || []).forEach(function(w) {
                 weakHtml += '<div style="padding:10px 14px; background:rgba(251,191,36,0.05); border-radius:8px; border-left:3px solid #fbbf24;">'
                     + '<div style="font-size:0.76em; font-weight:700; color:var(--c-muted); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Potential Concern</div>'
-                    + '<div style="font-size:0.82em; color:var(--c-text); margin-bottom:5px;">' + escapeHtml(w.weakness || '') + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-text); margin-bottom:5px;">' + escapeHtml(w.weakness||'') + '</div>'
                     + '<div style="font-size:0.76em; font-weight:700; color:#fbbf24; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Reframe As</div>'
-                    + '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(w.reframe || '') + '</div>'
-                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic; border-top:1px solid rgba(251,191,36,0.15); padding-top:5px; margin-top:3px;">"' + escapeHtml(w.bridgeLine || '') + '"</div>'
-                    + '</div>';
+                    + '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(w.reframe||'') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic; border-top:1px solid rgba(251,191,36,0.15); padding-top:5px; margin-top:3px;">"' + escapeHtml(w.bridgeLine||'') + '"</div></div>';
             });
-            weakHtml += '</div>';
-            html += section(bpIcon('alert',12) + ' Weaknesses → Reframed', '#fbbf24', weakHtml);
+            html += section(bpIcon('alert',12) + ' Weaknesses → Reframed', '#fbbf24', weakHtml + '</div>');
 
-            // ── Blind spots ──
             var bsHtml = '<div style="display:grid; gap:8px;">';
             (g.blindSpots || []).forEach(function(b) {
                 bsHtml += '<div style="padding:10px 14px; background:rgba(239,68,68,0.06); border-radius:8px; border-left:3px solid #ef4444;">'
-                    + '<div style="font-size:0.84em; font-weight:700; color:#ef4444; margin-bottom:3px;">' + escapeHtml(b.risk || '') + '</div>'
-                    + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:4px;">' + escapeHtml(b.why || '') + '</div>'
-                    + '<div style="font-size:0.78em; color:var(--c-text);">Mitigation: ' + escapeHtml(b.mitigation || '') + '</div>'
-                    + '</div>';
+                    + '<div style="font-size:0.84em; font-weight:700; color:#ef4444; margin-bottom:3px;">' + escapeHtml(b.risk||'') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:4px;">' + escapeHtml(b.why||'') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-text);">Mitigation: ' + escapeHtml(b.mitigation||'') + '</div></div>';
             });
-            bsHtml += '</div>';
-            html += section(bpIcon('eye',12) + ' Blind Spots', '#ef4444', bsHtml);
+            html += section(bpIcon('eye',12) + ' Blind Spots', '#ef4444', bsHtml + '</div>');
 
-            // ── Counter-offer playbook ──
             var coHtml = '<div style="display:grid; gap:8px;">';
             (g.counterOfferPlaybook || []).forEach(function(c) {
                 coHtml += '<div style="padding:10px 14px; background:rgba(167,139,250,0.06); border-radius:8px; border-left:3px solid #a78bfa;">'
-                    + '<div style="font-size:0.78em; font-weight:700; color:#a78bfa; margin-bottom:4px;">' + escapeHtml(c.scenario || '') + '</div>'
-                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(c.response || '') + '"</div>'
-                    + '</div>';
+                    + '<div style="font-size:0.78em; font-weight:700; color:#a78bfa; margin-bottom:4px;">' + escapeHtml(c.scenario||'') + '</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(c.response||'') + '"</div></div>';
             });
-            coHtml += '</div>';
-            html += section(bpIcon('shield',12) + ' Counter-Offer Playbook', '#a78bfa', coHtml);
+            html += section(bpIcon('shield',12) + ' Counter-Offer Playbook', '#a78bfa', coHtml + '</div>');
 
-            // ── Value connections + Questions ──
             var valHtml = '<div style="display:grid; gap:6px; margin-bottom:10px;">';
             (g.valueConnections || []).forEach(function(v) {
                 valHtml += '<div style="font-size:0.82em; padding:7px 12px; background:var(--c-surface-2); border-radius:7px;">'
-                    + '<strong style="color:var(--c-text);">' + escapeHtml(v.value || '') + ':</strong> '
-                    + '<span style="color:var(--c-muted);">' + escapeHtml(v.connection || '') + '</span></div>';
+                    + '<strong style="color:var(--c-text);">' + escapeHtml(v.value||'') + ':</strong> <span style="color:var(--c-muted);">' + escapeHtml(v.connection||'') + '</span></div>';
             });
-            valHtml += '</div>';
-            valHtml += '<div style="font-size:0.75em; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Questions to Ask</div>'
-                + '<div style="display:grid; gap:5px;">';
+            valHtml += '</div><div style="font-size:0.75em; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Questions to Ask</div><div style="display:grid; gap:5px;">';
             (g.questionsToAsk || []).forEach(function(q) {
                 valHtml += '<div style="font-size:0.81em; color:var(--c-text); padding:6px 12px; background:var(--c-surface-2); border-radius:7px;">' + escapeHtml(q) + '</div>';
             });
@@ -46732,13 +44417,10 @@ body {
             html += section(bpIcon('star',12) + ' Values & Questions', '#fb923c', valHtml);
 
             html += '<button onclick="showNegotiationGuideV2()" style="width:100%; margin-top:4px; padding:10px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; color:var(--c-muted); font-size:0.82em; cursor:pointer;">← Back to Role Picker</button>';
-            html += '</div>'; // end modal-body
-
+            html += '</div>';
             renderFn(html);
         }
         window._renderNegGuide = _renderNegGuide;
-
-        
         // ===== IMPACT RATING ENGINE =====
         
         let impactRatings = null;
@@ -49663,7 +47345,6 @@ body {
                 if (tourTooltip) { tourTooltip.remove(); tourTooltip = null; }
                 var spotlight = document.querySelector('.tour-spotlight');
                 if (spotlight) spotlight.remove();
-                var wasTourName = tourName;
                 // Mark tour as seen
                 if (skipFlag !== false) {
                     try { localStorage.setItem(TOUR_SEEN_KEY, 'true'); } catch(e) {}
@@ -49673,9 +47354,6 @@ body {
                 }
                 tourSteps = [];
                 tourCurrentStep = 0;
-                if (wasTourName === 'welcome' && typeof viewSampleProfile === 'function') {
-                    setTimeout(function() { viewSampleProfile(); }, 200);
-                }
             }
 
             function createOverlayElements() {
@@ -49950,134 +47628,86 @@ body {
             function getWelcomeSteps() {
                 var profileName = (userData.profile && userData.profile.name) || 'this profile';
                 var skillCount = (skillsData.skills || []).length;
-                var jobCount = (userData.savedJobs || []).length;
-                var topJob = (userData.savedJobs || [])[0];
-                var topJobLabel = topJob ? (topJob.title || 'Target Role') + ' at ' + (topJob.company || 'Target Company') : '';
-                var topJobScore = topJob && topJob.matchData ? topJob.matchData.score : 0;
-                var tv = typeof calculateTotalMarketValue === 'function' ? calculateTotalMarketValue() : null;
-                var marketVal = tv && tv.yourWorth ? '$' + Math.round(tv.yourWorth / 1000) + 'K' : '';
-                var roleLevel = tv ? (tv.roleLevel || '') : '';
-                var valuesCount = ((blueprintData.values || []).filter(function(v) { return v.selected; })).length;
                 return [
+                    // 1. SKILLS ARCHITECTURE — the wow moment
                     {
-                        title: 'Welcome to Blueprint\u2122',
-                        desc: 'This is <strong>' + profileName + '</strong>\u2019s career intelligence profile \u2014 skills, market value, job fit, and negotiation strategy, all in one place.'
-                            + '<br><br>Let\u2019s walk through the key features. This takes about 2 minutes.',
-                        badge: 'Overview',
-                        target: null,
-                        beforeShow: function() { switchView('skills'); },
-                        delay: 600
-                    },
-                    {
-                        title: 'The Skills Network',
-                        desc: 'Every node is a skill. <strong>Size</strong> = proficiency level. <strong>Color</strong> = role cluster. Connected nodes share professional context.'
-                            + (skillCount > 0 ? '<br><br>This profile has <strong>' + skillCount + ' skills</strong> mapped across ' + ((userData.roles || []).length || 'multiple') + ' professional roles.' : '')
-                            + '<br><br><span style="color:#60a5fa;">Try it \u2014 drag nodes to rearrange, tap one to explore.</span>',
+                        title: 'Your Skills, Fully Mapped',
+                        desc: 'Every node is a skill. <strong>Size</strong> = proficiency. <strong>Color</strong> = role cluster. Built on professional-grade <strong>O*NET</strong> and <strong>ESCO</strong> taxonomies.'
+                            + (skillCount > 0 ? ' This profile has <strong>' + skillCount + '</strong> mapped.' : '')
+                            + '<br><br><span style="color:#60a5fa;">Drag any node to rearrange. Tap one to see the evidence behind it.</span>',
                         badge: 'Skills Architecture',
                         target: '#controlsBar',
                         spotlightPad: 6,
                         beforeShow: function() { switchView('skills'); },
-                        delay: 500
+                        delay: 600
                     },
+                    // 2. JOB INTELLIGENCE
                     {
-                        title: 'Evidence Behind Every Skill',
-                        desc: 'Each skill claim is backed by <strong>documented evidence</strong> \u2014 outcomes, metrics, and accomplishments that prove the level.'
-                            + '<br><br>No self-reported fluff. Blueprint tracks evidence points and calculates an <strong>effective level</strong> based on what you can actually prove.'
-                            + '<br><br><span style="color:#f59e0b;">Tap any skill node on the network to see its evidence.</span>',
-                        badge: 'Evidence System',
-                        target: null
-                    },
-                    {
-                        title: 'Job Match Intelligence',
-                        desc: 'Paste any job description and Blueprint parses the requirements, scores your match, and breaks down exactly where you align <span style="color:#10b981;">\u25cf</span>, where the gaps are <span style="color:#ef4444;">\u25cf</span>, and where you have leverage <span style="color:#64748b;">\u25cf</span>.'
-                            + (topJob ? '<br><br>This profile has <strong>' + jobCount + ' jobs</strong> analyzed. Top match: <strong>' + topJobLabel + '</strong> at <strong>' + topJobScore + '%</strong>.' : ''),
+                        title: 'Test Yourself Against Any Job',
+                        desc: 'Paste any job description. Blueprint parses the requirements, scores your match, and shows exactly where you align <span style="color:#10b981;">&#9679;</span>, where the gaps are <span style="color:#ef4444;">&#9679;</span>, and where you have leverage <span style="color:#64748b;">&#9679;</span>.'
+                            + '<br><br>Then toggle the <strong>Match Overlay</strong> on the skills network to see it visually.',
                         badge: 'Job Intelligence',
                         target: '#nav-jobs',
                         spotlightPad: 4,
-                        beforeShow: function() { switchView('jobs'); },
-                        delay: 400
+                        beforeShow: function() { switchView('jobs'); }
                     },
+                    // 3. VALUES ALIGNMENT
                     {
-                        title: 'Match Overlay on the Network',
-                        desc: 'Toggle the <strong>Match Overlay</strong> to see job fit directly on the skills network. Matched skills glow <span style="color:#10b981;">green</span>, gaps pulse <span style="color:#ef4444;">red</span>, surplus skills fade \u2014 giving you an instant visual read on any opportunity.'
-                            + '<br><br>This is the view that changes how you think about job fit.',
-                        badge: 'Visual Match',
-                        target: '#controlsBar',
-                        spotlightPad: 6,
-                        beforeShow: function() { switchView('skills'); },
-                        delay: 400
-                    },
-                    {
-                        title: 'Know Your Market Value',
-                        desc: 'Compensation powered by <strong>BLS wage data</strong>, calibrated to your function, seniority, and skill depth.'
-                            + (marketVal ? '<br><br>' + profileName + '\u2019s justified value: <strong>' + marketVal + '</strong> (' + roleLevel + ').' : '')
-                            + '<br><br>Two modes: <strong>Evidence-based</strong> (what your documented outcomes prove) and <strong>Potential</strong> (your full skill architecture).',
-                        badge: 'Market Valuation',
-                        target: null,
-                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
-                        delay: 400
-                    },
-                    {
-                        title: 'Negotiation Guide',
-                        desc: 'For each job, Blueprint generates a complete <strong>negotiation playbook</strong> \u2014 your opening move, the ask number, strengths to lead with, blind spots to watch for, and counter-offer responses.'
-                            + '<br><br>All built from your actual skills, experience, and BLS comp data. No generic advice.'
-                            + '<br><br><span style="color:#10b981;">Try it \u2014 click Negotiation Guide on any saved job.</span>',
-                        badge: 'Negotiation',
-                        target: null,
-                        beforeShow: function() { switchBlueprintTab('export'); },
-                        delay: 400
-                    },
-                    {
-                        title: 'Values Alignment',
-                        desc: 'Blueprint surfaces your <strong>core professional values</strong> from career patterns \u2014 not a personality quiz.'
-                            + (valuesCount > 0 ? ' This profile has <strong>' + valuesCount + ' values</strong> identified.' : '')
-                            + '<br><br>Then it maps them against <strong>company culture profiles</strong> so you can see alignment before you commit. The right job isn\u2019t just about skills \u2014 it\u2019s about fit.',
-                        badge: 'Values',
-                        target: null,
-                        beforeShow: function() { switchBlueprintTab('values'); },
-                        delay: 400
-                    },
-                    {
-                        title: 'The Career Dashboard',
-                        desc: 'The executive summary of your professional identity \u2014 market value, skill distribution, readiness score, purpose statement, and career trajectory in one view.'
-                            + '<br><br>Six tabs: <strong>Dashboard</strong> \u00B7 <strong>Skills</strong> \u00B7 <strong>Experience</strong> \u00B7 <strong>Outcomes</strong> \u00B7 <strong>Values</strong> \u00B7 <strong>Export</strong>.',
-                        badge: 'Blueprint Dashboard',
-                        target: '#blueprintSubnav',
+                        title: 'Know the Fit Before You Walk In',
+                        desc: 'Blueprint surfaces your <strong>core professional values</strong> from career patterns \u2014 not a personality quiz. Then it maps them against company culture profiles so you can see alignment before you commit.'
+                            + '<br><br>Because the right job isn\u2019t just about skills. It\u2019s about fit.',
+                        badge: 'Values Alignment',
+                        target: '#nav-blueprint',
                         spotlightPad: 4,
-                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
+                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('values'); },
                         delay: 400
                     },
+                    // 4. SCOUTING REPORTS — the paradigm shift
                     {
-                        title: 'Scouting Reports',
-                        desc: 'Generate a <strong>Scouting Report</strong> \u2014 an interactive career intelligence page designed to send to recruiters and hiring managers. Skills match, gap analysis, talking points, and values alignment in one shareable document.'
+                        title: 'Attract Them to You',
+                        desc: 'Generate a <strong>Scouting Report</strong> \u2014 an interactive career intelligence page designed to be sent to recruiters and hiring managers. Your skills, match analysis, talking points, and values alignment in one shareable document.'
                             + '<br><br>This isn\u2019t a resume. It\u2019s a signal that you\u2019re a different kind of candidate.'
-                            + (isReadOnlyProfile ? '<br><span style="color:#10b981;">Sample reports are available on the Reports page.</span>' : ''),
-                        badge: 'Reports',
+                            + (isReadOnlyProfile ? '<br><span style="color:#10b981;">Try it \u2014 sample reports are available on the Reports page.</span>' : ''),
+                        badge: 'Scouting Reports',
                         target: '#nav-reports',
                         spotlightPad: 4,
                         beforeShow: function() { switchView('reports'); },
                         delay: 400
                     },
+                    // 5. MARKET VALUATION
                     {
-                        title: '24 Characters. Real Blueprints.',
-                        desc: '<strong>Breaking Bad</strong> \u00B7 <strong>Stranger Things</strong> \u00B7 <strong>Succession</strong> \u00B7 <strong>Game of Thrones</strong> \u2014 six characters per show, each with a complete career Blueprint.'
-                            + '<br><br>Skills, values, job matches, market values \u2014 all fully built. Switch profiles anytime to explore.',
-                        badge: 'Sample Profiles',
-                        target: null,
-                        beforeShow: function() { viewSampleProfile(); },
-                        delay: 500
+                        title: 'Know Your Number',
+                        desc: '<strong>Evidence-based</strong> valuation reflects what your documented outcomes prove. <strong>Potential</strong> reflects your full skill architecture. Both are powered by BLS salary data and skill rarity analysis.'
+                            + '<br><br>Walk into every compensation conversation knowing your range \u2014 and the evidence to justify it.',
+                        badge: 'Market Valuation',
+                        target: '#nav-blueprint',
+                        spotlightPad: 4,
+                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('overview'); },
+                        delay: 400
                     },
+                    // 6. PURPOSE & NARRATIVE
                     {
-                        title: isReadOnlyProfile ? 'Ready to Build Yours?' : 'Your Career Intelligence',
+                        title: 'Your Career Story, Distilled',
+                        desc: 'Blueprint synthesizes your skills, outcomes, and values into a <strong>purpose statement</strong> \u2014 the language that connects who you are with what the work demands.'
+                            + '<br><br>This is the narrative thread that ties your entire professional identity together.',
+                        badge: 'Purpose',
+                        target: null,
+                        beforeShow: function() { switchBlueprintTab('purpose'); },
+                        delay: 300
+                    },
+                    // 7. CLOSE — the handoff
+                    {
+                        title: isReadOnlyProfile ? 'Ready to Build Your Own?' : 'Your Career Intelligence Starts Here',
                         desc: isReadOnlyProfile
-                            ? 'You\u2019ve seen what Blueprint does with ' + profileName + '. Imagine this with <strong>your</strong> skills, <strong>your</strong> evidence, <strong>your</strong> market value.'
-                                + '<br><br>Hit <strong>?</strong> anytime for feature guides. Explore all 24 profiles. When you\u2019re ready \u2014 <strong>build yours</strong>.'
-                            : 'That\u2019s Blueprint \u2014 career intelligence across every dimension. Hit <strong>?</strong> anytime for section guides.'
-                                + '<br><br>Your data stays yours. Export it, own it, take it anywhere.',
+                            ? 'You\u2019ve seen what Blueprint can do with ' + profileName + '. Imagine this with <strong>your</strong> skills, <strong>your</strong> outcomes, <strong>your</strong> market value.'
+                                + '<br><br>Hit the <strong>?</strong> button anytime for help. Explore all 24 sample profiles. Then join the waitlist to build yours.'
+                            : 'That\u2019s Blueprint. Six lenses on one career. Hit the <strong>?</strong> button anytime for section-specific guides.'
+                                + '<br><br>Your data stays yours \u2014 export it, own it, take it anywhere.',
                         badge: isReadOnlyProfile ? 'Get Started' : 'Let\u2019s Go',
                         target: '#tourHelpBtn',
                         spotlightPad: 6,
-                        spotlightRadius: '50%'
+                        spotlightRadius: '50%',
+                        beforeShow: function() { viewSampleProfile(); }
                     }
                 ];
             }
@@ -50208,7 +47838,26 @@ body {
             // Fire welcome tour for first-time visitors after profile loads
 
             function maybeAutoTour() {
-                return;
+                // Don't auto-fire if already seen, or if onboarding wizard is active
+                try {
+                    if (localStorage.getItem(TOUR_SEEN_WELCOME) === 'true') return;
+                } catch(e) {}
+                // Skip for invited/active users — they'll get onboarding wizard instead
+                if (appMode === 'invited' || appMode === 'active') return;
+                if (document.querySelector('.onboarding-wizard.active')) return;
+                if (document.querySelector('.onboarding-overlay')) return;
+                // Wait for teaser modal to be dismissed first
+                if (document.getElementById('teaserOverlay')) {
+                    setTimeout(maybeAutoTour, 1500);
+                    return;
+                }
+
+                // Wait for network to render, then launch
+                setTimeout(function() {
+                    if (!tourActive) {
+                        window._bpTour.startWelcome();
+                    }
+                }, 1800);
             }
 
             // Initialize help button and check for auto-tour after app loads

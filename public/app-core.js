@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.14';
+        var BP_VERSION = 'v4.47.15';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -32504,34 +32504,11 @@ body {
                         + '      document.querySelectorAll("svg line").forEach(function(l) { l.style.display = ""; });'
                         + '    }'
                         + '  }'
-                        // Run immediately once (catches any synchronously-rendered nodes)
-                        + '  recolorNetwork(); filterJobMatch();'
-                        // MutationObserver: fires recolorNetwork the instant D3 adds SVG nodes
-                        // This eliminates the color flash — no waiting for a poll tick
-                        + '  var _obs = new MutationObserver(function(muts) {'
-                        + '    var hasSVG = muts.some(function(m) {'
-                        + '      return Array.from(m.addedNodes).some(function(n) {'
-                        + '        return n.nodeType === 1 && (n.tagName === "circle" || n.tagName === "line" || n.tagName === "g" || (n.querySelector && n.querySelector("circle")));'
-                        + '      });'
-                        + '    });'
-                        + '    if (hasSVG) { recolorNetwork(); filterJobMatch(); }'
-                        + '  });'
-                        + '  _obs.observe(document.body || document.documentElement, { childList: true, subtree: true });'
-                        // Safety net: fast polling for first 3s, then disconnect observer
-                        + '  var n = 0;'
-                        + '  var iv = setInterval(function() {'
-                        + '    recolorNetwork(); filterJobMatch();'
-                        + '    if (++n > 15) { clearInterval(iv); _obs.disconnect(); }'
-                        + '  }, 200);'
-                        + '  document.addEventListener("DOMContentLoaded", function() {'
-                        + '    [500,1200,2500].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
-                        // Re-apply on tab/button clicks
-                        + '    document.addEventListener("click", function(e) {'
-                        + '      if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
-                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 150);'
-                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 600);'
-                        + '      }'
-                        + '    });'
+                        + '  [1500,2500,4000].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
+                        + '  document.addEventListener("click", function(e) {'
+                        + '    if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
+                        + '      setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 300);'
+                        + '    }'
                         + '  });'
                         + '})();'
                         + '<\/script>';
