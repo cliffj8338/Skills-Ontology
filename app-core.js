@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.16';
+        var BP_VERSION = 'v4.47.17';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -11406,11 +11406,8 @@
                 return (s.roles || []).some(function(rid) { return validRoleIds.has(rid); });
             });
 
-            // Required WB skill names (for k=1 tagging)
-            var jobRequiredNames = wbSkills.filter(function(s) {
-                var tier = s.tier || 'required';
-                return tier === 'required' || tier === 'Required';
-            }).map(function(s) { return s.name; });
+            // All WB skill names (for k=1 tagging — include all tiers, not just Required)
+            var jobRequiredNames = wbSkills.map(function(s) { return s.name; });
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
 
             // Build reportSkills (same shape as buildReportData)
@@ -32193,10 +32190,7 @@ body {
             });
             
             // Skills — use ALL skills for counts/stats, connected only for network rendering
-            var jobRequiredNames = getJobSkills(job).filter(function(s) {
-                var req = (typeof s === 'string') ? 'Required' : (s.tier || s.requirement || 'Required');
-                return req === 'Required' || req === 'required';
-            }).map(function(s) { return typeof s === 'string' ? s : s.name; });
+            var jobRequiredNames = getJobSkills(job).map(function(s) { return typeof s === 'string' ? s : s.name; });
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
             
             // Build full skill set (for stats) and network skill set (for D3)
