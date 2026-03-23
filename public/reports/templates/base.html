@@ -886,8 +886,8 @@ function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',b
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)document.querySelectorAll('.nav-a').forEach(l=>l.classList.toggle('on',l.getAttribute('onclick')?.includes(e.target.id)))})},{threshold:.2});
 document.querySelectorAll('section[id],.hero').forEach(s=>obs.observe(s));
 
-hydrateFromData();initReport();renderSk();renderGaps();renderDom();initSN();initVN();
-window.addEventListener('resize',()=>{if(curNetMode==='match')initSN();else initYouNet();initVN()});
+hydrateFromData();initReport();renderSk();renderGaps();renderDom();
+setTimeout(function(){initSN();setTimeout(function(){initVN();window.addEventListener('resize',function(){if(curNetMode==='match')initSN();else initYouNet();initVN()});},400);},800);
 
 // Show blind mode tooltip on first visit
 try { if (!localStorage.getItem('blindTipSeen')) { setTimeout(()=>{ document.getElementById('blindTip').style.display='block'; }, 2000); }} catch(e){}
