@@ -620,8 +620,13 @@ function initYouNet() {
         N.push({ id: r.id, name: r.name, type: 'role', color: r.color, ms: 'role', x: W / 2 + Math.cos(a) * rd, y: cY + Math.sin(a) * rd });
         L.push({ source: 'center', target: r.id, type: 'role' });
     });
-    // All user skills — no job node, no gap nodes
-    const showSkills = mob ? US.filter(s => s.k || s.l === 'Mastery' || s.l === 'Expert').slice(0, 30) : US;
+    // All user skills — no job node, no gap nodes (cap to prevent freezing)
+    var maxYouSkills = mob ? 20 : 35;
+    var youMatched = US.filter(s => s.k);
+    var youRest = US.filter(s => !s.k);
+    var youLR = {Mastery:5,Expert:4,Advanced:3,Proficient:2,Novice:1};
+    youRest.sort((a,b)=>(youLR[b.l]||0)-(youLR[a.l]||0));
+    const showSkills = [].concat(youMatched, youRest).slice(0, maxYouSkills);
     showSkills.forEach(s => {
         const id = 'u-' + ix++;
         N.push({ id, name: s.n, type: 'skill', level: s.l, ms: 'own', ev: s.ev, src: 'user', roles: s.r, vf: s.vf, vfLabel: s.vfLabel });
@@ -630,6 +635,7 @@ function initYouNet() {
     const gv = H * .48;
     const levelColor = { Mastery: '#10b981', Expert: '#fb923c', Advanced: '#a78bfa', Proficient: '#60a5fa', Novice: '#94a3b8' };
     sSim = d3.forceSimulation(N)
+        .alphaDecay(0.05)
         .force('link', d3.forceLink(L).id(d => d.id).distance(d => d.type === 'role' ? (mob ? 110 : 185) * sf : (mob ? 95 : 155) * sf))
         .force('charge', d3.forceManyBody().strength(d => d.type === 'center' ? 0 : d.type === 'role' ? (mob ? -220 : -320) * sf : (mob ? -130 : -190) * sf))
         .force('center', d3.forceCenter(W / 2, gv))
@@ -667,10 +673,16 @@ const svg=d3.select('#snS').attr('width',W).attr('height',H);svg.selectAll('*').
 const cY=H*.25,N=[{id:'center',name:CN,type:'center',ms:'center',x:W/2,y:cY,fx:W/2,fy:cY}],L=[];let ix=0;
 roles.forEach((r,i)=>{const a=(i/roles.length)*2*Math.PI,rd=(mob?100:170)*sf;N.push({id:r.id,name:r.name,type:'role',color:r.color,ms:'role',x:W/2+Math.cos(a)*rd,y:cY+Math.sin(a)*rd});L.push({source:'center',target:r.id,type:'role'})});
 N.push({id:'rj',name:(JT.length>22?JT.substring(0,20)+'…':JT)+' Needs',type:'role',color:'#ef4444',ms:'role',x:W/2,y:H*.75});L.push({source:'center',target:'rj',type:'role'});
-US.forEach(s=>{const im=MS.has(s.n),st=im?'matched':'surplus',id='u-'+ix++;N.push({id,name:s.n,type:'skill',level:s.l,ms:st,ev:s.ev,src:'user',roles:s.r,vf:s.vf,vfLabel:s.vfLabel});(s.r||[]).forEach(rid=>L.push({source:rid,target:id,type:'skill'}));if(im)L.push({source:'rj',target:id,type:'match'})});
+var matchedSkills=US.filter(s=>MS.has(s.n));
+var surplusSkills=US.filter(s=>!MS.has(s.n));
+var maxSurplus=mob?10:Math.max(10,30-matchedSkills.length);
+var levelRank={Mastery:5,Expert:4,Advanced:3,Proficient:2,Novice:1};
+surplusSkills.sort((a,b)=>(levelRank[b.l]||0)-(levelRank[a.l]||0));
+var showSkills=[].concat(matchedSkills,surplusSkills.slice(0,maxSurplus));
+showSkills.forEach(s=>{const im=MS.has(s.n),st=im?'matched':'surplus',id='u-'+ix++;N.push({id,name:s.n,type:'skill',level:s.l,ms:st,ev:s.ev,src:'user',roles:s.r,vf:s.vf,vfLabel:s.vfLabel});(s.r||[]).forEach(rid=>L.push({source:rid,target:id,type:'skill'}));if(im)L.push({source:'rj',target:id,type:'match'})});
 GN.forEach(g=>{const id='g-'+ix++;N.push({id,name:g,type:'skill',level:'Required',ms:'gap',src:'job'});L.push({source:'rj',target:id,type:'skill'})});
 const mc={matched:'#10b981',gap:'#ef4444',surplus:'#475569'},gv=H*.45,lt=isLight();
-sSim=d3.forceSimulation(N).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='role'?(mob?105:175)*sf:d.type==='match'?(mob?70:120)*sf:(mob?90:150)*sf)).force('charge',d3.forceManyBody().strength(d=>d.type==='center'?0:d.type==='role'?(mob?-200:-300)*sf:d.ms==='gap'?(mob?-100:-150)*sf:(mob?-120:-180)*sf)).force('center',d3.forceCenter(W/2,gv)).force('collision',d3.forceCollide().radius(d=>d.type==='center'?(mob?44:62)*sf:d.type==='role'?(mob?38:54)*sf:(mob?26:36)*sf)).force('x',d3.forceX(W/2).strength(.06)).force('y',d3.forceY(gv).strength(.06));
+sSim=d3.forceSimulation(N).alphaDecay(0.05).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='role'?(mob?105:175)*sf:d.type==='match'?(mob?70:120)*sf:(mob?90:150)*sf)).force('charge',d3.forceManyBody().strength(d=>d.type==='center'?0:d.type==='role'?(mob?-200:-300)*sf:d.ms==='gap'?(mob?-100:-150)*sf:(mob?-120:-180)*sf)).force('center',d3.forceCenter(W/2,gv)).force('collision',d3.forceCollide().radius(d=>d.type==='center'?(mob?44:62)*sf:d.type==='role'?(mob?38:54)*sf:(mob?26:36)*sf)).force('x',d3.forceX(W/2).strength(.06)).force('y',d3.forceY(gv).strength(.06));
 const lkG2=svg.append('g').attr('class','layer-links');
 const ndG2=svg.append('g').attr('class','layer-nodes');
 const lk=lkG2.selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='match'?mc.matched:(lt?'rgba(100,116,139,0.45)':'rgba(148,163,184,0.42)')).style('stroke-opacity',d=>d.type==='match'?.85:1).style('stroke-width',d=>d.type==='match'?3:2).style('stroke-dasharray',d=>d.type==='match'?'4,3':'none');
@@ -696,7 +708,7 @@ uVals.forEach((v,i)=>{const a=(i/uVals.length)*Math.PI*.8+Math.PI*.6,rd=(mob?100
 cVals.forEach((v,i)=>{const a=(i/cVals.length)*Math.PI*.8+Math.PI*1.6,rd=(mob?100:140)*sf;N.push({id:'cv-'+i,name:v.n,type:'value',side:'company',vs:v.s,tier:v.t,x:rX+Math.cos(a)*rd,y:cY+Math.sin(a)*rd*.65});L.push({source:'hc',target:'cv-'+i,type:'spoke'})});
 uVals.forEach((v,ui)=>{if(aSet.has(v.n)){const ci=cVals.findIndex(c=>c.n===v.n);if(ci!==-1)L.push({source:'uv-'+ui,target:'cv-'+ci,type:'bridge'})}});
 const vlt=isLight();
-vSim=d3.forceSimulation(N).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='bridge'?(mob?140:200)*sf:(mob?80:120)*sf).strength(d=>d.type==='bridge'?.12:.5)).force('charge',d3.forceManyBody().strength(d=>d.type==='hub'?0:(mob?-140:-200)*sf)).force('collision',d3.forceCollide().radius(d=>d.type==='hub'?(mob?36:46)*sf:(mob?28:36)*sf)).force('x',d3.forceX(d=>d.side==='user'?lX:d.side==='company'?rX:W/2).strength(.1)).force('y',d3.forceY(cY).strength(.06));
+vSim=d3.forceSimulation(N).alphaDecay(0.05).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='bridge'?(mob?140:200)*sf:(mob?80:120)*sf).strength(d=>d.type==='bridge'?.12:.5)).force('charge',d3.forceManyBody().strength(d=>d.type==='hub'?0:(mob?-140:-200)*sf)).force('collision',d3.forceCollide().radius(d=>d.type==='hub'?(mob?36:46)*sf:(mob?28:36)*sf)).force('x',d3.forceX(d=>d.side==='user'?lX:d.side==='company'?rX:W/2).strength(.1)).force('y',d3.forceY(cY).strength(.06));
 const lkGv=svg.append('g').attr('class','layer-links');
 const ndGv=svg.append('g').attr('class','layer-nodes');
 const lk=lkGv.selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='bridge'?vc.aligned:(vlt?'rgba(100,116,139,.38)':'rgba(148,163,184,.38)')).style('stroke-opacity',d=>d.type==='bridge'?.85:1).style('stroke-width',d=>d.type==='bridge'?3:2).style('stroke-dasharray',d=>d.type==='bridge'?'6,4':'none');
