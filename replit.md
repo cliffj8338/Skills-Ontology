@@ -1,6 +1,24 @@
 # Blueprint™
 
-Career intelligence web app at myblueprint.work. Modular Vite-based frontend + Firebase Auth/Firestore backend, deployed via Vercel from GitHub (cliffj8338/blueprint).
+Career intelligence platform at myblueprint.work. Modular Vite-based frontend + Firebase Auth/Firestore backend, deployed via Vercel from GitHub (cliffj8338/blueprint).
+
+## Mission — The Confidence Engine
+
+Blueprint is a confidence engine. Not a job board, not a resume tool, not another platform that helps employers find candidates faster. A confidence engine for the people enterprise has spent decades commoditizing.
+
+**The problem**: The $12B HR technology market flows entirely from employers. LinkedIn monetizes worker data by selling recruiter access. ATS platforms screen candidates out on behalf of the company. Every major career platform generates revenue from the employer side at the expense of the applicant. The worker has always been the raw material, never the customer. Enterprise talent platforms run multi-pass ontological matching against tens of thousands of skills, score fit with precision, model career trajectories — and that intelligence is invisible to the worker it evaluates. They submit an application and receive pass or fail. The $2.1B career coaching market exists to address this gap at $150–$500/hour, accessible to roughly 5% of the workforce.
+
+**What Blueprint does**: Gives the individual the same caliber of intelligence — skill mapping, gap analysis, compensation data, market positioning — that has always been available to the employer and almost never to the individual. Informed, evidence-backed, market-calibrated confidence. The kind that lets someone walk into any career conversation and know exactly where they stand.
+
+**Structural commitment**: Individual-first is not a feature. It is architecture. No employer visibility, not as a setting but as a structural guarantee. The core product will be free for individuals. The worker's data stays theirs. This is the end of asymmetry.
+
+**Origin**: Founder Cliff Jurkiewicz spent a decade inside enterprise talent technology (VP Global Strategy at Phenom). Created the Work Blueprint — a capability framework replacing the legacy job description with skills mapped to outcomes, proficiency levels, compensation, values. Then turned the problem around: if you can build this for the employer, you can build it for the person those systems were processing. Drop the "Work." Same instinct as dropping "the" from Facebook. The name changed when the orientation changed.
+
+**Build thesis**: AI-assisted development proved that domain expertise, not current technical credentials, is the primary input. Traditional solo build estimate: ~$901K / 5 years. Actual: <$1K / 3 months. 136K+ lines of production code, 126+ features, 270+ deploys. Cost reduction factor >1,300x. What it requires is curiosity, domain expertise, and the discipline to iterate until it holds.
+
+**Revenue dilemma**: Four paths — employer (sponsored jobs, recruiter access, talent API), employee experience (enterprise licenses but worker owns data), institutional (universities, workforce boards), and individual premium. Each answers the same question differently: who is Blueprint's primary customer, and what does that choice cost everyone else?
+
+**This is the lens for all product decisions**: Every feature, every design choice, every data flow must be evaluated against the founding premise — does this serve the individual's confidence, or does it compromise it?
 
 ## Architecture
 - **Frontend**: Vite-built modular SPA. Entry: `index.html` (1,241-line shell) → `src/main.js` → modular ES modules in `src/`. `public/app-core.js` (formerly legacy.js) loaded alongside for backward compatibility.
