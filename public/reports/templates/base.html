@@ -534,17 +534,17 @@ const REPORT_DATA = {
 };
 
 // ── Derived globals ────────────────────────────────────────────────
-const R = REPORT_DATA;
-const CN=R.candidate.name, JT=R.job.title;
-const roles=R.roles;
-const US=R.skills;
-const JM=new Set(R.jobRequired.map(s=>s.toLowerCase()));
-const MS=new Set();US.forEach(s=>{if(JM.has(s.n.toLowerCase()))MS.add(s.n)});
-const GN=R.gaps.map(g=>g.n);
-const uVals=R.values.candidate;
-const cVals=R.values.company;
-const gapData=R.gaps;
-const doms=R.domains;
+var R = REPORT_DATA;
+var CN=(R.candidate&&R.candidate.name)||'Candidate', JT=(R.job&&R.job.title)||'Position';
+var roles=R.roles||[];
+var US=R.skills||[];
+var JM=new Set((R.jobRequired||[]).map(s=>s.toLowerCase()));
+var MS=new Set();US.forEach(s=>{if(s.n&&JM.has(s.n.toLowerCase()))MS.add(s.n)});
+var GN=(R.gaps||[]).map(g=>g.n);
+var uVals=(R.values&&R.values.candidate)||[];
+var cVals=(R.values&&R.values.company)||[];
+var gapData=R.gaps||[];
+var doms=R.domains||[];
 
 // Tooltip
 const tip=d3.select('#tip');
@@ -975,8 +975,14 @@ function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',b
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)document.querySelectorAll('.nav-a').forEach(l=>l.classList.toggle('on',l.getAttribute('onclick')?.includes(e.target.id)))})},{threshold:.2});
 document.querySelectorAll('section[id],.hero').forEach(s=>obs.observe(s));
 
-hydrateFromData();initReport();renderSk();renderGaps();renderDom();initSN();initVN();
-window.addEventListener('resize',()=>{if(curNetMode==='match')initSN();else initYouNet();initVN()});
+try { hydrateFromData(); } catch(e) { console.error('hydrateFromData error:', e); }
+try { initReport(); } catch(e) { console.error('initReport error:', e); }
+try { renderSk(); } catch(e) { console.error('renderSk error:', e); }
+try { renderGaps(); } catch(e) { console.error('renderGaps error:', e); }
+try { renderDom(); } catch(e) { console.error('renderDom error:', e); }
+try { initSN(); } catch(e) { console.error('initSN error:', e); }
+try { initVN(); } catch(e) { console.error('initVN error:', e); }
+window.addEventListener('resize',()=>{try{if(curNetMode==='match')initSN();else initYouNet();initVN();}catch(e){console.error('resize handler error:',e);}});
 
 // Show blind mode tooltip on first visit
 try { if (!localStorage.getItem('blindTipSeen')) { setTimeout(()=>{ document.getElementById('blindTip').style.display='block'; }, 2000); }} catch(e){}

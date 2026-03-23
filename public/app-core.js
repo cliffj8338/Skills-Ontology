@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.10';
+        var BP_VERSION = 'v4.47.11';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -32386,16 +32386,7 @@ body {
                     var safeDataStr = encodeURIComponent(JSON.stringify(reportData));
                     var injected = template.replace(/const REPORT_DATA = \{[\s\S]*?\n\};/, 'const REPORT_DATA = JSON.parse(decodeURIComponent("' + safeDataStr + '"));');
                     
-                    // Patch template: swap skills→networkSkills for D3 visualization
-                    // but preserve totalSkillCount for overview stats display
-                    var patchScript = '<script>'
-                        + 'if(typeof REPORT_DATA!=="undefined"&&REPORT_DATA.networkSkills){'
-                        + 'REPORT_DATA._allSkills=REPORT_DATA.skills;'
-                        + 'REPORT_DATA.skills=REPORT_DATA.networkSkills;'
-                        + 'REPORT_DATA.totalSkillCount=REPORT_DATA.totalSkillCount||REPORT_DATA._allSkills.length;'
-                        + 'REPORT_DATA.jobMatchSkills=REPORT_DATA.jobMatchSkills||REPORT_DATA.skills.filter(function(s){return s.k===1;});'
-                        + '}'
-                        + '<\/script>';
+                    var patchScript = '';
                     
                     // Inject CSS overrides for D3 networks to match main app aesthetic
                     var patchCSS = '<style>'
@@ -32546,7 +32537,21 @@ body {
                         + '<\/script>';
                     
                     // Insert patches before </head>
-                    injected = injected.replace('</head>', patchCSS + patchScript + patchColors + '</head>');
+                    var headErrorHandler = '<script>window.onerror=function(m,s,l,c,e){var d=document.createElement("div");d.style.cssText="position:fixed;top:0;left:0;right:0;padding:16px 20px;background:#7f1d1d;color:#fca5a5;font-family:monospace;font-size:13px;z-index:9999;word-break:break-all;";d.textContent="Report error: "+m+" (line "+l+")";document.body.appendChild(d);console.error("Report render error:",m,s,l,c,e);return false;}<\/script>';
+                    injected = injected.replace('</head>', patchCSS + headErrorHandler + '</head>');
+                    
+                    var networkSwap = '\n'
+                        + 'if(typeof REPORT_DATA!=="undefined"&&REPORT_DATA.networkSkills){'
+                        + 'REPORT_DATA._allSkills=REPORT_DATA.skills;'
+                        + 'REPORT_DATA.skills=REPORT_DATA.networkSkills;'
+                        + 'REPORT_DATA.totalSkillCount=REPORT_DATA.totalSkillCount||REPORT_DATA._allSkills.length;'
+                        + 'REPORT_DATA.jobMatchSkills=REPORT_DATA.jobMatchSkills||REPORT_DATA.skills.filter(function(s){return s.k===1;});'
+                        + '}\n';
+                    injected = injected.replace(
+                        /\/\/ ── Derived globals/,
+                        networkSwap + '// ── Derived globals'
+                    );
+                    injected = injected.replace('</body>', patchColors + '</body>');
                     var blob = new Blob([injected], { type: 'text/html; charset=utf-8' });
                     var blobUrl = URL.createObjectURL(blob);
                     
