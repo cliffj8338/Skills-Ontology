@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.11';
+        var BP_VERSION = 'v4.47.12';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -32377,7 +32377,7 @@ body {
             if (existing) existing.remove();
             
             // Fetch template, inject data, render in blob iframe
-            fetch('reports/templates/base.html')
+            fetch('reports/templates/base.html?v=' + BP_VERSION)
                 .then(function(res) {
                     if (!res.ok) throw new Error('Template not found');
                     return res.text();

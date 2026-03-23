@@ -635,13 +635,15 @@ function initYouNet() {
     const gv = H * .48;
     const levelColor = { Mastery: '#10b981', Expert: '#fb923c', Advanced: '#a78bfa', Proficient: '#60a5fa', Novice: '#94a3b8' };
     sSim = d3.forceSimulation(N)
-        .alphaDecay(0.05)
+        .alphaDecay(0.08).velocityDecay(0.4)
         .force('link', d3.forceLink(L).id(d => d.id).distance(d => d.type === 'role' ? (mob ? 110 : 185) * sf : (mob ? 95 : 155) * sf))
-        .force('charge', d3.forceManyBody().strength(d => d.type === 'center' ? 0 : d.type === 'role' ? (mob ? -220 : -320) * sf : (mob ? -130 : -190) * sf))
+        .force('charge', d3.forceManyBody().strength(d => d.type === 'center' ? 0 : d.type === 'role' ? (mob ? -220 : -320) * sf : (mob ? -130 : -190) * sf).theta(0.9))
         .force('center', d3.forceCenter(W / 2, gv))
-        .force('collision', d3.forceCollide().radius(d => d.type === 'center' ? (mob ? 44 : 62) * sf : d.type === 'role' ? (mob ? 38 : 54) * sf : (mob ? 28 : 40) * sf))
+        .force('collision', d3.forceCollide().radius(d => d.type === 'center' ? (mob ? 44 : 62) * sf : d.type === 'role' ? (mob ? 38 : 54) * sf : (mob ? 28 : 40) * sf).iterations(1))
         .force('x', d3.forceX(W / 2).strength(.06))
         .force('y', d3.forceY(gv).strength(.06));
+    sSim.stop();for(var yti=0;yti<80;yti++)sSim.tick();
+    var yP=mob?40:65;N.forEach(d=>{if(d.type!=='center'){d.x=Math.max(yP,Math.min(W-yP,d.x));d.y=Math.max(yP,Math.min(H-yP,d.y))}});
     const lkG = svg.append('g').attr('class','layer-links');
     const ndG = svg.append('g').attr('class','layer-nodes');
     const lk = lkG.selectAll('line').data(L).join('line').attr('class', 'link').style('stroke', isLight() ? 'rgba(100,116,139,0.45)' : 'rgba(148,163,184,0.5)').style('stroke-opacity', 1).style('stroke-width', 2.2);
@@ -663,7 +665,9 @@ function initYouNet() {
     nd.append('text').text(d => d.name).attr('x', 0).attr('y', d => d.type === 'center' ? -(mob ? 32 : 42) : d.type === 'role' ? -(mob ? 26 : 34) : -(mob ? 14 : 18)).attr('text-anchor', 'middle').style('font-size', d => d.type === 'center' ? (mob ? '11px' : '14px') : d.type === 'role' ? (mob ? '9px' : '11px') : (mob ? '7px' : '9px')).style('fill', d => { if (d.type === 'role') return isLight() ? '#1e293b' : '#94a3b8'; const lc = isLight() ? { Mastery: '#065f46', Expert: '#c2410c', Advanced: '#6d28d9', Proficient: '#1d4ed8', Novice: '#475569' } : levelColor; return (lc || levelColor)[d.level] || (isLight() ? '#1e293b' : '#cbd5e1'); }).style('font-weight', d => (d.type === 'center' || d.type === 'role') ? '700' : '500').call(wrapLabel, 16, 11);
     if (mob) nd.selectAll('text').filter(d => d.type === 'skill' && d.level !== 'Mastery' && d.level !== 'Expert').classed('hidden', true);
     nd.filter(d => d.type === 'role').raise(); nd.filter(d => d.type === 'center').raise();
-    sSim.on('tick', () => { const p = mob ? 40 : 65; N.forEach(d => { if (d.type !== 'center') { d.x = Math.max(p, Math.min(W - p, d.x)); d.y = Math.max(p, Math.min(H - p, d.y)); } }); lk.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y); nd.attr('transform', d => `translate(${d.x},${d.y})`); });
+    lk.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nd.attr('transform', d => `translate(${d.x},${d.y})`);
+    sSim.on('tick', () => { lk.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y); nd.attr('transform', d => `translate(${d.x},${d.y})`); });
 }
 
 // ===== SKILLS MATCH NETWORK =====
@@ -675,14 +679,16 @@ roles.forEach((r,i)=>{const a=(i/roles.length)*2*Math.PI,rd=(mob?100:170)*sf;N.p
 N.push({id:'rj',name:(JT.length>22?JT.substring(0,20)+'…':JT)+' Needs',type:'role',color:'#ef4444',ms:'role',x:W/2,y:H*.75});L.push({source:'center',target:'rj',type:'role'});
 var matchedSkills=US.filter(s=>MS.has(s.n));
 var surplusSkills=US.filter(s=>!MS.has(s.n));
-var maxSurplus=mob?10:Math.max(10,30-matchedSkills.length);
+var maxSurplus=mob?8:Math.max(8,20-matchedSkills.length);
 var levelRank={Mastery:5,Expert:4,Advanced:3,Proficient:2,Novice:1};
 surplusSkills.sort((a,b)=>(levelRank[b.l]||0)-(levelRank[a.l]||0));
 var showSkills=[].concat(matchedSkills,surplusSkills.slice(0,maxSurplus));
 showSkills.forEach(s=>{const im=MS.has(s.n),st=im?'matched':'surplus',id='u-'+ix++;N.push({id,name:s.n,type:'skill',level:s.l,ms:st,ev:s.ev,src:'user',roles:s.r,vf:s.vf,vfLabel:s.vfLabel});(s.r||[]).forEach(rid=>L.push({source:rid,target:id,type:'skill'}));if(im)L.push({source:'rj',target:id,type:'match'})});
 GN.forEach(g=>{const id='g-'+ix++;N.push({id,name:g,type:'skill',level:'Required',ms:'gap',src:'job'});L.push({source:'rj',target:id,type:'skill'})});
 const mc={matched:'#10b981',gap:'#ef4444',surplus:'#475569'},gv=H*.45,lt=isLight();
-sSim=d3.forceSimulation(N).alphaDecay(0.05).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='role'?(mob?105:175)*sf:d.type==='match'?(mob?70:120)*sf:(mob?90:150)*sf)).force('charge',d3.forceManyBody().strength(d=>d.type==='center'?0:d.type==='role'?(mob?-200:-300)*sf:d.ms==='gap'?(mob?-100:-150)*sf:(mob?-120:-180)*sf)).force('center',d3.forceCenter(W/2,gv)).force('collision',d3.forceCollide().radius(d=>d.type==='center'?(mob?44:62)*sf:d.type==='role'?(mob?38:54)*sf:(mob?26:36)*sf)).force('x',d3.forceX(W/2).strength(.06)).force('y',d3.forceY(gv).strength(.06));
+sSim=d3.forceSimulation(N).alphaDecay(0.08).velocityDecay(0.4).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='role'?(mob?105:175)*sf:d.type==='match'?(mob?70:120)*sf:(mob?90:150)*sf)).force('charge',d3.forceManyBody().strength(d=>d.type==='center'?0:d.type==='role'?(mob?-200:-300)*sf:d.ms==='gap'?(mob?-100:-150)*sf:(mob?-120:-180)*sf).theta(0.9)).force('center',d3.forceCenter(W/2,gv)).force('collision',d3.forceCollide().radius(d=>d.type==='center'?(mob?44:62)*sf:d.type==='role'?(mob?38:54)*sf:(mob?26:36)*sf).iterations(1)).force('x',d3.forceX(W/2).strength(.06)).force('y',d3.forceY(gv).strength(.06));
+sSim.stop();for(var ti=0;ti<80;ti++)sSim.tick();
+var sP=mob?40:65;N.forEach(d=>{if(d.type!=='center'){d.x=Math.max(sP,Math.min(W-sP,d.x));d.y=Math.max(sP,Math.min(H-sP,d.y))}});
 const lkG2=svg.append('g').attr('class','layer-links');
 const ndG2=svg.append('g').attr('class','layer-nodes');
 const lk=lkG2.selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='match'?mc.matched:(lt?'rgba(100,116,139,0.45)':'rgba(148,163,184,0.42)')).style('stroke-opacity',d=>d.type==='match'?.85:1).style('stroke-width',d=>d.type==='match'?3:2).style('stroke-dasharray',d=>d.type==='match'?'4,3':'none');
@@ -693,7 +699,9 @@ nd.append('circle').attr('r',d=>{if(d.type==='center')return mob?26:Math.round(3
 nd.append('text').text(d=>d.name).attr('x',0).attr('y',d=>d.type==='center'?-(mob?32:42):d.type==='role'?-(mob?26:34):-(mob?14:18)).attr('text-anchor','middle').style('font-size',d=>d.type==='center'?(mob?'11px':'14px'):d.type==='role'?(mob?'9px':'11px'):(mob?'7px':'9px')).style('fill',d=>{if(d.ms==='matched')return mc.matched;if(d.ms==='gap')return mc.gap;if(d.ms==='surplus')return lt?'#64748b':'#64748b';if(d.type==='role'&&d.id==='rj')return'#ef4444';if(d.type==='role')return lt?'#1e293b':'#94a3b8';return lt?'#1e293b':'#cbd5e1'}).style('opacity',d=>d.ms==='surplus'?.82:1).style('font-weight',d=>(d.type==='center'||d.type==='role')?'700':'500').call(wrapLabel, 16, 11);
 if(mob)nd.selectAll('text').filter(d=>d.type==='skill'&&d.ms==='surplus').classed('hidden',true);
 nd.filter(d=>d.type==='role').raise();nd.filter(d=>d.type==='center').raise();
-sSim.on('tick',()=>{const p=mob?40:65;N.forEach(d=>{if(d.type!=='center'){d.x=Math.max(p,Math.min(W-p,d.x));d.y=Math.max(p,Math.min(H-p,d.y))}});lk.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);nd.attr('transform',d=>`translate(${d.x},${d.y})`)})
+lk.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+nd.attr('transform',d=>`translate(${d.x},${d.y})`);
+sSim.on('tick',()=>{lk.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);nd.attr('transform',d=>`translate(${d.x},${d.y})`)})
 }
 
 // ===== VALUES NETWORK =====
@@ -708,7 +716,9 @@ uVals.forEach((v,i)=>{const a=(i/uVals.length)*Math.PI*.8+Math.PI*.6,rd=(mob?100
 cVals.forEach((v,i)=>{const a=(i/cVals.length)*Math.PI*.8+Math.PI*1.6,rd=(mob?100:140)*sf;N.push({id:'cv-'+i,name:v.n,type:'value',side:'company',vs:v.s,tier:v.t,x:rX+Math.cos(a)*rd,y:cY+Math.sin(a)*rd*.65});L.push({source:'hc',target:'cv-'+i,type:'spoke'})});
 uVals.forEach((v,ui)=>{if(aSet.has(v.n)){const ci=cVals.findIndex(c=>c.n===v.n);if(ci!==-1)L.push({source:'uv-'+ui,target:'cv-'+ci,type:'bridge'})}});
 const vlt=isLight();
-vSim=d3.forceSimulation(N).alphaDecay(0.05).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='bridge'?(mob?140:200)*sf:(mob?80:120)*sf).strength(d=>d.type==='bridge'?.12:.5)).force('charge',d3.forceManyBody().strength(d=>d.type==='hub'?0:(mob?-140:-200)*sf)).force('collision',d3.forceCollide().radius(d=>d.type==='hub'?(mob?36:46)*sf:(mob?28:36)*sf)).force('x',d3.forceX(d=>d.side==='user'?lX:d.side==='company'?rX:W/2).strength(.1)).force('y',d3.forceY(cY).strength(.06));
+vSim=d3.forceSimulation(N).alphaDecay(0.08).velocityDecay(0.4).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='bridge'?(mob?140:200)*sf:(mob?80:120)*sf).strength(d=>d.type==='bridge'?.12:.5)).force('charge',d3.forceManyBody().strength(d=>d.type==='hub'?0:(mob?-140:-200)*sf).theta(0.9)).force('collision',d3.forceCollide().radius(d=>d.type==='hub'?(mob?36:46)*sf:(mob?28:36)*sf).iterations(1)).force('x',d3.forceX(d=>d.side==='user'?lX:d.side==='company'?rX:W/2).strength(.1)).force('y',d3.forceY(cY).strength(.06));
+vSim.stop();for(var vti=0;vti<80;vti++)vSim.tick();
+var vP=mob?32:50;N.forEach(d=>{if(d.type!=='hub'){d.x=Math.max(vP,Math.min(W-vP,d.x));d.y=Math.max(vP,Math.min(H-vP,d.y))}});
 const lkGv=svg.append('g').attr('class','layer-links');
 const ndGv=svg.append('g').attr('class','layer-nodes');
 const lk=lkGv.selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='bridge'?vc.aligned:(vlt?'rgba(100,116,139,.38)':'rgba(148,163,184,.38)')).style('stroke-opacity',d=>d.type==='bridge'?.85:1).style('stroke-width',d=>d.type==='bridge'?3:2).style('stroke-dasharray',d=>d.type==='bridge'?'6,4':'none');
@@ -718,7 +728,9 @@ nd.append('circle').attr('r',d=>{if(d.type==='hub')return mob?22:Math.round(28*s
 nd.append('text').text(d=>d.name).attr('x',0).attr('y',d=>d.type==='hub'?-(mob?26:Math.round(34*sf)):-(mob?16:Math.round(20*sf))).attr('text-anchor','middle').style('font-size',d=>d.type==='hub'?(mob?'11px':'13px'):(mob?'8px':'10px')).style('fill',d=>{if(d.type==='hub')return d.side==='user'?(vlt?'#1d4ed8':'#93c5fd'):(vlt?'#b45309':'#fbbf24');return vc[d.vs]||(vlt?'#475569':'#94a3b8')}).style('font-weight',d=>d.type==='hub'?'700':d.vs==='aligned'?'600':'400').call(wrapLabel,14,11);
 nd.filter(d=>d.type==='hub').raise();
 if(mob)nd.selectAll('text').filter(d=>d.type==='value'&&d.vs!=='aligned').classed('hidden',true);
-vSim.on('tick',()=>{const p=mob?32:50;N.forEach(d=>{if(d.type!=='hub'){d.x=Math.max(p,Math.min(W-p,d.x));d.y=Math.max(p,Math.min(H-p,d.y))}});lk.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);nd.attr('transform',d=>`translate(${d.x},${d.y})`)})
+lk.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+nd.attr('transform',d=>`translate(${d.x},${d.y})`);
+vSim.on('tick',()=>{lk.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);nd.attr('transform',d=>`translate(${d.x},${d.y})`)})
 }
 
 // ===== THEME TOGGLE =====
