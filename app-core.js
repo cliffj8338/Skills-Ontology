@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.20';
+        var BP_VERSION = 'v4.47.21';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -31959,14 +31959,15 @@ body {
                 + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
                 + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
-                + '<div class="modal-body" style="padding:24px; overflow:hidden; box-sizing:border-box;">'
+                + '<div class="modal-body" style="padding:24px; overflow-y:auto; max-height:70vh; box-sizing:border-box;">'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px; line-height:1.5;">'
                 + 'Select a job to generate a targeted career intelligence report. This is your scouting report \u2014 built to send to recruiters and hiring managers.</div>'
-                + '<div style="display:grid; gap:10px; overflow:hidden; box-sizing:border-box; max-width:100%;">' + jobCardsHTML + '</div>'
-                + (isReadOnlyProfile ? '' : '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-5);">'
-                + '<button onclick="closeExportModal(); exportBlueprint(\'pdf\')" style="width:100%; padding:10px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">'
-                + 'Or generate a general Blueprint PDF (no job targeting)</button>'
-                + '</div>')
+                + '<div style="display:grid; gap:10px; box-sizing:border-box; max-width:100%;">' + jobCardsHTML + '</div>'
+                + '<div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--c-surface-5);">'
+                + '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:10px; text-align:center;">or generate without a specific job</div>'
+                + '<button onclick="showReportFormatPicker(-1)" style="width:100%; padding:12px; border:1px dashed var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); border-radius:8px; cursor:pointer; font-size:0.88em; font-weight:600;">'
+                + bpIcon('compass',14) + ' General Scouting Report \u2014 No Job Target</button>'
+                + '</div>'
                 + '</div>';
             
             history.pushState({ modal: true }, '');
@@ -31982,8 +31983,9 @@ body {
         
         // Format picker — shown after user selects a job
         function showReportFormatPicker(jobIdx) {
-            var job = (userData.savedJobs || [])[jobIdx];
-            if (!job) { showToast('Job not found.', 'error'); return; }
+            var job = jobIdx >= 0 ? (userData.savedJobs || [])[jobIdx] : null;
+            var isGeneral = !job;
+            if (jobIdx >= 0 && !job) { showToast('Job not found.', 'error'); return; }
             
             // Demo mode: show picker but redirect both options to sample report viewer
             if (isReadOnlyProfile) {
@@ -32037,7 +32039,7 @@ body {
             
             var modal = document.getElementById('exportModal');
             var modalContent = modal.querySelector('.modal-content');
-            var score = (job.matchData && job.matchData.score) || 0;
+            var score = isGeneral ? 0 : ((job.matchData && job.matchData.score) || 0);
             var scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
             
             // Reset per-instance overrides
@@ -32075,10 +32077,15 @@ body {
                 + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
-                + '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
-                + '<div><div style="font-weight:600;">' + escapeHtml(job.title || 'Untitled') + '</div>'
-                + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(job.company || 'Unknown company') + '</div></div>'
-                + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div></div>'
+                + (isGeneral
+                ? '<div style="padding:14px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:20px; text-align:center;">'
+                + '<div style="font-weight:600; color:var(--c-text);">General Scouting Report</div>'
+                + '<div style="font-size:0.82em; color:var(--c-muted); margin-top:4px;">Your career intelligence — not targeted to a specific job</div>'
+                + '</div>'
+                : '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
+                + '<div><div style="font-weight:600;">' + escapeHtml((job && job.title) || 'Untitled') + '</div>'
+                + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml((job && job.company) || 'Unknown company') + '</div></div>'
+                + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div></div>')
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px;">Choose a format for your scouting report:</div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 // HTML option
@@ -32114,14 +32121,13 @@ body {
         
         // HTML scouting report generator (placeholder — generator bridge coming)
         function generateHTMLScoutingReport(jobIdx) {
-            // Demo lockdown: redirect to sample report viewer
             if (isReadOnlyProfile) {
                 viewDemoSampleReport('html');
                 return;
             }
-            var job = (userData.savedJobs || [])[jobIdx];
-            if (!job) { showToast('Job not found.', 'error'); return; }
-            logAnalyticsEvent('scouting_report_html', { company: job.company || '', title: job.title || '' });
+            var job = jobIdx >= 0 ? (userData.savedJobs || [])[jobIdx] : null;
+            if (jobIdx >= 0 && !job) { showToast('Job not found.', 'error'); return; }
+            logAnalyticsEvent('scouting_report_html', { company: (job && job.company) || 'General', title: (job && job.title) || 'General' });
             closeExportModal();
             showToast('Generating scouting report…', 'info', 2000);
             
@@ -32134,8 +32140,7 @@ body {
             var overridden = hasOverrides();
             applyBlindSettings(reportData, blindSettings);
             
-            // Privacy audit log
-            logPrivacyEvent('html', job.title, job.company, blindSettings, overridden);
+            logPrivacyEvent('html', (job && job.title) || 'General', (job && job.company) || '', blindSettings, overridden);
             
             // Clear per-instance overrides
             _blindOverrides = null;
@@ -32147,13 +32152,12 @@ body {
         
         // ── Build REPORT_DATA from live state ────────────────────
         function buildReportData(jobIdx) {
-            var job = (userData.savedJobs || [])[jobIdx];
-            if (!job) return null;
+            var job = jobIdx >= 0 ? (userData.savedJobs || [])[jobIdx] : null;
             
             var profile = userData.profile || {};
             var allSkills = skillsData.skills || [];
             var allRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (skillsData.roles || []);
-            var matchData = job.matchData || { score: 0, matched: [], gaps: [], surplus: [] };
+            var matchData = (job && job.matchData) || { score: 0, matched: [], gaps: [], surplus: [] };
             var matched = matchData.matched || [];
             var gaps = matchData.gaps || [];
             var userValues = blueprintData.values || [];
@@ -32162,8 +32166,8 @@ body {
             var userEdu = userData.education || [];
             var userCerts = userData.certifications || [];
             
-            if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || '');
-            var valAlign = computeValuesAlignment(userValues, job.companyValues);
+            if (job && !job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || '');
+            var valAlign = job ? computeValuesAlignment(userValues, job.companyValues) : { aligned: [], unique: userValues.map(function(v) { return v.name || v; }), score: 0 };
             
             // Roles
             var roleColors = ['#60a5fa', '#a855f7', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#fb923c', '#38bdf8', '#84cc16'];
@@ -32189,7 +32193,7 @@ body {
             });
             
             // Skills — use ALL skills for counts/stats, connected only for network rendering
-            var jobRequiredNames = getJobSkills(job).map(function(s) { return typeof s === 'string' ? s : s.name; });
+            var jobRequiredNames = job ? getJobSkills(job).map(function(s) { return typeof s === 'string' ? s : s.name; }) : [];
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
             
             // Build full skill set (for stats) and network skill set (for D3)
@@ -32330,7 +32334,7 @@ body {
                     }
                     return { title: w.title || w.role || '', company: w.company || w.organization || '', dates: dates, description: w.description || '' };
                 }),
-                job: { title: job.title || 'Untitled Position', company: job.company || 'Undisclosed', date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
+                job: { title: (job && job.title) || 'General Career Intelligence', company: (job && job.company) || '', date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
                 match: { percentage: matchData.score || 0, narrative: narrative },
                 roles: roles,
                 skills: reportSkills,
@@ -32678,26 +32682,21 @@ body {
         window.openSampleScoutingReport = openSampleScoutingReport;
         
         function generateScoutingReport(jobIdx) {
-            // Demo lockdown: redirect to sample viewer
             if (isReadOnlyProfile) { viewDemoSampleReport('pdf'); return; }
-            var job = (userData.savedJobs || [])[jobIdx];
-            if (!job) { showToast('Job not found.', 'error'); return; }
-            logAnalyticsEvent('scouting_report', { company: job.company || '', title: job.title || '' });
+            var job = jobIdx >= 0 ? (userData.savedJobs || [])[jobIdx] : null;
+            if (jobIdx >= 0 && !job) { showToast('Job not found.', 'error'); return; }
+            logAnalyticsEvent('scouting_report', { company: (job && job.company) || 'General', title: (job && job.title) || 'General' });
             closeExportModal();
             
-            // Use buildReportData for identical data to HTML reports
             var reportData = buildReportData(jobIdx);
             if (!reportData) { showToast('Could not build report data.', 'error'); return; }
             
-            // Apply blind settings (defaults + any per-instance overrides)
             var blindSettings = getActiveBlindSettings();
             var overridden = hasOverrides();
             applyBlindSettings(reportData, blindSettings);
             
-            // Privacy audit log
-            logPrivacyEvent('pdf', job.title, job.company, blindSettings, overridden);
+            logPrivacyEvent('pdf', (job && job.title) || 'General', (job && job.company) || '', blindSettings, overridden);
             
-            // Clear per-instance overrides
             _blindOverrides = null;
             
             generateScoutingReportPDF(reportData);
