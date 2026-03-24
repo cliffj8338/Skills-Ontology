@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.21';
+        var BP_VERSION = 'v4.47.22';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -26214,6 +26214,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             html += '</div>';
             
+            // ── Published Reports (loaded from Firestore) ────────
+            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">'
+                + '<div>'
+                + '<div class="rpt-card-h">' + bpIcon('external', 16) + ' Published Reports</div>'
+                + '<div class="rpt-card-sub">Live scouting reports shared with recruiters. Manage links, privacy, and view tracking.</div>'
+                + '</div></div>'
+                + '<div id="publishedReportsContainer" style="margin-top:14px;">'
+                + '<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:0.85em;">'
+                + bpIcon('clock', 14) + ' Loading published reports\u2026</div>'
+                + '</div></div>';
+            
             // ── Sample Reports (collapsible) ────────────────────
             html += '<div class="rpt-card" style="margin-bottom:20px;">'
                 + '<div onclick="var g=this.nextElementSibling; var c=this.querySelector(\'.rpt-demo-chevron\'); if(g.style.display===\'none\'){g.style.display=\'block\';c.style.transform=\'rotate(90deg)\';}else{g.style.display=\'none\';c.style.transform=\'rotate(0deg)\';}" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;">'
@@ -26253,6 +26265,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             html += '</div>'; // close blueprint-container
             
             el.innerHTML = html;
+            
+            if (!isReadOnlyProfile && typeof loadPublishedReports === 'function') {
+                setTimeout(loadPublishedReports, 100);
+            }
         }
         // ═══════════════════════════════════════════════════════════════════
         // COMMAND PALETTE  (CMD+K)
@@ -32606,15 +32622,13 @@ body {
                 reportData: JSON.stringify(reportData),
                 candidateName: reportData.candidate.name,
                 jobTitle: reportData.job.title,
-                company: reportData.job.company,
+                company: reportData.job.company || '',
                 matchScore: reportData.match.percentage,
                 blindSettings: reportData.blindSettings || {},
                 createdBy: fbUser ? fbUser.uid : 'anonymous',
                 createdByName: (userData.profile || {}).name || '',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 viewCount: 0,
-                shortlisted: 0,
-                notes: [],
                 status: 'active',
                 shareToken: shareToken
             };
@@ -32673,6 +32687,276 @@ body {
                 });
         }
         window.shareScoutingReport = shareScoutingReport;
+        
+        // ── Published Reports Management ─────────────────────────
+        function loadPublishedReports() {
+            var container = document.getElementById('publishedReportsContainer');
+            if (!container || !fbDb || !fbUser) {
+                if (container) container.innerHTML = '<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:0.85em;">Sign in to see published reports.</div>';
+                return;
+            }
+            
+            fbDb.collection('reports')
+                .where('createdBy', '==', fbUser.uid)
+                .get()
+                .then(function(snap) {
+                    if (snap.empty) {
+                        container.innerHTML = '<div style="padding:24px; text-align:center;">'
+                            + '<div style="font-size:1.4em; margin-bottom:8px; opacity:0.35;">' + bpIcon('external', 32) + '</div>'
+                            + '<div style="font-size:0.88em; color:var(--text-muted); line-height:1.5;">No published reports yet. Generate a scouting report and click <strong>Share Report</strong> to publish it with a shareable link.</div>'
+                            + '</div>';
+                        return;
+                    }
+                    
+                    var reports = [];
+                    snap.forEach(function(doc) {
+                        var d = doc.data();
+                        d._id = doc.id;
+                        reports.push(d);
+                    });
+                    reports.sort(function(a, b) {
+                        var aTime = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate().getTime() : 0;
+                        var bTime = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().getTime() : 0;
+                        return bTime - aTime;
+                    });
+                    
+                    window._publishedReports = reports;
+                    
+                    var html = '<div style="display:grid; gap:10px;">';
+                    reports.forEach(function(r, idx) {
+                        var isActive = r.status === 'active';
+                        var createdDate = r.createdAt && r.createdAt.toDate ? r.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
+                        var scoreColor = (r.matchScore || 0) >= 70 ? '#10b981' : (r.matchScore || 0) >= 50 ? '#f59e0b' : '#ef4444';
+                        var shareUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/reports/view.html?id=' + r._id + '&token=' + (r.shareToken || ''));
+                        var blindCount = 0;
+                        if (r.blindSettings) { Object.keys(r.blindSettings).forEach(function(k) { if (r.blindSettings[k]) blindCount++; }); }
+                        
+                        html += '<div style="padding:16px; background:var(--c-surface-2a); border:1px solid ' + (isActive ? 'var(--c-border-subtle)' : 'rgba(239,68,68,0.3)') + '; border-radius:12px; ' + (!isActive ? 'opacity:0.6;' : '') + '">'
+                            + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">'
+                            + '<span style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px;">' + escapeHtml(r.jobTitle || 'Untitled') + '</span>'
+                            + (isActive
+                                ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(16,185,129,0.12); color:#10b981; font-weight:600;">LIVE</span>'
+                                : '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(239,68,68,0.12); color:#ef4444; font-weight:600;">REVOKED</span>')
+                            + (blindCount > 0 ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(245,158,11,0.12); color:#f59e0b; font-weight:600;">' + bpIcon('privacy',10) + ' ' + blindCount + ' blind</span>' : '')
+                            + '</div>'
+                            + '<div style="font-size:0.82em; color:var(--text-secondary);">'
+                            + escapeHtml(r.company || '') + (r.company ? ' \u00B7 ' : '') + createdDate
+                            + '</div>'
+                            + '</div>'
+                            + '<div style="display:flex; align-items:center; gap:12px;">'
+                            + '<div style="text-align:center;">'
+                            + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Views</div>'
+                            + '<div style="font-size:1.2em; font-weight:800; color:var(--accent);">' + (r.viewCount || 0) + '</div>'
+                            + '</div>'
+                            + (r.matchScore ? '<div style="text-align:center;">'
+                            + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div>'
+                            + '<div style="font-size:1.2em; font-weight:800; color:' + scoreColor + ';">' + r.matchScore + '%</div>'
+                            + '</div>' : '')
+                            + '</div></div>';
+                        
+                        html += '<div style="margin-top:12px; display:flex; gap:6px; flex-wrap:wrap;">';
+                        if (isActive) {
+                            html += '<button onclick="copyPublishedLink(\'' + escapeHtml(r._id) + '\',\'' + escapeHtml(r.shareToken || '') + '\')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('external',11) + ' Copy Link</button>'
+                                + '<button onclick="viewPublishedReport(\'' + escapeHtml(r._id) + '\',\'' + escapeHtml(r.shareToken || '') + '\')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('eye',11) + ' Preview</button>'
+                                + '<button onclick="editPublishedPrivacy(' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('privacy',11) + ' Privacy</button>'
+                                + '<button onclick="refreshPublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('refresh',11) + ' Refresh</button>'
+                                + '<button onclick="revokePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(239,68,68,0.3); background:transparent; color:#ef4444; cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Revoke</button>';
+                        } else {
+                            html += '<button onclick="reactivatePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(16,185,129,0.3); background:transparent; color:#10b981; cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('check',11) + ' Re-activate</button>'
+                                + '<button onclick="deletePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(239,68,68,0.3); background:transparent; color:#ef4444; cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Delete</button>';
+                        }
+                        html += '</div></div>';
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                })
+                .catch(function(err) {
+                    console.error('Failed to load published reports:', err);
+                    container.innerHTML = '<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:0.85em;">Could not load published reports. ' + err.message + '</div>';
+                });
+        }
+        window.loadPublishedReports = loadPublishedReports;
+        
+        function copyPublishedLink(reportId, token) {
+            var shareUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/reports/view.html?id=' + reportId + '&token=' + token);
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl).then(function() {
+                    showToast('Link copied to clipboard!', 'success', 3000);
+                });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = shareUrl;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+                showToast('Link copied!', 'success', 3000);
+            }
+        }
+        window.copyPublishedLink = copyPublishedLink;
+        
+        function viewPublishedReport(reportId, token) {
+            var shareUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/reports/view.html?id=' + reportId + '&token=' + token);
+            window.open(shareUrl, '_blank');
+        }
+        window.viewPublishedReport = viewPublishedReport;
+        
+        function revokePublishedReport(reportId, idx) {
+            if (!confirm('Revoke this report? The shared link will stop working. You can re-activate it later.')) return;
+            if (!fbDb) { showToast('Firebase not available.', 'error'); return; }
+            fbDb.collection('reports').doc(reportId).update({ status: 'revoked' })
+                .then(function() {
+                    showToast('Report revoked. The shared link is now inactive.', 'success');
+                    if (window._publishedReports && window._publishedReports[idx]) window._publishedReports[idx].status = 'revoked';
+                    loadPublishedReports();
+                })
+                .catch(function(err) { showToast('Failed to revoke: ' + err.message, 'error'); });
+        }
+        window.revokePublishedReport = revokePublishedReport;
+        
+        function reactivatePublishedReport(reportId, idx) {
+            if (!fbDb) { showToast('Firebase not available.', 'error'); return; }
+            fbDb.collection('reports').doc(reportId).update({ status: 'active' })
+                .then(function() {
+                    showToast('Report re-activated! The shared link is live again.', 'success');
+                    if (window._publishedReports && window._publishedReports[idx]) window._publishedReports[idx].status = 'active';
+                    loadPublishedReports();
+                })
+                .catch(function(err) { showToast('Failed to re-activate: ' + err.message, 'error'); });
+        }
+        window.reactivatePublishedReport = reactivatePublishedReport;
+        
+        function deletePublishedReport(reportId, idx) {
+            if (!confirm('Permanently delete this report? This cannot be undone.')) return;
+            if (!fbDb) { showToast('Firebase not available.', 'error'); return; }
+            fbDb.collection('reports').doc(reportId).delete()
+                .then(function() {
+                    showToast('Report permanently deleted.', 'success');
+                    if (window._publishedReports) window._publishedReports.splice(idx, 1);
+                    loadPublishedReports();
+                })
+                .catch(function(err) { showToast('Failed to delete: ' + err.message, 'error'); });
+        }
+        window.deletePublishedReport = deletePublishedReport;
+        
+        function refreshPublishedReport(reportId, idx) {
+            if (!fbDb || !window._publishedReports) { showToast('Not ready.', 'error'); return; }
+            var pub = window._publishedReports[idx];
+            if (!pub) { showToast('Report not found.', 'error'); return; }
+            
+            var jobIdx = -1;
+            var savedJobs = userData.savedJobs || [];
+            for (var j = 0; j < savedJobs.length; j++) {
+                if (savedJobs[j] && savedJobs[j].title === pub.jobTitle && (savedJobs[j].company || '') === (pub.company || '')) {
+                    jobIdx = j;
+                    break;
+                }
+            }
+            
+            showToast('Refreshing report with current data\u2026', 'info', 2000);
+            var reportData = buildReportData(jobIdx);
+            if (!reportData) { showToast('Could not build report data.', 'error'); return; }
+            
+            var blindSettings = pub.blindSettings || {};
+            if (typeof applyBlindSettings === 'function') applyBlindSettings(reportData, blindSettings);
+            
+            fbDb.collection('reports').doc(reportId).update({
+                reportData: JSON.stringify(reportData),
+                candidateName: reportData.candidate.name,
+                matchScore: reportData.match.percentage,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(function() {
+                showToast('Report refreshed with your latest data!', 'success');
+                loadPublishedReports();
+            })
+            .catch(function(err) { showToast('Refresh failed: ' + err.message, 'error'); });
+        }
+        window.refreshPublishedReport = refreshPublishedReport;
+        
+        function editPublishedPrivacy(idx) {
+            if (!window._publishedReports) return;
+            var pub = window._publishedReports[idx];
+            if (!pub) return;
+            
+            var blind = pub.blindSettings || {};
+            var modal = document.getElementById('exportModal');
+            var modalContent = modal.querySelector('.modal-content');
+            
+            var blindFields = [
+                { key: 'identity', label: 'Identity', desc: 'Anonymize name and photo' },
+                { key: 'location', label: 'Location', desc: 'Hide city and state' },
+                { key: 'employer', label: 'Employer Names', desc: 'Replace company names with [Company]' },
+                { key: 'institution', label: 'Institutions', desc: 'Replace school names with [Institution]' },
+                { key: 'outcomes', label: 'Outcomes', desc: 'Abstract specific numbers and results' },
+                { key: 'compensation', label: 'Compensation', desc: 'Hide salary and comp data' }
+            ];
+            
+            var fieldsHTML = '';
+            blindFields.forEach(function(f) {
+                var isOn = !!blind[f.key];
+                fieldsHTML += '<div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--c-border-subtle);">'
+                    + '<div><div style="font-size:0.88em; font-weight:500;">' + f.label + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted);">' + f.desc + '</div></div>'
+                    + '<div class="rpt-toggle' + (isOn ? ' on' : '') + '" id="pubBlind_' + f.key + '" onclick="this.classList.toggle(\'on\')" style="flex-shrink:0;"></div>'
+                    + '</div>';
+            });
+            
+            modalContent.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('privacy',18) + ' Edit Privacy</h2></div>'
+                + '<button class="modal-close" aria-label="Close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<div style="padding:12px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:16px;">'
+                + '<div style="font-weight:600;">' + escapeHtml(pub.jobTitle || 'Untitled') + '</div>'
+                + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(pub.company || '') + '</div>'
+                + '</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:12px;">Toggle which fields are blinded on the live published report:</div>'
+                + fieldsHTML
+                + '<div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">'
+                + '<button onclick="closeExportModal()" style="padding:8px 18px; border-radius:8px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-secondary); cursor:pointer;">Cancel</button>'
+                + '<button onclick="savePublishedPrivacy(' + idx + ')" style="padding:8px 18px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;">Save & Re-publish</button>'
+                + '</div></div>';
+            
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
+        }
+        window.editPublishedPrivacy = editPublishedPrivacy;
+        
+        function savePublishedPrivacy(idx) {
+            var pub = window._publishedReports && window._publishedReports[idx];
+            if (!pub || !fbDb) return;
+            
+            var newBlind = {};
+            ['identity', 'location', 'employer', 'institution', 'outcomes', 'compensation'].forEach(function(k) {
+                var toggle = document.getElementById('pubBlind_' + k);
+                newBlind[k] = toggle ? toggle.classList.contains('on') : false;
+            });
+            
+            showToast('Updating privacy and re-publishing\u2026', 'info', 2000);
+            
+            var reportDataStr = pub.reportData || '{}';
+            var reportData;
+            try { reportData = JSON.parse(reportDataStr); } catch(e) { showToast('Report data corrupted.', 'error'); return; }
+            
+            if (typeof applyBlindSettings === 'function') applyBlindSettings(reportData, newBlind);
+            
+            fbDb.collection('reports').doc(pub._id).update({
+                reportData: JSON.stringify(reportData),
+                blindSettings: newBlind,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(function() {
+                showToast('Privacy updated and report re-published!', 'success');
+                closeExportModal();
+                pub.blindSettings = newBlind;
+                loadPublishedReports();
+            })
+            .catch(function(err) { showToast('Save failed: ' + err.message, 'error'); });
+        }
+        window.savePublishedPrivacy = savePublishedPrivacy;
         
         // Open sample scouting report in an iframe overlay
         function openSampleScoutingReport() {
