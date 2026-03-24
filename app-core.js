@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.18';
+        var BP_VERSION = 'v4.47.19';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33990,15 +33990,9 @@ body {
         }
 
         
-        function exportBlueprint(format) {
-            if (showcaseExportGuard()) return;
-            if (isReadOnlyProfile) {
-                demoGate('export your Blueprint');
-                return;
-            }
-            logAnalyticsEvent('export_' + format, { format: format });
+        function _gatherExportData() {
             var _ud = window._userData || userData;
-            var sharedData = {
+            return {
                 profile: _ud.profile || {},
                 outcomes: blueprintData.outcomes || [],
                 values: blueprintData.values || [],
@@ -34019,20 +34013,686 @@ body {
                 exportedFor: (_ud.profile || {}).name || 'backup',
                 version: BP_VERSION
             };
-            
+        }
+
+        function showPdfSectionPicker() {
+            var _ud = window._userData || userData;
+            var skills = skillsData.skills || [];
+            var outcomes = blueprintData.outcomes || [];
+            var values = blueprintData.values || [];
+            var workHistory = _ud.workHistory || [];
+            var education = _ud.education || [];
+            var certifications = _ud.certifications || [];
+            var linkedinContent = _ud.linkedinContent || {};
+            var articles = (linkedinContent.articles || []);
+            var recommendations = (linkedinContent.recommendations || []);
+            var comp = typeof getEffectiveComp === 'function' ? getEffectiveComp() : null;
+
+            var sections = [
+                { id: 'summary', label: 'Executive Summary', desc: 'Professional headline and purpose statement', checked: true, locked: true },
+                { id: 'workHistory', label: 'Work History', desc: workHistory.length + ' positions', checked: true, count: workHistory.length },
+                { id: 'skills', label: 'Skills & Proficiency', desc: skills.length + ' skills across ' + (skillsData.roles || []).length + ' domains', checked: true, count: skills.length },
+                { id: 'outcomes', label: 'Selected Outcomes', desc: outcomes.length + ' documented outcomes', checked: true, count: outcomes.length },
+                { id: 'education', label: 'Education & Certifications', desc: education.length + ' degrees, ' + certifications.length + ' certifications', checked: true, count: education.length + certifications.length },
+                { id: 'values', label: 'Values & Purpose', desc: values.length + ' core values', checked: true, count: values.length },
+                { id: 'compensation', label: 'Compensation Model', desc: comp ? '$' + Math.round(comp.marketRate || 0).toLocaleString() + ' market rate' : 'Not available', checked: !!comp, count: comp ? 1 : 0 },
+                { id: 'recommendations', label: 'Recommendations', desc: recommendations.length + ' recommendations', checked: recommendations.length > 0, count: recommendations.length },
+                { id: 'articles', label: 'Published Content', desc: articles.length + ' articles', checked: articles.length > 0, count: articles.length },
+            ];
+
+            var compMarket = comp ? Math.round(comp.marketRate || 0) : 0;
+            var compConservative = comp ? Math.round(comp.conservativeOffer || comp.marketRate * 0.9 || 0) : 0;
+            var compCompetitive = comp ? Math.round(comp.competitiveOffer || comp.marketRate * 1.2 || 0) : 0;
+            var compSource = comp ? (comp.compSource || 'algorithm') : '';
+            var compLabel = comp ? (comp.compLabel || 'Market Estimate') : '';
+
+            var overlay = document.createElement('div');
+            overlay.id = 'pdfPickerOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
+            overlay.onclick = function(e) { if (e.target === overlay) { overlay.remove(); } };
+
+            var modal = document.createElement('div');
+            modal.style.cssText = 'background:var(--c-surface,#fff);border-radius:16px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3);';
+
+            var headerHtml = '<div style="padding:24px 28px 16px;border-bottom:1px solid var(--c-border-subtle,#e5e7eb);">'
+                + '<div style="display:flex;align-items:center;justify-content:space-between;">'
+                + '<div>'
+                + '<div style="font-size:1.15em;font-weight:700;color:var(--c-text,#1f2937);">Export Executive Blueprint</div>'
+                + '<div style="font-size:0.82em;color:var(--text-muted,#6b7280);margin-top:4px;">Select sections to include in your PDF</div>'
+                + '</div>'
+                + '<button onclick="document.getElementById(\'pdfPickerOverlay\').remove()" style="background:none;border:none;font-size:1.4em;cursor:pointer;color:var(--text-muted,#6b7280);padding:4px 8px;">&times;</button>'
+                + '</div></div>';
+
+            var bodyHtml = '<div style="padding:16px 28px 8px;">';
+
+            sections.forEach(function(s) {
+                var disabled = s.locked ? ' style="opacity:0.5;pointer-events:none;"' : '';
+                var checkedAttr = s.checked ? ' checked' : '';
+                var countBadge = s.count !== undefined ? '<span style="font-size:0.75em;padding:2px 8px;border-radius:10px;background:var(--c-accent-bg-6c,#eff6ff);color:var(--c-accent,#3b82f6);margin-left:8px;">' + s.count + '</span>' : '';
+                bodyHtml += '<label style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--c-border-subtle,#f3f4f6);cursor:pointer;">'
+                    + '<input type="checkbox" id="pdf-sec-' + s.id + '" ' + checkedAttr + (s.locked ? ' disabled' : '') + ' style="margin-top:3px;accent-color:#3b82f6;width:18px;height:18px;flex-shrink:0;">'
+                    + '<div style="flex:1;min-width:0;">'
+                    + '<div style="font-weight:600;font-size:0.92em;color:var(--c-text,#1f2937);">' + s.label + countBadge + '</div>'
+                    + '<div style="font-size:0.8em;color:var(--text-muted,#6b7280);margin-top:2px;">' + s.desc + '</div>'
+                    + '</div></label>';
+            });
+
+            bodyHtml += '</div>';
+
+            var compHtml = '';
+            if (comp) {
+                compHtml = '<div id="pdfCompEditor" style="padding:0 28px 16px;">'
+                    + '<div style="font-size:0.82em;font-weight:600;color:var(--c-text,#1f2937);margin-bottom:8px;">Compensation Values (editable)</div>'
+                    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">'
+                    + '<div><label style="font-size:0.72em;color:var(--text-muted,#6b7280);display:block;margin-bottom:3px;">Conservative</label>'
+                    + '<input type="number" id="pdf-comp-cons" value="' + compConservative + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid,#d1d5db);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text,#1f2937);"></div>'
+                    + '<div><label style="font-size:0.72em;color:var(--text-muted,#6b7280);display:block;margin-bottom:3px;">Market Rate</label>'
+                    + '<input type="number" id="pdf-comp-market" value="' + compMarket + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid,#d1d5db);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text,#1f2937);"></div>'
+                    + '<div><label style="font-size:0.72em;color:var(--text-muted,#6b7280);display:block;margin-bottom:3px;">Competitive</label>'
+                    + '<input type="number" id="pdf-comp-comp" value="' + compCompetitive + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid,#d1d5db);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text,#1f2937);"></div>'
+                    + '</div>'
+                    + '<div style="font-size:0.7em;color:var(--text-muted,#9ca3af);margin-top:6px;">Source: ' + compLabel + ' &middot; Adjust values before export</div>'
+                    + '</div>';
+            }
+
+            var footerHtml = '<div style="padding:16px 28px 24px;border-top:1px solid var(--c-border-subtle,#e5e7eb);display:flex;gap:12px;justify-content:flex-end;">'
+                + '<button onclick="document.getElementById(\'pdfPickerOverlay\').remove()" style="padding:10px 20px;border:1px solid var(--c-border-mid,#d1d5db);background:transparent;border-radius:10px;cursor:pointer;font-size:0.88em;color:var(--text-muted,#6b7280);">Cancel</button>'
+                + '<button onclick="executePdfExport()" style="padding:10px 24px;background:#1e40af;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:0.88em;font-weight:600;">Generate PDF</button>'
+                + '</div>';
+
+            modal.innerHTML = headerHtml + bodyHtml + compHtml + footerHtml;
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            var compCheck = document.getElementById('pdf-sec-compensation');
+            if (compCheck) {
+                compCheck.addEventListener('change', function() {
+                    var editor = document.getElementById('pdfCompEditor');
+                    if (editor) editor.style.display = this.checked ? '' : 'none';
+                });
+            }
+        }
+        window.showPdfSectionPicker = showPdfSectionPicker;
+
+        function executePdfExport() {
+            var sections = {};
+            ['summary','workHistory','skills','outcomes','education','values','compensation','recommendations','articles'].forEach(function(id) {
+                var cb = document.getElementById('pdf-sec-' + id);
+                sections[id] = cb ? cb.checked : false;
+            });
+
+            var compOverrides = null;
+            if (sections.compensation) {
+                var consEl = document.getElementById('pdf-comp-cons');
+                var marketEl = document.getElementById('pdf-comp-market');
+                var compEl = document.getElementById('pdf-comp-comp');
+                compOverrides = {
+                    conservativeOffer: consEl ? parseInt(consEl.value) || 0 : 0,
+                    marketRate: marketEl ? parseInt(marketEl.value) || 0 : 0,
+                    competitiveOffer: compEl ? parseInt(compEl.value) || 0 : 0
+                };
+            }
+
+            var overlay = document.getElementById('pdfPickerOverlay');
+            if (overlay) overlay.remove();
+
+            var data = _gatherExportData();
+            generateExecutivePDF(data, sections, compOverrides);
+        }
+        window.executePdfExport = executePdfExport;
+
+        function generateExecutivePDF(data, sections, compOverrides) {
+            if (showcaseExportGuard()) return;
+            var jsPDF = window.jspdf.jsPDF;
+            var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            var pw = doc.internal.pageSize.getWidth();
+            var ph = doc.internal.pageSize.getHeight();
+            var m = 18;
+            var mw = pw - m * 2;
+            var yPos = 0;
+            var pageNum = 0;
+
+            var _ud = window._userData || userData;
+            var name = (data.profile.name) || 'Blueprint';
+            var title = (data.profile.currentTitle) || '';
+            var loc = (data.profile.location) || '';
+            var email = (data.profile.email) || '';
+            var phone = (data.profile.phone) || '';
+            var linkedin = (data.profile.linkedin || data.profile.linkedinUrl) || '';
+            var purpose = data.purpose || '';
+            var skills = data.skills || [];
+            var roles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (data.roles || []);
+            var outcomes = (data.outcomes || []).filter(function(o) { return o.shared !== false; });
+            var values = data.values || [];
+            var workHistory = data.workHistory || [];
+            var education = data.education || [];
+            var certifications = data.certifications || [];
+            var linkedinContent = data.linkedinContent || {};
+            var recommendations = linkedinContent.recommendations || [];
+            var articles = linkedinContent.articles || [];
+
+            var C = {
+                brand: [30, 64, 175],
+                accent: [96, 165, 250],
+                dark: [15, 23, 42],
+                text: [30, 41, 59],
+                textLight: [100, 116, 139],
+                textMuted: [148, 163, 184],
+                green: [16, 185, 129],
+                amber: [245, 158, 11],
+                purple: [129, 140, 248],
+                bgLight: [248, 250, 252],
+                border: [226, 232, 240],
+                white: [255, 255, 255]
+            };
+
+            function setColor(c) { doc.setTextColor(c[0], c[1], c[2]); }
+            function setFill(c) { doc.setFillColor(c[0], c[1], c[2]); }
+            function setDraw(c) { doc.setDrawColor(c[0], c[1], c[2]); }
+
+            function checkPage(need) { if (yPos + need > ph - 20) newPage(); }
+            function newPage() {
+                if (pageNum > 0) {
+                    doc.setFontSize(7);
+                    setColor(C.textMuted);
+                    doc.text(name + ' \u2022 Blueprint\u2122', m, ph - 8);
+                    doc.text('Page ' + pageNum, pw - m, ph - 8, { align: 'right' });
+                }
+                doc.addPage();
+                pageNum++;
+                yPos = 22;
+            }
+
+            function sectionTitle(text) {
+                checkPage(16);
+                setFill(C.brand);
+                doc.rect(m, yPos, 3, 8, 'F');
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                setColor(C.dark);
+                doc.text(text, m + 7, yPos + 6);
+                doc.setFont(undefined, 'normal');
+                yPos += 14;
+            }
+
+            function divider() {
+                setDraw(C.border);
+                doc.setLineWidth(0.3);
+                doc.line(m, yPos, pw - m, yPos);
+                yPos += 6;
+            }
+
+            pageNum = 1;
+
+            // ── HEADER ──
+            setFill(C.dark);
+            doc.rect(0, 0, pw, 52, 'F');
+            setFill(C.brand);
+            doc.rect(0, 52, pw, 1.5, 'F');
+
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(255, 255, 255);
+            doc.text(name, m, 22);
+
+            if (title) {
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(180, 200, 230);
+                doc.text(title, m, 30);
+            }
+
+            var contactParts = [];
+            if (loc) contactParts.push(loc);
+            if (email) contactParts.push(email);
+            if (phone) contactParts.push(phone);
+            if (contactParts.length > 0) {
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text(contactParts.join('  \u2022  '), m, 38);
+            }
+
+            if (linkedin) {
+                doc.setFontSize(7.5);
+                doc.setTextColor(96, 165, 250);
+                var liText = linkedin.replace(/https?:\/\/(www\.)?/,'').replace(/\/$/,'');
+                doc.text(liText, m, 44);
+            }
+
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(96, 165, 250);
+            doc.text('BLUEPRINT\u2122', pw - m, 22, { align: 'right' });
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(148, 163, 184);
+            doc.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), pw - m, 28, { align: 'right' });
+
+            yPos = 62;
+
+            // ── EXECUTIVE SUMMARY ──
+            if (sections.summary) {
+                var statParts = [];
+                statParts.push(skills.length + ' Skills');
+                statParts.push(roles.length + ' Domains');
+                var masteryCount = skills.filter(function(s) { return s.level === 'Mastery' || s.level === 'Expert'; }).length;
+                if (masteryCount > 0) statParts.push(masteryCount + ' Expert+');
+                if (outcomes.length > 0) statParts.push(outcomes.length + ' Outcomes');
+
+                setFill(C.bgLight);
+                doc.roundedRect(m, yPos, mw, 22, 2, 2, 'F');
+                doc.setFontSize(8);
+                doc.setFont(undefined, 'bold');
+                setColor(C.brand);
+                doc.text(statParts.join('   \u2022   '), m + 6, yPos + 8);
+
+                if (purpose) {
+                    doc.setFont(undefined, 'normal');
+                    doc.setFontSize(8);
+                    setColor(C.text);
+                    var purpLines = doc.splitTextToSize('"' + purpose + '"', mw - 12);
+                    doc.text(purpLines.slice(0, 2), m + 6, yPos + 14);
+                }
+                yPos += 28;
+            }
+
+            // ── WORK HISTORY ──
+            if (sections.workHistory && workHistory.length > 0) {
+                sectionTitle('Professional Experience');
+                workHistory.slice(0, 8).forEach(function(w) {
+                    checkPage(24);
+                    var wTitle = w.title || w.role || '';
+                    var wCompany = w.company || w.organization || '';
+                    var wDates = w.dates || w.years || '';
+                    if (!wDates) {
+                        var st = w.startYear || (w.startDate ? w.startDate.split('-')[0] : '');
+                        var en = w.current ? 'Present' : (w.endYear || (w.endDate === 'Present' ? 'Present' : (w.endDate ? w.endDate.split('-')[0] : '')));
+                        if (st || en) wDates = [st, en].filter(Boolean).join(' \u2013 ');
+                    }
+
+                    doc.setFontSize(9.5);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.dark);
+                    doc.text(wTitle, m, yPos);
+                    doc.setFont(undefined, 'normal');
+                    doc.setFontSize(8.5);
+                    setColor(C.brand);
+                    doc.text(wCompany, m, yPos + 5);
+                    doc.setFontSize(7.5);
+                    setColor(C.textMuted);
+                    doc.text(wDates, pw - m, yPos, { align: 'right' });
+
+                    if (w.description) {
+                        doc.setFontSize(8);
+                        setColor(C.text);
+                        var descLines = doc.splitTextToSize(w.description, mw - 4);
+                        doc.text(descLines.slice(0, 3), m + 2, yPos + 10);
+                        yPos += 10 + Math.min(descLines.length, 3) * 3.8;
+                    } else {
+                        yPos += 8;
+                    }
+                    yPos += 6;
+                });
+                divider();
+            }
+
+            // ── SKILLS & PROFICIENCY ──
+            if (sections.skills && skills.length > 0) {
+                sectionTitle('Skills & Proficiency');
+
+                var levelOrder = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Novice'];
+                var levelColors = {
+                    'Mastery': C.green,
+                    'Expert': C.amber,
+                    'Advanced': C.purple,
+                    'Proficient': C.accent,
+                    'Novice': C.textMuted
+                };
+
+                var roleGroups = {};
+                roles.forEach(function(r) { roleGroups[r.id] = { name: r.name, skills: [] }; });
+                skills.forEach(function(sk) {
+                    var rid = (sk.roles && sk.roles[0]) || 'other';
+                    if (roleGroups[rid]) roleGroups[rid].skills.push(sk);
+                    else {
+                        var placed = false;
+                        (sk.roles || []).forEach(function(r) { if (!placed && roleGroups[r]) { roleGroups[r].skills.push(sk); placed = true; } });
+                        if (!placed) {
+                            var fk = Object.keys(roleGroups)[0];
+                            if (fk) roleGroups[fk].skills.push(sk);
+                        }
+                    }
+                });
+
+                Object.keys(roleGroups).forEach(function(rid) {
+                    var grp = roleGroups[rid];
+                    if (grp.skills.length === 0) return;
+                    checkPage(14);
+
+                    doc.setFontSize(9);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.dark);
+                    doc.text(grp.name + ' (' + grp.skills.length + ')', m, yPos);
+                    yPos += 5;
+
+                    grp.skills.sort(function(a, b) { return levelOrder.indexOf(a.level || 'Proficient') - levelOrder.indexOf(b.level || 'Proficient'); });
+
+                    var colW = mw / 3;
+                    var col = 0;
+                    var startY = yPos;
+                    grp.skills.forEach(function(sk) {
+                        var cx = m + col * colW;
+                        var cy = yPos;
+                        if (cy + 5 > ph - 22) return;
+
+                        var lc = levelColors[sk.level || 'Proficient'] || C.textMuted;
+                        setFill(lc);
+                        doc.circle(cx + 2, cy + 1.5, 1.2, 'F');
+
+                        doc.setFontSize(7.5);
+                        doc.setFont(undefined, 'normal');
+                        setColor(C.text);
+                        var skName = sk.name.length > 24 ? sk.name.slice(0, 22) + '\u2026' : sk.name;
+                        doc.text(skName, cx + 5, cy + 2.5);
+
+                        doc.setFontSize(6);
+                        setColor(C.textMuted);
+                        doc.text(sk.level || 'Proficient', cx + colW - 4, cy + 2.5, { align: 'right' });
+
+                        col++;
+                        if (col >= 3) { col = 0; yPos += 5.5; }
+                    });
+                    if (col > 0) yPos += 5.5;
+                    yPos += 4;
+                });
+
+                doc.setFontSize(6.5);
+                setColor(C.textMuted);
+                var legendY = yPos;
+                var legendX = m;
+                levelOrder.forEach(function(lv) {
+                    var lc = levelColors[lv] || C.textMuted;
+                    setFill(lc);
+                    doc.circle(legendX + 1.5, legendY + 1, 1.2, 'F');
+                    doc.text(lv, legendX + 4, legendY + 2);
+                    legendX += 28;
+                });
+                yPos += 8;
+                divider();
+            }
+
+            // ── OUTCOMES ──
+            if (sections.outcomes && outcomes.length > 0) {
+                sectionTitle('Selected Outcomes');
+                outcomes.slice(0, 10).forEach(function(o, i) {
+                    checkPage(12);
+                    var txt = o.text || o.outcome || '';
+                    if (!txt) return;
+
+                    setFill(C.bgLight);
+                    doc.circle(m + 2, yPos + 2, 1.5, 'F');
+                    doc.setFontSize(6.5);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.brand);
+                    doc.text(String(i + 1), m + 0.8, yPos + 3);
+
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'normal');
+                    setColor(C.text);
+                    var oLines = doc.splitTextToSize(txt, mw - 10);
+                    doc.text(oLines.slice(0, 2), m + 7, yPos + 2.5);
+                    yPos += Math.min(oLines.length, 2) * 3.8 + 5;
+                });
+                divider();
+            }
+
+            // ── EDUCATION & CERTIFICATIONS ──
+            if (sections.education) {
+                if (education.length > 0 || certifications.length > 0) {
+                    sectionTitle('Education & Certifications');
+
+                    education.forEach(function(e) {
+                        checkPage(12);
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'bold');
+                        setColor(C.dark);
+                        doc.text(e.institution || e.name || '', m, yPos);
+                        doc.setFont(undefined, 'normal');
+                        doc.setFontSize(8);
+                        setColor(C.text);
+                        var degField = (e.degree || '') + (e.field ? ' \u2014 ' + e.field : '');
+                        if (degField) doc.text(degField, m, yPos + 5);
+                        doc.setFontSize(7.5);
+                        setColor(C.textMuted);
+                        doc.text(e.dates || e.year || '', pw - m, yPos, { align: 'right' });
+                        yPos += degField ? 12 : 8;
+                    });
+
+                    if (certifications.length > 0) {
+                        checkPage(10);
+                        doc.setFontSize(8.5);
+                        doc.setFont(undefined, 'bold');
+                        setColor(C.dark);
+                        doc.text('Certifications', m, yPos);
+                        yPos += 5;
+                        certifications.forEach(function(c) {
+                            checkPage(6);
+                            doc.setFontSize(7.5);
+                            doc.setFont(undefined, 'normal');
+                            setColor(C.text);
+                            doc.text('\u2022  ' + (c.name || ''), m + 2, yPos);
+                            if (c.issuer) {
+                                doc.setFontSize(7);
+                                setColor(C.textMuted);
+                                doc.text(c.issuer, m + mw * 0.6, yPos);
+                            }
+                            yPos += 4.5;
+                        });
+                    }
+                    divider();
+                }
+            }
+
+            // ── VALUES ──
+            if (sections.values && values.length > 0) {
+                sectionTitle('Values & Purpose');
+                if (purpose) {
+                    doc.setFontSize(8.5);
+                    doc.setFont(undefined, 'italic');
+                    setColor(C.text);
+                    var pLines = doc.splitTextToSize('"' + purpose + '"', mw - 8);
+                    doc.text(pLines.slice(0, 3), m + 4, yPos);
+                    yPos += Math.min(pLines.length, 3) * 4 + 6;
+                    doc.setFont(undefined, 'normal');
+                }
+
+                var colW2 = mw / 3;
+                var col2 = 0;
+                values.forEach(function(v) {
+                    checkPage(6);
+                    var cx2 = m + col2 * colW2;
+                    setFill(C.brand);
+                    doc.circle(cx2 + 2, yPos + 1.5, 1, 'F');
+                    doc.setFontSize(8);
+                    setColor(C.dark);
+                    doc.text(v.name || v, cx2 + 5, yPos + 2.5);
+                    col2++;
+                    if (col2 >= 3) { col2 = 0; yPos += 6; }
+                });
+                if (col2 > 0) yPos += 6;
+                yPos += 4;
+                divider();
+            }
+
+            // ── COMPENSATION ──
+            if (sections.compensation && compOverrides) {
+                sectionTitle('Compensation Framework');
+                var comp2 = typeof getEffectiveComp === 'function' ? getEffectiveComp() : null;
+                var cCons = compOverrides.conservativeOffer;
+                var cMarket = compOverrides.marketRate;
+                var cComp = compOverrides.competitiveOffer;
+                var cSrc = comp2 ? (comp2.compLabel || 'Market Estimate') : 'Blueprint Estimate';
+                var cLevel = comp2 ? (comp2.roleLevel || '') : '';
+
+                checkPage(40);
+
+                setFill(C.bgLight);
+                setDraw(C.border);
+                doc.setLineWidth(0.3);
+                doc.roundedRect(m, yPos, mw, 34, 2, 2, 'FD');
+
+                var thirdW = mw / 3;
+                var tiers = [
+                    { label: 'CONSERVATIVE', val: cCons, color: C.green },
+                    { label: 'MARKET RATE', val: cMarket, color: C.brand },
+                    { label: 'COMPETITIVE', val: cComp, color: C.purple }
+                ];
+
+                tiers.forEach(function(t, i) {
+                    var tx = m + i * thirdW + thirdW / 2;
+                    doc.setFontSize(6.5);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.textMuted);
+                    doc.text(t.label, tx, yPos + 8, { align: 'center' });
+                    doc.setFontSize(16);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(t.color[0], t.color[1], t.color[2]);
+                    doc.text('$' + t.val.toLocaleString(), tx, yPos + 19, { align: 'center' });
+                });
+
+                doc.setFontSize(7);
+                doc.setFont(undefined, 'normal');
+                setColor(C.textMuted);
+                doc.text('Source: ' + cSrc + (cLevel ? '  \u2022  Level: ' + cLevel : ''), m + 6, yPos + 29);
+                yPos += 40;
+
+                var barY = yPos;
+                var barH = 6;
+                var range = cComp - cCons;
+                if (range > 0) {
+                    setFill([226, 232, 240]);
+                    doc.roundedRect(m, barY, mw, barH, 2, 2, 'F');
+
+                    var gradStops = [C.green, C.brand, C.purple];
+                    var segW = mw / 3;
+                    gradStops.forEach(function(gc, gi) {
+                        setFill(gc);
+                        var sx = m + gi * segW;
+                        doc.rect(sx, barY, segW, barH, 'F');
+                    });
+                    doc.setFillColor(255, 255, 255);
+                    doc.roundedRect(m - 0.5, barY - 0.5, mw + 1, barH + 1, 2, 2, 'S');
+
+                    var marketPos = m + ((cMarket - cCons) / range) * mw;
+                    setFill(C.white);
+                    setDraw(C.brand);
+                    doc.setLineWidth(1);
+                    doc.circle(marketPos, barY + barH / 2, 3.5, 'FD');
+                    doc.setLineWidth(0.3);
+                }
+                yPos = barY + barH + 10;
+                divider();
+            }
+
+            // ── RECOMMENDATIONS ──
+            if (sections.recommendations && recommendations.length > 0) {
+                sectionTitle('Recommendations');
+                recommendations.slice(0, 5).forEach(function(rec) {
+                    checkPage(20);
+                    var txt = rec.text || rec.recommendation || rec;
+                    if (typeof txt !== 'string') return;
+
+                    setFill(C.bgLight);
+                    doc.roundedRect(m, yPos, mw, 4, 1, 1, 'F');
+
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, 'italic');
+                    setColor(C.text);
+                    var rLines = doc.splitTextToSize('"' + txt + '"', mw - 12);
+                    doc.text(rLines.slice(0, 4), m + 4, yPos + 6);
+                    yPos += Math.min(rLines.length, 4) * 3.8 + 4;
+
+                    if (rec.author || rec.name) {
+                        doc.setFont(undefined, 'normal');
+                        doc.setFontSize(7);
+                        setColor(C.textMuted);
+                        var author = rec.author || rec.name || '';
+                        if (rec.title || rec.position) author += ' \u2014 ' + (rec.title || rec.position);
+                        doc.text(author, m + 4, yPos);
+                        yPos += 4;
+                    }
+                    yPos += 6;
+                });
+                divider();
+            }
+
+            // ── ARTICLES ──
+            if (sections.articles && articles.length > 0) {
+                sectionTitle('Published Content');
+                articles.slice(0, 8).forEach(function(art) {
+                    checkPage(10);
+                    doc.setFontSize(8.5);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.dark);
+                    var artTitle = (art.title || '').length > 70 ? art.title.slice(0, 68) + '\u2026' : (art.title || '');
+                    doc.text(artTitle, m, yPos);
+                    doc.setFont(undefined, 'normal');
+
+                    if (art.date || art.publishedDate) {
+                        doc.setFontSize(7);
+                        setColor(C.textMuted);
+                        doc.text(art.date || art.publishedDate || '', pw - m, yPos, { align: 'right' });
+                    }
+                    yPos += 6;
+                });
+                divider();
+            }
+
+            // ── FOOTER ON LAST PAGE ──
+            doc.setFontSize(7);
+            setColor(C.textMuted);
+            doc.text(name + ' \u2022 Blueprint\u2122', m, ph - 8);
+            doc.text('Page ' + pageNum, pw - m, ph - 8, { align: 'right' });
+
+            yPos = ph - 28;
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'bold');
+            setColor(C.brand);
+            doc.text('BLUEPRINT\u2122', pw / 2, yPos, { align: 'center' });
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(7);
+            setColor(C.textMuted);
+            doc.text('Career Intelligence Platform  \u2022  myblueprint.work', pw / 2, yPos + 5, { align: 'center' });
+
+            var safeName = name.replace(/\s+/g, '-').toLowerCase();
+            doc.save('blueprint-' + safeName + '.pdf');
+            showToast('Executive Blueprint PDF downloaded.', 'success');
+            logAnalyticsEvent('pdf_export_executive', { sections: Object.keys(sections).filter(function(k) { return sections[k]; }).join(',') });
+        }
+
+        function exportBlueprint(format) {
+            if (showcaseExportGuard()) return;
+            if (isReadOnlyProfile) {
+                demoGate('export your Blueprint');
+                return;
+            }
+            logAnalyticsEvent('export_' + format, { format: format });
+
             if (format === 'json') {
-                var dataStr = JSON.stringify(sharedData, null, 2);
+                var data = _gatherExportData();
+                var dataStr = JSON.stringify(data, null, 2);
                 var dataBlob = new Blob([dataStr], {type: 'application/json'});
                 var url = URL.createObjectURL(dataBlob);
                 var link = document.createElement('a');
                 link.href = url;
+                var _ud = window._userData || userData;
                 var safeName = ((_ud.profile && _ud.profile.name) || 'profile').replace(/\s+/g, '-').toLowerCase();
                 link.download = 'blueprint-' + safeName + '.json';
                 link.click();
                 URL.revokeObjectURL(url);
                 showToast('JSON exported. Use this for backups or data portability.', 'success');
             } else if (format === 'pdf') {
-                generatePDF(sharedData);
+                showPdfSectionPicker();
             }
         }
         
