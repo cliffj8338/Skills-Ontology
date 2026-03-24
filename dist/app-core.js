@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.19';
+        var BP_VERSION = 'v4.47.20';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -30801,7 +30801,7 @@ body {
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">';
             
             // Executive Blueprint (hero)
-            html += '<div style="grid-column:1/-1; background:linear-gradient(135deg, rgba(30,64,175,0.15), rgba(96,165,250,0.1)); border:2px solid var(--c-accent-border-5); border-radius:12px; padding:24px; cursor:pointer;" onclick="generateWorkBlueprint()">'
+            html += '<div style="grid-column:1/-1; background:linear-gradient(135deg, rgba(30,64,175,0.15), rgba(96,165,250,0.1)); border:2px solid var(--c-accent-border-5); border-radius:12px; padding:24px;">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
                 + '<span style="color:var(--accent);">' + bpIcon('compass',28) + '</span>'
                 + '<div>'
@@ -30812,9 +30812,8 @@ body {
                 + 'Standalone HTML document with editorial design. Includes executive summary, top competencies, strategic outcomes, values, compensation framework, and career narrative.'
                 + '</div>'
                 + '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">'
-                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:var(--c-green-bg-5b); color:#10b981;">HTML</span>'
-                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:var(--c-accent-bg-6c); color:#60a5fa;">Print to PDF</span>'
-                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:var(--c-amber-bg-5b); color:#f59e0b;">Email Attachment</span>'
+                + '<button onclick="generateWorkBlueprint()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-green-bg-5b); color:#10b981; border:1px solid rgba(16,185,129,0.3); cursor:pointer; font-weight:600;">HTML</button>'
+                + '<button onclick="showPdfSectionPicker()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-accent-bg-6c); color:#60a5fa; border:1px solid rgba(96,165,250,0.3); cursor:pointer; font-weight:600;">' + bpIcon('pdf',12) + ' Export PDF</button>'
                 + '</div></div>';
             
             // Scouting Report
@@ -34028,16 +34027,23 @@ body {
             var recommendations = (linkedinContent.recommendations || []);
             var comp = typeof getEffectiveComp === 'function' ? getEffectiveComp() : null;
 
+            var sharedRecs = recommendations.filter(function(r) { return r.shared !== false; });
+            var sharedArts = articles.filter(function(a) { return a.shared !== false; });
+            var sharedOutcomes = outcomes.filter(function(o) { return o.shared !== false; });
+            var purposeText = blueprintData.purpose || (_ud.profile && _ud.profile.purpose) || '';
+
             var sections = [
-                { id: 'summary', label: 'Executive Summary', desc: 'Professional headline and purpose statement', checked: true, locked: true },
+                { id: 'summary', label: 'Executive Summary', desc: 'Professional headline and contact info', checked: true, locked: true },
+                { id: 'purpose', label: 'Purpose Statement', desc: purposeText ? purposeText.slice(0, 60) + (purposeText.length > 60 ? '\u2026' : '') : 'Not set', checked: !!purposeText, count: purposeText ? 1 : 0 },
                 { id: 'workHistory', label: 'Work History', desc: workHistory.length + ' positions', checked: true, count: workHistory.length },
                 { id: 'skills', label: 'Skills & Proficiency', desc: skills.length + ' skills across ' + (skillsData.roles || []).length + ' domains', checked: true, count: skills.length },
-                { id: 'outcomes', label: 'Selected Outcomes', desc: outcomes.length + ' documented outcomes', checked: true, count: outcomes.length },
+                { id: 'evidence', label: 'Demonstrated Experience', desc: 'Evidence items attached to skills', checked: false },
+                { id: 'outcomes', label: 'Selected Outcomes', desc: sharedOutcomes.length + ' shared outcomes', checked: sharedOutcomes.length > 0, count: sharedOutcomes.length },
                 { id: 'education', label: 'Education & Certifications', desc: education.length + ' degrees, ' + certifications.length + ' certifications', checked: true, count: education.length + certifications.length },
-                { id: 'values', label: 'Values & Purpose', desc: values.length + ' core values', checked: true, count: values.length },
+                { id: 'values', label: 'Values & Purpose', desc: values.length + ' core values', checked: values.length > 0, count: values.length },
                 { id: 'compensation', label: 'Compensation Model', desc: comp ? '$' + Math.round(comp.marketRate || 0).toLocaleString() + ' market rate' : 'Not available', checked: !!comp, count: comp ? 1 : 0 },
-                { id: 'recommendations', label: 'Recommendations', desc: recommendations.length + ' recommendations', checked: recommendations.length > 0, count: recommendations.length },
-                { id: 'articles', label: 'Published Content', desc: articles.length + ' articles', checked: articles.length > 0, count: articles.length },
+                { id: 'recommendations', label: 'Recommendations', desc: sharedRecs.length + ' selected (from Content tab)', checked: sharedRecs.length > 0, count: sharedRecs.length },
+                { id: 'articles', label: 'Published Content', desc: sharedArts.length + ' selected articles', checked: sharedArts.length > 0, count: sharedArts.length },
             ];
 
             var compMarket = comp ? Math.round(comp.marketRate || 0) : 0;
@@ -34116,7 +34122,7 @@ body {
 
         function executePdfExport() {
             var sections = {};
-            ['summary','workHistory','skills','outcomes','education','values','compensation','recommendations','articles'].forEach(function(id) {
+            ['summary','purpose','workHistory','skills','evidence','outcomes','education','values','compensation','recommendations','articles'].forEach(function(id) {
                 var cb = document.getElementById('pdf-sec-' + id);
                 sections[id] = cb ? cb.checked : false;
             });
@@ -34168,8 +34174,8 @@ body {
             var education = data.education || [];
             var certifications = data.certifications || [];
             var linkedinContent = data.linkedinContent || {};
-            var recommendations = linkedinContent.recommendations || [];
-            var articles = linkedinContent.articles || [];
+            var recommendations = (linkedinContent.recommendations || []).filter(function(r) { return r.shared !== false; });
+            var articles = (linkedinContent.articles || []).filter(function(a) { return a.shared !== false; });
 
             var C = {
                 brand: [30, 64, 175],
@@ -34296,6 +34302,21 @@ body {
                 yPos += 28;
             }
 
+            // ── PURPOSE STATEMENT (standalone section) ──
+            if (sections.purpose && purpose) {
+                sectionTitle('Purpose Statement');
+                setFill(C.bgLight);
+                doc.roundedRect(m, yPos, mw, 4, 1, 1, 'F');
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'italic');
+                setColor(C.text);
+                var purposeLines = doc.splitTextToSize('"' + purpose + '"', mw - 12);
+                doc.text(purposeLines.slice(0, 4), m + 6, yPos + 6);
+                yPos += Math.min(purposeLines.length, 4) * 4 + 10;
+                doc.setFont(undefined, 'normal');
+                divider();
+            }
+
             // ── WORK HISTORY ──
             if (sections.workHistory && workHistory.length > 0) {
                 sectionTitle('Professional Experience');
@@ -34419,6 +34440,36 @@ body {
                 });
                 yPos += 8;
                 divider();
+            }
+
+            // ── DEMONSTRATED EXPERIENCE / EVIDENCE ──
+            if (sections.evidence && skills.length > 0) {
+                var evidenceItems = [];
+                skills.forEach(function(sk) {
+                    if (sk.evidence && sk.evidence.length > 0) {
+                        sk.evidence.forEach(function(ev) {
+                            evidenceItems.push({ skill: sk.name, text: ev.text || ev.description || ev, type: ev.type || 'experience' });
+                        });
+                    }
+                });
+                if (evidenceItems.length > 0) {
+                    sectionTitle('Demonstrated Experience');
+                    evidenceItems.slice(0, 15).forEach(function(ev) {
+                        checkPage(12);
+                        doc.setFontSize(7.5);
+                        doc.setFont(undefined, 'bold');
+                        setColor(C.brand);
+                        doc.text(ev.skill, m, yPos);
+                        doc.setFont(undefined, 'normal');
+                        doc.setFontSize(8);
+                        setColor(C.text);
+                        var evText = typeof ev.text === 'string' ? ev.text : '';
+                        var evLines = doc.splitTextToSize(evText, mw - 6);
+                        doc.text(evLines.slice(0, 2), m + 2, yPos + 4.5);
+                        yPos += Math.min(evLines.length, 2) * 3.8 + 7;
+                    });
+                    divider();
+                }
             }
 
             // ── OUTCOMES ──
