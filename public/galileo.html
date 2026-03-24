@@ -1067,8 +1067,10 @@
   .header-img-wrap img.hdr-dark,
   .header-img-wrap img.hdr-light {
     width: 100%;
+    max-width: 100%;
     height: auto;
     display: block;
+    object-fit: contain;
   }
   /* Light mode shows light image */
   body.light .header-img-wrap img.hdr-dark { display: none; }
