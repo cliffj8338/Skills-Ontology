@@ -592,14 +592,19 @@ function toggleTheme() {
 // ===== BLIND MODE =====
 let blindActive = false;
 const blindState = { identity:false, location:false, employer:false, institution:false, outcomes:false };
-const originals = { name:R.candidate.name, photo:R.candidate.photo, heroTitle:R.candidate.title, location:R.candidate.location, outcomes:[] };
-const blindOutcomes = R.outcomes.map(o => {
-    const vbSvg='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
-    let badge = '';
-    if(o.vf==='verified') badge=' <span class="vb">'+vbSvg+'Verified</span>';
-    else if(o.vf==='cert') badge=' <span class="vb cert">'+vbSvg+'Licensed Credential</span>';
-    return (o.blind||o.text) + badge;
-});
+let originals = { name:'', photo:'', heroTitle:'', location:'', outcomes:[] };
+let blindOutcomes = [];
+function initBlindData() {
+    if (!R || !R.candidate) return;
+    originals = { name:R.candidate.name, photo:R.candidate.photo, heroTitle:R.candidate.title, location:R.candidate.location, outcomes:[] };
+    blindOutcomes = (R.outcomes||[]).map(o => {
+        const vbSvg='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+        let badge = '';
+        if(o.vf==='verified') badge=' <span class="vb">'+vbSvg+'Verified</span>';
+        else if(o.vf==='cert') badge=' <span class="vb cert">'+vbSvg+'Licensed Credential</span>';
+        return (o.blind||o.text) + badge;
+    });
+}
 
 function toggleBlindPanel() { document.getElementById('blindPanel').classList.toggle('open'); }
 
@@ -792,7 +797,7 @@ function bootReport(data) {
     gapCount = GN.length;
     surplusCount = US.length - matchedCount;
     
-    hydrateFromData();initReport();renderSk();renderGaps();renderDom();initSN();initVN();
+    hydrateFromData();initReport();renderSk();renderGaps();renderDom();initSN();initVN();initBlindData();
     
     // Hide loader
     var loader = document.getElementById('reportLoader');
