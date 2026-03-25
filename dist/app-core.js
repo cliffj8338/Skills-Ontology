@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.23';
+        var BP_VERSION = 'v4.47.24';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -32311,13 +32311,22 @@ body {
             }
             
             // Narrative
-            var topMatched = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3);
-            var topSkillNames = topMatched.map(function(m) { return m.userSkill; }).join(', ');
-            var narrative = (profile.name || 'This candidate') + ' brings ';
-            if (topSkillNames) narrative += 'demonstrated expertise in ' + topSkillNames + ' \u2014 ';
-            narrative += matched.length + ' of ' + (matched.length + gaps.length) + ' required competencies are matched';
-            if (gaps.length > 0) narrative += ' with ' + gaps.length + ' gap' + (gaps.length !== 1 ? 's' : '') + ' identified in areas where adjacent skills suggest a bridgeable trajectory.';
-            else narrative += ' with no significant gaps identified.';
+            var narrative;
+            if (!job) {
+                var topLevelSkills = allSkills.filter(function(s) { return s.level === 'Mastery' || s.level === 'Expert'; }).slice(0, 4);
+                var topNames = topLevelSkills.map(function(s) { return s.name; }).join(', ');
+                narrative = (profile.name || 'This candidate') + ' brings ' + allSkills.length + ' documented competencies across ' + allRoles.length + ' professional domains';
+                if (topNames) narrative += ', with mastery-level expertise in ' + topNames;
+                narrative += '. This career intelligence profile provides a comprehensive view of capabilities, experience, and market positioning.';
+            } else {
+                var topMatched = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3);
+                var topSkillNames = topMatched.map(function(m) { return m.userSkill; }).join(', ');
+                narrative = (profile.name || 'This candidate') + ' brings ';
+                if (topSkillNames) narrative += 'demonstrated expertise in ' + topSkillNames + ' \u2014 ';
+                narrative += matched.length + ' of ' + (matched.length + gaps.length) + ' required competencies are matched';
+                if (gaps.length > 0) narrative += ' with ' + gaps.length + ' gap' + (gaps.length !== 1 ? 's' : '') + ' identified in areas where adjacent skills suggest a bridgeable trajectory.';
+                else narrative += ' with no significant gaps identified.';
+            }
             
             // Domains (based on connected skills only — these drive the visualization)
             var reportDomains = roles.map(function(role) {
@@ -32350,8 +32359,9 @@ body {
                     }
                     return { title: w.title || w.role || '', company: w.company || w.organization || '', dates: dates, description: w.description || '' };
                 }),
-                job: { title: (job && job.title) || 'General Career Intelligence', company: (job && job.company) || '', date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
-                match: { percentage: matchData.score || 0, narrative: narrative },
+                isGeneral: !job,
+                job: { title: (job && job.title) || 'Career Intelligence Profile', company: (job && job.company) || '', date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
+                match: { percentage: job ? (matchData.score || 0) : null, narrative: narrative },
                 roles: roles,
                 skills: reportSkills,
                 networkSkills: reportSkills.filter(function(sk) { return (sk.r && sk.r.length > 0) || sk.k === 1; }),
@@ -32360,7 +32370,9 @@ body {
                 sharingPreset: activePreset,
                 jobRequired: jobRequiredNames,
                 gaps: reportGaps,
-                values: { score: valAlign ? valAlign.score : 0, narrative: 'Cultural Fit Signal — ' + ((valAlign ? (valAlign.aligned || []).length : 0) + ' shared values identified.'), candidate: candidateValues, company: companyValuesList },
+                values: job
+                    ? { score: valAlign ? valAlign.score : 0, narrative: 'Cultural Fit Signal — ' + ((valAlign ? (valAlign.aligned || []).length : 0) + ' shared values identified.'), candidate: candidateValues, company: companyValuesList }
+                    : { score: null, narrative: 'Core values that drive decision-making and professional identity.', candidate: candidateValues, company: [] },
                 outcomes: reportOutcomes,
                 education: userEdu.map(function(e) { return { name: e.institution || e.name || '', desc: (e.degree || '') + (e.field ? ' — ' + e.field : ''), location: e.location || '', dates: e.dates || e.year || '', vf: 'edu', skills: e.skills || [] }; }),
                 certifications: userCerts.map(function(c) { return { name: c.name || '', vf: 'cert', vfLabel: c.issuer || c.name || '', desc: c.description || c.issuer || '', dates: c.dates || c.year || '', status: c.status || '', skills: c.skills || [] }; }),
@@ -32536,12 +32548,106 @@ body {
                         + 'REPORT_DATA.skills=REPORT_DATA.networkSkills;'
                         + 'REPORT_DATA.totalSkillCount=REPORT_DATA.totalSkillCount||REPORT_DATA._allSkills.length;'
                         + 'REPORT_DATA.jobMatchSkills=REPORT_DATA.jobMatchSkills||REPORT_DATA.skills.filter(function(s){return s.k===1;});'
+                        + '}'
+                        + 'if(typeof REPORT_DATA!=="undefined"&&REPORT_DATA.isGeneral){'
+                        + 'REPORT_DATA.match=REPORT_DATA.match||{};'
+                        + 'REPORT_DATA.match.percentage=REPORT_DATA.match.percentage||0;'
+                        + 'REPORT_DATA.values=REPORT_DATA.values||{};'
+                        + 'if(REPORT_DATA.values.score===null)REPORT_DATA.values.score=0;'
                         + '}\n';
                     injected = injected.replace(
                         /\/\/ ── Derived globals/,
                         networkSwap + '// ── Derived globals'
                     );
-                    injected = injected.replace('</body>', patchColors + '</body>');
+                    var patchPurposeAndGeneral = '<script>'
+                        + '(function(){'
+                        + 'function patchReport(){'
+                        + '  if(typeof REPORT_DATA==="undefined") return;'
+                        + '  var pb=document.getElementById("purposeBox");'
+                        + '  if(pb && REPORT_DATA.candidate && REPORT_DATA.candidate.purpose){'
+                        + '    pb.textContent=REPORT_DATA.candidate.purpose;'
+                        + '  } else if(pb && (!REPORT_DATA.candidate || !REPORT_DATA.candidate.purpose)){'
+                        + '    pb.style.display="none";'
+                        + '  }'
+                        + '  if(!REPORT_DATA.isGeneral) return;'
+                        + '  var ring=document.querySelector(".ring");'
+                        + '  if(ring) ring.style.display="none";'
+                        + '  var strip=document.querySelector(".strip");'
+                        + '  if(strip) strip.innerHTML="<svg width=\\"12\\" height=\\"12\\" viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"2\\"><rect x=\\"3\\" y=\\"11\\" width=\\"18\\" height=\\"11\\" rx=\\"2\\"/><path d=\\"M7 11V7a5 5 0 0110 0v4\\"/></svg>Career Intelligence Profile<span style=\\"margin-left:auto;opacity:.6\\">"+REPORT_DATA.job.date+"</span>";'
+                        + '  var tc=document.getElementById("targetCard");'
+                        + '  if(tc){'
+                        + '    var lbl=tc.querySelector(".target-lbl");'
+                        + '    if(lbl) lbl.textContent="PROFILE TYPE";'
+                        + '    var tr=tc.querySelector(".target-role");'
+                        + '    if(tr) tr.textContent="Career Intelligence Profile";'
+                        + '    var tco=tc.querySelector(".target-co");'
+                        + '    if(tco) tco.style.display="none";'
+                        + '    var tstats=tc.querySelectorAll(".tstat");'
+                        + '    tstats.forEach(function(st){'
+                        + '      var lbl=st.querySelector(".tstat-l");'
+                        + '      if(!lbl) return;'
+                        + '      var t=lbl.textContent.toLowerCase();'
+                        + '      if(t==="matched"||t==="gaps") st.style.display="none";'
+                        + '      if(t==="surplus"){lbl.textContent="Portfolio";}'
+                        + '    });'
+                        + '  }'
+                        + '  var nb=document.getElementById("narrativeBox");'
+                        + '  if(nb){'
+                        + '    var nl=nb.querySelector(".narr-lbl");'
+                        + '    if(nl) nl.innerHTML="\\u2B50 CAREER SUMMARY";'
+                        + '  }'
+                        + '  var snet=document.getElementById("snet");'
+                        + '  if(snet){'
+                        + '    var tabs=snet.querySelectorAll("button, [role=tab], .toggle-btn");'
+                        + '    tabs.forEach(function(tab){'
+                        + '      if((tab.textContent||"").toLowerCase().indexOf("job match")!==-1) tab.style.display="none";'
+                        + '    });'
+                        + '    var candTab=null;'
+                        + '    tabs.forEach(function(tab){'
+                        + '      if((tab.textContent||"").toLowerCase().indexOf("candidate")!==-1){ candTab=tab; }'
+                        + '    });'
+                        + '    if(candTab) setTimeout(function(){ candTab.click(); },800);'
+                        + '  }'
+                        + '  var vnet=document.getElementById("vnet");'
+                        + '  if(vnet){'
+                        + '    var vt=vnet.querySelector(".sec-t");'
+                        + '    if(vt) vt.textContent="Core Values & Professional Identity";'
+                        + '    var vs=vnet.querySelector(".sec-st");'
+                        + '    if(vs) vs.textContent="Values that drive decision-making and professional identity";'
+                        + '    var valSc=vnet.querySelector(".val-sc");'
+                        + '    if(valSc) valSc.style.display="none";'
+                        + '  }'
+                        + '  var skillSec=document.getElementById("skills");'
+                        + '  if(skillSec){'
+                        + '    var st=skillSec.querySelector(".sec-t");'
+                        + '    if(st) st.textContent="Skill Portfolio";'
+                        + '    var ss=skillSec.querySelector(".sec-st");'
+                        + '    if(ss) ss.textContent="Comprehensive capability inventory";'
+                        + '  }'
+                        + '  var skillRows=document.querySelectorAll(".sk-rq");'
+                        + '  skillRows.forEach(function(el){'
+                        + '    var t=(el.textContent||"").trim().toLowerCase();'
+                        + '    if(t==="surplus"||t==="matched") el.textContent="";'
+                        + '  });'
+                        + '  var gapSec=document.getElementById("gaps");'
+                        + '  if(gapSec) gapSec.style.display="none";'
+                        + '  var snLeg=document.getElementById("snLeg");'
+                        + '  if(snLeg) snLeg.innerHTML="<div class=\\"net-leg-i\\"><div class=\\"net-leg-d\\" style=\\"background:#60a5fa\\"></div>Candidate</div><div class=\\"net-leg-i\\"><div class=\\"net-leg-d\\" style=\\"background:#a855f7\\"></div>Role Cluster</div>";'
+                        + '  var navLinks=document.querySelectorAll(".nav-a");'
+                        + '  navLinks.forEach(function(a){'
+                        + '    var t=(a.textContent||"").toLowerCase();'
+                        + '    if(t==="alignment") a.textContent="Skills";'
+                        + '    if(t==="gaps") a.style.display="none";'
+                        + '    if(t==="values map") a.textContent="Values";'
+                        + '  });'
+                        + '}'
+                        + 'if(document.readyState==="complete") patchReport();'
+                        + 'else window.addEventListener("load",function(){ setTimeout(patchReport,200); });'
+                        + 'setTimeout(patchReport,500);'
+                        + 'setTimeout(patchReport,1500);'
+                        + '})();'
+                        + '<\/script>';
+                    injected = injected.replace('</body>', patchPurposeAndGeneral + patchColors + '</body>');
                     var blob = new Blob([injected], { type: 'text/html; charset=utf-8' });
                     var blobUrl = URL.createObjectURL(blob);
                     
@@ -32558,10 +32664,14 @@ body {
                     var candidateName = reportData.candidate.name;
                     var header = document.createElement('div');
                     header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
+                    var headerTitle = reportData.isGeneral
+                        ? escapeHtml(candidateName) + ' — Career Intelligence Profile'
+                        : escapeHtml(candidateName) + ' \u2192 ' + escapeHtml(reportData.job.title);
+                    var matchBadge = reportData.isGeneral ? '' : '<span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(16,185,129,0.1);color:#10b981;font-weight:600;">' + (reportData.match.percentage || 0) + '% MATCH</span>';
                     header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">'
                         + '<span style="color:var(--accent);">' + bpIcon('target',18) + '</span>'
-                        + '<span style="font-weight:600;font-size:0.92em;">' + escapeHtml(candidateName) + ' → ' + escapeHtml(reportData.job.title) + '</span>'
-                        + '<span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(16,185,129,0.1);color:#10b981;font-weight:600;">' + reportData.match.percentage + '% MATCH</span>'
+                        + '<span style="font-weight:600;font-size:0.92em;">' + headerTitle + '</span>'
+                        + matchBadge
                         + '</div>'
                         + '<div style="display:flex;align-items:center;gap:8px;">'
                         + '<button id="shareReportBtn" onclick="shareScoutingReport()" style="font-size:0.82em;padding:6px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">' + bpIcon('external',14) + ' Share Report</button>'
