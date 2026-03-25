@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.28';
+        var BP_VERSION = 'v4.47.29';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -32303,19 +32303,21 @@ body {
                     return o.category === 'Business Impact' || o.category === 'Crisis Leadership' || o.category === 'Entrepreneurial';
                 });
             }
+            var allVerifications = userData.verifications || [];
             reportOutcomes = reportOutcomes.slice(0, 6).map(function(o) {
                 var text = (o.text || o.outcome || '');
                 var oVf = null; var oVfLabel = '';
-                if (o.verified || o.verifiedBy) {
-                    oVf = 'verified'; oVfLabel = o.verifiedBy || 'Verified';
-                } else if (o.linkedSkills && o.linkedSkills.length > 0) {
-                    var linkedVf = o.linkedSkills.some(function(ls) {
-                        return (userData.verifications || []).some(function(v) { return v.skillName === ls && v.status === 'confirmed'; });
-                    });
-                    if (linkedVf) { oVf = 'linked'; oVfLabel = 'Linked to verified skill'; }
+                if (o.skill) {
+                    var skillVfs = allVerifications.filter(function(v) { return v.skillName === o.skill && v.status === 'confirmed'; });
+                    if (skillVfs.length > 0) {
+                        oVf = 'peer';
+                        oVfLabel = 'Verified by ' + skillVfs.map(function(v) { return v.verifierName || 'Peer'; }).join(', ');
+                    }
                 }
-                var certLinked = userCerts.find(function(c) { return c.name && text.indexOf(c.name) !== -1; });
-                if (certLinked && !oVf) { oVf = 'cert'; oVfLabel = certLinked.name; }
+                if (!oVf) {
+                    var certLinked = userCerts.find(function(c) { return c.name && text.indexOf(c.name) !== -1; });
+                    if (certLinked) { oVf = 'cert'; oVfLabel = certLinked.name; }
+                }
                 return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '[Company]'), vf: oVf, vfLabel: oVfLabel };
             });
             

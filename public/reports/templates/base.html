@@ -912,10 +912,13 @@ skills.forEach(s=>{
 const im=MS.has(s.n);
 const dotColor=im?'var(--g)':lvColors[s.l]||'var(--tm)';
 const roleNames=(s.r||[]).map(rid=>{const r=roleMap[rid];return r?r.name:'';}).filter(Boolean).join(', ');
-const vfDot=(s.vf&&s.vf!=='evidence')?'<span class="sk-vf-dot" title="'+(s.vfLabel||'Verified')+'"></span>':'';
+var vfBadge='';
+if(s.vf==='peer')vfBadge='<span class="vb" style="font-size:.62em;margin-left:6px;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>';
+else if(s.vf==='cert')vfBadge='<span class="vb cert" style="font-size:.62em;margin-left:6px;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Certified</span>';
+else if(s.vf==='edu')vfBadge='<span class="vb edu" style="font-size:.62em;margin-left:6px;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Education</span>';
 const matchBadge=(!isGeneral&&im)?'<span class="sk-rq" style="color:var(--g);border:1px solid rgba(16,185,129,.3);font-size:.62em;margin-left:auto">Matched</span>':'';
 html+='<div class="sk-card" onclick="this.classList.toggle(\'ex\')">';
-html+='<div class="sk-nm"><span class="sk-dot" style="background:'+dotColor+'"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(s.n)+vfDot+'</span>'+matchBadge+'</div>';
+html+='<div class="sk-nm"><span class="sk-dot" style="background:'+dotColor+'"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:2px">'+escapeHtml(s.n)+vfBadge+'</span>'+matchBadge+'</div>';
 html+='<div><span class="sk-lvl sk-lvl-'+s.l+'">'+s.l+'</span></div>';
 if(roleNames)html+='<div class="sk-role">'+escapeHtml(roleNames)+'</div>';
 html+='<div class="sk-det">';
