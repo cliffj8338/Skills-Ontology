@@ -757,7 +757,9 @@ function renderOutcomesHTML(){
     const vb='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
     document.getElementById('outcomesList').innerHTML=R.outcomes.map(o=>{
         let badge='';
-        if(o.vf==='verified')badge=' <span class="vb">'+vb+'Verified</span>';
+        if(o.vf==='verified')badge=' <span class="vb">'+vb+(o.vfLabel||'Verified')+'</span>';
+        else if(o.vf==='peer')badge=' <span class="vb">'+vb+(o.vfLabel||'Peer Verified')+'</span>';
+        else if(o.vf==='linked')badge=' <span class="vb">'+vb+(o.vfLabel||'Linked to verified skill')+'</span>';
         else if(o.vf==='cert')badge=' <span class="vb cert">'+vb+(o.vfLabel||'Licensed Credential')+'</span>';
         else if(o.vf==='edu')badge=' <span class="vb edu">'+vb+(o.vfLabel||'Verified')+'</span>';
         return '<div class="outc"><div class="outc-t">'+o.text+badge+'</div></div>';
@@ -799,14 +801,25 @@ skills.forEach(s=>{
 const im=MS.has(s.n);
 const dotColor=im?'var(--g)':lvColors[s.l]||'var(--tm)';
 const roleNames=(s.r||[]).map(rid=>{const r=roleMap[rid];return r?r.name:'';}).filter(Boolean).join(', ');
-const vfDot=s.vf?'<span class="sk-vf-dot" title="'+(s.vfLabel||'Verified')+'"></span>':'';
+const vfDot=(s.vf&&s.vf!=='evidence')?'<span class="sk-vf-dot" title="'+(s.vfLabel||'Verified')+'"></span>':'';
 const matchBadge=(!isGeneral&&im)?'<span class="sk-rq" style="color:var(--g);border:1px solid rgba(16,185,129,.3);font-size:.62em;margin-left:auto">Matched</span>':'';
 html+='<div class="sk-card" onclick="this.classList.toggle(\'ex\')">';
 html+='<div class="sk-nm"><span class="sk-dot" style="background:'+dotColor+'"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(s.n)+vfDot+'</span>'+matchBadge+'</div>';
 html+='<div><span class="sk-lvl sk-lvl-'+s.l+'">'+s.l+'</span></div>';
 if(roleNames)html+='<div class="sk-role">'+escapeHtml(roleNames)+'</div>';
 html+='<div class="sk-det">';
-if(s.vf)html+='<div style="margin-bottom:6px;font-size:.8em;color:#10b981">✓ '+(s.vfLabel||'Verified')+'</div>';
+if(s.vf==='peer'&&s.vfBy&&s.vfBy.length>0){
+html+='<div style="margin-bottom:8px;padding:8px 12px;background:rgba(16,185,129,.06);border-radius:8px;border-left:2px solid #10b981">';
+html+='<div style="font-size:.72em;color:#10b981;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Peer Verified</div>';
+s.vfBy.forEach(function(v){html+='<div style="font-size:.82em;color:var(--t2)">✓ '+escapeHtml(v.name)+(v.rel?' <span style="color:var(--tm);font-size:.85em">('+escapeHtml(v.rel)+')</span>':'')+'</div>';});
+html+='</div>';
+}else if(s.vf==='cert'){
+html+='<div style="margin-bottom:6px;font-size:.8em;color:#f59e0b">✓ Certified: '+(s.vfLabel||'Credential')+'</div>';
+}else if(s.vf==='edu'){
+html+='<div style="margin-bottom:6px;font-size:.8em;color:#3b82f6">✓ Education: '+(s.vfLabel||'Degree')+'</div>';
+}else if(s.vf==='evidence'){
+html+='<div style="margin-bottom:6px;font-size:.8em;color:var(--tm)">Evidence documented</div>';
+}
 if(s.ev)html+='<div class="sk-ev"><div class="sk-ev-l">Evidence</div>'+s.ev+'</div>';
 if(!s.ev&&!s.vf)html+='<div style="font-size:.82em;color:var(--tm);font-style:italic">No evidence documented yet</div>';
 html+='</div>';

@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.27';
+        var BP_VERSION = 'v4.47.28';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -32231,9 +32231,14 @@ body {
                 if (ev) sk.ev = ev.substring(0, 300);
                 var certMatch = userCerts.find(function(c) { return (c.skills || []).some(function(cs) { return cs.toLowerCase() === s.name.toLowerCase(); }); });
                 var eduMatch = userEdu.find(function(e) { return (e.skills || []).some(function(es) { return es.toLowerCase() === s.name.toLowerCase(); }); });
-                if (certMatch) { sk.vf = 'cert'; sk.vfLabel = certMatch.name; }
+                var peerVfs = (userData.verifications || []).filter(function(v) { return v.skillName === s.name && v.status === 'confirmed'; });
+                if (peerVfs.length > 0) {
+                    sk.vf = 'peer';
+                    sk.vfLabel = 'Verified by ' + peerVfs.map(function(v) { return v.verifierName || 'Peer'; }).join(', ');
+                    sk.vfBy = peerVfs.map(function(v) { return { name: v.verifierName || 'Peer', rel: v.relationship || '' }; });
+                } else if (certMatch) { sk.vf = 'cert'; sk.vfLabel = certMatch.name; }
                 else if (eduMatch) { sk.vf = 'edu'; sk.vfLabel = eduMatch.name; }
-                else if (isRequired && ev) { sk.vf = 'verified'; }
+                else if (ev) { sk.vf = 'evidence'; sk.vfLabel = 'Evidence documented'; }
                 return sk;
             });
             
@@ -32300,7 +32305,18 @@ body {
             }
             reportOutcomes = reportOutcomes.slice(0, 6).map(function(o) {
                 var text = (o.text || o.outcome || '');
-                return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '[Company]') };
+                var oVf = null; var oVfLabel = '';
+                if (o.verified || o.verifiedBy) {
+                    oVf = 'verified'; oVfLabel = o.verifiedBy || 'Verified';
+                } else if (o.linkedSkills && o.linkedSkills.length > 0) {
+                    var linkedVf = o.linkedSkills.some(function(ls) {
+                        return (userData.verifications || []).some(function(v) { return v.skillName === ls && v.status === 'confirmed'; });
+                    });
+                    if (linkedVf) { oVf = 'linked'; oVfLabel = 'Linked to verified skill'; }
+                }
+                var certLinked = userCerts.find(function(c) { return c.name && text.indexOf(c.name) !== -1; });
+                if (certLinked && !oVf) { oVf = 'cert'; oVfLabel = certLinked.name; }
+                return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '[Company]'), vf: oVf, vfLabel: oVfLabel };
             });
             
             // Values — filter by preset (re-filter for report inclusion, keeps alignment data above intact)
@@ -32840,6 +32856,17 @@ body {
                         var shareUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/reports/view.html?id=' + r._id + '&token=' + (r.shareToken || ''));
                         var blindCount = 0;
                         if (r.blindSettings) { Object.keys(r.blindSettings).forEach(function(k) { if (r.blindSettings[k]) blindCount++; }); }
+                        var lastViewedLabel = '';
+                        if (r.lastViewedAt && r.lastViewedAt.toDate) {
+                            var lvDate = r.lastViewedAt.toDate();
+                            var diffMs = Date.now() - lvDate.getTime();
+                            var diffMins = Math.floor(diffMs / 60000);
+                            if (diffMins < 1) lastViewedLabel = 'just now';
+                            else if (diffMins < 60) lastViewedLabel = diffMins + 'm ago';
+                            else if (diffMins < 1440) lastViewedLabel = Math.floor(diffMins / 60) + 'h ago';
+                            else if (diffMins < 10080) lastViewedLabel = Math.floor(diffMins / 1440) + 'd ago';
+                            else lastViewedLabel = lvDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        }
                         
                         html += '<div style="padding:16px; background:var(--c-surface-2a); border:1px solid ' + (isActive ? 'var(--c-border-subtle)' : 'rgba(239,68,68,0.3)') + '; border-radius:12px; ' + (!isActive ? 'opacity:0.6;' : '') + '">'
                             + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">'
@@ -32854,6 +32881,7 @@ body {
                             + '<div style="font-size:0.82em; color:var(--text-secondary);">'
                             + escapeHtml(r.company || '') + (r.company ? ' \u00B7 ' : '') + createdDate
                             + '</div>'
+                            + (lastViewedLabel ? '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">' + bpIcon('eye',10) + ' Last viewed ' + lastViewedLabel + '</div>' : '')
                             + '</div>'
                             + '<div style="display:flex; align-items:center; gap:12px;">'
                             + '<div style="text-align:center;">'
