@@ -2298,6 +2298,10 @@ function clampMoneyNum(sliderId, numId, minUSD, maxUSD) {
   update();
 }
 
+// ── MATH STATE (must be defined before update() runs) ─────────
+var _mathState = {};
+function _saveMathState(o) { _mathState = o; }
+
 // ── MAIN UPDATE ───────────────────────────────────────────────
 function update() {
   const ftesPos  = +document.getElementById('ftes').value;
@@ -3433,11 +3437,10 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
 })();
 </script>
 <script>
-var _mathState = {};
-function _saveMathState(o) { _mathState = o; }
 function closeMathModal() {
   document.getElementById('math-overlay').classList.remove('visible');
 }
+setTimeout(function() { if (typeof update === 'function') update(); }, 50);
 function showMath(kpi, period) {
   var s = _mathState; if (!s.adopters) return;
   var rY = s.rampYear, view = s.view, isPB = view === 'pressbox';
