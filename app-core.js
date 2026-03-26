@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.31';
+        var BP_VERSION = 'v4.47.32';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -44723,8 +44723,11 @@ body {
                     btn.innerHTML = job.hidden ? bpIcon('eye',13) + ' Hidden' : bpIcon('eye',13);
                 }
             });
-            // Mark network as needing rebuild when user switches to Map
+            // Rebuild network immediately if user is on Map view, otherwise lazy rebuild
             window.networkInitialized = false;
+            if (currentView === 'network') {
+                initNetworkDebounced(200);
+            }
             // Refresh the hidden count badge in section header
             refreshExperienceContent();
             showToast(job.hidden ? 'Position hidden from Blueprint.' : 'Position visible in Blueprint.', 'info', 2500);
@@ -45354,7 +45357,9 @@ body {
             }).join('');
             
             // Build skill suggestion datalist from profile skills
-            var skillOptions = (skillsData.skills || []).map(function(s) {
+            var skillOptions = (skillsData.skills || []).slice().sort(function(a, b) {
+                return a.name.localeCompare(b.name);
+            }).map(function(s) {
                 return '<option value="' + s.name.replace(/"/g,'&quot;') + '">';
             }).join('');
             
