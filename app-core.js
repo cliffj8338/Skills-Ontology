@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.33';
+        var BP_VERSION = 'v4.47.34';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -23206,7 +23206,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 var cb = document.getElementById('skill-check-' + i);
                 return !cb || cb.checked;
             });
-            if (wizardState.skills.length > 50) {
+            if (wizardState.skills.length > 60) {
                 wizardState.skills.sort(function(a, b) {
                     var pa = (a.key || a.isKey) ? 3 : (a._marketKeep || a.marketKeep) ? 2 : 0;
                     var pb = (b.key || b.isKey) ? 3 : (b._marketKeep || b.marketKeep) ? 2 : 0;
@@ -23216,7 +23216,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                     if (lb !== la) return lb - la;
                     return (b.evidence ? b.evidence.length : 0) - (a.evidence ? a.evidence.length : 0);
                 });
-                wizardState.skills = wizardState.skills.slice(0, 50);
+                wizardState.skills = wizardState.skills.slice(0, 60);
             }
             if (wizardState.growthSkills && wizardState.growthSkills.length > 0) {
                 var _ud = window._userData || userData;
@@ -44751,14 +44751,17 @@ body {
                 if (a === b) return true;
                 var an = normalize(a), bn = normalize(b);
                 if (an === bn) return true;
-                if (an.length > 4 && bn.length > 4) {
-                    if (an.indexOf(bn) !== -1 || bn.indexOf(an) !== -1) return true;
+                if (an.length > 6 && bn.length > 6) {
+                    var shorter = an.length <= bn.length ? an : bn;
+                    var longer = an.length > bn.length ? an : bn;
+                    if (longer.indexOf(shorter) !== -1 && shorter.length >= longer.length * 0.75) return true;
                 }
                 var aw = an.split(' ').filter(function(w) { return w.length > 2; });
                 var bw = bn.split(' ').filter(function(w) { return w.length > 2; });
                 if (aw.length >= 2 && bw.length >= 2) {
+                    var maxW = Math.max(aw.length, bw.length);
                     var shared = aw.filter(function(w) { return bw.indexOf(w) !== -1; });
-                    if (shared.length >= Math.min(aw.length, bw.length) * 0.6) return true;
+                    if (shared.length >= maxW * 0.8) return true;
                 }
                 return false;
             }
@@ -44792,7 +44795,6 @@ body {
         function hideRoleFromNetwork(roleName) {
             if (readOnlyGuard()) return;
             var rLower = (roleName || '').toLowerCase().trim();
-            // Find role object to get both name and ID for matching
             var roleObj = (skillsData.roles || []).find(function(r) {
                 return (r.name || '').toLowerCase().trim() === rLower 
                     || (r.id || '').toLowerCase().trim() === rLower;
@@ -44804,8 +44806,20 @@ body {
                 matchNames.add((roleObj.id || '').toLowerCase().trim());
             }
             
+            function normalize(s) { return s.replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim(); }
+            function fuzzyMatch(a, b) {
+                if (a === b) return true;
+                var an = normalize(a), bn = normalize(b);
+                if (an === bn) return true;
+                if (an.length > 6 && bn.length > 6) {
+                    var shorter = an.length <= bn.length ? an : bn;
+                    var longer = an.length > bn.length ? an : bn;
+                    if (longer.indexOf(shorter) !== -1 && shorter.length >= longer.length * 0.75) return true;
+                }
+                return false;
+            }
+            
             var found = false;
-            // Exact match first
             (userData.workHistory || []).forEach(function(job) {
                 var titleLower = (job.title || '').toLowerCase().trim();
                 if (!job.hidden && matchNames.has(titleLower)) {
@@ -44813,13 +44827,12 @@ body {
                     found = true;
                 }
             });
-            // Fuzzy fallback: partial/substring match
             if (!found) {
                 (userData.workHistory || []).forEach(function(job) {
                     if (found || job.hidden) return;
                     var titleLower = (job.title || '').toLowerCase().trim();
                     matchNames.forEach(function(mn) {
-                        if (!found && mn && titleLower && (mn.indexOf(titleLower) !== -1 || titleLower.indexOf(mn) !== -1)) {
+                        if (!found && mn && titleLower && fuzzyMatch(mn, titleLower)) {
                             job.hidden = true;
                             found = true;
                         }
