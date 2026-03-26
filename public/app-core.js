@@ -44744,42 +44744,47 @@ body {
         // Orphan roles (no matching workHistory entry at all) are excluded
         function getVisibleRoles() {
             var wh = userData.workHistory || [];
-            if (wh.length === 0) return (skillsData.roles || []).slice();
-            var hasAnyHidden = wh.some(function(j) { return j.hidden; });
-            if (!hasAnyHidden) return (skillsData.roles || []).slice();
-            var visibleTitles = [];
-            var hiddenTitles = [];
-            wh.forEach(function(job) {
-                var t = (job.title || '').toLowerCase().trim();
-                if (!t) return;
-                if (job.hidden) hiddenTitles.push(t);
-                else visibleTitles.push(t);
-            });
-            if (visibleTitles.length === 0 && hiddenTitles.length > 0) return [];
+            var existingRoles = (skillsData.roles || []).slice();
+            var roleColors = ['#3b82f6', '#fb923c', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
             function normalize(s) { return s.replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim(); }
-            function roleMatchesTitle(rName, title) {
-                if (rName === title) return true;
-                var rn = normalize(rName), tn = normalize(title);
-                if (rn === tn) return true;
-                if (rn.length > 4 && tn.length > 4) {
-                    if (rn.indexOf(tn) !== -1 || tn.indexOf(rn) !== -1) return true;
+            function titlesMatch(a, b) {
+                if (a === b) return true;
+                var an = normalize(a), bn = normalize(b);
+                if (an === bn) return true;
+                if (an.length > 4 && bn.length > 4) {
+                    if (an.indexOf(bn) !== -1 || bn.indexOf(an) !== -1) return true;
                 }
-                var rWords = rn.split(' ').filter(function(w) { return w.length > 2; });
-                var tWords = tn.split(' ').filter(function(w) { return w.length > 2; });
-                if (rWords.length >= 2 && tWords.length >= 2) {
-                    var shared = rWords.filter(function(w) { return tWords.indexOf(w) !== -1; });
-                    if (shared.length >= Math.min(rWords.length, tWords.length) * 0.6) return true;
+                var aw = an.split(' ').filter(function(w) { return w.length > 2; });
+                var bw = bn.split(' ').filter(function(w) { return w.length > 2; });
+                if (aw.length >= 2 && bw.length >= 2) {
+                    var shared = aw.filter(function(w) { return bw.indexOf(w) !== -1; });
+                    if (shared.length >= Math.min(aw.length, bw.length) * 0.6) return true;
                 }
                 return false;
             }
-            var filtered = (skillsData.roles || []).filter(function(role) {
-                var rName = (role.name || '').toLowerCase().trim();
-                var isHidden = hiddenTitles.some(function(ht) { return roleMatchesTitle(rName, ht); });
-                if (isHidden) return false;
-                var isVisible = visibleTitles.some(function(vt) { return roleMatchesTitle(rName, vt); });
-                return isVisible;
+            var allRoles = existingRoles.slice();
+            var usedNames = existingRoles.map(function(r) { return (r.name || '').toLowerCase().trim(); });
+            wh.forEach(function(job) {
+                var t = (job.title || '').toLowerCase().trim();
+                if (!t) return;
+                var alreadyHasRole = usedNames.some(function(rn) { return titlesMatch(rn, t); });
+                if (!alreadyHasRole) {
+                    allRoles.push({ id: 'wh-' + t.replace(/[^a-z0-9]/g, '-'), name: job.title, color: roleColors[allRoles.length % roleColors.length], skills: [], _fromWH: true });
+                    usedNames.push(t);
+                }
             });
-            return filtered.length > 0 ? filtered : (skillsData.roles || []).slice();
+            if (wh.length === 0) return allRoles;
+            var hasAnyHidden = wh.some(function(j) { return j.hidden; });
+            if (!hasAnyHidden) return allRoles;
+            var hiddenTitles = [];
+            wh.forEach(function(job) {
+                if (job.hidden) hiddenTitles.push((job.title || '').toLowerCase().trim());
+            });
+            if (hiddenTitles.length === wh.length) return [];
+            return allRoles.filter(function(role) {
+                var rName = (role.name || '').toLowerCase().trim();
+                return !hiddenTitles.some(function(ht) { return titlesMatch(rName, ht); });
+            });
         }
         window.getVisibleRoles = getVisibleRoles;
         
