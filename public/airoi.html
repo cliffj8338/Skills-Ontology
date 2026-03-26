@@ -502,7 +502,7 @@
   .gauge-caption { font-size: 15px; color: var(--dim); text-align: center; font-style: italic; line-height: 1.6; }
 
   /* Equation breakdown */
-  .eq-fraction { font-family: 'Inter', 'DM Sans', sans-serif; text-align: center; margin-bottom: 20px; padding: 14px 0 10px; }
+  .eq-fraction { font-family: 'Cambria Math', 'Latin Modern Math', Georgia, serif; text-align: center; margin-bottom: 20px; padding: 14px 0 10px; }
   .eq-num { font-size: 20px; color: var(--accent); margin-bottom: 10px; letter-spacing: 0.3px; }
   .eq-line { border-top: 1.5px solid var(--slate); margin: 0 8%; }
   .eq-den { font-size: 18px; color: var(--coral); margin-top: 10px; }
@@ -2063,7 +2063,7 @@ function applyVertical(key) {
     + '<span style="font-size:11px;color:var(--accent);">&#9776;</span>'
     + '<span style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.5px;text-transform:uppercase;color:var(--accent);flex:1;">' + v.label + ' Presets Applied</span>'
     + '</div>'
-    + '<div style="font-family:'Inter','DM Sans',sans-serif;font-size:12px;color:var(--dim);line-height:17px;margin-bottom:8px;">' + v.note + '</div>'
+    + '<div style="font-family:Inter,DM Sans,sans-serif;font-size:12px;color:var(--dim);line-height:17px;margin-bottom:8px;">' + v.note + '</div>'
     + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
     + '<div style="text-align:center;"><div style="font-family:\'DM Mono\',monospace;font-size:8px;letter-spacing:0.5px;text-transform:uppercase;color:var(--dim);">Adoption</div><div style="font-family:\'DM Mono\',monospace;font-size:13px;color:var(--accent);">' + v.adopt + '%</div></div>'
     + '<div style="text-align:center;"><div style="font-family:\'DM Mono\',monospace;font-size:8px;letter-spacing:0.5px;text-transform:uppercase;color:var(--dim);">Cog Drag</div><div style="font-family:\'DM Mono\',monospace;font-size:13px;color:var(--accent);">' + v.drag + '%</div></div>'
@@ -2357,7 +2357,7 @@ function update() {
   if (_consumRow && _consumVal) {
     if (consumptionPerAdopter > 0) {
       _consumRow.style.display = 'flex';
-      const decayNote = consumptionDecay ? ' <span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(9,70,133,0.15);border:1px solid rgba(9,70,133,0.4);font-family:'Inter','DM Sans',sans-serif;font-style:italic;font-size:9px;color:var(--accent);cursor:default;vertical-align:middle;position:relative;" title="Decay adjustment: AI tool value erodes ~20%/yr as workflows normalize and novelty fades. This figure reflects year-1 realized value net of that decay.">i</span>' : '';
+      const decayNote = consumptionDecay ? ' <span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:rgba(9,70,133,0.15);border:1px solid rgba(9,70,133,0.4);font-family:Inter,sans-serif;font-style:italic;font-size:9px;color:var(--accent);cursor:default;vertical-align:middle;position:relative;" title="Decay adjustment: AI tool value erodes ~20%/yr as workflows normalize and novelty fades. This figure reflects year-1 realized value net of that decay.">i</span>' : '';
       _consumVal.innerHTML = fmtC(consumptionCost) + decayNote;
     } else {
       _consumRow.style.display = 'none';
