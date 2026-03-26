@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.32';
+        var BP_VERSION = 'v4.47.33';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -44744,21 +44744,41 @@ body {
         // Orphan roles (no matching workHistory entry at all) are excluded
         function getVisibleRoles() {
             var wh = userData.workHistory || [];
-            // No work history → show all roles (nothing to hide)
             if (wh.length === 0) return (skillsData.roles || []).slice();
-            var visibleTitles = new Set();
+            var hasAnyHidden = wh.some(function(j) { return j.hidden; });
+            if (!hasAnyHidden) return (skillsData.roles || []).slice();
+            var visibleTitles = [];
+            var hiddenTitles = [];
             wh.forEach(function(job) {
-                if (!job.hidden) visibleTitles.add((job.title || '').toLowerCase().trim());
+                var t = (job.title || '').toLowerCase().trim();
+                if (!t) return;
+                if (job.hidden) hiddenTitles.push(t);
+                else visibleTitles.push(t);
             });
-            // If all entries are hidden, return empty (user explicitly hid everything)
-            if (visibleTitles.size === 0) return [];
+            if (visibleTitles.length === 0 && hiddenTitles.length > 0) return [];
+            function normalize(s) { return s.replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim(); }
+            function roleMatchesTitle(rName, title) {
+                if (rName === title) return true;
+                var rn = normalize(rName), tn = normalize(title);
+                if (rn === tn) return true;
+                if (rn.length > 4 && tn.length > 4) {
+                    if (rn.indexOf(tn) !== -1 || tn.indexOf(rn) !== -1) return true;
+                }
+                var rWords = rn.split(' ').filter(function(w) { return w.length > 2; });
+                var tWords = tn.split(' ').filter(function(w) { return w.length > 2; });
+                if (rWords.length >= 2 && tWords.length >= 2) {
+                    var shared = rWords.filter(function(w) { return tWords.indexOf(w) !== -1; });
+                    if (shared.length >= Math.min(rWords.length, tWords.length) * 0.6) return true;
+                }
+                return false;
+            }
             var filtered = (skillsData.roles || []).filter(function(role) {
                 var rName = (role.name || '').toLowerCase().trim();
-                var rId = (role.id || '').toLowerCase().trim();
-                return visibleTitles.has(rName) || visibleTitles.has(rId);
+                var isHidden = hiddenTitles.some(function(ht) { return roleMatchesTitle(rName, ht); });
+                if (isHidden) return false;
+                var isVisible = visibleTitles.some(function(vt) { return roleMatchesTitle(rName, vt); });
+                return isVisible;
             });
-            // If no roles matched any work history titles, show all roles
-            // (template data may use different naming conventions)
             return filtered.length > 0 ? filtered : (skillsData.roles || []).slice();
         }
         window.getVisibleRoles = getVisibleRoles;
