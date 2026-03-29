@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37e';
+        var BP_VERSION = 'v4.47.37f';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -45162,6 +45162,50 @@ body {
         window.getVisibleWorkHistory = getVisibleWorkHistory;
         
         // Returns roles whose corresponding workHistory position is not hidden
+        function getAllRoles() {
+            var wh = userData.workHistory || [];
+            var existingRoles = (skillsData.roles || []).slice();
+            var roleColors = ['#3b82f6', '#fb923c', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
+            function normalize(s) { return s.replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim(); }
+            function titlesMatch(a, b) {
+                if (a === b) return true;
+                var an = normalize(a), bn = normalize(b);
+                if (an === bn) return true;
+                if (an.length > 6 && bn.length > 6) {
+                    var shorter = an.length <= bn.length ? an : bn;
+                    var longer = an.length > bn.length ? an : bn;
+                    if (longer.indexOf(shorter) !== -1 && shorter.length >= longer.length * 0.75) return true;
+                }
+                var aw = an.split(' ').filter(function(w) { return w.length > 2; });
+                var bw = bn.split(' ').filter(function(w) { return w.length > 2; });
+                if (aw.length >= 2 && bw.length >= 2) {
+                    var maxW = Math.max(aw.length, bw.length);
+                    var shared = aw.filter(function(w) { return bw.indexOf(w) !== -1; });
+                    if (shared.length >= maxW * 0.8) return true;
+                }
+                return false;
+            }
+            var hiddenTitles = wh.filter(function(j) { return j.hidden; }).map(function(j) { return (j.title || '').toLowerCase().trim(); });
+            var allRoles = existingRoles.map(function(r) {
+                var copy = Object.assign({}, r);
+                var rn = (r.name || '').toLowerCase().trim();
+                copy._hidden = hiddenTitles.some(function(ht) { return titlesMatch(rn, ht); });
+                return copy;
+            });
+            var usedNames = existingRoles.map(function(r) { return (r.name || '').toLowerCase().trim(); });
+            wh.forEach(function(job) {
+                var t = (job.title || '').toLowerCase().trim();
+                if (!t) return;
+                var alreadyHasRole = usedNames.some(function(rn) { return titlesMatch(rn, t); });
+                if (!alreadyHasRole) {
+                    allRoles.push({ id: 'wh-' + t.replace(/[^a-z0-9]/g, '-'), name: job.title, color: roleColors[allRoles.length % roleColors.length], skills: [], _fromWH: true, _hidden: !!job.hidden });
+                    usedNames.push(t);
+                }
+            });
+            return allRoles;
+        }
+        window.getAllRoles = getAllRoles;
+
         // Orphan roles (no matching workHistory entry at all) are excluded
         function getVisibleRoles() {
             var wh = userData.workHistory || [];
@@ -49496,13 +49540,16 @@ body {
             
             // Populate roles
             const rolesContainer = document.getElementById('editSkillRoles');
-            var _editRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
-            rolesContainer.innerHTML = _editRoles.map(role => `
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            var _editRoles = typeof getAllRoles === 'function' ? getAllRoles() : (typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []));
+            var _maxH = _editRoles.length > 8 ? 'max-height:180px; overflow-y:auto; padding-right:4px;' : '';
+            rolesContainer.style.cssText = _maxH;
+            rolesContainer.innerHTML = _editRoles.map(role => {
+                var isHidden = role._hidden || false;
+                return `<label style="display:flex; align-items:center; gap:6px; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:0.82em;${isHidden ? ' opacity:0.55;' : ''}">
                     <input type="checkbox" value="${escapeHtml(role.id)}" class="edit-skill-role-checkbox" ${skill.roles.includes(role.id) ? 'checked' : ''}>
-                    <span>${escapeHtml(role.name)}</span>
-                </label>
-            `).join('');
+                    <span>${escapeHtml(role.name)}${isHidden ? ' <span style="font-size:0.8em; color:var(--text-muted);">(hidden)</span>' : ''}</span>
+                </label>`;
+            }).join('');
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
             
@@ -49580,7 +49627,7 @@ body {
             var levels = ['Novice','Competent','Proficient','Advanced','Expert','Mastery'];
             var levelColors = { 'Novice':'#94a3b8','Competent':'#22d3ee','Proficient':'#60a5fa','Advanced':'#a78bfa','Expert':'#fb923c','Mastery':'#10b981' };
             var evs = (typeof getEvidenceSummary === 'function') ? getEvidenceSummary(skill) : null;
-            var roles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
+            var roles = typeof getAllRoles === 'function' ? getAllRoles() : (typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []));
             var skillRoles = skill.roles || [];
             var hasAssess = !!skill.userAssessment;
             var assessData = skill.userAssessment || { years: 5, impact: 'significant', rarity: 'uncommon', salaryBand: '$150-250k' };
@@ -49630,14 +49677,23 @@ body {
             
             // ── ROLE ASSIGNMENT ──
             if (roles.length > 0) {
+                var checkedCount = roles.filter(function(r) { return skillRoles.includes(r.id) || skillRoles.includes(r.name); }).length;
+                var allChecked = checkedCount === roles.length || checkedCount === 0;
+                var roleMaxH = roles.length > 8 ? '180px' : 'none';
                 html += '<div style="margin-bottom:18px;">'
-                    + '<div style="font-weight:600; font-size:0.85em; color:var(--accent); margin-bottom:8px;">Used in Roles <span style="color:var(--text-muted); font-weight:400; font-size:0.9em;">(defaults to all)</span></div>'
-                    + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:4px;">';
+                    + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
+                    + '<div style="font-weight:600; font-size:0.85em; color:var(--accent);">Used in Roles <span style="color:var(--text-muted); font-weight:400; font-size:0.9em;">(' + (allChecked ? 'all ' + roles.length : checkedCount + '/' + roles.length) + ')</span></div>'
+                    + '<div style="display:flex; gap:6px;">'
+                    + '<button type="button" onclick="document.querySelectorAll(\'.uni-role-cb\').forEach(function(c){c.checked=true;})" style="font-size:0.7em; padding:2px 8px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer;">All</button>'
+                    + '<button type="button" onclick="document.querySelectorAll(\'.uni-role-cb\').forEach(function(c){c.checked=false;})" style="font-size:0.7em; padding:2px 8px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer;">None</button>'
+                    + '</div></div>'
+                    + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:2px; max-height:' + roleMaxH + '; overflow-y:auto; padding-right:4px;">';
                 roles.forEach(function(role) {
                     var checked = skillRoles.includes(role.id) || skillRoles.includes(role.name);
-                    html += '<label style="display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:0.82em; color:var(--text-secondary);">'
+                    var isHidden = role._hidden || false;
+                    html += '<label style="display:flex; align-items:center; gap:6px; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:0.78em; color:var(--text-secondary);' + (isHidden ? ' opacity:0.55;' : '') + '">'
                         + '<input type="checkbox" class="uni-role-cb" value="' + (role.id || role.name) + '"' + (checked ? ' checked' : '') + '>'
-                        + '<span>' + escapeHtml(role.name) + '</span></label>';
+                        + '<span>' + escapeHtml(role.name) + (isHidden ? ' <span style="font-size:0.8em; color:var(--text-muted);">(hidden)</span>' : '') + '</span></label>';
                 });
                 html += '</div></div>';
             }
@@ -49794,7 +49850,7 @@ body {
             var roleCbs = document.querySelectorAll('.uni-role-cb:checked');
             var roleIds = Array.from(roleCbs).map(function(cb) { return cb.value; });
             if (roleIds.length === 0) {
-                var _allRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
+                var _allRoles = typeof getAllRoles === 'function' ? getAllRoles() : (typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []));
                 roleIds = _allRoles.map(function(r) { return r.id; });
             }
             skill.roles = roleIds;
@@ -49847,7 +49903,7 @@ body {
             
             // Default to all roles if none selected
             if (roles.length === 0) {
-                var _allRoles2 = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
+                var _allRoles2 = typeof getAllRoles === 'function' ? getAllRoles() : (typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []));
                 roles = _allRoles2.map(function(r) { return r.id; });
             }
             
