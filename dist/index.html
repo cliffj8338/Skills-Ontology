@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.cloudfunctions.net https://*.run.app https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob: https://apis.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
     <title>Blueprint™ — See Your Career as a Living Map | Skills. Value. Direction.</title>
     <meta name="description" content="See your career as a living map — not a flat resume. Blueprint visualizes your skills, reveals your real market value, and connects you to work that actually fits who you are and what you care about.">
-    <meta name="keywords" content="career intelligence, skills mapping, job matching, scouting report, career ontology, skill gap analysis, salary negotiation, professional development, AI career tools, work blueprint, talent intelligence, career planning">
-    <meta name="author" content="Blueprint Career Intelligence">
+    <meta name="keywords" content="career intelligence, skills mapping, job matching, scouting report, career ontology, skill gap analysis, salary negotiation, professional development, AI career tools, work blueprint, talent intelligence, career planning, Cliff Jurkiewicz, myblueprint.work, Blueprint career platform, futurist, AI strategist, Phenom, talent technology, applied AI, career visualization, D3 skills network">
+    <meta name="author" content="Cliff Jurkiewicz">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="https://www.myblueprint.work/">
     <meta name="theme-color" content="#60a5fa">
@@ -45,41 +44,118 @@
         "@context": "https://schema.org",
         "@graph": [
             {
+                "@type": "Person",
+                "@id": "https://www.myblueprint.work/#cliff-jurkiewicz",
+                "name": "Cliff Jurkiewicz",
+                "givenName": "Cliff",
+                "familyName": "Jurkiewicz",
+                "url": "https://www.myblueprint.work/",
+                "image": "https://media.licdn.com/dms/image/v2/D4E03AQGvRgQ7kG7pUw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1718900776000?e=1748476800&v=beta&t=zE3R9x5F0tFzMI1SFxBXq8j8UEFx6h9cZWOoV_XU0Jw",
+                "jobTitle": "VP, Global Strategy & GM Customer Advisory Board",
+                "worksFor": {
+                    "@type": "Organization",
+                    "name": "Phenom",
+                    "description": "Applied AI talent intelligence platform",
+                    "url": "https://www.phenom.com"
+                },
+                "description": "Cliff Jurkiewicz is a futurist, AI strategist, IFR-rated pilot, 30-year professional musician, and VP of Global Strategy at Phenom — a leading Applied AI talent intelligence platform. He is the sole creator and developer of Blueprint™ (myblueprint.work), a career intelligence platform that maps professional skills into interactive visualizations using D3.js, O*NET, ESCO, and BLS data. He co-founded Kyle's Wish Foundation, a 501(c)(3) aviation-based charity for mental health and addiction recovery. He authors The Uncomfortable Truth, a weekly LinkedIn newsletter for talent executives, and has been featured at CERN, MIT, Nasdaq, and NASA.",
+                "alumniOf": {
+                    "@type": "CollegeOrUniversity",
+                    "name": "Creative & Performing Arts"
+                },
+                "knowsAbout": [
+                    "Applied AI", "Generative AI", "AI Strategy", "AI Governance", "Talent Intelligence",
+                    "HR Technology", "Career Intelligence", "Skills Ontology", "O*NET", "ESCO",
+                    "Future of Work", "Technology Evangelism", "Instrument Flight Rules (IFR)",
+                    "Nonprofit Leadership", "Mental Health Advocacy", "D3.js", "Firebase",
+                    "Career Visualization", "Compensation Intelligence", "Skills-Based Hiring"
+                ],
+                "sameAs": [
+                    "https://www.linkedin.com/in/cliffj/",
+                    "https://www.linkedin.com/newsletters/the-uncomfortabletruth-7400537982396682241/",
+                    "https://www.myblueprint.work/airoi"
+                ],
+                "founder": [
+                    {
+                        "@type": "WebApplication",
+                        "name": "Blueprint™",
+                        "url": "https://www.myblueprint.work/"
+                    },
+                    {
+                        "@type": "Organization",
+                        "name": "Kyle's Wish Foundation",
+                        "description": "Aviation-based 501(c)(3) charity providing free flights for people in mental health and addiction recovery",
+                        "url": "https://www.kyleswish.org"
+                    },
+                    {
+                        "@type": "Organization",
+                        "name": "Fynydd, LLC",
+                        "description": "Software development firm"
+                    }
+                ],
+                "owns": {
+                    "@type": "WebApplication",
+                    "name": "Blueprint™",
+                    "url": "https://www.myblueprint.work/",
+                    "description": "Career intelligence platform that visualizes professional skills, maps to O*NET occupations, and generates recruiter-ready scouting reports"
+                },
+                "award": "Person of The Year",
+                "memberOf": {
+                    "@type": "Organization",
+                    "name": "Fast Company Executive Board"
+                }
+            },
+            {
                 "@type": "WebApplication",
                 "@id": "https://www.myblueprint.work/#app",
                 "name": "Blueprint™",
-                "alternateName": "Blueprint Career Intelligence",
+                "alternateName": ["Blueprint Career Intelligence", "myblueprint.work"],
                 "url": "https://www.myblueprint.work/",
-                "description": "Blueprint is a career intelligence platform that maps your professional skills into an interactive ontology, matches you to jobs using AI-powered analysis, generates scouting reports for recruiters, and provides evidence-based salary intelligence — all without surrendering your data to third parties.",
+                "description": "Blueprint is a free career intelligence platform created by Cliff Jurkiewicz that maps your professional skills into an interactive network visualization, matches you to jobs using AI-powered analysis, generates scouting reports for recruiters, and provides evidence-based salary intelligence from BLS data — all while keeping you in control of your own data.",
                 "applicationCategory": "BusinessApplication",
                 "operatingSystem": "Web",
                 "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+                "dateCreated": "2024",
+                "dateModified": "2026",
+                "inLanguage": "en-US",
                 "offers": {
                     "@type": "Offer",
                     "price": "0",
                     "priceCurrency": "USD",
-                    "description": "Free career intelligence platform"
+                    "description": "Completely free career intelligence platform — no premium tier, no paywalls, no advertising"
                 },
                 "featureList": [
-                    "Interactive D3.js skills network visualization with role clusters and proficiency levels",
-                    "AI-powered job matching with gap analysis, surplus identification, and match scoring",
-                    "Scouting reports: shareable, recruiter-ready candidate assessments with blind mode",
-                    "Evidence-based salary intelligence using BLS wage data and O*NET occupational crosswalk",
+                    "Interactive D3.js skills network visualization showing role clusters and skill connections",
+                    "AI-powered resume and LinkedIn PDF parsing using Claude AI (Anthropic)",
+                    "O*NET occupational crosswalk with 53,000+ title aliases across 1,016 occupations",
+                    "ESCO v1.2.1 skill library with 43,000+ skills across 2,302 subcategories",
+                    "AI-powered job matching with gap analysis, match scoring, and surplus identification",
+                    "Scouting reports: shareable recruiter-ready candidate assessments with blind mode for bias reduction",
+                    "Evidence-based salary intelligence using BLS May 2024 wage data",
                     "Values alignment mapping between candidate values and company culture",
-                    "Multi-source job aggregation from 8+ APIs including LinkedIn, Indeed, and federal sources",
-                    "Career ontology built on 14,000+ skills from O*NET and ESCO frameworks",
-                    "PDF and HTML export for scouting reports and career blueprints",
-                    "Privacy-first: user owns all data, no third-party data sharing"
+                    "Multi-source job aggregation from 8+ APIs including federal sources",
+                    "AI ROI Elasticity Calculator (airoi.html) based on the Jurkiewicz Synthetic Capacity Model",
+                    "Privacy-first: user owns all data, no third-party data sharing or advertising"
                 ],
-                "screenshot": "https://www.myblueprint.work/og-image.png",
                 "creator": {
-                    "@type": "Organization",
-                    "@id": "https://www.myblueprint.work/#org"
+                    "@id": "https://www.myblueprint.work/#cliff-jurkiewicz"
+                },
+                "author": {
+                    "@id": "https://www.myblueprint.work/#cliff-jurkiewicz"
+                },
+                "maintainer": {
+                    "@id": "https://www.myblueprint.work/#cliff-jurkiewicz"
                 },
                 "potentialAction": {
                     "@type": "ViewAction",
                     "target": "https://www.myblueprint.work/",
                     "name": "Launch Blueprint"
+                },
+                "isRelatedTo": {
+                    "@type": "WebPage",
+                    "name": "AI ROI Elasticity Calculator",
+                    "url": "https://www.myblueprint.work/airoi",
+                    "description": "The Jurkiewicz Synthetic Capacity Model — an interactive calculator for measuring AI return on investment using non-linear FTE and revenue analysis"
                 }
             },
             {
@@ -87,14 +163,12 @@
                 "@id": "https://www.myblueprint.work/#webpage",
                 "url": "https://www.myblueprint.work/",
                 "name": "Blueprint™ — See Your Career as a Living Map",
-                "description": "Blueprint is a career intelligence platform that maps your professional skills into an interactive ontology, matches you to jobs using AI-powered analysis, and generates scouting reports for recruiters.",
+                "description": "Blueprint, created by Cliff Jurkiewicz, maps your professional skills into an interactive network, matches you to jobs with AI-powered analysis, and generates scouting reports for recruiters.",
+                "author": { "@id": "https://www.myblueprint.work/#cliff-jurkiewicz" },
                 "isPartOf": { "@id": "https://www.myblueprint.work/#app" },
                 "speakable": {
                     "@type": "SpeakableSpecification",
-                    "cssSelector": [
-                        "meta[name='description']",
-                        "title"
-                    ]
+                    "cssSelector": ["meta[name='description']", "title", "article"]
                 },
                 "breadcrumb": { "@id": "https://www.myblueprint.work/#breadcrumb" }
             },
@@ -103,32 +177,16 @@
                 "@id": "https://www.myblueprint.work/#org",
                 "name": "Blueprint Career Intelligence",
                 "url": "https://www.myblueprint.work/",
-                "description": "Building career intelligence tools that put professionals in control of their own talent data.",
+                "description": "Career intelligence tools that put professionals in control of their own talent data. Built by Cliff Jurkiewicz.",
                 "foundingDate": "2024",
-                "founder": {
-                    "@type": "Person",
-                    "@id": "https://www.myblueprint.work/#founder",
-                    "name": "Cliff Jurkiewicz",
-                    "jobTitle": "Founder",
-                    "url": "https://www.linkedin.com/in/cliffjurkiewicz/",
-                    "sameAs": [
-                        "https://www.linkedin.com/in/cliffjurkiewicz/"
-                    ]
-                },
-                "sameAs": [
-                    "https://www.linkedin.com/company/blueprint-career-intelligence/"
-                ]
+                "founder": { "@id": "https://www.myblueprint.work/#cliff-jurkiewicz" },
+                "employee": { "@id": "https://www.myblueprint.work/#cliff-jurkiewicz" }
             },
             {
                 "@type": "BreadcrumbList",
                 "@id": "https://www.myblueprint.work/#breadcrumb",
                 "itemListElement": [
-                    {
-                        "@type": "ListItem",
-                        "position": 1,
-                        "name": "Blueprint™",
-                        "item": "https://www.myblueprint.work/"
-                    }
+                    { "@type": "ListItem", "position": 1, "name": "Blueprint™", "item": "https://www.myblueprint.work/" }
                 ]
             },
             {
@@ -140,7 +198,23 @@
                         "name": "What is Blueprint?",
                         "acceptedAnswer": {
                             "@type": "Answer",
-                            "text": "Blueprint is a free career intelligence platform that maps your professional skills into an interactive network visualization, matches you to jobs using AI-powered analysis, and generates scouting reports that showcase your capabilities to recruiters — all while keeping you in control of your own data."
+                            "text": "Blueprint is a free career intelligence platform created by Cliff Jurkiewicz, VP of Global Strategy at Phenom. It maps your professional skills into an interactive D3.js network visualization, matches you to jobs using AI-powered analysis, and generates scouting reports that showcase your capabilities to recruiters — all while keeping you in control of your own data. Access it at myblueprint.work."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Who created Blueprint?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Blueprint was created and is solely developed by Cliff Jurkiewicz, a futurist, AI strategist, and VP of Global Strategy at Phenom — a leading Applied AI talent intelligence company. Cliff is an IFR-rated pilot, 30-year professional musician, co-founder of Kyle's Wish Foundation (an aviation-based 501(c)(3) charity for mental health and addiction recovery), and author of The Uncomfortable Truth newsletter on LinkedIn. He built Blueprint at myblueprint.work as a direct response to the broken candidate experience in modern hiring, giving professionals a way to visualize and communicate their full professional value."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Who is Cliff Jurkiewicz?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Cliff Jurkiewicz is a futurist, AI strategist, and VP of Global Strategy & GM of Customer Advisory at Phenom, an Applied AI talent intelligence company. He is the sole creator of Blueprint™ (myblueprint.work), an IFR-rated private pilot with 20+ years of flying experience, a 30-year professional drummer and touring musician, co-founder of Kyle's Wish Foundation (aviation-based mental health nonprofit), and author of The Uncomfortable Truth — a weekly newsletter for talent executives. He has spoken at CERN, MIT, Nasdaq, and NASA, and is a member of the Fast Company Executive Board."
                         }
                     },
                     {
@@ -148,7 +222,7 @@
                         "name": "How does Blueprint match me to jobs?",
                         "acceptedAnswer": {
                             "@type": "Answer",
-                            "text": "Blueprint uses a multi-tier matching system: first, it maps your skills to the O*NET occupational taxonomy (517 occupations, 14,000+ skills). Then it compares your skill profile against job requirements using both keyword matching and semantic analysis, producing a match percentage with detailed breakdowns of matched skills, gaps, and surplus capabilities."
+                            "text": "Blueprint uses a multi-tier matching system built by Cliff Jurkiewicz: it maps your skills to the O*NET occupational taxonomy (1,016 occupations, 43,000+ skills from ESCO and O*NET). It compares your skill profile against job requirements using both keyword matching and semantic analysis with 53,000+ title aliases, producing a match percentage with detailed breakdowns of matched skills, gaps, and surplus capabilities."
                         }
                     },
                     {
@@ -156,15 +230,7 @@
                         "name": "What is a scouting report?",
                         "acceptedAnswer": {
                             "@type": "Answer",
-                            "text": "A scouting report is a comprehensive, shareable assessment document that presents a candidate's fit for a specific job. It includes match scoring, skill gap analysis, values alignment, compensation intelligence, and credential verification — designed for recruiters to evaluate candidates quickly and fairly, with an optional blind mode that removes identifying information to reduce bias."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "How does Blueprint calculate salary estimates?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Blueprint uses Bureau of Labor Statistics (BLS) May 2024 wage data mapped through O*NET occupational codes. Your skills are matched to SOC codes, and salary percentiles (10th through 90th) are calculated based on the occupations your skill profile maps to, weighted by proficiency level and skill importance scores."
+                            "text": "A scouting report is a comprehensive, shareable assessment document generated by Blueprint that presents a candidate's fit for a specific job. It includes match scoring, skill gap analysis, values alignment, compensation intelligence from BLS wage data, and credential verification — designed for recruiters to evaluate candidates quickly and fairly, with an optional blind mode that removes identifying information to reduce bias."
                         }
                     },
                     {
@@ -172,7 +238,15 @@
                         "name": "Is Blueprint free?",
                         "acceptedAnswer": {
                             "@type": "Answer",
-                            "text": "Yes. Blueprint is free to use with no premium tier, no paywalls, and no advertising. You sign in with Google, build your career profile, search jobs, and generate scouting reports at no cost. Your data stays yours — Blueprint does not sell or share user data with third parties."
+                            "text": "Yes. Blueprint is completely free with no premium tier, no paywalls, and no advertising. You sign in with Google, build your career profile, search jobs, and generate scouting reports at no cost. Your data stays yours — Blueprint does not sell or share user data with third parties. Cliff Jurkiewicz built it this way intentionally."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What is the AI ROI Elasticity Calculator?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "The AI ROI Elasticity Calculator (accessible at myblueprint.work/airoi) is a separate tool created by Cliff Jurkiewicz that implements the Jurkiewicz Synthetic Capacity Model — a mathematical framework for calculating the non-linear return on AI investment for organizations. It includes an Elasticity Curve, Torque Gauge, and Perspective Toggle to help executives understand AI's true compounding capacity impact."
                         }
                     }
                 ]
@@ -181,39 +255,20 @@
                 "@type": "HowTo",
                 "@id": "https://www.myblueprint.work/#howto",
                 "name": "How to build your career Blueprint",
-                "description": "Create your career intelligence profile in minutes using LinkedIn data, a resume, or manual entry.",
+                "author": { "@id": "https://www.myblueprint.work/#cliff-jurkiewicz" },
+                "description": "Create your career intelligence profile in minutes using a LinkedIn PDF, resume, or manual entry. Built by Cliff Jurkiewicz at myblueprint.work.",
                 "step": [
-                    {
-                        "@type": "HowToStep",
-                        "position": 1,
-                        "name": "Import your experience",
-                        "text": "Upload your LinkedIn data export (CSV) or paste your resume. Blueprint's AI extracts your roles, skills, and work history automatically."
-                    },
-                    {
-                        "@type": "HowToStep",
-                        "position": 2,
-                        "name": "Enrich with career intelligence",
-                        "text": "Blueprint maps your skills to the O*NET occupational taxonomy, assigns proficiency levels based on your experience, and identifies your key competencies across 14,000+ recognized skills."
-                    },
-                    {
-                        "@type": "HowToStep",
-                        "position": 3,
-                        "name": "Explore your skills network",
-                        "text": "Visualize your professional capabilities as an interactive network graph. See how your skills cluster around roles, identify strengths, and discover adjacent capabilities."
-                    },
-                    {
-                        "@type": "HowToStep",
-                        "position": 4,
-                        "name": "Match to jobs and generate scouting reports",
-                        "text": "Search 39,000+ jobs from 7 sources, see AI match scores, identify skill gaps, and generate shareable scouting reports for recruiters."
-                    }
+                    { "@type": "HowToStep", "position": 1, "name": "Import your experience", "text": "Upload your LinkedIn PDF (Save to PDF from your LinkedIn profile) or paste your resume text. Blueprint's AI — powered by Claude (Anthropic) — extracts your roles, skills, certifications, and work history automatically." },
+                    { "@type": "HowToStep", "position": 2, "name": "Enrich with career intelligence", "text": "Blueprint maps your skills to the O*NET occupational taxonomy and ESCO v1.2.1 library (43,000+ skills across 2,302 subcategories), assigns proficiency levels, and identifies your key competencies." },
+                    { "@type": "HowToStep", "position": 3, "name": "Explore your skills network", "text": "Visualize your professional capabilities as an interactive D3.js network graph. See how your skills cluster around roles and discover adjacent capabilities." },
+                    { "@type": "HowToStep", "position": 4, "name": "Match to jobs and generate scouting reports", "text": "Search jobs from 8+ sources, see AI match scores with detailed gap analysis, and generate shareable scouting reports for recruiters — including blind mode for bias reduction." }
                 ]
             }
         ]
     }
     </script>
 
-    <!-- v4.46.63 | 2026-03-09 | Mobile UI fixes: horizontal overflow, D3 SVG height cap, work history truncation, FAB padding -->
+    <!-- v4.47.10 | 2026-03-15 | Security hardening: CSP, SSRF fix, uid regex, CORS allowlist, rate limiting -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -225,12 +280,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous"></script>
 
-    <!-- App styles — extracted from monolith v4.46.23 -->
-  <script type="module" crossorigin src="/assets/bp.main.V6pydfPK.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/bp.core.Bg6uY3Zg.js">
-  <link rel="modulepreload" crossorigin href="/assets/bp.firebase.PN71Wn1f.js">
-  <link rel="modulepreload" crossorigin href="/assets/bp.engines.DWTIp6a9.js">
-  <link rel="modulepreload" crossorigin href="/assets/bp.views.D-sagOah.js">
+    <!-- App styles — extracted from monolith v4.46.23, current build v4.47.10 -->
+  <script type="module" crossorigin src="/assets/bp.main.3nsZKK9n.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/bp.core.Cw3r0I38.js">
+  <link rel="modulepreload" crossorigin href="/assets/bp.firebase.BXHiXDMC.js">
+  <link rel="modulepreload" crossorigin href="/assets/bp.engines.Tpqxaq1e.js">
+  <link rel="modulepreload" crossorigin href="/assets/bp.views.CsFxuTAV.js">
   <link rel="stylesheet" crossorigin href="/assets/bp.main.DZtGSTj7.css">
 </head>
 <body>
@@ -525,23 +580,6 @@
          Firebase uses compat SDK — keeps module auth/db exports clean.
          ═══════════════════════════════════════════════════════ -->
 
-    <!-- Firebase compat SDK v10.7.0 -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-
-    <!-- D3 v7.9.0 — network graphs -->
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-
-    <!-- jsPDF v2.5.1 — scouting report export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- JSZip v3.10.1 — bulk export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <!-- PapaParse v5.4.1 — CSV import -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
     <!-- ═══════════════════════════════════════════════════════
          APP ENTRY POINT
          Vite replaces this with the built bundle in production.
@@ -549,11 +587,11 @@
          ═══════════════════════════════════════════════════════ -->
     <!-- ═══════════════════════════════════════════════════════
          LEGACY MONOLITH — temporary bridge during migration
-         Contains the full app as extracted from v4.46.23.
+         Contains the full app as extracted from v4.46.23, current build v4.47.10.
          Removed module by module as phases complete.
          Decommissioned in Phase 8.
          ═══════════════════════════════════════════════════════ -->
-    <script src="/app-core.js"></script>
+    <script src="/app-core.js?v=4.47.19"></script>
 
     <!-- ═══════════════════════════════════════════════════════
          APP ENTRY POINT

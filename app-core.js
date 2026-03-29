@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37i';
+        var BP_VERSION = 'v4.47.37j';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -29861,6 +29861,7 @@ body {
             const valuesCount = blueprintData.values.filter(v => v.selected).length;
             const skillCount = (skillsData.skills || []).length;
             
+            var _isExplorer = userData.profileType === 'explorer';
             view.innerHTML = `
                 <div class="blueprint-container">
                     
@@ -29869,35 +29870,35 @@ body {
                             <span class="bp-tab-icon">${bpIcon('blueprint',16)}</span>
                             <span class="bp-tab-label">Dashboard</span>
                         </button>
-                        <button class="bp-tab ${blueprintTab === 'experience' ? 'active' : ''}" onclick="switchBlueprintTab('experience')">
+                        ${_isExplorer ? '' : `<button class="bp-tab ${blueprintTab === 'experience' ? 'active' : ''}" onclick="switchBlueprintTab('experience')">
                             <span class="bp-tab-icon">${bpIcon('experience',16)}</span>
                             <span class="bp-tab-label">Experience</span>
-                        </button>
+                        </button>`}
                         <button class="bp-tab ${blueprintTab === 'skills' ? 'active' : ''}" onclick="switchBlueprintTab('skills')">
                             <span class="bp-tab-icon">${bpIcon('skills',16)}</span>
                             <span class="bp-tab-label">Skills</span>
                             <span class="bp-tab-count">${skillCount}</span>
                         </button>
-                        <button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
+                        ${_isExplorer ? '' : `<button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
                             <span class="bp-tab-icon">${bpIcon('outcomes',16)}</span>
                             <span class="bp-tab-label">Outcomes</span>
                             <span class="bp-tab-count">${outcomesCount}</span>
-                        </button>
-                        <button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
+                        </button>`}
+                        ${_isExplorer ? '' : `<button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
                             <span class="bp-tab-icon">${bpIcon('shield',16)}</span>
                             <span class="bp-tab-label">Verify</span>
                             <span class="bp-tab-count">${(userData.verifications || []).filter(v => v.status === 'confirmed').length}</span>
-                        </button>
+                        </button>`}
                         <button class="bp-tab ${blueprintTab === 'values' ? 'active' : ''}" onclick="switchBlueprintTab('values')">
                             <span class="bp-tab-icon">${bpIcon('values',16)}</span>
                             <span class="bp-tab-label">Values</span>
                             <span class="bp-tab-count">${valuesCount}</span>
                         </button>
-                        <button class="bp-tab ${blueprintTab === 'content' ? 'active' : ''}" onclick="switchBlueprintTab('content')">
+                        ${_isExplorer ? '' : `<button class="bp-tab ${blueprintTab === 'content' ? 'active' : ''}" onclick="switchBlueprintTab('content')">
                             <span class="bp-tab-icon">${bpIcon('clipboard',16)}</span>
                             <span class="bp-tab-label">Content</span>
                             <span class="bp-tab-count">${_countContentItems()}</span>
-                        </button>
+                        </button>`}
                         <button class="bp-tab ${blueprintTab === 'export' ? 'active' : ''}" onclick="switchBlueprintTab('export')">
                             <span class="bp-tab-icon">${bpIcon('export',16)}</span>
                             <span class="bp-tab-label">Export</span>
@@ -29950,6 +29951,163 @@ body {
             return renderDashboardTab();
         }
 
+        function renderExplorerDashboard(skills, roles) {
+            var ed = userData.explorerData || {};
+            var careerPaths = ed.careerPaths || [];
+            var selectedIdx = typeof ed.selectedCareerIdx === 'number' ? ed.selectedCareerIdx : 0;
+            var selectedPath = careerPaths[selectedIdx] || null;
+            var education = ed.education || {};
+            var skillCount = skills.length;
+            var noviceCount = skills.filter(function(s) { return s.level === 'Novice'; }).length;
+            var competentCount = skills.filter(function(s) { return s.level === 'Competent'; }).length;
+            var otherCount = skillCount - noviceCount - competentCount;
+            var driveStatement = ed.driveStatement || '';
+
+            var cardStyle = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
+            var labelStyle = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+
+            var html = '';
+
+            html += '<div style="background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(96,165,250,0.08)); border:1px solid rgba(139,92,246,0.2); border-radius:16px; padding:24px; margin-bottom:20px; text-align:center;">'
+                + '<div style="display:inline-block; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:4px 12px; border-radius:20px; margin-bottom:12px;">Explorer Mode</div>'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Your Career Journey Starts Here</div>'
+                + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; max-width:520px; margin:0 auto;">Your Blueprint is built from your education, activities, and interests. As you gain experience, your skills and valuation will grow.</div>'
+                + '</div>';
+
+            html += '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">';
+            html += '<div style="' + cardStyle + ' text-align:center; padding:16px;">'
+                + '<div style="font-size:1.8em; font-weight:700; color:#60a5fa;">' + skillCount + '</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">Skills Discovered</div></div>';
+            html += '<div style="' + cardStyle + ' text-align:center; padding:16px;">'
+                + '<div style="font-size:1.8em; font-weight:700; color:#8b5cf6;">' + careerPaths.length + '</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">Career Paths</div></div>';
+            html += '<div style="' + cardStyle + ' text-align:center; padding:16px;">'
+                + '<div style="font-size:1.8em; font-weight:700; color:#10b981;">' + (competentCount + otherCount) + '</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">Growing Skills</div></div>';
+            html += '</div>';
+
+            if (selectedPath) {
+                html += '<div style="' + cardStyle + ' border-color:rgba(139,92,246,0.3);">'
+                    + '<div style="' + labelStyle + ' color:#8b5cf6;">Focused Career Path</div>'
+                    + '<div style="font-weight:700; font-size:1.1em; color:var(--text-primary); margin-bottom:6px;">' + escapeHtml(selectedPath.title) + '</div>'
+                    + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; margin-bottom:12px;">' + escapeHtml(selectedPath.whyFit || '') + '</div>';
+
+                if (selectedPath.nextSteps && selectedPath.nextSteps.length) {
+                    html += '<div style="' + labelStyle + ' color:#10b981; margin-top:12px;">What To Do Next</div>';
+                    selectedPath.nextSteps.forEach(function(step) {
+                        html += '<div style="display:flex; align-items:flex-start; gap:8px; margin-bottom:8px;">'
+                            + '<span style="color:#10b981; font-weight:700; margin-top:1px;">&#10003;</span>'
+                            + '<span style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(step) + '</span>'
+                            + '</div>';
+                    });
+                }
+
+                if (selectedPath.salary) {
+                    html += '<div style="margin-top:12px; padding:10px 14px; background:rgba(16,185,129,0.06); border-radius:8px; font-size:0.82em; color:var(--text-secondary);">'
+                        + '<strong style="color:#10b981;">Entry-Level Range:</strong> ' + escapeHtml(selectedPath.salary)
+                        + '</div>';
+                }
+
+                html += '</div>';
+            }
+
+            if (careerPaths.length > 1) {
+                html += '<div style="' + cardStyle + '">'
+                    + '<div style="' + labelStyle + ' color:#60a5fa;">All Career Paths</div>';
+                careerPaths.forEach(function(path, idx) {
+                    var isSelected = idx === selectedIdx;
+                    html += '<div style="padding:12px 14px; border:1px solid ' + (isSelected ? 'rgba(139,92,246,0.4)' : 'var(--border-color)') + '; border-radius:10px; margin-bottom:8px; cursor:pointer; background:' + (isSelected ? 'rgba(139,92,246,0.06)' : 'transparent') + ';" onclick="explorerDashSelectPath(' + idx + ')">'
+                        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.92em;">' + escapeHtml(path.title) + '</div>'
+                        + (isSelected ? '<span style="color:#8b5cf6; font-size:0.72em; font-weight:700; text-transform:uppercase;">Focused</span>' : '')
+                        + '</div>'
+                        + (path.growth ? '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px;">Growth: ' + escapeHtml(path.growth) + '</div>' : '')
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+
+            if (education.school) {
+                html += '<div style="' + cardStyle + '">'
+                    + '<div style="' + labelStyle + ' color:#f59e0b;">Education</div>'
+                    + '<div style="font-weight:600; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(education.school) + '</div>'
+                    + '<div style="font-size:0.85em; color:var(--text-secondary);">'
+                    + (education.degree ? escapeHtml(education.degree) : '') + (education.major ? ' in ' + escapeHtml(education.major) : '')
+                    + (education.gradYear ? ' &middot; ' + escapeHtml(education.gradYear) : '')
+                    + '</div></div>';
+            }
+
+            if (driveStatement) {
+                html += '<div style="' + cardStyle + '">'
+                    + '<div style="' + labelStyle + ' color:#ec4899;">What Drives You</div>'
+                    + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; font-style:italic;">&ldquo;' + escapeHtml(driveStatement) + '&rdquo;</div>'
+                    + '</div>';
+            }
+
+            html += '<div style="' + cardStyle + ' text-align:center; border-color:rgba(16,185,129,0.3);">'
+                + '<div style="font-size:0.92em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Ready for Your First Role?</div>'
+                + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-bottom:14px;">When you land your first job, convert to a full Blueprint to unlock salary insights, market valuation, negotiation tools, and advanced evidence tracking.</div>'
+                + '<button onclick="explorerConvertToFull()" style="padding:12px 24px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert to Full Blueprint</button>'
+                + '</div>';
+
+            html += '<div style="padding:12px 16px; background:rgba(139,92,246,0.04); border-radius:10px; margin-bottom:16px;">'
+                + '<div style="font-size:0.78em; color:var(--text-muted); text-align:center;">Coming soon: <strong>People Like You</strong> \u2014 discover accomplished people who started with similar backgrounds and career paths.</div>'
+                + '</div>';
+
+            return html;
+        }
+
+        function explorerDashSelectPath(idx) {
+            if (!userData.explorerData) return;
+            userData.explorerData.selectedCareerIdx = idx;
+            renderBlueprint();
+            saveToFirestore();
+        }
+        window.explorerDashSelectPath = explorerDashSelectPath;
+
+        function explorerConvertToFull() {
+            var modal = document.getElementById('exportModal');
+            if (!modal) return;
+            var mc = modal.querySelector('.modal-content') || modal;
+            mc.innerHTML = '<div style="padding:30px; max-width:520px; margin:0 auto;">'
+                + '<div style="text-align:center; margin-bottom:24px;">'
+                + '<div style="font-size:2.5em; margin-bottom:8px;">&#x1F680;</div>'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Convert to Full Blueprint</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6;">Add your work experience to unlock the complete Blueprint platform \u2014 salary insights, market valuation, negotiation tools, and scouting reports.</div>'
+                + '</div>'
+                + '<div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:18px; margin-bottom:20px;">'
+                + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.9em;">What You Keep</div>'
+                + '<div style="display:flex; flex-direction:column; gap:6px;">'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#10b981; margin-right:6px;">&#10003;</span> All ' + (skillsData.skills || []).length + ' discovered skills</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#10b981; margin-right:6px;">&#10003;</span> Your education background</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#10b981; margin-right:6px;">&#10003;</span> Your career path interests</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#10b981; margin-right:6px;">&#10003;</span> Your values and purpose</div>'
+                + '</div></div>'
+                + '<div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:18px; margin-bottom:24px;">'
+                + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.9em;">What You Unlock</div>'
+                + '<div style="display:flex; flex-direction:column; gap:6px;">'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> Market valuation & salary benchmarking</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> AI-powered negotiation guide</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> Job matching & scouting reports</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> Evidence-based skill verification</div>'
+                + '</div></div>'
+                + '<div style="display:flex; gap:12px;">'
+                + '<button onclick="closeExportModal()" style="flex:1; padding:12px; background:var(--card-bg); color:var(--text-secondary); border:1px solid var(--border-color); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.9em;">Not Yet</button>'
+                + '<button onclick="explorerDoConvert()" style="flex:1; padding:12px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert Now</button>'
+                + '</div></div>';
+            modal.style.display = 'flex';
+        }
+        window.explorerConvertToFull = explorerConvertToFull;
+
+        function explorerDoConvert() {
+            userData.profileType = 'standard';
+            if (typeof closeExportModal === 'function') closeExportModal();
+            saveToFirestore();
+            renderBlueprint();
+            if (typeof showToast === 'function') showToast('Converted to full Blueprint! Add your work experience to unlock salary insights.', 'success');
+        }
+        window.explorerDoConvert = explorerDoConvert;
+
         function renderDashboardTab() {
             var skills = skillsData.skills || [];
             var roles  = skillsData.roles  || [];
@@ -29962,6 +30120,12 @@ body {
                     + '<div style="font-size:1em; color:var(--text-muted); max-width:480px; margin:0 auto 32px; line-height:1.7;">Map your skills, define your roles, and track your outcomes to unlock salary estimates, job matching, and scouting reports.</div>'
                     + '<button onclick="showOnboardingWizard();" style="padding:14px 28px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:1em;">\u26A1 Start Building</button>'
                     + '</div>';
+            }
+
+            var isExplorerProfile = userData.profileType === 'explorer';
+
+            if (isExplorerProfile) {
+                return renderExplorerDashboard(skills, roles);
             }
 
             var outcomes       = blueprintData.outcomes || [];

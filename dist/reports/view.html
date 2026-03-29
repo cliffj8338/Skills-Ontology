@@ -22,6 +22,8 @@ html.light ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12)}
 html.light .sec-st{color:#475569}
 html.light .hero-meta{color:#475569}
 html.light .sk-rq{color:#334155;border-color:rgba(0,0,0,.15)}
+html.light .sk-card{border-color:rgba(0,0,0,.1)}
+html.light .sk-card:hover{border-color:rgba(99,102,241,.3);background:rgba(99,102,241,.02)}
 html.light .gap-br{color:#334155}
 html.light .gap-tag{color:#334155;border-color:rgba(0,0,0,.1);background:rgba(0,0,0,.03)}
 html.light .outc-t{color:#1e293b}
@@ -173,24 +175,30 @@ body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
 .pop-ev-l{font-size:.7em;color:var(--a);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
 
 /* Skill rows */
-.sk-list{display:flex;flex-direction:column;gap:6px}
-.sk-r{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 18px;cursor:pointer;transition:all .2s}
-.sk-r:hover{border-color:var(--ba);background:var(--elev)}
-.sk-r.ex{border-color:var(--ba);background:var(--elev)}
-.sk-top{display:flex;align-items:center;gap:12px}
-.sk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.sk-nm{font-weight:600;font-size:.9em;flex:1;min-width:0}
+.sk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.sk-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:6px;position:relative;min-height:80px;min-width:0;overflow:hidden}
+.sk-card:hover{border-color:var(--ba);background:var(--elev)}
+.sk-card.ex{border-color:var(--a);background:var(--elev);grid-column:1/-1}
+.sk-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;display:inline-block;vertical-align:middle;margin-right:6px}
+.sk-nm{font-weight:600;font-size:.88em;line-height:1.3;display:flex;align-items:flex-start;gap:6px}
+.sk-nm .sk-dot{margin-top:4px}
+.sk-lvl{font-size:.7em;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block}
+.sk-lvl-Mastery{background:rgba(245,158,11,.12);color:#f59e0b}
+.sk-lvl-Expert{background:rgba(168,85,247,.12);color:#a855f7}
+.sk-lvl-Advanced{background:rgba(59,130,246,.12);color:#3b82f6}
+.sk-lvl-Proficient{background:rgba(16,185,129,.12);color:#10b981}
+.sk-lvl-Novice{background:rgba(107,114,128,.12);color:#6b7280}
+.sk-role{font-size:.7em;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:auto}
+.sk-vf-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-left:4px;vertical-align:middle}
 .sk-rq{font-size:.68em;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.04);color:var(--tm);white-space:nowrap}
-.sk-bars{flex-shrink:0;width:100px}
-.sk-bar-r{display:flex;align-items:center;gap:6px;font-size:.65em;color:var(--tm)}
-.sk-bar-t{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
-.sk-bar-f{height:100%;border-radius:2px}
-.sk-chev{color:var(--tm);font-size:.8em;transition:transform .2s;flex-shrink:0;margin-left:8px}
-.sk-r.ex .sk-chev{transform:rotate(180deg)}
-.sk-det{display:none;padding:14px 0 4px 20px;margin-top:12px;border-top:1px solid var(--border);font-size:.85em;color:var(--t2);line-height:1.65}
-.sk-r.ex .sk-det{display:block}
+.sk-det{display:none;padding:14px 0 4px;margin-top:8px;border-top:1px solid var(--border);font-size:.85em;color:var(--t2);line-height:1.65}
+.sk-card.ex .sk-det{display:block}
 .sk-ev{margin-top:8px;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:var(--rs);border-left:2px solid var(--a)}
 .sk-ev-l{font-size:.72em;color:var(--a);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.sk-grp{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:10px 0 4px;border-bottom:1px solid var(--border)}
+.sk-grp-t{font-size:.82em;font-weight:600;color:var(--t2)}
+.sk-grp-c{font-size:.7em;color:var(--tm)}
+.sk-grp-stats{font-size:.68em;color:var(--tm);display:flex;gap:8px;flex-wrap:wrap}
 
 /* Gaps */
 .gap-c{background:var(--card);border:1px solid rgba(239,68,68,.15);border-radius:var(--rad);padding:18px 20px;margin-bottom:8px}
@@ -248,7 +256,7 @@ body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
 .target{flex-direction:column;gap:16px;text-align:center}
 .target-stats{justify-content:center}
 .nav-links{display:none}
-.sk-bars{width:70px}
+.sk-list{grid-template-columns:repeat(2,1fr)}
 .pgrid{grid-template-columns:repeat(3,1fr)}
 .cbar{flex-wrap:wrap;padding:10px 16px;gap:8px}
 .hero h1{font-size:1.4em}
@@ -592,14 +600,19 @@ function toggleTheme() {
 // ===== BLIND MODE =====
 let blindActive = false;
 const blindState = { identity:false, location:false, employer:false, institution:false, outcomes:false };
-const originals = { name:R.candidate.name, photo:R.candidate.photo, heroTitle:R.candidate.title, location:R.candidate.location, outcomes:[] };
-const blindOutcomes = R.outcomes.map(o => {
-    const vbSvg='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
-    let badge = '';
-    if(o.vf==='verified') badge=' <span class="vb">'+vbSvg+'Verified</span>';
-    else if(o.vf==='cert') badge=' <span class="vb cert">'+vbSvg+'Licensed Credential</span>';
-    return (o.blind||o.text) + badge;
-});
+let originals = { name:'', photo:'', heroTitle:'', location:'', outcomes:[] };
+let blindOutcomes = [];
+function initBlindData() {
+    if (!R || !R.candidate) return;
+    originals = { name:R.candidate.name, photo:R.candidate.photo, heroTitle:R.candidate.title, location:R.candidate.location, outcomes:[] };
+    blindOutcomes = (R.outcomes||[]).map(o => {
+        const vbSvg='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+        let badge = '';
+        if(o.vf==='verified') badge=' <span class="vb">'+vbSvg+'Verified</span>';
+        else if(o.vf==='cert') badge=' <span class="vb cert">'+vbSvg+'Licensed Credential</span>';
+        return (o.blind||o.text) + badge;
+    });
+}
 
 function toggleBlindPanel() { document.getElementById('blindPanel').classList.toggle('open'); }
 
@@ -744,7 +757,9 @@ function renderOutcomesHTML(){
     const vb='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
     document.getElementById('outcomesList').innerHTML=R.outcomes.map(o=>{
         let badge='';
-        if(o.vf==='verified')badge=' <span class="vb">'+vb+'Verified</span>';
+        if(o.vf==='verified')badge=' <span class="vb">'+vb+(o.vfLabel||'Verified')+'</span>';
+        else if(o.vf==='peer')badge=' <span class="vb">'+vb+(o.vfLabel||'Peer Verified')+'</span>';
+        else if(o.vf==='linked')badge=' <span class="vb">'+vb+(o.vfLabel||'Linked to verified skill')+'</span>';
         else if(o.vf==='cert')badge=' <span class="vb cert">'+vb+(o.vfLabel||'Licensed Credential')+'</span>';
         else if(o.vf==='edu')badge=' <span class="vb edu">'+vb+(o.vfLabel||'Verified')+'</span>';
         return '<div class="outc"><div class="outc-t">'+o.text+badge+'</div></div>';
@@ -758,12 +773,63 @@ function renderProfGrid(){
 
 function renderSk(){
 const el=document.getElementById('skL');
+const lvColors={Mastery:'#f59e0b',Expert:'#a855f7',Advanced:'#3b82f6',Proficient:'#10b981',Novice:'#6b7280'};
+const lvOrder={Mastery:5,Expert:4,Advanced:3,Proficient:2,Novice:1};
+const roleMap={};
+if(roles)roles.forEach(r=>{roleMap[r.id]=r;});
 const matched=US.filter(s=>MS.has(s.n));
-const rest=US.filter(s=>!MS.has(s.n)).slice(0,10);
-const vbSvg='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
-el.innerHTML=[...matched,...rest].map(s=>{const im=MS.has(s.n),lp={Mastery:100,Expert:80,Advanced:60,Proficient:40,Novice:20}[s.l]||0,sc=im?'var(--g)':'var(--tm)';
-const vbHtml=s.vf?'<span class="vb'+(s.vf==='cert'?' cert':s.vf==='edu'?' edu':'')+'">'+vbSvg+(s.vfLabel||'Verified')+'</span>':'';
-return`<div class="sk-r" onclick="this.classList.toggle('ex')"><div class="sk-top"><div class="sk-dot" style="background:${sc}"></div><div class="sk-nm">${escapeHtml(s.n)}${vbHtml}</div><div class="sk-rq">${im?'Matched':'Surplus'}</div><div class="sk-bars"><div class="sk-bar-r"><div style="width:36px;text-align:right">Level</div><div class="sk-bar-t"><div class="sk-bar-f" style="width:${lp}%;background:var(--a)"></div></div></div></div><div class="sk-chev">▾</div></div><div class="sk-det"><div style="margin-bottom:6px"><strong style="color:var(--a)">${s.l}</strong>${vbHtml}</div>${s.ev?`<div class="sk-ev"><div class="sk-ev-l">Evidence</div>${s.ev}</div>`:''}</div></div>`}).join('')}
+const surplus=US.filter(s=>!MS.has(s.n));
+surplus.sort((a,b)=>(lvOrder[b.l]||0)-(lvOrder[a.l]||0));
+const allSk=[...matched,...surplus];
+const groups={Mastery:[],Expert:[],Advanced:[],Proficient:[],Novice:[]};
+allSk.forEach(s=>{const lv=s.l||'Proficient';if(groups[lv])groups[lv].push(s);else groups.Proficient.push(s);});
+let html='';
+const isGeneral=R&&R.isGeneral;
+const lvList=['Mastery','Expert','Advanced','Proficient','Novice'];
+const totalCount=allSk.length;
+const evCount=allSk.filter(s=>s.ev).length;
+const vfCount=allSk.filter(s=>s.vf).length;
+html+='<div class="sk-grp" style="border-bottom:none;padding-bottom:8px"><div class="sk-grp-stats">';
+lvList.forEach(lv=>{const c=groups[lv].length;if(c>0)html+='<span><span style="color:'+lvColors[lv]+'">●</span> '+lv+' '+c+'</span>';});
+html+='<span style="margin-left:auto;opacity:.7">'+evCount+'/'+totalCount+' evidence · '+vfCount+' verified</span>';
+html+='</div></div>';
+lvList.forEach(lv=>{
+const skills=groups[lv];
+if(!skills.length)return;
+html+='<div class="sk-grp"><div class="sk-grp-t" style="color:'+lvColors[lv]+'">'+lv+'</div><div class="sk-grp-c">'+skills.length+' skills</div></div>';
+skills.forEach(s=>{
+const im=MS.has(s.n);
+const dotColor=im?'var(--g)':lvColors[s.l]||'var(--tm)';
+const roleNames=(s.r||[]).map(rid=>{const r=roleMap[rid];return r?r.name:'';}).filter(Boolean).join(', ');
+var vfBadge='';
+if(s.vf==='peer')vfBadge='<span class="vb" style="font-size:.68em;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>';
+else if(s.vf==='cert')vfBadge='<span class="vb cert" style="font-size:.68em;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Certified</span>';
+else if(s.vf==='edu')vfBadge='<span class="vb edu" style="font-size:.68em;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Education</span>';
+const matchBadge=(!isGeneral&&im)?'<span class="sk-rq" style="color:var(--g);border:1px solid rgba(16,185,129,.3);font-size:.62em;margin-left:auto">Matched</span>':'';
+html+='<div class="sk-card" onclick="this.classList.toggle(\'ex\')">';
+html+='<div class="sk-nm"><span class="sk-dot" style="background:'+dotColor+'"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(s.n)+'</span>'+matchBadge+'</div>';
+html+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="sk-lvl sk-lvl-'+s.l+'">'+s.l+'</span>'+vfBadge+'</div>';
+if(roleNames)html+='<div class="sk-role">'+escapeHtml(roleNames)+'</div>';
+html+='<div class="sk-det">';
+if(s.vf==='peer'&&s.vfBy&&s.vfBy.length>0){
+html+='<div style="margin-bottom:8px;padding:8px 12px;background:rgba(16,185,129,.06);border-radius:8px;border-left:2px solid #10b981">';
+html+='<div style="font-size:.72em;color:#10b981;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Peer Verified</div>';
+s.vfBy.forEach(function(v){html+='<div style="font-size:.82em;color:var(--t2)">✓ '+escapeHtml(v.name)+(v.rel?' <span style="color:var(--tm);font-size:.85em">('+escapeHtml(v.rel)+')</span>':'')+'</div>';});
+html+='</div>';
+}else if(s.vf==='cert'){
+html+='<div style="margin-bottom:6px;font-size:.8em;color:#f59e0b">✓ Certified: '+(s.vfLabel||'Credential')+'</div>';
+}else if(s.vf==='edu'){
+html+='<div style="margin-bottom:6px;font-size:.8em;color:#3b82f6">✓ Education: '+(s.vfLabel||'Degree')+'</div>';
+}else if(s.vf==='evidence'){
+html+='<div style="margin-bottom:6px;font-size:.8em;color:var(--tm)">Evidence documented</div>';
+}
+if(s.ev)html+='<div class="sk-ev"><div class="sk-ev-l">Evidence</div>'+s.ev+'</div>';
+if(!s.ev&&!s.vf)html+='<div style="font-size:.82em;color:var(--tm);font-style:italic">No evidence documented yet</div>';
+html+='</div>';
+html+='</div>';
+});
+});
+el.innerHTML=html;}
 
 function renderGaps(){document.getElementById('gapL').innerHTML=gapData.map(g=>`<div class="gap-c"><div class="gap-h"><div class="gap-n">${escapeHtml(g.n)}</div><div class="sk-rq" style="color:var(--r);border:1px solid var(--r);background:transparent">${escapeHtml(g.rq)}</div></div><div class="gap-br">${escapeHtml(g.br)}</div><div class="gap-adj"><span style="font-size:.72em;color:var(--tm);margin-right:4px">Bridge skills:</span>${g.adj.map(a=>`<span class="gap-tag">${escapeHtml(a)}</span>`).join('')}</div></div>`).join('')}
 
@@ -792,7 +858,7 @@ function bootReport(data) {
     gapCount = GN.length;
     surplusCount = US.length - matchedCount;
     
-    hydrateFromData();initReport();renderSk();renderGaps();renderDom();initSN();initVN();
+    hydrateFromData();initReport();renderSk();renderGaps();renderDom();initSN();initVN();initBlindData();
     
     // Hide loader
     var loader = document.getElementById('reportLoader');
