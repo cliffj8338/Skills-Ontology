@@ -18658,18 +18658,18 @@
             var topUpgrades = upgradeRecs.slice(0, 8);
             var topAdjacent = adjacentRecs.slice(0, 6);
 
-            var modal = document.getElementById('bpModalOverlay');
-            var mc = document.getElementById('bpModalContent');
-            if (!modal || !mc) return;
+            var modal = document.getElementById('exportModal');
+            if (!modal) return;
+            var mc = modal.querySelector('.modal-content');
+            if (!mc) return;
 
             var levelColors = { 'Mastery': '#10b981', 'Expert': '#fb923c', 'Advanced': '#a78bfa', 'Proficient': '#60a5fa', 'Foundational': '#94a3b8', 'Novice': '#94a3b8' };
             var impactColors = { critical: '#ef4444', high: '#fb923c', moderate: '#60a5fa', standard: '#94a3b8' };
 
-            var html = '<div style="max-width:680px; margin:0 auto;">';
-            html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">'
-                + '<div style="font-family:Outfit,sans-serif; font-size:1.5em; font-weight:800; color:var(--c-heading);">Skill Growth Advisor</div>'
-                + '<button onclick="closeBpModal()" style="background:none; border:none; color:var(--c-faint); cursor:pointer; font-size:1.4em; padding:4px 8px;">\u2715</button>'
-                + '</div>';
+            var html = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('trending-up',18) + ' Skill Growth Advisor</h2></div>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:20px; max-height:75vh; overflow-y:auto;">';
 
             html += '<div style="font-size:0.85em; color:var(--c-muted); margin-bottom:20px; line-height:1.5;">'
                 + 'Based on your ' + skills.length + ' skills in <strong>' + escapeHtml(fnLabel) + '</strong>. '
@@ -18753,8 +18753,8 @@
             html += '</div>';
 
             mc.innerHTML = html;
-            history.pushState({ modal: true }, '');
             modal.classList.add('active');
+            history.pushState({ modal: true }, '');
         }
         window.showGrowthAdvisor = showGrowthAdvisor;
 
