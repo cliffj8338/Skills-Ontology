@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.36';
+        var BP_VERSION = 'v4.47.37';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -18443,7 +18443,351 @@
             modal.classList.add('active');
         }
         window.showSkillCapTriage = showSkillCapTriage;
-        
+
+        // ===== SKILL GROWTH ADVISOR =====
+        var NEXT_LEVEL = { 'Novice': 'Proficient', 'Competent': 'Proficient', 'Foundational': 'Proficient', 'Proficient': 'Advanced', 'Advanced': 'Expert', 'Expert': 'Mastery' };
+        var GROWTH_ADJACENT_SKILLS = {
+            technology: [
+                { name: 'Cloud Architecture', rationale: 'Cloud skills command 15-25% salary premiums in tech roles' },
+                { name: 'Machine Learning', rationale: 'AI/ML expertise is the highest-demand technical skill in 2025-2026' },
+                { name: 'Cybersecurity', rationale: 'Security skills are scarce with a 3.5M global talent gap' },
+                { name: 'Data Engineering', rationale: 'Data pipeline skills bridge analytics and infrastructure teams' },
+                { name: 'System Design', rationale: 'Architecture skills differentiate senior from mid-level engineers' },
+                { name: 'DevOps', rationale: 'CI/CD and infrastructure automation are table-stakes for modern teams' },
+                { name: 'API Design', rationale: 'Strong API design skills signal systems thinking and scalability mindset' },
+                { name: 'Technical Leadership', rationale: 'Bridges technical depth with team impact — unlocks management track' }
+            ],
+            engineering: [
+                { name: 'Project Management', rationale: 'PMP-certified engineers earn 20%+ more than non-certified peers' },
+                { name: 'Data Analysis', rationale: 'Engineers who analyze data drive better design decisions' },
+                { name: 'Six Sigma', rationale: 'Process improvement certification signals operational excellence' },
+                { name: 'Regulatory Compliance', rationale: 'Compliance knowledge is critical and scarce in engineering orgs' },
+                { name: 'Technical Writing', rationale: 'Documentation skills multiply your impact across teams' },
+                { name: 'CAD/CAM', rationale: 'Advanced modeling skills accelerate prototyping and reduce costs' }
+            ],
+            finance: [
+                { name: 'Financial Modeling', rationale: 'Advanced modeling separates analysts from strategic advisors' },
+                { name: 'Data Visualization', rationale: 'Storytelling with data drives executive decision-making' },
+                { name: 'Risk Management', rationale: 'Risk expertise commands premium compensation in financial services' },
+                { name: 'Python', rationale: 'Programming skills automate analysis and unlock quantitative roles' },
+                { name: 'ESG Reporting', rationale: 'Sustainability reporting is fastest-growing compliance area' },
+                { name: 'M&A Due Diligence', rationale: 'Deal experience is the highest-leverage finance skill' }
+            ],
+            marketing: [
+                { name: 'Marketing Analytics', rationale: 'Data-driven marketers earn 20-30% more than creative-only peers' },
+                { name: 'SEO/SEM', rationale: 'Search skills directly tie to measurable revenue impact' },
+                { name: 'Product Marketing', rationale: 'PMM bridges product strategy and go-to-market execution' },
+                { name: 'Content Strategy', rationale: 'Strategic content planning drives long-term brand value' },
+                { name: 'Marketing Automation', rationale: 'Automation expertise scales campaigns and reduces cost-per-lead' },
+                { name: 'Brand Strategy', rationale: 'Brand thinking elevates tactical marketers to strategic leaders' }
+            ],
+            sales: [
+                { name: 'Sales Analytics', rationale: 'Data-driven sellers close 28% more deals on average' },
+                { name: 'Account Management', rationale: 'Retention skills are 5x more valuable than acquisition skills' },
+                { name: 'Negotiation', rationale: 'Advanced negotiation directly impacts deal size and margins' },
+                { name: 'CRM Administration', rationale: 'CRM expertise makes you indispensable to sales operations' },
+                { name: 'Solution Selling', rationale: 'Consultative selling commands premium comp in enterprise sales' },
+                { name: 'Revenue Operations', rationale: 'RevOps bridges sales, marketing, and CS — high-growth role' }
+            ],
+            hr: [
+                { name: 'People Analytics', rationale: 'Data-driven HR leaders earn 25%+ more than traditional HR' },
+                { name: 'Compensation Design', rationale: 'Total rewards expertise is scarce and commands premium pay' },
+                { name: 'Change Management', rationale: 'Organizational change skills are critical during digital transformation' },
+                { name: 'Employment Law', rationale: 'Legal knowledge reduces organizational risk and adds strategic value' },
+                { name: 'HRIS/Workday', rationale: 'System expertise is essential for modern HR operations' },
+                { name: 'Organizational Design', rationale: 'OD skills position you for VP/CHRO advancement' }
+            ],
+            operations: [
+                { name: 'Lean Six Sigma', rationale: 'Lean expertise directly reduces waste and increases margins' },
+                { name: 'Supply Chain Analytics', rationale: 'Data-driven supply chain management reduces costs 10-20%' },
+                { name: 'ERP Systems', rationale: 'SAP/Oracle expertise is consistently high-demand and well-compensated' },
+                { name: 'Process Automation', rationale: 'RPA and workflow automation skills multiply operational efficiency' },
+                { name: 'Vendor Management', rationale: 'Strategic sourcing skills directly impact bottom line' },
+                { name: 'Logistics Optimization', rationale: 'Route and inventory optimization drive measurable cost savings' }
+            ],
+            healthcare: [
+                { name: 'Health Informatics', rationale: 'EHR and health data skills bridge clinical and technology' },
+                { name: 'Quality Improvement', rationale: 'QI certification signals commitment to patient outcomes' },
+                { name: 'Clinical Research', rationale: 'Research skills open doors to pharma and biotech sectors' },
+                { name: 'Regulatory Affairs', rationale: 'FDA/regulatory expertise is scarce and highly compensated' },
+                { name: 'Telehealth', rationale: 'Virtual care delivery is the fastest-growing healthcare modality' },
+                { name: 'Healthcare Analytics', rationale: 'Population health analytics drives value-based care models' }
+            ],
+            recruiting: [
+                { name: 'People Analytics', rationale: 'Data-driven recruiting improves quality-of-hire and reduces time-to-fill' },
+                { name: 'Employer Branding', rationale: 'Strong employer brand reduces cost-per-hire by 50%' },
+                { name: 'Compensation Benchmarking', rationale: 'Comp knowledge makes you a strategic partner vs. order-taker' },
+                { name: 'Assessment Design', rationale: 'Structured interviewing skills improve hiring accuracy 2-3x' },
+                { name: 'Diversity & Inclusion', rationale: 'DE&I recruiting expertise is among the fastest-growing specializations' },
+                { name: 'Workforce Planning', rationale: 'Strategic planning elevates recruiting from tactical to strategic' }
+            ],
+            strategy: [
+                { name: 'Financial Modeling', rationale: 'Quantitative modeling separates strategists from generalists' },
+                { name: 'Market Research', rationale: 'Primary research skills validate strategic recommendations' },
+                { name: 'Data Science', rationale: 'Analytics-driven strategy commands premium consulting rates' },
+                { name: 'M&A Strategy', rationale: 'Deal strategy experience is the highest-leverage consulting skill' },
+                { name: 'Digital Transformation', rationale: 'DX advisory is the fastest-growing consulting practice area' },
+                { name: 'Executive Communication', rationale: 'Board-level presentation skills are essential for senior strategists' }
+            ],
+            legal: [
+                { name: 'Legal Technology', rationale: 'Legal tech proficiency differentiates modern practitioners' },
+                { name: 'Data Privacy', rationale: 'GDPR/CCPA expertise is critical and commands premium rates' },
+                { name: 'Contract Management', rationale: 'CLM skills bridge legal and operations efficiency' },
+                { name: 'Regulatory Compliance', rationale: 'Cross-regulatory expertise expands your practice areas' },
+                { name: 'Legal Analytics', rationale: 'Data-driven legal strategy improves outcomes and reduces costs' },
+                { name: 'Risk Assessment', rationale: 'Enterprise risk skills position legal as a strategic partner' }
+            ],
+            education: [
+                { name: 'Instructional Design', rationale: 'ID skills translate to corporate L&D roles at 2x education salary' },
+                { name: 'EdTech', rationale: 'Technology integration skills are essential for modern education' },
+                { name: 'Curriculum Development', rationale: 'Curriculum design expertise opens consulting and publishing opportunities' },
+                { name: 'Assessment Design', rationale: 'Psychometric skills are scarce and valued in testing organizations' },
+                { name: 'Data Analysis', rationale: 'Data-driven educators advance to leadership faster' },
+                { name: 'Grant Writing', rationale: 'Funding acquisition skills multiply your institutional impact' }
+            ],
+            general: [
+                { name: 'Project Management', rationale: 'PM skills are universally valued across all industries' },
+                { name: 'Data Analysis', rationale: 'Analytical skills command 15-20% salary premiums in any function' },
+                { name: 'Leadership', rationale: 'Leadership capability is the primary driver of career advancement' },
+                { name: 'Communication', rationale: 'Strong communication skills correlate with faster promotion velocity' },
+                { name: 'Strategic Planning', rationale: 'Strategic thinking differentiates individual contributors from leaders' },
+                { name: 'Financial Acumen', rationale: 'Business financial literacy opens doors to cross-functional roles' }
+            ],
+            retail: [
+                { name: 'Inventory Management', rationale: 'Inventory optimization directly impacts store profitability' },
+                { name: 'Visual Merchandising', rationale: 'Merchandising skills drive measurable sales lift' },
+                { name: 'Customer Analytics', rationale: 'Data-driven retail management commands premium compensation' },
+                { name: 'E-commerce', rationale: 'Online retail skills open omnichannel and digital-first opportunities' },
+                { name: 'Loss Prevention', rationale: 'LP expertise is specialized and consistently in demand' },
+                { name: 'Supply Chain Management', rationale: 'Supply chain skills bridge store operations and corporate strategy' }
+            ],
+            trades: [
+                { name: 'Project Estimation', rationale: 'Accurate estimation skills differentiate contractors and increase margins' },
+                { name: 'Safety Management', rationale: 'OSHA certification commands premium pay and opens supervisory roles' },
+                { name: 'Blueprint Reading', rationale: 'Advanced plan reading skills unlock higher-complexity projects' },
+                { name: 'Business Management', rationale: 'Business skills enable the transition from tradesperson to owner' },
+                { name: 'Energy Efficiency', rationale: 'Green building skills are the fastest-growing trade specialization' },
+                { name: 'Code Compliance', rationale: 'Code expertise reduces rework and increases professional credibility' }
+            ]
+        };
+
+        function showGrowthAdvisor() {
+            var skills = (skillsData && skillsData.skills) ? skillsData.skills : [];
+            if (skills.length === 0) {
+                showToast('Add some skills first to get growth recommendations.', 'info');
+                return;
+            }
+
+            var baseline = calculateTotalMarketValue();
+            var baseValue = baseline.yourWorth || baseline.total || 0;
+            var detectedFn = baseline.detectedFunction || 'general';
+            var fnLabel = (BLS_FUNCTION_LABELS && BLS_FUNCTION_LABELS[detectedFn]) || detectedFn;
+
+            var upgradeRecs = [];
+            var existingNames = new Set(skills.map(function(s) { return (s.name || '').toLowerCase(); }));
+
+            skills.forEach(function(skill, idx) {
+                var curLevel = skill.level || 'Novice';
+                if (curLevel === 'Mastery') return;
+                var nextLevel = NEXT_LEVEL[curLevel];
+                if (!nextLevel) return;
+
+                var origLevel = skill.level;
+                skill.level = nextLevel;
+                var simulated = calculateTotalMarketValue();
+                skill.level = origLevel;
+
+                var simValue = simulated.yourWorth || simulated.total || 0;
+                var delta = simValue - baseValue;
+
+                var impact = typeof getSkillImpact === 'function' ? getSkillImpact(skill) : { level: 'moderate' };
+                var impactWeight = impact.level === 'critical' ? 4 : impact.level === 'high' ? 3 : impact.level === 'moderate' ? 2 : 1;
+
+                var evSummary = typeof getEvidenceSummary === 'function' ? getEvidenceSummary(skill) : null;
+                var hasGap = evSummary ? evSummary.hasGap : false;
+                var evCount = evSummary ? evSummary.evidenceCount : (skill.evidence || []).length;
+
+                upgradeRecs.push({
+                    type: 'upgrade',
+                    name: skill.name,
+                    currentLevel: curLevel,
+                    nextLevel: nextLevel,
+                    delta: delta,
+                    impact: impact,
+                    impactWeight: impactWeight,
+                    hasGap: hasGap,
+                    evidenceCount: evCount,
+                    category: skill.category || 'skill',
+                    sortScore: delta + (impactWeight * 500) + (hasGap ? -1000 : 0)
+                });
+            });
+
+            upgradeRecs.sort(function(a, b) { return b.sortScore - a.sortScore; });
+
+            var adjacentRecs = [];
+            var adjacentPool = GROWTH_ADJACENT_SKILLS[detectedFn] || GROWTH_ADJACENT_SKILLS.general;
+            adjacentPool.forEach(function(adj) {
+                var adjLower = adj.name.toLowerCase();
+                var alreadyHas = false;
+                existingNames.forEach(function(en) {
+                    if (en === adjLower || en.includes(adjLower) || adjLower.includes(en)) alreadyHas = true;
+                });
+                if (alreadyHas) return;
+
+                var origSkills = skillsData.skills;
+                var simSkill = { name: adj.name, level: 'Proficient', category: 'skill', evidence: [] };
+                skillsData.skills = origSkills.concat([simSkill]);
+                var simulated = calculateTotalMarketValue();
+                skillsData.skills = origSkills;
+
+                var simValue = simulated.yourWorth || simulated.total || 0;
+                var delta = simValue - baseValue;
+
+                adjacentRecs.push({
+                    type: 'adjacent',
+                    name: adj.name,
+                    rationale: adj.rationale,
+                    delta: delta,
+                    startLevel: 'Proficient',
+                    sortScore: delta + 2000
+                });
+            });
+
+            adjacentRecs.sort(function(a, b) { return b.sortScore - a.sortScore; });
+
+            var topUpgrades = upgradeRecs.slice(0, 8);
+            var topAdjacent = adjacentRecs.slice(0, 6);
+
+            var modal = document.getElementById('bpModalOverlay');
+            var mc = document.getElementById('bpModalContent');
+            if (!modal || !mc) return;
+
+            var levelColors = { 'Mastery': '#10b981', 'Expert': '#fb923c', 'Advanced': '#a78bfa', 'Proficient': '#60a5fa', 'Foundational': '#94a3b8', 'Novice': '#94a3b8' };
+            var impactColors = { critical: '#ef4444', high: '#fb923c', moderate: '#60a5fa', standard: '#94a3b8' };
+
+            var html = '<div style="max-width:680px; margin:0 auto;">';
+            html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.5em; font-weight:800; color:var(--c-heading);">Skill Growth Advisor</div>'
+                + '<button onclick="closeBpModal()" style="background:none; border:none; color:var(--c-faint); cursor:pointer; font-size:1.4em; padding:4px 8px;">\u2715</button>'
+                + '</div>';
+
+            html += '<div style="font-size:0.85em; color:var(--c-muted); margin-bottom:20px; line-height:1.5;">'
+                + 'Based on your ' + skills.length + ' skills in <strong>' + escapeHtml(fnLabel) + '</strong>. '
+                + 'Current market value: <strong style="color:#10b981;">' + formatCompValue(baseValue) + '</strong></div>';
+
+            if (topUpgrades.length > 0) {
+                html += '<div style="margin-bottom:24px;">';
+                html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
+                    + '<div style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.05)); display:flex; align-items:center; justify-content:center;">' + bpIcon('trending-up',16) + '</div>'
+                    + '<div><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Level Up Existing Skills</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">Upgrade proficiency for the highest market value impact</div></div></div>';
+
+                topUpgrades.forEach(function(rec) {
+                    var deltaStr = rec.delta > 0 ? '+' + formatCompValue(rec.delta) : (rec.delta === 0 ? 'builds premium factors' : formatCompValue(rec.delta));
+                    var deltaColor = rec.delta > 0 ? '#10b981' : (rec.delta === 0 ? '#f59e0b' : 'var(--c-muted)');
+                    var impactClr = impactColors[rec.impact.level] || impactColors.standard;
+                    var gapBadge = rec.hasGap ? ' <span style="font-size:0.7em; padding:1px 6px; background:rgba(239,68,68,0.1); color:#ef4444; border-radius:4px; font-weight:600;">EVIDENCE GAP</span>' : '';
+                    var evBadge = rec.evidenceCount > 0 ? '<span style="font-size:0.7em; color:var(--c-faint);">' + rec.evidenceCount + ' evidence</span>' : '';
+
+                    html += '<div style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--c-surface-1); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:600; font-size:0.92em; color:var(--c-heading); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
+                        + escapeHtml(rec.name) + gapBadge + '</div>'
+                        + '<div style="display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap;">'
+                        + '<span style="font-size:0.78em; padding:2px 8px; border-radius:4px; background:' + (levelColors[rec.currentLevel] || '#94a3b8') + '22; color:' + (levelColors[rec.currentLevel] || '#94a3b8') + '; font-weight:600;">' + rec.currentLevel + '</span>'
+                        + '<span style="font-size:0.8em; color:var(--c-faint);">\u2192</span>'
+                        + '<span style="font-size:0.78em; padding:2px 8px; border-radius:4px; background:' + (levelColors[rec.nextLevel] || '#60a5fa') + '22; color:' + (levelColors[rec.nextLevel] || '#60a5fa') + '; font-weight:600;">' + rec.nextLevel + '</span>'
+                        + '<span style="font-size:0.72em; padding:2px 6px; border-radius:4px; border:1px solid ' + impactClr + '33; color:' + impactClr + '; font-weight:500;">' + rec.impact.label + '</span>'
+                        + evBadge
+                        + '</div></div>'
+                        + '<div style="text-align:right; white-space:nowrap;">'
+                        + '<div style="font-weight:800; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div>'
+                        + '</div></div>';
+                });
+
+                if (upgradeRecs.length > 8) {
+                    html += '<div style="font-size:0.78em; color:var(--c-faint); text-align:center; margin-top:6px;">'
+                        + '+ ' + (upgradeRecs.length - 8) + ' more skills with upgrade potential</div>';
+                }
+                html += '</div>';
+            }
+
+            if (topAdjacent.length > 0) {
+                html += '<div style="margin-bottom:24px;">';
+                html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
+                    + '<div style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05)); display:flex; align-items:center; justify-content:center;">' + bpIcon('plus',16) + '</div>'
+                    + '<div><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Add Adjacent Skills</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">New skills that complement your profile and increase market value</div></div></div>';
+
+                topAdjacent.forEach(function(rec) {
+                    var deltaStr = rec.delta > 0 ? '+' + formatCompValue(rec.delta) : (rec.delta === 0 ? 'builds premium factors' : formatCompValue(rec.delta));
+                    var deltaColor = rec.delta > 0 ? '#10b981' : (rec.delta === 0 ? '#f59e0b' : 'var(--c-muted)');
+                    var canAdd = skills.length < PROFILE_SKILL_CAP && !isReadOnlyProfile;
+
+                    html += '<div style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--c-surface-1); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:600; font-size:0.92em; color:var(--c-heading);">' + escapeHtml(rec.name) + '</div>'
+                        + '<div style="font-size:0.78em; color:var(--c-muted); margin-top:3px; line-height:1.4;">' + escapeHtml(rec.rationale) + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Starting at ' + rec.startLevel + '</div>'
+                        + '</div>'
+                        + '<div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:6px;">'
+                        + '<div><div style="font-weight:800; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div></div>';
+                    if (canAdd) {
+                        html += '<button onclick="growthAdvisorAddSkill(\'' + escapeHtml(rec.name).replace(/'/g, "\\'") + '\')" style="font-size:0.72em; padding:4px 10px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">' + bpIcon('plus',10) + ' Add</button>';
+                    }
+                    html += '</div></div>';
+                });
+                html += '</div>';
+            }
+
+            html += '<div style="padding:14px 16px; background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(96,165,250,0.06)); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
+                + '<div style="font-size:0.82em; color:var(--c-muted); line-height:1.6;">'
+                + '<strong style="color:var(--c-heading);">How this works:</strong> '
+                + 'We simulate each skill change against your full market valuation model \u2014 the same BLS-anchored engine that calculates your market value. '
+                + 'Upgrade estimates show the actual dollar impact of leveling up. Adjacent skills are curated for your functional area (' + escapeHtml(fnLabel) + ') and filtered against what you already have. '
+                + 'Values reflect baseline salary band movement; actual impact may be higher when combined with evidence, certifications, and rarity premiums.'
+                + '</div></div>';
+
+            html += '</div>';
+
+            mc.innerHTML = html;
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
+        }
+        window.showGrowthAdvisor = showGrowthAdvisor;
+
+        function growthAdvisorAddSkill(skillName) {
+            if (!skillsData) return;
+            if ((skillsData.skills || []).length >= PROFILE_SKILL_CAP) {
+                showToast('At skill cap (' + PROFILE_SKILL_CAP + '). Remove a skill first.', 'warning');
+                return;
+            }
+            var already = (skillsData.skills || []).some(function(s) { return (s.name || '').toLowerCase() === skillName.toLowerCase(); });
+            if (already) {
+                showToast('You already have ' + skillName, 'info');
+                return;
+            }
+            skillsData.skills.push({
+                name: skillName,
+                level: 'Novice',
+                category: 'skill',
+                evidence: [],
+                addedVia: 'growth-advisor'
+            });
+            if (typeof saveSkillsData === 'function') saveSkillsData();
+            showToast(skillName + ' added at Novice level', 'success');
+            var btn = event && event.target ? event.target.closest('button') : null;
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '\u2713 Added';
+                btn.style.background = 'rgba(16,185,129,0.15)';
+                btn.style.color = '#10b981';
+            }
+        }
+        window.growthAdvisorAddSkill = growthAdvisorAddSkill;
+
         function updateTriageCount() {
             var checks = document.querySelectorAll('[data-triage-idx]:checked');
             var countEl = document.getElementById('triageCount');
@@ -26286,6 +26630,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             { type: 'action', label: 'Add Custom Outcome',   icon: 'outcomes',  kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('outcomes'); setTimeout(function() { if (typeof addCustomOutcome === 'function') addCustomOutcome(); }, 100); }, 150); } },
             { type: 'action', label: 'Generate Purpose Statement', icon: 'zap', kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('content'); setTimeout(function() { if (typeof generatePurposeAI === 'function') generatePurposeAI(); }, 150); }, 150); } },
             { type: 'action', label: 'Bulk Import Skills',   icon: 'upload',    kbd: null,  fn: function() { if (typeof openBulkImport === 'function') openBulkImport(); } },
+            { type: 'action', label: 'Skill Growth Advisor', icon: 'trending-up', kbd: null, fn: function() { if (typeof showGrowthAdvisor === 'function') showGrowthAdvisor(); } },
             { type: 'action', label: 'Compensation Review Guide', icon: 'target', kbd: null, fn: function() { if (typeof showCompReviewGuide === 'function') showCompReviewGuide(); } },
             { type: 'action', label: 'Export PDF Report',    icon: 'export',    kbd: null,  fn: function() { switchView('reports'); } },
             { type: 'action', label: 'Import LinkedIn Data', icon: 'network',   kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('experience'); }, 150); } },
@@ -29518,6 +29863,12 @@ body {
                 }
 
                 html += '</div>'; // end 3-box hero
+
+                html += '<div onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(96,165,250,0.05)); border:1px solid rgba(16,185,129,0.2); border-radius:10px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'rgba(16,185,129,0.4)\'" onmouseout="this.style.borderColor=\'rgba(16,185,129,0.2)\'">'
+                    + '<div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05)); display:flex; align-items:center; justify-content:center; flex-shrink:0;">' + bpIcon('trending-up',18) + '</div>'
+                    + '<div style="flex:1;"><div style="font-weight:700; font-size:0.88em; color:var(--c-heading);">Skill Growth Advisor</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted); line-height:1.4;">See which skills to upgrade or add for the highest market value impact</div></div>'
+                    + '<div style="color:var(--c-faint); font-size:1.1em;">\u203A</div></div>';
             }
 
             // ══════════════════════════════════════════════════════════════════
@@ -29765,6 +30116,8 @@ body {
             html += '<button onclick="openBulkImport()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('upload',14) + ' Bulk Import</button>';
             }
+            html += '<button onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.08)); border:1px solid rgba(16,185,129,0.25); border-radius:8px; color:#10b981; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + bpIcon('trending-up',14) + ' Growth Advisor</button>';
             html += '<button onclick="switchView(\'skills\')" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em; margin-left:auto;">'
                 + bpIcon('skills',14) + ' Network View</button>';
             html += '</div>';
