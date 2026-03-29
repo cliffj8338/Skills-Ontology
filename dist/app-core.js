@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37l';
+        var BP_VERSION = 'v4.47.37m';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -30058,26 +30058,71 @@ body {
                 }
 
                 if (skillsToLearn.length > 0) {
-                    html += '<div style="' + ls + ' color:#f59e0b;">Skills To Learn &mdash; Each One Adds Market Value</div>';
-                    skillsToLearn.forEach(function(sk) {
-                        html += '<div style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border-color); border-radius:10px; margin-bottom:8px;">'
-                            + '<div style="flex-shrink:0; width:60px; text-align:center; padding:6px 0;">'
-                            + '<div style="font-size:1em; font-weight:700; color:#10b981;">+' + _expFmt(sk.valueAdd) + '</div>'
-                            + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">value</div></div>'
-                            + '<div style="flex:1; min-width:0;">'
-                            + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(sk.name) + '</div>'
-                            + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.5; margin-top:2px;">' + escapeHtml(sk.how || '') + '</div>'
-                            + '<div style="font-size:0.7em; color:var(--text-muted); margin-top:3px;">\u23F1 ' + escapeHtml(sk.timeToLearn || '') + '</div>'
+                    var barColors = ['#f59e0b', '#f97316', '#ef4444', '#ec4899'];
+                    var maxVal = potentialVal || (entryVal + totalSkillValue) || 1;
+
+                    html += '<div style="' + ls + ' color:#f59e0b; margin-bottom:12px;">Your Skill Growth Path</div>';
+
+                    html += '<div style="position:relative; margin-bottom:24px;">';
+
+                    html += '<div style="display:flex; align-items:center; height:48px; border-radius:12px; overflow:hidden; background:var(--bg-elevated); border:1px solid var(--border-color);">';
+                    var basePct = Math.max(((entryVal / maxVal) * 100), 15);
+                    html += '<div style="width:' + basePct + '%; height:100%; background:linear-gradient(135deg,#10b981,#059669); display:flex; align-items:center; justify-content:center; position:relative;">'
+                        + '<span style="font-size:0.72em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3);">You Now</span>'
+                        + '</div>';
+                    var runningPct = basePct;
+                    skillsToLearn.forEach(function(sk, si) {
+                        var skVal = Number(sk.valueAdd) || 0;
+                        var skPct = Math.max(((skVal / maxVal) * 100), 5);
+                        if (runningPct + skPct > 100) skPct = 100 - runningPct;
+                        var bc = barColors[si % barColors.length];
+                        html += '<div style="width:' + skPct + '%; height:100%; background:' + bc + '; display:flex; align-items:center; justify-content:center; position:relative; border-left:2px solid rgba(255,255,255,0.3);">'
+                            + '<span style="font-size:0.62em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3); overflow:hidden; text-overflow:ellipsis; padding:0 2px;">+' + _expFmt(skVal) + '</span>'
+                            + '</div>';
+                        runningPct += skPct;
+                    });
+                    html += '</div>';
+
+                    html += '<div style="display:flex; justify-content:space-between; margin-top:6px;">'
+                        + '<span style="font-size:0.72em; font-weight:600; color:#10b981;">' + _expFmt(entryVal) + '</span>'
+                        + '<span style="font-size:0.72em; font-weight:700; color:#8b5cf6;">' + _expFmt(potentialVal) + '/yr potential</span>'
+                        + '</div>';
+
+                    html += '</div>';
+
+                    html += '<div style="position:relative; padding-left:28px;">';
+                    html += '<div style="position:absolute; left:12px; top:0; bottom:0; width:3px; background:linear-gradient(180deg,#10b981,#f59e0b,#ef4444,#8b5cf6); border-radius:3px;"></div>';
+
+                    html += '<div style="position:relative; margin-bottom:20px; padding-left:12px;">'
+                        + '<div style="position:absolute; left:-22px; top:4px; width:14px; height:14px; border-radius:50%; background:#10b981; border:3px solid var(--card-bg); box-shadow:0 0 0 2px #10b981;"></div>'
+                        + '<div style="font-size:0.72em; font-weight:700; color:#10b981; text-transform:uppercase; letter-spacing:0.05em;">Today &mdash; ' + _expFmt(entryVal) + '/yr</div>'
+                        + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:2px;">' + skillCount + ' skills you already have</div>'
+                        + '</div>';
+
+                    skillsToLearn.forEach(function(sk, si) {
+                        var bc = barColors[si % barColors.length];
+                        var skVal = Number(sk.valueAdd) || 0;
+                        html += '<div style="position:relative; margin-bottom:16px; padding-left:12px;">'
+                            + '<div style="position:absolute; left:-22px; top:4px; width:14px; height:14px; border-radius:50%; background:' + bc + '; border:3px solid var(--card-bg); box-shadow:0 0 0 2px ' + bc + ';"></div>'
+                            + '<div style="padding:12px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-elevated);">'
+                            + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
+                            + '<span style="font-weight:700; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(sk.name) + '</span>'
+                            + '<span style="font-weight:700; color:' + bc + '; font-size:0.88em;">+' + _expFmt(skVal) + '/yr</span>'
+                            + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(sk.how || '') + '</div>'
+                            + '<div style="display:flex; gap:12px; margin-top:6px; font-size:0.7em; color:var(--text-muted);">'
+                            + '<span>\u23F1 ' + escapeHtml(sk.timeToLearn || '') + '</span>'
+                            + '</div>'
                             + '</div></div>';
                     });
-                    if (totalSkillValue > 0) {
-                        html += '<div style="margin-top:4px; padding:10px 14px; background:rgba(16,185,129,0.06); border-radius:8px; text-align:center;">'
-                            + '<span style="font-size:0.82em; color:var(--text-secondary);">Learn all 4 skills = </span>'
-                            + '<span style="font-size:0.95em; font-weight:700; color:#10b981;">+' + _expFmt(totalSkillValue) + '/yr</span>'
-                            + '<span style="font-size:0.82em; color:var(--text-secondary);"> added market value \u2192 </span>'
-                            + '<span style="font-size:0.95em; font-weight:700; color:#8b5cf6;">' + _expFmt(potentialVal) + '/yr</span>'
-                            + '</div>';
-                    }
+
+                    html += '<div style="position:relative; padding-left:12px;">'
+                        + '<div style="position:absolute; left:-22px; top:4px; width:14px; height:14px; border-radius:50%; background:#8b5cf6; border:3px solid var(--card-bg); box-shadow:0 0 0 2px #8b5cf6;"></div>'
+                        + '<div style="font-size:0.78em; font-weight:700; color:#8b5cf6; text-transform:uppercase; letter-spacing:0.05em;">Goal &mdash; ' + _expFmt(potentialVal) + '/yr</div>'
+                        + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">+' + _expFmt(totalSkillValue) + ' added market value</div>'
+                        + '</div>';
+
+                    html += '</div>';
                 }
 
                 if (selectedPath.nextSteps && selectedPath.nextSteps.length) {
