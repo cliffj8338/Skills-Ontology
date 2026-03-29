@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37g';
+        var BP_VERSION = 'v4.47.37h';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3433,6 +3433,32 @@
                 + '<button onclick="saveAdminThresholds()" style="padding:10px 20px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Save Thresholds</button>'
                 + '<button onclick="resetAdminThresholds()" style="padding:10px 20px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Reset Defaults</button>'
                 + '</div></div>';
+
+            // Experience Inference config
+            var eiEnabled = evidenceConfig.experienceInferenceEnabled;
+            var eiLevels = ['Competent','Proficient','Advanced','Expert','Mastery'];
+            html += '<div style="padding:20px; background:var(--c-surface-2); '
+                + 'border:1px solid var(--c-surface-5); border-radius:10px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em;">Experience-Based Inference</h3>'
+                + '<label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.82em; color:var(--text-secondary);">'
+                + '<input type="checkbox" id="eiEnabledToggle" ' + (eiEnabled ? 'checked' : '') + ' onchange="toggleExperienceInference(this.checked)" style="accent-color:#8b5cf6;">'
+                + ' Enabled</label></div>'
+                + '<p style="font-size:0.78em; color:var(--text-muted); margin:0 0 14px;">If someone has X+ years with a skill, infer at least this proficiency level \u2014 even without evidence points. Creates an "Inferred" verification type distinct from peer or certification verification.</p>'
+                + '<div id="eiThresholdGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; opacity:' + (eiEnabled ? '1' : '0.4') + '; pointer-events:' + (eiEnabled ? 'auto' : 'none') + ';">';
+            eiLevels.forEach(function(lvl) {
+                var yrs = evidenceConfig.experienceInference[lvl] || '';
+                html += '<div style="display:flex; align-items:center; gap:8px;">'
+                    + '<span style="font-size:0.82em; color:var(--text-secondary); min-width:80px;">' + lvl + '</span>'
+                    + '<input type="number" id="ei_' + lvl + '" value="' + yrs + '" min="0" max="50" step="1" '
+                    + 'style="flex:1; padding:7px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.88em; text-align:center;">'
+                    + '<span style="font-size:0.75em; color:var(--text-muted);">yrs</span></div>';
+            });
+            html += '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:14px;">'
+                + '<button onclick="saveExperienceInference()" style="padding:10px 20px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Save Inference</button>'
+                + '<button onclick="resetExperienceInference()" style="padding:10px 20px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Reset Defaults</button>'
+                + '</div></div>';
             
             // Bulk skill tools
             html += '<div style="padding:20px; background:var(--c-surface-2); '
@@ -3544,6 +3570,59 @@
             showToast('Thresholds reset to defaults.', 'info');
         }
         window.resetAdminThresholds = resetAdminThresholds;
+
+        function toggleExperienceInference(enabled) {
+            evidenceConfig.experienceInferenceEnabled = enabled;
+            var grid = document.getElementById('eiThresholdGrid');
+            if (grid) {
+                grid.style.opacity = enabled ? '1' : '0.4';
+                grid.style.pointerEvents = enabled ? 'auto' : 'none';
+            }
+            saveEvidenceConfig();
+            showToast('Experience inference ' + (enabled ? 'enabled' : 'disabled') + '.', 'info');
+        }
+        window.toggleExperienceInference = toggleExperienceInference;
+
+        function saveExperienceInference() {
+            var levels = ['Competent','Proficient','Advanced','Expert','Mastery'];
+            var prev = 0;
+            var valid = true;
+            levels.forEach(function(lvl) {
+                var el = document.getElementById('ei_' + lvl);
+                if (el) {
+                    var val = parseInt(el.value);
+                    if (isNaN(val) || val < 0) { valid = false; return; }
+                    if (val <= prev && val > 0) { valid = false; return; }
+                    evidenceConfig.experienceInference[lvl] = val;
+                    prev = val;
+                }
+            });
+            if (!valid) {
+                showToast('Year thresholds must increase with each level.', 'error');
+                return;
+            }
+            saveEvidenceConfig();
+            showToast('Experience inference thresholds saved. Valuations will recalculate.', 'success');
+        }
+        window.saveExperienceInference = saveExperienceInference;
+
+        function resetExperienceInference() {
+            evidenceConfig.experienceInference = { 'Competent': 1, 'Proficient': 3, 'Advanced': 7, 'Expert': 12, 'Mastery': 20 };
+            evidenceConfig.experienceInferenceEnabled = true;
+            saveEvidenceConfig();
+            var levels = ['Competent','Proficient','Advanced','Expert','Mastery'];
+            var defaults = { 'Competent': 1, 'Proficient': 3, 'Advanced': 7, 'Expert': 12, 'Mastery': 20 };
+            levels.forEach(function(lvl) {
+                var el = document.getElementById('ei_' + lvl);
+                if (el) el.value = defaults[lvl];
+            });
+            var toggle = document.getElementById('eiEnabledToggle');
+            if (toggle) toggle.checked = true;
+            var grid = document.getElementById('eiThresholdGrid');
+            if (grid) { grid.style.opacity = '1'; grid.style.pointerEvents = 'auto'; }
+            showToast('Experience inference reset to defaults.', 'info');
+        }
+        window.resetExperienceInference = resetExperienceInference;
         
         function saveJobSourceKeys() {
             var adzAppId = (document.getElementById('cfgAdzunaAppId') || {}).value || '';
@@ -16172,7 +16251,17 @@
                 'Other': 1.2
             },
             // Verification expiry: pending requests older than this are auto-expired
-            verificationExpiryDays: 30
+            verificationExpiryDays: 30,
+            // Experience-based proficiency inference (admin-configurable)
+            // If a skill's years >= threshold, infer at least this level
+            experienceInference: {
+                'Competent': 1,
+                'Proficient': 3,
+                'Advanced': 7,
+                'Expert': 12,
+                'Mastery': 20
+            },
+            experienceInferenceEnabled: true
         };
         
         // Load/save admin-configured thresholds
@@ -16185,6 +16274,8 @@
                     if (parsed.certFloor) evidenceConfig.certFloor = parsed.certFloor;
                     if (parsed.certFloorPoints) evidenceConfig.certFloorPoints = parsed.certFloorPoints;
                     if (parsed.verificationMultiplier) evidenceConfig.verificationMultiplier = parsed.verificationMultiplier;
+                    if (parsed.experienceInference) evidenceConfig.experienceInference = parsed.experienceInference;
+                    if (typeof parsed.experienceInferenceEnabled === 'boolean') evidenceConfig.experienceInferenceEnabled = parsed.experienceInferenceEnabled;
                 }
             } catch (e) { /* parse error */ }
         }
@@ -16355,18 +16446,41 @@
             return all.filter(function(v) { return v.skillName === skillName; });
         }
         
+        function getExperienceInferredLevel(skill) {
+            if (!evidenceConfig.experienceInferenceEnabled) return null;
+            var years = (skill.userAssessment && skill.userAssessment.years) ? skill.userAssessment.years : 0;
+            if (years <= 0) return null;
+            var inf = evidenceConfig.experienceInference;
+            var levels = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Competent'];
+            for (var i = 0; i < levels.length; i++) {
+                if (inf[levels[i]] && years >= inf[levels[i]]) return levels[i];
+            }
+            return null;
+        }
+        window.getExperienceInferredLevel = getExperienceInferredLevel;
+
         // Get the level used for valuation: min(claimed, effective) or effective if higher
         // The valuation engine uses the evidence-backed level, not the claim
+        // Experience inference acts as a floor — years alone can raise effective level
         function getValuationLevel(skill) {
             var claimed = skill.level || 'Novice';
             var effective = getEffectiveLevel(skill);
             var claimedVal = proficiencyValue(claimed);
             var effectiveVal = proficiencyValue(effective);
+
+            var inferred = getExperienceInferredLevel(skill);
+            if (inferred) {
+                var inferredVal = proficiencyValue(inferred);
+                if (inferredVal > effectiveVal) {
+                    effective = inferred;
+                    effectiveVal = inferredVal;
+                }
+            }
+
             // If skill has substantial evidence (4+ outcomes), trust the claimed level
-            // Evidence validates the claim rather than constraining it
             var evidenceCount = (skill.evidence || []).length;
             if (evidenceCount >= 4) return claimed;
-            // Otherwise: valuation uses whichever is LOWER — can't claim above evidence
+            // Otherwise: valuation uses whichever is LOWER — can't claim above evidence+inference
             return effectiveVal < claimedVal ? effective : claimed;
         }
         
@@ -16381,14 +16495,12 @@
             var verifiedCount = verifications.filter(function(v) { return v.status === 'confirmed'; }).length;
             var pendingCount = verifications.filter(function(v) { return v.status === 'pending'; }).length;
             
-            // Track verifier level suggestions (v4.44.44)
             var levelSuggestions = verifications.filter(function(v) {
                 return v.status === 'confirmed' && v.confirmedLevel && v.confirmedLevel !== claimed;
             }).map(function(v) {
                 return { name: v.verifierName, level: v.confirmedLevel, relationship: v.relationship };
             });
             
-            // Find next level threshold
             var nextLevel = null;
             var pointsNeeded = 0;
             var levels = ['Competent', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
@@ -16399,12 +16511,21 @@
                     break;
                 }
             }
+
+            var inferredLevel = getExperienceInferredLevel(skill);
+            var inferredActive = false;
+            var resolvedEffective = effectiveLevel;
+            if (inferredLevel && proficiencyValue(inferredLevel) > proficiencyValue(effectiveLevel)) {
+                resolvedEffective = inferredLevel;
+                inferredActive = true;
+            }
             
-            var gap = proficiencyValue(claimed) > proficiencyValue(effectiveLevel);
+            var gap = proficiencyValue(claimed) > proficiencyValue(resolvedEffective);
             
             return {
                 points: points,
-                effectiveLevel: effectiveLevel,
+                effectiveLevel: resolvedEffective,
+                evidenceOnlyLevel: effectiveLevel,
                 claimedLevel: claimed,
                 evidenceCount: evidenceCount,
                 hasGap: gap,
@@ -16413,7 +16534,10 @@
                 pendingCount: pendingCount,
                 levelSuggestions: levelSuggestions,
                 nextLevel: nextLevel,
-                pointsNeeded: pointsNeeded
+                pointsNeeded: pointsNeeded,
+                inferredLevel: inferredLevel,
+                inferredActive: inferredActive,
+                experienceYears: (skill.userAssessment && skill.userAssessment.years) || 0
             };
         }
         
@@ -26258,6 +26382,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<div style="display:flex; gap:4px; flex-shrink:0;">'
                         + (skill.key ? '<span title="Core Skill" style="color:#f59e0b; font-size:0.85em; line-height:1;">&#9733;</span>' : '')
                         + (isVerified ? '<span title="Verified by ' + evs.verifiedCount + '" style="color:#10b981; font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
+                        + (evs && evs.inferredActive ? '<span title="' + (evs.experienceYears||0) + 'yr experience infers ' + evs.inferredLevel + '" style="color:#8b5cf6; font-size:0.8em; line-height:1;">\u2728</span>' : '')
                         + (hasGap ? '<span title="Evidence gap: claimed ' + (evs.claimedLevel||'') + ', supports ' + (evs.effectiveLevel||'') + '" style="color:#fbbf24; font-size:0.8em; line-height:1;">&#9888;</span>' : (hasEvidence ? '<span title="' + evs.evidenceCount + ' outcomes, ' + evs.points + ' pts" style="color:#10b981; font-size:0.75em; line-height:1;">' + bpIcon('check',12) + '</span>' : ''))
                         + '<span title="' + (catTitles[skill.category] || 'Skill') + '" style="color:' + (catColors[skill.category] || '#60a5fa') + '; font-size:0.75em; line-height:1;">' + (catIcons[skill.category] || bpIcon('tool',11)) + '</span>'
                         + '</div></div>';
@@ -49559,8 +49684,13 @@ body {
                 var evs = getEvidenceSummary(skill);
                 var evColor = evs.hasGap ? 'var(--c-warn)' : 'var(--c-success)';
                 var evBg = evs.hasGap ? 'var(--c-amber-bg-2b)' : 'var(--c-green-bg-2a)';
+                var inferredPill = '';
+                if (evs.inferredActive) {
+                    inferredPill = ' <span style="display:inline-block; padding:1px 7px; background:rgba(139,92,246,0.15); color:#8b5cf6; border-radius:4px; font-size:0.85em; font-weight:600;" title="' + evs.experienceYears + ' years experience infers at least ' + evs.inferredLevel + '">\u2728 Inferred ' + evs.inferredLevel + '</span>';
+                }
                 evStatus.innerHTML = '<div style="padding:10px 14px; background:' + evBg + '; border-radius:8px; font-size:0.82em;">'
-                    + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + evs.effectiveLevel + '</span>'
+                    + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + (evs.evidenceOnlyLevel || evs.effectiveLevel) + '</span>'
+                    + inferredPill
                     + '<span style="color:var(--c-muted); margin-left:8px;">(' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + ')</span>'
                     + (evs.verifiedCount > 0 ? ' <span style="color:#10b981;"> \u2713 ' + evs.verifiedCount + ' verified</span>' : '')
                     + '<br><button onclick="closeEditSkillModal(true); setTimeout(function(){ var sk = (skillsData.skills||[]).find(function(s){return s.name===\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\';}); if(sk) openSkillModal(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\', sk); }, 100);" '
