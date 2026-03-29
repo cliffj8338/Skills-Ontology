@@ -7582,11 +7582,12 @@ export function renderExplorerCareers(el) {
         var isSelected = selectedIdx === i;
         var salaryStr = p.salary || p.salaryRange || 'Varies';
         var growthStr = p.growth || p.growthPath || '';
-        var entryV = p.entryValue || 0;
-        var seniorV = p.seniorValue || 0;
+        var entryV = Number(p.entryValue) || 0;
+        var midV = Number(p.midValue) || 0;
+        var seniorV = Number(p.seniorValue) || 0;
         var stl = p.skillsToLearn || [];
         var totalAdd = 0;
-        stl.forEach(function(s) { totalAdd += (s.valueAdd || 0); });
+        stl.forEach(function(s) { totalAdd += (Number(s.valueAdd) || 0); });
         return '<div onclick="explorerSelectCareer(' + i + ')" style="padding:16px; border-radius:12px; cursor:pointer; transition:all 0.15s; '
             + 'background:' + (isSelected ? 'linear-gradient(135deg, rgba(139,92,246,0.08), rgba(96,165,250,0.08))' : 'var(--bg-elevated)') + '; '
             + 'border:2px solid ' + (isSelected ? '#8b5cf6' : 'var(--border)') + ';">'
@@ -7594,10 +7595,13 @@ export function renderExplorerCareers(el) {
             + '<div style="font-weight:700; color:var(--text-primary); font-size:1em;">' + escapeHtml(p.title) + '</div>'
             + (isSelected ? '<span style="color:#8b5cf6; font-weight:700;">\u2713 Selected</span>' : '')
             + '</div>'
-            + (entryV > 0 ? '<div style="display:flex; gap:12px; margin-bottom:10px; font-size:0.82em;">'
-                + '<span style="color:#10b981; font-weight:700;">Entry: $' + entryV.toLocaleString() + '</span>'
-                + '<span style="color:var(--text-muted);">\u2192</span>'
-                + '<span style="color:#8b5cf6; font-weight:700;">Senior: $' + seniorV.toLocaleString() + '</span>'
+            + (entryV > 0 ? '<div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; font-size:0.82em; flex-wrap:wrap;">'
+                + '<span style="color:#10b981; font-weight:700;">$' + entryV.toLocaleString() + '</span>'
+                + '<span style="color:var(--text-muted); font-size:0.75em;">\u2192</span>'
+                + (midV > 0 ? '<span style="color:#60a5fa; font-weight:700;">$' + midV.toLocaleString() + '</span>'
+                    + '<span style="color:var(--text-muted); font-size:0.75em;">\u2192</span>' : '')
+                + '<span style="color:#8b5cf6; font-weight:700;">$' + seniorV.toLocaleString() + '</span>'
+                + '<span style="color:var(--text-muted); font-size:0.72em; margin-left:4px;">salary progression</span>'
                 + '</div>' : '')
             + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4; margin-bottom:10px;">' + escapeHtml(p.whyFit) + '</div>'
             + '<div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.78em;">'
