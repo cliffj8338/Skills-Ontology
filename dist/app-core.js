@@ -18666,8 +18666,9 @@
             var levelColors = { 'Mastery': '#10b981', 'Expert': '#fb923c', 'Advanced': '#a78bfa', 'Proficient': '#60a5fa', 'Foundational': '#94a3b8', 'Novice': '#94a3b8' };
             var impactColors = { critical: '#ef4444', high: '#fb923c', moderate: '#60a5fa', standard: '#94a3b8' };
 
-            var html = '<div class="modal-header">'
+            var html = '<div class="modal-header" style="display:flex; align-items:center; justify-content:space-between;">'
                 + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('trending-up',18) + ' Skill Growth Advisor</h2></div>'
+                + '<button onclick="closeExportModal()" style="background:none; border:none; color:var(--c-faint); cursor:pointer; font-size:1.5em; padding:4px 10px; line-height:1;">\u2715</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:20px; max-height:75vh; overflow-y:auto;">';
 
@@ -18693,7 +18694,7 @@
                 html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
                     + '<div style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.05)); display:flex; align-items:center; justify-content:center;">' + bpIcon('trending-up',16) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Level Up Existing Skills</div>'
-                    + '<div style="font-size:0.78em; color:var(--c-muted);">Upgrade proficiency for the highest market value impact</div></div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">Build evidence, get verified, then upgrade your proficiency</div></div>'
                     + (topUpgradeDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:#10b981;">+' + formatCompValue(topUpgradeDelta) + '</div>' : '')
                     + '</div>';
 
@@ -18701,28 +18702,52 @@
                     var deltaStr = rec.delta > 0 ? '+' + formatCompValue(rec.delta) : (rec.delta === 0 ? 'builds premium factors' : formatCompValue(rec.delta));
                     var deltaColor = rec.delta > 0 ? '#10b981' : (rec.delta === 0 ? '#f59e0b' : 'var(--c-muted)');
                     var impactClr = impactColors[rec.impact.level] || impactColors.standard;
-                    var gapBadge = rec.hasGap ? ' <span style="font-size:0.7em; padding:1px 6px; background:rgba(239,68,68,0.1); color:#ef4444; border-radius:4px; font-weight:600;">EVIDENCE GAP</span>' : '';
-                    var evBadge = rec.evidenceCount > 0 ? '<span style="font-size:0.7em; color:var(--c-faint);">' + rec.evidenceCount + ' evidence</span>' : '';
-                    var canEdit = !isReadOnlyProfile;
                     var safeName = escapeHtml(rec.name).replace(/'/g, "\\'");
+                    var canEdit = !isReadOnlyProfile;
 
-                    html += '<div style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--c-surface-1); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
+                    var stepsDone = 0;
+                    var stepsTotal = 3;
+                    var hasEvidence = rec.evidenceCount > 0;
+                    var skill = skills.find(function(s) { return s.name === rec.name; });
+                    var hasCert = skill && typeof hasLinkedCertification === 'function' && hasLinkedCertification(rec.name);
+                    var verifications = typeof getSkillVerifications === 'function' ? getSkillVerifications(rec.name) : [];
+                    var hasVerify = verifications.some(function(v) { return v.status === 'confirmed'; });
+                    if (hasEvidence) stepsDone++;
+                    if (hasCert || hasVerify) stepsDone++;
+                    if (stepsDone >= 2) stepsDone++;
+
+                    var stepsHtml = '<div style="display:flex; gap:4px; margin-top:6px;">';
+                    stepsHtml += '<span title="Add evidence/outcomes" style="font-size:0.68em; padding:2px 7px; border-radius:4px; cursor:help; '
+                        + (hasEvidence ? 'background:rgba(16,185,129,0.15); color:#10b981;' : 'background:rgba(96,165,250,0.1); color:#60a5fa; border:1px dashed rgba(96,165,250,0.3);')
+                        + ' font-weight:600;">' + (hasEvidence ? '\u2713 ' : '') + 'Evidence</span>';
+                    stepsHtml += '<span title="Certificate, degree, course, or peer verification" style="font-size:0.68em; padding:2px 7px; border-radius:4px; cursor:help; '
+                        + (hasCert || hasVerify ? 'background:rgba(16,185,129,0.15); color:#10b981;' : 'background:rgba(245,158,11,0.1); color:#f59e0b; border:1px dashed rgba(245,158,11,0.3);')
+                        + ' font-weight:600;">' + (hasCert || hasVerify ? '\u2713 ' : '') + 'Verified</span>';
+                    stepsHtml += '<span title="Upgrade proficiency level" style="font-size:0.68em; padding:2px 7px; border-radius:4px; cursor:help; '
+                        + 'background:rgba(148,163,184,0.1); color:#94a3b8; border:1px dashed rgba(148,163,184,0.3);'
+                        + ' font-weight:600;">Level Up</span>';
+                    stepsHtml += '</div>';
+
+                    html += '<div style="display:flex; align-items:flex-start; gap:12px; padding:12px 14px; background:var(--c-surface-1); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; font-size:0.92em; color:var(--c-heading); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
-                        + escapeHtml(rec.name) + gapBadge + '</div>'
+                        + escapeHtml(rec.name)
+                        + (rec.hasGap ? ' <span style="font-size:0.7em; padding:1px 6px; background:rgba(239,68,68,0.1); color:#ef4444; border-radius:4px; font-weight:600;">EVIDENCE GAP</span>' : '')
+                        + '</div>'
                         + '<div style="display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap;">'
                         + '<span style="font-size:0.78em; padding:2px 8px; border-radius:4px; background:' + (levelColors[rec.currentLevel] || '#94a3b8') + '22; color:' + (levelColors[rec.currentLevel] || '#94a3b8') + '; font-weight:600;">' + rec.currentLevel + '</span>'
                         + '<span style="font-size:0.8em; color:var(--c-faint);">\u2192</span>'
                         + '<span style="font-size:0.78em; padding:2px 8px; border-radius:4px; background:' + (levelColors[rec.nextLevel] || '#60a5fa') + '22; color:' + (levelColors[rec.nextLevel] || '#60a5fa') + '; font-weight:600;">' + rec.nextLevel + '</span>'
                         + '<span style="font-size:0.72em; padding:2px 6px; border-radius:4px; border:1px solid ' + impactClr + '33; color:' + impactClr + '; font-weight:500;">' + rec.impact.label + '</span>'
-                        + evBadge
-                        + '</div></div>'
-                        + '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">'
+                        + '</div>'
+                        + stepsHtml
+                        + '</div>'
+                        + '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0;">'
                         + '<div style="text-align:right; white-space:nowrap;">'
                         + '<div style="font-weight:800; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div></div>';
                     if (canEdit) {
-                        html += '<button onclick="growthAdvisorLevelUp(\'' + safeName + '\',\'' + rec.nextLevel + '\')" style="font-size:0.72em; padding:4px 10px; background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.1)); border:1px solid rgba(96,165,250,0.3); color:#60a5fa; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Level Up</button>';
+                        html += '<button onclick="closeExportModal(); setTimeout(function(){ var sk=(skillsData.skills||[]).find(function(s){return s.name===\'' + safeName + '\';}); if(sk && typeof openSkillModal===\'function\') openSkillModal(\'' + safeName + '\',sk); },150);" style="font-size:0.72em; padding:4px 10px; background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.1)); border:1px solid rgba(96,165,250,0.3); color:#60a5fa; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Build Case</button>';
                     }
                     html += '</div></div>';
                 });
@@ -18766,11 +18791,11 @@
 
             html += '<div style="padding:14px 16px; background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(96,165,250,0.06)); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
                 + '<div style="font-size:0.82em; color:var(--c-muted); line-height:1.6;">'
-                + '<strong style="color:var(--c-heading);">How this works:</strong> '
-                + 'Each recommendation is simulated against your full market valuation model \u2014 the same BLS-anchored engine that calculates your market value. '
-                + '<strong>Level Up</strong> upgrades a skill\u2019s proficiency and recalculates your value instantly. '
-                + '<strong>Add Skill</strong> adds a new skill at Novice level. '
-                + 'The Potential Value shown above assumes all top recommendations are applied \u2014 actual gains compound differently when combined.'
+                + '<strong style="color:var(--c-heading);">How to grow your value:</strong> '
+                + 'Each skill shows a 3-step path: <strong style="color:#60a5fa;">Evidence</strong> (add outcomes that demonstrate the skill), '
+                + '<strong style="color:#f59e0b;">Verification</strong> (link a certificate, degree, course completion, or request a peer verification), '
+                + 'and <strong style="color:#94a3b8;">Level Up</strong> (upgrade proficiency once your evidence supports it). '
+                + 'Skills with evidence and verification backing their claimed level earn full valuation. Without evidence, upgrades create gaps that actually reduce your effective market value.'
                 + '</div></div>';
 
             html += '</div>';
