@@ -129,6 +129,19 @@ Only 4 manual fields remain in Edit Stats modal: Project Start Date, Avg Session
 - `api/ai.js`: 58s AbortController timeout, max_tokens cap 12000 (allows 8K resume parse calls), 504 on timeout with user-friendly message.
 - `vercel.json`: `functions.api/ai.js.maxDuration: 60` (Vercel Pro plan, supports up to 300s).
 
+## Explorer Mode (v4.47.37j)
+Students and early-career users with no traditional work history can build an Explorer Blueprint:
+- Entry tile "I'm Just Getting Started" on Build My Blueprint Step 1
+- 7-step wizard: Start → Education → Activities → Interests → Skills Discovery → Career Paths → Complete
+- LLM skill discovery: Claude extracts 15-30 skills from education+activities+interests
+- LLM career paths: 5 career paths with salary/growth/next steps
+- Explorer dashboard: career paths front/center, no salary/compensation, skills at Novice/Competent
+- Sub-nav hides Experience, Outcomes, Verify, Content tabs for explorer profiles
+- "Convert to Full Blueprint" flow preserves all data, switches to standard profile
+- Explorer state (profileType, explorerData) persisted in Firestore
+- Future placeholder: "People Like You" — accomplished people with similar backgrounds
+- Data model: `userData.profileType = 'explorer'`, `userData.explorerData` (education, activities, interests, partTimeJobs, driveStatement, careerPaths, selectedCareerIdx, discoveredSkills)
+
 ## Key Features
 - Work Blueprint Wizard (JD → structured WB conversion)
 - WB Repository (CRUD, Clone, Compare)
