@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37f';
+        var BP_VERSION = 'v4.47.37g';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -49563,17 +49563,35 @@ body {
                     + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + evs.effectiveLevel + '</span>'
                     + '<span style="color:var(--c-muted); margin-left:8px;">(' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + ')</span>'
                     + (evs.verifiedCount > 0 ? ' <span style="color:#10b981;"> \u2713 ' + evs.verifiedCount + ' verified</span>' : '')
-                    + '<br><button onclick="closeEditSkillModal(); setTimeout(function(){ var sk = (skillsData.skills||[]).find(function(s){return s.name===\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\';}); if(sk) openSkillModal(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\', sk); }, 100);" '
+                    + '<br><button onclick="closeEditSkillModal(true); setTimeout(function(){ var sk = (skillsData.skills||[]).find(function(s){return s.name===\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\';}); if(sk) openSkillModal(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\', sk); }, 100);" '
                     + 'style="margin-top:6px; padding:3px 10px; background:transparent; border:1px solid var(--c-green-border-2); color:#10b981; border-radius:4px; cursor:pointer; font-size:0.88em;">+ Add Evidence</button>'
                     + '</div>';
             }
             updateEditSkillGapWarning();
+            setTimeout(function() { window._editSkillSnapshot = _captureEditSkillState(); }, 50);
         }
         
-        function closeEditSkillModal() {
+        function _captureEditSkillState() {
+            var level = (document.querySelector('input[name="editSkillLevel"]:checked') || {}).value || '';
+            var core = document.getElementById('editSkillCore') ? document.getElementById('editSkillCore').checked : false;
+            var roleCbs = document.querySelectorAll('.edit-skill-role-checkbox');
+            var roles = Array.from(roleCbs).map(function(cb) { return cb.value + ':' + cb.checked; }).join(',');
+            return level + '|' + core + '|' + roles;
+        }
+        function closeEditSkillModal(force) {
+            if (!force && window._editSkillSnapshot) {
+                var current = _captureEditSkillState();
+                if (current !== window._editSkillSnapshot) {
+                    if (confirm('You have unsaved changes. Save before closing?')) {
+                        saveSkillEdit();
+                        return;
+                    }
+                }
+            }
             const modal = document.getElementById('editSkillModal');
             modal.classList.remove('active');
             currentEditingSkill = null;
+            window._editSkillSnapshot = null;
         }
         
         function updateEditSkillGapWarning() {
@@ -49637,7 +49655,7 @@ body {
             
             // ── HEADER ──
             html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">'
-                + '<div>'
+                + '<div style="flex:1; min-width:0;">'
                 + '<h2 style="margin:0; font-size:1.3em; color:var(--text-primary);">' + escapeHtml(skillName) + '</h2>'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;">'
                 + '<span style="padding:3px 10px; border-radius:10px; font-size:0.75em; font-weight:600; background:' + (levelColors[skill.level] || '#6b7280') + '22; color:' + (levelColors[skill.level] || '#6b7280') + ';">' + (skill.level || 'Proficient') + '</span>'
@@ -49645,8 +49663,10 @@ body {
                 + (isOnetSkill ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(96,165,250,0.15); color:#60a5fa;">O*NET</span>' : '')
                 + (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified by ' + escapeHtml(vn) + '</span>'; } return ''; })()
                 + '</div></div>'
+                + '<div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">'
+                + '<button onclick="saveUnifiedSkillEdit()" style="padding:6px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82em;">Save</button>'
                 + '<button onclick="closeUnifiedSkillEditor()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.4em; padding:4px;">\u2715</button>'
-                + '</div>';
+                + '</div></div>';
             
             // ── PROFICIENCY LEVEL ──
             html += '<div style="margin-bottom:18px;">'
@@ -49772,7 +49792,7 @@ body {
                 });
                 html += '</div>';
             }
-            html += '<button onclick="closeUnifiedSkillEditor(); switchBlueprintTab(\'outcomes\');" '
+            html += '<button onclick="closeUnifiedSkillEditor(true); switchBlueprintTab(\'outcomes\');" '
                 + 'style="margin-top:8px; padding:6px 14px; border-radius:6px; font-size:0.78em; cursor:pointer; '
                 + 'background:none; border:1px solid var(--border); color:var(--accent); display:inline-flex; align-items:center; gap:4px;">'
                 + bpIcon('plus',12) + (linkedOutcomes.length > 0 ? ' Manage Outcomes' : ' Add an Outcome') + '</button>'
@@ -49782,7 +49802,7 @@ body {
             html += '<div style="display:flex; gap:10px; align-items:center;">'
                 + '<button onclick="saveUnifiedSkillEdit()" style="flex:1; padding:12px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.92em;">Save Changes</button>'
                 + '<button onclick="closeUnifiedSkillEditor()" style="padding:12px 20px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Cancel</button>'
-                + '<button onclick="if(confirm(\'Remove ' + escapeHtml(skillName).replace(/'/g,"\\'") + '?\')) { deleteSkillFromProfile(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\'); closeUnifiedSkillEditor(); }" '
+                + '<button onclick="if(confirm(\'Remove ' + escapeHtml(skillName).replace(/'/g,"\\'") + '?\')) { deleteSkillFromProfile(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\'); closeUnifiedSkillEditor(true); }" '
                 + 'style="margin-left:auto; padding:10px 14px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.82em;">'
                 + bpIcon('trash',14) + ' Remove</button>'
                 + '</div>';
@@ -49802,15 +49822,40 @@ body {
             history.pushState({ modal: true }, '');
             modal.classList.add('active');
             
-            // Initialize gap warning
-            setTimeout(uniUpdateGapWarning, 50);
+            setTimeout(function() {
+                uniUpdateGapWarning();
+                window._uniEditorSnapshot = _captureUniEditorState();
+            }, 50);
         }
         window.openUnifiedSkillEditor = openUnifiedSkillEditor;
         
-        function closeUnifiedSkillEditor() {
+        function _captureUniEditorState() {
+            var level = (document.querySelector('input[name="uniLevel"]:checked') || {}).value || '';
+            var core = document.getElementById('uniCore') ? document.getElementById('uniCore').checked : false;
+            var roleCbs = document.querySelectorAll('.uni-role-cb');
+            var roles = Array.from(roleCbs).map(function(cb) { return cb.value + ':' + cb.checked; }).join(',');
+            var years = (document.getElementById('uniAssessYears') || {}).value || '';
+            var impact = (document.querySelector('input[name="uniImpact"]:checked') || {}).value || '';
+            var rarity = (document.querySelector('input[name="uniRarity"]:checked') || {}).value || '';
+            var salary = (document.querySelector('input[name="uniSalary"]:checked') || {}).value || '';
+            return level + '|' + core + '|' + roles + '|' + years + '|' + impact + '|' + rarity + '|' + salary;
+        }
+        function _uniEditorIsDirty() {
+            if (!window._uniEditorSnapshot) return false;
+            return _captureUniEditorState() !== window._uniEditorSnapshot;
+        }
+
+        function closeUnifiedSkillEditor(force) {
+            if (!force && _uniEditorIsDirty()) {
+                if (confirm('You have unsaved changes. Save before closing?')) {
+                    saveUnifiedSkillEdit();
+                    return;
+                }
+            }
             var modal = document.getElementById('unifiedSkillEditor');
             if (modal) modal.classList.remove('active');
             currentEditingSkill = null;
+            window._uniEditorSnapshot = null;
         }
         window.closeUnifiedSkillEditor = closeUnifiedSkillEditor;
         
@@ -49883,7 +49928,8 @@ body {
             refreshAllViews();
             
             var name = currentEditingSkill;
-            closeUnifiedSkillEditor();
+            window._uniEditorSnapshot = null;
+            closeUnifiedSkillEditor(true);
             showToast('Updated "' + name + '".', 'success');
         }
         window.saveUnifiedSkillEdit = saveUnifiedSkillEdit;
@@ -49924,7 +49970,8 @@ body {
             refreshAllViews();
             
             var updatedName = currentEditingSkill;
-            closeEditSkillModal();
+            window._editSkillSnapshot = null;
+            closeEditSkillModal(true);
             
             showToast('Updated "' + updatedName + '".', 'success');
         }
