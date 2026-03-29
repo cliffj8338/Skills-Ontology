@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37h';
+        var BP_VERSION = 'v4.47.37i';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -26392,6 +26392,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<span title="' + skillImpact.label + '" style="font-size:0.75em; color:' + impactColor + ';">' + skillImpact.icon + '</span>'
                         + '<span style="font-size:0.62em; padding:1px 7px; border-radius:8px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;">' + tier.label + '</span>'
                         + (years ? '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + 'y</span>' : '')
+                        + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(139,92,246,0.15); color:#8b5cf6; font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
                         + '</div>';
 
                     if (roleNames.length > 0) {
@@ -28135,86 +28136,135 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 categoryBadge = '<span class="modal-category-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">' + bpIcon('star',12) + ' Unique Differentiator</span>';
             }
             
+            var subtitleInferred = '';
+            var _evSumSub = getEvidenceSummary(skillData);
+            if (_evSumSub.inferredActive) {
+                subtitleInferred = '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(139,92,246,0.15); color:#8b5cf6; font-weight:600;">\u2728 Inferred ' + _evSumSub.inferredLevel + '</span>';
+            }
+            var subtitleVerified = (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; var vrel = conf[0].relationship || 'Peer'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified</span>'; } return ''; })();
             subtitle.innerHTML = `
                 <span class="modal-level-badge ${levelClass}">${skillData.level || 'Proficient'}</span>
                 <span class="modal-years">${years} years experience</span>
                 ${categoryBadge}
                 ${coreBadge}
-                ${(function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; var vrel = conf[0].relationship || 'Peer'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified by ' + escapeHtml(vn) + ' (' + vrel + ')</span>'; } return ''; })()}
+                ${subtitleInferred}
+                ${subtitleVerified}
             `;
             
             // Build body content
             let bodyHTML = '';
             
-            // Evidence Quality Panel (v4.16.0)
+            // Verification Summary Panel (v4.47.37h)
             const evSummary = getEvidenceSummary(skillData);
             const hasGap = evSummary.hasGap;
             const gapColor = hasGap ? 'var(--c-warn)' : 'var(--c-success)';
             const gapBg = hasGap ? 'var(--c-amber-bg-2b)' : 'var(--c-green-bg-2a)';
             const gapBorder = hasGap ? 'var(--c-amber-border-2)' : 'var(--c-green-border-1)';
-            
+
+            var vRowStyle = 'display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:8px; background:var(--c-surface-1); border:1px solid var(--c-surface-4);';
+            var vIconBox = 'width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:14px;';
+            var vLabelStyle = 'font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;';
+            var vLevelStyle = 'font-size:0.88em; font-weight:600;';
+            var vDescStyle = 'font-size:0.75em; color:var(--c-muted); line-height:1.4; margin-top:2px;';
+
             bodyHTML += '<div style="padding:14px; margin-bottom:16px; background:' + gapBg + '; border:1px solid ' + gapBorder + '; border-radius:10px;">';
-            bodyHTML += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">';
-            bodyHTML += '<div style="font-weight:700; font-size:0.88em; color:' + gapColor + ';">'
-                + (hasGap ? '\u26A0 Evidence Gap' : '\u2705 Evidence Backed') + '</div>';
-            bodyHTML += '<div style="font-size:0.82em; color:var(--c-muted);">'
-                + evSummary.points + ' pts \u2192 ' + evSummary.effectiveLevel + '</div>';
+
+            bodyHTML += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">';
+            bodyHTML += '<div style="font-weight:700; font-size:0.92em; color:var(--c-heading);">Verification Summary</div>';
+            bodyHTML += '<div style="font-size:0.78em; color:' + gapColor + '; font-weight:600;">'
+                + (hasGap ? '\u26A0 Evidence Gap' : '\u2705 Fully Backed') + '</div>';
             bodyHTML += '</div>';
-            
-            // Progress bar
+            bodyHTML += '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:12px;">Effective level: <strong style="color:var(--c-heading);">' + evSummary.effectiveLevel + '</strong>'
+                + (hasGap ? ' (claimed ' + evSummary.claimedLevel + ')' : '') + '</div>';
+
+            bodyHTML += '<div style="display:flex; flex-direction:column; gap:8px;">';
+
+            // Row 1: Evidence-Based
+            var evLevel = evSummary.evidenceOnlyLevel || evSummary.effectiveLevel;
+            var evActive = evSummary.evidenceCount > 0;
             var maxPts = evidenceConfig.thresholds['Mastery'];
             var pctFill = Math.min((evSummary.points / maxPts) * 100, 100);
-            bodyHTML += '<div style="height:6px; background:var(--c-surface-5); border-radius:3px; overflow:hidden;">';
-            bodyHTML += '<div style="height:100%; width:' + pctFill + '%; background:' + gapColor + '; border-radius:3px; transition:width 0.3s;"></div>';
-            bodyHTML += '</div>';
-            
-            if (hasGap) {
-                bodyHTML += '<div style="font-size:0.78em; color:var(--c-label); margin-top:8px; line-height:1.45;">'
-                    + 'Claimed <strong>' + evSummary.claimedLevel + '</strong> but evidence supports <strong>' + evSummary.effectiveLevel + '</strong>. '
-                    + 'Market valuation uses the evidence-backed level. ';
-                if (evSummary.nextLevel) {
-                    bodyHTML += 'Add ' + evSummary.pointsNeeded + ' more points of evidence for <strong>' + evSummary.nextLevel + '</strong>.';
-                }
-                bodyHTML += '</div>';
-            } else if (evSummary.nextLevel) {
-                bodyHTML += '<div style="font-size:0.78em; color:var(--c-muted); margin-top:6px;">'
-                    + evSummary.pointsNeeded + ' more points for ' + evSummary.nextLevel + '</div>';
+            bodyHTML += '<div style="' + vRowStyle + '">'
+                + '<div style="' + vIconBox + ' background:rgba(96,165,250,0.15); color:#60a5fa;">' + bpIcon('check',16) + '</div>'
+                + '<div style="flex:1; min-width:0;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                + '<span style="' + vLabelStyle + ' color:#60a5fa;">Evidence-Based</span>'
+                + '<span style="' + vLevelStyle + ' color:' + (evActive ? '#60a5fa' : 'var(--c-muted)') + ';">' + evLevel + '</span></div>'
+                + '<div style="' + vDescStyle + '">' + evSummary.points + ' evidence points from ' + evSummary.evidenceCount + ' outcome' + (evSummary.evidenceCount !== 1 ? 's' : '') + '</div>'
+                + '<div style="height:4px; background:var(--c-surface-5); border-radius:2px; margin-top:4px; overflow:hidden;">'
+                + '<div style="height:100%; width:' + pctFill + '%; background:#60a5fa; border-radius:2px;"></div></div>';
+            if (evSummary.nextLevel) {
+                bodyHTML += '<div style="font-size:0.7em; color:var(--c-faint); margin-top:3px;">' + evSummary.pointsNeeded + ' more pts for ' + evSummary.nextLevel + '</div>';
             }
-            
-            // Verification badges
-            if (evSummary.verifiedCount > 0 || evSummary.pendingCount > 0) {
-                bodyHTML += '<div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">';
-                if (evSummary.verifiedCount > 0) {
-                    // Show verifier details with credibility weight
-                    var vRecs = (userData.verifications || []).filter(function(v) { return v.skillName === skillName && v.status === 'confirmed'; });
-                    if (vRecs.length > 0) {
-                        var vr = vRecs[0];
-                        var cred = getCredibilityLabel(vr.relationship || 'Other');
-                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b); color:#10b981;">'
-                            + '\u2713 Verified by ' + escapeHtml(vr.verifierName || 'verifier') + ' (' + escapeHtml(vr.relationship || 'Peer') + ')'
-                            + ' \u00B7 <span style="color:' + cred.color + ';">' + cred.weight + 'x ' + cred.label + '</span></span>';
-                    } else {
-                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b); color:#10b981;">\u2713 Verified by ' + evSummary.verifiedCount + '</span>';
-                    }
-                }
-                if (evSummary.pendingCount > 0) {
-                    bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b); color:#f59e0b;">\u23F3 ' + evSummary.pendingCount + ' pending</span>';
-                }
-                if (evSummary.hasCert) {
-                    bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-purple-bg-2b); color:#a78bfa;">' + bpIcon('award', 11) + ' Certification linked</span>';
-                }
-                // Suggested level adjustments (v4.44.44)
-                if (evSummary.levelSuggestions && evSummary.levelSuggestions.length > 0) {
-                    evSummary.levelSuggestions.forEach(function(sug) {
-                        var sugVal = proficiencyValue(sug.level);
+            if (evSummary.hasCert) {
+                bodyHTML += '<div style="font-size:0.7em; color:#a78bfa; margin-top:3px;">' + bpIcon('award',10) + ' Certification linked (floor: ' + evidenceConfig.certFloor + ')</div>';
+            }
+            bodyHTML += '</div></div>';
+
+            // Row 2: Experience-Inferred
+            var eiYears = evSummary.experienceYears || 0;
+            var eiLevel = evSummary.inferredLevel;
+            var eiActive = evSummary.inferredActive;
+            bodyHTML += '<div style="' + vRowStyle + (eiActive ? ' border-color:rgba(139,92,246,0.3);' : '') + '">'
+                + '<div style="' + vIconBox + ' background:rgba(139,92,246,0.15); color:#8b5cf6;">' + bpIcon('clock',16) + '</div>'
+                + '<div style="flex:1; min-width:0;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                + '<span style="' + vLabelStyle + ' color:#8b5cf6;">Experience-Inferred</span>';
+            if (eiLevel) {
+                bodyHTML += '<span style="' + vLevelStyle + ' color:#8b5cf6;">' + eiLevel + (eiActive ? ' \u2728' : '') + '</span>';
+            } else {
+                bodyHTML += '<span style="' + vLevelStyle + ' color:var(--c-muted);">\u2014</span>';
+            }
+            bodyHTML += '</div><div style="' + vDescStyle + '">';
+            if (eiYears > 0 && eiLevel) {
+                bodyHTML += eiYears + ' year' + (eiYears !== 1 ? 's' : '') + ' of experience infers at least ' + eiLevel + ' proficiency';
+                if (eiActive) bodyHTML += ' \u2014 <span style="color:#8b5cf6; font-weight:600;">raising effective level above evidence alone</span>';
+            } else if (eiYears > 0) {
+                bodyHTML += eiYears + ' year' + (eiYears !== 1 ? 's' : '') + ' of experience (below inference threshold)';
+            } else {
+                bodyHTML += 'No years of experience set \u2014 update in skill assessment';
+            }
+            bodyHTML += '</div></div></div>';
+
+            // Row 3: Peer-Verified
+            var vRecs = (userData.verifications || []).filter(function(v) { return v.skillName === skillName && v.status === 'confirmed'; });
+            var pRecs = (userData.verifications || []).filter(function(v) { return v.skillName === skillName && v.status === 'pending'; });
+            var pvActive = vRecs.length > 0;
+            bodyHTML += '<div style="' + vRowStyle + (pvActive ? ' border-color:rgba(16,185,129,0.3);' : '') + '">'
+                + '<div style="' + vIconBox + ' background:rgba(16,185,129,0.15); color:#10b981;">' + bpIcon('shield',16) + '</div>'
+                + '<div style="flex:1; min-width:0;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                + '<span style="' + vLabelStyle + ' color:#10b981;">Peer-Verified</span>';
+            if (pvActive) {
+                bodyHTML += '<span style="' + vLevelStyle + ' color:#10b981;">\u2713 ' + vRecs.length + ' verification' + (vRecs.length !== 1 ? 's' : '') + '</span>';
+            } else {
+                bodyHTML += '<span style="' + vLevelStyle + ' color:var(--c-muted);">\u2014</span>';
+            }
+            bodyHTML += '</div><div style="' + vDescStyle + '">';
+            if (pvActive) {
+                vRecs.forEach(function(vr, vi) {
+                    var cred = getCredibilityLabel(vr.relationship || 'Other');
+                    bodyHTML += (vi > 0 ? '<br>' : '') + '\u2713 ' + escapeHtml(vr.verifierName || 'Verifier') + ' (' + escapeHtml(vr.relationship || 'Peer') + ') \u00B7 <span style="color:' + cred.color + ';">' + cred.weight + 'x ' + cred.label + ' credibility</span>';
+                    if (vr.confirmedLevel && vr.confirmedLevel !== evSummary.claimedLevel) {
+                        var sugVal = proficiencyValue(vr.confirmedLevel);
                         var claimedVal = proficiencyValue(evSummary.claimedLevel);
                         var sugIcon = sugVal > claimedVal ? '\u2191' : '\u2193';
-                        var sugClr = sugVal > claimedVal ? '#10b981' : '#f59e0b';
-                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + sugClr + '18; color:' + sugClr + ';" title="' + escapeAttr(sug.name) + ' suggested ' + escapeHtml(sug.level) + ' (scoring adjusted)">'
-                            + sugIcon + ' ' + escapeHtml(sug.name) + ' suggests ' + escapeHtml(sug.level) + '</span>';
-                    });
-                }
-                bodyHTML += '</div>';
+                        bodyHTML += ' <span style="color:' + (sugVal > claimedVal ? '#10b981' : '#f59e0b') + ';">' + sugIcon + ' suggests ' + escapeHtml(vr.confirmedLevel) + '</span>';
+                    }
+                });
+            } else if (pRecs.length > 0) {
+                bodyHTML += '\u23F3 ' + pRecs.length + ' verification request' + (pRecs.length !== 1 ? 's' : '') + ' pending';
+            } else {
+                bodyHTML += 'No peer verifications yet \u2014 <a href="#" onclick="event.preventDefault(); closeSkillModal(); setTimeout(function(){ requestVerification([\'' + escapeHtml(skillName).replace(/'/g, "\\'") + '\']); },200);" style="color:#10b981; text-decoration:underline;">request one</a>';
+            }
+            bodyHTML += '</div></div></div>';
+
+            bodyHTML += '</div>';
+
+            if (hasGap) {
+                bodyHTML += '<div style="font-size:0.75em; color:var(--c-label); margin-top:10px; padding:8px 10px; background:var(--c-surface-1); border-radius:6px; line-height:1.45;">'
+                    + 'Claimed <strong>' + evSummary.claimedLevel + '</strong> but verification supports <strong>' + evSummary.effectiveLevel + '</strong>. '
+                    + 'Market valuation uses the highest verified level until the claim is fully backed.</div>';
             }
             
             bodyHTML += '</div>';
@@ -49684,17 +49734,22 @@ body {
                 var evs = getEvidenceSummary(skill);
                 var evColor = evs.hasGap ? 'var(--c-warn)' : 'var(--c-success)';
                 var evBg = evs.hasGap ? 'var(--c-amber-bg-2b)' : 'var(--c-green-bg-2a)';
-                var inferredPill = '';
+                var evPills = '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">';
+                evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(96,165,250,0.12); color:#60a5fa; font-size:0.82em; font-weight:600;">' + bpIcon('check',11) + ' Evidence: ' + (evs.evidenceOnlyLevel || evs.effectiveLevel) + ' <span style="font-weight:400; opacity:0.7;">(' + evs.points + ' pts)</span></span>';
                 if (evs.inferredActive) {
-                    inferredPill = ' <span style="display:inline-block; padding:1px 7px; background:rgba(139,92,246,0.15); color:#8b5cf6; border-radius:4px; font-size:0.85em; font-weight:600;" title="' + evs.experienceYears + ' years experience infers at least ' + evs.inferredLevel + '">\u2728 Inferred ' + evs.inferredLevel + '</span>';
+                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(139,92,246,0.12); color:#8b5cf6; font-size:0.82em; font-weight:600;" title="' + evs.experienceYears + ' years experience">\u2728 Inferred: ' + evs.inferredLevel + '</span>';
                 }
+                if (evs.verifiedCount > 0) {
+                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(16,185,129,0.12); color:#10b981; font-size:0.82em; font-weight:600;">' + bpIcon('shield',11) + ' Verified: ' + evs.verifiedCount + '</span>';
+                }
+                evPills += '</div>';
                 evStatus.innerHTML = '<div style="padding:10px 14px; background:' + evBg + '; border-radius:8px; font-size:0.82em;">'
-                    + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + (evs.evidenceOnlyLevel || evs.effectiveLevel) + '</span>'
-                    + inferredPill
-                    + '<span style="color:var(--c-muted); margin-left:8px;">(' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + ')</span>'
-                    + (evs.verifiedCount > 0 ? ' <span style="color:#10b981;"> \u2713 ' + evs.verifiedCount + ' verified</span>' : '')
+                    + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                    + '<span style="color:' + evColor + '; font-weight:600;">Effective: ' + evs.effectiveLevel + '</span>'
+                    + '<span style="color:var(--c-muted); font-size:0.88em;">' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + '</span></div>'
+                    + evPills
                     + '<br><button onclick="closeEditSkillModal(true); setTimeout(function(){ var sk = (skillsData.skills||[]).find(function(s){return s.name===\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\';}); if(sk) openSkillModal(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\', sk); }, 100);" '
-                    + 'style="margin-top:6px; padding:3px 10px; background:transparent; border:1px solid var(--c-green-border-2); color:#10b981; border-radius:4px; cursor:pointer; font-size:0.88em;">+ Add Evidence</button>'
+                    + 'style="margin-top:4px; padding:3px 10px; background:transparent; border:1px solid var(--c-green-border-2); color:#10b981; border-radius:4px; cursor:pointer; font-size:0.88em;">+ Add Evidence</button>'
                     + '</div>';
             }
             updateEditSkillGapWarning();
