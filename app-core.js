@@ -437,7 +437,7 @@
             var allowed = ['profile','skills','roles','values','purpose','outcomes','preferences',
                 'applications','workHistory','education','certifications','verifications',
                 'savedJobs','initialized','templateId','linkedinContent','companyTenures',
-                'importStats','contentVisibility','careerLens'];
+                'importStats','contentVisibility','careerLens','profileType','explorerData'];
             var clean = {};
             allowed.forEach(function(key) {
                 if (raw[key] !== undefined) clean[key] = raw[key];
@@ -1331,6 +1331,8 @@
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
+            if (_ud.profileType) data.profileType = _ud.profileType;
+            if (_ud.explorerData) data.explorerData = _ud.explorerData;
             if (_ud.linkedinContent) data.linkedinContent = _ud.linkedinContent;
             if (_ud.contentVisibility) data.contentVisibility = _ud.contentVisibility;
             if (_ud.companyTenures) data.companyTenures = _ud.companyTenures;
@@ -1552,6 +1554,8 @@
                     userData.companyTenures = data.companyTenures || [];
                     userData.importStats = data.importStats || {};
                     userData.blindDefaults = data.blindDefaults || {};
+                    if (data.profileType) userData.profileType = data.profileType;
+                    if (data.explorerData) userData.explorerData = data.explorerData;
                     userData.growthSkills = data.growthSkills || [];
                     userData.privacyLog = data.privacyLog || [];
                     // Restore sharing preset
@@ -30102,9 +30106,20 @@ body {
         function explorerDoConvert() {
             userData.profileType = 'standard';
             if (typeof closeExportModal === 'function') closeExportModal();
-            saveToFirestore();
             renderBlueprint();
-            if (typeof showToast === 'function') showToast('Converted to full Blueprint! Add your work experience to unlock salary insights.', 'success');
+            if (fbUser && fbDb) {
+                saveToFirestore().then(function(ok) {
+                    if (ok) {
+                        showToast('Converted to full Blueprint! Add your work experience to unlock salary insights.', 'success');
+                    } else {
+                        showToast('Conversion saved locally but cloud save failed. Try again.', 'warning', 5000);
+                    }
+                }).catch(function(err) {
+                    showToast('Save error: ' + err.message + '. Your conversion is saved locally.', 'error', 5000);
+                });
+            } else {
+                showToast('Converted to full Blueprint! Sign in to save permanently.', 'info');
+            }
         }
         window.explorerDoConvert = explorerDoConvert;
 
