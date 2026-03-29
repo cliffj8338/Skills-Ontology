@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37j';
+        var BP_VERSION = 'v4.47.37k';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -29961,6 +29961,8 @@ body {
             return renderDashboardTab();
         }
 
+        function _expFmt(val) { return '$' + Math.round(val).toLocaleString(); }
+
         function renderExplorerDashboard(skills, roles) {
             var ed = userData.explorerData || {};
             var careerPaths = ed.careerPaths || [];
@@ -29968,78 +29970,132 @@ body {
             var selectedPath = careerPaths[selectedIdx] || null;
             var education = ed.education || {};
             var skillCount = skills.length;
-            var noviceCount = skills.filter(function(s) { return s.level === 'Novice'; }).length;
-            var competentCount = skills.filter(function(s) { return s.level === 'Competent'; }).length;
-            var otherCount = skillCount - noviceCount - competentCount;
             var driveStatement = ed.driveStatement || '';
 
-            var cardStyle = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
-            var labelStyle = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
+            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+
+            var entryVal = selectedPath && selectedPath.entryValue ? selectedPath.entryValue : 0;
+            var midVal = selectedPath && selectedPath.midValue ? selectedPath.midValue : 0;
+            var seniorVal = selectedPath && selectedPath.seniorValue ? selectedPath.seniorValue : 0;
+            var skillsToLearn = selectedPath && selectedPath.skillsToLearn ? selectedPath.skillsToLearn : [];
+            var totalSkillValue = 0;
+            skillsToLearn.forEach(function(s) { totalSkillValue += (s.valueAdd || 0); });
+            var potentialVal = entryVal + totalSkillValue;
 
             var html = '';
 
             html += '<div style="background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(96,165,250,0.08)); border:1px solid rgba(139,92,246,0.2); border-radius:16px; padding:24px; margin-bottom:20px; text-align:center;">'
                 + '<div style="display:inline-block; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:4px 12px; border-radius:20px; margin-bottom:12px;">Explorer Mode</div>'
-                + '<div style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Your Career Journey Starts Here</div>'
-                + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; max-width:520px; margin:0 auto;">Your Blueprint is built from your education, activities, and interests. As you gain experience, your skills and valuation will grow.</div>'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Your Career Value Map</div>'
+                + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; max-width:520px; margin:0 auto;">See what you can build, what it\u2019s worth, and exactly which skills unlock the most value for the direction you choose.</div>'
                 + '</div>';
 
+            if (entryVal > 0) {
+                html += '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:20px;">';
+                html += '<div style="' + cs + ' text-align:center; padding:16px; border-color:rgba(16,185,129,0.3);">'
+                    + '<div style="font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#10b981; margin-bottom:6px;">Entry-Level Value</div>'
+                    + '<div style="font-size:1.5em; font-weight:700; color:#10b981;">' + _expFmt(entryVal) + '</div>'
+                    + '<div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">Starting salary</div></div>';
+                html += '<div style="' + cs + ' text-align:center; padding:16px; border-color:rgba(96,165,250,0.3);">'
+                    + '<div style="font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; margin-bottom:6px;">Mid-Career Value</div>'
+                    + '<div style="font-size:1.5em; font-weight:700; color:#60a5fa;">' + _expFmt(midVal) + '</div>'
+                    + '<div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">3\u20135 years</div></div>';
+                html += '<div style="' + cs + ' text-align:center; padding:16px; border-color:rgba(139,92,246,0.3);">'
+                    + '<div style="font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#8b5cf6; margin-bottom:6px;">Senior Value</div>'
+                    + '<div style="font-size:1.5em; font-weight:700; color:#8b5cf6;">' + _expFmt(seniorVal) + '</div>'
+                    + '<div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">8\u201310+ years</div></div>';
+                html += '</div>';
+            }
+
             html += '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">';
-            html += '<div style="' + cardStyle + ' text-align:center; padding:16px;">'
-                + '<div style="font-size:1.8em; font-weight:700; color:#60a5fa;">' + skillCount + '</div>'
-                + '<div style="font-size:0.75em; color:var(--text-muted);">Skills Discovered</div></div>';
-            html += '<div style="' + cardStyle + ' text-align:center; padding:16px;">'
-                + '<div style="font-size:1.8em; font-weight:700; color:#8b5cf6;">' + careerPaths.length + '</div>'
-                + '<div style="font-size:0.75em; color:var(--text-muted);">Career Paths</div></div>';
-            html += '<div style="' + cardStyle + ' text-align:center; padding:16px;">'
-                + '<div style="font-size:1.8em; font-weight:700; color:#10b981;">' + (competentCount + otherCount) + '</div>'
-                + '<div style="font-size:0.75em; color:var(--text-muted);">Growing Skills</div></div>';
+            html += '<div style="' + cs + ' text-align:center; padding:14px;">'
+                + '<div style="font-size:1.6em; font-weight:700; color:#60a5fa;">' + skillCount + '</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted);">Skills Discovered</div></div>';
+            html += '<div style="' + cs + ' text-align:center; padding:14px;">'
+                + '<div style="font-size:1.6em; font-weight:700; color:#8b5cf6;">' + careerPaths.length + '</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted);">Career Paths</div></div>';
+            html += '<div style="' + cs + ' text-align:center; padding:14px;">'
+                + '<div style="font-size:1.6em; font-weight:700; color:#10b981;">' + (totalSkillValue > 0 ? '+' + _expFmt(totalSkillValue) : '\u2014') + '</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted);">Skill Growth Potential</div></div>';
             html += '</div>';
 
+            if (careerPaths.length > 1) {
+                html += '<div style="' + cs + ' padding:16px;">'
+                    + '<div style="' + ls + ' color:#60a5fa;">Choose Your Direction</div>'
+                    + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">';
+                careerPaths.forEach(function(path, idx) {
+                    var isSel = idx === selectedIdx;
+                    var pEntry = path.entryValue || 0;
+                    var pSenior = path.seniorValue || 0;
+                    html += '<div style="padding:12px; border:' + (isSel ? '2px solid #8b5cf6' : '1px solid var(--border-color)') + '; border-radius:10px; cursor:pointer; background:' + (isSel ? 'rgba(139,92,246,0.06)' : 'transparent') + '; transition:all 0.15s;" onclick="explorerDashSelectPath(' + idx + ')">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.85em; margin-bottom:4px;">' + escapeHtml(path.title) + '</div>'
+                        + (pEntry > 0 ? '<div style="font-size:0.78em; color:#10b981; font-weight:600;">' + _expFmt(pEntry) + ' \u2192 ' + _expFmt(pSenior) + '</div>' : '')
+                        + (path.growth ? '<div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(path.growth) + '</div>' : '')
+                        + (isSel ? '<div style="font-size:0.65em; color:#8b5cf6; font-weight:700; text-transform:uppercase; margin-top:4px;">Selected</div>' : '')
+                        + '</div>';
+                });
+                html += '</div></div>';
+            }
+
             if (selectedPath) {
-                html += '<div style="' + cardStyle + ' border-color:rgba(139,92,246,0.3);">'
-                    + '<div style="' + labelStyle + ' color:#8b5cf6;">Focused Career Path</div>'
+                html += '<div style="' + cs + ' border-color:rgba(139,92,246,0.3);">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">'
+                    + '<div style="' + ls + ' color:#8b5cf6; margin-bottom:0;">Focused Path</div>'
+                    + (selectedPath.salary ? '<div style="font-size:0.82em; font-weight:700; color:#10b981;">' + escapeHtml(selectedPath.salary) + '</div>' : '')
+                    + '</div>'
                     + '<div style="font-weight:700; font-size:1.1em; color:var(--text-primary); margin-bottom:6px;">' + escapeHtml(selectedPath.title) + '</div>'
-                    + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; margin-bottom:12px;">' + escapeHtml(selectedPath.whyFit || '') + '</div>';
+                    + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; margin-bottom:14px;">' + escapeHtml(selectedPath.whyFit || '') + '</div>';
+
+                var skillsHave = selectedPath.skillsYouHave || [];
+                if (skillsHave.length > 0) {
+                    html += '<div style="' + ls + ' color:#10b981; margin-top:4px;">Skills You Already Have</div>'
+                        + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;">';
+                    skillsHave.forEach(function(sk) {
+                        html += '<span style="display:inline-block; background:rgba(16,185,129,0.1); color:#10b981; font-size:0.78em; font-weight:600; padding:4px 10px; border-radius:8px; border:1px solid rgba(16,185,129,0.2);">' + escapeHtml(sk) + '</span>';
+                    });
+                    html += '</div>';
+                }
+
+                if (skillsToLearn.length > 0) {
+                    html += '<div style="' + ls + ' color:#f59e0b;">Skills To Learn &mdash; Each One Adds Market Value</div>';
+                    skillsToLearn.forEach(function(sk) {
+                        html += '<div style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border:1px solid var(--border-color); border-radius:10px; margin-bottom:8px;">'
+                            + '<div style="flex-shrink:0; width:60px; text-align:center; padding:6px 0;">'
+                            + '<div style="font-size:1em; font-weight:700; color:#10b981;">+' + _expFmt(sk.valueAdd) + '</div>'
+                            + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">value</div></div>'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(sk.name) + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.5; margin-top:2px;">' + escapeHtml(sk.how || '') + '</div>'
+                            + '<div style="font-size:0.7em; color:var(--text-muted); margin-top:3px;">\u23F1 ' + escapeHtml(sk.timeToLearn || '') + '</div>'
+                            + '</div></div>';
+                    });
+                    if (totalSkillValue > 0) {
+                        html += '<div style="margin-top:4px; padding:10px 14px; background:rgba(16,185,129,0.06); border-radius:8px; text-align:center;">'
+                            + '<span style="font-size:0.82em; color:var(--text-secondary);">Learn all 4 skills = </span>'
+                            + '<span style="font-size:0.95em; font-weight:700; color:#10b981;">+' + _expFmt(totalSkillValue) + '/yr</span>'
+                            + '<span style="font-size:0.82em; color:var(--text-secondary);"> added market value \u2192 </span>'
+                            + '<span style="font-size:0.95em; font-weight:700; color:#8b5cf6;">' + _expFmt(potentialVal) + '/yr</span>'
+                            + '</div>';
+                    }
+                }
 
                 if (selectedPath.nextSteps && selectedPath.nextSteps.length) {
-                    html += '<div style="' + labelStyle + ' color:#10b981; margin-top:12px;">What To Do Next</div>';
-                    selectedPath.nextSteps.forEach(function(step) {
+                    html += '<div style="' + ls + ' color:#60a5fa; margin-top:16px;">Action Steps</div>';
+                    selectedPath.nextSteps.forEach(function(step, i) {
                         html += '<div style="display:flex; align-items:flex-start; gap:8px; margin-bottom:8px;">'
-                            + '<span style="color:#10b981; font-weight:700; margin-top:1px;">&#10003;</span>'
+                            + '<span style="flex-shrink:0; width:20px; height:20px; border-radius:50%; background:rgba(96,165,250,0.15); color:#60a5fa; font-size:0.7em; font-weight:700; display:flex; align-items:center; justify-content:center;">' + (i+1) + '</span>'
                             + '<span style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(step) + '</span>'
                             + '</div>';
                     });
                 }
 
-                if (selectedPath.salary) {
-                    html += '<div style="margin-top:12px; padding:10px 14px; background:rgba(16,185,129,0.06); border-radius:8px; font-size:0.82em; color:var(--text-secondary);">'
-                        + '<strong style="color:#10b981;">Entry-Level Range:</strong> ' + escapeHtml(selectedPath.salary)
-                        + '</div>';
-                }
-
-                html += '</div>';
-            }
-
-            if (careerPaths.length > 1) {
-                html += '<div style="' + cardStyle + '">'
-                    + '<div style="' + labelStyle + ' color:#60a5fa;">All Career Paths</div>';
-                careerPaths.forEach(function(path, idx) {
-                    var isSelected = idx === selectedIdx;
-                    html += '<div style="padding:12px 14px; border:1px solid ' + (isSelected ? 'rgba(139,92,246,0.4)' : 'var(--border-color)') + '; border-radius:10px; margin-bottom:8px; cursor:pointer; background:' + (isSelected ? 'rgba(139,92,246,0.06)' : 'transparent') + ';" onclick="explorerDashSelectPath(' + idx + ')">'
-                        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
-                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.92em;">' + escapeHtml(path.title) + '</div>'
-                        + (isSelected ? '<span style="color:#8b5cf6; font-size:0.72em; font-weight:700; text-transform:uppercase;">Focused</span>' : '')
-                        + '</div>'
-                        + (path.growth ? '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px;">Growth: ' + escapeHtml(path.growth) + '</div>' : '')
-                        + '</div>';
-                });
                 html += '</div>';
             }
 
             if (education.school) {
-                html += '<div style="' + cardStyle + '">'
-                    + '<div style="' + labelStyle + ' color:#f59e0b;">Education</div>'
+                html += '<div style="' + cs + '">'
+                    + '<div style="' + ls + ' color:#f59e0b;">Education</div>'
                     + '<div style="font-weight:600; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(education.school) + '</div>'
                     + '<div style="font-size:0.85em; color:var(--text-secondary);">'
                     + (education.degree ? escapeHtml(education.degree) : '') + (education.major ? ' in ' + escapeHtml(education.major) : '')
@@ -30048,15 +30104,15 @@ body {
             }
 
             if (driveStatement) {
-                html += '<div style="' + cardStyle + '">'
-                    + '<div style="' + labelStyle + ' color:#ec4899;">What Drives You</div>'
+                html += '<div style="' + cs + '">'
+                    + '<div style="' + ls + ' color:#ec4899;">What Drives You</div>'
                     + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; font-style:italic;">&ldquo;' + escapeHtml(driveStatement) + '&rdquo;</div>'
                     + '</div>';
             }
 
-            html += '<div style="' + cardStyle + ' text-align:center; border-color:rgba(16,185,129,0.3);">'
+            html += '<div style="' + cs + ' text-align:center; border-color:rgba(16,185,129,0.3);">'
                 + '<div style="font-size:0.92em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Ready for Your First Role?</div>'
-                + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-bottom:14px;">When you land your first job, convert to a full Blueprint to unlock salary insights, market valuation, negotiation tools, and advanced evidence tracking.</div>'
+                + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-bottom:14px;">When you land your first job, convert to a full Blueprint to unlock real-time salary insights, market valuation, negotiation tools, and advanced evidence tracking.</div>'
                 + '<button onclick="explorerConvertToFull()" style="padding:12px 24px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert to Full Blueprint</button>'
                 + '</div>';
 

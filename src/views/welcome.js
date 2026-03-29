@@ -7513,11 +7513,12 @@ export async function explorerSaveSkills() {
     var prompt = 'You are a career counselor AI. Based on the following student/early-career profile, suggest 5 realistic career paths.\n\n'
         + 'For each path, provide:\n'
         + '- A job title they could aim for as an entry-level position\n'
-        + '- A brief description of what the role involves\n'
         + '- Why it fits their specific background (reference their actual skills/activities)\n'
-        + '- Expected starting salary range\n'
-        + '- Growth potential (where this path leads in 5-10 years)\n'
-        + '- 2-3 concrete next steps to pursue this path\n\n'
+        + '- Salary data: entry-level range string, plus numeric values for entry, mid-career (3-5yr), and senior (8-10yr)\n'
+        + '- Growth potential description\n'
+        + '- Which of their current skills already apply to this path (2-4 skill names from their profile)\n'
+        + '- 4 new skills they should learn, each with: skill name, added market value (numeric, in dollars), time to learn, and how to learn it (specific free/low-cost resource)\n'
+        + '- 3-4 concrete next steps to pursue this path\n\n'
         + '--- PROFILE ---\n'
         + 'Education: ' + (ed.degree || '') + ' in ' + (ed.major || '') + (ed.minor ? ', Minor: ' + ed.minor : '') + ' from ' + (ed.school || '') + '\n'
         + 'Skills: ' + skillNames + '\n'
@@ -7530,10 +7531,16 @@ export async function explorerSaveSkills() {
         + '  "careerPaths": [\n'
         + '    {\n'
         + '      "title": "Entry-Level Job Title",\n'
-        + '      "description": "What the role involves",\n'
         + '      "whyFit": "Why this fits their specific background",\n'
-        + '      "salaryRange": "$XX,000 - $YY,000",\n'
-        + '      "growthPath": "Where this leads in 5-10 years",\n'
+        + '      "salary": "$XX,000 - $YY,000",\n'
+        + '      "entryValue": 45000,\n'
+        + '      "midValue": 72000,\n'
+        + '      "seniorValue": 110000,\n'
+        + '      "growth": "Growth outlook description",\n'
+        + '      "skillsYouHave": ["Skill1", "Skill2"],\n'
+        + '      "skillsToLearn": [\n'
+        + '        { "name": "New Skill", "valueAdd": 8000, "timeToLearn": "2-3 months", "how": "Specific resource or certification" }\n'
+        + '      ],\n'
         + '      "nextSteps": ["Step 1", "Step 2", "Step 3"]\n'
         + '    }\n'
         + '  ],\n'
@@ -7573,6 +7580,13 @@ export function renderExplorerCareers(el) {
 
     var pathCards = paths.map(function(p, i) {
         var isSelected = selectedIdx === i;
+        var salaryStr = p.salary || p.salaryRange || 'Varies';
+        var growthStr = p.growth || p.growthPath || '';
+        var entryV = p.entryValue || 0;
+        var seniorV = p.seniorValue || 0;
+        var stl = p.skillsToLearn || [];
+        var totalAdd = 0;
+        stl.forEach(function(s) { totalAdd += (s.valueAdd || 0); });
         return '<div onclick="explorerSelectCareer(' + i + ')" style="padding:16px; border-radius:12px; cursor:pointer; transition:all 0.15s; '
             + 'background:' + (isSelected ? 'linear-gradient(135deg, rgba(139,92,246,0.08), rgba(96,165,250,0.08))' : 'var(--bg-elevated)') + '; '
             + 'border:2px solid ' + (isSelected ? '#8b5cf6' : 'var(--border)') + ';">'
@@ -7580,12 +7594,16 @@ export function renderExplorerCareers(el) {
             + '<div style="font-weight:700; color:var(--text-primary); font-size:1em;">' + escapeHtml(p.title) + '</div>'
             + (isSelected ? '<span style="color:#8b5cf6; font-weight:700;">\u2713 Selected</span>' : '')
             + '</div>'
-            + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5; margin-bottom:8px;">' + escapeHtml(p.description) + '</div>'
-            + '<div style="font-size:0.82em; color:#8b5cf6; margin-bottom:6px; font-weight:600;">Why this fits you:</div>'
+            + (entryV > 0 ? '<div style="display:flex; gap:12px; margin-bottom:10px; font-size:0.82em;">'
+                + '<span style="color:#10b981; font-weight:700;">Entry: $' + entryV.toLocaleString() + '</span>'
+                + '<span style="color:var(--text-muted);">\u2192</span>'
+                + '<span style="color:#8b5cf6; font-weight:700;">Senior: $' + seniorV.toLocaleString() + '</span>'
+                + '</div>' : '')
             + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4; margin-bottom:10px;">' + escapeHtml(p.whyFit) + '</div>'
             + '<div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.78em;">'
-            + '<span style="color:var(--text-muted);">\uD83D\uDCB0 ' + escapeHtml(p.salaryRange || 'Varies') + '</span>'
-            + '<span style="color:var(--text-muted);">\uD83D\uDCC8 ' + escapeHtml(p.growthPath || '') + '</span>'
+            + '<span style="color:var(--text-muted);">\uD83D\uDCB0 ' + escapeHtml(salaryStr) + '</span>'
+            + '<span style="color:var(--text-muted);">\uD83D\uDCC8 ' + escapeHtml(growthStr) + '</span>'
+            + (totalAdd > 0 ? '<span style="color:#10b981; font-weight:600;">\uD83D\uDCA1 +$' + totalAdd.toLocaleString() + ' skill growth</span>' : '')
             + '</div>'
             + (isSelected && p.nextSteps ? '<div style="margin-top:10px; padding:10px; background:var(--c-surface-1); border-radius:8px;">'
                 + '<div style="font-size:0.78em; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Next Steps:</div>'

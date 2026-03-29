@@ -38,60 +38,110 @@
         "title": "Digital Marketing & Social Media Manager",
         "whyFit": "Your experience creating SaveWalterWhite.com shows natural instincts for digital storytelling, audience engagement, and campaign management. You built a viral fundraising platform with zero training — that's exactly what this field values.",
         "salary": "$45,000 - $65,000",
+        "entryValue": 45000,
+        "midValue": 78000,
+        "seniorValue": 120000,
         "growth": "Strong — 10% projected growth through 2030",
         "nextSteps": [
           "Take free Google Digital Marketing & E-commerce certificate",
           "Start a food blog or Instagram account reviewing breakfast spots in Albuquerque",
           "Learn basic analytics with Google Analytics certification",
           "Build a portfolio of 3-4 small campaign projects"
+        ],
+        "skillsYouHave": ["Web Publishing", "Digital Fundraising", "Social Media", "Written Communication"],
+        "skillsToLearn": [
+          { "name": "SEO & Content Strategy", "valueAdd": 8000, "timeToLearn": "2-3 months", "how": "Google Digital Marketing certificate (free)" },
+          { "name": "Analytics & Data Interpretation", "valueAdd": 12000, "timeToLearn": "1-2 months", "how": "Google Analytics certification" },
+          { "name": "Email Marketing & CRM", "valueAdd": 6000, "timeToLearn": "1 month", "how": "HubSpot Email Marketing certification (free)" },
+          { "name": "Paid Advertising (Google/Meta)", "valueAdd": 15000, "timeToLearn": "3-4 months", "how": "Google Ads certification + practice campaigns" }
         ]
       },
       {
         "title": "Restaurant & Hospitality Management",
         "whyFit": "Your deep passion for breakfast culture and food, combined with your resilience and people skills, make hospitality a strong fit. The industry values grit and personality over credentials, and your advocacy experience translates directly to inclusive customer service.",
         "salary": "$38,000 - $55,000",
+        "entryValue": 38000,
+        "midValue": 62000,
+        "seniorValue": 95000,
         "growth": "Moderate — 10% projected growth, strong in metro areas",
         "nextSteps": [
           "Get a part-time job at a local restaurant to learn operations",
           "Research culinary programs at Central New Mexico Community College",
           "Study for ServSafe Food Handler certification",
           "Visit local restaurant owners and ask about their career paths"
+        ],
+        "skillsYouHave": ["Food Knowledge", "Customer Service", "Adaptability", "Emotional Intelligence"],
+        "skillsToLearn": [
+          { "name": "Food Safety & ServSafe", "valueAdd": 4000, "timeToLearn": "2 weeks", "how": "ServSafe certification ($36 online exam)" },
+          { "name": "Inventory & Cost Management", "valueAdd": 8000, "timeToLearn": "3 months", "how": "On-the-job training + restaurant management courses" },
+          { "name": "Team Leadership", "valueAdd": 12000, "timeToLearn": "6-12 months", "how": "Shift lead experience → assistant manager track" },
+          { "name": "POS Systems & Restaurant Tech", "valueAdd": 5000, "timeToLearn": "1 month", "how": "Square/Toast training (free)" }
         ]
       },
       {
         "title": "Disability Services Coordinator",
         "whyFit": "Living with cerebral palsy gives you authentic, irreplaceable perspective on accessibility and disability services. Your self-advocacy and peer support experience is exactly what universities, nonprofits, and corporations need in their disability services programs.",
         "salary": "$40,000 - $58,000",
+        "entryValue": 40000,
+        "midValue": 65000,
+        "seniorValue": 92000,
         "growth": "Strong — growing demand for DEI and accessibility roles",
         "nextSteps": [
           "Look into Disability Studies programs at University of New Mexico",
           "Connect with the New Mexico Governor's Commission on Disability",
           "Volunteer with a local disability advocacy organization",
           "Get certified in ADA compliance basics"
+        ],
+        "skillsYouHave": ["Self-Advocacy", "Accessibility Awareness", "Peer Support", "Resilience"],
+        "skillsToLearn": [
+          { "name": "ADA Compliance & Regulations", "valueAdd": 10000, "timeToLearn": "2-3 months", "how": "ADA Coordinator Training Certification Program" },
+          { "name": "Program Management", "valueAdd": 8000, "timeToLearn": "6 months", "how": "Nonprofit management coursework or on-the-job" },
+          { "name": "Grant Writing", "valueAdd": 12000, "timeToLearn": "3 months", "how": "Coursera Grant Writing course + practice applications" },
+          { "name": "Assistive Technology", "valueAdd": 7000, "timeToLearn": "2 months", "how": "RESNA certification pathway" }
         ]
       },
       {
         "title": "Web Developer & UX Designer",
         "whyFit": "You taught yourself enough web development to build and launch a functional website with payment processing. With formal training, your hands-on experience and natural understanding of accessibility (from personal experience) would make you valuable in UX design, especially for inclusive digital products.",
         "salary": "$50,000 - $75,000",
+        "entryValue": 50000,
+        "midValue": 85000,
+        "seniorValue": 135000,
         "growth": "Very strong — 16% projected growth, remote-friendly",
         "nextSteps": [
           "Complete freeCodeCamp's Responsive Web Design certification",
           "Learn accessibility standards (WCAG 2.1) — your lived experience is an advantage",
           "Build 3 portfolio projects focusing on accessible design",
           "Look into UNM's Computer Science or Web Development programs"
+        ],
+        "skillsYouHave": ["Basic Web Development", "Web Publishing", "Payment Processing", "Accessibility Awareness"],
+        "skillsToLearn": [
+          { "name": "JavaScript & React", "valueAdd": 18000, "timeToLearn": "4-6 months", "how": "freeCodeCamp + The Odin Project (both free)" },
+          { "name": "UI/UX Design & Figma", "valueAdd": 12000, "timeToLearn": "2-3 months", "how": "Google UX Design Certificate on Coursera" },
+          { "name": "WCAG Accessibility Standards", "valueAdd": 10000, "timeToLearn": "1-2 months", "how": "W3C Web Accessibility course (free) + IAAP certification" },
+          { "name": "Version Control (Git)", "valueAdd": 5000, "timeToLearn": "2 weeks", "how": "GitHub Learning Lab (free)" }
         ]
       },
       {
         "title": "Communications & Public Relations Specialist",
         "whyFit": "Managing public communications during your family's crisis — media inquiries, public perception, emotional messaging — gave you real-world PR experience most entry-level candidates don't have. You understand how to craft a narrative under pressure.",
         "salary": "$42,000 - $62,000",
+        "entryValue": 42000,
+        "midValue": 72000,
+        "seniorValue": 110000,
         "growth": "Moderate — 6% projected growth, versatile across industries",
         "nextSteps": [
           "Study Communications or Journalism at UNM",
           "Join the school newspaper or start a podcast",
           "Take a public speaking course or join Toastmasters",
           "Build a writing portfolio with opinion pieces on topics you care about"
+        ],
+        "skillsYouHave": ["Crisis Communication", "Written Communication", "Social Media", "Emotional Intelligence"],
+        "skillsToLearn": [
+          { "name": "Media Relations & Press Writing", "valueAdd": 10000, "timeToLearn": "3 months", "how": "PRSA student membership + press release workshops" },
+          { "name": "Brand Strategy", "valueAdd": 12000, "timeToLearn": "3-6 months", "how": "Coursera Branding specialization" },
+          { "name": "Public Speaking", "valueAdd": 8000, "timeToLearn": "3 months", "how": "Toastmasters (local chapters, low cost)" },
+          { "name": "Analytics & Measurement", "valueAdd": 6000, "timeToLearn": "1-2 months", "how": "Google Analytics + Meltwater/Cision basics" }
         ]
       }
     ],
