@@ -18671,16 +18671,31 @@
                 + '</div>'
                 + '<div class="modal-body" style="padding:20px; max-height:75vh; overflow-y:auto;">';
 
-            html += '<div style="font-size:0.85em; color:var(--c-muted); margin-bottom:20px; line-height:1.5;">'
-                + 'Based on your ' + skills.length + ' skills in <strong>' + escapeHtml(fnLabel) + '</strong>. '
-                + 'Current market value: <strong style="color:#10b981;">' + formatCompValue(baseValue) + '</strong></div>';
+            var topUpgradeDelta = topUpgrades.reduce(function(sum, r) { return sum + Math.max(0, r.delta); }, 0);
+            var topAdjacentDelta = topAdjacent.reduce(function(sum, r) { return sum + Math.max(0, r.delta); }, 0);
+            var maxPotential = baseValue + topUpgradeDelta + topAdjacentDelta;
+            var totalUplift = topUpgradeDelta + topAdjacentDelta;
+
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">'
+                + '<div style="padding:16px; background:var(--c-surface-1); border:1px solid var(--c-border-subtle); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:6px;">Current Value</div>'
+                + '<div style="font-size:1.8em; font-weight:800; color:var(--c-heading);">' + formatCompValue(baseValue) + '</div>'
+                + '<div style="font-size:0.75em; color:var(--c-faint);">' + escapeHtml(fnLabel) + '</div>'
+                + '</div>'
+                + '<div style="padding:16px; background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03)); border:2px solid rgba(16,185,129,0.25); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(16,185,129,0.7); margin-bottom:6px;">Potential Value</div>'
+                + '<div style="font-size:1.8em; font-weight:800; color:#10b981;">' + formatCompValue(maxPotential) + '</div>'
+                + '<div style="font-size:0.75em; color:#10b981; font-weight:600;">+' + formatCompValue(totalUplift) + ' growth opportunity</div>'
+                + '</div></div>';
 
             if (topUpgrades.length > 0) {
                 html += '<div style="margin-bottom:24px;">';
                 html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
                     + '<div style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.05)); display:flex; align-items:center; justify-content:center;">' + bpIcon('trending-up',16) + '</div>'
-                    + '<div><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Level Up Existing Skills</div>'
-                    + '<div style="font-size:0.78em; color:var(--c-muted);">Upgrade proficiency for the highest market value impact</div></div></div>';
+                    + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Level Up Existing Skills</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">Upgrade proficiency for the highest market value impact</div></div>'
+                    + (topUpgradeDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:#10b981;">+' + formatCompValue(topUpgradeDelta) + '</div>' : '')
+                    + '</div>';
 
                 topUpgrades.forEach(function(rec) {
                     var deltaStr = rec.delta > 0 ? '+' + formatCompValue(rec.delta) : (rec.delta === 0 ? 'builds premium factors' : formatCompValue(rec.delta));
@@ -18688,6 +18703,8 @@
                     var impactClr = impactColors[rec.impact.level] || impactColors.standard;
                     var gapBadge = rec.hasGap ? ' <span style="font-size:0.7em; padding:1px 6px; background:rgba(239,68,68,0.1); color:#ef4444; border-radius:4px; font-weight:600;">EVIDENCE GAP</span>' : '';
                     var evBadge = rec.evidenceCount > 0 ? '<span style="font-size:0.7em; color:var(--c-faint);">' + rec.evidenceCount + ' evidence</span>' : '';
+                    var canEdit = !isReadOnlyProfile;
+                    var safeName = escapeHtml(rec.name).replace(/'/g, "\\'");
 
                     html += '<div style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--c-surface-1); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
                         + '<div style="flex:1; min-width:0;">'
@@ -18700,10 +18717,14 @@
                         + '<span style="font-size:0.72em; padding:2px 6px; border-radius:4px; border:1px solid ' + impactClr + '33; color:' + impactClr + '; font-weight:500;">' + rec.impact.label + '</span>'
                         + evBadge
                         + '</div></div>'
+                        + '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">'
                         + '<div style="text-align:right; white-space:nowrap;">'
                         + '<div style="font-weight:800; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
-                        + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div>'
-                        + '</div></div>';
+                        + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div></div>';
+                    if (canEdit) {
+                        html += '<button onclick="growthAdvisorLevelUp(\'' + safeName + '\',\'' + rec.nextLevel + '\')" style="font-size:0.72em; padding:4px 10px; background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.1)); border:1px solid rgba(96,165,250,0.3); color:#60a5fa; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Level Up</button>';
+                    }
+                    html += '</div></div>';
                 });
 
                 if (upgradeRecs.length > 8) {
@@ -18717,8 +18738,10 @@
                 html += '<div style="margin-bottom:24px;">';
                 html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
                     + '<div style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05)); display:flex; align-items:center; justify-content:center;">' + bpIcon('plus',16) + '</div>'
-                    + '<div><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Add Adjacent Skills</div>'
-                    + '<div style="font-size:0.78em; color:var(--c-muted);">New skills that complement your profile and increase market value</div></div></div>';
+                    + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Add Adjacent Skills</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">New skills that complement your profile and increase market value</div></div>'
+                    + (topAdjacentDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:#10b981;">+' + formatCompValue(topAdjacentDelta) + '</div>' : '')
+                    + '</div>';
 
                 topAdjacent.forEach(function(rec) {
                     var deltaStr = rec.delta > 0 ? '+' + formatCompValue(rec.delta) : (rec.delta === 0 ? 'builds premium factors' : formatCompValue(rec.delta));
@@ -18729,13 +18752,12 @@
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; font-size:0.92em; color:var(--c-heading);">' + escapeHtml(rec.name) + '</div>'
                         + '<div style="font-size:0.78em; color:var(--c-muted); margin-top:3px; line-height:1.4;">' + escapeHtml(rec.rationale) + '</div>'
-                        + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Starting at ' + rec.startLevel + '</div>'
                         + '</div>'
-                        + '<div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:6px;">'
-                        + '<div><div style="font-weight:800; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
+                        + '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">'
+                        + '<div style="text-align:right;"><div style="font-weight:800; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div></div>';
                     if (canAdd) {
-                        html += '<button onclick="growthAdvisorAddSkill(\'' + escapeHtml(rec.name).replace(/'/g, "\\'") + '\')" style="font-size:0.72em; padding:4px 10px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">' + bpIcon('plus',10) + ' Add</button>';
+                        html += '<button onclick="growthAdvisorAddSkill(\'' + escapeHtml(rec.name).replace(/'/g, "\\'") + '\')" style="font-size:0.72em; padding:4px 10px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">' + bpIcon('plus',10) + ' Add Skill</button>';
                     }
                     html += '</div></div>';
                 });
@@ -18745,9 +18767,10 @@
             html += '<div style="padding:14px 16px; background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(96,165,250,0.06)); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
                 + '<div style="font-size:0.82em; color:var(--c-muted); line-height:1.6;">'
                 + '<strong style="color:var(--c-heading);">How this works:</strong> '
-                + 'We simulate each skill change against your full market valuation model \u2014 the same BLS-anchored engine that calculates your market value. '
-                + 'Upgrade estimates show the actual dollar impact of leveling up. Adjacent skills are curated for your functional area (' + escapeHtml(fnLabel) + ') and filtered against what you already have. '
-                + 'Values reflect baseline salary band movement; actual impact may be higher when combined with evidence, certifications, and rarity premiums.'
+                + 'Each recommendation is simulated against your full market valuation model \u2014 the same BLS-anchored engine that calculates your market value. '
+                + '<strong>Level Up</strong> upgrades a skill\u2019s proficiency and recalculates your value instantly. '
+                + '<strong>Add Skill</strong> adds a new skill at Novice level. '
+                + 'The Potential Value shown above assumes all top recommendations are applied \u2014 actual gains compound differently when combined.'
                 + '</div></div>';
 
             html += '</div>';
@@ -18757,6 +18780,25 @@
             history.pushState({ modal: true }, '');
         }
         window.showGrowthAdvisor = showGrowthAdvisor;
+
+        function growthAdvisorLevelUp(skillName, newLevel) {
+            if (!skillsData || !skillsData.skills) return;
+            var skill = skillsData.skills.find(function(s) { return (s.name || '').toLowerCase() === skillName.toLowerCase(); });
+            if (!skill) { showToast('Skill not found: ' + skillName, 'warning'); return; }
+            var oldLevel = skill.level;
+            skill.level = newLevel;
+            if (typeof saveSkillsData === 'function') saveSkillsData();
+            showToast(skillName + ': ' + oldLevel + ' \u2192 ' + newLevel, 'success');
+            var btn = event && event.target ? event.target.closest('button') : null;
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '\u2713 ' + newLevel;
+                btn.style.background = 'rgba(16,185,129,0.15)';
+                btn.style.color = '#10b981';
+                btn.style.borderColor = 'rgba(16,185,129,0.3)';
+            }
+        }
+        window.growthAdvisorLevelUp = growthAdvisorLevelUp;
 
         function growthAdvisorAddSkill(skillName) {
             if (!skillsData) return;
