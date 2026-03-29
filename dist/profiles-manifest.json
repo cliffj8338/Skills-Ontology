@@ -6,6 +6,7 @@
     { "id": "jesse-pinkman", "name": "Jesse Pinkman", "title": "Artisan & Entrepreneur", "path": "profiles/demo/jesse-pinkman.json", "enabled": true },
     { "id": "saul-goodman", "name": "Saul Goodman", "title": "Attorney & Marketing Strategist", "path": "profiles/demo/saul-goodman.json", "enabled": true },
     { "id": "tuco-salamanca", "name": "Tuco Salamanca", "title": "Regional Distribution Director", "path": "profiles/demo/tuco-salamanca.json", "enabled": true },
+    { "id": "flynn-white", "name": "Walt Jr. (Flynn) White", "title": "High School Student — Explorer Mode", "path": "profiles/demo/flynn-white.json", "enabled": true },
     { "id": "jim-hopper", "name": "Jim Hopper", "title": "Police Chief & Crisis Leader", "path": "profiles/demo/jim-hopper.json", "enabled": true },
     { "id": "eleven", "name": "Eleven", "title": "Research Subject & Field Operative", "path": "profiles/demo/eleven.json", "enabled": true },
     { "id": "steve-harrington", "name": "Steve Harrington", "title": "Customer Service & Youth Mentor", "path": "profiles/demo/steve-harrington.json", "enabled": true },

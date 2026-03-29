@@ -15439,7 +15439,9 @@
                         { id: 'saul-goodman', name: 'Saul Goodman', title: 'Attorney & Marketing Strategist', emoji: '\u2696\uFE0F',
                           desc: 'Creative legal mind with unmatched client acquisition skills, crisis management expertise, and brand-building instincts.' },
                         { id: 'tuco-salamanca', name: 'Tuco Salamanca', title: 'Regional Distribution Director', emoji: '\uD83D\uDCA5',
-                          desc: 'High-energy distribution leader with explosive intensity, instinctive product assessment, and territory control through sheer force of personality.' }
+                          desc: 'High-energy distribution leader with explosive intensity, instinctive product assessment, and territory control through sheer force of personality.' },
+                        { id: 'flynn-white', name: 'Walt Jr. (Flynn) White', title: 'High School Student', emoji: '\uD83E\uDD5E',
+                          desc: 'Explorer Mode: High school student navigating identity, disability, and family crisis. Built a viral fundraising website, advocates for accessibility, and dreams of building something of his own.', explorer: true }
                     ]
                 },
                 {
@@ -15618,7 +15620,8 @@
                     // Description
                     + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">' + ch.desc + '</div>'
                     
-                    // Status
+                    + (ch.explorer ? '<div style="margin-top:8px;"><span style="display:inline-block; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:3px 10px; border-radius:12px;">Explorer Mode</span></div>' : '')
+                    
                     + (hasProfile 
                         ? '<div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">'
                             + '<span style="font-size:0.75em; color:var(--text-muted);">Click to explore Blueprint</span>'
@@ -19651,8 +19654,10 @@
                 },
                 applications: [],
                 savedJobs: template.savedJobs ? JSON.parse(JSON.stringify(template.savedJobs)) : [],
-                templateId: templateId  // Store which template this is
+                templateId: templateId
             };
+            userData.profileType = template.profileType || 'standard';
+            userData.explorerData = template.explorerData ? JSON.parse(JSON.stringify(template.explorerData)) : undefined;
             
             // Inject sample jobs for manifest-loaded sample profiles (always refresh on load)
             // Skip if profile has curated jobs already
@@ -27160,6 +27165,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 'walter-white': 'breaking-bad', 'jesse-pinkman': 'breaking-bad',
                 'gus-fring': 'breaking-bad', 'hank-schrader': 'breaking-bad',
                 'saul-goodman': 'breaking-bad', 'tuco-salamanca': 'breaking-bad',
+                'flynn-white': 'breaking-bad',
                 'jim-hopper': 'stranger-things', 'joyce-byers': 'stranger-things',
                 'dustin-henderson': 'stranger-things', 'eleven': 'stranger-things',
                 'steve-harrington': 'stranger-things', 'murray-bauman': 'stranger-things',

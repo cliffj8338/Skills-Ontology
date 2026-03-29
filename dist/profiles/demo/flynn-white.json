@@ -1,0 +1,349 @@
+{
+  "templateId": "flynn-white",
+  "profileType": "explorer",
+  "profile": {
+    "name": "Walt Jr. (Flynn) White",
+    "currentTitle": "High School Student",
+    "location": "Albuquerque, NM",
+    "roleLevel": "Entry-Level",
+    "headline": "Driven high school student with a passion for breakfast cuisine, digital media, and advocacy for people with disabilities."
+  },
+  "explorerData": {
+    "education": {
+      "school": "J.P. Wynne High School",
+      "degree": "High School Diploma",
+      "major": "General Studies",
+      "gradYear": "2010",
+      "gpa": "3.2",
+      "coursework": "English Literature, U.S. History, Biology, Algebra II, Web Design, Speech & Debate"
+    },
+    "activities": [
+      { "name": "SaveWalterWhite.com", "type": "project", "description": "Created and managed a fundraising website that went viral, handling donations, public messaging, and media inquiries. Learned web publishing, payment processing, and crisis communications in real time." },
+      { "name": "Disability Advocacy", "type": "volunteer", "description": "Informal peer advocate for students with cerebral palsy and other physical disabilities. Navigated accessibility challenges daily and helped normalize disability in school social circles." },
+      { "name": "Family Caregiving", "type": "responsibility", "description": "Took on significant household responsibilities during family health crisis. Managed logistics, provided emotional support to younger sibling, and maintained academic performance under extreme stress." }
+    ],
+    "interests": [
+      "Cooking & Breakfast Culture",
+      "Web Design & Digital Media",
+      "Cars & Driving",
+      "Disability Rights & Accessibility",
+      "Family & Community",
+      "Social Media & Online Fundraising",
+      "Photography"
+    ],
+    "partTimeJobs": [],
+    "driveStatement": "I want to do something that matters. I've been through stuff most people my age haven't, and it made me tougher. I don't want to just get a job — I want to build something, maybe in food or media or something where I can be my own person and not just 'Walter White's kid.'",
+    "careerPaths": [
+      {
+        "title": "Digital Marketing & Social Media Manager",
+        "whyFit": "Your experience creating SaveWalterWhite.com shows natural instincts for digital storytelling, audience engagement, and campaign management. You built a viral fundraising platform with zero training — that's exactly what this field values.",
+        "salary": "$45,000 - $65,000",
+        "growth": "Strong — 10% projected growth through 2030",
+        "nextSteps": [
+          "Take free Google Digital Marketing & E-commerce certificate",
+          "Start a food blog or Instagram account reviewing breakfast spots in Albuquerque",
+          "Learn basic analytics with Google Analytics certification",
+          "Build a portfolio of 3-4 small campaign projects"
+        ]
+      },
+      {
+        "title": "Restaurant & Hospitality Management",
+        "whyFit": "Your deep passion for breakfast culture and food, combined with your resilience and people skills, make hospitality a strong fit. The industry values grit and personality over credentials, and your advocacy experience translates directly to inclusive customer service.",
+        "salary": "$38,000 - $55,000",
+        "growth": "Moderate — 10% projected growth, strong in metro areas",
+        "nextSteps": [
+          "Get a part-time job at a local restaurant to learn operations",
+          "Research culinary programs at Central New Mexico Community College",
+          "Study for ServSafe Food Handler certification",
+          "Visit local restaurant owners and ask about their career paths"
+        ]
+      },
+      {
+        "title": "Disability Services Coordinator",
+        "whyFit": "Living with cerebral palsy gives you authentic, irreplaceable perspective on accessibility and disability services. Your self-advocacy and peer support experience is exactly what universities, nonprofits, and corporations need in their disability services programs.",
+        "salary": "$40,000 - $58,000",
+        "growth": "Strong — growing demand for DEI and accessibility roles",
+        "nextSteps": [
+          "Look into Disability Studies programs at University of New Mexico",
+          "Connect with the New Mexico Governor's Commission on Disability",
+          "Volunteer with a local disability advocacy organization",
+          "Get certified in ADA compliance basics"
+        ]
+      },
+      {
+        "title": "Web Developer & UX Designer",
+        "whyFit": "You taught yourself enough web development to build and launch a functional website with payment processing. With formal training, your hands-on experience and natural understanding of accessibility (from personal experience) would make you valuable in UX design, especially for inclusive digital products.",
+        "salary": "$50,000 - $75,000",
+        "growth": "Very strong — 16% projected growth, remote-friendly",
+        "nextSteps": [
+          "Complete freeCodeCamp's Responsive Web Design certification",
+          "Learn accessibility standards (WCAG 2.1) — your lived experience is an advantage",
+          "Build 3 portfolio projects focusing on accessible design",
+          "Look into UNM's Computer Science or Web Development programs"
+        ]
+      },
+      {
+        "title": "Communications & Public Relations Specialist",
+        "whyFit": "Managing public communications during your family's crisis — media inquiries, public perception, emotional messaging — gave you real-world PR experience most entry-level candidates don't have. You understand how to craft a narrative under pressure.",
+        "salary": "$42,000 - $62,000",
+        "growth": "Moderate — 6% projected growth, versatile across industries",
+        "nextSteps": [
+          "Study Communications or Journalism at UNM",
+          "Join the school newspaper or start a podcast",
+          "Take a public speaking course or join Toastmasters",
+          "Build a writing portfolio with opinion pieces on topics you care about"
+        ]
+      }
+    ],
+    "selectedCareerIdx": 0,
+    "discoveredSkills": [
+      { "name": "Web Publishing", "reason": "Built and managed SaveWalterWhite.com independently" },
+      { "name": "Digital Fundraising", "reason": "Viral campaign raised significant funds through online donations" },
+      { "name": "Crisis Communication", "reason": "Managed public messaging during intense family health crisis" },
+      { "name": "Self-Advocacy", "reason": "Daily navigation of accessibility challenges with cerebral palsy" },
+      { "name": "Resilience", "reason": "Maintained academics and family role through extraordinary adversity" },
+      { "name": "Written Communication", "reason": "Created compelling website copy and public-facing content" },
+      { "name": "Peer Support", "reason": "Informal advocacy and support for fellow students with disabilities" },
+      { "name": "Basic Web Development", "reason": "Set up website with payment processing and content management" },
+      { "name": "Social Media", "reason": "Managed online presence and engagement for fundraising campaign" },
+      { "name": "Family Leadership", "reason": "Stepped up as household anchor during family crisis" },
+      { "name": "Emotional Intelligence", "reason": "Navigated complex family dynamics with maturity beyond his years" },
+      { "name": "Adaptability", "reason": "Repeatedly adjusted to major life disruptions while staying on track" },
+      { "name": "Food Knowledge", "reason": "Deep enthusiasm and developing expertise in breakfast cuisine and cooking" },
+      { "name": "Accessibility Awareness", "reason": "Lived experience with physical disability and navigating inaccessible environments" },
+      { "name": "Payment Processing", "reason": "Set up and managed online donation system for fundraising website" }
+    ]
+  },
+  "roles": [
+    { "name": "Digital Marketing", "id": "digital-marketing", "color": "#60a5fa" },
+    { "name": "Hospitality & Food Service", "id": "hospitality", "color": "#f59e0b" },
+    { "name": "Disability Advocacy", "id": "advocacy", "color": "#10b981" }
+  ],
+  "skills": [
+    {
+      "name": "Web Publishing",
+      "level": "Competent",
+      "category": "skill",
+      "key": true,
+      "roles": ["digital-marketing"],
+      "evidence": [
+        {
+          "outcome": "Built SaveWalterWhite.com from scratch — a fundraising website that went viral",
+          "description": "Self-taught web publishing to create a functional website with donation processing, compelling copy, and media-ready content during a family health crisis"
+        }
+      ]
+    },
+    {
+      "name": "Digital Fundraising",
+      "level": "Competent",
+      "category": "skill",
+      "key": true,
+      "roles": ["digital-marketing"],
+      "evidence": [
+        {
+          "outcome": "Managed viral fundraising campaign that attracted national attention and significant donations",
+          "description": "Handled donation flow, donor communications, and public messaging for SaveWalterWhite.com"
+        }
+      ]
+    },
+    {
+      "name": "Crisis Communication",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": ["digital-marketing"],
+      "evidence": [
+        {
+          "outcome": "Navigated media inquiries and public attention during family health emergency",
+          "description": "Crafted public-facing messaging while protecting family privacy during an intensely personal crisis"
+        }
+      ]
+    },
+    {
+      "name": "Self-Advocacy",
+      "level": "Competent",
+      "category": "skill",
+      "key": true,
+      "roles": ["advocacy"],
+      "evidence": [
+        {
+          "outcome": "Consistently navigated accessibility challenges in a school and community not designed for physical disabilities",
+          "description": "Daily self-advocacy for accommodations, access, and inclusion while maintaining dignity and peer relationships"
+        }
+      ]
+    },
+    {
+      "name": "Resilience",
+      "level": "Competent",
+      "category": "trait",
+      "key": true,
+      "roles": ["advocacy"],
+      "evidence": [
+        {
+          "outcome": "Maintained 3.2 GPA and household stability through family crisis involving father's cancer diagnosis and treatment",
+          "description": "Balanced academic performance, family caregiving for younger sibling, and emotional processing of radical family changes"
+        }
+      ]
+    },
+    {
+      "name": "Written Communication",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": ["digital-marketing"],
+      "evidence": [
+        {
+          "outcome": "Wrote compelling website copy that resonated with thousands of visitors and drove donations",
+          "description": "Created authentic, emotionally engaging content for fundraising site without formal writing training"
+        }
+      ]
+    },
+    {
+      "name": "Peer Support",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": ["advocacy"],
+      "evidence": [
+        {
+          "outcome": "Served as informal peer advocate for students with disabilities at J.P. Wynne High School",
+          "description": "Helped normalize disability in school social circles and supported peers navigating similar accessibility challenges"
+        }
+      ]
+    },
+    {
+      "name": "Basic Web Development",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": ["digital-marketing"],
+      "evidence": [
+        {
+          "outcome": "Set up functional website with integrated payment processing",
+          "description": "Learned HTML, basic site configuration, and payment gateway integration through self-directed learning"
+        }
+      ]
+    },
+    {
+      "name": "Social Media",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": ["digital-marketing"],
+      "evidence": [
+        {
+          "outcome": "Managed online engagement and audience growth for viral fundraising campaign",
+          "description": "Responded to comments, managed public perception, and maintained consistent messaging across channels"
+        }
+      ]
+    },
+    {
+      "name": "Emotional Intelligence",
+      "level": "Competent",
+      "category": "trait",
+      "key": true,
+      "roles": ["advocacy", "hospitality"],
+      "evidence": [
+        {
+          "outcome": "Navigated complex family dynamics during father's illness with unusual maturity",
+          "description": "Processed betrayal, grief, anger, and reconciliation while supporting mother and younger sister through the same crisis"
+        }
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "level": "Competent",
+      "category": "trait",
+      "key": false,
+      "roles": ["hospitality"],
+      "evidence": [
+        {
+          "outcome": "Repeatedly adjusted to major life disruptions — father's diagnosis, family upheaval, identity questions — while staying academically and socially on track",
+          "description": "Demonstrated consistent ability to recalibrate expectations and find new footing when the ground shifted"
+        }
+      ]
+    },
+    {
+      "name": "Food Knowledge",
+      "level": "Novice",
+      "category": "skill",
+      "key": true,
+      "roles": ["hospitality"],
+      "evidence": [
+        {
+          "outcome": "Developing expertise in breakfast cuisine through enthusiastic daily practice and study",
+          "description": "Known among family and friends for breakfast passion — the kind of authentic food obsession that restaurant careers are built on"
+        }
+      ]
+    },
+    {
+      "name": "Accessibility Awareness",
+      "level": "Competent",
+      "category": "skill",
+      "key": true,
+      "roles": ["advocacy"],
+      "evidence": [
+        {
+          "outcome": "Lived experience navigating physical spaces, technology, and social environments with cerebral palsy",
+          "description": "Firsthand understanding of accessibility barriers, ADA compliance gaps, and what inclusive design actually means in practice"
+        }
+      ]
+    },
+    {
+      "name": "Customer Service",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": ["hospitality"],
+      "evidence": [
+        {
+          "outcome": "Managed donor and visitor interactions on fundraising website",
+          "description": "Responded to inquiries, handled sensitive questions, and maintained professional tone in high-stress public-facing role"
+        }
+      ]
+    },
+    {
+      "name": "Payment Processing",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": ["digital-marketing"],
+      "evidence": [
+        {
+          "outcome": "Set up and managed online donation processing system",
+          "description": "Configured payment gateway, tracked donations, and ensured funds were properly received and accounted for"
+        }
+      ]
+    }
+  ],
+  "values": [
+    { "name": "Independence", "selected": true },
+    { "name": "Family", "selected": true },
+    { "name": "Authenticity", "selected": true },
+    { "name": "Resilience", "selected": true },
+    { "name": "Inclusion", "selected": true }
+  ],
+  "purpose": "To build something of my own — not defined by my family's story or my disability, but by what I choose to create. I want to prove that where you start doesn't determine where you end up.",
+  "workHistory": [],
+  "education": [
+    {
+      "school": "J.P. Wynne High School",
+      "degree": "High School Diploma",
+      "fieldOfStudy": "General Studies",
+      "graduationYear": "2010",
+      "gpa": "3.2"
+    }
+  ],
+  "certifications": [],
+  "verifications": [],
+  "outcomes": [],
+  "preferences": {
+    "seniorityLevel": "Entry",
+    "minimumMatchScore": 40,
+    "minimumSkillMatches": 2
+  },
+  "applications": [],
+  "savedJobs": [],
+  "companyTenures": [],
+  "initialized": true
+}
