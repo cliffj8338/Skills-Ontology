@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37';
+        var BP_VERSION = 'v4.47.37e';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -28103,8 +28103,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     </div>
                     <div class="roles-tags">
             `;
+            var _viewRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (skillsData.roles || []);
             (skillData.roles || []).forEach(roleId => {
-                const role = skillsData.roles.find(r => r.id === roleId);
+                const role = _viewRoles.find(r => r.id === roleId) || skillsData.roles.find(r => r.id === roleId);
                 if (role) {
                     bodyHTML += `<div class="role-tag">${getRoleIconSvg(role.name, 14)} ${role.name}</div>`;
                 }
@@ -49495,7 +49496,8 @@ body {
             
             // Populate roles
             const rolesContainer = document.getElementById('editSkillRoles');
-            rolesContainer.innerHTML = userData.roles.map(role => `
+            var _editRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
+            rolesContainer.innerHTML = _editRoles.map(role => `
                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                     <input type="checkbox" value="${escapeHtml(role.id)}" class="edit-skill-role-checkbox" ${skill.roles.includes(role.id) ? 'checked' : ''}>
                     <span>${escapeHtml(role.name)}</span>
@@ -49578,7 +49580,7 @@ body {
             var levels = ['Novice','Competent','Proficient','Advanced','Expert','Mastery'];
             var levelColors = { 'Novice':'#94a3b8','Competent':'#22d3ee','Proficient':'#60a5fa','Advanced':'#a78bfa','Expert':'#fb923c','Mastery':'#10b981' };
             var evs = (typeof getEvidenceSummary === 'function') ? getEvidenceSummary(skill) : null;
-            var roles = userData.roles || [];
+            var roles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
             var skillRoles = skill.roles || [];
             var hasAssess = !!skill.userAssessment;
             var assessData = skill.userAssessment || { years: 5, impact: 'significant', rarity: 'uncommon', salaryBand: '$150-250k' };
@@ -49792,7 +49794,8 @@ body {
             var roleCbs = document.querySelectorAll('.uni-role-cb:checked');
             var roleIds = Array.from(roleCbs).map(function(cb) { return cb.value; });
             if (roleIds.length === 0) {
-                roleIds = (userData.roles || []).map(function(r) { return r.id; });
+                var _allRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
+                roleIds = _allRoles.map(function(r) { return r.id; });
             }
             skill.roles = roleIds;
             
@@ -49844,7 +49847,8 @@ body {
             
             // Default to all roles if none selected
             if (roles.length === 0) {
-                roles = (userData.roles || []).map(function(r) { return r.id; });
+                var _allRoles2 = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
+                roles = _allRoles2.map(function(r) { return r.id; });
             }
             
             // Update skill
