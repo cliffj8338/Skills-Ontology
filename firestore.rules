@@ -207,7 +207,7 @@ service cloud.firestore {
 
     // ── SAMPLE PROFILES (admin-only editing) ────────
     match /sampleProfiles/{profileId} {
-      allow read: if isAuth();
+      allow read: if isAdmin();
       allow create, update: if isAdmin();
       allow delete: if isAdmin();
     }

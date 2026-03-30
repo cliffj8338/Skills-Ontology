@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37n';
+        var BP_VERSION = 'v4.47.37o';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -19811,7 +19811,12 @@
                         window._userData = userData;
                         saveUserData();
                         showToast('Loaded your cloud edits for this profile', 'info');
-                        if (typeof switchView === 'function') switchView('network');
+                        try {
+                            var mc = document.getElementById('mainContent');
+                            if (mc && mc.getAttribute('data-view')) {
+                                switchView(mc.getAttribute('data-view'));
+                            }
+                        } catch(e) {}
                     }
                 }).catch(function(err) {
                     console.log('No cloud edits for', templateId, ':', err.message);
