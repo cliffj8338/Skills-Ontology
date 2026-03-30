@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37m';
+        var BP_VERSION = 'v4.47.37n';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1447,6 +1447,86 @@
             return attemptSave(1);
         }
         window.saveToFirestore = saveToFirestore;
+
+        function _buildSampleProfileData() {
+            var d = {};
+            d.profile = userData.profile ? JSON.parse(JSON.stringify(userData.profile)) : {};
+            d.skills = (userData.skills || []).map(function(s) {
+                var c = Object.assign({}, s);
+                if (c.evidence) c.evidence = JSON.parse(JSON.stringify(c.evidence));
+                return c;
+            });
+            d.roles = userData.roles ? JSON.parse(JSON.stringify(userData.roles)) : [];
+            d.values = userData.values ? JSON.parse(JSON.stringify(userData.values)) : [];
+            d.purpose = userData.purpose || '';
+            d.workHistory = userData.workHistory ? JSON.parse(JSON.stringify(userData.workHistory)) : [];
+            d.education = userData.education ? JSON.parse(JSON.stringify(userData.education)) : [];
+            d.certifications = userData.certifications ? JSON.parse(JSON.stringify(userData.certifications)) : [];
+            d.verifications = userData.verifications ? JSON.parse(JSON.stringify(userData.verifications)) : [];
+            d.templateId = userData.templateId || '';
+            d.profileType = userData.profileType || 'standard';
+            if (userData.explorerData) d.explorerData = JSON.parse(JSON.stringify(userData.explorerData));
+            if (userData.outcomes) d.outcomes = JSON.parse(JSON.stringify(userData.outcomes));
+            if (userData.linkedinContent) d.linkedinContent = JSON.parse(JSON.stringify(userData.linkedinContent));
+            if (userData.contentVisibility) d.contentVisibility = JSON.parse(JSON.stringify(userData.contentVisibility));
+            if (userData.companyTenures) d.companyTenures = JSON.parse(JSON.stringify(userData.companyTenures));
+            if (userData.savedJobs && userData.savedJobs.length > 0 && userData.savedJobs[0].curated) {
+                d.savedJobs = JSON.parse(JSON.stringify(userData.savedJobs));
+            }
+            d.updatedAt = new Date().toISOString();
+            d.updatedBy = fbUser ? fbUser.uid : 'unknown';
+            return d;
+        }
+
+        function adminSaveSampleProfile() {
+            if (!fbIsAdmin || !fbDb) { showToast('Admin access required.', 'error'); return; }
+            var tid = userData.templateId;
+            if (!tid) { showToast('No template ID found on this profile.', 'error'); return; }
+            var data = _buildSampleProfileData();
+            showToast('Saving sample profile...', 'info');
+            fbDb.collection('sampleProfiles').doc(tid).set(data)
+                .then(function() {
+                    showToast('Sample profile saved to cloud!', 'success');
+                    window._lastSampleSave = new Date();
+                })
+                .catch(function(err) {
+                    console.error('Failed to save sample profile:', err);
+                    showToast('Save failed: ' + err.message, 'error');
+                });
+        }
+        window.adminSaveSampleProfile = adminSaveSampleProfile;
+
+        function adminDownloadSampleJSON() {
+            var tid = userData.templateId || 'sample-profile';
+            var data = _buildSampleProfileData();
+            delete data.updatedAt;
+            delete data.updatedBy;
+            var json = JSON.stringify(data, null, 2);
+            var blob = new Blob([json], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = tid + '.json';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+            showToast('Downloaded ' + tid + '.json', 'success');
+        }
+        window.adminDownloadSampleJSON = adminDownloadSampleJSON;
+
+        function adminResetSampleProfile() {
+            if (!fbIsAdmin || !fbDb) return;
+            var tid = userData.templateId;
+            if (!tid) return;
+            if (!confirm('Reset this sample profile to its original static JSON data? This removes all cloud edits.')) return;
+            fbDb.collection('sampleProfiles').doc(tid).delete()
+                .then(function() {
+                    showToast('Cloud edits cleared. Reloading original...', 'success');
+                    setTimeout(function() { location.reload(); }, 800);
+                })
+                .catch(function(err) { showToast('Reset failed: ' + err.message, 'error'); });
+        }
+        window.adminResetSampleProfile = adminResetSampleProfile;
         
         // ===== LAST SAVED DISPLAY =====
         function updateLastSavedDisplay() {
@@ -14385,11 +14465,15 @@
                 var bannerHTML = '';
                 var isDemoMode = appContext.mode === 'demo';
                 if (fbIsAdmin) {
-                    // Admin viewing sample
-                    bannerHTML = bpIcon(isDemoMode ? 'eye' : 'lock', 14) + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 '
-                        + (isDemoMode ? 'Demo Mode' : 'Admin mode')
-                        + ' \u00B7 <a href="#" onclick="event.preventDefault(); exitDemoMode();" '
-                        + 'style="color:inherit; text-decoration:underline; font-weight:700;">\u2190 Return to my profile</a>';
+                    bannerHTML = bpIcon(isDemoMode ? 'eye' : 'lock', 14) + ' <strong>Editing: ' + profileName + '</strong> \u00B7 '
+                        + '<a href="#" onclick="event.preventDefault(); adminSaveSampleProfile();" '
+                        + 'style="color:#10b981; text-decoration:none; font-weight:700; margin:0 8px;">Save Changes</a>'
+                        + '\u00B7 <a href="#" onclick="event.preventDefault(); adminDownloadSampleJSON();" '
+                        + 'style="color:#60a5fa; text-decoration:none; font-weight:700; margin:0 8px;">\u2B07 Download JSON</a>'
+                        + '\u00B7 <a href="#" onclick="event.preventDefault(); adminResetSampleProfile();" '
+                        + 'style="color:#f59e0b; text-decoration:none; font-weight:600; margin:0 8px; font-size:0.9em;">Reset</a>'
+                        + '\u00B7 <a href="#" onclick="event.preventDefault(); exitDemoMode();" '
+                        + 'style="color:inherit; text-decoration:underline; font-weight:700; margin-left:8px;">\u2190 Return</a>';
                 } else if (fbUser && isDemoMode) {
                     // Signed-in user in demo mode
                     bannerHTML = bpIcon('eye', 14) + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 Demo Mode \u00B7 '
@@ -19700,6 +19784,40 @@
             
             saveUserData();
             console.log('✓ Template loaded:', template.templateName);
+
+            if (fbIsAdmin && fbDb && (isManifestProfile || templateId.indexOf('demo') !== -1)) {
+                fbDb.collection('sampleProfiles').doc(templateId).get().then(function(doc) {
+                    if (doc.exists) {
+                        var saved = doc.data();
+                        console.log('✓ Admin: Found cloud edits for', templateId, '(saved', saved.updatedAt, ')');
+                        if (saved.profile) userData.profile = saved.profile;
+                        if (saved.skills) userData.skills = saved.skills;
+                        if (saved.roles) userData.roles = saved.roles;
+                        if (saved.values) userData.values = saved.values;
+                        if (saved.purpose !== undefined) userData.purpose = saved.purpose;
+                        if (saved.workHistory) userData.workHistory = saved.workHistory;
+                        if (saved.education) userData.education = saved.education;
+                        if (saved.certifications) userData.certifications = saved.certifications;
+                        if (saved.verifications) userData.verifications = saved.verifications;
+                        if (saved.outcomes) userData.outcomes = saved.outcomes;
+                        if (saved.explorerData) userData.explorerData = saved.explorerData;
+                        if (saved.profileType) userData.profileType = saved.profileType;
+                        if (saved.linkedinContent) userData.linkedinContent = saved.linkedinContent;
+                        if (saved.contentVisibility) userData.contentVisibility = saved.contentVisibility;
+                        if (saved.companyTenures) userData.companyTenures = saved.companyTenures;
+                        if (saved.savedJobs) userData.savedJobs = saved.savedJobs;
+                        skillsData.skills = userData.skills;
+                        skillsData.roles = userData.roles;
+                        window._userData = userData;
+                        saveUserData();
+                        showToast('Loaded your cloud edits for this profile', 'info');
+                        if (typeof switchView === 'function') switchView('network');
+                    }
+                }).catch(function(err) {
+                    console.log('No cloud edits for', templateId, ':', err.message);
+                });
+            }
+
             return true;
         }
         
