@@ -1,4 +1,4 @@
-// Blueprint™ Firestore Rules v2.7 | 2026-03-30
+// Blueprint™ Firestore Rules v2.6 | 2026-03-27
 // Changelog:
 //   v1.0 | 2026-01-15 | Initial rules
 //   v1.1 | 2026-02-01 | work_blueprints subcollection (30-key limit)
@@ -21,8 +21,6 @@
 //                        using Blueprint's web API key (no auth context).
 //                        Data is non-sensitive: LOC counts, deploy count,
 //                        version string, feature count, timestamps. No PII.
-//   v2.7 | 2026-03-30 | sampleProfiles collection — admin-only read/write
-//                        for master admin editing of demo/sample profiles
 
 rules_version = '2';
 service cloud.firestore {
@@ -243,13 +241,6 @@ service cloud.firestore {
         && request.resource.data.keys().size() <= 20;
       allow update: if false;
       allow delete: if isAuth() && request.auth.uid == resource.data.sharedBy;
-    }
-
-    // ── SAMPLE PROFILES (admin-only editing) ─────────
-    match /sampleProfiles/{profileId} {
-      allow read: if isAdmin();
-      allow create, update: if isAdmin();
-      allow delete: if isAdmin();
     }
 
     // ── JOBS ─────────────────────────────────────────
