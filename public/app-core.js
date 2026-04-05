@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38h';
+        var BP_VERSION = 'v4.47.38i';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -437,7 +437,8 @@
             var allowed = ['profile','skills','roles','values','purpose','outcomes','preferences',
                 'applications','workHistory','education','certifications','verifications',
                 'savedJobs','initialized','templateId','linkedinContent','companyTenures',
-                'importStats','contentVisibility','careerLens','profileType','explorerData'];
+                'importStats','contentVisibility','careerLens','profileType','explorerData',
+                'activities'];
             var clean = {};
             allowed.forEach(function(key) {
                 if (raw[key] !== undefined) clean[key] = raw[key];
@@ -474,6 +475,16 @@
             if (Array.isArray(clean.savedJobs)) {
                 clean.savedJobs.forEach(function(j) {
                     if (j && j.sourceUrl) j.sourceUrl = sanitizeUrl(j.sourceUrl);
+                });
+            }
+            if (Array.isArray(clean.activities)) {
+                clean.activities = clean.activities.filter(function(a) { return a && typeof a === 'object'; }).slice(0, 100);
+                clean.activities.forEach(function(a) {
+                    if (typeof a.name === 'string') a.name = a.name.slice(0, 200);
+                    if (typeof a.category === 'string') a.category = a.category.slice(0, 50);
+                    if (typeof a.role === 'string') a.role = a.role.slice(0, 200);
+                    if (typeof a.duration === 'string') a.duration = a.duration.slice(0, 100);
+                    if (typeof a.description === 'string') a.description = a.description.slice(0, 2000);
                 });
             }
             return clean;
@@ -48627,13 +48638,13 @@ body {
                 + '<div style="background:var(--card-bg); border-radius:14px; padding:24px; max-width:480px; width:90%; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">'
                 + '<div style="font-weight:700; font-size:1.05em; color:var(--text-primary); margin-bottom:16px;">' + (isNew ? 'Add Activity' : 'Edit Activity') + '</div>'
                 + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Activity Name</label>'
-                + '<input id="actName" value="' + escapeHtml(act.name || '') + '" placeholder="e.g. Varsity Baseball" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
+                + '<input id="actName" value="' + escapeAttr(act.name || '') + '" placeholder="e.g. Varsity Baseball" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
                 + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Category</label>'
                 + '<select id="actCategory" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">' + catOptions + '</select></div>'
                 + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Role / Position</label>'
-                + '<input id="actRole" value="' + escapeHtml(act.role || '') + '" placeholder="e.g. Team Captain, Member, Volunteer" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
+                + '<input id="actRole" value="' + escapeAttr(act.role || '') + '" placeholder="e.g. Team Captain, Member, Volunteer" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
                 + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Duration</label>'
-                + '<input id="actDuration" value="' + escapeHtml(act.duration || '') + '" placeholder="e.g. 12 years, 2019-2023, 3 semesters" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
+                + '<input id="actDuration" value="' + escapeAttr(act.duration || '') + '" placeholder="e.g. 12 years, 2019-2023, 3 semesters" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
                 + '<div style="margin-bottom:16px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Description (optional)</label>'
                 + '<textarea id="actDesc" placeholder="What did you do? Any achievements or awards?" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; min-height:60px; resize:vertical; box-sizing:border-box;">' + escapeHtml(act.description || '') + '</textarea></div>'
                 + '<div style="display:flex; gap:10px; justify-content:flex-end;">'
@@ -48646,13 +48657,14 @@ body {
         function saveActivityFromModal(idx) {
             var acts = userData.activities || [];
             var entry = {
-                name: (document.getElementById('actName').value || '').trim(),
-                category: document.getElementById('actCategory').value,
-                role: (document.getElementById('actRole').value || '').trim(),
-                duration: (document.getElementById('actDuration').value || '').trim(),
-                description: (document.getElementById('actDesc').value || '').trim()
+                name: (document.getElementById('actName').value || '').trim().slice(0, 200),
+                category: (document.getElementById('actCategory').value || '').slice(0, 50),
+                role: (document.getElementById('actRole').value || '').trim().slice(0, 200),
+                duration: (document.getElementById('actDuration').value || '').trim().slice(0, 100),
+                description: (document.getElementById('actDesc').value || '').trim().slice(0, 2000)
             };
             if (!entry.name) { showToast('Please enter an activity name.', 'warning'); return; }
+            if (acts.length >= 100 && idx < 0) { showToast('Maximum 100 activities reached.', 'warning'); return; }
             if (idx >= 0 && idx < acts.length) {
                 acts[idx] = entry;
             } else {
