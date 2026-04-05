@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38a';
+        var BP_VERSION = 'v4.47.38b';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -21742,6 +21742,7 @@
                 + 'Based on the following information about this person, extract 15-30 professional skills they likely possess. '
                 + 'Map each to O*NET skill/ability/workstyle categories. Assign realistic proficiency levels for someone early in their career (mostly Novice or Competent, occasionally Proficient for areas of deep involvement). '
                 + 'IMPORTANT: Activities done for longer periods and at higher levels indicate DEEPER skills. A 4-year varsity athlete has much stronger teamwork/discipline than someone who played recreationally for 1 year.\n'
+                + 'CRITICAL: Do NOT include personal values, character traits, or virtues as skills. These are NOT skills: Integrity, Honesty, Loyalty, Humility, Compassion, Empathy, Perseverance, Resilience, Patience, Respect, Fairness, Gratitude, Accountability (as a value), Trustworthiness, Kindness, Courage, Authenticity, Generosity, Optimism, Responsibility (as a value), Dedication, Determination, Work Ethic, Self-Discipline (as a value), Open-mindedness. Instead, identify ACTIONABLE skills — things you DO, not things you ARE. For example: "Written Communication" not "Honesty"; "Conflict Resolution" not "Empathy"; "Project Management" not "Dedication"; "Data Analysis" not "Integrity".\n'
                 + 'For each skill, provide a brief "reason" explaining which activity/interest/course gave them this skill.\n\n'
                 + 'Also suggest a professional "headline" and a brief "purpose statement" for this person.\n\n'
                 + '--- PERSON INFO ---\n'
@@ -21802,7 +21803,11 @@
                 text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
                 var parsed = JSON.parse(text);
 
-                wizardState.explorerData.discoveredSkills = parsed.skills || [];
+                var _valuesFilter = /^(integrity|honesty|loyalty|humility|compassion|empathy|perseverance|resilience|patience|respect|fairness|gratitude|accountability|trustworthiness|kindness|courage|authenticity|generosity|optimism|responsibility|dedication|determination|work ethic|self-discipline|open-mindedness|grit|dependability|reliability|sincerity|moral|ethical|diligence|punctuality|modesty|selflessness|honor|dignity|decency)$/i;
+                var rawSkills = parsed.skills || [];
+                wizardState.explorerData.discoveredSkills = rawSkills.filter(function(s) {
+                    return !_valuesFilter.test((s.name || '').trim());
+                });
                 wizardState.explorerData.headline = parsed.headline || '';
                 wizardState.explorerData.purpose = parsed.purpose || '';
                 wizardState.explorerData.discoveredSkills.forEach(function(s) { s.selected = true; });
@@ -31168,35 +31173,35 @@ body {
                             <span class="bp-tab-icon">${bpIcon('blueprint',16)}</span>
                             <span class="bp-tab-label">Dashboard</span>
                         </button>
-                        ${_isExplorer ? '' : `<button class="bp-tab ${blueprintTab === 'experience' ? 'active' : ''}" onclick="switchBlueprintTab('experience')">
+                        <button class="bp-tab ${blueprintTab === 'experience' ? 'active' : ''}" onclick="switchBlueprintTab('experience')">
                             <span class="bp-tab-icon">${bpIcon('experience',16)}</span>
                             <span class="bp-tab-label">Experience</span>
-                        </button>`}
+                        </button>
                         <button class="bp-tab ${blueprintTab === 'skills' ? 'active' : ''}" onclick="switchBlueprintTab('skills')">
                             <span class="bp-tab-icon">${bpIcon('skills',16)}</span>
                             <span class="bp-tab-label">Skills</span>
                             <span class="bp-tab-count">${skillCount}</span>
                         </button>
-                        ${_isExplorer ? '' : `<button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
+                        <button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
                             <span class="bp-tab-icon">${bpIcon('outcomes',16)}</span>
                             <span class="bp-tab-label">Outcomes</span>
                             <span class="bp-tab-count">${outcomesCount}</span>
-                        </button>`}
-                        ${_isExplorer ? '' : `<button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
+                        </button>
+                        <button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
                             <span class="bp-tab-icon">${bpIcon('shield',16)}</span>
                             <span class="bp-tab-label">Verify</span>
                             <span class="bp-tab-count">${(userData.verifications || []).filter(v => v.status === 'confirmed').length}</span>
-                        </button>`}
+                        </button>
                         <button class="bp-tab ${blueprintTab === 'values' ? 'active' : ''}" onclick="switchBlueprintTab('values')">
                             <span class="bp-tab-icon">${bpIcon('values',16)}</span>
                             <span class="bp-tab-label">Values</span>
                             <span class="bp-tab-count">${valuesCount}</span>
                         </button>
-                        ${_isExplorer ? '' : `<button class="bp-tab ${blueprintTab === 'content' ? 'active' : ''}" onclick="switchBlueprintTab('content')">
+                        <button class="bp-tab ${blueprintTab === 'content' ? 'active' : ''}" onclick="switchBlueprintTab('content')">
                             <span class="bp-tab-icon">${bpIcon('clipboard',16)}</span>
                             <span class="bp-tab-label">Content</span>
                             <span class="bp-tab-count">${_countContentItems()}</span>
-                        </button>`}
+                        </button>
                         <button class="bp-tab ${blueprintTab === 'export' ? 'active' : ''}" onclick="switchBlueprintTab('export')">
                             <span class="bp-tab-icon">${bpIcon('export',16)}</span>
                             <span class="bp-tab-label">Export</span>

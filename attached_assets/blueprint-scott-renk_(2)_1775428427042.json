@@ -1,0 +1,457 @@
+{
+  "profile": {
+    "name": "Scott Renk",
+    "currentTitle": "Business Management Student & Team Leader | Lincoln University of Pennsylvania",
+    "yearsExperience": 0,
+    "location": "",
+    "headline": "Business Management Student & Team Leader | Lincoln University of Pennsylvania"
+  },
+  "outcomes": [],
+  "values": [
+    {
+      "name": "Leadership",
+      "selected": true,
+      "description": ""
+    },
+    {
+      "name": "Service",
+      "selected": true,
+      "description": ""
+    },
+    {
+      "name": "Growth",
+      "selected": true,
+      "description": ""
+    },
+    {
+      "name": "Teamwork",
+      "selected": true,
+      "description": ""
+    },
+    {
+      "name": "Integrity",
+      "selected": true,
+      "description": ""
+    },
+    {
+      "name": "Accountability",
+      "selected": true,
+      "inferred": false,
+      "custom": false
+    },
+    {
+      "name": "Continuous Improvement",
+      "selected": true,
+      "inferred": false,
+      "custom": false
+    },
+    {
+      "name": "Adaptability",
+      "selected": true,
+      "inferred": false,
+      "custom": false
+    },
+    {
+      "name": "Empathy",
+      "selected": true,
+      "inferred": false,
+      "custom": false
+    },
+    {
+      "name": "Trust",
+      "selected": true,
+      "inferred": false,
+      "custom": false
+    }
+  ],
+  "purpose": "Dedicated business management student with 10+ years of leadership experience as a sports team captain, combining strong communication and team coordination skills with diverse interests in finance, real estate, and analytics. Seeking to leverage proven leadership abilities and business acumen to drive organizational success in a dynamic professional environment.",
+  "skills": [
+    {
+      "name": "Leadership",
+      "level": "Proficient",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Team Coordination",
+      "level": "Proficient",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "target1",
+        "wh-batting-cage-attendee"
+      ],
+      "evidence": [],
+      "userAssessment": {
+        "years": 10,
+        "impact": "significant",
+        "rarity": "common",
+        "salaryBand": "$150-250k"
+      },
+      "impactRating": "high"
+    },
+    {
+      "name": "Oral Communication",
+      "level": "Competent",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Active Listening",
+      "level": "Competent",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Competent",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Time Management",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Coordination",
+      "level": "Competent",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Service Orientation",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Customer Service",
+      "level": "Competent",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Monitoring",
+      "level": "Competent",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Physical Fitness",
+      "level": "Proficient",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Adaptability",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Initiative",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Problem Solving",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Teamwork",
+      "level": "Proficient",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Attention to Detail",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Persistence",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Facility Management",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Instructing",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Financial Literacy",
+      "level": "Novice",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Social Skills",
+      "level": "Competent",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Outdoor Skills",
+      "level": "Novice",
+      "category": "unique",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    },
+    {
+      "name": "Technology Aptitude",
+      "level": "Novice",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": [],
+      "userAssessment": {
+        "years": 0,
+        "impact": "moderate",
+        "rarity": "common"
+      }
+    }
+  ],
+  "roles": [
+    {
+      "id": "target1",
+      "name": "Project Coordinator",
+      "company": "Target Role",
+      "years": "",
+      "color": "#8b5cf6",
+      "skills": []
+    }
+  ],
+  "preferences": {
+    "seniorityLevel": "Entry",
+    "minimumMatchScore": 40,
+    "minimumSkillMatches": 2
+  },
+  "workHistory": [
+    {
+      "title": "Batting Cage Attendee ",
+      "company": "Waltz Golf Farm",
+      "startDate": "",
+      "endDate": "",
+      "current": false,
+      "description": "Managed the Out Door batting cages\nMade sure it had a clean environment \nProvided coaching to the customers as they came in"
+    }
+  ],
+  "education": [
+    {
+      "school": "Lincoln University of Pennsylvania ",
+      "degree": "Bachelor's in Business Management ",
+      "fieldOfStudy": "Business Management ",
+      "graduationYear": "2026",
+      "gpa": "2.94"
+    }
+  ],
+  "certifications": [],
+  "verifications": [],
+  "savedJobs": [],
+  "linkedinContent": {},
+  "companyTenures": [],
+  "importStats": {},
+  "contentVisibility": {},
+  "exportedAt": "2026-04-05T22:17:35.668Z",
+  "exportedFor": "Scott Renk",
+  "version": "v4.47.37u"
+}
