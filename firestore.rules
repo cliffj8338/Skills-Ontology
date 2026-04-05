@@ -70,7 +70,8 @@ service cloud.firestore {
         ))
         && (!('roles' in request.resource.data) || request.resource.data.roles.size() <= 50);
 
-      allow delete: if isOwner(userId) && resource.data.role != 'admin';
+      allow delete: if (isOwner(userId) && resource.data.role != 'admin')
+        || isAdmin();
 
       match /verifications/{verificationId} {
         allow read, write: if isOwner(userId);
