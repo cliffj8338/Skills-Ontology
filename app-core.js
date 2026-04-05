@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38b';
+        var BP_VERSION = 'v4.47.38c';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -22187,6 +22187,10 @@
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
                     imported.initialized = true;
+                    var _vFilter = /^(integrity|honesty|loyalty|humility|compassion|empathy|perseverance|resilience|patience|respect|fairness|gratitude|accountability|trustworthiness|kindness|courage|authenticity|generosity|optimism|responsibility|dedication|determination|work ethic|self-discipline|open-mindedness|grit|dependability|reliability|sincerity|moral|ethical|diligence|punctuality|modesty|selflessness|honor|dignity|decency|teamwork|persistence|adaptability|initiative|leadership)$/i;
+                    if (Array.isArray(imported.skills)) {
+                        imported.skills = imported.skills.filter(function(s) { return !_vFilter.test((s.name || '').trim()); });
+                    }
                     userData = imported;
                     window._userData = userData;
                     skillsData.skills = imported.skills || [];
@@ -31524,6 +31528,18 @@ body {
                     : '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:6px 0;">Tap \u270E to tell us what motivates you!</div>')
                 + '</div>';
 
+            html += '<div style="' + cs + ' border-color:rgba(96,165,250,0.2);">'
+                + '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
+                + '<div>'
+                + '<div style="font-size:0.88em; font-weight:700; color:var(--text-primary); margin-bottom:4px;">' + bpIcon('layers',16) + ' Import / Restore Profile</div>'
+                + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.5;">Have a previously exported Blueprint JSON? Load it to restore your profile.</div>'
+                + '</div>'
+                + '<label style="padding:8px 18px; background:var(--accent); color:#fff; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; white-space:nowrap;">'
+                + 'Select JSON File'
+                + '<input type="file" accept=".json" onchange="explorerImportJSON(this)" style="display:none;">'
+                + '</label>'
+                + '</div></div>';
+
             html += '<div style="' + cs + ' text-align:center; border-color:rgba(16,185,129,0.3);">'
                 + '<div style="font-size:0.92em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Ready for Your First Role?</div>'
                 + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-bottom:14px;">When you land your first job, convert to a full Blueprint to unlock real-time salary insights, market valuation, negotiation tools, and advanced evidence tracking.</div>'
@@ -31850,6 +31866,54 @@ body {
             modal.style.display = 'flex';
         }
         window.explorerConvertToFull = explorerConvertToFull;
+
+        function explorerImportJSON(fileInput) {
+            if (readOnlyGuard()) return;
+            var file = fileInput.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var imported = sanitizeImport(JSON.parse(e.target.result));
+                    if (!confirm('This will replace your current profile data with the imported file. Continue?')) return;
+                    imported.initialized = true;
+                    if (!imported.profileType) imported.profileType = 'explorer';
+                    if (!imported.role) imported.role = 'user';
+                    var _vFilter = /^(integrity|honesty|loyalty|humility|compassion|empathy|perseverance|resilience|patience|respect|fairness|gratitude|accountability|trustworthiness|kindness|courage|authenticity|generosity|optimism|responsibility|dedication|determination|work ethic|self-discipline|open-mindedness|grit|dependability|reliability|sincerity|moral|ethical|diligence|punctuality|modesty|selflessness|honor|dignity|decency|teamwork|persistence|adaptability|initiative|leadership)$/i;
+                    if (Array.isArray(imported.skills)) {
+                        imported.skills = imported.skills.filter(function(s) {
+                            return !_vFilter.test((s.name || '').trim());
+                        });
+                        var targetRole = null;
+                        if (Array.isArray(imported.roles)) {
+                            var tr = imported.roles.find(function(r) { return r.id === 'target1'; });
+                            if (tr) targetRole = tr.id;
+                        }
+                        if (targetRole) {
+                            imported.skills.forEach(function(s) {
+                                if (!s.roles || s.roles.length === 0) s.roles = [targetRole];
+                            });
+                        }
+                    }
+                    userData = imported;
+                    window._userData = userData;
+                    _markUserDataReady();
+                    skillsData.skills = imported.skills || [];
+                    skillsData.roles = imported.roles || [];
+                    skillsData.skillDetails = {};
+                    blueprintData.values = imported.values || [];
+                    blueprintData.purpose = imported.purpose || '';
+                    blueprintData.outcomes = imported.outcomes || [];
+                    normalizeUserRoles();
+                    showToast('Profile imported! Saving and refreshing...', 'success');
+                    saveToFirestore().then(function() { location.reload(); });
+                } catch(err) {
+                    showToast('Import error: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+        window.explorerImportJSON = explorerImportJSON;
 
         function explorerDoConvert() {
             userData.profileType = 'standard';
