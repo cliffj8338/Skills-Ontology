@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37s';
+        var BP_VERSION = 'v4.47.37t';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20169,7 +20169,16 @@
             const overlay = document.getElementById('onboardingWizard');
             if (!overlay) return;
 
-            const steps = [
+            var isExplorerMode = wizardState.entryMode === 'explorer';
+            const steps = isExplorerMode ? [
+                { label: 'Start' },
+                { label: 'Education' },
+                { label: 'Activities' },
+                { label: 'Interests' },
+                { label: 'Skills' },
+                { label: 'Careers' },
+                { label: 'Complete' }
+            ] : [
                 { label: 'Start' },
                 { label: 'Resume' },
                 { label: 'Parsing' },
@@ -20251,8 +20260,19 @@
 
             // Render the current step content — delegate to window (module overrides)
             const inner = document.getElementById('wizardInner');
+            var isExplorer = wizardState.entryMode === 'explorer';
             var stepFn = window['renderWizardStep' + wizardState.step];
-            if (typeof stepFn === 'function') { stepFn(inner); }
+            if (isExplorer) {
+                switch(wizardState.step) {
+                    case 1: renderWizardStep1(inner); break;
+                    case 2: renderExplorerEducation(inner); break;
+                    case 3: renderExplorerActivities(inner); break;
+                    case 4: renderExplorerInterests(inner); break;
+                    case 5: renderExplorerSkills(inner); break;
+                    case 6: renderExplorerCareers(inner); break;
+                    case 7: renderExplorerComplete(inner); break;
+                }
+            } else if (typeof stepFn === 'function') { stepFn(inner); }
             else {
                 switch(wizardState.step) {
                     case 1: renderWizardStep1(inner); break;
@@ -20277,8 +20297,9 @@
         function wizardBack() {
             if (window.wizardBack && window.wizardBack !== wizardBack) return window.wizardBack();
             var newStep = wizardState.step - 1;
-            // Skip Step 3 (AI parsing) when going back from Step 4 in linkedin or manual mode
-            if (wizardState.step === 4 && (wizardState.entryMode === 'linkedin' || wizardState.entryMode === 'manual')) {
+            if (wizardState.entryMode === 'explorer') {
+                if (wizardState.step === 2) newStep = 1;
+            } else if (wizardState.step === 4 && (wizardState.entryMode === 'linkedin' || wizardState.entryMode === 'manual')) {
                 newStep = wizardState.entryMode === 'manual' ? 1 : 2;
             }
             wizardState.step = Math.max(newStep, 1);
@@ -21213,6 +21234,722 @@
             });
         }
         window.wizardChooseExplorer = wizardChooseExplorer;
+
+        // ═══════════════════════════════════════════════════════════════════
+        // EXPLORER MODE — Student/Early-Career Wizard Steps
+        // ═══════════════════════════════════════════════════════════════════
+        var explorerFieldStyle = 'width:100%; padding:10px 14px; background:var(--input-bg); border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em; box-sizing:border-box;';
+        var explorerLabelStyle = 'display:block; font-size:0.82em; font-weight:600; color:var(--text-secondary); margin-bottom:5px;';
+        var explorerCardStyle = 'background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px;';
+        var explorerChipStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-secondary);';
+        var explorerChipActiveStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid #8b5cf6; background:rgba(139,92,246,0.15); color:#8b5cf6; font-weight:600;';
+
+        function renderExplorerEducation(el) {
+            var ed = wizardState.explorerData.education || {};
+            var schoolType = ed.schoolType || '';
+            el.innerHTML = `
+                ${wizardHeading('\uD83C\uDF93', 'Tell Us About Your Education',
+                    'Where are you in school? What are you studying? This is the foundation of your profile.')}
+                <div style="${explorerCardStyle}">
+                    <div style="display:grid; gap:14px;">
+                        <div>
+                            <label style="${explorerLabelStyle}">What type of student are you? *</label>
+                            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                                <span onclick="explorerSetSchoolType('highschool')" style="${schoolType === 'highschool' ? explorerChipActiveStyle : explorerChipStyle}">\uD83C\uDFEB High School</span>
+                                <span onclick="explorerSetSchoolType('college')" style="${schoolType === 'college' ? explorerChipActiveStyle : explorerChipStyle}">\uD83C\uDF93 College / University</span>
+                                <span onclick="explorerSetSchoolType('trade')" style="${schoolType === 'trade' ? explorerChipActiveStyle : explorerChipStyle}">\uD83D\uDD27 Trade / Vocational School</span>
+                                <span onclick="explorerSetSchoolType('community')" style="${schoolType === 'community' ? explorerChipActiveStyle : explorerChipStyle}">\uD83D\uDCDA Community College</span>
+                                <span onclick="explorerSetSchoolType('bootcamp')" style="${schoolType === 'bootcamp' ? explorerChipActiveStyle : explorerChipStyle}">\uD83D\uDCBB Bootcamp / Online</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="${explorerLabelStyle}">School Name *</label>
+                            <input type="text" id="expSchool" value="${escapeAttr(ed.school || '')}" placeholder="${schoolType === 'highschool' ? 'e.g. Lincoln High School' : schoolType === 'trade' ? 'e.g. Tulsa Welding School' : 'e.g. University of Texas at Austin'}" style="${explorerFieldStyle}">
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div>
+                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Year' : 'Degree / Program'}</label>
+                                ${schoolType === 'highschool' ? '<select id="expDegree" style="' + explorerFieldStyle + '"><option value="High School Diploma"' + (ed.degree === 'High School Diploma' || !ed.degree ? ' selected' : '') + '>High School Diploma</option><option value="GED"' + (ed.degree === 'GED' ? ' selected' : '') + '>GED</option></select>'
+                                : '<select id="expDegree" style="' + explorerFieldStyle + '"><option value="">Select...</option>'
+                                + '<option value="High School Diploma"' + (ed.degree === 'High School Diploma' ? ' selected' : '') + '>High School Diploma</option>'
+                                + '<option value="Associate\'s"' + (ed.degree === "Associate's" ? ' selected' : '') + '>Associate\'s Degree</option>'
+                                + '<option value="Bachelor\'s"' + (ed.degree === "Bachelor's" ? ' selected' : '') + '>Bachelor\'s Degree</option>'
+                                + '<option value="Certificate"' + (ed.degree === 'Certificate' ? ' selected' : '') + '>Certificate / Trade Program</option>'
+                                + '<option value="Bootcamp"' + (ed.degree === 'Bootcamp' ? ' selected' : '') + '>Bootcamp</option>'
+                                + '<option value="Master\'s"' + (ed.degree === "Master's" ? ' selected' : '') + '>Master\'s Degree</option>'
+                                + '<option value="Other"' + (ed.degree === 'Other' ? ' selected' : '') + '>Other</option>'
+                                + '</select>'}
+                            </div>
+                            <div>
+                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Graduation Year' : 'Expected Graduation'}</label>
+                                <input type="number" id="expGradYear" value="${ed.gradYear || ''}" placeholder="${new Date().getFullYear() + 1}" min="2000" max="2035" style="${explorerFieldStyle}">
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div>
+                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Favorite Subjects' : schoolType === 'trade' ? 'Trade / Specialty *' : 'Major / Field of Study *'}</label>
+                                <input type="text" id="expMajor" value="${escapeAttr(ed.major || '')}" placeholder="${schoolType === 'highschool' ? 'e.g. Math, Science, Art' : schoolType === 'trade' ? 'e.g. Welding, HVAC, Electrical' : 'e.g. Computer Science'}" style="${explorerFieldStyle}">
+                            </div>
+                            <div>
+                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Concentration (optional)' : 'Minor (optional)'}</label>
+                                <input type="text" id="expMinor" value="${escapeAttr(ed.minor || '')}" placeholder="${schoolType === 'highschool' ? 'e.g. AP classes, honors track' : 'e.g. Business Administration'}" style="${explorerFieldStyle}">
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:120px 1fr; gap:12px;">
+                            <div>
+                                <label style="${explorerLabelStyle}">GPA (optional)</label>
+                                <input type="text" id="expGPA" value="${escapeAttr(ed.gpa || '')}" placeholder="e.g. 3.5" style="${explorerFieldStyle}">
+                            </div>
+                            <div>
+                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Grade / Year' : 'Current Year'}</label>
+                                <select id="expCurrentYear" style="${explorerFieldStyle}">
+                                    <option value="">Select...</option>
+                                    ${schoolType === 'highschool' ? `
+                                        <option value="Freshman (9th)"${ed.currentYear === 'Freshman (9th)' ? ' selected' : ''}>Freshman (9th Grade)</option>
+                                        <option value="Sophomore (10th)"${ed.currentYear === 'Sophomore (10th)' ? ' selected' : ''}>Sophomore (10th Grade)</option>
+                                        <option value="Junior (11th)"${ed.currentYear === 'Junior (11th)' ? ' selected' : ''}>Junior (11th Grade)</option>
+                                        <option value="Senior (12th)"${ed.currentYear === 'Senior (12th)' ? ' selected' : ''}>Senior (12th Grade)</option>
+                                    ` : `
+                                        <option value="Freshman"${ed.currentYear === 'Freshman' ? ' selected' : ''}>Freshman / 1st Year</option>
+                                        <option value="Sophomore"${ed.currentYear === 'Sophomore' ? ' selected' : ''}>Sophomore / 2nd Year</option>
+                                        <option value="Junior"${ed.currentYear === 'Junior' ? ' selected' : ''}>Junior / 3rd Year</option>
+                                        <option value="Senior"${ed.currentYear === 'Senior' ? ' selected' : ''}>Senior / 4th Year</option>
+                                        <option value="Graduate"${ed.currentYear === 'Graduate' ? ' selected' : ''}>Graduate Student</option>
+                                        <option value="Recently Graduated"${ed.currentYear === 'Recently Graduated' ? ' selected' : ''}>Recently Graduated</option>
+                                    `}
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Favorite Classes, Projects, or Achievements' : 'Notable Coursework, Projects, or Certifications'}</label>
+                            <textarea id="expCoursework" rows="3" placeholder="${schoolType === 'highschool' ? 'e.g. Won science fair, AP Biology, built a website in computer class, shop class project...' : schoolType === 'trade' ? 'e.g. Completed OSHA 30, welding certification test, rebuilt an engine...' : 'e.g. Senior capstone project, Data Structures, Machine Learning course...'}" style="${explorerFieldStyle} resize:vertical;">${escapeHtml(ed.coursework || '')}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    ${wizardBtn('Back', 'wizardBack()', 'secondary')}
+                    ${wizardBtn('Next \u2192', 'explorerSaveEducation()', 'primary')}
+                </div>
+            `;
+        }
+
+        function explorerSetSchoolType(type) {
+            if (!wizardState.explorerData.education) wizardState.explorerData.education = {};
+            wizardState.explorerData.education.schoolType = type;
+            renderWizardStep();
+        }
+        window.explorerSetSchoolType = explorerSetSchoolType;
+
+        function explorerSaveEducation() {
+            var school = (document.getElementById('expSchool') || {}).value || '';
+            var major = (document.getElementById('expMajor') || {}).value || '';
+            var schoolType = (wizardState.explorerData.education || {}).schoolType || '';
+            if (!school.trim()) {
+                showToast('Please enter your school name.', 'error');
+                return;
+            }
+            if (!major.trim() && schoolType !== 'highschool') {
+                showToast('Please enter your major or field of study.', 'error');
+                return;
+            }
+            wizardState.explorerData.education = {
+                schoolType: schoolType,
+                school: school.trim(),
+                degree: (document.getElementById('expDegree') || {}).value || '',
+                gradYear: (document.getElementById('expGradYear') || {}).value || '',
+                major: major.trim(),
+                minor: (document.getElementById('expMinor') || {}).value || '',
+                gpa: (document.getElementById('expGPA') || {}).value || '',
+                currentYear: (document.getElementById('expCurrentYear') || {}).value || '',
+                coursework: (document.getElementById('expCoursework') || {}).value || ''
+            };
+            wizardNext();
+        }
+        window.explorerSaveEducation = explorerSaveEducation;
+
+        function renderExplorerActivities(el) {
+            var acts = wizardState.explorerData.activities || [];
+            var jobs = wizardState.explorerData.partTimeJobs || [];
+            var schoolType = (wizardState.explorerData.education || {}).schoolType || 'college';
+
+            var actCategories = [
+                { id: 'sports', label: 'Sports Team / Intramurals', icon: '\u26BD' },
+                { id: 'clubs', label: 'Academic or Interest Clubs', icon: '\uD83D\uDCDA' },
+                { id: 'volunteer', label: 'Volunteering / Community Service', icon: '\u2764\uFE0F' },
+                { id: 'arts', label: 'Music / Theater / Art', icon: '\uD83C\uDFA8' },
+                { id: 'student-gov', label: 'Student Government', icon: '\uD83C\uDFDB\uFE0F' },
+                { id: 'greek', label: 'Greek Life (Fraternity/Sorority)', icon: '\uD83C\uDFDB\uFE0F' },
+                { id: 'scouts', label: 'Boy Scouts / Girl Scouts', icon: '\u26FA' },
+                { id: 'church', label: 'Church / Religious Groups', icon: '\u26EA' },
+                { id: 'research', label: 'Research / Lab Work', icon: '\uD83D\uDD2C' },
+                { id: 'military', label: 'ROTC / Military / CAP', icon: '\uD83C\uDF96\uFE0F' },
+                { id: 'startup', label: 'Startup / Side Hustle', icon: '\uD83D\uDE80' },
+                { id: 'mentoring', label: 'Tutoring / Mentoring', icon: '\uD83D\uDC65' },
+                { id: 'gaming', label: 'Esports / Gaming Community', icon: '\uD83C\uDFAE' },
+                { id: 'trade-apprentice', label: 'Apprenticeship / Trade Training', icon: '\uD83D\uDD27' }
+            ];
+
+            var actChips = actCategories.map(function(cat) {
+                var isActive = acts.some(function(a) { return a.category === cat.id; });
+                return '<span onclick="explorerToggleActivity(\'' + cat.id + '\')" style="' + (isActive ? explorerChipActiveStyle : explorerChipStyle) + '">'
+                    + cat.icon + ' ' + cat.label + '</span>';
+            }).join(' ');
+
+            var actDetails = acts.map(function(a, i) {
+                var cat = actCategories.find(function(c) { return c.id === a.category; });
+                return '<div style="padding:12px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; margin-top:8px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">'
+                    + '<span style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + (cat ? cat.icon + ' ' + cat.label : a.category) + '</span>'
+                    + '<button onclick="explorerRemoveActivity(' + i + ')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; font-size:0.82em;">\u2715</button></div>'
+                    + '<input type="text" value="' + escapeAttr(a.role || '') + '" placeholder="Your role (e.g. Treasurer, Team Captain, Eagle Scout)" '
+                    + 'onchange="explorerUpdateActivity(' + i + ',\'role\',this.value)" style="' + explorerFieldStyle + ' margin-bottom:6px; font-size:0.85em;">'
+                    + '<textarea placeholder="What did you do? What did you accomplish? Be specific!" '
+                    + 'onchange="explorerUpdateActivity(' + i + ',\'description\',this.value)" rows="2" style="' + explorerFieldStyle + ' resize:vertical; font-size:0.85em;">' + escapeHtml(a.description || '') + '</textarea>'
+                    + '</div>';
+            }).join('');
+
+            var jobEntries = jobs.map(function(j, i) {
+                return '<div style="padding:10px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; margin-top:8px; display:grid; gap:6px;">'
+                    + '<input type="text" value="' + escapeAttr(j.title || '') + '" placeholder="Job title (e.g. Barista, Camp Counselor, Intern)" '
+                    + 'onchange="explorerUpdateJob(' + i + ',\'title\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
+                    + '<input type="text" value="' + escapeAttr(j.company || '') + '" placeholder="Where?" '
+                    + 'onchange="explorerUpdateJob(' + i + ',\'company\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
+                    + '<textarea placeholder="What were your responsibilities?" '
+                    + 'onchange="explorerUpdateJob(' + i + ',\'description\',this.value)" rows="2" style="' + explorerFieldStyle + ' resize:vertical; font-size:0.85em;">' + escapeHtml(j.description || '') + '</textarea>'
+                    + '<button onclick="explorerRemoveJob(' + i + ')" style="background:none; border:1px solid var(--border); border-radius:6px; padding:4px 10px; color:var(--c-muted); cursor:pointer; font-size:0.78em; width:fit-content;">Remove</button>'
+                    + '</div>';
+            }).join('');
+
+            el.innerHTML = `
+                ${wizardHeading('\uD83C\uDFC6', 'Activities & Experience',
+                    'What have you been involved in? Every club, team, job, or volunteer role builds real skills \u2014 even if it doesn\u2019t feel like it yet.')}
+                <div style="${explorerCardStyle}">
+                    <div style="font-weight:600; color:var(--text-primary); margin-bottom:10px; font-size:0.9em;">Select activities you've been part of:</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">${actChips}</div>
+                    <div id="explorerActDetails">${actDetails}</div>
+                </div>
+                <div style="${explorerCardStyle}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">Part-time Jobs, Internships, or Gigs</div>
+                        <button onclick="explorerAddJob()" style="padding:5px 12px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">+ Add</button>
+                    </div>
+                    <div style="font-size:0.8em; color:var(--text-muted); margin-bottom:8px;">Summer jobs, campus positions, babysitting, lawn care, internships \u2014 they all count!</div>
+                    <div id="explorerJobEntries">${jobEntries}</div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    ${wizardBtn('Back', 'wizardBack()', 'secondary')}
+                    ${wizardBtn('Next \u2192', 'explorerSaveActivities()', 'primary')}
+                </div>
+            `;
+        }
+
+        function explorerToggleActivity(catId) {
+            var acts = wizardState.explorerData.activities;
+            var idx = acts.findIndex(function(a) { return a.category === catId; });
+            if (idx >= 0) { acts.splice(idx, 1); } else { acts.push({ category: catId, role: '', description: '' }); }
+            renderWizardStep();
+        }
+        window.explorerToggleActivity = explorerToggleActivity;
+
+        function explorerUpdateActivity(idx, field, val) {
+            if (wizardState.explorerData.activities[idx]) wizardState.explorerData.activities[idx][field] = val;
+        }
+        window.explorerUpdateActivity = explorerUpdateActivity;
+
+        function explorerRemoveActivity(idx) { wizardState.explorerData.activities.splice(idx, 1); renderWizardStep(); }
+        window.explorerRemoveActivity = explorerRemoveActivity;
+
+        function explorerAddJob() { wizardState.explorerData.partTimeJobs.push({ title: '', company: '', description: '' }); renderWizardStep(); }
+        window.explorerAddJob = explorerAddJob;
+
+        function explorerUpdateJob(idx, field, val) {
+            if (wizardState.explorerData.partTimeJobs[idx]) wizardState.explorerData.partTimeJobs[idx][field] = val;
+        }
+        window.explorerUpdateJob = explorerUpdateJob;
+
+        function explorerRemoveJob(idx) { wizardState.explorerData.partTimeJobs.splice(idx, 1); renderWizardStep(); }
+        window.explorerRemoveJob = explorerRemoveJob;
+
+        function explorerSaveActivities() { wizardNext(); }
+        window.explorerSaveActivities = explorerSaveActivities;
+
+        function renderExplorerInterests(el) {
+            var interests = wizardState.explorerData.interests || [];
+            var interestSuggestions = [
+                'Coding / Programming', 'Gaming', 'Music', 'Art / Design', 'Writing / Blogging',
+                'Fitness / Sports', 'Photography', 'Video Production', 'Cooking', 'Travel',
+                'Podcasting', 'Social Media', 'Reading', 'Investing / Finance', 'Teaching',
+                'Nature / Outdoors', 'Fashion', 'Public Speaking', 'Robotics / Engineering',
+                'Mental Health / Wellness', 'Animals', 'Cars / Mechanics', 'Politics / Advocacy',
+                'Data / Analytics', 'Event Planning', 'Real Estate', 'Entrepreneurship',
+                'Construction / Building', 'Welding / Metalwork', 'Woodworking', 'Electrical Work',
+                'Healthcare / Medicine', 'Cosmetology / Beauty', 'Agriculture / Farming'
+            ];
+
+            var chips = interestSuggestions.map(function(int) {
+                var isActive = interests.indexOf(int) >= 0;
+                return '<span onclick="explorerToggleInterest(\'' + escapeAttr(int).replace(/'/g, "\\'") + '\')" style="' + (isActive ? explorerChipActiveStyle : explorerChipStyle) + '">' + int + '</span>';
+            }).join(' ');
+
+            el.innerHTML = `
+                ${wizardHeading('\u2728', 'Interests & Passions',
+                    'What gets you excited? Your interests reveal transferable skills and help us suggest careers you\u2019ll actually enjoy.')}
+                <div style="${explorerCardStyle}">
+                    <div style="font-weight:600; color:var(--text-primary); margin-bottom:10px; font-size:0.9em;">Select all that apply (or add your own):</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">${chips}</div>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="expCustomInterest" placeholder="Add your own interest..." style="${explorerFieldStyle} flex:1;">
+                        <button onclick="explorerAddCustomInterest()" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em; white-space:nowrap;">+ Add</button>
+                    </div>
+                    ${interests.length > 0 ? '<div style="margin-top:14px; font-size:0.82em; color:#8b5cf6; font-weight:600;">' + interests.length + ' interest' + (interests.length !== 1 ? 's' : '') + ' selected</div>' : ''}
+                </div>
+                <div style="${explorerCardStyle}">
+                    <label style="${explorerLabelStyle}">Tell us more about what drives you (optional)</label>
+                    <textarea id="expDriveStatement" rows="3" placeholder="What kind of work excites you? What problems do you want to solve? What impact do you want to make?" style="${explorerFieldStyle} resize:vertical;">${escapeHtml(wizardState.explorerData.driveStatement || '')}</textarea>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    ${wizardBtn('Back', 'wizardBack()', 'secondary')}
+                    ${wizardBtn('Discover My Skills \u2192', 'explorerSaveInterests()', 'primary')}
+                </div>
+            `;
+        }
+
+        function explorerToggleInterest(name) {
+            var arr = wizardState.explorerData.interests;
+            var idx = arr.indexOf(name);
+            if (idx >= 0) arr.splice(idx, 1); else arr.push(name);
+            renderWizardStep();
+        }
+        window.explorerToggleInterest = explorerToggleInterest;
+
+        function explorerAddCustomInterest() {
+            var input = document.getElementById('expCustomInterest');
+            if (!input || !input.value.trim()) return;
+            var val = input.value.trim();
+            if (wizardState.explorerData.interests.indexOf(val) < 0) wizardState.explorerData.interests.push(val);
+            input.value = '';
+            renderWizardStep();
+        }
+        window.explorerAddCustomInterest = explorerAddCustomInterest;
+
+        function explorerSaveInterests() {
+            wizardState.explorerData.driveStatement = (document.getElementById('expDriveStatement') || {}).value || '';
+            if (wizardState.explorerData.interests.length === 0 && wizardState.explorerData.activities.length === 0) {
+                showToast('Please select at least one interest or activity so we can discover your skills.', 'error');
+                return;
+            }
+            explorerRunSkillDiscovery();
+        }
+        window.explorerSaveInterests = explorerSaveInterests;
+
+        async function explorerRunSkillDiscovery() {
+            var ed = wizardState.explorerData;
+            var schoolLabel = (ed.education.schoolType === 'highschool' ? 'High school' : ed.education.schoolType === 'trade' ? 'Trade school' : 'College') + ' student';
+            var prompt = 'You are a career counselor AI helping a ' + schoolLabel + ' or early-career person discover their professional skills.\n\n'
+                + 'Based on the following information about this person, extract 15-30 professional skills they likely possess. '
+                + 'Map each to O*NET skill/ability/workstyle categories. Assign realistic proficiency levels for someone early in their career (mostly Novice or Competent, occasionally Proficient for areas of deep involvement). '
+                + 'For each skill, provide a brief "reason" explaining which activity/interest/course gave them this skill.\n\n'
+                + 'Also suggest a professional "headline" and a brief "purpose statement" for this person.\n\n'
+                + '--- PERSON INFO ---\n'
+                + 'Student type: ' + schoolLabel + '\n'
+                + 'Education: ' + (ed.education.degree || '') + ' in ' + (ed.education.major || '') + (ed.education.minor ? ', Minor/Focus: ' + ed.education.minor : '') + ' from ' + (ed.education.school || '') + (ed.education.gradYear ? ' (' + ed.education.gradYear + ')' : '') + '\n'
+                + (ed.education.currentYear ? 'Current year: ' + ed.education.currentYear + '\n' : '')
+                + (ed.education.gpa ? 'GPA: ' + ed.education.gpa + '\n' : '')
+                + 'Notable coursework/projects: ' + (ed.education.coursework || 'None specified') + '\n\n'
+                + 'Activities & Organizations:\n';
+            ed.activities.forEach(function(a) {
+                prompt += '- ' + a.category + (a.role ? ' (Role: ' + a.role + ')' : '') + (a.description ? ': ' + a.description : '') + '\n';
+            });
+            prompt += '\nPart-time jobs / internships:\n';
+            (ed.partTimeJobs || []).forEach(function(j) {
+                if (j.title) prompt += '- ' + j.title + (j.company ? ' at ' + j.company : '') + (j.description ? ': ' + j.description : '') + '\n';
+            });
+            prompt += '\nInterests & Hobbies: ' + (ed.interests || []).join(', ') + '\n';
+            if (ed.driveStatement) prompt += '\nWhat drives them: ' + ed.driveStatement + '\n';
+            prompt += '\n--- OUTPUT FORMAT ---\n'
+                + 'Return ONLY a JSON object with this structure (no markdown, no explanation):\n'
+                + '{\n'
+                + '  "headline": "e.g. Aspiring Data Analyst | University of Texas",\n'
+                + '  "purpose": "2-3 sentence purpose statement",\n'
+                + '  "skills": [\n'
+                + '    { "name": "Skill Name", "level": "Novice|Competent|Proficient", "category": "skill|ability|workstyle|unique", "reason": "Why they have this skill based on their info" }\n'
+                + '  ]\n'
+                + '}';
+
+            wizardState.step = 5;
+            renderWizardStep();
+            var inner = document.getElementById('wizardInner');
+            inner.innerHTML = wizardHeading('\uD83D\uDD0D', 'Discovering Your Skills...',
+                'Our AI is analyzing your education, activities, and interests to find the professional skills you already have.')
+                + '<div style="text-align:center; padding:40px 0;">'
+                + '<div class="bp-spinner" style="margin:0 auto 16px;"></div>'
+                + '<div style="color:var(--text-muted); font-size:0.88em;">This usually takes about 15-20 seconds...</div>'
+                + '</div>';
+
+            try {
+                var response = await callAnthropicAPI({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 3000,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'explorer-skills');
+
+                var text = response.content[0].text;
+                text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+                var parsed = JSON.parse(text);
+
+                wizardState.explorerData.discoveredSkills = parsed.skills || [];
+                wizardState.explorerData.headline = parsed.headline || '';
+                wizardState.explorerData.purpose = parsed.purpose || '';
+                wizardState.explorerData.discoveredSkills.forEach(function(s) { s.selected = true; });
+
+                renderWizardStep();
+            } catch (err) {
+                inner.innerHTML = wizardHeading('\u26A0\uFE0F', 'Skill Discovery Issue',
+                    'We had trouble analyzing your profile. You can try again or continue manually.')
+                    + '<div style="text-align:center; padding:20px;">'
+                    + '<div style="color:var(--c-warn); font-size:0.85em; margin-bottom:16px;">' + escapeHtml(err.message) + '</div>'
+                    + '<button onclick="explorerRunSkillDiscovery()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Try Again</button>'
+                    + ' <button onclick="wizardState.explorerData.discoveredSkills=[]; wizardNext();" style="padding:10px 24px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer;">Skip</button>'
+                    + '</div>';
+            }
+        }
+        window.explorerRunSkillDiscovery = explorerRunSkillDiscovery;
+
+        function renderExplorerSkills(el) {
+            var skills = wizardState.explorerData.discoveredSkills || [];
+            if (skills.length === 0) {
+                el.innerHTML = wizardHeading('\uD83D\uDCA1', 'Your Discovered Skills',
+                    'No skills were discovered. Go back and add more details about your activities and interests.')
+                    + '<div style="display:flex; justify-content:space-between; margin-top:20px;">'
+                    + wizardBtn('Back', 'wizardBack()', 'secondary')
+                    + wizardBtn('Next \u2192', 'explorerSaveSkills()', 'primary')
+                    + '</div>';
+                return;
+            }
+
+            var selectedCount = skills.filter(function(s) { return s.selected; }).length;
+            var catColors = { skill: '#60a5fa', ability: '#a78bfa', workstyle: '#10b981', unique: '#fbbf24' };
+            var catLabels = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique' };
+
+            var skillCards = skills.map(function(s, i) {
+                var cc = catColors[s.category] || '#60a5fa';
+                return '<div onclick="explorerToggleSkill(' + i + ')" style="padding:12px 14px; border-radius:10px; cursor:pointer; transition:all 0.15s; '
+                    + 'background:' + (s.selected ? 'rgba(' + (s.category === 'ability' ? '139,92,246' : s.category === 'workstyle' ? '16,185,129' : '96,165,250') + ',0.08)' : 'var(--c-surface-1)') + '; '
+                    + 'border:1px solid ' + (s.selected ? cc + '40' : 'var(--c-surface-4)') + ';">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
+                    + '<span style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(s.name) + '</span>'
+                    + '<div style="display:flex; align-items:center; gap:6px;">'
+                    + '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:' + cc + '18; color:' + cc + '; font-weight:600;">' + (catLabels[s.category] || 'Skill') + '</span>'
+                    + '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:var(--c-surface-3); color:var(--text-muted);">' + escapeHtml(s.level) + '</span>'
+                    + (s.selected ? '<span style="color:#10b981;">\u2713</span>' : '<span style="color:var(--c-muted);">\u25CB</span>') + '</div></div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">' + escapeHtml(s.reason || '') + '</div>'
+                    + '</div>';
+            }).join('');
+
+            el.innerHTML = `
+                ${wizardHeading('\uD83D\uDCA1', 'Your Discovered Skills',
+                    'We found ' + skills.length + ' skills based on your background. Toggle any you disagree with. These become the foundation of your Blueprint.')}
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <span style="font-size:0.85em; color:var(--text-secondary); font-weight:600;">${selectedCount} of ${skills.length} selected</span>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="explorerSelectAllSkills(true)" style="padding:4px 12px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:6px; cursor:pointer; font-size:0.78em;">Select All</button>
+                        <button onclick="explorerSelectAllSkills(false)" style="padding:4px 12px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:6px; cursor:pointer; font-size:0.78em;">Deselect All</button>
+                    </div>
+                </div>
+                <div style="display:grid; gap:8px; max-height:50vh; overflow-y:auto; padding-right:4px;">${skillCards}</div>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    ${wizardBtn('Back', 'wizardBack()', 'secondary')}
+                    ${wizardBtn('Find Career Paths \u2192', 'explorerSaveSkills()', 'primary')}
+                </div>
+            `;
+        }
+
+        function explorerToggleSkill(idx) {
+            var s = wizardState.explorerData.discoveredSkills[idx];
+            if (s) s.selected = !s.selected;
+            renderWizardStep();
+        }
+        window.explorerToggleSkill = explorerToggleSkill;
+
+        function explorerSelectAllSkills(val) {
+            wizardState.explorerData.discoveredSkills.forEach(function(s) { s.selected = val; });
+            renderWizardStep();
+        }
+        window.explorerSelectAllSkills = explorerSelectAllSkills;
+
+        async function explorerSaveSkills() {
+            var selected = (wizardState.explorerData.discoveredSkills || []).filter(function(s) { return s.selected; });
+            if (selected.length === 0) {
+                showToast('Please select at least a few skills to continue.', 'error');
+                return;
+            }
+            wizardState.skills = selected.map(function(s) {
+                return {
+                    name: s.name, level: s.level || 'Novice', category: s.category || 'skill',
+                    key: false, roles: [], evidence: [],
+                    userAssessment: { years: 0, impact: 'moderate', rarity: 'common' }
+                };
+            });
+
+            wizardState.step = 6;
+            renderWizardStep();
+            var inner = document.getElementById('wizardInner');
+            inner.innerHTML = wizardHeading('\uD83D\uDEE4\uFE0F', 'Finding Your Career Paths...',
+                'Analyzing your skills, education, and interests to suggest career paths that fit your profile.')
+                + '<div style="text-align:center; padding:40px 0;">'
+                + '<div class="bp-spinner" style="margin:0 auto 16px;"></div>'
+                + '<div style="color:var(--text-muted); font-size:0.88em;">Exploring possibilities...</div>'
+                + '</div>';
+
+            var skillNames = selected.map(function(s) { return s.name; }).join(', ');
+            var educ = wizardState.explorerData.education;
+            var schoolLabel = (educ.schoolType === 'highschool' ? 'high school' : educ.schoolType === 'trade' ? 'trade school' : 'college') + ' student';
+            var prompt = 'You are a career counselor AI. Based on the following ' + schoolLabel + '/early-career profile, suggest 5 realistic career paths.\n\n'
+                + 'For each path, provide:\n'
+                + '- A job title they could aim for as an entry-level position\n'
+                + '- Why it fits their specific background (reference their actual skills/activities)\n'
+                + '- Salary data: entry-level range string, plus numeric values for entry, mid-career (3-5yr), and senior (8-10yr)\n'
+                + '- Growth potential description\n'
+                + '- Which of their current skills already apply to this path (2-4 skill names from their profile)\n'
+                + '- 4 new skills they should learn, each with: skill name, added market value (numeric, in dollars), time to learn, and how to learn it (specific free/low-cost resource)\n'
+                + '- 3-4 concrete next steps to pursue this path\n\n'
+                + '--- PROFILE ---\n'
+                + 'Student type: ' + schoolLabel + (educ.currentYear ? ' (' + educ.currentYear + ')' : '') + '\n'
+                + 'Education: ' + (educ.degree || '') + ' in ' + (educ.major || '') + (educ.minor ? ', Minor: ' + educ.minor : '') + ' from ' + (educ.school || '') + '\n'
+                + (educ.gpa ? 'GPA: ' + educ.gpa + '\n' : '')
+                + 'Skills: ' + skillNames + '\n'
+                + 'Activities: ' + (wizardState.explorerData.activities || []).map(function(a) { return a.category + (a.role ? ' (' + a.role + ')' : ''); }).join(', ') + '\n'
+                + 'Interests: ' + (wizardState.explorerData.interests || []).join(', ') + '\n'
+                + (wizardState.explorerData.driveStatement ? 'Motivation: ' + wizardState.explorerData.driveStatement + '\n' : '')
+                + '\n--- OUTPUT ---\n'
+                + 'Return ONLY a JSON object (no markdown):\n'
+                + '{\n'
+                + '  "careerPaths": [\n'
+                + '    {\n'
+                + '      "title": "Entry-Level Job Title",\n'
+                + '      "whyFit": "Why this fits their specific background",\n'
+                + '      "salary": "$XX,000 - $YY,000",\n'
+                + '      "entryValue": 45000,\n'
+                + '      "midValue": 72000,\n'
+                + '      "seniorValue": 110000,\n'
+                + '      "growth": "Growth outlook description",\n'
+                + '      "skillsYouHave": ["Skill1", "Skill2"],\n'
+                + '      "skillsToLearn": [\n'
+                + '        { "name": "New Skill", "valueAdd": 8000, "timeToLearn": "2-3 months", "how": "Specific resource or certification" }\n'
+                + '      ],\n'
+                + '      "nextSteps": ["Step 1", "Step 2", "Step 3"]\n'
+                + '    }\n'
+                + '  ],\n'
+                + '  "values": ["Value1", "Value2", "Value3", "Value4", "Value5"]\n'
+                + '}';
+
+            try {
+                var response = await callAnthropicAPI({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 3000,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'explorer-careers');
+
+                var text = response.content[0].text;
+                text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+                var parsed = JSON.parse(text);
+
+                wizardState.explorerData.careerPaths = parsed.careerPaths || [];
+                wizardState.explorerData.suggestedValues = parsed.values || [];
+
+                renderWizardStep();
+            } catch (err) {
+                inner.innerHTML = wizardHeading('\u26A0\uFE0F', 'Career Path Issue',
+                    'We had trouble suggesting career paths.')
+                    + '<div style="text-align:center; padding:20px;">'
+                    + '<div style="color:var(--c-warn); font-size:0.85em; margin-bottom:16px;">' + escapeHtml(err.message) + '</div>'
+                    + '<button onclick="explorerSaveSkills()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Try Again</button>'
+                    + ' <button onclick="wizardState.explorerData.careerPaths=[]; renderWizardStep();" style="padding:10px 24px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer;">Skip</button>'
+                    + '</div>';
+            }
+        }
+        window.explorerSaveSkills = explorerSaveSkills;
+
+        function renderExplorerCareers(el) {
+            var paths = wizardState.explorerData.careerPaths || [];
+            var selectedIdx = wizardState.explorerData.selectedCareerIdx;
+            if (typeof selectedIdx === 'undefined') selectedIdx = null;
+
+            var pathCards = paths.map(function(p, i) {
+                var isSelected = selectedIdx === i;
+                var salaryStr = p.salary || p.salaryRange || 'Varies';
+                var growthStr = p.growth || p.growthPath || '';
+                var entryV = Number(p.entryValue) || 0;
+                var midV = Number(p.midValue) || 0;
+                var seniorV = Number(p.seniorValue) || 0;
+                var stl = p.skillsToLearn || [];
+                var totalAdd = 0;
+                stl.forEach(function(s) { totalAdd += (Number(s.valueAdd) || 0); });
+                return '<div onclick="explorerSelectCareer(' + i + ')" style="padding:16px; border-radius:12px; cursor:pointer; transition:all 0.15s; '
+                    + 'background:' + (isSelected ? 'linear-gradient(135deg, rgba(139,92,246,0.08), rgba(96,165,250,0.08))' : 'var(--bg-elevated)') + '; '
+                    + 'border:2px solid ' + (isSelected ? '#8b5cf6' : 'var(--border)') + ';">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+                    + '<div style="font-weight:700; color:var(--text-primary); font-size:1em;">' + escapeHtml(p.title) + '</div>'
+                    + (isSelected ? '<span style="color:#8b5cf6; font-weight:700;">\u2713 Selected</span>' : '')
+                    + '</div>'
+                    + (entryV > 0 ? '<div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; font-size:0.82em; flex-wrap:wrap;">'
+                        + '<span style="color:#10b981; font-weight:700;">$' + entryV.toLocaleString() + '</span>'
+                        + '<span style="color:var(--text-muted); font-size:0.75em;">\u2192</span>'
+                        + (midV > 0 ? '<span style="color:#60a5fa; font-weight:700;">$' + midV.toLocaleString() + '</span>'
+                            + '<span style="color:var(--text-muted); font-size:0.75em;">\u2192</span>' : '')
+                        + '<span style="color:#8b5cf6; font-weight:700;">$' + seniorV.toLocaleString() + '</span>'
+                        + '<span style="color:var(--text-muted); font-size:0.72em; margin-left:4px;">salary progression</span>'
+                        + '</div>' : '')
+                    + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4; margin-bottom:10px;">' + escapeHtml(p.whyFit) + '</div>'
+                    + '<div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.78em;">'
+                    + '<span style="color:var(--text-muted);">\uD83D\uDCB0 ' + escapeHtml(salaryStr) + '</span>'
+                    + '<span style="color:var(--text-muted);">\uD83D\uDCC8 ' + escapeHtml(growthStr) + '</span>'
+                    + (totalAdd > 0 ? '<span style="color:#10b981; font-weight:600;">\uD83D\uDCA1 +$' + totalAdd.toLocaleString() + ' skill growth</span>' : '')
+                    + '</div>'
+                    + (isSelected && p.nextSteps ? '<div style="margin-top:10px; padding:10px; background:var(--c-surface-1); border-radius:8px;">'
+                        + '<div style="font-size:0.78em; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Next Steps:</div>'
+                        + p.nextSteps.map(function(s, si) { return '<div style="font-size:0.78em; color:var(--text-secondary); padding:2px 0;">' + (si+1) + '. ' + escapeHtml(s) + '</div>'; }).join('')
+                        + '</div>' : '')
+                    + '</div>';
+            }).join('');
+
+            el.innerHTML = `
+                ${wizardHeading('\uD83D\uDEE4\uFE0F', 'Your Career Paths',
+                    paths.length > 0 ? 'Based on your skills and interests, here are career paths that could be a great fit. Select one to focus your Blueprint around it.' : 'No career paths were generated. You can still complete your Explorer Blueprint.')}
+                <div style="display:grid; gap:12px; margin-bottom:20px;">${pathCards}</div>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    ${wizardBtn('Back', 'wizardBack()', 'secondary')}
+                    ${wizardBtn('Complete Setup \u2192', 'explorerSaveCareers()', 'primary')}
+                </div>
+            `;
+        }
+
+        function explorerSelectCareer(idx) {
+            wizardState.explorerData.selectedCareerIdx = idx;
+            renderWizardStep();
+        }
+        window.explorerSelectCareer = explorerSelectCareer;
+
+        function explorerSaveCareers() {
+            wizardState.values = (wizardState.explorerData.suggestedValues || []).map(function(v) {
+                return { name: v, selected: true, description: '' };
+            });
+            wizardState.purpose = wizardState.explorerData.purpose || '';
+            wizardState.profile = {
+                name: '',
+                currentTitle: wizardState.explorerData.headline || (wizardState.explorerData.education.major || 'Student') + ' | Explorer',
+                yearsExperience: 0,
+                location: ''
+            };
+            wizardNext();
+        }
+        window.explorerSaveCareers = explorerSaveCareers;
+
+        function renderExplorerComplete(el) {
+            var ed = wizardState.explorerData;
+            var skillCount = (wizardState.skills || []).length;
+            var pathCount = (ed.careerPaths || []).length;
+            var selectedPath = typeof ed.selectedCareerIdx === 'number' ? ed.careerPaths[ed.selectedCareerIdx] : null;
+
+            el.innerHTML = `
+                ${wizardHeading('\uD83C\uDF89', 'Your Explorer Blueprint is Ready!',
+                    'We\u2019ve built your initial profile from your education, activities, and interests. This is your starting point \u2014 it will grow as you gain experience.')}
+
+                <div style="${explorerCardStyle}">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; text-align:center;">
+                        <div style="padding:14px; background:rgba(96,165,250,0.08); border-radius:10px;">
+                            <div style="font-size:1.8em; font-weight:700; color:#60a5fa;">${skillCount}</div>
+                            <div style="font-size:0.78em; color:var(--text-muted);">Skills Discovered</div>
+                        </div>
+                        <div style="padding:14px; background:rgba(139,92,246,0.08); border-radius:10px;">
+                            <div style="font-size:1.8em; font-weight:700; color:#8b5cf6;">${pathCount}</div>
+                            <div style="font-size:0.78em; color:var(--text-muted);">Career Paths</div>
+                        </div>
+                    </div>
+                </div>
+
+                ${selectedPath ? `
+                <div style="${explorerCardStyle} border-color:#8b5cf640;">
+                    <div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#8b5cf6; margin-bottom:6px;">Focused Career Path</div>
+                    <div style="font-weight:700; color:var(--text-primary); font-size:1.05em; margin-bottom:4px;">${escapeHtml(selectedPath.title)}</div>
+                    <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.5;">${escapeHtml(selectedPath.whyFit)}</div>
+                </div>` : ''}
+
+                <div style="${explorerCardStyle}">
+                    <div style="font-weight:600; color:var(--text-primary); margin-bottom:8px; font-size:0.9em;">Your name</div>
+                    <input type="text" id="expFinalName" placeholder="Your full name" style="${explorerFieldStyle}" value="${escapeAttr(wizardState.profile.name || '')}">
+                    <div style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">This will appear on your Blueprint profile.</div>
+                </div>
+
+                <div style="padding:14px 18px; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.2); border-radius:10px; margin-bottom:16px;">
+                    <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6;">
+                        <strong style="color:#8b5cf6;">Explorer Mode</strong> \u2014 Your Blueprint focuses on potential and transferable skills.
+                        Once you land your first role, you can convert to a full Blueprint with salary data, market valuation, and advanced evidence tracking.
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+                    <button onclick="explorerLaunch()" style="width:100%; max-width:360px; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; border:none; border-radius:12px; padding:14px 28px; cursor:pointer; font-weight:700; font-size:1em;">
+                        Launch My Explorer Blueprint
+                    </button>
+                </div>
+            `;
+        }
+
+        function explorerLaunch() {
+            var nameInput = document.getElementById('expFinalName');
+            if (nameInput) wizardState.profile.name = nameInput.value.trim();
+
+            var ed = wizardState.explorerData;
+            var selectedPath = typeof ed.selectedCareerIdx === 'number' ? ed.careerPaths[ed.selectedCareerIdx] : null;
+
+            var built = {
+                initialized: true,
+                templateId: 'explorer-built',
+                profileType: 'explorer',
+                explorerData: {
+                    education: ed.education,
+                    activities: ed.activities,
+                    interests: ed.interests,
+                    partTimeJobs: ed.partTimeJobs,
+                    driveStatement: ed.driveStatement || '',
+                    careerPaths: ed.careerPaths || [],
+                    selectedCareerIdx: ed.selectedCareerIdx,
+                    discoveredSkills: ed.discoveredSkills || []
+                },
+                profile: Object.assign({}, wizardState.profile, { headline: wizardState.profile.currentTitle || '' }),
+                skills: (wizardState.skills || []).map(function(s) {
+                    return Object.assign({}, s, { roles: s.roles || [], key: false });
+                }),
+                roles: selectedPath ? [{ id: 'target1', name: selectedPath.title, company: 'Target Role', years: '', color: '#8b5cf6' }] : [],
+                values: wizardState.values || [],
+                purpose: wizardState.purpose || '',
+                workHistory: (ed.partTimeJobs || []).filter(function(j) { return j.title; }).map(function(j) {
+                    return { title: j.title, company: j.company || '', startDate: '', endDate: '', current: false, description: j.description || '' };
+                }),
+                companyTenures: [],
+                education: [{
+                    school: ed.education.school || '',
+                    degree: (ed.education.degree || '') + ' in ' + (ed.education.major || ''),
+                    fieldOfStudy: ed.education.major || '',
+                    graduationYear: ed.education.gradYear || '',
+                    gpa: ed.education.gpa || ''
+                }],
+                certifications: [],
+                verifications: [],
+                linkedinContent: {},
+                importStats: {},
+                preferences: { seniorityLevel: 'Entry', minimumMatchScore: 40, minimumSkillMatches: 2 },
+                applications: []
+            };
+
+            wizardApplyAndLaunch(built);
+        }
+        window.explorerLaunch = explorerLaunch;
+
+        // ═══════════════════════════════════════════════════════════════════
+        // END EXPLORER MODE
+        // ═══════════════════════════════════════════════════════════════════
 
         function wizardChooseImport() {
             if (readOnlyGuard()) return;
