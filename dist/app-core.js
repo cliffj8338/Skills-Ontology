@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37p';
+        var BP_VERSION = 'v4.47.37q';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1527,6 +1527,21 @@
                 .catch(function(err) { showToast('Reset failed: ' + err.message, 'error'); });
         }
         window.adminResetSampleProfile = adminResetSampleProfile;
+
+        function adminResetUser(uid, name) {
+            if (!fbIsAdmin || !fbDb) { showToast('Admin access required.', 'error'); return; }
+            if (!confirm('Reset ' + name + '\'s profile?\n\nThis deletes their Firestore data so they get a fresh start (Explorer or Builder wizard) on their next sign-in.\n\nThis cannot be undone.')) return;
+            fbDb.collection('users').doc(uid).delete()
+                .then(function() {
+                    showToast(name + '\'s profile has been reset. They\'ll see the wizard on next sign-in.', 'success');
+                    renderAdminTabContent();
+                })
+                .catch(function(err) {
+                    console.error('Failed to reset user:', err);
+                    showToast('Reset failed: ' + err.message, 'error');
+                });
+        }
+        window.adminResetUser = adminResetUser;
         
         // ===== LAST SAVED DISPLAY =====
         function updateLastSavedDisplay() {
@@ -3129,11 +3144,14 @@
                             + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(d.email || '') + '</div>'
                             + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px;">Joined ' + created + '</div>'
                             + '</div>'
-                            + '<div style="display:flex; gap:20px; font-size:0.85em; color:var(--text-muted);">'
+                            + '<div style="display:flex; gap:20px; font-size:0.85em; color:var(--text-muted); align-items:center;">'
                             + '<div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary); font-size:1.2em;">' + skillCount + '</div>skills</div>'
                             + '<div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary); font-size:1.2em;">' + outcomeCount + '</div>outcomes</div>'
                             + '<div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary); font-size:1.2em;">' + jobCount + '</div>jobs</div>'
                             + '<div style="text-align:center;"><div style="font-size:0.82em;">Last login</div><div style="font-weight:600; color:var(--text-secondary);">' + lastLogin + '</div></div>'
+                            + (!isCurrentUser && !isAdmin ? '<button onclick="adminResetUser(\'' + doc.id + '\', \'' + escapeHtml(d.displayName || d.email || 'this user') + '\')" '
+                                + 'style="padding:6px 14px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600; white-space:nowrap;">'
+                                + '\u21BB Reset</button>' : '')
                             + '</div>'
                             + '</div></div>';
                     });
