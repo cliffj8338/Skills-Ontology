@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37v';
+        var BP_VERSION = 'v4.47.37w';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -29478,11 +29478,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // Produces a clean, ATS-readable HTML resume styled for print-to-PDF.
         // Pulls real data: executiveSummary, skill evidence outcomes, values, purpose, market value.
 
-        function generateResume() {
+        function generateResume(opts) {
             if (isReadOnlyProfile) { demoGate('generate a resume'); return; }
+            if (!opts) {
+                _showResumeOptionsModal();
+                return;
+            }
             logAnalyticsEvent('export_resume_html', {});
             try {
-                const data = gatherResumeData();
+                const data = gatherResumeData(opts);
                 const html = buildResumeHTML(data);
                 const filename = `resume-${(data.name || 'profile').replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.html`;
                 downloadBlueprint(html, filename);
@@ -29492,10 +29496,63 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
         }
 
-        function gatherResumeData() {
+        function _showResumeOptionsModal() {
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content') || modal;
+            var isExplorer = userData.profileType === 'explorer';
+            var comp = getEffectiveComp();
+            var hasComp = comp && comp.standardOffer;
+            mc.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">Resume Options</h2>'
+                + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.85em;">Choose what to include in your resume</p></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<div style="display:grid; gap:14px;">'
+                + '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--border); border-radius:10px;">'
+                + '<input type="checkbox" id="resOptComp" ' + (isExplorer ? '' : 'checked') + (hasComp ? '' : ' disabled') + ' style="width:18px; height:18px;">'
+                + '<div><div style="font-weight:600; font-size:0.88em; color:var(--text-primary);">Compensation Expectations</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">' + (isExplorer ? 'Recommended OFF for students \u2014 can turn off potential employers' : 'Show your target salary range in the header') + '</div></div></label>'
+                + '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--border); border-radius:10px;">'
+                + '<input type="checkbox" id="resOptValues" checked style="width:18px; height:18px;">'
+                + '<div><div style="font-weight:600; font-size:0.88em; color:var(--text-primary);">Core Values</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">Show what drives your work ethic and decisions</div></div></label>'
+                + (isExplorer ? '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--border); border-radius:10px;">'
+                + '<input type="checkbox" id="resOptActivities" checked style="width:18px; height:18px;">'
+                + '<div><div style="font-weight:600; font-size:0.88em; color:var(--text-primary);">Activities & Organizations</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">Clubs, sports, volunteering, and other involvements</div></div></label>'
+                + '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--border); border-radius:10px;">'
+                + '<input type="checkbox" id="resOptInterests" checked style="width:18px; height:18px;">'
+                + '<div><div style="font-weight:600; font-size:0.88em; color:var(--text-primary);">Interests & Hobbies</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">Show employers you\u2019re a well-rounded person</div></div></label>'
+                + '<label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--border); border-radius:10px;">'
+                + '<input type="checkbox" id="resOptCareerGoal" checked style="width:18px; height:18px;">'
+                + '<div><div style="font-weight:600; font-size:0.88em; color:var(--text-primary);">Career Goal</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">Show your target career path \u2014 great for internship applications</div></div></label>' : '')
+                + '</div>'
+                + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">'
+                + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
+                + '<button onclick="_resumeGenWithOpts()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Generate Resume</button>'
+                + '</div></div>';
+            modal.classList.add('active');
+        }
+
+        function _resumeGenWithOpts() {
+            var opts = {
+                includeComp: !!(document.getElementById('resOptComp') || {}).checked,
+                includeValues: !!(document.getElementById('resOptValues') || {}).checked,
+                includeActivities: !!(document.getElementById('resOptActivities') || {}).checked,
+                includeInterests: !!(document.getElementById('resOptInterests') || {}).checked,
+                includeCareerGoal: !!(document.getElementById('resOptCareerGoal') || {}).checked
+            };
+            closeExportModal();
+            generateResume(opts);
+        }
+        window._resumeGenWithOpts = _resumeGenWithOpts;
+
+        function gatherResumeData(opts) {
+            opts = opts || {};
             const skills = skillsData.skills || userData.skills || [];
             const profile = userData.profile || {};
-            const compensation = getEffectiveComp();
+            const compensation = opts.includeComp !== false ? getEffectiveComp() : null;
 
             // --- Achievements: pull evidence items that have real outcomes ---
             const allEvidence = [];
@@ -29560,9 +29617,34 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // --- Certifications ---
             const certifications = userData.certifications || [];
 
+            const isExplorer = userData.profileType === 'explorer';
+            const ed = userData.explorerData || {};
+
+            var explorerActivities = [];
+            if (isExplorer && opts.includeActivities !== false) {
+                var levelLabels = {rec:'Recreational','school-hs':'High School','neighborhood':'Community','school-college':'College','varsity':'Varsity','travel':'Travel/Select','leadership':'Leadership','professional':'Professional'};
+                (ed.activities || []).forEach(function(a) {
+                    explorerActivities.push({
+                        category: a.category || '',
+                        role: a.role || '',
+                        level: levelLabels[a.level] || a.level || '',
+                        duration: a.duration || '',
+                        description: a.description || ''
+                    });
+                });
+            }
+
+            var explorerInterests = (isExplorer && opts.includeInterests !== false) ? (ed.interests || []) : [];
+            var explorerCareerGoal = '';
+            if (isExplorer && opts.includeCareerGoal !== false) {
+                var selIdx = typeof ed.selectedCareerIdx === 'number' ? ed.selectedCareerIdx : 0;
+                var selPath = (ed.careerPaths || [])[selIdx];
+                if (selPath) explorerCareerGoal = selPath.title || '';
+            }
+
             return {
                 name: profile.name || 'Your Name',
-                title: profile.currentTitle || 'Professional',
+                title: profile.currentTitle || (isExplorer && explorerCareerGoal ? explorerCareerGoal + ' (Target)' : 'Professional'),
                 company: profile.currentCompany || '',
                 location: profile.location || '',
                 email: profile.email || '',
@@ -29574,11 +29656,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 topAchievements,
                 competencies: compSet,
                 roleGroups,
-                values: selectedValues,
+                values: opts.includeValues !== false ? selectedValues : [],
                 workHistory,
                 education,
                 certifications,
                 compensation,
+                isExplorer,
+                explorerActivities,
+                explorerInterests,
+                explorerCareerGoal,
+                explorerDrive: isExplorer ? (ed.driveStatement || '') : '',
                 generatedDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
                 totalSkills: skills.length,
                 masteryCount: skills.filter(s => s.level === 'Mastery').length,
@@ -30070,6 +30157,32 @@ body {
   <section class="section">
     <div class="section-label">Core Values &amp; Leadership Principles</div>
     <div class="values-row">${valuesHTML}</div>
+  </section>` : ''}
+
+  <!-- ACTIVITIES (Explorer) -->
+  ${d.explorerActivities && d.explorerActivities.length > 0 ? `
+  <section class="section">
+    <div class="section-label">Activities &amp; Organizations</div>
+    ${d.explorerActivities.map(a => {
+        const catLabels = {sports:'Sports',clubs:'Clubs & Organizations',volunteer:'Volunteering & Community Service',arts:'Music, Theater & Art','student-gov':'Student Government',greek:'Greek Life',scouts:'Scouts',church:'Faith-Based Organizations',research:'Research & Lab Work',military:'ROTC / Military','startup':'Entrepreneurship',mentoring:'Tutoring & Mentoring',gaming:'Esports & Gaming','trade-apprentice':'Apprenticeship & Trade Training'};
+        const catName = catLabels[a.category] || a.category;
+        const meta = [a.level, a.duration].filter(x => x).join(' · ');
+        return '<div class="experience-block" style="margin-bottom:8pt;"><div class="exp-header"><div class="exp-title">' + escapeHtml(catName) + (a.role ? ' — ' + escapeHtml(a.role) : '') + '</div>' + (meta ? '<div class="exp-dates">' + escapeHtml(meta) + '</div>' : '') + '</div>' + (a.description ? '<p class="exp-desc">' + escapeHtml(a.description) + '</p>' : '') + '</div>';
+    }).join('\\n')}
+  </section>` : ''}
+
+  <!-- INTERESTS (Explorer) -->
+  ${d.explorerInterests && d.explorerInterests.length > 0 ? `
+  <section class="section">
+    <div class="section-label">Interests &amp; Hobbies</div>
+    <div class="values-row">${d.explorerInterests.map(i => '<span class="value-tag">' + escapeHtml(i) + '</span>').join('')}</div>
+  </section>` : ''}
+
+  <!-- CAREER OBJECTIVE (Explorer) -->
+  ${d.explorerCareerGoal ? `
+  <section class="section">
+    <div class="section-label">Career Objective</div>
+    <p class="summary-text">Seeking opportunities in <strong>${escapeHtml(d.explorerCareerGoal)}</strong>${d.explorerDrive ? ' — ' + escapeHtml(d.explorerDrive) : ''}</p>
   </section>` : ''}
 
   <!-- FOOTER -->
