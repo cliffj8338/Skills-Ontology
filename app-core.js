@@ -21306,7 +21306,7 @@
                 + '<input type="text" id="expCourseWork' + idx + '" value="' + escapeAttr(s.coursework || '') + '" placeholder="' + (isHS ? 'Key classes / achievements' : 'Notable coursework / projects') + '" '
                 + 'onchange="explorerUpdateSchool(' + idx + ',\'coursework\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
                 + '</div>'
-                + '<button onclick="explorerAICourseworkHelp(' + idx + ')" style="' + _aiExpandBtnStyle + '">\u2728 Help me think of more</button>'
+                + '<button onclick="explorerAICourseworkHelp(' + idx + ',this)" style="' + _aiExpandBtnStyle + '">\u2728 Help me think of more</button>'
                 + '</div></div>';
         }
 
@@ -21436,7 +21436,7 @@
                     + 'onchange="explorerUpdateActivity(' + i + ',\'role\',this.value)" style="' + explorerFieldStyle + ' margin-bottom:6px; font-size:0.85em;">'
                     + '<textarea id="expActDesc' + i + '" placeholder="What did you do? What did you accomplish? Be specific \u2014 the more detail, the better skills we\'ll discover!" '
                     + 'onchange="explorerUpdateActivity(' + i + ',\'description\',this.value)" rows="2" style="' + explorerFieldStyle + ' resize:vertical; font-size:0.85em;">' + escapeHtml(a.description || '') + '</textarea>'
-                    + '<button onclick="explorerAIActivityHelp(' + i + ')" style="' + _aiExpandBtnStyle + '">\u2728 Help me describe this</button>'
+                    + '<button onclick="explorerAIActivityHelp(' + i + ',this)" style="' + _aiExpandBtnStyle + '">\u2728 Help me describe this</button>'
                     + '</div>';
             }).join('');
 
@@ -21459,7 +21459,7 @@
                     + '<textarea id="expJobDesc' + i + '" placeholder="What were your responsibilities? Any achievements?" '
                     + 'onchange="explorerUpdateJob(' + i + ',\'description\',this.value)" rows="2" style="' + explorerFieldStyle + ' resize:vertical; font-size:0.85em;">' + escapeHtml(j.description || '') + '</textarea>'
                     + '<div style="display:flex; justify-content:space-between; align-items:center;">'
-                    + '<button onclick="explorerAIJobHelp(' + i + ')" style="' + _aiExpandBtnStyle + '">\u2728 Help me describe this</button>'
+                    + '<button onclick="explorerAIJobHelp(' + i + ',this)" style="' + _aiExpandBtnStyle + '">\u2728 Help me describe this</button>'
                     + '<button onclick="explorerRemoveJob(' + i + ')" style="background:none; border:1px solid var(--border); border-radius:6px; padding:4px 10px; color:var(--c-muted); cursor:pointer; font-size:0.78em;">Remove</button>'
                     + '</div></div>';
             }).join('');
@@ -21488,11 +21488,12 @@
             `;
         }
 
-        async function _explorerAIExpand(type, context, targetId) {
-            var btn = event && event.target ? event.target : null;
+        async function _explorerAIExpand(type, context, targetId, clickedBtn) {
+            var btn = clickedBtn || null;
             var textarea = document.getElementById(targetId);
             if (!textarea) return;
             var existing = textarea.value.trim();
+            var originalLabel = btn ? btn.textContent : '';
             if (btn) { btn.disabled = true; btn.textContent = '\u2728 Thinking...'; }
 
             var prompt = '';
@@ -21538,21 +21539,22 @@
                     max_tokens: 500,
                     messages: [{ role: 'user', content: prompt }]
                 }, null, 'explorer-ai-expand');
-                var text = (response.content[0].text || '').trim();
+                var text = (response && response.content && response.content[0] && response.content[0].text || '').trim();
+                if (!text) { showToast('AI returned an empty response. Try again.', 'error'); if (btn) { btn.disabled = false; btn.textContent = originalLabel || '\u2728 Help me describe this'; } return; }
                 textarea.value = text;
                 textarea.style.borderColor = '#8b5cf6';
                 setTimeout(function() { textarea.style.borderColor = ''; }, 2000);
                 if (context.onUpdate) context.onUpdate(text);
             } catch (err) {
-                showToast('AI assist unavailable: ' + err.message, 'error');
+                showToast('AI assist is temporarily unavailable. Try again in a moment.', 'error');
             }
-            if (btn) { btn.disabled = false; btn.textContent = '\u2728 Help me describe this'; }
+            if (btn) { btn.disabled = false; btn.textContent = originalLabel || '\u2728 Help me describe this'; }
         }
         window._explorerAIExpand = _explorerAIExpand;
 
         var _aiExpandBtnStyle = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:12px; font-size:0.72em; cursor:pointer; border:1px solid rgba(139,92,246,0.3); background:rgba(139,92,246,0.06); color:#8b5cf6; font-weight:600; margin-top:4px;';
 
-        function explorerAIActivityHelp(idx) {
+        function explorerAIActivityHelp(idx, btnEl) {
             var a = wizardState.explorerData.activities[idx];
             if (!a) return;
             var card = document.getElementById('expActDesc' + idx);
@@ -21570,11 +21572,11 @@
                 duration: a.duration || '',
                 role: a.role || '',
                 onUpdate: function(v) { explorerUpdateActivity(idx, 'description', v); }
-            }, 'expActDesc' + idx);
+            }, 'expActDesc' + idx, btnEl);
         }
         window.explorerAIActivityHelp = explorerAIActivityHelp;
 
-        function explorerAIJobHelp(idx) {
+        function explorerAIJobHelp(idx, btnEl) {
             var j = wizardState.explorerData.partTimeJobs[idx];
             if (!j) return;
             var desc = document.getElementById('expJobDesc' + idx);
@@ -21593,11 +21595,11 @@
                 duration: j.duration || '',
                 role: j.role || '',
                 onUpdate: function(v) { explorerUpdateJob(idx, 'description', v); }
-            }, 'expJobDesc' + idx);
+            }, 'expJobDesc' + idx, btnEl);
         }
         window.explorerAIJobHelp = explorerAIJobHelp;
 
-        function explorerAICourseworkHelp(idx) {
+        function explorerAICourseworkHelp(idx, btnEl) {
             var s = wizardState.explorerData.schools[idx];
             if (!s) return;
             var cw = document.getElementById('expCourseWork' + idx);
@@ -21613,7 +21615,7 @@
                 major: s.major || '',
                 degree: s.degree || '',
                 onUpdate: function(v) { explorerUpdateSchool(idx, 'coursework', v); }
-            }, 'expCourseWork' + idx);
+            }, 'expCourseWork' + idx, btnEl);
         }
         window.explorerAICourseworkHelp = explorerAICourseworkHelp;
 
@@ -31561,7 +31563,7 @@ body {
                 + '<input type="text" id="edSchoolYear" value="' + escapeAttr(s.currentYear || '') + '" placeholder="Current year (e.g. Junior)" class="settings-input">'
                 + '</div>'
                 + '<textarea id="edSchoolCoursework" rows="2" placeholder="Notable coursework, projects, achievements" class="settings-input" style="resize:vertical;">' + escapeHtml(s.coursework || '') + '</textarea>'
-                + '<button onclick="explorerDashAICourseworkHelp()" style="' + _aiExpandBtnStyle + ' margin-top:6px;">\u2728 Help me think of more</button>'
+                + '<button onclick="explorerDashAICourseworkHelp(this)" style="' + _aiExpandBtnStyle + ' margin-top:6px;">\u2728 Help me think of more</button>'
                 + '</div>'
                 + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
                 + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
@@ -31570,14 +31572,14 @@ body {
             modal.classList.add('active');
         }
 
-        function explorerDashAICourseworkHelp() {
+        function explorerDashAICourseworkHelp(btnEl) {
             _explorerAIExpand('coursework', {
                 schoolType: (document.getElementById('edSchoolType') || {}).value || '',
                 school: (document.getElementById('edSchoolName') || {}).value || '',
                 major: (document.getElementById('edSchoolMajor') || {}).value || '',
                 degree: (document.getElementById('edSchoolDegree') || {}).value || '',
                 onUpdate: function() {}
-            }, 'edSchoolCoursework');
+            }, 'edSchoolCoursework', btnEl);
         }
         window.explorerDashAICourseworkHelp = explorerDashAICourseworkHelp;
 
@@ -31663,7 +31665,7 @@ body {
                 + '</div>'
                 + '<input type="text" id="edActRole" value="' + escapeAttr(a.role || '') + '" placeholder="Your role (e.g. Team Captain, Treasurer)" class="settings-input">'
                 + '<textarea id="edActDesc" rows="3" placeholder="What did you do? What did you accomplish?" class="settings-input" style="resize:vertical;">' + escapeHtml(a.description || '') + '</textarea>'
-                + '<button onclick="explorerDashAIActivityHelp()" style="' + _aiExpandBtnStyle + ' margin-top:6px;">\u2728 Help me describe this</button>'
+                + '<button onclick="explorerDashAIActivityHelp(this)" style="' + _aiExpandBtnStyle + ' margin-top:6px;">\u2728 Help me describe this</button>'
                 + '</div>'
                 + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
                 + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
@@ -31689,14 +31691,14 @@ body {
         }
         window.explorerDashSaveActivity = explorerDashSaveActivity;
 
-        function explorerDashAIActivityHelp() {
+        function explorerDashAIActivityHelp(btnEl) {
             _explorerAIExpand('activity', {
                 category: (document.getElementById('edActCategory') || {}).value || '',
                 level: (document.getElementById('edActLevel') || {}).value || '',
                 duration: (document.getElementById('edActDuration') || {}).value || '',
                 role: (document.getElementById('edActRole') || {}).value || '',
                 onUpdate: function() {}
-            }, 'edActDesc');
+            }, 'edActDesc', btnEl);
         }
         window.explorerDashAIActivityHelp = explorerDashAIActivityHelp;
 
