@@ -31169,8 +31169,9 @@ body {
                     html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
                         + '<div style="flex:1;">'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + catObj.icon + ' ' + escapeHtml(catObj.label) + (a.role ? ' \u2014 ' + escapeHtml(a.role) : '') + '</div>'
-                        + '<div style="font-size:0.75em; color:var(--text-muted); display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">'
-                        + (a.level ? '<span>' + escapeHtml(a.level) + '</span>' : '')
+                    var levelLabels = {rec:'Recreational',  'school-hs':'HS Team/Club', neighborhood:'Community League', 'school-college':'College Team/Club', varsity:'Varsity', travel:'Travel/Select', leadership:'Leadership', professional:'Semi-pro/Professional'};
+                    html += '<div style="font-size:0.75em; color:var(--text-muted); display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">'
+                        + (a.level ? '<span>' + escapeHtml(levelLabels[a.level] || a.level) + '</span>' : '')
                         + (a.duration ? '<span>' + escapeHtml(a.duration) + '</span>' : '')
                         + '</div>'
                         + (a.description ? '<div style="font-size:0.78em; color:var(--text-secondary); margin-top:4px; line-height:1.4;">' + escapeHtml(a.description) + '</div>' : '')
@@ -31200,15 +31201,15 @@ body {
             }
             html += '</div>';
 
-            if (driveStatement) {
-                html += '<div style="' + cs + '">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
-                    + '<div style="' + ls + ' color:#ec4899; margin-bottom:0;">What Drives You</div>'
-                    + '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">\u270E</button>'
-                    + '</div>'
-                    + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; font-style:italic;">&ldquo;' + escapeHtml(driveStatement) + '&rdquo;</div>'
-                    + '</div>';
-            }
+            html += '<div style="' + cs + '">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+                + '<div style="' + ls + ' color:#ec4899; margin-bottom:0;">What Drives You</div>'
+                + '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">\u270E</button>'
+                + '</div>'
+                + (driveStatement
+                    ? '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; font-style:italic;">&ldquo;' + escapeHtml(driveStatement) + '&rdquo;</div>'
+                    : '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:6px 0;">Tap \u270E to tell us what motivates you!</div>')
+                + '</div>';
 
             html += '<div style="' + cs + ' text-align:center; border-color:rgba(16,185,129,0.3);">'
                 + '<div style="font-size:0.92em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Ready for Your First Role?</div>'
@@ -31231,11 +31232,25 @@ body {
         }
         window.explorerDashSelectPath = explorerDashSelectPath;
 
+        function _explorerEnsureSchools() {
+            if (!userData.explorerData) return;
+            if (!Array.isArray(userData.explorerData.schools) || userData.explorerData.schools.length === 0) {
+                var ed = userData.explorerData.education;
+                if (ed && ed.school) {
+                    userData.explorerData.schools = [Object.assign({}, ed)];
+                } else {
+                    userData.explorerData.schools = [];
+                }
+            }
+        }
+
         function _explorerDashSave() {
-            userData.explorerData.education = userData.explorerData.schools && userData.explorerData.schools.length > 0
-                ? Object.assign({}, userData.explorerData.schools[0])
-                : userData.explorerData.education || {};
-            userData.education = (userData.explorerData.schools || []).filter(function(s) { return s && s.school; }).map(function(s) {
+            _explorerEnsureSchools();
+            var schools = userData.explorerData.schools || [];
+            if (schools.length > 0) {
+                userData.explorerData.education = Object.assign({}, schools[0]);
+            }
+            userData.education = schools.filter(function(s) { return s && s.school; }).map(function(s) {
                 return { school: s.school || '', degree: (s.degree || '') + (s.major ? ' in ' + s.major : ''), fieldOfStudy: s.major || '', graduationYear: s.gradYear || '', gpa: s.gpa || '', type: 'degree' };
             });
             saveAll();
@@ -31245,13 +31260,14 @@ body {
         function explorerDashAddSchool() {
             if (readOnlyGuard()) return;
             if (!userData.explorerData) return;
-            if (!userData.explorerData.schools) userData.explorerData.schools = [];
+            _explorerEnsureSchools();
             _explorerDashSchoolModal(-1);
         }
         window.explorerDashAddSchool = explorerDashAddSchool;
 
         function explorerDashEditSchool(idx) {
             if (readOnlyGuard()) return;
+            _explorerEnsureSchools();
             _explorerDashSchoolModal(idx);
         }
         window.explorerDashEditSchool = explorerDashEditSchool;
