@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37r';
+        var BP_VERSION = 'v4.47.37s';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -21010,6 +21010,31 @@
                     </div>
                 </div>
 
+                <div onclick="wizardChooseExplorer()" id="card-explorer"
+                     style="background:linear-gradient(135deg, rgba(139,92,246,0.06), rgba(96,165,250,0.06));
+                            border:2px solid rgba(139,92,246,0.25); border-radius:12px; padding:20px 24px;
+                            cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:16px;
+                            margin-bottom:24px;"
+                     onmouseover="this.style.borderColor='#8b5cf6'"
+                     onmouseout="this.style.borderColor='rgba(139,92,246,0.25)'">
+                    <div style="width:48px; height:48px; border-radius:12px; background:linear-gradient(135deg,#8b5cf6,#60a5fa);
+                                display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        ${bpIcon('compass',24)}
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-weight:700; color:var(--text-primary); font-size:0.95em; margin-bottom:4px;">
+                            \uD83C\uDF93 I'm Just Getting Started
+                        </div>
+                        <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.5;">
+                            Student, recent grad, or career changer? No resume needed. We'll discover your skills from
+                            school, activities, interests, and hobbies \u2014 then suggest career paths that fit you.
+                        </div>
+                        <div style="margin-top:8px; font-size:0.72em; color:#8b5cf6; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">
+                            Explorer Mode \u00B7 AI-Guided
+                        </div>
+                    </div>
+                </div>
+
                 <div onclick="wizardChooseImport()"
                      style="background:var(--bg-elevated); border:2px dashed var(--border);
                             border-radius:12px; padding:18px 24px; cursor:pointer; transition:all 0.2s;
@@ -21177,6 +21202,17 @@
                 renderWizardStep();
             });
         }
+
+        function wizardChooseExplorer() {
+            wizardOverwriteGuard(function() {
+                wizardState.entryMode = 'explorer';
+                wizardState.totalSteps = 7;
+                wizardState.explorerData = { education: {}, activities: [], interests: [], partTimeJobs: [] };
+                wizardState.step = 2;
+                renderWizardStep();
+            });
+        }
+        window.wizardChooseExplorer = wizardChooseExplorer;
 
         function wizardChooseImport() {
             if (readOnlyGuard()) return;
