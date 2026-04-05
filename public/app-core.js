@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38g';
+        var BP_VERSION = 'v4.47.38h';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -21338,7 +21338,7 @@
             var schoolCards = schools.map(function(s, i) { return _explorerSchoolCard(s, i, schools.length); }).join('');
 
             el.innerHTML = `
-                ${wizardHeading('\uD83C\uDF93', 'Tell Us About Your Education',
+                ${wizardHeading(bpIcon('book',22), 'Tell Us About Your Education',
                     'Add every school you\'ve attended \u2014 high school, college, trade school, community college. Each one matters.')}
                 ${schoolCards}
                 <div style="text-align:center; margin-bottom:20px;">
@@ -21398,20 +21398,20 @@
         window.explorerSaveEducation = explorerSaveEducation;
 
         var _explorerActCategories = [
-            { id: 'sports', label: 'Sports', icon: '\u26BD' },
-            { id: 'clubs', label: 'Clubs / Organizations', icon: '\uD83D\uDCDA' },
-            { id: 'volunteer', label: 'Volunteering / Community Service', icon: '\u2764\uFE0F' },
-            { id: 'arts', label: 'Music / Theater / Art', icon: '\uD83C\uDFA8' },
-            { id: 'student-gov', label: 'Student Government', icon: '\uD83C\uDFDB\uFE0F' },
-            { id: 'greek', label: 'Greek Life', icon: '\uD83E\uDD1D' },
-            { id: 'scouts', label: 'Scouts', icon: '\u26FA' },
-            { id: 'church', label: 'Church / Faith Groups', icon: '\u26EA' },
-            { id: 'research', label: 'Research / Lab Work', icon: '\uD83D\uDD2C' },
-            { id: 'military', label: 'ROTC / Military / CAP', icon: '\uD83C\uDF96\uFE0F' },
-            { id: 'startup', label: 'Side Business / Hustle', icon: '\uD83D\uDE80' },
-            { id: 'mentoring', label: 'Tutoring / Mentoring', icon: '\uD83D\uDC65' },
-            { id: 'gaming', label: 'Esports / Gaming', icon: '\uD83C\uDFAE' },
-            { id: 'trade-apprentice', label: 'Apprenticeship / Trade', icon: '\uD83D\uDD27' }
+            { id: 'sports', label: 'Sports', icon: bpIcon('activity',14) },
+            { id: 'clubs', label: 'Clubs / Organizations', icon: bpIcon('users',14) },
+            { id: 'volunteer', label: 'Volunteering / Community Service', icon: bpIcon('heart',14) },
+            { id: 'arts', label: 'Music / Theater / Art', icon: bpIcon('compass',14) },
+            { id: 'student-gov', label: 'Student Government', icon: bpIcon('award',14) },
+            { id: 'greek', label: 'Greek Life', icon: bpIcon('users',14) },
+            { id: 'scouts', label: 'Scouts', icon: bpIcon('compass',14) },
+            { id: 'church', label: 'Church / Faith Groups', icon: bpIcon('heart',14) },
+            { id: 'research', label: 'Research / Lab Work', icon: bpIcon('database',14) },
+            { id: 'military', label: 'ROTC / Military / CAP', icon: bpIcon('award',14) },
+            { id: 'startup', label: 'Side Business / Hustle', icon: bpIcon('trending-up',14) },
+            { id: 'mentoring', label: 'Tutoring / Mentoring', icon: bpIcon('users',14) },
+            { id: 'gaming', label: 'Esports / Gaming', icon: bpIcon('zap',14) },
+            { id: 'trade-apprentice', label: 'Apprenticeship / Trade', icon: bpIcon('tool',14) }
         ];
 
         var _explorerLevelOptions = [
@@ -21484,7 +21484,7 @@
             }).join('');
 
             el.innerHTML = `
-                ${wizardHeading('\uD83C\uDFC6', 'Activities & Experience',
+                ${wizardHeading(bpIcon('activity',22), 'Activities & Experience',
                     'What have you been involved in? Tap an activity to add it \u2014 you can add it multiple times for different levels (e.g. baseball in high school AND college). Duration and level matter!')}
                 <div style="${explorerCardStyle}">
                     <div style="font-weight:600; color:var(--text-primary); margin-bottom:6px; font-size:0.9em;">Tap to add activities \u2014 add the same one multiple times for different stages:</div>
@@ -21688,7 +21688,7 @@
             }).join(' ');
 
             el.innerHTML = `
-                ${wizardHeading('\u2728', 'Interests & Passions',
+                ${wizardHeading(bpIcon('sparkle',22), 'Interests & Passions',
                     'What gets you excited? Your interests reveal transferable skills and help us suggest careers you\u2019ll actually enjoy.')}
                 <div style="${explorerCardStyle}">
                     <div style="font-weight:600; color:var(--text-primary); margin-bottom:10px; font-size:0.9em;">Select all that apply (or add your own):</div>
@@ -21790,7 +21790,7 @@
             wizardState.step = 5;
             renderWizardStep();
             var inner = document.getElementById('wizardInner');
-            inner.innerHTML = wizardHeading('\uD83D\uDD0D', 'Discovering Your Skills...',
+            inner.innerHTML = wizardHeading(bpIcon('skills',22), 'Discovering Your Skills...',
                 'Our AI is analyzing your education, activities, and interests to find the professional skills you already have.')
                 + '<div style="text-align:center; padding:40px 0;">'
                 + '<div class="bp-spinner" style="margin:0 auto 16px;"></div>'
@@ -21818,7 +21818,7 @@
 
                 renderWizardStep();
             } catch (err) {
-                inner.innerHTML = wizardHeading('\u26A0\uFE0F', 'Skill Discovery Issue',
+                inner.innerHTML = wizardHeading(bpIcon('alert',22), 'Skill Discovery Issue',
                     'We had trouble analyzing your profile. You can try again or continue manually.')
                     + '<div style="text-align:center; padding:20px;">'
                     + '<div style="color:var(--c-warn); font-size:0.85em; margin-bottom:16px;">' + escapeHtml(err.message) + '</div>'
@@ -21832,7 +21832,7 @@
         function renderExplorerSkills(el) {
             var skills = wizardState.explorerData.discoveredSkills || [];
             if (skills.length === 0) {
-                el.innerHTML = wizardHeading('\uD83D\uDCA1', 'Your Discovered Skills',
+                el.innerHTML = wizardHeading(bpIcon('skills',22), 'Your Discovered Skills',
                     'No skills were discovered. Go back and add more details about your activities and interests.')
                     + '<div style="display:flex; justify-content:space-between; margin-top:20px;">'
                     + wizardBtn('Back', 'wizardBack()', 'secondary')
@@ -21861,7 +21861,7 @@
             }).join('');
 
             el.innerHTML = `
-                ${wizardHeading('\uD83D\uDCA1', 'Your Discovered Skills',
+                ${wizardHeading(bpIcon('skills',22), 'Your Discovered Skills',
                     'We found ' + skills.length + ' skills based on your background. Toggle any you disagree with. These become the foundation of your Blueprint.')}
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                     <span style="font-size:0.85em; color:var(--text-secondary); font-weight:600;">${selectedCount} of ${skills.length} selected</span>
@@ -21909,7 +21909,7 @@
             wizardState.step = 6;
             renderWizardStep();
             var inner = document.getElementById('wizardInner');
-            inner.innerHTML = wizardHeading('\uD83D\uDEE4\uFE0F', 'Finding Your Career Paths...',
+            inner.innerHTML = wizardHeading(bpIcon('target',22), 'Finding Your Career Paths...',
                 'Analyzing your skills, education, and interests to suggest career paths that fit your profile.')
                 + '<div style="text-align:center; padding:40px 0;">'
                 + '<div class="bp-spinner" style="margin:0 auto 16px;"></div>'
@@ -21981,7 +21981,7 @@
 
                 renderWizardStep();
             } catch (err) {
-                inner.innerHTML = wizardHeading('\u26A0\uFE0F', 'Career Path Issue',
+                inner.innerHTML = wizardHeading(bpIcon('alert',22), 'Career Path Issue',
                     'We had trouble suggesting career paths.')
                     + '<div style="text-align:center; padding:20px;">'
                     + '<div style="color:var(--c-warn); font-size:0.85em; margin-bottom:16px;">' + escapeHtml(err.message) + '</div>'
@@ -22036,7 +22036,7 @@
             }).join('');
 
             el.innerHTML = `
-                ${wizardHeading('\uD83D\uDEE4\uFE0F', 'Your Career Paths',
+                ${wizardHeading(bpIcon('target',22), 'Your Career Paths',
                     paths.length > 0 ? 'Based on your skills and interests, here are career paths that could be a great fit. Select one to focus your Blueprint around it.' : 'No career paths were generated. You can still complete your Explorer Blueprint.')}
                 <div style="display:grid; gap:12px; margin-bottom:20px;">${pathCards}</div>
                 <div style="display:flex; justify-content:space-between; margin-top:20px;">
@@ -22074,7 +22074,7 @@
             var selectedPath = typeof ed.selectedCareerIdx === 'number' ? ed.careerPaths[ed.selectedCareerIdx] : null;
 
             el.innerHTML = `
-                ${wizardHeading('\uD83C\uDF89', 'Your Explorer Blueprint is Ready!',
+                ${wizardHeading(bpIcon('check',22), 'Your Explorer Blueprint is Ready!',
                     'We\u2019ve built your initial profile from your education, activities, and interests. This is your starting point \u2014 it will grow as you gain experience.')}
 
                 <div style="${explorerCardStyle}">
@@ -31502,13 +31502,7 @@ body {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:10px 0;">No activities added yet. Tap + Add to start!</div>';
             } else {
                 activities.forEach(function(a, i) {
-                    var catObj = [
-                        {id:'sports',label:'Sports',icon:'\u26BD'},{id:'clubs',label:'Clubs',icon:'\uD83D\uDCDA'},{id:'volunteer',label:'Volunteering',icon:'\u2764\uFE0F'},
-                        {id:'arts',label:'Arts',icon:'\uD83C\uDFA8'},{id:'student-gov',label:'Student Gov',icon:'\uD83C\uDFDB\uFE0F'},{id:'greek',label:'Greek Life',icon:'\uD83E\uDD1D'},
-                        {id:'scouts',label:'Scouts',icon:'\u26FA'},{id:'church',label:'Faith Groups',icon:'\u26EA'},{id:'research',label:'Research',icon:'\uD83D\uDD2C'},
-                        {id:'military',label:'ROTC/Military',icon:'\uD83C\uDF96\uFE0F'},{id:'startup',label:'Side Business',icon:'\uD83D\uDE80'},{id:'mentoring',label:'Tutoring',icon:'\uD83D\uDC65'},
-                        {id:'gaming',label:'Esports',icon:'\uD83C\uDFAE'},{id:'trade-apprentice',label:'Apprenticeship',icon:'\uD83D\uDD27'}
-                    ].find(function(c) { return c.id === a.category; }) || { label: a.category, icon: '\uD83D\uDCCC' };
+                    var catObj = _explorerActCategories.find(function(c) { return c.id === a.category; }) || { label: a.category, icon: bpIcon('compass',14) };
                     html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
                         + '<div style="flex:1;">'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + catObj.icon + ' ' + escapeHtml(catObj.label) + (a.role ? ' \u2014 ' + escapeHtml(a.role) : '') + '</div>'
@@ -31799,16 +31793,8 @@ body {
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content') || modal;
 
-            var cats = [
-                {id:'sports',label:'Sports',icon:'\u26BD'},{id:'clubs',label:'Clubs',icon:'\uD83D\uDCDA'},{id:'volunteer',label:'Volunteering',icon:'\u2764\uFE0F'},
-                {id:'arts',label:'Arts',icon:'\uD83C\uDFA8'},{id:'student-gov',label:'Student Gov',icon:'\uD83C\uDFDB\uFE0F'},{id:'greek',label:'Greek Life',icon:'\uD83E\uDD1D'},
-                {id:'scouts',label:'Scouts',icon:'\u26FA'},{id:'church',label:'Faith Groups',icon:'\u26EA'},{id:'research',label:'Research',icon:'\uD83D\uDD2C'},
-                {id:'military',label:'ROTC/Military',icon:'\uD83C\uDF96\uFE0F'},{id:'startup',label:'Side Business',icon:'\uD83D\uDE80'},{id:'mentoring',label:'Tutoring',icon:'\uD83D\uDC65'},
-                {id:'gaming',label:'Esports',icon:'\uD83C\uDFAE'},{id:'trade-apprentice',label:'Apprenticeship',icon:'\uD83D\uDD27'}
-            ];
-
-            var catOpts = '<option value="">Select activity type...</option>' + cats.map(function(c) {
-                return '<option value="' + c.id + '"' + (a.category === c.id ? ' selected' : '') + '>' + c.icon + ' ' + c.label + '</option>';
+            var catOpts = '<option value="">Select activity type...</option>' + _explorerActCategories.map(function(c) {
+                return '<option value="' + c.id + '"' + (a.category === c.id ? ' selected' : '') + '>' + c.label + '</option>';
             }).join('');
 
             var levelOpts = '<option value="">Level / Context...</option>'
@@ -47385,9 +47371,9 @@ body {
                 html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No activities yet. Add sports, clubs, volunteering, hobbies, and more.</div>';
             } else {
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px; margin-bottom:24px;">';
-                var _actCats = [{id:'sports',icon:'\u26BD'},{id:'clubs',icon:'\uD83D\uDCDA'},{id:'volunteer',icon:'\u2764\uFE0F'},{id:'arts',icon:'\uD83C\uDFA8'},{id:'music',icon:'\uD83C\uDFB5'},{id:'outdoors',icon:'\uD83C\uDFD5\uFE0F'},{id:'gaming',icon:'\uD83C\uDFAE'},{id:'cooking',icon:'\uD83C\uDF73'},{id:'fitness',icon:'\uD83C\uDFCB\uFE0F'},{id:'travel',icon:'\u2708\uFE0F'},{id:'tech',icon:'\uD83D\uDCBB'},{id:'crafts',icon:'\uD83E\uDDF5'},{id:'reading',icon:'\uD83D\uDCDA'},{id:'community',icon:'\uD83C\uDFD8\uFE0F'},{id:'faith',icon:'\u26EA'},{id:'other',icon:'\uD83D\uDCCC'}];
+                var _actCatsExp = [{id:'sports',icon:bpIcon('activity',14)},{id:'clubs',icon:bpIcon('users',14)},{id:'volunteer',icon:bpIcon('heart',14)},{id:'arts',icon:bpIcon('compass',14)},{id:'music',icon:bpIcon('compass',14)},{id:'outdoors',icon:bpIcon('compass',14)},{id:'gaming',icon:bpIcon('zap',14)},{id:'cooking',icon:bpIcon('compass',14)},{id:'fitness',icon:bpIcon('activity',14)},{id:'travel',icon:bpIcon('compass',14)},{id:'tech',icon:bpIcon('tool',14)},{id:'crafts',icon:bpIcon('tool',14)},{id:'reading',icon:bpIcon('book',14)},{id:'community',icon:bpIcon('heart',14)},{id:'faith',icon:bpIcon('heart',14)},{id:'other',icon:bpIcon('compass',14)}];
                 actItems.forEach(function(act, idx) {
-                    var catObj = _actCats.find(function(c) { return c.id === act.category; }) || {icon:'\uD83D\uDCCC'};
+                    var catObj = _actCatsExp.find(function(c) { return c.id === act.category; }) || {icon:bpIcon('compass',14)};
                     html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px;">'
                         + '<div style="display:flex; justify-content:space-between; align-items:flex-start;">'
                         + '<div style="flex:1;">'
@@ -48625,17 +48611,17 @@ body {
             var act = idx >= 0 ? (acts[idx] || {}) : {};
             var isNew = idx < 0;
             var cats = [
-                {id:'sports',label:'Sports',icon:'\u26BD'},{id:'clubs',label:'Clubs & Organizations',icon:'\uD83D\uDCDA'},
-                {id:'volunteer',label:'Volunteering',icon:'\u2764\uFE0F'},{id:'arts',label:'Arts & Theater',icon:'\uD83C\uDFA8'},
-                {id:'music',label:'Music',icon:'\uD83C\uDFB5'},{id:'outdoors',label:'Outdoors',icon:'\uD83C\uDFD5\uFE0F'},
-                {id:'gaming',label:'Gaming / Esports',icon:'\uD83C\uDFAE'},{id:'cooking',label:'Cooking',icon:'\uD83C\uDF73'},
-                {id:'fitness',label:'Fitness',icon:'\uD83C\uDFCB\uFE0F'},{id:'travel',label:'Travel',icon:'\u2708\uFE0F'},
-                {id:'tech',label:'Tech / Maker',icon:'\uD83D\uDCBB'},{id:'crafts',label:'Crafts / DIY',icon:'\uD83E\uDDF5'},
-                {id:'reading',label:'Reading / Writing',icon:'\uD83D\uDCDA'},{id:'community',label:'Community Service',icon:'\uD83C\uDFD8\uFE0F'},
-                {id:'faith',label:'Faith / Church',icon:'\u26EA'},{id:'other',label:'Other',icon:'\uD83D\uDCCC'}
+                {id:'sports',label:'Sports'},{id:'clubs',label:'Clubs & Organizations'},
+                {id:'volunteer',label:'Volunteering'},{id:'arts',label:'Arts & Theater'},
+                {id:'music',label:'Music'},{id:'outdoors',label:'Outdoors'},
+                {id:'gaming',label:'Gaming / Esports'},{id:'cooking',label:'Cooking'},
+                {id:'fitness',label:'Fitness'},{id:'travel',label:'Travel'},
+                {id:'tech',label:'Tech / Maker'},{id:'crafts',label:'Crafts / DIY'},
+                {id:'reading',label:'Reading / Writing'},{id:'community',label:'Community Service'},
+                {id:'faith',label:'Faith / Church'},{id:'other',label:'Other'}
             ];
             var catOptions = cats.map(function(c) {
-                return '<option value="' + c.id + '"' + (act.category === c.id ? ' selected' : '') + '>' + c.icon + ' ' + c.label + '</option>';
+                return '<option value="' + c.id + '"' + (act.category === c.id ? ' selected' : '') + '>' + c.label + '</option>';
             }).join('');
             var modalHTML = '<div id="activityModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; display:flex; align-items:center; justify-content:center;" onclick="if(event.target===this)this.remove()">'
                 + '<div style="background:var(--card-bg); border-radius:14px; padding:24px; max-width:480px; width:90%; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">'
