@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38';
+        var BP_VERSION = 'v4.47.38a';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33414,7 +33414,7 @@ body {
             if (!hasJobs) {
                 html += '<div style="padding:14px 18px; background:var(--c-surface-0); border:1px dashed var(--c-border-subtle); border-radius:10px; margin-bottom:16px;">'
                     + '<div style="font-size:0.85em; color:var(--c-faint);">'
-                    + bpIcon('info',14) + ' Save jobs in the Jobs tab to unlock cover letters, interview prep, and resume targeting.'
+                    + bpIcon('info',14) + ' Save jobs in the Jobs tab to unlock cover letters and interview prep.'
                     + '</div></div>';
             }
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">';
@@ -34553,7 +34553,7 @@ body {
             if (isReadOnlyProfile) {
                 var modal = document.getElementById('exportModal');
                 var modalContent = modal.querySelector('.modal-content');
-                var score = (job.matchData && job.matchData.score) || 0;
+                var score = (job && job.matchData && job.matchData.score) || 0;
                 var scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
                 
                 modalContent.innerHTML = '<div class="modal-header">'
@@ -34561,10 +34561,13 @@ body {
                     + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                     + '</div>'
                     + '<div class="modal-body" style="padding:24px;">'
-                    + '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
+                    + (job ? '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
                     + '<div><div style="font-weight:600;">' + escapeHtml(job.title || 'Untitled') + '</div>'
                     + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(job.company || 'Unknown company') + '</div></div>'
                     + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div></div>'
+                    : '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px;">'
+                    + '<div style="font-weight:600;">General Career Report</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-muted);">Not targeted to a specific job</div></div>')
                     + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px;">Choose a format to preview a sample scouting report:</div>'
                     + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                     // HTML option
