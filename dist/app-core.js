@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37x';
+        var BP_VERSION = 'v4.47.37y';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1345,7 +1345,7 @@
             
             data = sanitizeForFirestore(data);
             data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-            delete data.role;
+            data.role = _ud.role || 'user';
             delete data.isAdmin;
             return data;
         }
@@ -1412,6 +1412,12 @@
             
             var uid = fbUser.uid;
             var data = _buildFirestoreData();
+
+            console.log('[Save] role:', data.role, 'keys:', Object.keys(data).length,
+                'skills:', (data.skills || []).length,
+                'savedJobs:', (data.savedJobs || []).length,
+                'values:', (data.values || []).length,
+                'roles:', (data.roles || []).length);
             
             _backupToLocalStorage(data);
             

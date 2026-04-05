@@ -1,4 +1,4 @@
-// Blueprint™ Firestore Rules v2.7 | 2026-03-30
+// Blueprint™ Firestore Rules v2.8 | 2026-04-05
 // Changelog:
 //   v1.0 | 2026-01-15 | Initial rules
 //   v1.1 | 2026-02-01 | work_blueprints subcollection (30-key limit)
@@ -23,6 +23,11 @@
 //                        version string, feature count, timestamps. No PII.
 //   v2.7 | 2026-03-30 | sampleProfiles collection — admin-only read/write
 //                        for master admin editing of demo/sample profiles
+//   v2.8 | 2026-04-05 | Explorer Mode support — allow explorerData, profileType,
+//                        growthSkills, companyTenures, importStats, contentVisibility,
+//                        blindDefaults, linkedinContent, privacyLog, devStats on user docs.
+//                        Create rule: allow role 'user' with all standard fields.
+//                        Update rule: accept all explorer + standard fields.
 
 rules_version = '2';
 service cloud.firestore {
@@ -46,14 +51,15 @@ service cloud.firestore {
 
       allow create: if isOwner(userId)
         && request.resource.data.role == 'user'
-        && (!('profile' in request.resource.data) || request.resource.data.profile.keys().size() <= 20)
+        && (!('profile' in request.resource.data) || request.resource.data.profile.keys().size() <= 30)
         && (!('skills' in request.resource.data) || request.resource.data.skills.size() <= 500)
         && (!('purpose' in request.resource.data) || (
           request.resource.data.purpose is string
           && request.resource.data.purpose.size() <= 5000
-        ));
+        ))
+        && request.resource.data.keys().size() <= 40;
 
-      allow update: if isOwner(userId)
+      allow update: if (isOwner(userId) || isAdmin())
         && (!('role' in request.resource.data) || request.resource.data.role == resource.data.role)
         && (!('skills' in request.resource.data) || request.resource.data.skills.size() <= 500)
         && (!('savedJobs' in request.resource.data) || request.resource.data.savedJobs.size() <= 200)
