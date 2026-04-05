@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38c';
+        var BP_VERSION = 'v4.47.38d';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -21252,6 +21252,8 @@
         // ═══════════════════════════════════════════════════════════════════
         // EXPLORER MODE — Student/Early-Career Wizard Steps
         // ═══════════════════════════════════════════════════════════════════
+        var _skillValuesFilter = /^(integrity|honesty|loyalty|humility|compassion|empathy|perseverance|resilience|patience|respect|fairness|gratitude|accountability|trustworthiness|kindness|courage|authenticity|generosity|optimism|responsibility|dedication|determination|work ethic|self-discipline|open-mindedness|grit|dependability|reliability|sincerity|moral|ethical|diligence|punctuality|modesty|selflessness|honor|dignity|decency|teamwork|persistence|adaptability|initiative|leadership)$/i;
+
         var explorerFieldStyle = 'width:100%; padding:10px 14px; background:var(--input-bg); border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em; box-sizing:border-box;';
         var explorerLabelStyle = 'display:block; font-size:0.82em; font-weight:600; color:var(--text-secondary); margin-bottom:5px;';
         var explorerCardStyle = 'background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px;';
@@ -21803,10 +21805,9 @@
                 text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
                 var parsed = JSON.parse(text);
 
-                var _valuesFilter = /^(integrity|honesty|loyalty|humility|compassion|empathy|perseverance|resilience|patience|respect|fairness|gratitude|accountability|trustworthiness|kindness|courage|authenticity|generosity|optimism|responsibility|dedication|determination|work ethic|self-discipline|open-mindedness|grit|dependability|reliability|sincerity|moral|ethical|diligence|punctuality|modesty|selflessness|honor|dignity|decency)$/i;
                 var rawSkills = parsed.skills || [];
                 wizardState.explorerData.discoveredSkills = rawSkills.filter(function(s) {
-                    return !_valuesFilter.test((s.name || '').trim());
+                    return !_skillValuesFilter.test((s.name || '').trim());
                 });
                 wizardState.explorerData.headline = parsed.headline || '';
                 wizardState.explorerData.purpose = parsed.purpose || '';
@@ -22187,9 +22188,8 @@
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
                     imported.initialized = true;
-                    var _vFilter = /^(integrity|honesty|loyalty|humility|compassion|empathy|perseverance|resilience|patience|respect|fairness|gratitude|accountability|trustworthiness|kindness|courage|authenticity|generosity|optimism|responsibility|dedication|determination|work ethic|self-discipline|open-mindedness|grit|dependability|reliability|sincerity|moral|ethical|diligence|punctuality|modesty|selflessness|honor|dignity|decency|teamwork|persistence|adaptability|initiative|leadership)$/i;
                     if (Array.isArray(imported.skills)) {
-                        imported.skills = imported.skills.filter(function(s) { return !_vFilter.test((s.name || '').trim()); });
+                        imported.skills = imported.skills.filter(function(s) { return !_skillValuesFilter.test((s.name || '').trim()); });
                     }
                     userData = imported;
                     window._userData = userData;
@@ -31877,17 +31877,17 @@ body {
                     var imported = sanitizeImport(JSON.parse(e.target.result));
                     if (!confirm('This will replace your current profile data with the imported file. Continue?')) return;
                     imported.initialized = true;
-                    if (!imported.profileType) imported.profileType = 'explorer';
-                    if (!imported.role) imported.role = 'user';
-                    var _vFilter = /^(integrity|honesty|loyalty|humility|compassion|empathy|perseverance|resilience|patience|respect|fairness|gratitude|accountability|trustworthiness|kindness|courage|authenticity|generosity|optimism|responsibility|dedication|determination|work ethic|self-discipline|open-mindedness|grit|dependability|reliability|sincerity|moral|ethical|diligence|punctuality|modesty|selflessness|honor|dignity|decency|teamwork|persistence|adaptability|initiative|leadership)$/i;
+                    imported.profileType = 'explorer';
                     if (Array.isArray(imported.skills)) {
                         imported.skills = imported.skills.filter(function(s) {
-                            return !_vFilter.test((s.name || '').trim());
+                            return !_skillValuesFilter.test((s.name || '').trim());
                         });
                         var targetRole = null;
                         if (Array.isArray(imported.roles)) {
-                            var tr = imported.roles.find(function(r) { return r.id === 'target1'; });
-                            if (tr) targetRole = tr.id;
+                            var tr = imported.roles.find(function(r) { return r.id === 'target1'; })
+                                || imported.roles.find(function(r) { return (r.company || '').toLowerCase().indexOf('target') >= 0; })
+                                || imported.roles[0];
+                            if (tr) targetRole = tr.id || tr.name;
                         }
                         if (targetRole) {
                             imported.skills.forEach(function(s) {
