@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37u';
+        var BP_VERSION = 'v4.47.37v';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -31118,19 +31118,94 @@ body {
                 html += '</div>';
             }
 
-            if (education.school) {
+            var allSchools = ed.schools || (education.school ? [education] : []);
+            if (allSchools.length > 0) {
                 html += '<div style="' + cs + '">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                    + '<div style="' + ls + ' color:#f59e0b; margin-bottom:0;">Education</div>'
+                    + '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); background:rgba(245,158,11,0.06); color:#f59e0b; cursor:pointer; font-weight:600;">+ Add School</button>'
+                    + '</div>';
+                allSchools.forEach(function(s, i) {
+                    var typeEmoji = s.schoolType === 'highschool' ? '\uD83C\uDFEB' : s.schoolType === 'trade' ? '\uD83D\uDD27' : s.schoolType === 'community' ? '\uD83D\uDCDA' : s.schoolType === 'bootcamp' ? '\uD83D\uDCBB' : '\uD83C\uDF93';
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
+                        + '<div>'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.92em;">' + typeEmoji + ' ' + escapeHtml(s.school || '') + '</div>'
+                        + '<div style="font-size:0.82em; color:var(--text-secondary);">'
+                        + (s.degree ? escapeHtml(s.degree) : '') + (s.major ? ' in ' + escapeHtml(s.major) : '')
+                        + (s.gradYear ? ' \u00B7 ' + escapeHtml(s.gradYear) : '')
+                        + (s.currentYear ? ' \u00B7 ' + escapeHtml(s.currentYear) : '')
+                        + '</div></div>'
+                        + '<div style="display:flex; gap:4px; flex-shrink:0;">'
+                        + '<button onclick="explorerDashEditSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">\u270E</button>'
+                        + (allSchools.length > 1 ? '<button onclick="explorerDashRemoveSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.85em;">\u00D7</button>' : '')
+                        + '</div></div>';
+                });
+                html += '</div>';
+            } else {
+                html += '<div style="' + cs + ' text-align:center;">'
                     + '<div style="' + ls + ' color:#f59e0b;">Education</div>'
-                    + '<div style="font-weight:600; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(education.school) + '</div>'
-                    + '<div style="font-size:0.85em; color:var(--text-secondary);">'
-                    + (education.degree ? escapeHtml(education.degree) : '') + (education.major ? ' in ' + escapeHtml(education.major) : '')
-                    + (education.gradYear ? ' &middot; ' + escapeHtml(education.gradYear) : '')
-                    + '</div></div>';
+                    + '<div style="font-size:0.85em; color:var(--text-muted); margin-bottom:10px;">No schools added yet.</div>'
+                    + '<button onclick="explorerDashAddSchool()" style="padding:8px 16px; background:rgba(245,158,11,0.1); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">+ Add a School</button>'
+                    + '</div>';
             }
+
+            var activities = ed.activities || [];
+            html += '<div style="' + cs + '">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                + '<div style="' + ls + ' color:#8b5cf6; margin-bottom:0;">Activities & Experience</div>'
+                + '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(139,92,246,0.3); background:rgba(139,92,246,0.06); color:#8b5cf6; cursor:pointer; font-weight:600;">+ Add</button>'
+                + '</div>';
+            if (activities.length === 0) {
+                html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:10px 0;">No activities added yet. Tap + Add to start!</div>';
+            } else {
+                activities.forEach(function(a, i) {
+                    var catObj = [
+                        {id:'sports',label:'Sports',icon:'\u26BD'},{id:'clubs',label:'Clubs',icon:'\uD83D\uDCDA'},{id:'volunteer',label:'Volunteering',icon:'\u2764\uFE0F'},
+                        {id:'arts',label:'Arts',icon:'\uD83C\uDFA8'},{id:'student-gov',label:'Student Gov',icon:'\uD83C\uDFDB\uFE0F'},{id:'greek',label:'Greek Life',icon:'\uD83E\uDD1D'},
+                        {id:'scouts',label:'Scouts',icon:'\u26FA'},{id:'church',label:'Faith Groups',icon:'\u26EA'},{id:'research',label:'Research',icon:'\uD83D\uDD2C'},
+                        {id:'military',label:'ROTC/Military',icon:'\uD83C\uDF96\uFE0F'},{id:'startup',label:'Side Business',icon:'\uD83D\uDE80'},{id:'mentoring',label:'Tutoring',icon:'\uD83D\uDC65'},
+                        {id:'gaming',label:'Esports',icon:'\uD83C\uDFAE'},{id:'trade-apprentice',label:'Apprenticeship',icon:'\uD83D\uDD27'}
+                    ].find(function(c) { return c.id === a.category; }) || { label: a.category, icon: '\uD83D\uDCCC' };
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
+                        + '<div style="flex:1;">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + catObj.icon + ' ' + escapeHtml(catObj.label) + (a.role ? ' \u2014 ' + escapeHtml(a.role) : '') + '</div>'
+                        + '<div style="font-size:0.75em; color:var(--text-muted); display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">'
+                        + (a.level ? '<span>' + escapeHtml(a.level) + '</span>' : '')
+                        + (a.duration ? '<span>' + escapeHtml(a.duration) + '</span>' : '')
+                        + '</div>'
+                        + (a.description ? '<div style="font-size:0.78em; color:var(--text-secondary); margin-top:4px; line-height:1.4;">' + escapeHtml(a.description) + '</div>' : '')
+                        + '</div>'
+                        + '<div style="display:flex; gap:4px; flex-shrink:0;">'
+                        + '<button onclick="explorerDashEditActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">\u270E</button>'
+                        + '<button onclick="explorerDashRemoveActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.85em;">\u00D7</button>'
+                        + '</div></div>';
+                });
+            }
+            html += '</div>';
+
+            var interests = ed.interests || [];
+            html += '<div style="' + cs + '">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                + '<div style="' + ls + ' color:#60a5fa; margin-bottom:0;">Interests</div>'
+                + '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.06); color:#60a5fa; cursor:pointer; font-weight:600;">\u270E Edit</button>'
+                + '</div>';
+            if (interests.length === 0) {
+                html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:6px 0;">No interests added yet.</div>';
+            } else {
+                html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                interests.forEach(function(int) {
+                    html += '<span style="display:inline-block; background:rgba(96,165,250,0.1); color:#60a5fa; font-size:0.78em; font-weight:600; padding:4px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.2);">' + escapeHtml(int) + '</span>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
 
             if (driveStatement) {
                 html += '<div style="' + cs + '">'
-                    + '<div style="' + ls + ' color:#ec4899;">What Drives You</div>'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+                    + '<div style="' + ls + ' color:#ec4899; margin-bottom:0;">What Drives You</div>'
+                    + '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">\u270E</button>'
+                    + '</div>'
                     + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; font-style:italic;">&ldquo;' + escapeHtml(driveStatement) + '&rdquo;</div>'
                     + '</div>';
             }
@@ -31155,6 +31230,239 @@ body {
             saveToFirestore();
         }
         window.explorerDashSelectPath = explorerDashSelectPath;
+
+        function _explorerDashSave() {
+            userData.explorerData.education = userData.explorerData.schools && userData.explorerData.schools.length > 0
+                ? Object.assign({}, userData.explorerData.schools[0])
+                : userData.explorerData.education || {};
+            userData.education = (userData.explorerData.schools || []).filter(function(s) { return s && s.school; }).map(function(s) {
+                return { school: s.school || '', degree: (s.degree || '') + (s.major ? ' in ' + s.major : ''), fieldOfStudy: s.major || '', graduationYear: s.gradYear || '', gpa: s.gpa || '', type: 'degree' };
+            });
+            saveAll();
+            renderBlueprint();
+        }
+
+        function explorerDashAddSchool() {
+            if (readOnlyGuard()) return;
+            if (!userData.explorerData) return;
+            if (!userData.explorerData.schools) userData.explorerData.schools = [];
+            _explorerDashSchoolModal(-1);
+        }
+        window.explorerDashAddSchool = explorerDashAddSchool;
+
+        function explorerDashEditSchool(idx) {
+            if (readOnlyGuard()) return;
+            _explorerDashSchoolModal(idx);
+        }
+        window.explorerDashEditSchool = explorerDashEditSchool;
+
+        function explorerDashRemoveSchool(idx) {
+            if (readOnlyGuard()) return;
+            if (!confirm('Remove this school?')) return;
+            userData.explorerData.schools.splice(idx, 1);
+            _explorerDashSave();
+        }
+        window.explorerDashRemoveSchool = explorerDashRemoveSchool;
+
+        function _explorerDashSchoolModal(idx) {
+            var schools = userData.explorerData.schools || [];
+            var s = idx >= 0 ? schools[idx] : { schoolType: '', school: '', degree: '', gradYear: '', major: '', minor: '', gpa: '', currentYear: '', coursework: '' };
+            var isEdit = idx >= 0;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content') || modal;
+
+            var typeChips = ['highschool:HS:\uD83C\uDFEB', 'college:College:\uD83C\uDF93', 'trade:Trade:\uD83D\uDD27', 'community:CC:\uD83D\uDCDA', 'bootcamp:Boot:\uD83D\uDCBB'].map(function(t) {
+                var parts = t.split(':');
+                var active = s.schoolType === parts[0];
+                return '<span onclick="document.getElementById(\'edSchoolType\').value=\'' + parts[0] + '\'; document.querySelectorAll(\'[data-school-chip]\').forEach(function(c){c.style.background=\'transparent\';c.style.borderColor=\'var(--border)\';c.style.color=\'var(--text-muted)\';}); this.style.background=\'rgba(139,92,246,0.15)\';this.style.borderColor=\'#8b5cf6\';this.style.color=\'#8b5cf6\';" data-school-chip '
+                    + 'style="display:inline-flex;align-items:center;gap:3px;padding:5px 12px;border-radius:16px;font-size:0.78em;cursor:pointer;border:1px solid ' + (active ? '#8b5cf6' : 'var(--border)') + ';background:' + (active ? 'rgba(139,92,246,0.15)' : 'transparent') + ';color:' + (active ? '#8b5cf6' : 'var(--text-muted)') + ';font-weight:600;">'
+                    + parts[2] + ' ' + parts[1] + '</span>';
+            }).join(' ');
+
+            mc.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + (isEdit ? 'Edit School' : 'Add School') + '</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<div class="modal-body" style="padding:24px; max-height:75vh; overflow-y:auto;">'
+                + '<input type="hidden" id="edSchoolType" value="' + escapeAttr(s.schoolType || '') + '">'
+                + '<div style="margin-bottom:14px;">' + typeChips + '</div>'
+                + '<div style="display:grid; gap:12px;">'
+                + '<input type="text" id="edSchoolName" value="' + escapeAttr(s.school || '') + '" placeholder="School name" class="settings-input">'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
+                + '<input type="text" id="edSchoolDegree" value="' + escapeAttr(s.degree || '') + '" placeholder="Degree / Program" class="settings-input">'
+                + '<input type="number" id="edSchoolGradYear" value="' + (s.gradYear || '') + '" placeholder="Grad year" min="2000" max="2035" class="settings-input">'
+                + '</div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
+                + '<input type="text" id="edSchoolMajor" value="' + escapeAttr(s.major || '') + '" placeholder="Major / Field" class="settings-input">'
+                + '<input type="text" id="edSchoolMinor" value="' + escapeAttr(s.minor || '') + '" placeholder="Minor (optional)" class="settings-input">'
+                + '</div>'
+                + '<div style="display:grid; grid-template-columns:80px 1fr; gap:10px;">'
+                + '<input type="text" id="edSchoolGPA" value="' + escapeAttr(s.gpa || '') + '" placeholder="GPA" class="settings-input">'
+                + '<input type="text" id="edSchoolYear" value="' + escapeAttr(s.currentYear || '') + '" placeholder="Current year (e.g. Junior)" class="settings-input">'
+                + '</div>'
+                + '<textarea id="edSchoolCoursework" rows="2" placeholder="Notable coursework, projects, achievements" class="settings-input" style="resize:vertical;">' + escapeHtml(s.coursework || '') + '</textarea>'
+                + '</div>'
+                + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
+                + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
+                + '<button onclick="explorerDashSaveSchool(' + idx + ')" style="padding:8px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save</button>'
+                + '</div></div>';
+            modal.classList.add('active');
+        }
+
+        function explorerDashSaveSchool(idx) {
+            var s = {
+                schoolType: (document.getElementById('edSchoolType') || {}).value || '',
+                school: (document.getElementById('edSchoolName') || {}).value || '',
+                degree: (document.getElementById('edSchoolDegree') || {}).value || '',
+                gradYear: (document.getElementById('edSchoolGradYear') || {}).value || '',
+                major: (document.getElementById('edSchoolMajor') || {}).value || '',
+                minor: (document.getElementById('edSchoolMinor') || {}).value || '',
+                gpa: (document.getElementById('edSchoolGPA') || {}).value || '',
+                currentYear: (document.getElementById('edSchoolYear') || {}).value || '',
+                coursework: (document.getElementById('edSchoolCoursework') || {}).value || ''
+            };
+            if (!s.school.trim()) { showToast('Please enter a school name.', 'error'); return; }
+            if (!userData.explorerData.schools) userData.explorerData.schools = [];
+            if (idx >= 0) { userData.explorerData.schools[idx] = s; }
+            else { userData.explorerData.schools.push(s); }
+            closeExportModal();
+            _explorerDashSave();
+        }
+        window.explorerDashSaveSchool = explorerDashSaveSchool;
+
+        function explorerDashAddActivity() {
+            if (readOnlyGuard()) return;
+            _explorerDashActivityModal(-1);
+        }
+        window.explorerDashAddActivity = explorerDashAddActivity;
+
+        function explorerDashEditActivity(idx) {
+            if (readOnlyGuard()) return;
+            _explorerDashActivityModal(idx);
+        }
+        window.explorerDashEditActivity = explorerDashEditActivity;
+
+        function explorerDashRemoveActivity(idx) {
+            if (readOnlyGuard()) return;
+            if (!confirm('Remove this activity?')) return;
+            userData.explorerData.activities.splice(idx, 1);
+            _explorerDashSave();
+        }
+        window.explorerDashRemoveActivity = explorerDashRemoveActivity;
+
+        function _explorerDashActivityModal(idx) {
+            var acts = userData.explorerData.activities || [];
+            var a = idx >= 0 ? acts[idx] : { category: '', level: '', duration: '', role: '', description: '' };
+            var isEdit = idx >= 0;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content') || modal;
+
+            var cats = [
+                {id:'sports',label:'Sports',icon:'\u26BD'},{id:'clubs',label:'Clubs',icon:'\uD83D\uDCDA'},{id:'volunteer',label:'Volunteering',icon:'\u2764\uFE0F'},
+                {id:'arts',label:'Arts',icon:'\uD83C\uDFA8'},{id:'student-gov',label:'Student Gov',icon:'\uD83C\uDFDB\uFE0F'},{id:'greek',label:'Greek Life',icon:'\uD83E\uDD1D'},
+                {id:'scouts',label:'Scouts',icon:'\u26FA'},{id:'church',label:'Faith Groups',icon:'\u26EA'},{id:'research',label:'Research',icon:'\uD83D\uDD2C'},
+                {id:'military',label:'ROTC/Military',icon:'\uD83C\uDF96\uFE0F'},{id:'startup',label:'Side Business',icon:'\uD83D\uDE80'},{id:'mentoring',label:'Tutoring',icon:'\uD83D\uDC65'},
+                {id:'gaming',label:'Esports',icon:'\uD83C\uDFAE'},{id:'trade-apprentice',label:'Apprenticeship',icon:'\uD83D\uDD27'}
+            ];
+
+            var catOpts = '<option value="">Select activity type...</option>' + cats.map(function(c) {
+                return '<option value="' + c.id + '"' + (a.category === c.id ? ' selected' : '') + '>' + c.icon + ' ' + c.label + '</option>';
+            }).join('');
+
+            var levelOpts = '<option value="">Level / Context...</option>'
+                + ['rec:Recreational / Casual','school-hs:High School Team / Club','neighborhood:Community / Neighborhood League','school-college:College Team / Club','varsity:Varsity / Competitive','travel:Travel / Select Team','leadership:Leadership / Officer Role','professional:Semi-pro / Professional'].map(function(l) {
+                    var p = l.split(':');
+                    return '<option value="' + p[0] + '"' + (a.level === p[0] ? ' selected' : '') + '>' + p[1] + '</option>';
+                }).join('');
+
+            var durationOpts = '<option value="">How long?</option>'
+                + ['Less than 1 year','1 year','2 years','3 years','4 years','5+ years','8+ years','10+ years'].map(function(d) {
+                    return '<option value="' + d + '"' + (a.duration === d ? ' selected' : '') + '>' + d + '</option>';
+                }).join('');
+
+            mc.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + (isEdit ? 'Edit Activity' : 'Add Activity') + '</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<div class="modal-body" style="padding:24px; max-height:75vh; overflow-y:auto;">'
+                + '<div style="display:grid; gap:12px;">'
+                + '<select id="edActCategory" class="settings-input">' + catOpts + '</select>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
+                + '<select id="edActLevel" class="settings-input">' + levelOpts + '</select>'
+                + '<select id="edActDuration" class="settings-input">' + durationOpts + '</select>'
+                + '</div>'
+                + '<input type="text" id="edActRole" value="' + escapeAttr(a.role || '') + '" placeholder="Your role (e.g. Team Captain, Treasurer)" class="settings-input">'
+                + '<textarea id="edActDesc" rows="3" placeholder="What did you do? What did you accomplish?" class="settings-input" style="resize:vertical;">' + escapeHtml(a.description || '') + '</textarea>'
+                + '</div>'
+                + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
+                + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
+                + '<button onclick="explorerDashSaveActivity(' + idx + ')" style="padding:8px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save</button>'
+                + '</div></div>';
+            modal.classList.add('active');
+        }
+
+        function explorerDashSaveActivity(idx) {
+            var a = {
+                category: (document.getElementById('edActCategory') || {}).value || '',
+                level: (document.getElementById('edActLevel') || {}).value || '',
+                duration: (document.getElementById('edActDuration') || {}).value || '',
+                role: (document.getElementById('edActRole') || {}).value || '',
+                description: (document.getElementById('edActDesc') || {}).value || ''
+            };
+            if (!a.category) { showToast('Please select an activity type.', 'error'); return; }
+            if (!userData.explorerData.activities) userData.explorerData.activities = [];
+            if (idx >= 0) { userData.explorerData.activities[idx] = a; }
+            else { userData.explorerData.activities.push(a); }
+            closeExportModal();
+            _explorerDashSave();
+        }
+        window.explorerDashSaveActivity = explorerDashSaveActivity;
+
+        function explorerDashEditInterests() {
+            if (readOnlyGuard()) return;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content') || modal;
+            var current = (userData.explorerData.interests || []).join(', ');
+
+            mc.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">Edit Interests</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<div style="font-size:0.85em; color:var(--text-muted); margin-bottom:12px;">Separate interests with commas. Add as many as you want!</div>'
+                + '<textarea id="edInterests" rows="4" class="settings-input" style="resize:vertical;">' + escapeHtml(current) + '</textarea>'
+                + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
+                + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
+                + '<button onclick="explorerDashSaveInterests()" style="padding:8px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save</button>'
+                + '</div></div>';
+            modal.classList.add('active');
+        }
+        window.explorerDashEditInterests = explorerDashEditInterests;
+
+        function explorerDashSaveInterests() {
+            var val = (document.getElementById('edInterests') || {}).value || '';
+            userData.explorerData.interests = val.split(',').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+            closeExportModal();
+            _explorerDashSave();
+        }
+        window.explorerDashSaveInterests = explorerDashSaveInterests;
+
+        function explorerDashEditDrive() {
+            if (readOnlyGuard()) return;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content') || modal;
+            mc.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">What Drives You</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<textarea id="edDrive" rows="4" class="settings-input" style="resize:vertical;" placeholder="What kind of work excites you? What problems do you want to solve?">' + escapeHtml(userData.explorerData.driveStatement || '') + '</textarea>'
+                + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
+                + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
+                + '<button onclick="explorerDashSaveDrive()" style="padding:8px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save</button>'
+                + '</div></div>';
+            modal.classList.add('active');
+        }
+        window.explorerDashEditDrive = explorerDashEditDrive;
+
+        function explorerDashSaveDrive() {
+            userData.explorerData.driveStatement = (document.getElementById('edDrive') || {}).value || '';
+            closeExportModal();
+            _explorerDashSave();
+        }
+        window.explorerDashSaveDrive = explorerDashSaveDrive;
 
         function explorerConvertToFull() {
             var modal = document.getElementById('exportModal');
