@@ -30084,8 +30084,8 @@ body {
 
   <!-- HEADER -->
   <header class="resume-header">
-    <div class="resume-name">${name}</div>
-    <div class="resume-title">${title}</div>
+    <div class="resume-name">${escapeHtml(name)}</div>
+    <div class="resume-title">${escapeHtml(title)}</div>
     <div class="contact-row">
       ${contactHTML}
       ${salaryLine}
