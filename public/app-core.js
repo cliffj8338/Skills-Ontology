@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38e';
+        var BP_VERSION = 'v4.47.38f';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -31897,8 +31897,15 @@ body {
                 });
                 userData.skills = skillsData.skills;
             }
-            showToast('Switched to Explorer Mode! Saving...', 'success');
-            saveToFirestore().then(function() { location.reload(); });
+            blueprintTab = 'dashboard';
+            renderBlueprint();
+            showToast('Switched to Explorer Mode!', 'success');
+            saveToFirestore().then(function() {
+                console.log('[Mode] Explorer mode saved to Firestore');
+            }).catch(function(err) {
+                console.warn('[Mode] Firestore save failed (will retry):', err.message);
+                debouncedSave(3000);
+            });
         }
         window.switchToExplorerMode = switchToExplorerMode;
 
