@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38d';
+        var BP_VERSION = 'v4.47.38e';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -22188,8 +22188,20 @@
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
                     imported.initialized = true;
+                    if (imported.profileType === 'explorer' || imported.explorerData) {
+                        imported.profileType = 'explorer';
+                    }
                     if (Array.isArray(imported.skills)) {
                         imported.skills = imported.skills.filter(function(s) { return !_skillValuesFilter.test((s.name || '').trim()); });
+                        if (imported.profileType === 'explorer') {
+                            var _tr = (imported.roles || []).find(function(r) { return r.id === 'target1'; }) || (imported.roles || [])[0];
+                            if (_tr) {
+                                var _trid = _tr.id || _tr.name;
+                                imported.skills.forEach(function(s) {
+                                    if (!s.roles || s.roles.length === 0) s.roles = [_trid];
+                                });
+                            }
+                        }
                     }
                     userData = imported;
                     window._userData = userData;
@@ -31866,6 +31878,29 @@ body {
             modal.style.display = 'flex';
         }
         window.explorerConvertToFull = explorerConvertToFull;
+
+        function switchToExplorerMode() {
+            if (readOnlyGuard()) return;
+            if (userData.profileType === 'explorer') { showToast('Already in Explorer Mode.', 'info'); return; }
+            userData.profileType = 'explorer';
+            if (!userData.explorerData) userData.explorerData = {};
+            if (Array.isArray(skillsData.skills)) {
+                var _tr = (skillsData.roles || []).find(function(r) { return r.id === 'target1'; }) || (skillsData.roles || [])[0];
+                if (_tr) {
+                    var _trid = _tr.id || _tr.name;
+                    skillsData.skills.forEach(function(s) {
+                        if (!s.roles || s.roles.length === 0) s.roles = [_trid];
+                    });
+                }
+                skillsData.skills = skillsData.skills.filter(function(s) {
+                    return !_skillValuesFilter.test((s.name || '').trim());
+                });
+                userData.skills = skillsData.skills;
+            }
+            showToast('Switched to Explorer Mode! Saving...', 'success');
+            saveToFirestore().then(function() { location.reload(); });
+        }
+        window.switchToExplorerMode = switchToExplorerMode;
 
         function explorerImportJSON(fileInput) {
             if (readOnlyGuard()) return;
@@ -47002,7 +47037,31 @@ body {
                         <div class="settings-help">Base + bonus + equity. Used to compare against market benchmarks. Never shared externally.</div>
                     </div>
                     
-                    <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end;">
+                    <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border);">
+                        <label class="settings-label">Profile Mode</label>
+                        <div style="display:flex; gap:12px; margin-bottom:16px;">
+                            <div onclick="if(userData.profileType!=='explorer'){switchToExplorerMode()}" 
+                                 style="flex:1; padding:14px 16px; border-radius:10px; cursor:pointer; text-align:center;
+                                        border:2px solid ${userData.profileType === 'explorer' ? '#8b5cf6' : 'var(--border)'};
+                                        background:${userData.profileType === 'explorer' ? 'rgba(139,92,246,0.1)' : 'var(--bg-elevated)'};">
+                                <div style="font-weight:700; font-size:0.9em; color:${userData.profileType === 'explorer' ? '#8b5cf6' : 'var(--text-primary)'};">
+                                    ${bpIcon('compass',16)} Explorer
+                                </div>
+                                <div style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">Student / early career</div>
+                            </div>
+                            <div onclick="if(userData.profileType==='explorer'){explorerConvertToFull()}" 
+                                 style="flex:1; padding:14px 16px; border-radius:10px; cursor:pointer; text-align:center;
+                                        border:2px solid ${userData.profileType !== 'explorer' ? 'var(--accent)' : 'var(--border)'};
+                                        background:${userData.profileType !== 'explorer' ? 'rgba(96,165,250,0.1)' : 'var(--bg-elevated)'};">
+                                <div style="font-weight:700; font-size:0.9em; color:${userData.profileType !== 'explorer' ? 'var(--accent)' : 'var(--text-primary)'};">
+                                    ${bpIcon('blueprint',16)} Professional
+                                </div>
+                                <div style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">Working professional</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="padding-top:12px; display:flex; justify-content:flex-end;">
                         <button onclick="saveSettings()" style="padding:10px 28px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.92em; letter-spacing:0.02em;">
                             ${bpIcon('save',14)} Save Profile
                         </button>
