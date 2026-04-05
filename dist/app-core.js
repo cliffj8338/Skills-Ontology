@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37w';
+        var BP_VERSION = 'v4.47.37x';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -21303,9 +21303,10 @@
                 + '<input type="text" value="' + escapeAttr(s.gpa || '') + '" placeholder="GPA" '
                 + 'onchange="explorerUpdateSchool(' + idx + ',\'gpa\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
                 + '<select onchange="explorerUpdateSchool(' + idx + ',\'currentYear\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">' + yearOpts + '</select>'
-                + '<input type="text" value="' + escapeAttr(s.coursework || '') + '" placeholder="' + (isHS ? 'Key classes / achievements' : 'Notable coursework / projects') + '" '
+                + '<input type="text" id="expCourseWork' + idx + '" value="' + escapeAttr(s.coursework || '') + '" placeholder="' + (isHS ? 'Key classes / achievements' : 'Notable coursework / projects') + '" '
                 + 'onchange="explorerUpdateSchool(' + idx + ',\'coursework\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
                 + '</div>'
+                + '<button onclick="explorerAICourseworkHelp(' + idx + ')" style="' + _aiExpandBtnStyle + '">\u2728 Help me think of more</button>'
                 + '</div></div>';
         }
 
@@ -21433,8 +21434,9 @@
                     + '</div>'
                     + '<input type="text" value="' + escapeAttr(a.role || '') + '" placeholder="Your role (e.g. Team Captain, Treasurer, Starter, Eagle Scout)" '
                     + 'onchange="explorerUpdateActivity(' + i + ',\'role\',this.value)" style="' + explorerFieldStyle + ' margin-bottom:6px; font-size:0.85em;">'
-                    + '<textarea placeholder="What did you do? What did you accomplish? Be specific \u2014 the more detail, the better skills we\'ll discover!" '
+                    + '<textarea id="expActDesc' + i + '" placeholder="What did you do? What did you accomplish? Be specific \u2014 the more detail, the better skills we\'ll discover!" '
                     + 'onchange="explorerUpdateActivity(' + i + ',\'description\',this.value)" rows="2" style="' + explorerFieldStyle + ' resize:vertical; font-size:0.85em;">' + escapeHtml(a.description || '') + '</textarea>'
+                    + '<button onclick="explorerAIActivityHelp(' + i + ')" style="' + _aiExpandBtnStyle + '">\u2728 Help me describe this</button>'
                     + '</div>';
             }).join('');
 
@@ -21454,10 +21456,12 @@
                     + '<input type="text" value="' + escapeAttr(j.role || '') + '" placeholder="Your role / title" '
                     + 'onchange="explorerUpdateJob(' + i + ',\'role\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
                     + '</div>'
-                    + '<textarea placeholder="What were your responsibilities? Any achievements?" '
+                    + '<textarea id="expJobDesc' + i + '" placeholder="What were your responsibilities? Any achievements?" '
                     + 'onchange="explorerUpdateJob(' + i + ',\'description\',this.value)" rows="2" style="' + explorerFieldStyle + ' resize:vertical; font-size:0.85em;">' + escapeHtml(j.description || '') + '</textarea>'
-                    + '<button onclick="explorerRemoveJob(' + i + ')" style="background:none; border:1px solid var(--border); border-radius:6px; padding:4px 10px; color:var(--c-muted); cursor:pointer; font-size:0.78em; width:fit-content;">Remove</button>'
-                    + '</div>';
+                    + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                    + '<button onclick="explorerAIJobHelp(' + i + ')" style="' + _aiExpandBtnStyle + '">\u2728 Help me describe this</button>'
+                    + '<button onclick="explorerRemoveJob(' + i + ')" style="background:none; border:1px solid var(--border); border-radius:6px; padding:4px 10px; color:var(--c-muted); cursor:pointer; font-size:0.78em;">Remove</button>'
+                    + '</div></div>';
             }).join('');
 
             el.innerHTML = `
@@ -21483,6 +21487,135 @@
                 </div>
             `;
         }
+
+        async function _explorerAIExpand(type, context, targetId) {
+            var btn = event && event.target ? event.target : null;
+            var textarea = document.getElementById(targetId);
+            if (!textarea) return;
+            var existing = textarea.value.trim();
+            if (btn) { btn.disabled = true; btn.textContent = '\u2728 Thinking...'; }
+
+            var prompt = '';
+            if (type === 'job') {
+                prompt = 'You are a friendly career coach helping a young person (high school or college student) describe their work experience for a resume/profile.\n\n'
+                    + 'They worked as: ' + (context.title || 'an employee') + (context.company ? ' at ' + context.company : '') + (context.duration ? ' for ' + context.duration : '') + '.\n'
+                    + (context.role ? 'Their role/title: ' + context.role + '\n' : '')
+                    + (existing ? 'They already wrote: "' + existing + '"\n' : '')
+                    + '\nThink about ALL the responsibilities someone in this role typically has \u2014 things they might not think to mention:\n'
+                    + '- Customer service / interactions\n- Equipment or facility maintenance\n- Cash handling / transactions\n- Cleaning / organization\n- Safety protocols\n- Scheduling / time management\n- Training others\n- Problem solving / troubleshooting\n- Inventory / supply management\n- Communication with team/managers\n\n'
+                    + 'Write a compelling 2-4 sentence description that captures the FULL scope of what they likely did. '
+                    + 'Use action verbs (managed, coordinated, maintained, handled, ensured, trained, resolved). '
+                    + 'Be specific to THIS job \u2014 not generic. ' + (existing ? 'Build on what they already wrote.' : '')
+                    + '\n\nReturn ONLY the description text, no quotes, no JSON, no explanation.';
+            } else if (type === 'activity') {
+                var catLabels = {sports:'Sports',clubs:'Clubs & Organizations',volunteer:'Volunteering & Community Service',arts:'Music / Theater / Art','student-gov':'Student Government',greek:'Greek Life',scouts:'Boy Scouts / Girl Scouts',church:'Church / Religious Groups',research:'Research / Lab Work',military:'ROTC / Military','startup':'Side Business',mentoring:'Tutoring / Mentoring',gaming:'Esports / Gaming','trade-apprentice':'Apprenticeship / Trade Training'};
+                prompt = 'You are a friendly career coach helping a young person describe an extracurricular activity for their profile.\n\n'
+                    + 'Activity: ' + (catLabels[context.category] || context.category || 'an activity')
+                    + (context.level ? ' at the ' + context.level + ' level' : '')
+                    + (context.duration ? ' for ' + context.duration : '') + '.\n'
+                    + (context.role ? 'Their role: ' + context.role + '\n' : '')
+                    + (existing ? 'They already wrote: "' + existing + '"\n' : '')
+                    + '\nThink about what someone in this activity actually DOES \u2014 skills they build, responsibilities they take on, things they accomplish:\n'
+                    + '- Leadership / teamwork\n- Time commitment / discipline\n- Competitions / performances / events\n- Fundraising / organizing\n- Teaching / mentoring younger members\n- Physical or creative skills developed\n- Community impact\n- Awards or achievements\n\n'
+                    + 'Write a compelling 2-3 sentence description that shows the REAL skills and growth from this activity. '
+                    + 'Use action verbs. Be specific to THIS activity and level. ' + (existing ? 'Build on what they already wrote.' : '')
+                    + '\n\nReturn ONLY the description text, no quotes, no JSON, no explanation.';
+            } else if (type === 'coursework') {
+                prompt = 'You are a friendly education coach helping a ' + (context.schoolType === 'highschool' ? 'high school' : context.schoolType === 'trade' ? 'trade school' : 'college') + ' student think about what to highlight from their education.\n\n'
+                    + 'School: ' + (context.school || '?') + '\n'
+                    + (context.major ? 'Field/Major: ' + context.major + '\n' : '')
+                    + (context.degree ? 'Program: ' + context.degree + '\n' : '')
+                    + (existing ? 'They already mentioned: "' + existing + '"\n' : '')
+                    + '\nHelp them think of notable things to list. Suggest 5-8 specific items they might have done, like:\n'
+                    + '- Specific courses that taught real skills\n- Class projects or group projects\n- Presentations or papers\n- Academic awards, honor roll, dean\'s list\n- AP/IB/Honors classes\n- Lab work or hands-on projects\n- Study abroad or special programs\n- Relevant certifications or trainings\n\n'
+                    + 'Write a comma-separated list of 5-8 specific, realistic suggestions for this student. Be specific to their school type and field. ' + (existing ? 'Add to what they already have.' : '')
+                    + '\n\nReturn ONLY the comma-separated list, no explanation.';
+            }
+
+            try {
+                var response = await callAnthropicAPI({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 500,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'explorer-ai-expand');
+                var text = (response.content[0].text || '').trim();
+                textarea.value = text;
+                textarea.style.borderColor = '#8b5cf6';
+                setTimeout(function() { textarea.style.borderColor = ''; }, 2000);
+                if (context.onUpdate) context.onUpdate(text);
+            } catch (err) {
+                showToast('AI assist unavailable: ' + err.message, 'error');
+            }
+            if (btn) { btn.disabled = false; btn.textContent = '\u2728 Help me describe this'; }
+        }
+        window._explorerAIExpand = _explorerAIExpand;
+
+        var _aiExpandBtnStyle = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:12px; font-size:0.72em; cursor:pointer; border:1px solid rgba(139,92,246,0.3); background:rgba(139,92,246,0.06); color:#8b5cf6; font-weight:600; margin-top:4px;';
+
+        function explorerAIActivityHelp(idx) {
+            var a = wizardState.explorerData.activities[idx];
+            if (!a) return;
+            var card = document.getElementById('expActDesc' + idx);
+            if (card) {
+                var parent = card.closest('div[style*="padding:14px"]') || card.parentElement;
+                var roleInput = parent ? parent.querySelector('input[type="text"]') : null;
+                var selects = parent ? parent.querySelectorAll('select') : [];
+                a.role = roleInput ? roleInput.value : a.role;
+                if (selects[0]) a.level = selects[0].value;
+                if (selects[1]) a.duration = selects[1].value;
+            }
+            _explorerAIExpand('activity', {
+                category: a.category,
+                level: a.level || '',
+                duration: a.duration || '',
+                role: a.role || '',
+                onUpdate: function(v) { explorerUpdateActivity(idx, 'description', v); }
+            }, 'expActDesc' + idx);
+        }
+        window.explorerAIActivityHelp = explorerAIActivityHelp;
+
+        function explorerAIJobHelp(idx) {
+            var j = wizardState.explorerData.partTimeJobs[idx];
+            if (!j) return;
+            var desc = document.getElementById('expJobDesc' + idx);
+            if (desc) {
+                var parent = desc.closest('div[style*="padding:12px"]') || desc.parentElement;
+                var inputs = parent ? parent.querySelectorAll('input[type="text"]') : [];
+                if (inputs[0]) j.title = inputs[0].value;
+                if (inputs[1]) j.company = inputs[1].value;
+                var selects = parent ? parent.querySelectorAll('select') : [];
+                if (selects[0]) j.duration = selects[0].value;
+                if (inputs[2]) j.role = inputs[2].value;
+            }
+            _explorerAIExpand('job', {
+                title: j.title || '',
+                company: j.company || '',
+                duration: j.duration || '',
+                role: j.role || '',
+                onUpdate: function(v) { explorerUpdateJob(idx, 'description', v); }
+            }, 'expJobDesc' + idx);
+        }
+        window.explorerAIJobHelp = explorerAIJobHelp;
+
+        function explorerAICourseworkHelp(idx) {
+            var s = wizardState.explorerData.schools[idx];
+            if (!s) return;
+            var cw = document.getElementById('expCourseWork' + idx);
+            if (cw) {
+                var parent = cw.closest('div[style*="position:relative"]') || cw.parentElement;
+                var inputs = parent ? parent.querySelectorAll('input[type="text"]') : [];
+                if (inputs[0]) s.school = inputs[0].value;
+                if (inputs[1]) s.major = inputs[1].value;
+            }
+            _explorerAIExpand('coursework', {
+                schoolType: s.schoolType || '',
+                school: s.school || '',
+                major: s.major || '',
+                degree: s.degree || '',
+                onUpdate: function(v) { explorerUpdateSchool(idx, 'coursework', v); }
+            }, 'expCourseWork' + idx);
+        }
+        window.explorerAICourseworkHelp = explorerAICourseworkHelp;
 
         function explorerAddActivity(catId) {
             wizardState.explorerData.activities.push({ category: catId, level: '', duration: '', role: '', description: '' });
@@ -31428,6 +31561,7 @@ body {
                 + '<input type="text" id="edSchoolYear" value="' + escapeAttr(s.currentYear || '') + '" placeholder="Current year (e.g. Junior)" class="settings-input">'
                 + '</div>'
                 + '<textarea id="edSchoolCoursework" rows="2" placeholder="Notable coursework, projects, achievements" class="settings-input" style="resize:vertical;">' + escapeHtml(s.coursework || '') + '</textarea>'
+                + '<button onclick="explorerDashAICourseworkHelp()" style="' + _aiExpandBtnStyle + ' margin-top:6px;">\u2728 Help me think of more</button>'
                 + '</div>'
                 + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
                 + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
@@ -31435,6 +31569,17 @@ body {
                 + '</div></div>';
             modal.classList.add('active');
         }
+
+        function explorerDashAICourseworkHelp() {
+            _explorerAIExpand('coursework', {
+                schoolType: (document.getElementById('edSchoolType') || {}).value || '',
+                school: (document.getElementById('edSchoolName') || {}).value || '',
+                major: (document.getElementById('edSchoolMajor') || {}).value || '',
+                degree: (document.getElementById('edSchoolDegree') || {}).value || '',
+                onUpdate: function() {}
+            }, 'edSchoolCoursework');
+        }
+        window.explorerDashAICourseworkHelp = explorerDashAICourseworkHelp;
 
         function explorerDashSaveSchool(idx) {
             var s = {
@@ -31518,6 +31663,7 @@ body {
                 + '</div>'
                 + '<input type="text" id="edActRole" value="' + escapeAttr(a.role || '') + '" placeholder="Your role (e.g. Team Captain, Treasurer)" class="settings-input">'
                 + '<textarea id="edActDesc" rows="3" placeholder="What did you do? What did you accomplish?" class="settings-input" style="resize:vertical;">' + escapeHtml(a.description || '') + '</textarea>'
+                + '<button onclick="explorerDashAIActivityHelp()" style="' + _aiExpandBtnStyle + ' margin-top:6px;">\u2728 Help me describe this</button>'
                 + '</div>'
                 + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
                 + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
@@ -31542,6 +31688,17 @@ body {
             _explorerDashSave();
         }
         window.explorerDashSaveActivity = explorerDashSaveActivity;
+
+        function explorerDashAIActivityHelp() {
+            _explorerAIExpand('activity', {
+                category: (document.getElementById('edActCategory') || {}).value || '',
+                level: (document.getElementById('edActLevel') || {}).value || '',
+                duration: (document.getElementById('edActDuration') || {}).value || '',
+                role: (document.getElementById('edActRole') || {}).value || '',
+                onUpdate: function() {}
+            }, 'edActDesc');
+        }
+        window.explorerDashAIActivityHelp = explorerDashAIActivityHelp;
 
         function explorerDashEditInterests() {
             if (readOnlyGuard()) return;
