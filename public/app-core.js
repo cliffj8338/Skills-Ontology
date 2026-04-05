@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37y';
+        var BP_VERSION = 'v4.47.37z';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3959,14 +3959,22 @@
                     color: '#8b5cf6',
                     icon: 'lightbulb',
                     items: [
-                        { id: 'p6-1', name: 'Explorer Mode architecture', status: 'planned', category: 'feature', priority: 'critical', notes: 'Separate application mode for high school and college students/recent graduates. Lighter-weight UI, different navigation, simplified mental model. Users select "Explorer" on entry, can upgrade to "Builder" (standard mode) at any time. Profile data carries forward on upgrade with no loss. Shares core skill ontology, BLS data, and values engine with standard Blueprint.' },
-                        { id: 'p6-2', name: 'Interest/aptitude input model', status: 'planned', category: 'feature', priority: 'critical', notes: 'Replaces proficiency levels (Novice→Mastery) with an exploration spectrum: "Curious About / Learning / Passionate About / Talented In." No evidence or verification required. Students also flag aspirational skills they want to develop. The input asks "what lights you up" rather than "what can you prove." Maps internally to proficiency ranges for BLS matching but never exposes that machinery.' },
-                        { id: 'p6-3', name: 'Field recommendation engine', status: 'planned', category: 'feature', priority: 'critical', notes: 'Maps skill/interest clusters to BLS occupational fields (not specific job listings). Output is "people with your combination of interests in [X, Y, Z] tend to work in these 6-10 fields." Weighted by interest intensity and skill adjacency. Values layer differentiates: same skills + different values = different field recommendations. Autonomy-seeking creative gets entrepreneurship/consulting; stability-seeking collaborator gets corporate strategy/education.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'planned', category: 'feature', priority: 'high', notes: 'Instead of a single market value number, shows compensation trajectories over time per recommended field: entry-level, 5-year, 10-year, peak. Uses BLS percentile data (25th/50th/75th/90th). Visualization designed for 17-22 year olds and their parents: clear, honest, not reductive. Language frames it as "fields where your talents are valued" rather than "what you are worth." Interactive: slide interest levels and watch fields and trajectories shift in real time.' },
-                        { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Simplified values discovery tuned for people who may not have professional context. Questions framed around life preferences rather than work preferences: "Do you want to solve problems independently or with a team?" rather than "Rate your preference for autonomous work." Values become the primary differentiator in field recommendations since skills/interests are still forming.' },
-                        { id: 'p6-6', name: 'Skill adjacency explorer', status: 'planned', category: 'feature', priority: 'medium', notes: 'Interactive D3 visualization showing how interests connect to fields and how fields connect to each other. "You like data analysis and psychology? Those overlap in market research, UX research, behavioral economics, and public health." Shows the student that their interests are not isolated but part of interconnected professional ecosystems.' },
-                        { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'When an Explorer user gains work experience, internships, or evidence, they can upgrade to Builder (standard Blueprint). Interests map to initial skill claims, aspirational skills become gap targets, values carry forward. The upgrade feels like leveling up, not starting over. Consider gamification elements for the transition.' },
-                        { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Schools and universities license Explorer Mode for their student body. Guidance counselors get a dashboard showing aggregate interest patterns, field alignment trends, skills gaps across their cohort. No individual student data shared without consent. Potential B2B revenue channel distinct from enterprise recruiting.' }
+                        { id: 'p6-1', name: 'Explorer Mode architecture', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.37u+: Full explorer wizard flow — multi-step guided experience for students/early-career. profileType=explorer flag, explorerData persistence, separate dashboard with edit modals. Shares core skill ontology and values engine with standard Blueprint. Not a separate app mode (same SPA) but distinct wizard path and dashboard rendering.' },
+                        { id: 'p6-1b', name: 'Multi-school education system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.37u: Add/remove school cards with type selector (HS, College, Trade, CC, Bootcamp). Each school has degree, major, minor, GPA, year, coursework fields. Primary school selection. _explorerEnsureSchools migrates legacy single-school data.' },
+                        { id: 'p6-1c', name: 'Activity depth system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.37u: 14 activity categories with tap-to-add-multiple. Each activity has duration, level/context dropdowns (Recreational→Professional), role, description fields. Activities feed into AI skill discovery prompts with full context.' },
+                        { id: 'p6-1d', name: 'AI skill discovery from activities', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.37u+: Claude analyzes activities, jobs, education, interests to discover transferable skills. Students select/deselect discovered skills. Skills auto-assigned to target career role for network visualization.' },
+                        { id: 'p6-1e', name: 'AI career path suggestions', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.37u+: AI suggests 3-5 career paths based on skills, interests, and education. Students select a target path. Selected path becomes the target role in their profile.' },
+                        { id: 'p6-1f', name: 'Post-wizard dashboard editing', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.37v: Add/edit/remove schools, activities (with level/duration), interests, drive statement via modal dialogs after wizard completion. Full CRUD for all explorer data fields.' },
+                        { id: 'p6-1g', name: 'AI coaching during data entry', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.37x: Sparkle buttons on activity, job, and coursework fields. AI generates context-aware descriptions using role/duration/level context. Available in both wizard and dashboard edit modals. Three prompt types: job descriptions, activity descriptions, coursework suggestions.' },
+                        { id: 'p6-1h', name: 'Explorer resume export', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.37w: Resume export with toggle options (compensation defaults OFF for students). Includes activities with level/duration, interests chips, career objective section. HTML injection fix for name/title.' },
+                        { id: 'p6-1i', name: 'Skills Network fix for explorer profiles', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.37y: Explorer skills were created with empty roles[], making them invisible in the D3 skills network. Fixed: skills now assigned to target role. initNetwork fallback includes unlinked explorer skills.' },
+                        { id: 'p6-2', name: 'Interest/aptitude input model', status: 'partial', category: 'feature', priority: 'critical', notes: 'Interests are collected as free-text chips (tap-to-add from suggestions + custom). NOT yet using exploration spectrum (Curious/Learning/Passionate/Talented). Current model is simpler: just interest names without intensity levels. Aspirational skills not yet distinguished from discovered skills.' },
+                        { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would show entry-level → 5yr → 10yr → peak compensation per recommended field using BLS percentile data. Interactive slider to shift interest levels and watch trajectories change.' },
+                        { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
+                        { id: 'p6-6', name: 'Skill adjacency explorer', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. Interactive D3 visualization showing how interests connect to fields and how fields connect to each other. Would show students their interests are part of interconnected professional ecosystems.' },
+                        { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
+                        { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
                 },
                 {
@@ -21880,10 +21888,11 @@
                 showToast('Please select at least a few skills to continue.', 'error');
                 return;
             }
+            var targetRoleId = 'target1';
             wizardState.skills = selected.map(function(s) {
                 return {
                     name: s.name, level: s.level || 'Novice', category: s.category || 'skill',
-                    key: false, roles: [], evidence: [],
+                    key: false, roles: [targetRoleId], evidence: [],
                     userAssessment: { years: 0, impact: 'moderate', rarity: 'common' }
                 };
             });
@@ -25850,7 +25859,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // On all devices, only show skills connected to at least one visible role
             var visibleRoleIds = new Set();
             visibleRoles.forEach(function(r) { visibleRoleIds.add(r.id || r.name); visibleRoleIds.add(r.name); });
+            var isExplorerProfile = userData.profileType === 'explorer';
             var connectedSkills = skillsData.skills.filter(function(s) {
+                if (isExplorerProfile && (!s.roles || s.roles.length === 0)) return true;
                 return (s.roles || []).some(function(rid) { return visibleRoleIds.has(rid); });
             });
             var skillsToShow = connectedSkills;
