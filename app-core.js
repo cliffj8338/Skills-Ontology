@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38f';
+        var BP_VERSION = 'v4.47.38g';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1333,6 +1333,7 @@
             };
             if (_ud.profileType) data.profileType = _ud.profileType;
             if (_ud.explorerData) data.explorerData = _ud.explorerData;
+            if (_ud.activities && _ud.activities.length > 0) data.activities = _ud.activities;
             if (_ud.linkedinContent) data.linkedinContent = _ud.linkedinContent;
             if (_ud.contentVisibility) data.contentVisibility = _ud.contentVisibility;
             if (_ud.companyTenures) data.companyTenures = _ud.companyTenures;
@@ -1472,6 +1473,7 @@
             d.templateId = userData.templateId || '';
             d.profileType = userData.profileType || 'standard';
             if (userData.explorerData) d.explorerData = JSON.parse(JSON.stringify(userData.explorerData));
+            if (userData.activities && userData.activities.length > 0) d.activities = JSON.parse(JSON.stringify(userData.activities));
             if (userData.outcomes) d.outcomes = JSON.parse(JSON.stringify(userData.outcomes));
             if (userData.linkedinContent) d.linkedinContent = JSON.parse(JSON.stringify(userData.linkedinContent));
             if (userData.contentVisibility) d.contentVisibility = JSON.parse(JSON.stringify(userData.contentVisibility));
@@ -1657,6 +1659,7 @@
                     userData.blindDefaults = data.blindDefaults || {};
                     if (data.profileType) userData.profileType = data.profileType;
                     if (data.explorerData) userData.explorerData = data.explorerData;
+                    if (data.activities) userData.activities = data.activities;
                     userData.growthSkills = data.growthSkills || [];
                     userData.privacyLog = data.privacyLog || [];
                     // Restore sharing preset
@@ -22186,10 +22189,12 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
+                    var _wasExplorer = userData.profileType === 'explorer';
                     const imported = sanitizeImport(JSON.parse(e.target.result));
                     imported.initialized = true;
-                    if (imported.profileType === 'explorer' || imported.explorerData) {
+                    if (imported.profileType === 'explorer' || imported.explorerData || _wasExplorer) {
                         imported.profileType = 'explorer';
+                        if (!imported.explorerData) imported.explorerData = userData.explorerData || {};
                     }
                     if (Array.isArray(imported.skills)) {
                         imported.skills = imported.skills.filter(function(s) { return !_skillValuesFilter.test((s.name || '').trim()); });
@@ -31329,6 +31334,15 @@ body {
                 + '<div style="font-size:0.72em; color:var(--text-muted);">Skill Growth Potential</div></div>';
             html += '</div>';
 
+            if (careerPaths.length === 0) {
+                html += '<div style="' + cs + ' text-align:center; padding:30px 20px;">'
+                    + '<div style="font-size:2.5em; margin-bottom:12px; opacity:0.3;">\uD83D\uDEE4\uFE0F</div>'
+                    + '<div style="font-weight:700; color:var(--text-primary); font-size:1.05em; margin-bottom:8px;">Discover Your Career Paths</div>'
+                    + '<div style="font-size:0.85em; color:var(--text-muted); max-width:400px; margin:0 auto 18px; line-height:1.6;">AI will analyze your skills, education, and interests to suggest career directions with salary data and growth roadmaps.</div>'
+                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:12px 28px; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.95em;">\u26A1 Discover Career Paths</button>'
+                    + '</div>';
+            }
+
             if (careerPaths.length > 1) {
                 html += '<div style="' + cs + ' padding:16px;">'
                     + '<div style="' + ls + ' color:#60a5fa;">Choose Your Direction</div>'
@@ -31572,6 +31586,67 @@ body {
             saveToFirestore();
         }
         window.explorerDashSelectPath = explorerDashSelectPath;
+
+        async function explorerDashDiscoverCareers(btnEl) {
+            if (readOnlyGuard()) return;
+            var ed = userData.explorerData || {};
+            var skills = skillsData.skills || [];
+            if (skills.length === 0) { showToast('Add some skills first before discovering career paths.', 'warning'); return; }
+            if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<div class="bp-spinner" style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:8px;"></div> Analyzing...'; }
+            var allSchools = ed.schools || [];
+            if (allSchools.length === 0 && ed.education && ed.education.school) allSchools = [ed.education];
+            var schoolLabel = 'student';
+            if (ed.education) {
+                var st = ed.education.schoolType;
+                schoolLabel = (st === 'highschool' ? 'high school' : st === 'trade' ? 'trade school' : 'college') + ' student';
+            }
+            var skillNames = skills.map(function(s) { return s.name; }).join(', ');
+            var prompt = 'You are a career counselor AI. Based on the following ' + schoolLabel + '/early-career profile, suggest 5 realistic career paths.\n\n'
+                + 'For each path, provide:\n'
+                + '- A job title they could aim for as an entry-level position\n'
+                + '- Why it fits their specific background (reference their actual skills/activities)\n'
+                + '- Salary data: entry-level range string, plus numeric values for entry, mid-career (3-5yr), and senior (8-10yr)\n'
+                + '- Growth potential description\n'
+                + '- Which of their current skills already apply to this path (2-4 skill names from their profile)\n'
+                + '- 4 new skills they should learn, each with: skill name, added market value (numeric, in dollars), time to learn, and how to learn it\n'
+                + '- 3-4 concrete next steps to pursue this path\n\n'
+                + '--- PROFILE ---\n'
+                + 'Student type: ' + schoolLabel + '\n'
+                + 'Education:\n';
+            allSchools.forEach(function(s, i) {
+                prompt += '  ' + (i + 1) + '. ' + (s.school || '?') + ' - ' + (s.degree || '') + ' in ' + (s.major || '') + (s.gpa ? ' (GPA: ' + s.gpa + ')' : '') + '\n';
+            });
+            prompt += 'Skills: ' + skillNames + '\n'
+                + 'Activities: ';
+            (ed.activities || []).forEach(function(a) {
+                var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
+                prompt += (cat ? cat.label : a.category) + (a.duration ? ' [' + a.duration + ']' : '') + (a.level ? ' [' + a.level + ']' : '') + (a.role ? ' (' + a.role + ')' : '') + ', ';
+            });
+            prompt += '\nInterests: ' + (ed.interests || []).join(', ') + '\n'
+                + (ed.driveStatement ? 'Motivation: ' + ed.driveStatement + '\n' : '')
+                + '\n--- OUTPUT ---\n'
+                + 'Return ONLY a JSON object (no markdown):\n'
+                + '{"careerPaths":[{"title":"...","whyFit":"...","salary":"$XX,000-$YY,000","entryValue":45000,"midValue":72000,"seniorValue":110000,"growth":"...","skillsYouHave":["Skill1"],"skillsToLearn":[{"name":"...","valueAdd":8000,"timeToLearn":"2-3 months","how":"..."}],"nextSteps":["Step 1"]}],"values":["Value1","Value2"]}';
+            try {
+                var response = await callAnthropicAPI({
+                    model: 'claude-sonnet-4-20250514', max_tokens: 3000,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'explorer-careers');
+                var text = response.content[0].text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+                var parsed = JSON.parse(text);
+                if (!userData.explorerData) userData.explorerData = {};
+                userData.explorerData.careerPaths = parsed.careerPaths || [];
+                userData.explorerData.selectedCareerIdx = 0;
+                if (parsed.values && parsed.values.length > 0) userData.explorerData.suggestedValues = parsed.values;
+                renderBlueprint();
+                showToast('Career paths discovered!', 'success');
+                saveToFirestore();
+            } catch (err) {
+                showToast('Error discovering careers: ' + err.message, 'error');
+                if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '\u26A1 Discover Career Paths'; }
+            }
+        }
+        window.explorerDashDiscoverCareers = explorerDashDiscoverCareers;
 
         function _explorerEnsureSchools() {
             if (!userData.explorerData) return;
@@ -31899,6 +31974,10 @@ body {
             }
             blueprintTab = 'dashboard';
             renderBlueprint();
+            var _settingsEl = document.getElementById('settingsTabContent');
+            if (_settingsEl && window.currentSettingsTab === 'profile') {
+                _settingsEl.innerHTML = renderProfileSettings();
+            }
             showToast('Switched to Explorer Mode!', 'success');
             saveToFirestore().then(function() {
                 console.log('[Mode] Explorer mode saved to Firestore');
@@ -31961,6 +32040,10 @@ body {
             userData.profileType = 'standard';
             if (typeof closeExportModal === 'function') closeExportModal();
             renderBlueprint();
+            var _settingsEl = document.getElementById('settingsTabContent');
+            if (_settingsEl && window.currentSettingsTab === 'profile') {
+                _settingsEl.innerHTML = renderProfileSettings();
+            }
             if (fbUser && fbDb) {
                 saveToFirestore().then(function(ok) {
                     if (ok) {
@@ -47287,6 +47370,40 @@ body {
                 html += '</div>';
             }
 
+            // Activities & Hobbies
+            var actItems = userData.activities || [];
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                + '<div style="display:flex; align-items:center; gap:8px;">'
+                + '<span style="color:#8b5cf6;">' + bpIcon('compass',16) + '</span>'
+                + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Activities & Hobbies</span>'
+                + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:var(--c-surface-4); color:var(--c-muted);">' + actItems.length + '</span>'
+                + '</div>'
+                + '<button onclick="addActivityItem()" style="font-size:0.78em; padding:5px 12px; border-radius:7px; border:1px solid rgba(139,92,246,0.3); background:rgba(139,92,246,0.06); color:#8b5cf6; cursor:pointer; font-weight:600;">+ Add Activity</button>'
+                + '</div>';
+
+            if (actItems.length === 0) {
+                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:20px;">No activities yet. Add sports, clubs, volunteering, hobbies, and more.</div>';
+            } else {
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px; margin-bottom:24px;">';
+                var _actCats = [{id:'sports',icon:'\u26BD'},{id:'clubs',icon:'\uD83D\uDCDA'},{id:'volunteer',icon:'\u2764\uFE0F'},{id:'arts',icon:'\uD83C\uDFA8'},{id:'music',icon:'\uD83C\uDFB5'},{id:'outdoors',icon:'\uD83C\uDFD5\uFE0F'},{id:'gaming',icon:'\uD83C\uDFAE'},{id:'cooking',icon:'\uD83C\uDF73'},{id:'fitness',icon:'\uD83C\uDFCB\uFE0F'},{id:'travel',icon:'\u2708\uFE0F'},{id:'tech',icon:'\uD83D\uDCBB'},{id:'crafts',icon:'\uD83E\uDDF5'},{id:'reading',icon:'\uD83D\uDCDA'},{id:'community',icon:'\uD83C\uDFD8\uFE0F'},{id:'faith',icon:'\u26EA'},{id:'other',icon:'\uD83D\uDCCC'}];
+                actItems.forEach(function(act, idx) {
+                    var catObj = _actCats.find(function(c) { return c.id === act.category; }) || {icon:'\uD83D\uDCCC'};
+                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:10px; padding:14px;">'
+                        + '<div style="display:flex; justify-content:space-between; align-items:flex-start;">'
+                        + '<div style="flex:1;">'
+                        + '<div style="font-weight:700; font-size:0.88em; color:var(--text-primary);">' + catObj.icon + ' ' + escapeHtml(act.name || act.category || 'Activity') + '</div>'
+                        + (act.role ? '<div style="font-size:0.78em; color:var(--text-secondary); margin-top:2px;">' + escapeHtml(act.role) + '</div>' : '')
+                        + (act.duration ? '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(act.duration) + '</div>' : '')
+                        + (act.description ? '<div style="font-size:0.75em; color:var(--text-muted); margin-top:4px; line-height:1.4;">' + escapeHtml(act.description).substring(0,120) + '</div>' : '')
+                        + '</div>'
+                        + '<div style="display:flex; gap:1px; flex-shrink:0;">'
+                        + '<button onclick="editActivityItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="removeActivityItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
+                        + '</div></div></div>';
+                });
+                html += '</div>';
+            }
+
             // Certifications
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
@@ -48485,7 +48602,88 @@ body {
         window.editCertItem = editCertItem;
         window.removeCertItem = removeCertItem;
         window.saveCertFromModal = saveCertFromModal;
-        
+
+        function addActivityItem() {
+            if (readOnlyGuard()) return;
+            openActivityModal(-1);
+        }
+        function editActivityItem(idx) {
+            if (readOnlyGuard()) return;
+            openActivityModal(idx);
+        }
+        function removeActivityItem(idx) {
+            if (readOnlyGuard()) return;
+            if (!confirm('Remove this activity?')) return;
+            var acts = userData.activities || [];
+            acts.splice(idx, 1);
+            userData.activities = acts;
+            refreshExperienceContent();
+            if (fbUser) debouncedSave();
+        }
+        function openActivityModal(idx) {
+            var acts = userData.activities || [];
+            var act = idx >= 0 ? (acts[idx] || {}) : {};
+            var isNew = idx < 0;
+            var cats = [
+                {id:'sports',label:'Sports',icon:'\u26BD'},{id:'clubs',label:'Clubs & Organizations',icon:'\uD83D\uDCDA'},
+                {id:'volunteer',label:'Volunteering',icon:'\u2764\uFE0F'},{id:'arts',label:'Arts & Theater',icon:'\uD83C\uDFA8'},
+                {id:'music',label:'Music',icon:'\uD83C\uDFB5'},{id:'outdoors',label:'Outdoors',icon:'\uD83C\uDFD5\uFE0F'},
+                {id:'gaming',label:'Gaming / Esports',icon:'\uD83C\uDFAE'},{id:'cooking',label:'Cooking',icon:'\uD83C\uDF73'},
+                {id:'fitness',label:'Fitness',icon:'\uD83C\uDFCB\uFE0F'},{id:'travel',label:'Travel',icon:'\u2708\uFE0F'},
+                {id:'tech',label:'Tech / Maker',icon:'\uD83D\uDCBB'},{id:'crafts',label:'Crafts / DIY',icon:'\uD83E\uDDF5'},
+                {id:'reading',label:'Reading / Writing',icon:'\uD83D\uDCDA'},{id:'community',label:'Community Service',icon:'\uD83C\uDFD8\uFE0F'},
+                {id:'faith',label:'Faith / Church',icon:'\u26EA'},{id:'other',label:'Other',icon:'\uD83D\uDCCC'}
+            ];
+            var catOptions = cats.map(function(c) {
+                return '<option value="' + c.id + '"' + (act.category === c.id ? ' selected' : '') + '>' + c.icon + ' ' + c.label + '</option>';
+            }).join('');
+            var modalHTML = '<div id="activityModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; display:flex; align-items:center; justify-content:center;" onclick="if(event.target===this)this.remove()">'
+                + '<div style="background:var(--card-bg); border-radius:14px; padding:24px; max-width:480px; width:90%; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">'
+                + '<div style="font-weight:700; font-size:1.05em; color:var(--text-primary); margin-bottom:16px;">' + (isNew ? 'Add Activity' : 'Edit Activity') + '</div>'
+                + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Activity Name</label>'
+                + '<input id="actName" value="' + escapeHtml(act.name || '') + '" placeholder="e.g. Varsity Baseball" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
+                + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Category</label>'
+                + '<select id="actCategory" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">' + catOptions + '</select></div>'
+                + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Role / Position</label>'
+                + '<input id="actRole" value="' + escapeHtml(act.role || '') + '" placeholder="e.g. Team Captain, Member, Volunteer" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
+                + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Duration</label>'
+                + '<input id="actDuration" value="' + escapeHtml(act.duration || '') + '" placeholder="e.g. 12 years, 2019-2023, 3 semesters" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
+                + '<div style="margin-bottom:16px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Description (optional)</label>'
+                + '<textarea id="actDesc" placeholder="What did you do? Any achievements or awards?" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; min-height:60px; resize:vertical; box-sizing:border-box;">' + escapeHtml(act.description || '') + '</textarea></div>'
+                + '<div style="display:flex; gap:10px; justify-content:flex-end;">'
+                + '<button onclick="document.getElementById(\'activityModal\').remove()" style="padding:8px 18px; background:var(--bg-elevated); color:var(--text-secondary); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-weight:600;">Cancel</button>'
+                + '<button onclick="saveActivityFromModal(' + idx + ')" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save</button>'
+                + '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.getElementById('actName').focus();
+        }
+        function saveActivityFromModal(idx) {
+            var acts = userData.activities || [];
+            var entry = {
+                name: (document.getElementById('actName').value || '').trim(),
+                category: document.getElementById('actCategory').value,
+                role: (document.getElementById('actRole').value || '').trim(),
+                duration: (document.getElementById('actDuration').value || '').trim(),
+                description: (document.getElementById('actDesc').value || '').trim()
+            };
+            if (!entry.name) { showToast('Please enter an activity name.', 'warning'); return; }
+            if (idx >= 0 && idx < acts.length) {
+                acts[idx] = entry;
+            } else {
+                acts.push(entry);
+            }
+            userData.activities = acts;
+            var modal = document.getElementById('activityModal');
+            if (modal) modal.remove();
+            refreshExperienceContent();
+            showToast('Activity saved!', 'success');
+            if (fbUser) debouncedSave();
+        }
+        window.addActivityItem = addActivityItem;
+        window.editActivityItem = editActivityItem;
+        window.removeActivityItem = removeActivityItem;
+        window.saveActivityFromModal = saveActivityFromModal;
+
         function renderJobPreferences() {
             return `
                 <div class="blueprint-section">
