@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37t';
+        var BP_VERSION = 'v4.47.37u';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -21244,87 +21244,86 @@
         var explorerChipStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-secondary);';
         var explorerChipActiveStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid #8b5cf6; background:rgba(139,92,246,0.15); color:#8b5cf6; font-weight:600;';
 
+        function _explorerSchoolCard(s, idx, total) {
+            var isHS = s.schoolType === 'highschool';
+            var isTrade = s.schoolType === 'trade';
+            var degreeOpts = isHS
+                ? '<option value="High School Diploma"' + (s.degree === 'High School Diploma' || !s.degree ? ' selected' : '') + '>High School Diploma</option>'
+                  + '<option value="GED"' + (s.degree === 'GED' ? ' selected' : '') + '>GED</option>'
+                : '<option value="">Select...</option>'
+                  + '<option value="High School Diploma"' + (s.degree === 'High School Diploma' ? ' selected' : '') + '>High School Diploma</option>'
+                  + '<option value="Associate\'s"' + (s.degree === "Associate's" ? ' selected' : '') + '>Associate\'s Degree</option>'
+                  + '<option value="Bachelor\'s"' + (s.degree === "Bachelor's" ? ' selected' : '') + '>Bachelor\'s Degree</option>'
+                  + '<option value="Certificate"' + (s.degree === 'Certificate' ? ' selected' : '') + '>Certificate / Trade Program</option>'
+                  + '<option value="Bootcamp"' + (s.degree === 'Bootcamp' ? ' selected' : '') + '>Bootcamp</option>'
+                  + '<option value="Master\'s"' + (s.degree === "Master's" ? ' selected' : '') + '>Master\'s Degree</option>'
+                  + '<option value="Other"' + (s.degree === 'Other' ? ' selected' : '') + '>Other</option>';
+            var yearOpts = isHS
+                ? '<option value="">Select...</option>'
+                  + '<option value="Freshman (9th)"' + (s.currentYear === 'Freshman (9th)' ? ' selected' : '') + '>Freshman (9th)</option>'
+                  + '<option value="Sophomore (10th)"' + (s.currentYear === 'Sophomore (10th)' ? ' selected' : '') + '>Sophomore (10th)</option>'
+                  + '<option value="Junior (11th)"' + (s.currentYear === 'Junior (11th)' ? ' selected' : '') + '>Junior (11th)</option>'
+                  + '<option value="Senior (12th)"' + (s.currentYear === 'Senior (12th)' ? ' selected' : '') + '>Senior (12th)</option>'
+                  + '<option value="Graduated"' + (s.currentYear === 'Graduated' ? ' selected' : '') + '>Graduated</option>'
+                : '<option value="">Select...</option>'
+                  + '<option value="Freshman"' + (s.currentYear === 'Freshman' ? ' selected' : '') + '>Freshman / 1st Year</option>'
+                  + '<option value="Sophomore"' + (s.currentYear === 'Sophomore' ? ' selected' : '') + '>Sophomore / 2nd Year</option>'
+                  + '<option value="Junior"' + (s.currentYear === 'Junior' ? ' selected' : '') + '>Junior / 3rd Year</option>'
+                  + '<option value="Senior"' + (s.currentYear === 'Senior' ? ' selected' : '') + '>Senior / 4th Year</option>'
+                  + '<option value="Graduate"' + (s.currentYear === 'Graduate' ? ' selected' : '') + '>Graduate Student</option>'
+                  + '<option value="Graduated"' + (s.currentYear === 'Graduated' ? ' selected' : '') + '>Graduated / Alumni</option>';
+
+            return '<div style="' + explorerCardStyle + ' position:relative;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                + '<div style="display:flex; align-items:center; gap:8px;">'
+                + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'highschool\')" style="' + (s.schoolType === 'highschool' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83C\uDFEB HS</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'college\')" style="' + (s.schoolType === 'college' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83C\uDF93 College</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'trade\')" style="' + (s.schoolType === 'trade' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDD27 Trade</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'community\')" style="' + (s.schoolType === 'community' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDCDA CC</span>'
+                + '</div></div>'
+                + (total > 1 ? '<button onclick="explorerRemoveSchool(' + idx + ')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; font-size:1em; padding:4px 8px;" title="Remove">\u2715</button>' : '')
+                + '</div>'
+                + '<div style="display:grid; gap:10px;">'
+                + '<input type="text" value="' + escapeAttr(s.school || '') + '" placeholder="' + (isHS ? 'e.g. Lincoln High School' : isTrade ? 'e.g. Tulsa Welding School' : 'e.g. University of Texas') + '" '
+                + 'onchange="explorerUpdateSchool(' + idx + ',\'school\',this.value)" style="' + explorerFieldStyle + ' font-size:0.88em;">'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">'
+                + '<select onchange="explorerUpdateSchool(' + idx + ',\'degree\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">' + degreeOpts + '</select>'
+                + '<input type="number" value="' + (s.gradYear || '') + '" placeholder="Grad year" min="2000" max="2035" '
+                + 'onchange="explorerUpdateSchool(' + idx + ',\'gradYear\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
+                + '</div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">'
+                + '<input type="text" value="' + escapeAttr(s.major || '') + '" placeholder="' + (isHS ? 'Favorite subjects' : isTrade ? 'Trade / Specialty' : 'Major') + '" '
+                + 'onchange="explorerUpdateSchool(' + idx + ',\'major\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
+                + '<input type="text" value="' + escapeAttr(s.minor || '') + '" placeholder="' + (isHS ? 'AP / Honors track' : 'Minor (optional)') + '" '
+                + 'onchange="explorerUpdateSchool(' + idx + ',\'minor\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
+                + '</div>'
+                + '<div style="display:grid; grid-template-columns:80px 1fr 1fr; gap:8px;">'
+                + '<input type="text" value="' + escapeAttr(s.gpa || '') + '" placeholder="GPA" '
+                + 'onchange="explorerUpdateSchool(' + idx + ',\'gpa\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
+                + '<select onchange="explorerUpdateSchool(' + idx + ',\'currentYear\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">' + yearOpts + '</select>'
+                + '<input type="text" value="' + escapeAttr(s.coursework || '') + '" placeholder="' + (isHS ? 'Key classes / achievements' : 'Notable coursework / projects') + '" '
+                + 'onchange="explorerUpdateSchool(' + idx + ',\'coursework\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
+                + '</div>'
+                + '</div></div>';
+        }
+
         function renderExplorerEducation(el) {
-            var ed = wizardState.explorerData.education || {};
-            var schoolType = ed.schoolType || '';
+            if (!Array.isArray(wizardState.explorerData.schools)) {
+                var old = wizardState.explorerData.education || {};
+                wizardState.explorerData.schools = old.school ? [Object.assign({}, old)] : [{ schoolType: '', school: '', degree: '', gradYear: '', major: '', minor: '', gpa: '', currentYear: '', coursework: '' }];
+            }
+            var schools = wizardState.explorerData.schools;
+            var schoolCards = schools.map(function(s, i) { return _explorerSchoolCard(s, i, schools.length); }).join('');
+
             el.innerHTML = `
                 ${wizardHeading('\uD83C\uDF93', 'Tell Us About Your Education',
-                    'Where are you in school? What are you studying? This is the foundation of your profile.')}
-                <div style="${explorerCardStyle}">
-                    <div style="display:grid; gap:14px;">
-                        <div>
-                            <label style="${explorerLabelStyle}">What type of student are you? *</label>
-                            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-                                <span onclick="explorerSetSchoolType('highschool')" style="${schoolType === 'highschool' ? explorerChipActiveStyle : explorerChipStyle}">\uD83C\uDFEB High School</span>
-                                <span onclick="explorerSetSchoolType('college')" style="${schoolType === 'college' ? explorerChipActiveStyle : explorerChipStyle}">\uD83C\uDF93 College / University</span>
-                                <span onclick="explorerSetSchoolType('trade')" style="${schoolType === 'trade' ? explorerChipActiveStyle : explorerChipStyle}">\uD83D\uDD27 Trade / Vocational School</span>
-                                <span onclick="explorerSetSchoolType('community')" style="${schoolType === 'community' ? explorerChipActiveStyle : explorerChipStyle}">\uD83D\uDCDA Community College</span>
-                                <span onclick="explorerSetSchoolType('bootcamp')" style="${schoolType === 'bootcamp' ? explorerChipActiveStyle : explorerChipStyle}">\uD83D\uDCBB Bootcamp / Online</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label style="${explorerLabelStyle}">School Name *</label>
-                            <input type="text" id="expSchool" value="${escapeAttr(ed.school || '')}" placeholder="${schoolType === 'highschool' ? 'e.g. Lincoln High School' : schoolType === 'trade' ? 'e.g. Tulsa Welding School' : 'e.g. University of Texas at Austin'}" style="${explorerFieldStyle}">
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                            <div>
-                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Year' : 'Degree / Program'}</label>
-                                ${schoolType === 'highschool' ? '<select id="expDegree" style="' + explorerFieldStyle + '"><option value="High School Diploma"' + (ed.degree === 'High School Diploma' || !ed.degree ? ' selected' : '') + '>High School Diploma</option><option value="GED"' + (ed.degree === 'GED' ? ' selected' : '') + '>GED</option></select>'
-                                : '<select id="expDegree" style="' + explorerFieldStyle + '"><option value="">Select...</option>'
-                                + '<option value="High School Diploma"' + (ed.degree === 'High School Diploma' ? ' selected' : '') + '>High School Diploma</option>'
-                                + '<option value="Associate\'s"' + (ed.degree === "Associate's" ? ' selected' : '') + '>Associate\'s Degree</option>'
-                                + '<option value="Bachelor\'s"' + (ed.degree === "Bachelor's" ? ' selected' : '') + '>Bachelor\'s Degree</option>'
-                                + '<option value="Certificate"' + (ed.degree === 'Certificate' ? ' selected' : '') + '>Certificate / Trade Program</option>'
-                                + '<option value="Bootcamp"' + (ed.degree === 'Bootcamp' ? ' selected' : '') + '>Bootcamp</option>'
-                                + '<option value="Master\'s"' + (ed.degree === "Master's" ? ' selected' : '') + '>Master\'s Degree</option>'
-                                + '<option value="Other"' + (ed.degree === 'Other' ? ' selected' : '') + '>Other</option>'
-                                + '</select>'}
-                            </div>
-                            <div>
-                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Graduation Year' : 'Expected Graduation'}</label>
-                                <input type="number" id="expGradYear" value="${ed.gradYear || ''}" placeholder="${new Date().getFullYear() + 1}" min="2000" max="2035" style="${explorerFieldStyle}">
-                            </div>
-                        </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                            <div>
-                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Favorite Subjects' : schoolType === 'trade' ? 'Trade / Specialty *' : 'Major / Field of Study *'}</label>
-                                <input type="text" id="expMajor" value="${escapeAttr(ed.major || '')}" placeholder="${schoolType === 'highschool' ? 'e.g. Math, Science, Art' : schoolType === 'trade' ? 'e.g. Welding, HVAC, Electrical' : 'e.g. Computer Science'}" style="${explorerFieldStyle}">
-                            </div>
-                            <div>
-                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Concentration (optional)' : 'Minor (optional)'}</label>
-                                <input type="text" id="expMinor" value="${escapeAttr(ed.minor || '')}" placeholder="${schoolType === 'highschool' ? 'e.g. AP classes, honors track' : 'e.g. Business Administration'}" style="${explorerFieldStyle}">
-                            </div>
-                        </div>
-                        <div style="display:grid; grid-template-columns:120px 1fr; gap:12px;">
-                            <div>
-                                <label style="${explorerLabelStyle}">GPA (optional)</label>
-                                <input type="text" id="expGPA" value="${escapeAttr(ed.gpa || '')}" placeholder="e.g. 3.5" style="${explorerFieldStyle}">
-                            </div>
-                            <div>
-                                <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Grade / Year' : 'Current Year'}</label>
-                                <select id="expCurrentYear" style="${explorerFieldStyle}">
-                                    <option value="">Select...</option>
-                                    ${schoolType === 'highschool' ? `
-                                        <option value="Freshman (9th)"${ed.currentYear === 'Freshman (9th)' ? ' selected' : ''}>Freshman (9th Grade)</option>
-                                        <option value="Sophomore (10th)"${ed.currentYear === 'Sophomore (10th)' ? ' selected' : ''}>Sophomore (10th Grade)</option>
-                                        <option value="Junior (11th)"${ed.currentYear === 'Junior (11th)' ? ' selected' : ''}>Junior (11th Grade)</option>
-                                        <option value="Senior (12th)"${ed.currentYear === 'Senior (12th)' ? ' selected' : ''}>Senior (12th Grade)</option>
-                                    ` : `
-                                        <option value="Freshman"${ed.currentYear === 'Freshman' ? ' selected' : ''}>Freshman / 1st Year</option>
-                                        <option value="Sophomore"${ed.currentYear === 'Sophomore' ? ' selected' : ''}>Sophomore / 2nd Year</option>
-                                        <option value="Junior"${ed.currentYear === 'Junior' ? ' selected' : ''}>Junior / 3rd Year</option>
-                                        <option value="Senior"${ed.currentYear === 'Senior' ? ' selected' : ''}>Senior / 4th Year</option>
-                                        <option value="Graduate"${ed.currentYear === 'Graduate' ? ' selected' : ''}>Graduate Student</option>
-                                        <option value="Recently Graduated"${ed.currentYear === 'Recently Graduated' ? ' selected' : ''}>Recently Graduated</option>
-                                    `}
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label style="${explorerLabelStyle}">${schoolType === 'highschool' ? 'Favorite Classes, Projects, or Achievements' : 'Notable Coursework, Projects, or Certifications'}</label>
-                            <textarea id="expCoursework" rows="3" placeholder="${schoolType === 'highschool' ? 'e.g. Won science fair, AP Biology, built a website in computer class, shop class project...' : schoolType === 'trade' ? 'e.g. Completed OSHA 30, welding certification test, rebuilt an engine...' : 'e.g. Senior capstone project, Data Structures, Machine Learning course...'}" style="${explorerFieldStyle} resize:vertical;">${escapeHtml(ed.coursework || '')}</textarea>
-                        </div>
-                    </div>
+                    'Add every school you\'ve attended \u2014 high school, college, trade school, community college. Each one matters.')}
+                ${schoolCards}
+                <div style="text-align:center; margin-bottom:20px;">
+                    <button onclick="explorerAddSchool()" style="padding:8px 20px; background:transparent; border:2px dashed var(--border); border-radius:10px; color:var(--text-secondary); cursor:pointer; font-weight:600; font-size:0.88em;">
+                        + Add Another School
+                    </button>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-top:20px;">
                     ${wizardBtn('Back', 'wizardBack()', 'secondary')}
@@ -21333,88 +21332,127 @@
             `;
         }
 
-        function explorerSetSchoolType(type) {
-            if (!wizardState.explorerData.education) wizardState.explorerData.education = {};
-            wizardState.explorerData.education.schoolType = type;
+        function explorerSetSchoolType(idx, type) {
+            wizardState.explorerData.schools[idx].schoolType = type;
             renderWizardStep();
         }
         window.explorerSetSchoolType = explorerSetSchoolType;
 
+        function explorerUpdateSchool(idx, field, val) {
+            if (wizardState.explorerData.schools[idx]) wizardState.explorerData.schools[idx][field] = val;
+        }
+        window.explorerUpdateSchool = explorerUpdateSchool;
+
+        function explorerAddSchool() {
+            wizardState.explorerData.schools.push({ schoolType: '', school: '', degree: '', gradYear: '', major: '', minor: '', gpa: '', currentYear: '', coursework: '' });
+            renderWizardStep();
+        }
+        window.explorerAddSchool = explorerAddSchool;
+
+        function explorerRemoveSchool(idx) {
+            wizardState.explorerData.schools.splice(idx, 1);
+            renderWizardStep();
+        }
+        window.explorerRemoveSchool = explorerRemoveSchool;
+
         function explorerSaveEducation() {
-            var school = (document.getElementById('expSchool') || {}).value || '';
-            var major = (document.getElementById('expMajor') || {}).value || '';
-            var schoolType = (wizardState.explorerData.education || {}).schoolType || '';
-            if (!school.trim()) {
-                showToast('Please enter your school name.', 'error');
-                return;
-            }
-            if (!major.trim() && schoolType !== 'highschool') {
-                showToast('Please enter your major or field of study.', 'error');
-                return;
-            }
+            var schools = wizardState.explorerData.schools || [];
+            var valid = schools.some(function(s) { return s.school && s.school.trim(); });
+            if (!valid) { showToast('Please enter at least one school name.', 'error'); return; }
+            var primary = schools[0];
             wizardState.explorerData.education = {
-                schoolType: schoolType,
-                school: school.trim(),
-                degree: (document.getElementById('expDegree') || {}).value || '',
-                gradYear: (document.getElementById('expGradYear') || {}).value || '',
-                major: major.trim(),
-                minor: (document.getElementById('expMinor') || {}).value || '',
-                gpa: (document.getElementById('expGPA') || {}).value || '',
-                currentYear: (document.getElementById('expCurrentYear') || {}).value || '',
-                coursework: (document.getElementById('expCoursework') || {}).value || ''
+                schoolType: primary.schoolType || 'college',
+                school: primary.school || '',
+                degree: primary.degree || '',
+                gradYear: primary.gradYear || '',
+                major: primary.major || '',
+                minor: primary.minor || '',
+                gpa: primary.gpa || '',
+                currentYear: primary.currentYear || '',
+                coursework: primary.coursework || ''
             };
             wizardNext();
         }
         window.explorerSaveEducation = explorerSaveEducation;
 
+        var _explorerActCategories = [
+            { id: 'sports', label: 'Sports', icon: '\u26BD' },
+            { id: 'clubs', label: 'Clubs / Organizations', icon: '\uD83D\uDCDA' },
+            { id: 'volunteer', label: 'Volunteering / Community Service', icon: '\u2764\uFE0F' },
+            { id: 'arts', label: 'Music / Theater / Art', icon: '\uD83C\uDFA8' },
+            { id: 'student-gov', label: 'Student Government', icon: '\uD83C\uDFDB\uFE0F' },
+            { id: 'greek', label: 'Greek Life', icon: '\uD83E\uDD1D' },
+            { id: 'scouts', label: 'Scouts', icon: '\u26FA' },
+            { id: 'church', label: 'Church / Faith Groups', icon: '\u26EA' },
+            { id: 'research', label: 'Research / Lab Work', icon: '\uD83D\uDD2C' },
+            { id: 'military', label: 'ROTC / Military / CAP', icon: '\uD83C\uDF96\uFE0F' },
+            { id: 'startup', label: 'Side Business / Hustle', icon: '\uD83D\uDE80' },
+            { id: 'mentoring', label: 'Tutoring / Mentoring', icon: '\uD83D\uDC65' },
+            { id: 'gaming', label: 'Esports / Gaming', icon: '\uD83C\uDFAE' },
+            { id: 'trade-apprentice', label: 'Apprenticeship / Trade', icon: '\uD83D\uDD27' }
+        ];
+
+        var _explorerLevelOptions = [
+            { id: 'rec', label: 'Recreational / Casual' },
+            { id: 'school-hs', label: 'High School Team / Club' },
+            { id: 'neighborhood', label: 'Community / Neighborhood League' },
+            { id: 'school-college', label: 'College Team / Club' },
+            { id: 'varsity', label: 'Varsity / Competitive' },
+            { id: 'travel', label: 'Travel / Select Team' },
+            { id: 'leadership', label: 'Leadership / Officer Role' },
+            { id: 'professional', label: 'Semi-pro / Professional' }
+        ];
+
         function renderExplorerActivities(el) {
             var acts = wizardState.explorerData.activities || [];
             var jobs = wizardState.explorerData.partTimeJobs || [];
-            var schoolType = (wizardState.explorerData.education || {}).schoolType || 'college';
 
-            var actCategories = [
-                { id: 'sports', label: 'Sports Team / Intramurals', icon: '\u26BD' },
-                { id: 'clubs', label: 'Academic or Interest Clubs', icon: '\uD83D\uDCDA' },
-                { id: 'volunteer', label: 'Volunteering / Community Service', icon: '\u2764\uFE0F' },
-                { id: 'arts', label: 'Music / Theater / Art', icon: '\uD83C\uDFA8' },
-                { id: 'student-gov', label: 'Student Government', icon: '\uD83C\uDFDB\uFE0F' },
-                { id: 'greek', label: 'Greek Life (Fraternity/Sorority)', icon: '\uD83C\uDFDB\uFE0F' },
-                { id: 'scouts', label: 'Boy Scouts / Girl Scouts', icon: '\u26FA' },
-                { id: 'church', label: 'Church / Religious Groups', icon: '\u26EA' },
-                { id: 'research', label: 'Research / Lab Work', icon: '\uD83D\uDD2C' },
-                { id: 'military', label: 'ROTC / Military / CAP', icon: '\uD83C\uDF96\uFE0F' },
-                { id: 'startup', label: 'Startup / Side Hustle', icon: '\uD83D\uDE80' },
-                { id: 'mentoring', label: 'Tutoring / Mentoring', icon: '\uD83D\uDC65' },
-                { id: 'gaming', label: 'Esports / Gaming Community', icon: '\uD83C\uDFAE' },
-                { id: 'trade-apprentice', label: 'Apprenticeship / Trade Training', icon: '\uD83D\uDD27' }
-            ];
-
-            var actChips = actCategories.map(function(cat) {
-                var isActive = acts.some(function(a) { return a.category === cat.id; });
-                return '<span onclick="explorerToggleActivity(\'' + cat.id + '\')" style="' + (isActive ? explorerChipActiveStyle : explorerChipStyle) + '">'
-                    + cat.icon + ' ' + cat.label + '</span>';
+            var actChips = _explorerActCategories.map(function(cat) {
+                var count = acts.filter(function(a) { return a.category === cat.id; }).length;
+                return '<span onclick="explorerAddActivity(\'' + cat.id + '\')" style="' + (count > 0 ? explorerChipActiveStyle : explorerChipStyle) + '">'
+                    + cat.icon + ' ' + cat.label + (count > 1 ? ' (' + count + ')' : '') + '</span>';
             }).join(' ');
 
             var actDetails = acts.map(function(a, i) {
-                var cat = actCategories.find(function(c) { return c.id === a.category; });
-                return '<div style="padding:12px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; margin-top:8px;">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">'
-                    + '<span style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + (cat ? cat.icon + ' ' + cat.label : a.category) + '</span>'
-                    + '<button onclick="explorerRemoveActivity(' + i + ')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; font-size:0.82em;">\u2715</button></div>'
-                    + '<input type="text" value="' + escapeAttr(a.role || '') + '" placeholder="Your role (e.g. Treasurer, Team Captain, Eagle Scout)" '
+                var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
+                var levelOpts = _explorerLevelOptions.map(function(l) {
+                    return '<option value="' + l.id + '"' + (a.level === l.id ? ' selected' : '') + '>' + l.label + '</option>';
+                }).join('');
+                var durationOpts = ['Less than 1 year', '1 year', '2 years', '3 years', '4 years', '5+ years', '8+ years', '10+ years'].map(function(d) {
+                    return '<option value="' + d + '"' + (a.duration === d ? ' selected' : '') + '>' + d + '</option>';
+                }).join('');
+                return '<div style="padding:14px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; margin-top:10px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+                    + '<span style="font-weight:600; color:var(--text-primary); font-size:0.9em;">' + (cat ? cat.icon + ' ' + cat.label : a.category) + '</span>'
+                    + '<button onclick="explorerRemoveActivity(' + i + ')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; font-size:0.9em;">\u2715</button></div>'
+                    + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">'
+                    + '<select onchange="explorerUpdateActivity(' + i + ',\'level\',this.value)" style="' + explorerFieldStyle + ' font-size:0.82em;"><option value="">Level / Context...</option>' + levelOpts + '</select>'
+                    + '<select onchange="explorerUpdateActivity(' + i + ',\'duration\',this.value)" style="' + explorerFieldStyle + ' font-size:0.82em;"><option value="">How long?</option>' + durationOpts + '</select>'
+                    + '</div>'
+                    + '<input type="text" value="' + escapeAttr(a.role || '') + '" placeholder="Your role (e.g. Team Captain, Treasurer, Starter, Eagle Scout)" '
                     + 'onchange="explorerUpdateActivity(' + i + ',\'role\',this.value)" style="' + explorerFieldStyle + ' margin-bottom:6px; font-size:0.85em;">'
-                    + '<textarea placeholder="What did you do? What did you accomplish? Be specific!" '
+                    + '<textarea placeholder="What did you do? What did you accomplish? Be specific \u2014 the more detail, the better skills we\'ll discover!" '
                     + 'onchange="explorerUpdateActivity(' + i + ',\'description\',this.value)" rows="2" style="' + explorerFieldStyle + ' resize:vertical; font-size:0.85em;">' + escapeHtml(a.description || '') + '</textarea>'
                     + '</div>';
             }).join('');
 
             var jobEntries = jobs.map(function(j, i) {
-                return '<div style="padding:10px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; margin-top:8px; display:grid; gap:6px;">'
-                    + '<input type="text" value="' + escapeAttr(j.title || '') + '" placeholder="Job title (e.g. Barista, Camp Counselor, Intern)" '
+                var jobDurationOpts = ['Less than 6 months', '6 months - 1 year', '1-2 years', '2-3 years', '3+ years'].map(function(d) {
+                    return '<option value="' + d + '"' + (j.duration === d ? ' selected' : '') + '>' + d + '</option>';
+                }).join('');
+                return '<div style="padding:12px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; margin-top:8px; display:grid; gap:6px;">'
+                    + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">'
+                    + '<input type="text" value="' + escapeAttr(j.title || '') + '" placeholder="Job title (e.g. Barista, Camp Counselor)" '
                     + 'onchange="explorerUpdateJob(' + i + ',\'title\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
                     + '<input type="text" value="' + escapeAttr(j.company || '') + '" placeholder="Where?" '
                     + 'onchange="explorerUpdateJob(' + i + ',\'company\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
-                    + '<textarea placeholder="What were your responsibilities?" '
+                    + '</div>'
+                    + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">'
+                    + '<select onchange="explorerUpdateJob(' + i + ',\'duration\',this.value)" style="' + explorerFieldStyle + ' font-size:0.82em;"><option value="">How long?</option>' + jobDurationOpts + '</select>'
+                    + '<input type="text" value="' + escapeAttr(j.role || '') + '" placeholder="Your role / title" '
+                    + 'onchange="explorerUpdateJob(' + i + ',\'role\',this.value)" style="' + explorerFieldStyle + ' font-size:0.85em;">'
+                    + '</div>'
+                    + '<textarea placeholder="What were your responsibilities? Any achievements?" '
                     + 'onchange="explorerUpdateJob(' + i + ',\'description\',this.value)" rows="2" style="' + explorerFieldStyle + ' resize:vertical; font-size:0.85em;">' + escapeHtml(j.description || '') + '</textarea>'
                     + '<button onclick="explorerRemoveJob(' + i + ')" style="background:none; border:1px solid var(--border); border-radius:6px; padding:4px 10px; color:var(--c-muted); cursor:pointer; font-size:0.78em; width:fit-content;">Remove</button>'
                     + '</div>';
@@ -21422,9 +21460,10 @@
 
             el.innerHTML = `
                 ${wizardHeading('\uD83C\uDFC6', 'Activities & Experience',
-                    'What have you been involved in? Every club, team, job, or volunteer role builds real skills \u2014 even if it doesn\u2019t feel like it yet.')}
+                    'What have you been involved in? Tap an activity to add it \u2014 you can add it multiple times for different levels (e.g. baseball in high school AND college). Duration and level matter!')}
                 <div style="${explorerCardStyle}">
-                    <div style="font-weight:600; color:var(--text-primary); margin-bottom:10px; font-size:0.9em;">Select activities you've been part of:</div>
+                    <div style="font-weight:600; color:var(--text-primary); margin-bottom:6px; font-size:0.9em;">Tap to add activities \u2014 add the same one multiple times for different stages:</div>
+                    <div style="font-size:0.78em; color:var(--text-muted); margin-bottom:10px;">e.g. Baseball: HS JV (2 years) + Travel Team (3 years) + College Club (1 year) = different skills at each level</div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px;">${actChips}</div>
                     <div id="explorerActDetails">${actDetails}</div>
                 </div>
@@ -21443,12 +21482,13 @@
             `;
         }
 
-        function explorerToggleActivity(catId) {
-            var acts = wizardState.explorerData.activities;
-            var idx = acts.findIndex(function(a) { return a.category === catId; });
-            if (idx >= 0) { acts.splice(idx, 1); } else { acts.push({ category: catId, role: '', description: '' }); }
+        function explorerAddActivity(catId) {
+            wizardState.explorerData.activities.push({ category: catId, level: '', duration: '', role: '', description: '' });
             renderWizardStep();
         }
+        window.explorerAddActivity = explorerAddActivity;
+
+        function explorerToggleActivity(catId) { explorerAddActivity(catId); }
         window.explorerToggleActivity = explorerToggleActivity;
 
         function explorerUpdateActivity(idx, field, val) {
@@ -21459,7 +21499,7 @@
         function explorerRemoveActivity(idx) { wizardState.explorerData.activities.splice(idx, 1); renderWizardStep(); }
         window.explorerRemoveActivity = explorerRemoveActivity;
 
-        function explorerAddJob() { wizardState.explorerData.partTimeJobs.push({ title: '', company: '', description: '' }); renderWizardStep(); }
+        function explorerAddJob() { wizardState.explorerData.partTimeJobs.push({ title: '', company: '', description: '', duration: '', role: '' }); renderWizardStep(); }
         window.explorerAddJob = explorerAddJob;
 
         function explorerUpdateJob(idx, field, val) {
@@ -21544,25 +21584,39 @@
 
         async function explorerRunSkillDiscovery() {
             var ed = wizardState.explorerData;
-            var schoolLabel = (ed.education.schoolType === 'highschool' ? 'High school' : ed.education.schoolType === 'trade' ? 'Trade school' : 'College') + ' student';
+            var schools = ed.schools || [];
+            var primarySchool = ed.education || schools[0] || {};
+            var schoolLabel = (primarySchool.schoolType === 'highschool' ? 'High school' : primarySchool.schoolType === 'trade' ? 'Trade school' : 'College') + ' student';
             var prompt = 'You are a career counselor AI helping a ' + schoolLabel + ' or early-career person discover their professional skills.\n\n'
                 + 'Based on the following information about this person, extract 15-30 professional skills they likely possess. '
                 + 'Map each to O*NET skill/ability/workstyle categories. Assign realistic proficiency levels for someone early in their career (mostly Novice or Competent, occasionally Proficient for areas of deep involvement). '
+                + 'IMPORTANT: Activities done for longer periods and at higher levels indicate DEEPER skills. A 4-year varsity athlete has much stronger teamwork/discipline than someone who played recreationally for 1 year.\n'
                 + 'For each skill, provide a brief "reason" explaining which activity/interest/course gave them this skill.\n\n'
                 + 'Also suggest a professional "headline" and a brief "purpose statement" for this person.\n\n'
                 + '--- PERSON INFO ---\n'
-                + 'Student type: ' + schoolLabel + '\n'
-                + 'Education: ' + (ed.education.degree || '') + ' in ' + (ed.education.major || '') + (ed.education.minor ? ', Minor/Focus: ' + ed.education.minor : '') + ' from ' + (ed.education.school || '') + (ed.education.gradYear ? ' (' + ed.education.gradYear + ')' : '') + '\n'
-                + (ed.education.currentYear ? 'Current year: ' + ed.education.currentYear + '\n' : '')
-                + (ed.education.gpa ? 'GPA: ' + ed.education.gpa + '\n' : '')
-                + 'Notable coursework/projects: ' + (ed.education.coursework || 'None specified') + '\n\n'
-                + 'Activities & Organizations:\n';
+                + 'Student type: ' + schoolLabel + '\n\n'
+                + 'Education History:\n';
+            schools.forEach(function(s, i) {
+                prompt += (i + 1) + '. ' + (s.schoolType || 'school') + ': ' + (s.school || '?') + ' - ' + (s.degree || '') + ' in ' + (s.major || '?')
+                    + (s.minor ? ', Minor/Focus: ' + s.minor : '')
+                    + (s.gradYear ? ' (' + s.gradYear + ')' : '')
+                    + (s.currentYear ? ' [' + s.currentYear + ']' : '')
+                    + (s.gpa ? ' GPA: ' + s.gpa : '')
+                    + (s.coursework ? ' | Notable: ' + s.coursework : '') + '\n';
+            });
+            prompt += '\nActivities & Organizations (with duration and level):\n';
             ed.activities.forEach(function(a) {
-                prompt += '- ' + a.category + (a.role ? ' (Role: ' + a.role + ')' : '') + (a.description ? ': ' + a.description : '') + '\n';
+                var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
+                var catLabel = cat ? cat.label : a.category;
+                prompt += '- ' + catLabel
+                    + (a.level ? ' [Level: ' + (_explorerLevelOptions.find(function(l) { return l.id === a.level; }) || {}).label || a.level + ']' : '')
+                    + (a.duration ? ' [Duration: ' + a.duration + ']' : '')
+                    + (a.role ? ' (Role: ' + a.role + ')' : '')
+                    + (a.description ? ': ' + a.description : '') + '\n';
             });
             prompt += '\nPart-time jobs / internships:\n';
             (ed.partTimeJobs || []).forEach(function(j) {
-                if (j.title) prompt += '- ' + j.title + (j.company ? ' at ' + j.company : '') + (j.description ? ': ' + j.description : '') + '\n';
+                if (j.title) prompt += '- ' + j.title + (j.company ? ' at ' + j.company : '') + (j.duration ? ' [' + j.duration + ']' : '') + (j.description ? ': ' + j.description : '') + '\n';
             });
             prompt += '\nInterests & Hobbies: ' + (ed.interests || []).join(', ') + '\n';
             if (ed.driveStatement) prompt += '\nWhat drives them: ' + ed.driveStatement + '\n';
@@ -21702,7 +21756,8 @@
                 + '</div>';
 
             var skillNames = selected.map(function(s) { return s.name; }).join(', ');
-            var educ = wizardState.explorerData.education;
+            var educ = wizardState.explorerData.education || {};
+            var allSchools = wizardState.explorerData.schools || [];
             var schoolLabel = (educ.schoolType === 'highschool' ? 'high school' : educ.schoolType === 'trade' ? 'trade school' : 'college') + ' student';
             var prompt = 'You are a career counselor AI. Based on the following ' + schoolLabel + '/early-career profile, suggest 5 realistic career paths.\n\n'
                 + 'For each path, provide:\n'
@@ -21715,11 +21770,17 @@
                 + '- 3-4 concrete next steps to pursue this path\n\n'
                 + '--- PROFILE ---\n'
                 + 'Student type: ' + schoolLabel + (educ.currentYear ? ' (' + educ.currentYear + ')' : '') + '\n'
-                + 'Education: ' + (educ.degree || '') + ' in ' + (educ.major || '') + (educ.minor ? ', Minor: ' + educ.minor : '') + ' from ' + (educ.school || '') + '\n'
-                + (educ.gpa ? 'GPA: ' + educ.gpa + '\n' : '')
-                + 'Skills: ' + skillNames + '\n'
-                + 'Activities: ' + (wizardState.explorerData.activities || []).map(function(a) { return a.category + (a.role ? ' (' + a.role + ')' : ''); }).join(', ') + '\n'
-                + 'Interests: ' + (wizardState.explorerData.interests || []).join(', ') + '\n'
+                + 'Education:\n';
+            allSchools.forEach(function(s, i) {
+                prompt += '  ' + (i + 1) + '. ' + (s.school || '?') + ' - ' + (s.degree || '') + ' in ' + (s.major || '') + (s.gpa ? ' (GPA: ' + s.gpa + ')' : '') + '\n';
+            });
+            prompt += 'Skills: ' + skillNames + '\n'
+                + 'Activities: ';
+            (wizardState.explorerData.activities || []).forEach(function(a) {
+                var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
+                prompt += (cat ? cat.label : a.category) + (a.duration ? ' [' + a.duration + ']' : '') + (a.level ? ' [' + a.level + ']' : '') + (a.role ? ' (' + a.role + ')' : '') + ', ';
+            });
+            prompt += '\nInterests: ' + (wizardState.explorerData.interests || []).join(', ') + '\n'
                 + (wizardState.explorerData.driveStatement ? 'Motivation: ' + wizardState.explorerData.driveStatement + '\n' : '')
                 + '\n--- OUTPUT ---\n'
                 + 'Return ONLY a JSON object (no markdown):\n'
@@ -21909,6 +21970,7 @@
                 profileType: 'explorer',
                 explorerData: {
                     education: ed.education,
+                    schools: ed.schools || [],
                     activities: ed.activities,
                     interests: ed.interests,
                     partTimeJobs: ed.partTimeJobs,
@@ -21928,13 +21990,15 @@
                     return { title: j.title, company: j.company || '', startDate: '', endDate: '', current: false, description: j.description || '' };
                 }),
                 companyTenures: [],
-                education: [{
-                    school: ed.education.school || '',
-                    degree: (ed.education.degree || '') + ' in ' + (ed.education.major || ''),
-                    fieldOfStudy: ed.education.major || '',
-                    graduationYear: ed.education.gradYear || '',
-                    gpa: ed.education.gpa || ''
-                }],
+                education: (ed.schools || [ed.education]).filter(function(s) { return s && s.school; }).map(function(s) {
+                    return {
+                        school: s.school || '',
+                        degree: (s.degree || '') + (s.major ? ' in ' + s.major : ''),
+                        fieldOfStudy: s.major || '',
+                        graduationYear: s.gradYear || '',
+                        gpa: s.gpa || ''
+                    };
+                }),
                 certifications: [],
                 verifications: [],
                 linkedinContent: {},
