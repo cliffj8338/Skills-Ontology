@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.37z';
+        var BP_VERSION = 'v4.47.38';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -29636,12 +29636,24 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 _showResumeOptionsModal();
                 return;
             }
-            logAnalyticsEvent('export_resume_html', {});
+            var fmt = opts._format || 'html';
+            logAnalyticsEvent('export_resume_' + fmt, {});
             try {
                 const data = gatherResumeData(opts);
                 const html = buildResumeHTML(data);
                 const filename = `resume-${(data.name || 'profile').replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.html`;
-                downloadBlueprint(html, filename);
+                if (fmt === 'pdf') {
+                    var w = window.open('', '_blank');
+                    if (w) {
+                        w.document.write(html);
+                        w.document.close();
+                        setTimeout(function() { w.print(); }, 600);
+                    } else {
+                        showToast('Pop-up blocked — please allow pop-ups and try again.', 'error');
+                    }
+                } else {
+                    downloadBlueprint(html, filename);
+                }
             } catch (err) {
                 console.error('Resume generation error:', err);
                 showToast('Error generating resume. See console for details.', 'error');
@@ -29680,15 +29692,46 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<div><div style="font-weight:600; font-size:0.88em; color:var(--text-primary);">Career Goal</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted);">Show your target career path \u2014 great for internship applications</div></div></label>' : '')
                 + '</div>'
+                + '<div style="margin-top:20px; padding:16px; background:var(--c-surface-0); border:1px solid var(--border); border-radius:10px;">'
+                + '<div style="font-weight:600; font-size:0.88em; color:var(--text-primary); margin-bottom:10px;">Output Format</div>'
+                + '<div style="display:flex; gap:10px;">'
+                + '<label style="flex:1; display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 14px; background:var(--c-surface-1); border:2px solid var(--accent); border-radius:10px;">'
+                + '<input type="radio" name="resFmt" value="pdf" checked style="width:16px; height:16px;">'
+                + '<div><div style="font-weight:600; font-size:0.85em; color:var(--text-primary);">' + bpIcon('pdf',14) + ' PDF</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted);">Opens print dialog \u2014 save as PDF</div></div></label>'
+                + '<label style="flex:1; display:flex; align-items:center; gap:8px; cursor:pointer; padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--border); border-radius:10px;">'
+                + '<input type="radio" name="resFmt" value="html" style="width:16px; height:16px;">'
+                + '<div><div style="font-weight:600; font-size:0.85em; color:var(--text-primary);">' + bpIcon('file-text',14) + ' HTML File</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted);">Downloads .html file</div></div></label>'
+                + '</div></div>'
                 + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">'
                 + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
                 + '<button onclick="_resumeGenWithOpts()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Generate Resume</button>'
                 + '</div></div>';
+            _resumeFmtHighlight();
             modal.classList.add('active');
         }
 
+        function _resumeFmtHighlight() {
+            setTimeout(function() {
+                var radios = document.querySelectorAll('input[name="resFmt"]');
+                radios.forEach(function(r) {
+                    r.addEventListener('change', function() {
+                        radios.forEach(function(rb) {
+                            var lbl = rb.closest('label');
+                            if (lbl) lbl.style.border = rb.checked ? '2px solid var(--accent)' : '1px solid var(--border)';
+                        });
+                    });
+                });
+            }, 50);
+        }
+
         function _resumeGenWithOpts() {
+            var fmt = 'pdf';
+            var sel = document.querySelector('input[name="resFmt"]:checked');
+            if (sel) fmt = sel.value;
             var opts = {
+                _format: fmt,
                 includeComp: !!(document.getElementById('resOptComp') || {}).checked,
                 includeValues: !!(document.getElementById('resOptValues') || {}).checked,
                 includeActivities: !!(document.getElementById('resOptActivities') || {}).checked,
@@ -33287,25 +33330,59 @@ body {
                 + 'Adjust selections in the Outcomes and Values tabs.'
                 + '</div></div>';
             
-            // ── CAREER INTELLIGENCE ──
-            html += sectionHead('compass', 'Career Intelligence');
-            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">';
-            
-            // Executive Blueprint (hero)
-            html += '<div style="grid-column:1/-1; background:linear-gradient(135deg, rgba(30,64,175,0.15), rgba(96,165,250,0.1)); border:2px solid var(--c-accent-border-5); border-radius:12px; padding:24px;">'
+            // ── YOUR DOCUMENTS ──
+            var _isExplorer = userData.profileType === 'explorer';
+
+            html += sectionHead('file-text', _isExplorer ? 'Your Resume & Career Documents' : 'Resume & Career Intelligence');
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">';
+
+            // Professional Resume hero tile
+            var _resumeHero = '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.06)); border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px;'
+                + (_isExplorer ? ' order:-1;' : '') + '">'
+                + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
+                + '<span style="color:#10b981;">' + bpIcon('file-text',28) + '</span>'
+                + '<div>'
+                + '<div style="font-size:1.15em; font-weight:700; color:#10b981;">Professional Resume / CV</div>'
+                + '<div style="font-size:0.85em; color:var(--c-muted);">' + (_isExplorer ? 'Start here \u2014 most applications require a resume' : 'Traditional format for job applications') + '</div>'
+                + '</div></div>'
+                + '<div style="color:var(--c-heading); font-size:0.92em; line-height:1.55;">'
+                + (_isExplorer
+                    ? 'Clean, professional resume with your education, skills, activities, and work experience. Formatted for applicant tracking systems (ATS). Great for internships, part-time jobs, and college applications.'
+                    : 'ATS-readable resume with skills, experience, achievements, and compensation context. Standard format that recruiters and hiring managers expect.')
+                + '</div>'
+                + '<div style="margin-top:14px;">'
+                + '<button onclick="generateResume()" style="font-size:0.8em; padding:8px 18px; border-radius:20px; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); cursor:pointer; font-weight:600;">Generate Resume</button>'
+                + '</div></div>';
+
+            // Executive Blueprint hero tile
+            var _bpHero = '<div style="background:linear-gradient(135deg, rgba(30,64,175,0.15), rgba(96,165,250,0.1)); border:2px solid var(--c-accent-border-5); border-radius:12px; padding:24px;'
+                + (_isExplorer ? '' : '') + '">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
                 + '<span style="color:var(--accent);">' + bpIcon('compass',28) + '</span>'
                 + '<div>'
                 + '<div style="font-size:1.15em; font-weight:700; color:var(--c-accent-deep);">Executive Blueprint</div>'
-                + '<div style="font-size:0.85em; color:var(--c-muted);">Recommended for recruiters and hiring managers</div>'
+                + '<div style="font-size:0.85em; color:var(--c-muted);">' + (_isExplorer ? 'Advanced \u2014 for career fairs and networking' : 'Recommended for recruiters and hiring managers') + '</div>'
                 + '</div></div>'
                 + '<div style="color:var(--c-heading); font-size:0.92em; line-height:1.55;">'
-                + 'Standalone HTML document with editorial design. Includes executive summary, top competencies, strategic outcomes, values, compensation framework, and career narrative.'
+                + (_isExplorer
+                    ? 'A richer career document that goes beyond a traditional resume. Includes your career narrative, values, skills network, and strategic positioning. Stand out at career fairs and informational interviews.'
+                    : 'Standalone document with editorial design. Executive summary, top competencies, strategic outcomes, values, compensation framework, and career narrative.')
                 + '</div>'
                 + '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">'
                 + '<button onclick="generateWorkBlueprint()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-green-bg-5b); color:#10b981; border:1px solid rgba(16,185,129,0.3); cursor:pointer; font-weight:600;">HTML</button>'
                 + '<button onclick="showPdfSectionPicker()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-accent-bg-6c); color:#60a5fa; border:1px solid rgba(96,165,250,0.3); cursor:pointer; font-weight:600;">' + bpIcon('pdf',12) + ' Export PDF</button>'
                 + '</div></div>';
+
+            if (_isExplorer) {
+                html += _resumeHero + _bpHero;
+            } else {
+                html += _bpHero + _resumeHero;
+            }
+
+            html += '</div>'; // end two-col hero grid
+
+            // ── ADDITIONAL INTELLIGENCE ──
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px; margin-top:16px;">';
             
             // Scouting Report
             html += exportCard({
@@ -33330,7 +33407,7 @@ body {
                 action: "exportBlueprint('pdf')"
             });
             
-            html += '</div>'; // end Career Intelligence grid
+            html += '</div>'; // end additional intelligence grid
             
             // ── JOB-SPECIFIC TOOLS ──
             html += sectionHead('briefcase', 'Job-Specific Tools');
@@ -33341,12 +33418,6 @@ body {
                     + '</div></div>';
             }
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">';
-            
-            html += exportCard({
-                icon: 'file-text', title: 'Professional Resume',
-                desc: 'Traditional resume format with skills, experience, and achievements. HTML file, print to PDF.',
-                action: 'generateResume()'
-            });
             
             html += exportCard({
                 icon: 'send', iconColor: '#10b981', title: 'Cover Letter',
