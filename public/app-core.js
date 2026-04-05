@@ -21281,6 +21281,7 @@
                 + '<span onclick="explorerSetSchoolType(' + idx + ',\'college\')" style="' + (s.schoolType === 'college' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83C\uDF93 College</span>'
                 + '<span onclick="explorerSetSchoolType(' + idx + ',\'trade\')" style="' + (s.schoolType === 'trade' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDD27 Trade</span>'
                 + '<span onclick="explorerSetSchoolType(' + idx + ',\'community\')" style="' + (s.schoolType === 'community' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDCDA CC</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'bootcamp\')" style="' + (s.schoolType === 'bootcamp' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDCBB Boot</span>'
                 + '</div></div>'
                 + (total > 1 ? '<button onclick="explorerRemoveSchool(' + idx + ')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; font-size:1em; padding:4px 8px;" title="Remove">\u2715</button>' : '')
                 + '</div>'
@@ -21357,9 +21358,10 @@
 
         function explorerSaveEducation() {
             var schools = wizardState.explorerData.schools || [];
-            var valid = schools.some(function(s) { return s.school && s.school.trim(); });
-            if (!valid) { showToast('Please enter at least one school name.', 'error'); return; }
-            var primary = schools[0];
+            var filled = schools.filter(function(s) { return s.school && s.school.trim(); });
+            if (!filled.length) { showToast('Please enter at least one school name.', 'error'); return; }
+            wizardState.explorerData.schools = filled;
+            var primary = filled[0];
             wizardState.explorerData.education = {
                 schoolType: primary.schoolType || 'college',
                 school: primary.school || '',
@@ -21609,7 +21611,7 @@
                 var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
                 var catLabel = cat ? cat.label : a.category;
                 prompt += '- ' + catLabel
-                    + (a.level ? ' [Level: ' + (_explorerLevelOptions.find(function(l) { return l.id === a.level; }) || {}).label || a.level + ']' : '')
+                    + (a.level ? ' [Level: ' + ((_explorerLevelOptions.find(function(l) { return l.id === a.level; }) || {}).label || a.level) + ']' : '')
                     + (a.duration ? ' [Duration: ' + a.duration + ']' : '')
                     + (a.role ? ' (Role: ' + a.role + ')' : '')
                     + (a.description ? ': ' + a.description : '') + '\n';
