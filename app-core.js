@@ -18358,7 +18358,7 @@
         
         // Switch to a different profile (admin functionality)
         function switchProfile(templateId) {
-            console.log('' + bpIcon('refresh',12) + ' Switching profile to:', templateId);
+            console.log('↻ Switching profile to:', templateId);
             
             // Showcase mode: snapshot admin data before loading any sample
             if (showcaseMode && templateId.indexOf('firestore-') !== 0) {
@@ -20237,7 +20237,7 @@
             jobs.sort(function(a, b) { return (b.matchData.score || 0) - (a.matchData.score || 0); });
             
             var detectedType = isRecruiter ? 'recruiter' : isProduct ? 'product' : isRetail ? 'retail' : isTrades ? 'trades' : (isStrategy || !isTech) ? 'strategy' : 'technology';
-            console.log('' + bpIcon('clipboard',12) + ' Injected ' + jobs.length + ' calibrated sample jobs for ' + profileName + ' (type: ' + detectedType + ')');
+            console.log('📋 Injected ' + jobs.length + ' calibrated sample jobs for ' + profileName + ' (type: ' + detectedType + ')');
             
             return jobs;
         }
@@ -20249,7 +20249,7 @@
                 return false;
             }
             
-            console.log('' + bpIcon('clipboard',12) + ' Loading template:', templateId);
+            console.log('📋 Loading template:', templateId);
             console.log('  → Template has', template.skills.length, 'skills');
             console.log('  → First skill:', template.skills[0].name);
             console.log('  → First skill has evidence:', template.skills[0].evidence ? `YES (${template.skills[0].evidence.length} items)` : 'NO');
@@ -20450,7 +20450,7 @@
 
             var profilesPromise = (async function() {
                 try {
-                    console.log('' + bpIcon('clipboard',12) + ' Loading profiles manifest...');
+                    console.log('📋 Loading profiles manifest...');
                     let manifest = await fetch(`profiles-manifest.json${cacheBust}`).then(r => r.json());
                     if (Array.isArray(manifest)) manifest = { profiles: manifest };
                     window.profilesManifest = manifest;
@@ -20591,7 +20591,7 @@
         
         // Start with selected template
         window.startWithTemplate = function(templateId) {
-            console.log('' + bpIcon('target',14) + ' Starting with template:', templateId);
+            console.log('⊕ Starting with template:', templateId);
             
             if (!templates[templateId]) {
                 showToast('Template not found. Please refresh and try again.', 'error');
@@ -20606,7 +20606,7 @@
                     showOnboardingWizard();
                 } else {
                     // Force hard reload with cache bypass
-                    console.log('' + bpIcon('refresh',12) + ' Reloading page...');
+                    console.log('↻ Reloading page...');
                     window.location.href = window.location.href.split('?')[0] + '?t=' + Date.now();
                 }
             } else {
@@ -21267,7 +21267,7 @@
             if (hasOptional || autoApplied.length > 0) {
                 html += '<div style="margin-bottom:20px; padding:12px; background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:8px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
-                    + '<span style="font-size:1em;">\uD83D\uDCCB</span>'
+                    + '<span style="font-size:1em;">' + bpIcon('clipboard',14) + '</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Content & Evidence</span>'
                     + '</div>';
                 
@@ -21571,7 +21571,7 @@
                     </div>
                     <div style="flex:1;">
                         <div style="font-weight:700; color:var(--text-primary); font-size:0.95em; margin-bottom:4px;">
-                            \uD83C\uDF93 I'm Just Getting Started
+                            I\'m Just Getting Started
                         </div>
                         <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.5;">
                             Student, recent grad, or career changer? No resume needed. We'll discover your skills from
@@ -21806,11 +21806,11 @@
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
                 + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
-                + '<span onclick="explorerSetSchoolType(' + idx + ',\'highschool\')" style="' + (s.schoolType === 'highschool' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83C\uDFEB HS</span>'
-                + '<span onclick="explorerSetSchoolType(' + idx + ',\'college\')" style="' + (s.schoolType === 'college' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83C\uDF93 College</span>'
-                + '<span onclick="explorerSetSchoolType(' + idx + ',\'trade\')" style="' + (s.schoolType === 'trade' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDD27 Trade</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'highschool\')" style="' + (s.schoolType === 'highschool' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">' + bpIcon('home',12) + ' HS</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'college\')" style="' + (s.schoolType === 'college' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">' + bpIcon('graduation',12) + ' College</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'trade\')" style="' + (s.schoolType === 'trade' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">' + bpIcon('tool',12) + ' Trade</span>'
                 + '<span onclick="explorerSetSchoolType(' + idx + ',\'community\')" style="' + (s.schoolType === 'community' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">' + bpIcon('book',14) + ' CC</span>'
-                + '<span onclick="explorerSetSchoolType(' + idx + ',\'bootcamp\')" style="' + (s.schoolType === 'bootcamp' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDCBB Boot</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'bootcamp\')" style="' + (s.schoolType === 'bootcamp' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">' + bpIcon('skills',12) + ' Boot</span>'
                 + '</div></div>'
                 + (total > 1 ? '<button onclick="explorerRemoveSchool(' + idx + ')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; font-size:1em; padding:4px 8px;" title="Remove">\u2715</button>' : '')
                 + '</div>'
@@ -28205,7 +28205,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             detectAppMode();
             checkWaitlistInviteStatus();
             updateWaitlistCounter();
-            console.log('' + bpIcon('target',14) + ' App mode:', appMode, waitlistPosition ? '(#' + waitlistPosition + ')' : '');
+            console.log('⊕ App mode:', appMode, waitlistPosition ? '(#' + waitlistPosition + ')' : '');
 
             // Check for shared comparison URL (?comp=...&token=...)
             setTimeout(function() { _wbCompCheckSharedUrl(); }, 800);
@@ -28281,8 +28281,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function initReports() {
             var el = document.getElementById('reportsView');
             var demoProfiles = [
-                { name: 'Tyrion Lannister', show: 'Game of Thrones', role: 'Chief of Staff', company: 'United Nations', match: 75, file: 'reports/demos/tyrion-lannister.html', emoji: '' + bpIcon('sparkle',14) + '', date: 'Feb 22, 2026' },
-                { name: 'Walter White', show: 'Breaking Bad', role: 'Chief Science Officer', company: 'Gray Matter Technologies', match: 82, file: 'reports/demos/walter-white.html', emoji: '' + bpIcon('tool',12) + '️', date: 'Feb 22, 2026' },
+                { name: 'Tyrion Lannister', show: 'Game of Thrones', role: 'Chief of Staff', company: 'United Nations', match: 75, file: 'reports/demos/tyrion-lannister.html', emoji: '🍷', date: 'Feb 22, 2026' },
+                { name: 'Walter White', show: 'Breaking Bad', role: 'Chief Science Officer', company: 'Gray Matter Technologies', match: 82, file: 'reports/demos/walter-white.html', emoji: '⚗️', date: 'Feb 22, 2026' },
                 { name: 'Jim Hopper', show: 'Stranger Things', role: 'Dir. National Crisis Response', company: 'Dept. of Homeland Security', match: 78, file: 'reports/demos/jim-hopper.html', emoji: bpIcon('shield',14), date: 'Feb 22, 2026' },
                 { name: 'Kendall Roy', show: 'Succession', role: 'Chief Executive Officer', company: 'Waystar Royco', match: 71, file: 'reports/demos/kendall-roy.html', emoji: bpIcon('briefcase',14), date: 'Feb 22, 2026' }
             ];
@@ -29546,7 +29546,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 html = `<div class="tooltip-title">${escapeHtml(d.name)}</div>`;
                 var desc = getCatalogDescription(d.name);
                 if (desc) html += `<div style="font-size:0.82em; color:#a1a1a6; margin-top:3px; line-height:1.4;">${escapeHtml(desc)}</div>`;
-                var stateLabels = { aligned: '\u2705 Shared value', yours: '\uD83D\uDFE1 Your priority', theirs: '\uD83D\uDFE3 Their priority', tension: '\u26A0 Friction risk' };
+                var stateLabels = { aligned: '\u2705 Shared value', yours: '● Your priority', theirs: '◆ Their priority', tension: '\u26A0 Friction risk' };
                 var stateColors = { aligned: '#30d158', yours: '#ff9f0a', theirs: '#bf5af2', tension: '#ff453a' };
                 if (d.valState) {
                     html += `<div style="font-size:0.78em; color:${stateColors[d.valState] || '#a1a1a6'}; margin-top:5px; font-weight:600;">${stateLabels[d.valState] || ''}</div>`;
@@ -31644,7 +31644,7 @@ body {
             if ((!blueprintData.values || blueprintData.values.length === 0)
                     && window._lastKnownValues && window._lastKnownValues.length > 0) {
                 blueprintData.values = JSON.parse(JSON.stringify(window._lastKnownValues));
-                console.warn('' + bpIcon('zap',12) + ' Values circuit breaker: restored from _lastKnownValues');
+                console.warn('⚡ Values circuit breaker: restored from _lastKnownValues');
                 _inferPurposeOnly();
                 return;
             }
@@ -31659,7 +31659,7 @@ body {
                         if (parsed && parsed.length > 0 && parsed.some(function(v) { return v.selected; })) {
                             window._lastKnownValues = parsed;
                             blueprintData.values = JSON.parse(JSON.stringify(parsed));
-                            console.warn('' + bpIcon('zap',12) + ' Values circuit breaker: restored from durable backup');
+                            console.warn('⚡ Values circuit breaker: restored from durable backup');
                             _inferPurposeOnly();
                             return;
                         }
@@ -32827,12 +32827,12 @@ body {
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content') || modal;
 
-            var typeChips = ['highschool:HS:\uD83C\uDFEB', 'college:College:\uD83C\uDF93', 'trade:Trade:\uD83D\uDD27', 'community:CC:\uD83D\uDCDA', 'bootcamp:Boot:\uD83D\uDCBB'].map(function(t) {
+            var typeChips = ['highschool:HS:home', 'college:College:graduation', 'trade:Trade:tool', 'community:CC:book', 'bootcamp:Boot:skills'].map(function(t) {
                 var parts = t.split(':');
                 var active = s.schoolType === parts[0];
                 return '<span onclick="document.getElementById(\'edSchoolType\').value=\'' + parts[0] + '\'; document.querySelectorAll(\'[data-school-chip]\').forEach(function(c){c.style.background=\'transparent\';c.style.borderColor=\'var(--border)\';c.style.color=\'var(--text-muted)\';}); this.style.background=\'rgba(191,90,242,0.15)\';this.style.borderColor=\'#bf5af2\';this.style.color=\'#bf5af2\';" data-school-chip '
                     + 'style="display:inline-flex;align-items:center;gap:3px;padding:5px 12px;border-radius:12px;font-size:0.78em;cursor:pointer;border:1px solid ' + (active ? '#bf5af2' : 'var(--border)') + ';background:' + (active ? 'rgba(191,90,242,0.15)' : 'transparent') + ';color:' + (active ? '#bf5af2' : 'var(--text-muted)') + ';font-weight:600;">'
-                    + parts[2] + ' ' + parts[1] + '</span>';
+                    + bpIcon(parts[2],12) + ' ' + parts[1] + '</span>';
             }).join(' ');
 
             mc.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + (isEdit ? 'Edit School' : 'Add School') + '</h2></div>'
@@ -40965,7 +40965,7 @@ body {
                 lines.push('=== UNEXPECTED VALUE (YOUR DIFFERENTIATORS) ===');
                 lines.push('');
                 surplus.slice(0, 4).forEach(function(s) {
-                    lines.push('' + bpIcon('lightbulb',14) + ' ' + (s.name || s));
+                    lines.push('• ' + (s.name || s));
                     lines.push('   This skill isn\'t in the job description but adds value because...');
                     lines.push('');
                 });
@@ -42224,7 +42224,7 @@ body {
                     + '<div style="color:var(--text-muted); font-size:0.78em; margin-top:6px;">Tip: Copy the job description text and paste it in the field below.</div>';
             } finally {
                 fetchBtn.disabled = false;
-                fetchBtn.textContent = '' + bpIcon('search',14) + ' Fetch & Analyze';
+                fetchBtn.innerHTML = bpIcon('search',14) + ' Fetch & Analyze';
             }
         }
         window.fetchAndAnalyzeUrl = fetchAndAnalyzeUrl;
@@ -44721,7 +44721,7 @@ body {
                 if (window._skillNameSet) window._skillNameSet.add(lower);
                 if (window._skillLibNameMap) window._skillLibNameMap.set(lower, { n: skillName, c: category || 'Custom', source: 'custom' });
                 if (skillLibraryIndex.totalSkills) skillLibraryIndex.totalSkills++;
-                console.log('' + bpIcon('book',12) + ' Registered in skill library:', skillName);
+                console.log('📖 Registered in skill library:', skillName);
             }
         }
         window.registerInSkillLibrary = registerInSkillLibrary;
@@ -48492,7 +48492,7 @@ body {
             }
 
             // Education
-            var edTypeIcons  = { degree:'\uD83C\uDF93', cert:'\uD83D\uDCDC', trade:'\uD83D\uDD27', bootcamp:'\u26A1', profdev:'\uD83D\uDCCA', military:'\uD83C\uDF96\uFE0F' };
+            var edTypeIcons  = { degree:bpIcon('graduation',14), cert:bpIcon('award',14), trade:bpIcon('tool',14), bootcamp:bpIcon('zap',14), profdev:bpIcon('bar-chart',14), military:bpIcon('shield',14) };
             var edTypeLabels = { degree:'Degree', cert:'Certificate', trade:'Trade', bootcamp:'Bootcamp', profdev:'Prof Dev', military:'Military' };
 
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
@@ -48510,7 +48510,7 @@ body {
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px; margin-bottom:24px;">';
                 edItems.forEach(function(ed, idx) {
                     var edType    = ed.type || 'degree';
-                    var icon      = edTypeIcons[edType] || '\uD83C\uDF93';
+                    var icon      = edTypeIcons[edType] || bpIcon('graduation',14);
                     var typeLabel = edTypeLabels[edType] || 'Degree';
                     var dateStr   = '';
                     if (ed.startYear && (ed.endYear || ed.currentlyEnrolled)) {
@@ -49151,9 +49151,9 @@ body {
             
             // Education type configurations
             var edTypes = {
-                degree:   { label:'Degree',         icon:'' + bpIcon('graduation',12) + '', instLabel:'School / University',    credLabel:'Degree',           credPlaceholder:'B.S., M.B.A., Ph.D.', fieldLabel:'Field of Study',  fieldPlaceholder:'Business Administration', showAuthority:false, showDuration:true,  showEnrolled:true  },
-                cert:     { label:'Certificate',     icon:'' + bpIcon('award',12) + '', instLabel:'Issuing Org / School',   credLabel:'Certificate / License', credPlaceholder:'Private Pilot, CDL-A', fieldLabel:'Specialization',  fieldPlaceholder:'Aviation, Cybersecurity', showAuthority:true,  showDuration:true,  showEnrolled:false },
-                trade:    { label:'Trade / Vocational', icon:'' + bpIcon('tool',12) + '', instLabel:'School / Program',    credLabel:'Credential',       credPlaceholder:'Journeyman, Certification', fieldLabel:'Trade / Focus', fieldPlaceholder:'Welding, Electrical, HVAC', showAuthority:false, showDuration:true,  showEnrolled:true  },
+                degree:   { label:'Degree',         icon:bpIcon('graduation',12), instLabel:'School / University',    credLabel:'Degree',           credPlaceholder:'B.S., M.B.A., Ph.D.', fieldLabel:'Field of Study',  fieldPlaceholder:'Business Administration', showAuthority:false, showDuration:true,  showEnrolled:true  },
+                cert:     { label:'Certificate',     icon:bpIcon('award',12), instLabel:'Issuing Org / School',   credLabel:'Certificate / License', credPlaceholder:'Private Pilot, CDL-A', fieldLabel:'Specialization',  fieldPlaceholder:'Aviation, Cybersecurity', showAuthority:true,  showDuration:true,  showEnrolled:false },
+                trade:    { label:'Trade / Vocational', icon:bpIcon('tool',12), instLabel:'School / Program',    credLabel:'Credential',       credPlaceholder:'Journeyman, Certification', fieldLabel:'Trade / Focus', fieldPlaceholder:'Welding, Electrical, HVAC', showAuthority:false, showDuration:true,  showEnrolled:true  },
                 bootcamp: { label:'Bootcamp',        icon:bpIcon('zap',14), instLabel:'Program / Provider',     credLabel:'Certificate',      credPlaceholder:'Certificate of Completion', fieldLabel:'Focus Area',      fieldPlaceholder:'Full-Stack Development',   showAuthority:false, showDuration:true,  showEnrolled:true  },
                 profdev:  { label:'Professional Dev', icon:bpIcon('bar-chart',14), instLabel:'Organization',           credLabel:'Completion',       credPlaceholder:'Executive Certificate',     fieldLabel:'Focus Area',      fieldPlaceholder:'Leadership, Finance',      showAuthority:false, showDuration:false, showEnrolled:false },
                 military: { label:'Military',        icon:'' + bpIcon('award',12) + '️', instLabel:'Branch / School',        credLabel:'Qualification',    credPlaceholder:'MOS, Rating, NEC',          fieldLabel:'Specialty',        fieldPlaceholder:'Infantry, Aviation, Intel', showAuthority:false, showDuration:true,  showEnrolled:true  }
