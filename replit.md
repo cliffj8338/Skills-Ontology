@@ -72,7 +72,7 @@ Blueprint is a confidence engine. Not a job board, not a resume tool, not anothe
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.47.40. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
+Current: v4.47.42. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
 
@@ -146,7 +146,8 @@ Students and early-career users with no traditional work history can build an Ex
 - Compensation Trajectory: SVG chart comparing all career paths' salary curves (entry → mid → senior)
 - Skill Adjacency Map: SVG network graph (interests → skills → career paths) with interest-intensity coloring
 - People Like You: AI-generated inspirational people with similar backgrounds (cached in explorerData.peopleInspirations)
-- Data model: `userData.profileType = 'explorer'`, `userData.explorerData` (education, activities, interests [{name,intensity}], partTimeJobs, driveStatement, careerPaths, selectedCareerIdx, discoveredSkills, peopleInspirations)
+- Values Assessment: 12 work values (Autonomy, Impact, Stability, Creativity, Growth, Collaboration, Recognition, Balance, Challenge, Purpose, Flexibility, Leadership), tap-to-select modal (max 5), ranked display with numbered badges, feeds into AI career/people prompts
+- Data model: `userData.profileType = 'explorer'`, `userData.explorerData` (education, activities, interests [{name,intensity}], partTimeJobs, driveStatement, careerPaths, selectedCareerIdx, discoveredSkills, peopleInspirations, workValues [{id,rank}])
 - Interest data migration: `_normalizeInterests()` auto-converts legacy string[] to {name, intensity:'curious'} objects
 
 ## Key Features
