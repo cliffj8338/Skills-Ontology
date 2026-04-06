@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.43';
+        var BP_VERSION = 'v4.47.44';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -4195,12 +4195,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.43: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.44: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.43: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
-                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.43: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.44: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.44: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.43: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.44: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -32288,41 +32288,60 @@ body {
         window.explorerDashSaveValues = explorerDashSaveValues;
 
         function _renderPeopleLikeYou(ed, skills) {
-            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
-            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+            var card = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:16px; padding:24px;';
+            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;';
             var people = ed.peopleInspirations || [];
 
             if (people.length === 0) {
-                return '<div style="' + cs + ' text-align:center; border-color:rgba(244,114,182,0.3);">'
-                    + '<div style="' + ls + ' color:#f472b6;">People Like You</div>'
-                    + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; max-width:400px; margin:0 auto 16px;">Discover accomplished people who started with similar backgrounds and interests as you.</div>'
-                    + '<button id="peopleLikeYouBtn" onclick="explorerDiscoverPeople(this)" style="padding:10px 22px; background:linear-gradient(135deg,#f472b6,#a855f7); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Discover Inspirations</button>'
+                return '<div style="' + card + ' text-align:center; border-color:rgba(244,114,182,0.2); margin-bottom:16px;">'
+                    + '<div style="' + ls + ' color:#f472b6; margin-bottom:10px;">People Like You</div>'
+                    + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; max-width:400px; margin:0 auto 18px;">Discover accomplished people who started with similar backgrounds and interests as you.</div>'
+                    + '<button id="peopleLikeYouBtn" onclick="explorerDiscoverPeople(this)" style="padding:12px 24px; background:linear-gradient(135deg,#f472b6,#a855f7); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:0.9em; box-shadow:0 4px 14px rgba(244,114,182,0.2);">Discover Inspirations</button>'
                     + '</div>';
             }
 
-            var html = '<div style="' + cs + '">'
+            var _pInitials = function(name) {
+                return (name || '').split(' ').map(function(w) { return w[0] || ''; }).join('').slice(0, 2).toUpperCase();
+            };
+
+            var html = '<div style="margin-bottom:16px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">'
-                + '<div style="' + ls + ' color:#f472b6; margin-bottom:0;">People Like You</div>'
-                + '<button onclick="explorerDiscoverPeople(this)" style="font-size:0.7em; padding:4px 10px; border-radius:6px; border:1px solid rgba(244,114,182,0.3); background:rgba(244,114,182,0.06); color:#f472b6; cursor:pointer; font-weight:600;">Refresh</button>'
+                + '<div style="' + ls + ' color:#f472b6;">People Like You</div>'
+                + '<button onclick="explorerDiscoverPeople(this)" style="font-size:0.7em; padding:4px 10px; border-radius:6px; border:1px solid rgba(244,114,182,0.2); background:rgba(244,114,182,0.04); color:#f472b6; cursor:pointer; font-weight:600;">Refresh</button>'
                 + '</div>';
+
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">';
 
             people.forEach(function(person) {
                 var rawColor = String(person.fieldColor || '#8b5cf6');
                 var bgColor = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(rawColor) ? rawColor : '#8b5cf6';
-                html += '<div style="padding:16px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:10px; background:var(--bg-elevated);">'
-                    + '<div style="display:flex; align-items:flex-start; gap:12px;">'
-                    + '<div style="flex-shrink:0; width:44px; height:44px; border-radius:50%; background:' + bgColor + '20; border:2px solid ' + bgColor + '; display:flex; align-items:center; justify-content:center; font-size:1.4em;">' + escapeHtml(String(person.emoji || '\uD83C\uDF1F').slice(0, 4)) + '</div>'
-                    + '<div style="flex:1; min-width:0;">'
-                    + '<div style="font-weight:700; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(person.name || '') + '</div>'
-                    + '<div style="font-size:0.78em; color:' + bgColor + '; font-weight:600; margin-top:1px;">' + escapeHtml(person.role || '') + '</div>'
-                    + '</div></div>'
-                    + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-top:10px;">' + escapeHtml(person.similarity || '') + '</div>'
-                    + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-top:6px;"><strong style="color:var(--text-primary);">Career arc:</strong> ' + escapeHtml(person.careerArc || '') + '</div>'
-                    + (person.insight ? '<div style="margin-top:8px; padding:10px 14px; background:rgba(244,114,182,0.06); border-radius:8px; border-left:3px solid #f472b6; font-size:0.8em; color:var(--text-secondary); line-height:1.5; font-style:italic;">\u201C' + escapeHtml(person.insight) + '\u201D</div>' : '')
-                    + '</div>';
+                var initials = _pInitials(person.name);
+
+                html += '<div style="' + card + ' padding:20px; position:relative; overflow:hidden;">';
+                html += '<div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,' + bgColor + ',' + bgColor + '80);"></div>';
+
+                html += '<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">';
+                html += '<div style="flex-shrink:0; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,' + bgColor + ',' + bgColor + 'cc); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:1.05em; letter-spacing:0.02em; box-shadow:0 2px 8px ' + bgColor + '40;">' + initials + '</div>';
+                html += '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-weight:700; color:var(--text-primary); font-size:0.95em; line-height:1.2;">' + escapeHtml(person.name || '') + '</div>'
+                    + '<div style="font-size:0.76em; color:' + bgColor + '; font-weight:600; margin-top:3px; line-height:1.3;">' + escapeHtml(person.role || '') + '</div>'
+                    + '</div></div>';
+
+                html += '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.6; margin-bottom:8px;">'
+                    + '<span style="color:' + bgColor + '; font-weight:600;">What you share:</span> '
+                    + escapeHtml(person.similarity || '') + '</div>';
+
+                html += '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.5; margin-bottom:10px;">'
+                    + escapeHtml(person.careerArc || '') + '</div>';
+
+                if (person.insight) {
+                    html += '<div style="padding:10px 12px; background:' + bgColor + '08; border-radius:10px; border-left:3px solid ' + bgColor + '60; font-size:0.78em; color:var(--text-secondary); line-height:1.5; font-style:italic;">'
+                        + '\u201C' + escapeHtml(person.insight) + '\u201D</div>';
+                }
+                html += '</div>';
             });
 
-            html += '</div>';
+            html += '</div></div>';
             return html;
         }
 
