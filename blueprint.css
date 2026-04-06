@@ -28,6 +28,10 @@
             --success:        #30d158;
             --warning:        #ffd60a;
             --danger:         #ff453a;
+            --card-bg:        rgba(20,20,25,0.6);
+            --border-subtle:  rgba(255,255,255,0.06);
+            --elev-1:         rgba(20,20,25,0.9);
+            --font-main:      'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
 
