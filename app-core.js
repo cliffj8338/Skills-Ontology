@@ -2274,7 +2274,7 @@
             overview: 'ops', users: 'ops', waitlist: 'ops',
             samples: 'content',
             jdconverter: 'wb', wbwizard: 'wb', wbrepo: 'wb', wbcompare: 'wb', parseaudit: 'wb',
-            config: 'sys', status: 'sys', versions: 'sys', architecture: 'sys', userflows: 'sys',
+            config: 'sys', status: 'sys', versions: 'sys', architecture: 'sys', userflows: 'sys', accessibility: 'sys',
             roadmap: 'plan', costs: 'plan'
         };
 
@@ -2346,7 +2346,8 @@
                     + _adminSidebarBtn('status', 'shield', 'Status')
                     + _adminSidebarBtn('versions', 'layers', 'Versions')
                     + _adminSidebarBtn('architecture', 'compass', 'Architecture')
-                    + _adminSidebarBtn('userflows', 'network', 'User Flows'))
+                    + _adminSidebarBtn('userflows', 'network', 'User Flows')
+                    + _adminSidebarBtn('accessibility', 'eye', 'Accessibility'))
                 + _adminSidebarGroup('plan', 'Planning',
                     _adminSidebarBtn('roadmap', 'target', 'Roadmap')
                     + _adminSidebarBtn('costs', 'skills', 'Costs'))
@@ -2384,6 +2385,7 @@
             else if (adminSubTab === 'wbabout') renderAdminWBAbout(el);
             else if (adminSubTab === 'versions') renderAdminVersions(el);
             else if (adminSubTab === 'userflows') renderAdminUserFlows(el);
+            else if (adminSubTab === 'accessibility') renderAdminAccessibility(el);
         }
         
         function renderAdminOverview(el) {
@@ -14368,6 +14370,551 @@
             
             el.innerHTML = html;
         }
+
+        var _wcagAuditHistory = JSON.parse(localStorage.getItem('bp_wcag_audit_history') || '[]');
+        var _wcagDismissed = JSON.parse(localStorage.getItem('bp_wcag_dismissed') || '[]');
+
+        function _wcagLuminance(r, g, b) {
+            var sR = r / 255, sG = g / 255, sB = b / 255;
+            var R = sR <= 0.03928 ? sR / 12.92 : Math.pow((sR + 0.055) / 1.055, 2.4);
+            var G = sG <= 0.03928 ? sG / 12.92 : Math.pow((sG + 0.055) / 1.055, 2.4);
+            var B = sB <= 0.03928 ? sB / 12.92 : Math.pow((sB + 0.055) / 1.055, 2.4);
+            return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+        }
+
+        function _wcagParseColor(str) {
+            if (!str || str === 'transparent' || str === 'rgba(0, 0, 0, 0)') return null;
+            var m = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (m) return { r: parseInt(m[1]), g: parseInt(m[2]), b: parseInt(m[3]) };
+            return null;
+        }
+
+        function _wcagContrastRatio(fg, bg) {
+            var l1 = _wcagLuminance(fg.r, fg.g, fg.b);
+            var l2 = _wcagLuminance(bg.r, bg.g, bg.b);
+            var lighter = Math.max(l1, l2);
+            var darker = Math.min(l1, l2);
+            return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function _wcagGetEffectiveBg(el) {
+            var node = el;
+            while (node && node !== document.body) {
+                var s = window.getComputedStyle(node);
+                var c = _wcagParseColor(s.backgroundColor);
+                if (c) return c;
+                node = node.parentElement;
+            }
+            return { r: 255, g: 255, b: 255 };
+        }
+
+        function _wcagRunAudit() {
+            var issues = [];
+            var now = new Date().toISOString();
+            var checked = 0;
+
+            var allEls = document.querySelectorAll('*:not(script):not(style):not(meta):not(link):not(head):not(title)');
+            checked = allEls.length;
+
+            allEls.forEach(function(el) {
+                if (el.closest('#adminTabContent') || el.closest('#adminSidebar')) return;
+                var vis = window.getComputedStyle(el);
+                if (vis.display === 'none' || vis.visibility === 'hidden') return;
+
+                var tag = el.tagName.toLowerCase();
+                var path = _wcagElPath(el);
+
+                if (tag === 'img') {
+                    if (!el.getAttribute('alt') && el.getAttribute('alt') !== '') {
+                        issues.push({ id: 'img-alt-' + path, severity: 'critical', rule: '1.1.1', category: 'Images', msg: 'Image missing alt attribute', el: path, wcag: 'Non-text Content' });
+                    }
+                    if (el.getAttribute('alt') === '' && !el.getAttribute('role') && !el.closest('[role="presentation"]')) {
+                        var w = el.naturalWidth || el.offsetWidth;
+                        if (w > 20) {
+                            issues.push({ id: 'img-alt-empty-' + path, severity: 'warning', rule: '1.1.1', category: 'Images', msg: 'Meaningful image has empty alt text', el: path, wcag: 'Non-text Content' });
+                        }
+                    }
+                }
+
+                if (tag === 'a') {
+                    var linkText = (el.textContent || '').trim();
+                    var ariaLabel = el.getAttribute('aria-label') || '';
+                    var title = el.getAttribute('title') || '';
+                    if (!linkText && !ariaLabel && !title && !el.querySelector('img[alt]')) {
+                        issues.push({ id: 'link-empty-' + path, severity: 'critical', rule: '2.4.4', category: 'Links', msg: 'Link has no accessible text', el: path, wcag: 'Link Purpose' });
+                    }
+                    if (/^https?:\/\//.test(linkText) && linkText.length > 30) {
+                        issues.push({ id: 'link-url-text-' + path, severity: 'minor', rule: '2.4.4', category: 'Links', msg: 'Link text is a raw URL', el: path, wcag: 'Link Purpose' });
+                    }
+                }
+
+                if (tag === 'button') {
+                    var btnText = (el.textContent || '').trim();
+                    var btnAria = el.getAttribute('aria-label') || '';
+                    if (!btnText && !btnAria && !el.querySelector('img[alt], svg[aria-label]')) {
+                        issues.push({ id: 'btn-empty-' + path, severity: 'critical', rule: '4.1.2', category: 'Buttons', msg: 'Button has no accessible label', el: path, wcag: 'Name, Role, Value' });
+                    }
+                }
+
+                if (tag === 'input' || tag === 'select' || tag === 'textarea') {
+                    var inputId = el.id;
+                    var hasLabel = false;
+                    if (inputId && document.querySelector('label[for="' + inputId + '"]')) hasLabel = true;
+                    if (el.closest('label')) hasLabel = true;
+                    if (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.getAttribute('title')) hasLabel = true;
+                    if (el.type === 'hidden' || el.type === 'submit' || el.type === 'button') hasLabel = true;
+                    if (!hasLabel) {
+                        issues.push({ id: 'form-label-' + path, severity: 'critical', rule: '1.3.1', category: 'Forms', msg: tag.toUpperCase() + ' element missing label', el: path, wcag: 'Info and Relationships' });
+                    }
+                }
+
+                if (tag.match(/^h[1-6]$/)) {
+                    var level = parseInt(tag[1]);
+                    if (level > 1) {
+                        var prev = document.querySelector('h' + (level - 1));
+                        if (!prev) {
+                            issues.push({ id: 'heading-skip-' + path, severity: 'warning', rule: '1.3.1', category: 'Structure', msg: 'Heading level H' + level + ' skips a level', el: path, wcag: 'Info and Relationships' });
+                        }
+                    }
+                }
+
+                if (['p','span','div','a','button','li','td','th','label','h1','h2','h3','h4','h5','h6'].indexOf(tag) !== -1) {
+                    var text = '';
+                    el.childNodes.forEach(function(n) { if (n.nodeType === 3) text += n.textContent; });
+                    text = text.trim();
+                    if (text.length > 0) {
+                        var fg = _wcagParseColor(vis.color);
+                        var bg = _wcagGetEffectiveBg(el);
+                        if (fg && bg) {
+                            var ratio = _wcagContrastRatio(fg, bg);
+                            var fontSize = parseFloat(vis.fontSize);
+                            var isBold = parseInt(vis.fontWeight) >= 700;
+                            var isLarge = fontSize >= 24 || (fontSize >= 18.66 && isBold);
+                            var threshold = isLarge ? 3.0 : 4.5;
+                            if (ratio < threshold) {
+                                var rgbStr = 'rgb(' + fg.r + ',' + fg.g + ',' + fg.b + ') on rgb(' + bg.r + ',' + bg.g + ',' + bg.b + ')';
+                                issues.push({
+                                    id: 'contrast-' + path,
+                                    severity: ratio < 3.0 ? 'critical' : 'warning',
+                                    rule: '1.4.3',
+                                    category: 'Color Contrast',
+                                    msg: 'Contrast ratio ' + ratio.toFixed(2) + ':1 (need ' + threshold + ':1) — ' + rgbStr,
+                                    el: path,
+                                    wcag: 'Contrast (Minimum)',
+                                    snippet: text.substring(0, 60)
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (el.getAttribute('onclick') && tag !== 'button' && tag !== 'a' && tag !== 'input') {
+                    var role = el.getAttribute('role');
+                    var tabindex = el.getAttribute('tabindex');
+                    if (!role || !tabindex) {
+                        issues.push({ id: 'click-a11y-' + path, severity: 'warning', rule: '2.1.1', category: 'Keyboard', msg: 'Clickable ' + tag + ' missing role/tabindex for keyboard access', el: path, wcag: 'Keyboard' });
+                    }
+                }
+
+                if (el.style && el.style.outline === 'none' && (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea')) {
+                    issues.push({ id: 'focus-outline-' + path, severity: 'warning', rule: '2.4.7', category: 'Focus', msg: 'Focus outline removed on interactive element', el: path, wcag: 'Focus Visible' });
+                }
+
+                if (tag === 'div' || tag === 'span') {
+                    if (el.getAttribute('role') === 'button' || el.getAttribute('role') === 'link') {
+                        if (!el.getAttribute('tabindex') && el.getAttribute('tabindex') !== '0') {
+                            issues.push({ id: 'role-tabindex-' + path, severity: 'warning', rule: '4.1.2', category: 'ARIA', msg: tag + ' with role="' + el.getAttribute('role') + '" missing tabindex', el: path, wcag: 'Name, Role, Value' });
+                        }
+                    }
+                }
+            });
+
+            if (!document.documentElement.getAttribute('lang')) {
+                issues.push({ id: 'html-lang', severity: 'critical', rule: '3.1.1', category: 'Structure', msg: 'HTML element missing lang attribute', el: 'html', wcag: 'Language of Page' });
+            }
+
+            var mainLandmark = document.querySelector('main, [role="main"]');
+            if (!mainLandmark) {
+                issues.push({ id: 'landmark-main', severity: 'warning', rule: '1.3.1', category: 'Structure', msg: 'No <main> landmark found', el: 'document', wcag: 'Info and Relationships' });
+            }
+
+            var skipLink = document.querySelector('a[href="#main"], a[href="#content"], .skip-link, [class*="skip"]');
+            if (!skipLink) {
+                issues.push({ id: 'skip-link', severity: 'minor', rule: '2.4.1', category: 'Navigation', msg: 'No skip-to-content link found', el: 'document', wcag: 'Bypass Blocks' });
+            }
+
+            var pageTitle = document.title;
+            if (!pageTitle || pageTitle.length < 2) {
+                issues.push({ id: 'page-title', severity: 'critical', rule: '2.4.2', category: 'Structure', msg: 'Page title is missing or empty', el: 'head > title', wcag: 'Page Titled' });
+            }
+
+            issues = issues.filter(function(iss) { return _wcagDismissed.indexOf(iss.id) === -1; });
+
+            var result = {
+                timestamp: now,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                elementsChecked: checked,
+                total: issues.length,
+                critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
+                warning: issues.filter(function(i) { return i.severity === 'warning'; }).length,
+                minor: issues.filter(function(i) { return i.severity === 'minor'; }).length,
+                issues: issues,
+                page: window.location.hash || '#dashboard',
+                dismissed: _wcagDismissed.length
+            };
+
+            _wcagAuditHistory.unshift(result);
+            if (_wcagAuditHistory.length > 50) _wcagAuditHistory = _wcagAuditHistory.slice(0, 50);
+            localStorage.setItem('bp_wcag_audit_history', JSON.stringify(_wcagAuditHistory));
+
+            return result;
+        }
+        window._wcagRunAudit = _wcagRunAudit;
+
+        function _wcagElPath(el) {
+            var parts = [];
+            var node = el;
+            var depth = 0;
+            while (node && node !== document.body && depth < 4) {
+                var tag = node.tagName ? node.tagName.toLowerCase() : '';
+                if (node.id) { parts.unshift(tag + '#' + node.id); break; }
+                if (node.className && typeof node.className === 'string') {
+                    var cls = node.className.split(/\s+/).filter(function(c) { return c && c.length < 30; }).slice(0, 2).join('.');
+                    if (cls) { parts.unshift(tag + '.' + cls); }
+                    else parts.unshift(tag);
+                } else {
+                    parts.unshift(tag);
+                }
+                node = node.parentElement;
+                depth++;
+            }
+            return parts.join(' > ');
+        }
+
+        function _wcagDismissIssue(id) {
+            if (_wcagDismissed.indexOf(id) === -1) {
+                _wcagDismissed.push(id);
+                localStorage.setItem('bp_wcag_dismissed', JSON.stringify(_wcagDismissed));
+            }
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagDismissIssue = _wcagDismissIssue;
+
+        function _wcagResetDismissed() {
+            _wcagDismissed = [];
+            localStorage.setItem('bp_wcag_dismissed', '[]');
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagResetDismissed = _wcagResetDismissed;
+
+        function _wcagClearHistory() {
+            _wcagAuditHistory = [];
+            localStorage.setItem('bp_wcag_audit_history', '[]');
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagClearHistory = _wcagClearHistory;
+
+        function _wcagExportCSV() {
+            if (_wcagAuditHistory.length === 0) return;
+            var latest = _wcagAuditHistory[0];
+            var csv = 'Severity,WCAG Rule,Category,WCAG Criterion,Element,Message,Snippet\n';
+            latest.issues.forEach(function(iss) {
+                csv += [iss.severity, iss.rule, iss.category, iss.wcag, '"' + (iss.el || '').replace(/"/g, '""') + '"', '"' + iss.msg.replace(/"/g, '""') + '"', '"' + (iss.snippet || '').replace(/"/g, '""') + '"'].join(',') + '\n';
+            });
+            var blob = new Blob([csv], { type: 'text/csv' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'wcag-audit-' + new Date().toISOString().slice(0, 10) + '.csv';
+            a.click();
+        }
+        window._wcagExportCSV = _wcagExportCSV;
+
+        function renderAdminAccessibility(el) {
+            if (!el) return;
+
+            var latest = _wcagAuditHistory.length > 0 ? _wcagAuditHistory[0] : null;
+
+            var sevColors = { critical: 'var(--danger)', warning: 'var(--c-orange)', minor: 'var(--text-muted)' };
+            var sevIcons = { critical: 'x', warning: 'warning', minor: 'info' };
+            var sevLabels = { critical: 'Critical', warning: 'Warning', minor: 'Minor' };
+
+            var html = '<div style="padding:20px;">';
+
+            html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">'
+                + '<div>'
+                + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--c-heading); margin:0 0 4px;">'
+                + bpIcon('eye', 20) + ' WCAG AA 2.1 Auditor</h2>'
+                + '<div style="font-size:0.82em; color:var(--text-secondary);">Automated accessibility audit for WCAG 2.1 Level AA compliance</div>'
+                + '</div>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="_wcagExportCSV()" style="padding:8px 14px; background:var(--c-surface-2); color:var(--text-secondary); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;"' + (latest ? '' : ' disabled') + '>'
+                + bpIcon('file-text', 12) + ' Export CSV</button>'
+                + '<button onclick="var _el=document.getElementById(\'adminTabContent\'); if(_el){_el.innerHTML=\'<div style=padding:40px;text-align:center;color:var(--text-secondary)>Running audit...</div>\';} setTimeout(function(){_wcagRunAudit(); renderAdminAccessibility(document.getElementById(\'adminTabContent\'));}, 100);" '
+                + 'style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.84em;">'
+                + bpIcon('activity', 12) + ' Run Audit</button>'
+                + '</div></div>';
+
+            if (latest) {
+                var scorePercent = latest.elementsChecked > 0 ? Math.max(0, 100 - Math.round((latest.critical * 10 + latest.warning * 3 + latest.minor) / Math.max(1, latest.elementsChecked) * 1000)) : 100;
+                var scoreColor = scorePercent >= 90 ? 'var(--success)' : scorePercent >= 70 ? 'var(--c-orange)' : 'var(--danger)';
+
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:20px;">';
+
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:16px; text-align:center;">'
+                    + '<div style="font-size:2em; font-weight:800; color:' + scoreColor + ';">' + scorePercent + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">A11Y SCORE</div></div>';
+
+                html += '<div style="background:rgba(215,0,21,0.04); border:1px solid rgba(215,0,21,0.12); border-radius:10px; padding:16px; text-align:center;">'
+                    + '<div style="font-size:2em; font-weight:800; color:var(--danger);">' + latest.critical + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">CRITICAL</div></div>';
+
+                html += '<div style="background:rgba(196,93,0,0.04); border:1px solid rgba(196,93,0,0.12); border-radius:10px; padding:16px; text-align:center;">'
+                    + '<div style="font-size:2em; font-weight:800; color:var(--c-orange);">' + latest.warning + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">WARNINGS</div></div>';
+
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:16px; text-align:center;">'
+                    + '<div style="font-size:2em; font-weight:800; color:var(--text-muted);">' + latest.minor + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">MINOR</div></div>';
+
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:16px; text-align:center;">'
+                    + '<div style="font-size:2em; font-weight:800; color:var(--text-secondary);">' + latest.elementsChecked + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">ELEMENTS</div></div>';
+
+                html += '</div>';
+
+                html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; display:flex; align-items:center; gap:12px;">'
+                    + '<span>Audited: ' + escapeHtml(latest.date) + '</span>'
+                    + '<span>Page: ' + escapeHtml(latest.page) + '</span>'
+                    + (_wcagDismissed.length > 0 ? '<span>' + _wcagDismissed.length + ' dismissed</span><button onclick="_wcagResetDismissed()" style="background:none; border:none; cursor:pointer; color:var(--accent); font-size:1em; text-decoration:underline;">Reset</button>' : '')
+                    + '</div>';
+
+                var categories = {};
+                latest.issues.forEach(function(iss) {
+                    if (!categories[iss.category]) categories[iss.category] = [];
+                    categories[iss.category].push(iss);
+                });
+
+                var catOrder = Object.keys(categories).sort(function(a, b) {
+                    var aCrit = categories[a].filter(function(i) { return i.severity === 'critical'; }).length;
+                    var bCrit = categories[b].filter(function(i) { return i.severity === 'critical'; }).length;
+                    return bCrit - aCrit;
+                });
+
+                if (catOrder.length === 0) {
+                    html += '<div style="text-align:center; padding:40px; background:rgba(30,126,52,0.04); border:1px solid rgba(30,126,52,0.15); border-radius:12px;">'
+                        + '<div style="font-size:2em; margin-bottom:8px;">' + bpIcon('check', 32) + '</div>'
+                        + '<div style="font-weight:700; color:var(--success); font-size:1.1em;">All Clear</div>'
+                        + '<div style="font-size:0.84em; color:var(--text-secondary); margin-top:4px;">No accessibility issues detected. Navigate to different pages and re-run to check more views.</div>'
+                        + '</div>';
+                }
+
+                catOrder.forEach(function(cat) {
+                    var catIssues = categories[cat];
+                    var critCount = catIssues.filter(function(i) { return i.severity === 'critical'; }).length;
+                    var headerColor = critCount > 0 ? 'var(--danger)' : 'var(--c-heading)';
+
+                    html += '<div style="margin-bottom:16px; border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden;">'
+                        + '<div onclick="var items=this.nextElementSibling; items.style.display=items.style.display===\'none\'?\'block\':\'none\'; this.querySelector(\'.wcag-arrow\').textContent=items.style.display===\'none\'?\'\\u25B6\':\'\\u25BC\';" '
+                        + 'style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--c-surface-1); cursor:pointer; border-bottom:1px solid var(--c-surface-4);">'
+                        + '<div style="display:flex; align-items:center; gap:8px;">'
+                        + '<span class="wcag-arrow" style="font-size:0.7em; color:var(--text-muted);">\u25BC</span>'
+                        + '<span style="font-weight:700; font-size:0.92em; color:' + headerColor + ';">' + escapeHtml(cat) + '</span>'
+                        + '</div>'
+                        + '<div style="display:flex; gap:6px;">';
+
+                    ['critical','warning','minor'].forEach(function(sev) {
+                        var c = catIssues.filter(function(i) { return i.severity === sev; }).length;
+                        if (c > 0) {
+                            html += '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:' + sevColors[sev] + '15; color:' + sevColors[sev] + '; font-weight:600;">' + c + ' ' + sevLabels[sev] + '</span>';
+                        }
+                    });
+
+                    html += '</div></div>';
+                    html += '<div style="display:block;">';
+
+                    catIssues.sort(function(a, b) {
+                        var order = { critical: 0, warning: 1, minor: 2 };
+                        return (order[a.severity] || 3) - (order[b.severity] || 3);
+                    });
+
+                    catIssues.forEach(function(iss) {
+                        var escapedId = iss.id.replace(/'/g, "\\'");
+                        html += '<div style="display:flex; align-items:flex-start; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); font-size:0.84em;">'
+                            + '<span style="color:' + sevColors[iss.severity] + '; flex-shrink:0; margin-top:2px;">' + bpIcon(sevIcons[iss.severity], 14) + '</span>'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="font-weight:600; color:var(--c-heading);">' + escapeHtml(iss.msg) + '</div>'
+                            + '<div style="font-size:0.85em; color:var(--text-muted); margin-top:2px;">'
+                            + '<span style="background:var(--c-surface-2); padding:1px 6px; border-radius:4px; font-family:monospace; font-size:0.9em;">WCAG ' + iss.rule + '</span> '
+                            + escapeHtml(iss.wcag)
+                            + (iss.snippet ? ' — <span style="font-style:italic;">"' + escapeHtml(iss.snippet) + '"</span>' : '')
+                            + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--text-muted); font-family:monospace; margin-top:2px; opacity:0.7;">' + escapeHtml(iss.el) + '</div>'
+                            + '</div>'
+                            + '<button onclick="_wcagDismissIssue(\'' + escapedId + '\')" title="Dismiss" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:4px; opacity:0.5; flex-shrink:0;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.5\'">'
+                            + bpIcon('x', 12) + '</button>'
+                            + '</div>';
+                    });
+                    html += '</div></div>';
+                });
+            } else {
+                html += '<div style="text-align:center; padding:60px 20px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:12px;">'
+                    + '<div style="font-size:2.5em; color:var(--text-muted); margin-bottom:12px;">' + bpIcon('eye', 48) + '</div>'
+                    + '<div style="font-weight:700; color:var(--c-heading); font-size:1.1em; margin-bottom:8px;">No Audits Yet</div>'
+                    + '<div style="font-size:0.88em; color:var(--text-secondary); max-width:400px; margin:0 auto 20px; line-height:1.5;">Run an audit to scan the current page for WCAG 2.1 Level AA issues. Navigate to different views first to audit specific pages.</div>'
+                    + '<button onclick="var _el=document.getElementById(\'adminTabContent\'); if(_el){_el.innerHTML=\'<div style=padding:40px;text-align:center;color:var(--text-secondary)>Running audit...</div>\';} setTimeout(function(){_wcagRunAudit(); renderAdminAccessibility(document.getElementById(\'adminTabContent\'));}, 100);" '
+                    + 'style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.92em;">'
+                    + bpIcon('activity', 14) + ' Run First Audit</button>'
+                    + '</div>';
+            }
+
+            if (_wcagAuditHistory.length > 1) {
+                html += '<div style="margin-top:24px;">'
+                    + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">'
+                    + '<h3 style="font-family:Outfit,sans-serif; font-size:1em; font-weight:700; color:var(--c-heading); margin:0;">' + bpIcon('layers', 16) + ' Audit History</h3>'
+                    + '<button onclick="_wcagClearHistory()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.78em; text-decoration:underline;">Clear History</button>'
+                    + '</div>'
+                    + '<div style="border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden;">'
+                    + '<table style="width:100%; border-collapse:collapse; font-size:0.82em;">'
+                    + '<thead><tr style="background:var(--c-surface-1); border-bottom:1px solid var(--c-surface-4);">'
+                    + '<th style="text-align:left; padding:10px 14px; font-weight:600; color:var(--text-secondary);">Date</th>'
+                    + '<th style="text-align:left; padding:10px 14px; font-weight:600; color:var(--text-secondary);">Page</th>'
+                    + '<th style="text-align:center; padding:10px 14px; font-weight:600; color:var(--danger);">Critical</th>'
+                    + '<th style="text-align:center; padding:10px 14px; font-weight:600; color:var(--c-orange);">Warnings</th>'
+                    + '<th style="text-align:center; padding:10px 14px; font-weight:600; color:var(--text-muted);">Minor</th>'
+                    + '<th style="text-align:center; padding:10px 14px; font-weight:600; color:var(--text-secondary);">Total</th>'
+                    + '</tr></thead><tbody>';
+
+                _wcagAuditHistory.slice(0, 20).forEach(function(audit, idx) {
+                    var rowBg = idx % 2 === 0 ? 'transparent' : 'var(--c-surface-1)';
+                    html += '<tr style="background:' + rowBg + '; border-bottom:1px solid var(--c-surface-1b);">'
+                        + '<td style="padding:8px 14px; color:var(--text-primary);">' + escapeHtml(audit.date) + '</td>'
+                        + '<td style="padding:8px 14px; color:var(--text-secondary); font-family:monospace; font-size:0.9em;">' + escapeHtml(audit.page) + '</td>'
+                        + '<td style="padding:8px 14px; text-align:center; font-weight:700; color:' + (audit.critical > 0 ? 'var(--danger)' : 'var(--text-muted)') + ';">' + audit.critical + '</td>'
+                        + '<td style="padding:8px 14px; text-align:center; font-weight:700; color:' + (audit.warning > 0 ? 'var(--c-orange)' : 'var(--text-muted)') + ';">' + audit.warning + '</td>'
+                        + '<td style="padding:8px 14px; text-align:center; color:var(--text-muted);">' + audit.minor + '</td>'
+                        + '<td style="padding:8px 14px; text-align:center; font-weight:600; color:var(--text-primary);">' + audit.total + '</td>'
+                        + '</tr>';
+                });
+                html += '</tbody></table></div></div>';
+            }
+
+            html += '<div style="margin-top:32px; border:1px solid var(--c-surface-4); border-radius:12px; overflow:hidden;">'
+                + '<div style="padding:16px 20px; background:var(--c-surface-1); border-bottom:1px solid var(--c-surface-4);">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-size:1em; font-weight:700; color:var(--c-heading); margin:0;">' + bpIcon('info', 16) + ' Screen Reader Testing Guide</h3>'
+                + '</div>'
+                + '<div style="padding:20px; font-size:0.88em; line-height:1.7; color:var(--text-secondary);">'
+
+                + '<div style="margin-bottom:20px;">'
+                + '<div style="font-weight:700; color:var(--c-heading); margin-bottom:8px; font-size:1.05em;">Free Screen Readers</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px;">'
+
+                + '<div style="background:rgba(0,113,227,0.03); border:1px solid rgba(0,113,227,0.10); border-radius:8px; padding:14px;">'
+                + '<div style="font-weight:700; color:var(--c-heading);">VoiceOver (macOS/iOS)</div>'
+                + '<div style="font-size:0.9em; color:var(--text-secondary); margin-top:4px;">Built into every Mac and iPhone — no install needed.</div>'
+                + '<div style="margin-top:8px; font-size:0.85em; color:var(--text-primary);">'
+                + '<div style="font-weight:600; margin-bottom:4px;">Quick Start:</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">Cmd + F5 &nbsp;→&nbsp; Toggle on/off</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">VO keys = Ctrl + Option</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">VO + → &nbsp;→&nbsp; Next element</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">VO + Space → Activate</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px;">VO + U &nbsp;→&nbsp; Rotor (nav lists)</div>'
+                + '</div></div>'
+
+                + '<div style="background:rgba(0,113,227,0.03); border:1px solid rgba(0,113,227,0.10); border-radius:8px; padding:14px;">'
+                + '<div style="font-weight:700; color:var(--c-heading);">NVDA (Windows)</div>'
+                + '<div style="font-size:0.9em; color:var(--text-secondary); margin-top:4px;">Free, open-source. Download from nvaccess.org.</div>'
+                + '<div style="margin-top:8px; font-size:0.85em; color:var(--text-primary);">'
+                + '<div style="font-weight:600; margin-bottom:4px;">Quick Start:</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">Ctrl + Alt + N → Start NVDA</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">Insert = NVDA key</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">↓ / ↑ &nbsp;→&nbsp; Browse content</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">Tab &nbsp;→&nbsp; Next interactive</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px;">NVDA + F7 → Elements list</div>'
+                + '</div></div>'
+
+                + '<div style="background:rgba(0,113,227,0.03); border:1px solid rgba(0,113,227,0.10); border-radius:8px; padding:14px;">'
+                + '<div style="font-weight:700; color:var(--c-heading);">ChromeVox (Chrome)</div>'
+                + '<div style="font-size:0.9em; color:var(--text-secondary); margin-top:4px;">Chrome extension — great for quick testing.</div>'
+                + '<div style="margin-top:8px; font-size:0.85em; color:var(--text-primary);">'
+                + '<div style="font-weight:600; margin-bottom:4px;">Quick Start:</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">Install from Chrome Web Store</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px; margin-bottom:4px;">Ctrl + Alt + Z → Toggle</div>'
+                + '<div style="font-family:monospace; background:var(--c-surface-2); padding:6px 10px; border-radius:6px;">CV + → / ← → Navigate</div>'
+                + '</div></div>'
+                + '</div></div>'
+
+                + '<div style="margin-bottom:20px;">'
+                + '<div style="font-weight:700; color:var(--c-heading); margin-bottom:8px; font-size:1.05em;">Testing Checklist</div>'
+                + '<div style="display:grid; grid-template-columns:1fr; gap:6px;">'
+                + _wcagChecklistItem('Can you navigate to every interactive element using only Tab/Shift+Tab?')
+                + _wcagChecklistItem('Does each focused element have a visible focus indicator?')
+                + _wcagChecklistItem('Does the screen reader announce button/link purpose clearly?')
+                + _wcagChecklistItem('Are form fields announced with their labels?')
+                + _wcagChecklistItem('Do modals trap focus and announce their title on open?')
+                + _wcagChecklistItem('Can you close modals with Escape key?')
+                + _wcagChecklistItem('Are status messages announced via aria-live regions?')
+                + _wcagChecklistItem('Does heading navigation (H key in NVDA/VO+U) show logical structure?')
+                + _wcagChecklistItem('Are decorative images hidden from screen readers (role="presentation" or alt="")?')
+                + _wcagChecklistItem('Does the page work at 200% zoom without content being cut off?')
+                + _wcagChecklistItem('Are color-coded states also communicated with text or icons?')
+                + _wcagChecklistItem('Do dynamic content changes (toasts, errors) get announced?')
+                + '</div></div>'
+
+                + '<div style="margin-bottom:20px;">'
+                + '<div style="font-weight:700; color:var(--c-heading); margin-bottom:8px; font-size:1.05em;">Additional Tools</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:10px;">'
+                + '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; padding:12px;">'
+                + '<div style="font-weight:600; color:var(--c-heading);">axe DevTools</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-top:2px;">Chrome extension by Deque. Run automated WCAG checks in DevTools. Free tier catches most issues.</div></div>'
+                + '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; padding:12px;">'
+                + '<div style="font-weight:600; color:var(--c-heading);">WAVE</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-top:2px;">wave.webaim.org — paste any URL for a visual accessibility report. Also available as browser extension.</div></div>'
+                + '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; padding:12px;">'
+                + '<div style="font-weight:600; color:var(--c-heading);">Lighthouse</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-top:2px;">Built into Chrome DevTools (Audits tab). Includes an accessibility audit section with WCAG-mapped findings.</div></div>'
+                + '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; padding:12px;">'
+                + '<div style="font-weight:600; color:var(--c-heading);">Contrast Checker</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-top:2px;">webaim.org/resources/contrastchecker — input foreground/background colors and get instant WCAG AA/AAA pass/fail.</div></div>'
+                + '</div></div>'
+
+                + '<div>'
+                + '<div style="font-weight:700; color:var(--c-heading); margin-bottom:8px; font-size:1.05em;">Key WCAG 2.1 AA Requirements</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px;">'
+                + _wcagRefCard('1.1.1', 'Non-text Content', 'All images need alt text. Decorative images use alt="" or role="presentation".')
+                + _wcagRefCard('1.3.1', 'Info and Relationships', 'Use semantic HTML — headings, lists, tables, form labels — not just visual styling.')
+                + _wcagRefCard('1.4.3', 'Contrast (Minimum)', 'Normal text: 4.5:1 ratio. Large text (18pt+ or 14pt bold): 3:1 ratio.')
+                + _wcagRefCard('1.4.4', 'Resize Text', 'Text must be resizable to 200% without loss of content or functionality.')
+                + _wcagRefCard('2.1.1', 'Keyboard', 'All functionality must be operable via keyboard alone.')
+                + _wcagRefCard('2.4.1', 'Bypass Blocks', 'Provide skip-to-content links to bypass repeated navigation.')
+                + _wcagRefCard('2.4.4', 'Link Purpose', 'Every link text must be meaningful in context — no bare "click here".')
+                + _wcagRefCard('2.4.7', 'Focus Visible', 'All interactive elements must show a visible focus indicator.')
+                + _wcagRefCard('3.1.1', 'Language of Page', 'HTML element must have a lang attribute (e.g., lang="en").')
+                + _wcagRefCard('4.1.2', 'Name, Role, Value', 'Custom controls need proper ARIA roles, names, and states.')
+                + '</div></div>'
+
+                + '</div></div>';
+
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function _wcagChecklistItem(text) {
+            return '<label style="display:flex; align-items:flex-start; gap:8px; padding:6px 10px; border-radius:6px; cursor:pointer; background:var(--c-surface-1); border:1px solid var(--c-surface-4);">'
+                + '<input type="checkbox" style="margin-top:2px; accent-color:var(--accent);">'
+                + '<span style="font-size:0.88em; color:var(--text-primary);">' + text + '</span>'
+                + '</label>';
+        }
+
+        function _wcagRefCard(rule, title, desc) {
+            return '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:8px; padding:12px;">'
+                + '<div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">'
+                + '<span style="background:var(--accent); color:#fff; font-size:0.72em; padding:2px 7px; border-radius:4px; font-weight:700; font-family:monospace;">' + rule + '</span>'
+                + '<span style="font-weight:600; font-size:0.92em; color:var(--c-heading);">' + title + '</span>'
+                + '</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary); line-height:1.5;">' + desc + '</div>'
+                + '</div>';
+        }
+
         function renderAdminCosts(el) {
             var log = getAIUsageLog();
             var today = new Date();
