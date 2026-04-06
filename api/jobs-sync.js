@@ -595,5 +595,4 @@ export default async function handler(req, res) {
   }));
 };
 
-// Vercel config: 60s timeout (Pro plan max), Node 18
-export const config = { maxDuration: 60 };
+export const config = { maxDuration: 300 };
