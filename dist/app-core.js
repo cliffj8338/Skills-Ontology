@@ -28723,7 +28723,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     icon: bpIcon('check', 20),
                     bg: 'var(--c-surface-2a, rgba(0,0,0,0.02))',
                     border: 'var(--border, rgba(0,0,0,0.06))', accent: 'var(--text-muted)',
-                    pillBg: 'rgba(99,99,102,0.12)', pillColor: 'var(--text-secondary)', skills: []
+                    pillBg: 'rgba(99,99,102,0.12)', pillColor: '#48484a', skills: []
                 }
             };
 
@@ -34422,7 +34422,7 @@ body {
             var tierMeta = {
                 rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'rgba(196,93,0,0.08)', border: 'rgba(196,93,0,0.3)', accent: 'var(--c-orange)', pillBg: 'rgba(196,93,0,0.12)', pillText: '#7a3800' },
                 uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'rgba(0,113,227,0.06)', border: 'rgba(0,113,227,0.25)', accent: 'var(--accent)', pillBg: 'rgba(0,113,227,0.12)', pillText: '#004a8c' },
-                common: { label: 'Common', desc: 'Foundational capabilities', icon: 'check', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)', accent: 'var(--text-muted)', pillBg: 'rgba(99,99,102,0.12)', pillText: 'var(--text-secondary)' }
+                common: { label: 'Common', desc: 'Foundational capabilities', icon: 'check', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)', accent: 'var(--text-muted)', pillBg: 'rgba(99,99,102,0.12)', pillText: '#48484a' }
             };
             var tierSkills = { rare: [], uncommon: [], common: [] };
             var levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
