@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.39b';
+        var BP_VERSION = 'v4.47.40';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -250,11 +250,50 @@
         var _aiCacheableFeatures = {
             'explorer-skills': true,
             'explorer-careers': true,
+            'explorer-people': true,
             'wb-value-desc-bulk': true,
             'wb-value-desc': true,
             'wb-skill-outcome-bulk': true,
             'wb-skill-outcome': true
         };
+
+        var _interestIntensityLevels = [
+            { id: 'curious', label: 'Curious', icon: '\uD83E\uDD14', color: '#60a5fa', desc: 'Just getting started' },
+            { id: 'learning', label: 'Learning', icon: '\uD83D\uDCDA', color: '#f59e0b', desc: 'Actively building knowledge' },
+            { id: 'passionate', label: 'Passionate', icon: '\uD83D\uDD25', color: '#ef4444', desc: 'Deeply invested' },
+            { id: 'talented', label: 'Talented', icon: '\u2B50', color: '#8b5cf6', desc: 'Strong skill & experience' }
+        ];
+
+        function _normalizeInterests(arr) {
+            if (!arr || !arr.length) return [];
+            return arr.map(function(item) {
+                if (typeof item === 'string') return { name: item, intensity: 'curious' };
+                if (item && item.name) return { name: item.name, intensity: item.intensity || 'curious' };
+                return null;
+            }).filter(Boolean);
+        }
+
+        function _interestNames(arr) {
+            return _normalizeInterests(arr).map(function(i) { return i.name; });
+        }
+
+        function _interestHasName(arr, name) {
+            return _normalizeInterests(arr).some(function(i) { return i.name === name; });
+        }
+
+        function _interestGetIntensity(arr, name) {
+            var found = _normalizeInterests(arr).find(function(i) { return i.name === name; });
+            return found ? found.intensity : null;
+        }
+
+        function _interestFormatForPrompt(arr) {
+            var normalized = _normalizeInterests(arr);
+            if (!normalized.length) return '';
+            return normalized.map(function(i) {
+                var lvl = _interestIntensityLevels.find(function(l) { return l.id === i.intensity; });
+                return i.name + ' [' + (lvl ? lvl.label : 'Curious') + ']';
+            }).join(', ');
+        }
 
         var _aiCacheMaxEntries = 20;
 
@@ -4156,11 +4195,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest/aptitude input model', status: 'partial', category: 'feature', priority: 'critical', notes: 'Interests are collected as free-text chips (tap-to-add from suggestions + custom). NOT yet using exploration spectrum (Curious/Learning/Passionate/Talented). Current model is simpler: just interest names without intensity levels. Aspirational skills not yet distinguished from discovered skills.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.40: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would show entry-level → 5yr → 10yr → peak compensation per recommended field using BLS percentile data. Interactive slider to shift interest levels and watch trajectories change.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.40: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.40: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency explorer', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. Interactive D3 visualization showing how interests connect to fields and how fields connect to each other. Would show students their interests are part of interconnected professional ecosystems.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.40: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -21855,7 +21895,9 @@
         window.explorerSaveActivities = explorerSaveActivities;
 
         function renderExplorerInterests(el) {
-            var interests = wizardState.explorerData.interests || [];
+            var rawInterests = wizardState.explorerData.interests || [];
+            var interests = _normalizeInterests(rawInterests);
+            wizardState.explorerData.interests = interests;
             var interestSuggestions = [
                 'Coding / Programming', 'Gaming', 'Music', 'Art / Design', 'Writing / Blogging',
                 'Fitness / Sports', 'Photography', 'Video Production', 'Cooking', 'Travel',
@@ -21868,9 +21910,35 @@
             ];
 
             var chips = interestSuggestions.map(function(int) {
-                var isActive = interests.indexOf(int) >= 0;
-                return '<span onclick="explorerToggleInterest(\'' + escapeAttr(int).replace(/'/g, "\\'") + '\')" style="' + (isActive ? explorerChipActiveStyle : explorerChipStyle) + '">' + int + '</span>';
+                var isActive = _interestHasName(interests, int);
+                var intensity = _interestGetIntensity(interests, int);
+                var lvl = intensity ? _interestIntensityLevels.find(function(l) { return l.id === intensity; }) : null;
+                var chipStyle = isActive
+                    ? 'display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600; transition:all 0.15s; border:2px solid ' + (lvl ? lvl.color : '#8b5cf6') + '; background:' + (lvl ? lvl.color : '#8b5cf6') + '18; color:' + (lvl ? lvl.color : '#8b5cf6') + ';'
+                    : explorerChipStyle;
+                var label = isActive ? (lvl ? lvl.icon + ' ' : '') + int : int;
+                return '<span onclick="explorerToggleInterest(\'' + escapeAttr(int).replace(/'/g, "\\'") + '\')" style="' + chipStyle + '">' + label + '</span>';
             }).join(' ');
+
+            var selectedHtml = '';
+            if (interests.length > 0) {
+                selectedHtml = '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border-color);">'
+                    + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:8px; font-size:0.85em;">Your Interests \u2014 tap to change intensity level:</div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
+                interests.forEach(function(int) {
+                    var lvl = _interestIntensityLevels.find(function(l) { return l.id === int.intensity; }) || _interestIntensityLevels[0];
+                    selectedHtml += '<span onclick="explorerCycleIntensity(\'' + escapeAttr(int.name).replace(/'/g, "\\'") + '\')" style="display:inline-flex; align-items:center; gap:5px; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600; border:2px solid ' + lvl.color + '; background:' + lvl.color + '15; color:' + lvl.color + '; transition:all 0.15s;">'
+                        + lvl.icon + ' ' + escapeHtml(int.name)
+                        + '<span style="font-size:0.75em; opacity:0.8; margin-left:2px;">(' + lvl.label + ')</span>'
+                        + '</span>';
+                });
+                selectedHtml += '</div>'
+                    + '<div style="display:flex; gap:12px; margin-top:10px; flex-wrap:wrap;">';
+                _interestIntensityLevels.forEach(function(lvl) {
+                    selectedHtml += '<span style="font-size:0.72em; color:' + lvl.color + '; display:flex; align-items:center; gap:3px;">' + lvl.icon + ' ' + lvl.label + ' \u2014 ' + lvl.desc + '</span>';
+                });
+                selectedHtml += '</div></div>';
+            }
 
             el.innerHTML = `
                 ${wizardHeading(bpIcon('sparkle',22), 'Interests & Passions',
@@ -21882,7 +21950,7 @@
                         <input type="text" id="expCustomInterest" placeholder="Add your own interest..." style="${explorerFieldStyle} flex:1;">
                         <button onclick="explorerAddCustomInterest()" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em; white-space:nowrap;">+ Add</button>
                     </div>
-                    ${interests.length > 0 ? '<div style="margin-top:14px; font-size:0.82em; color:#8b5cf6; font-weight:600;">' + interests.length + ' interest' + (interests.length !== 1 ? 's' : '') + ' selected</div>' : ''}
+                    ${selectedHtml}
                 </div>
                 <div style="${explorerCardStyle}">
                     <label style="${explorerLabelStyle}">Tell us more about what drives you (optional)</label>
@@ -21897,17 +21965,39 @@
 
         function explorerToggleInterest(name) {
             var arr = wizardState.explorerData.interests;
-            var idx = arr.indexOf(name);
-            if (idx >= 0) arr.splice(idx, 1); else arr.push(name);
+            var normalized = _normalizeInterests(arr);
+            var idx = normalized.findIndex(function(i) { return i.name === name; });
+            if (idx >= 0) {
+                normalized.splice(idx, 1);
+            } else {
+                normalized.push({ name: name, intensity: 'curious' });
+            }
+            wizardState.explorerData.interests = normalized;
             renderWizardStep();
         }
         window.explorerToggleInterest = explorerToggleInterest;
+
+        function explorerCycleIntensity(name) {
+            var arr = _normalizeInterests(wizardState.explorerData.interests);
+            var found = arr.find(function(i) { return i.name === name; });
+            if (!found) return;
+            var ids = _interestIntensityLevels.map(function(l) { return l.id; });
+            var curIdx = ids.indexOf(found.intensity);
+            found.intensity = ids[(curIdx + 1) % ids.length];
+            wizardState.explorerData.interests = arr;
+            renderWizardStep();
+        }
+        window.explorerCycleIntensity = explorerCycleIntensity;
 
         function explorerAddCustomInterest() {
             var input = document.getElementById('expCustomInterest');
             if (!input || !input.value.trim()) return;
             var val = input.value.trim();
-            if (wizardState.explorerData.interests.indexOf(val) < 0) wizardState.explorerData.interests.push(val);
+            var arr = _normalizeInterests(wizardState.explorerData.interests);
+            if (!_interestHasName(arr, val)) {
+                arr.push({ name: val, intensity: 'curious' });
+                wizardState.explorerData.interests = arr;
+            }
             input.value = '';
             renderWizardStep();
         }
@@ -21960,7 +22050,7 @@
             (ed.partTimeJobs || []).forEach(function(j) {
                 if (j.title) prompt += '- ' + j.title + (j.company ? ' at ' + j.company : '') + (j.duration ? ' [' + j.duration + ']' : '') + (j.description ? ': ' + j.description : '') + '\n';
             });
-            prompt += '\nInterests & Hobbies: ' + (ed.interests || []).join(', ') + '\n';
+            prompt += '\nInterests & Hobbies (with engagement level): ' + _interestFormatForPrompt(ed.interests) + '\n';
             if (ed.driveStatement) prompt += '\nWhat drives them: ' + ed.driveStatement + '\n';
             prompt += '\n--- OUTPUT FORMAT ---\n'
                 + 'Return ONLY a JSON object with this structure (no markdown, no explanation):\n'
@@ -22126,7 +22216,7 @@
                 var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
                 prompt += (cat ? cat.label : a.category) + (a.duration ? ' [' + a.duration + ']' : '') + (a.level ? ' [' + a.level + ']' : '') + (a.role ? ' (' + a.role + ')' : '') + ', ';
             });
-            prompt += '\nInterests: ' + (wizardState.explorerData.interests || []).join(', ') + '\n'
+            prompt += '\nInterests (with engagement level): ' + _interestFormatForPrompt(wizardState.explorerData.interests) + '\n'
                 + (wizardState.explorerData.driveStatement ? 'Motivation: ' + wizardState.explorerData.driveStatement + '\n' : '')
                 + '\n--- OUTPUT ---\n'
                 + 'Return ONLY a JSON object (no markdown):\n'
@@ -30040,7 +30130,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
             }
 
-            var explorerInterests = (isExplorer && opts.includeInterests !== false) ? (ed.interests || []) : [];
+            var explorerInterests = (isExplorer && opts.includeInterests !== false) ? _interestNames(ed.interests || []) : [];
             var explorerCareerGoal = '';
             if (isExplorer && opts.includeCareerGoal !== false) {
                 var selIdx = typeof ed.selectedCareerIdx === 'number' ? ed.selectedCareerIdx : 0;
@@ -31715,7 +31805,7 @@ body {
             }
             html += '</div>';
 
-            var interests = ed.interests || [];
+            var interests = _normalizeInterests(ed.interests || []);
             html += '<div style="' + cs + '">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
                 + '<div style="' + ls + ' color:#60a5fa; margin-bottom:0;">Interests</div>'
@@ -31726,7 +31816,10 @@ body {
             } else {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 interests.forEach(function(int) {
-                    html += '<span style="display:inline-block; background:rgba(96,165,250,0.1); color:#60a5fa; font-size:0.78em; font-weight:600; padding:4px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.2);">' + escapeHtml(int) + '</span>';
+                    var lvl = _interestIntensityLevels.find(function(l) { return l.id === int.intensity; }) || _interestIntensityLevels[0];
+                    html += '<span onclick="explorerDashCycleIntensity(\'' + escapeAttr(int.name).replace(/'/g, "\\'") + '\')" style="display:inline-flex; align-items:center; gap:4px; cursor:pointer; background:' + lvl.color + '15; color:' + lvl.color + '; font-size:0.78em; font-weight:600; padding:5px 11px; border-radius:10px; border:1px solid ' + lvl.color + '40; transition:all 0.15s;">'
+                        + lvl.icon + ' ' + escapeHtml(int.name)
+                        + '</span>';
                 });
                 html += '</div>';
             }
@@ -31760,12 +31853,296 @@ body {
                 + '<button onclick="explorerConvertToFull()" style="padding:12px 24px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert to Full Blueprint</button>'
                 + '</div>';
 
-            html += '<div style="padding:12px 16px; background:rgba(139,92,246,0.04); border-radius:10px; margin-bottom:16px;">'
-                + '<div style="font-size:0.78em; color:var(--text-muted); text-align:center;">Coming soon: <strong>People Like You</strong> \u2014 discover accomplished people who started with similar backgrounds and career paths.</div>'
-                + '</div>';
+            if (careerPaths.length >= 2) {
+                html += _renderCompensationTrajectory(careerPaths, selectedIdx);
+            }
+
+            if (skills.length > 0 && careerPaths.length > 0 && interests.length > 0) {
+                html += _renderSkillAdjacencyMap(interests, skills, careerPaths, selectedPath);
+            }
+
+            html += _renderPeopleLikeYou(ed, skills);
 
             return html;
         }
+
+        function _renderCompensationTrajectory(careerPaths, selectedIdx) {
+            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
+            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+            var pathColors = ['#8b5cf6', '#60a5fa', '#10b981', '#f59e0b', '#ef4444'];
+            var maxVal = 0;
+            careerPaths.forEach(function(p) {
+                var sv = Number(p.seniorValue) || 0;
+                if (sv > maxVal) maxVal = sv;
+            });
+            if (maxVal === 0) return '';
+
+            var svgW = 480, svgH = 220, padL = 55, padR = 20, padT = 20, padB = 35;
+            var chartW = svgW - padL - padR, chartH = svgH - padT - padB;
+            var stages = ['Entry', '3-5 yr', '8-10 yr'];
+
+            var gridLines = '';
+            var gridSteps = 4;
+            for (var g = 0; g <= gridSteps; g++) {
+                var gy = padT + (chartH * g / gridSteps);
+                var gVal = maxVal - (maxVal * g / gridSteps);
+                gridLines += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="var(--border-color)" stroke-width="0.5" />';
+                gridLines += '<text x="' + (padL - 6) + '" y="' + (gy + 4) + '" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="Outfit,sans-serif">$' + Math.round(gVal / 1000) + 'k</text>';
+            }
+            stages.forEach(function(label, si) {
+                var sx = padL + (chartW * si / 2);
+                gridLines += '<text x="' + sx + '" y="' + (svgH - 8) + '" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="Outfit,sans-serif">' + label + '</text>';
+            });
+
+            var paths = '';
+            var dots = '';
+            var legend = '';
+            careerPaths.forEach(function(p, pi) {
+                var c = pathColors[pi % pathColors.length];
+                var ev = Number(p.entryValue) || 0, mv = Number(p.midValue) || 0, sv = Number(p.seniorValue) || 0;
+                if (ev === 0 && mv === 0 && sv === 0) return;
+                var x0 = padL, x1 = padL + chartW / 2, x2 = padL + chartW;
+                var y0 = padT + chartH - (ev / maxVal * chartH);
+                var y1 = padT + chartH - (mv / maxVal * chartH);
+                var y2 = padT + chartH - (sv / maxVal * chartH);
+                var isSel = pi === selectedIdx;
+                var opacity = isSel ? '1' : '0.4';
+                var sw = isSel ? '3' : '1.5';
+                var cpx1 = (x0 + x1) / 2, cpx2 = (x1 + x2) / 2;
+                paths += '<path d="M' + x0 + ',' + y0 + ' C' + cpx1 + ',' + y0 + ' ' + cpx1 + ',' + y1 + ' ' + x1 + ',' + y1 + ' C' + cpx2 + ',' + y1 + ' ' + cpx2 + ',' + y2 + ' ' + x2 + ',' + y2 + '" fill="none" stroke="' + c + '" stroke-width="' + sw + '" opacity="' + opacity + '" />';
+                if (isSel) {
+                    [[x0,y0,ev],[x1,y1,mv],[x2,y2,sv]].forEach(function(pt) {
+                        dots += '<circle cx="' + pt[0] + '" cy="' + pt[1] + '" r="5" fill="' + c + '" stroke="var(--card-bg)" stroke-width="2" />';
+                        dots += '<text x="' + pt[0] + '" y="' + (pt[1] - 10) + '" text-anchor="middle" fill="' + c + '" font-size="10" font-weight="700" font-family="Outfit,sans-serif">$' + Math.round(pt[2] / 1000) + 'k</text>';
+                    });
+                }
+                legend += '<span style="display:inline-flex; align-items:center; gap:4px; font-size:0.72em; color:' + (isSel ? c : 'var(--text-muted)') + '; font-weight:' + (isSel ? '700' : '400') + ';' + (isSel ? '' : ' opacity:0.7;') + '">'
+                    + '<span style="width:10px; height:3px; background:' + c + '; border-radius:2px; display:inline-block;"></span>'
+                    + escapeHtml(p.title) + '</span>';
+            });
+
+            return '<div style="' + cs + '">'
+                + '<div style="' + ls + ' color:#10b981;">Compensation Trajectory</div>'
+                + '<div style="font-size:0.82em; color:var(--text-secondary); margin-bottom:14px;">How your earning potential grows over time across career paths</div>'
+                + '<div style="overflow-x:auto;"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%; max-width:' + svgW + 'px; height:auto;" xmlns="http://www.w3.org/2000/svg">'
+                + gridLines + paths + dots
+                + '</svg></div>'
+                + '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; justify-content:center;">' + legend + '</div>'
+                + '</div>';
+        }
+
+        function _renderSkillAdjacencyMap(interests, skills, careerPaths, selectedPath) {
+            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
+            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+            var normalized = _normalizeInterests(interests);
+
+            var nodes = [];
+            var edges = [];
+            var nodeMap = {};
+
+            normalized.forEach(function(int) {
+                var nid = 'int_' + int.name;
+                nodeMap[nid] = { id: nid, label: int.name, type: 'interest', intensity: int.intensity };
+                nodes.push(nodeMap[nid]);
+            });
+
+            var skillNames = {};
+            skills.forEach(function(sk) {
+                var nid = 'sk_' + sk.name;
+                if (!nodeMap[nid]) {
+                    nodeMap[nid] = { id: nid, label: sk.name, type: 'skill' };
+                    nodes.push(nodeMap[nid]);
+                    skillNames[sk.name] = true;
+                }
+                if (sk.reason) {
+                    normalized.forEach(function(int) {
+                        if (sk.reason.toLowerCase().indexOf(int.name.toLowerCase()) >= 0 || sk.reason.toLowerCase().indexOf(int.name.split(' / ')[0].toLowerCase()) >= 0) {
+                            edges.push({ from: 'int_' + int.name, to: nid });
+                        }
+                    });
+                }
+            });
+
+            var careerNodes = [];
+            careerPaths.forEach(function(cp) {
+                var nid = 'cp_' + cp.title;
+                if (!nodeMap[nid]) {
+                    nodeMap[nid] = { id: nid, label: cp.title, type: 'career' };
+                    nodes.push(nodeMap[nid]);
+                    careerNodes.push(nid);
+                }
+                (cp.skillsYouHave || []).forEach(function(skName) {
+                    var skId = 'sk_' + skName;
+                    if (nodeMap[skId]) {
+                        edges.push({ from: skId, to: nid });
+                    }
+                });
+            });
+
+            if (nodes.length < 3) return '';
+
+            var svgW = 500, svgH = 360;
+            var cx = svgW / 2, cy = svgH / 2;
+
+            var interestNodes = nodes.filter(function(n) { return n.type === 'interest'; });
+            var skillNodes = nodes.filter(function(n) { return n.type === 'skill'; });
+            var cpNodes = nodes.filter(function(n) { return n.type === 'career'; });
+
+            var maxInterests = Math.min(interestNodes.length, 10);
+            var maxSkills = Math.min(skillNodes.length, 12);
+            var maxCareers = Math.min(cpNodes.length, 5);
+
+            interestNodes = interestNodes.slice(0, maxInterests);
+            skillNodes = skillNodes.slice(0, maxSkills);
+            cpNodes = cpNodes.slice(0, maxCareers);
+            var allNodes = interestNodes.concat(skillNodes).concat(cpNodes);
+
+            var positions = {};
+            interestNodes.forEach(function(n, i) {
+                var angle = (2 * Math.PI * i / maxInterests) - Math.PI / 2;
+                positions[n.id] = { x: cx + Math.cos(angle) * 60, y: cy + Math.sin(angle) * 60 };
+            });
+            skillNodes.forEach(function(n, i) {
+                var angle = (2 * Math.PI * i / maxSkills) - Math.PI / 2;
+                positions[n.id] = { x: cx + Math.cos(angle) * 140, y: cy + Math.sin(angle) * 130 };
+            });
+            cpNodes.forEach(function(n, i) {
+                var angle = (2 * Math.PI * i / maxCareers) - Math.PI / 2 + Math.PI / maxCareers;
+                positions[n.id] = { x: cx + Math.cos(angle) * 210, y: cy + Math.sin(angle) * 160 };
+            });
+
+            var edgeSvg = '';
+            edges.forEach(function(e) {
+                var fp = positions[e.from], tp = positions[e.to];
+                if (!fp || !tp) return;
+                var isCareerEdge = e.to.indexOf('cp_') === 0;
+                edgeSvg += '<line x1="' + fp.x + '" y1="' + fp.y + '" x2="' + tp.x + '" y2="' + tp.y + '" stroke="' + (isCareerEdge ? 'rgba(16,185,129,0.25)' : 'rgba(139,92,246,0.2)') + '" stroke-width="1" />';
+            });
+
+            var nodeSvg = '';
+            allNodes.forEach(function(n) {
+                var p = positions[n.id];
+                if (!p) return;
+                var color = n.type === 'interest' ? '#8b5cf6' : n.type === 'skill' ? '#60a5fa' : '#10b981';
+                var r = n.type === 'career' ? 22 : n.type === 'interest' ? 18 : 14;
+                if (n.intensity) {
+                    var ilvl = _interestIntensityLevels.find(function(l) { return l.id === n.intensity; });
+                    if (ilvl) color = ilvl.color;
+                }
+                nodeSvg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + r + '" fill="' + color + '20" stroke="' + color + '" stroke-width="1.5" />';
+                var maxChars = n.type === 'career' ? 14 : 10;
+                var lbl = n.label.length > maxChars ? n.label.substring(0, maxChars - 1) + '\u2026' : n.label;
+                nodeSvg += '<text x="' + p.x + '" y="' + (p.y + 3) + '" text-anchor="middle" fill="' + color + '" font-size="' + (n.type === 'career' ? '8' : '7') + '" font-weight="600" font-family="Outfit,sans-serif">' + escapeHtml(lbl) + '</text>';
+            });
+
+            return '<div style="' + cs + '">'
+                + '<div style="' + ls + ' color:#8b5cf6;">Skill Adjacency Map</div>'
+                + '<div style="font-size:0.82em; color:var(--text-secondary); margin-bottom:14px;">How your interests connect to skills and career paths</div>'
+                + '<div style="overflow-x:auto;"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%; max-width:' + svgW + 'px; height:auto;" xmlns="http://www.w3.org/2000/svg">'
+                + edgeSvg + nodeSvg
+                + '</svg></div>'
+                + '<div style="display:flex; gap:14px; margin-top:10px; justify-content:center; flex-wrap:wrap;">'
+                + '<span style="font-size:0.72em; display:flex; align-items:center; gap:4px; color:#8b5cf6;"><span style="width:10px; height:10px; border-radius:50%; background:#8b5cf620; border:1.5px solid #8b5cf6; display:inline-block;"></span> Interests</span>'
+                + '<span style="font-size:0.72em; display:flex; align-items:center; gap:4px; color:#60a5fa;"><span style="width:10px; height:10px; border-radius:50%; background:#60a5fa20; border:1.5px solid #60a5fa; display:inline-block;"></span> Skills</span>'
+                + '<span style="font-size:0.72em; display:flex; align-items:center; gap:4px; color:#10b981;"><span style="width:10px; height:10px; border-radius:50%; background:#10b98120; border:1.5px solid #10b981; display:inline-block;"></span> Careers</span>'
+                + '</div></div>';
+        }
+
+        function _renderPeopleLikeYou(ed, skills) {
+            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
+            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+            var people = ed.peopleInspirations || [];
+
+            if (people.length === 0) {
+                return '<div style="' + cs + ' text-align:center; border-color:rgba(244,114,182,0.3);">'
+                    + '<div style="' + ls + ' color:#f472b6;">People Like You</div>'
+                    + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; max-width:400px; margin:0 auto 16px;">Discover accomplished people who started with similar backgrounds and interests as you.</div>'
+                    + '<button id="peopleLikeYouBtn" onclick="explorerDiscoverPeople(this)" style="padding:10px 22px; background:linear-gradient(135deg,#f472b6,#a855f7); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Discover Inspirations</button>'
+                    + '</div>';
+            }
+
+            var html = '<div style="' + cs + '">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">'
+                + '<div style="' + ls + ' color:#f472b6; margin-bottom:0;">People Like You</div>'
+                + '<button onclick="explorerDiscoverPeople(this)" style="font-size:0.7em; padding:4px 10px; border-radius:6px; border:1px solid rgba(244,114,182,0.3); background:rgba(244,114,182,0.06); color:#f472b6; cursor:pointer; font-weight:600;">Refresh</button>'
+                + '</div>';
+
+            people.forEach(function(person) {
+                var bgColor = person.fieldColor || '#8b5cf6';
+                html += '<div style="padding:16px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:10px; background:var(--bg-elevated);">'
+                    + '<div style="display:flex; align-items:flex-start; gap:12px;">'
+                    + '<div style="flex-shrink:0; width:44px; height:44px; border-radius:50%; background:' + bgColor + '20; border:2px solid ' + bgColor + '; display:flex; align-items:center; justify-content:center; font-size:1.4em;">' + (person.emoji || '\uD83C\uDF1F') + '</div>'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-weight:700; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(person.name || '') + '</div>'
+                    + '<div style="font-size:0.78em; color:' + bgColor + '; font-weight:600; margin-top:1px;">' + escapeHtml(person.role || '') + '</div>'
+                    + '</div></div>'
+                    + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-top:10px;">' + escapeHtml(person.similarity || '') + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-top:6px;"><strong style="color:var(--text-primary);">Career arc:</strong> ' + escapeHtml(person.careerArc || '') + '</div>'
+                    + (person.insight ? '<div style="margin-top:8px; padding:10px 14px; background:rgba(244,114,182,0.06); border-radius:8px; border-left:3px solid #f472b6; font-size:0.8em; color:var(--text-secondary); line-height:1.5; font-style:italic;">\u201C' + escapeHtml(person.insight) + '\u201D</div>' : '')
+                    + '</div>';
+            });
+
+            html += '</div>';
+            return html;
+        }
+
+        async function explorerDiscoverPeople(btnEl) {
+            if (readOnlyGuard()) return;
+            var ed = userData.explorerData || {};
+            var skills = skillsData.skills || [];
+            if (skills.length === 0 && (ed.interests || []).length === 0) {
+                showToast('Complete your profile first to discover people with similar backgrounds.', 'warning');
+                return;
+            }
+            if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<div class="bp-spinner" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:6px;"></div> Finding...'; }
+
+            var interestStr = _interestFormatForPrompt(ed.interests);
+            var skillStr = skills.slice(0, 10).map(function(s) { return s.name; }).join(', ');
+            var selIdx = typeof ed.selectedCareerIdx === 'number' ? ed.selectedCareerIdx : 0;
+            var selPath = (ed.careerPaths || [])[selIdx];
+            var careerTarget = selPath ? selPath.title : '';
+            var education = ed.education || {};
+
+            var prompt = 'You are an inspirational career counselor. Based on the following student profile, suggest 4 REAL, well-known accomplished people who started with similar backgrounds, interests, or early career experiences.\n\n'
+                + 'IMPORTANT: Only suggest REAL people with verifiable backgrounds. Focus on people whose early life/career closely mirrors this student\'s current situation.\n\n'
+                + '--- STUDENT PROFILE ---\n'
+                + 'Education: ' + (education.school || 'College student') + (education.major ? ' studying ' + education.major : '') + '\n'
+                + 'Interests: ' + (interestStr || 'Various') + '\n'
+                + 'Skills: ' + (skillStr || 'Early career') + '\n'
+                + (careerTarget ? 'Career direction: ' + careerTarget + '\n' : '')
+                + (ed.driveStatement ? 'Motivation: ' + ed.driveStatement + '\n' : '')
+                + '\n--- OUTPUT ---\n'
+                + 'Return ONLY a JSON object (no markdown):\n'
+                + '{"people":[\n'
+                + '  {\n'
+                + '    "name": "Full Name",\n'
+                + '    "role": "Current/Best-known Role",\n'
+                + '    "emoji": "relevant emoji",\n'
+                + '    "fieldColor": "#hex color for their field",\n'
+                + '    "similarity": "1-2 sentences on what they had in common with this student at the same age",\n'
+                + '    "careerArc": "Brief trajectory from early career to current success",\n'
+                + '    "insight": "A real quote or key lesson from their journey"\n'
+                + '  }\n'
+                + ']}';
+
+            try {
+                var response = await callAnthropicAPI({
+                    model: 'claude-sonnet-4-20250514', max_tokens: 2000,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'explorer-people');
+                var text = response.content[0].text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+                var parsed = JSON.parse(text);
+                if (!userData.explorerData) userData.explorerData = {};
+                userData.explorerData.peopleInspirations = parsed.people || [];
+                renderBlueprint();
+                showToast('Found people with similar backgrounds!', 'success');
+                saveToFirestore();
+            } catch (err) {
+                showToast('Error finding inspirations: ' + err.message, 'error');
+                if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = 'Discover Inspirations'; }
+            }
+        }
+        window.explorerDiscoverPeople = explorerDiscoverPeople;
 
         function explorerDashSelectPath(idx) {
             if (!userData.explorerData) return;
@@ -31810,7 +32187,7 @@ body {
                 var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
                 prompt += (cat ? cat.label : a.category) + (a.duration ? ' [' + a.duration + ']' : '') + (a.level ? ' [' + a.level + ']' : '') + (a.role ? ' (' + a.role + ')' : '') + ', ';
             });
-            prompt += '\nInterests: ' + (ed.interests || []).join(', ') + '\n'
+            prompt += '\nInterests (with engagement level): ' + _interestFormatForPrompt(ed.interests) + '\n'
                 + (ed.driveStatement ? 'Motivation: ' + ed.driveStatement + '\n' : '')
                 + '\n--- OUTPUT ---\n'
                 + 'Return ONLY a JSON object (no markdown):\n'
@@ -32054,12 +32431,12 @@ body {
             if (readOnlyGuard()) return;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content') || modal;
-            var current = (userData.explorerData.interests || []).join(', ');
+            var current = _interestNames(userData.explorerData.interests || []).join(', ');
 
             mc.innerHTML = '<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">Edit Interests</h2></div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
                 + '<div class="modal-body" style="padding:24px;">'
-                + '<div style="font-size:0.85em; color:var(--text-muted); margin-bottom:12px;">Separate interests with commas. Add as many as you want!</div>'
+                + '<div style="font-size:0.85em; color:var(--text-muted); margin-bottom:12px;">Separate interests with commas. Add as many as you want! Tap interest chips on the dashboard to change intensity level.</div>'
                 + '<textarea id="edInterests" rows="4" class="settings-input" style="resize:vertical;">' + escapeHtml(current) + '</textarea>'
                 + '<div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">'
                 + '<button onclick="closeExportModal()" style="padding:8px 16px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); cursor:pointer;">Cancel</button>'
@@ -32071,11 +32448,30 @@ body {
 
         function explorerDashSaveInterests() {
             var val = (document.getElementById('edInterests') || {}).value || '';
-            userData.explorerData.interests = val.split(',').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+            var newNames = val.split(',').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+            var oldInterests = _normalizeInterests(userData.explorerData.interests || []);
+            userData.explorerData.interests = newNames.map(function(name) {
+                var existing = oldInterests.find(function(i) { return i.name === name; });
+                return existing || { name: name, intensity: 'curious' };
+            });
             closeExportModal();
             _explorerDashSave();
         }
         window.explorerDashSaveInterests = explorerDashSaveInterests;
+
+        function explorerDashCycleIntensity(name) {
+            if (readOnlyGuard()) return;
+            var arr = _normalizeInterests(userData.explorerData.interests || []);
+            var found = arr.find(function(i) { return i.name === name; });
+            if (!found) return;
+            var ids = _interestIntensityLevels.map(function(l) { return l.id; });
+            var curIdx = ids.indexOf(found.intensity);
+            found.intensity = ids[(curIdx + 1) % ids.length];
+            userData.explorerData.interests = arr;
+            renderBlueprint();
+            _explorerDashSave();
+        }
+        window.explorerDashCycleIntensity = explorerDashCycleIntensity;
 
         function explorerDashEditDrive() {
             if (readOnlyGuard()) return;
