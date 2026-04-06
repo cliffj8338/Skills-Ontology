@@ -42006,6 +42006,14 @@ body {
         
         function renderFindJobs() {
             if (window._lastJobRadius === undefined && userData.preferences.searchRadius) window._lastJobRadius = userData.preferences.searchRadius;
+            if (window._lastJobArrangement === undefined && userData.preferences.workArrangement) {
+                var wa = userData.preferences.workArrangement;
+                if (wa.length === 1) {
+                    if (wa[0] === 'Remote') window._lastJobArrangement = 'remote';
+                    else if (wa[0] === 'Hybrid') window._lastJobArrangement = 'hybrid';
+                    else if (wa[0] === 'On-site') window._lastJobArrangement = 'onsite';
+                }
+            }
             // Build role suggestions from user's profile
             var roleSuggestions = '';
             if (userData.roles && userData.roles.length > 0) {
@@ -42028,7 +42036,7 @@ body {
                 + 'style="flex:2; min-width:180px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
                 + '<input id="findJobsLocation" type="text" placeholder="Zip, city, or state..." '
-                + 'value="' + escapeAttr(window._lastJobLocation || userData.profile.zipCode || userData.profile.cityState || '') + '" '
+                + 'value="' + escapeAttr(window._lastJobLocation || userData.profile.zipCode || userData.profile.cityState || userData.profile.location || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:1; min-width:140px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
