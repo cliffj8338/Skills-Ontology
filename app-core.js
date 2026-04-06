@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.41';
+        var BP_VERSION = 'v4.47.42';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -4195,12 +4195,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.41: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.42: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.41: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
-                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.41: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.42: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.42: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.41: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.42: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -22052,6 +22052,8 @@
             });
             prompt += '\nInterests & Hobbies (with engagement level): ' + _interestFormatForPrompt(ed.interests) + '\n';
             if (ed.driveStatement) prompt += '\nWhat drives them: ' + ed.driveStatement + '\n';
+            var wvIds = (ed.workValues || []).map(function(v) { var d = _explorerWorkValues.find(function(x) { return x.id === v.id; }); return d ? d.name : v.id; });
+            if (wvIds.length > 0) prompt += '\nCore work values (ranked): ' + wvIds.join(', ') + '\n';
             prompt += '\n--- OUTPUT FORMAT ---\n'
                 + 'Return ONLY a JSON object with this structure (no markdown, no explanation):\n'
                 + '{\n'
@@ -31835,6 +31837,8 @@ body {
                     : '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:6px 0;">Tap \u270E to tell us what motivates you!</div>')
                 + '</div>';
 
+            html += _renderExplorerValues(ed);
+
             html += '<div style="' + cs + ' border-color:rgba(96,165,250,0.2);">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
                 + '<div>'
@@ -32214,6 +32218,131 @@ body {
         }
         window._initAdjacencyForce = _initAdjacencyForce;
 
+        var _explorerWorkValues = [
+            { id: 'autonomy', name: 'Autonomy', icon: '\uD83E\uDDED', color: '#8b5cf6', desc: 'Freedom to make your own decisions and work independently' },
+            { id: 'impact', name: 'Impact', icon: '\uD83C\uDF0D', color: '#10b981', desc: 'Making a meaningful difference in people\'s lives or the world' },
+            { id: 'stability', name: 'Stability', icon: '\uD83C\uDFE0', color: '#3b82f6', desc: 'Job security, predictable income, and a reliable career path' },
+            { id: 'creativity', name: 'Creativity', icon: '\uD83C\uDFA8', color: '#ec4899', desc: 'Expressing ideas, designing, inventing, or building new things' },
+            { id: 'growth', name: 'Growth', icon: '\uD83D\uDE80', color: '#f59e0b', desc: 'Constantly learning, leveling up, and advancing your career' },
+            { id: 'collaboration', name: 'Collaboration', icon: '\uD83E\uDD1D', color: '#06b6d4', desc: 'Working closely with others, being part of a great team' },
+            { id: 'recognition', name: 'Recognition', icon: '\u2B50', color: '#eab308', desc: 'Being acknowledged and rewarded for your contributions' },
+            { id: 'balance', name: 'Balance', icon: '\u2696\uFE0F', color: '#a78bfa', desc: 'Having time for life outside work \u2014 family, hobbies, health' },
+            { id: 'challenge', name: 'Challenge', icon: '\uD83E\uDDE9', color: '#ef4444', desc: 'Solving hard problems and pushing yourself beyond comfort zones' },
+            { id: 'purpose', name: 'Purpose', icon: '\uD83D\uDD25', color: '#f97316', desc: 'Feeling your work connects to something bigger than yourself' },
+            { id: 'flexibility', name: 'Flexibility', icon: '\uD83C\uDF0A', color: '#14b8a6', desc: 'Control over when, where, and how you work' },
+            { id: 'leadership', name: 'Leadership', icon: '\uD83D\uDCA1', color: '#6366f1', desc: 'Guiding others, making decisions, and shaping direction' }
+        ];
+
+        function _renderExplorerValues(ed) {
+            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
+            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+            var workValues = ed.workValues || [];
+            var html = '<div style="' + cs + '">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                + '<div style="' + ls + ' color:#f59e0b; margin-bottom:0;">\uD83C\uDFAF What You Value in Work</div>'
+                + '<button onclick="explorerDashEditValues()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">' + (workValues.length > 0 ? '\u270E' : '+ Choose') + '</button>'
+                + '</div>';
+            if (workValues.length === 0) {
+                html += '<div style="text-align:center; padding:16px 10px;">'
+                    + '<div style="font-size:2em; margin-bottom:8px; opacity:0.3;">\uD83C\uDFAF</div>'
+                    + '<div style="font-size:0.88em; color:var(--text-muted); margin-bottom:12px;">What matters most to you in a career? Pick your top values so we can find paths that actually fit you.</div>'
+                    + '<button onclick="explorerDashEditValues()" style="padding:10px 22px; background:linear-gradient(135deg,#f59e0b,#f97316); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Choose Your Values</button>'
+                    + '</div>';
+            } else {
+                html += '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
+                workValues.forEach(function(wv, idx) {
+                    var vDef = _explorerWorkValues.find(function(v) { return v.id === wv.id; });
+                    if (!vDef) return;
+                    html += '<div style="display:flex; align-items:center; gap:6px; background:' + vDef.color + '12; border:1px solid ' + vDef.color + '40; border-radius:10px; padding:8px 14px;">'
+                        + '<span style="font-size:0.72em; font-weight:800; color:' + vDef.color + '; background:' + vDef.color + '20; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;">' + (idx + 1) + '</span>'
+                        + '<span style="font-size:1.1em;">' + vDef.icon + '</span>'
+                        + '<span style="font-size:0.85em; font-weight:600; color:var(--text-primary);">' + escapeHtml(vDef.name) + '</span>'
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function explorerDashEditValues() {
+            var ed = userData.explorerData || {};
+            var currentValues = (ed.workValues || []).map(function(v) { return v.id; });
+            var maxPicks = 5;
+
+            var html = '<div style="padding:20px; max-width:520px; margin:0 auto;">'
+                + '<div style="text-align:center; margin-bottom:20px;">'
+                + '<div style="font-size:1.3em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">\uD83C\uDFAF Choose Your Work Values</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.5;">Pick up to ' + maxPicks + ' values that matter most to you in a career. These help us recommend paths that truly fit.</div>'
+                + '<div id="valuesCount" style="font-size:0.82em; font-weight:700; color:#f59e0b; margin-top:8px;">' + currentValues.length + ' / ' + maxPicks + ' selected</div>'
+                + '</div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="valuesGrid">';
+
+            _explorerWorkValues.forEach(function(v) {
+                var isSel = currentValues.indexOf(v.id) >= 0;
+                html += '<div id="val_' + v.id + '" onclick="explorerToggleValue(\'' + v.id + '\')" style="padding:14px; border-radius:12px; cursor:pointer; transition:all 0.15s; border:2px solid ' + (isSel ? v.color : 'var(--border-color)') + '; background:' + (isSel ? v.color + '10' : 'transparent') + ';">'
+                    + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
+                    + '<span style="font-size:1.3em;">' + v.icon + '</span>'
+                    + '<span style="font-weight:700; color:' + (isSel ? v.color : 'var(--text-primary)') + '; font-size:0.92em;">' + v.name + '</span>'
+                    + '</div>'
+                    + '<div style="font-size:0.76em; color:var(--text-secondary); line-height:1.4;">' + v.desc + '</div>'
+                    + '</div>';
+            });
+
+            html += '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:20px; justify-content:center;">'
+                + '<button onclick="closeModal()" style="padding:10px 24px; background:var(--bg-elevated); color:var(--text-secondary); border:1px solid var(--border-color); border-radius:10px; cursor:pointer; font-weight:600;">Cancel</button>'
+                + '<button onclick="explorerDashSaveValues()" style="padding:10px 28px; background:linear-gradient(135deg,#f59e0b,#f97316); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700;">Save Values</button>'
+                + '</div></div>';
+
+            window._explorerSelectedValues = currentValues.slice();
+            showModal('Work Values', html);
+        }
+        window.explorerDashEditValues = explorerDashEditValues;
+
+        function explorerToggleValue(valId) {
+            var sel = window._explorerSelectedValues || [];
+            var idx = sel.indexOf(valId);
+            if (idx >= 0) {
+                sel.splice(idx, 1);
+            } else {
+                if (sel.length >= 5) {
+                    showToast('Maximum 5 values \u2014 remove one first', 'warning');
+                    return;
+                }
+                sel.push(valId);
+            }
+            window._explorerSelectedValues = sel;
+
+            _explorerWorkValues.forEach(function(v) {
+                var el = document.getElementById('val_' + v.id);
+                if (!el) return;
+                var isSel = sel.indexOf(v.id) >= 0;
+                el.style.borderColor = isSel ? v.color : 'var(--border-color)';
+                el.style.background = isSel ? v.color + '10' : 'transparent';
+            });
+            var countEl = document.getElementById('valuesCount');
+            if (countEl) countEl.textContent = sel.length + ' / 5 selected';
+        }
+        window.explorerToggleValue = explorerToggleValue;
+
+        function explorerDashSaveValues() {
+            var sel = window._explorerSelectedValues || [];
+            if (sel.length === 0) {
+                showToast('Pick at least one value', 'warning');
+                return;
+            }
+            if (!userData.explorerData) userData.explorerData = {};
+            userData.explorerData.workValues = sel.map(function(id, i) {
+                return { id: id, rank: i + 1 };
+            });
+            closeModal();
+            saveUserData();
+            if (typeof switchBlueprintTab === 'function') switchBlueprintTab('dashboard');
+            showToast('Values saved! These will shape your career recommendations.', 'success');
+        }
+        window.explorerDashSaveValues = explorerDashSaveValues;
+
         function _renderPeopleLikeYou(ed, skills) {
             var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
@@ -32277,7 +32406,9 @@ body {
                 + 'Interests: ' + (interestStr || 'Various') + '\n'
                 + 'Skills: ' + (skillStr || 'Early career') + '\n'
                 + (careerTarget ? 'Career direction: ' + careerTarget + '\n' : '')
-                + (ed.driveStatement ? 'Motivation: ' + ed.driveStatement + '\n' : '')
+                + (ed.driveStatement ? 'Motivation: ' + ed.driveStatement + '\n' : '');
+            var pWvNames = (ed.workValues || []).map(function(v) { var d = _explorerWorkValues.find(function(x) { return x.id === v.id; }); return d ? d.name : v.id; });
+            prompt += (pWvNames.length > 0 ? 'Core work values: ' + pWvNames.join(', ') + '\n' : '')
                 + '\n--- OUTPUT ---\n'
                 + 'Return ONLY a JSON object (no markdown):\n'
                 + '{"people":[\n'
@@ -32354,8 +32485,10 @@ body {
                 var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
                 prompt += (cat ? cat.label : a.category) + (a.duration ? ' [' + a.duration + ']' : '') + (a.level ? ' [' + a.level + ']' : '') + (a.role ? ' (' + a.role + ')' : '') + ', ';
             });
+            var wvNames = (ed.workValues || []).map(function(v) { var d = _explorerWorkValues.find(function(x) { return x.id === v.id; }); return d ? d.name : v.id; });
             prompt += '\nInterests (with engagement level): ' + _interestFormatForPrompt(ed.interests) + '\n'
                 + (ed.driveStatement ? 'Motivation: ' + ed.driveStatement + '\n' : '')
+                + (wvNames.length > 0 ? 'Core work values (ranked): ' + wvNames.join(', ') + '\n' : '')
                 + '\n--- OUTPUT ---\n'
                 + 'Return ONLY a JSON object (no markdown):\n'
                 + '{"careerPaths":[{"title":"...","whyFit":"...","salary":"$XX,000-$YY,000","entryValue":45000,"midValue":72000,"seniorValue":110000,"growth":"...","skillsYouHave":["Skill1"],"skillsToLearn":[{"name":"...","valueAdd":8000,"timeToLearn":"2-3 months","how":"..."}],"nextSteps":["Step 1"]}],"values":["Value1","Value2"]}';

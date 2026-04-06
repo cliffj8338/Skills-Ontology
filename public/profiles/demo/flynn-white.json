@@ -163,6 +163,13 @@
       { "name": "Accessibility Awareness", "reason": "Lived experience with physical disability and navigating inaccessible environments" },
       { "name": "Payment Processing", "reason": "Set up and managed online donation system for fundraising website" }
     ],
+    "workValues": [
+      { "id": "impact", "rank": 1 },
+      { "id": "autonomy", "rank": 2 },
+      { "id": "creativity", "rank": 3 },
+      { "id": "purpose", "rank": 4 },
+      { "id": "challenge", "rank": 5 }
+    ],
     "peopleInspirations": [
       {
         "name": "Haben Girma",
