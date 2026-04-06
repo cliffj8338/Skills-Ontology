@@ -1028,6 +1028,12 @@
             margin: 0 auto;
             padding: 0 24px;
         }
+        .main-content.admin-active {
+            height: auto;
+            min-height: calc(100vh - 56px);
+            max-width: 1400px;
+            overflow-y: visible;
+        }
         @media (min-width: 735px) {
             .main-content { padding: 0 40px; }
         }

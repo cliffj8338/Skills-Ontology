@@ -29015,6 +29015,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var _jdrop = document.getElementById('jobSelectorDropdown'); if (_jdrop) _jdrop.remove();
             var adminV = document.getElementById('adminView');
             if (adminV) adminV.style.display = 'none';
+            var _mc = document.querySelector('.main-content');
+            if (_mc) _mc.classList.remove('admin-active');
             if (controls) controls.style.display = 'none';
             
             var roBanner = document.getElementById('readonlyBanner');
@@ -29166,6 +29168,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var av = document.getElementById('adminView');
                 if (av) {
                     av.style.display = 'block';
+                    var mc = document.querySelector('.main-content');
+                    if (mc) mc.classList.add('admin-active');
                     initAdminView();
                 }
             }
