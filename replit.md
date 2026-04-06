@@ -76,6 +76,16 @@ Current: v4.48.9. Single source of truth: `src/core/constants.js` (`BP_VERSION` 
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
 
+## WCAG AA 2.1 Auditor (v4.48.21)
+Admin > System > Accessibility. Built-in heuristic pre-auditor that scans the live DOM for common WCAG 2.1 AA issues:
+- **Checks**: color contrast ratios (WCAG luminance formula, 4.5:1 normal / 3:1 large text), missing alt text, empty links/buttons, unlabeled form inputs, heading hierarchy, keyboard accessibility (onclick without role/tabindex), focus indicators, ARIA roles, landmarks, skip links, page lang, page title
+- **Severity tiers**: Critical / Warning / Minor with computed A11Y score
+- **Issue management**: dismiss individual issues, reset dismissed, CSV export
+- **Audit history**: last 50 runs tracked with date, page, severity counts
+- **Screen reader guide**: VoiceOver, NVDA, ChromeVox quickstarts + 12-item testing checklist + external tools (axe DevTools, WAVE, Lighthouse, Contrast Checker) + WCAG 2.1 AA reference cards
+- **Storage**: `bp_wcag_audit_history` and `bp_wcag_dismissed` in localStorage (try/catch safe parse)
+- **Scope note**: Heuristic pre-audit — does not cover all 50 WCAG 2.1 AA success criteria (e.g., reflow, text spacing, non-text contrast, error handling). Supplement with manual testing.
+
 ## Admin Version Manager (v4.47.46–47)
 - Admin panel → System → Versions tab for saving/restoring app-core.js snapshots
 - **Save**: Fetches live app-core.js, validates integrity (size + BP_VERSION marker), stores in IndexedDB with metadata synced to Firestore `app_versions` collection
