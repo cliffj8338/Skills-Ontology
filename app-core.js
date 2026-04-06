@@ -22218,8 +22218,10 @@
                 var cat = _explorerActCategories.find(function(c) { return c.id === a.category; });
                 prompt += (cat ? cat.label : a.category) + (a.duration ? ' [' + a.duration + ']' : '') + (a.level ? ' [' + a.level + ']' : '') + (a.role ? ' (' + a.role + ')' : '') + ', ';
             });
+            var wizWvNames = ((wizardState.explorerData.workValues || []).concat((userData.explorerData || {}).workValues || [])).filter(function(v,i,a) { return a.findIndex(function(x) { return x.id === v.id; }) === i; }).map(function(v) { var d = _explorerWorkValues.find(function(x) { return x.id === v.id; }); return d ? d.name : v.id; });
             prompt += '\nInterests (with engagement level): ' + _interestFormatForPrompt(wizardState.explorerData.interests) + '\n'
                 + (wizardState.explorerData.driveStatement ? 'Motivation: ' + wizardState.explorerData.driveStatement + '\n' : '')
+                + (wizWvNames.length > 0 ? 'Core work values (ranked): ' + wizWvNames.join(', ') + '\n' : '')
                 + '\n--- OUTPUT ---\n'
                 + 'Return ONLY a JSON object (no markdown):\n'
                 + '{\n'
