@@ -907,7 +907,7 @@
             cursor: pointer;
             transition: all 0.18s;
             font-size: 0.8em;
-            color: var(--text-secondary);
+            color: var(--text-primary);
         }
 
         .role-chip:hover {
@@ -934,6 +934,7 @@
             transition: all 0.3s;
             font-size: 0.85em;
             border: 1px solid transparent;
+            color: var(--text-primary);
         }
         
         .level-chip.mastery {
@@ -977,12 +978,12 @@
         }
         
         .level-chip.novice {
-            background: rgba(99,99,102, 0.2);
-            border-color: rgba(99,99,102, 0.3);
+            background: rgba(99,99,102, 0.12);
+            border-color: rgba(99,99,102, 0.25);
         }
         
         .level-chip.novice.active {
-            background: var(--text-muted);
+            background: #48484a;
             color: #fff;
         }
         
@@ -2313,16 +2314,16 @@
             gap: 6px;
             padding: 4px 12px;
             border-radius: 6px;
-            background: rgba(96,165,250,0.1);
-            border: 1px solid rgba(96,165,250,0.25);
+            background: rgba(0,113,227,0.08);
+            border: 1px solid rgba(0,113,227,0.20);
             font-size: 0.78em;
-            color: var(--accent);
+            color: #005bb5;
             margin-left: 8px;
         }
         .match-active-badge button {
             background: none;
             border: none;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             cursor: pointer;
             font-size: 1.1em;
             padding: 0 2px;

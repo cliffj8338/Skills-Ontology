@@ -14384,8 +14384,12 @@
 
         function _wcagParseColor(str) {
             if (!str || str === 'transparent' || str === 'rgba(0, 0, 0, 0)') return null;
-            var m = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-            if (m) return { r: parseInt(m[1]), g: parseInt(m[2]), b: parseInt(m[3]) };
+            var m = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+            if (m) {
+                var a = m[4] !== undefined ? parseFloat(m[4]) : 1;
+                if (a < 0.05) return null;
+                return { r: parseInt(m[1]), g: parseInt(m[2]), b: parseInt(m[3]), a: a };
+            }
             return null;
         }
 
@@ -14397,15 +14401,33 @@
             return (lighter + 0.05) / (darker + 0.05);
         }
 
+        function _wcagBlendAlpha(fg, bg) {
+            var a = fg.a !== undefined ? fg.a : 1;
+            return {
+                r: Math.round(fg.r * a + bg.r * (1 - a)),
+                g: Math.round(fg.g * a + bg.g * (1 - a)),
+                b: Math.round(fg.b * a + bg.b * (1 - a)),
+                a: 1
+            };
+        }
+
         function _wcagGetEffectiveBg(el) {
+            var layers = [];
             var node = el;
             while (node && node !== document.body) {
                 var s = window.getComputedStyle(node);
                 var c = _wcagParseColor(s.backgroundColor);
-                if (c) return c;
+                if (c) {
+                    if (c.a === 1) { layers.push(c); break; }
+                    layers.push(c);
+                }
                 node = node.parentElement;
             }
-            return { r: 255, g: 255, b: 255 };
+            var result = { r: 255, g: 255, b: 255, a: 1 };
+            for (var i = layers.length - 1; i >= 0; i--) {
+                result = _wcagBlendAlpha(layers[i], result);
+            }
+            return result;
         }
 
         function _wcagRunAudit() {
@@ -14483,9 +14505,10 @@
                     el.childNodes.forEach(function(n) { if (n.nodeType === 3) text += n.textContent; });
                     text = text.trim();
                     if (text.length > 0) {
-                        var fg = _wcagParseColor(vis.color);
+                        var fgRaw = _wcagParseColor(vis.color);
                         var bg = _wcagGetEffectiveBg(el);
-                        if (fg && bg) {
+                        if (fgRaw && bg) {
+                            var fg = (fgRaw.a !== undefined && fgRaw.a < 1) ? _wcagBlendAlpha(fgRaw, bg) : fgRaw;
                             var ratio = _wcagContrastRatio(fg, bg);
                             var fontSize = parseFloat(vis.fontSize);
                             var isBold = parseInt(vis.fontWeight) >= 700;
@@ -29955,9 +29978,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const rolesContainer = document.getElementById('roleChipsContainer');
             if (rolesContainer && userData.roles) {
                 var chipRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []);
-                rolesContainer.innerHTML = `<div class="role-chip active" data-role="all" onclick="filterByRole('all')">All</div>` +
+                rolesContainer.innerHTML = `<div class="role-chip active" data-role="all" role="button" tabindex="0" onclick="filterByRole('all')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByRole('all');}">All</div>` +
                     chipRoles.map(role => 
-                        `<div class="role-chip" data-role="${escapeHtml(role.id)}" onclick="filterByRole('${escapeHtml(role.id)}')">${escapeHtml(role.name)}</div>`
+                        `<div class="role-chip" data-role="${escapeHtml(role.id)}" role="button" tabindex="0" onclick="filterByRole('${escapeHtml(role.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByRole('${escapeHtml(role.id)}');}">${escapeHtml(role.name)}</div>`
                     ).join('');
             }
             
@@ -29975,7 +29998,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     .map(({ key, cls }) => {
                         const count = userData.skills.filter(s => s.level === key).length;
                         if (count === 0) return '';
-                        return `<div class="level-chip ${cls}" onclick="filterByLevel('${key.toLowerCase()}')">${key} (${count})</div>`;
+                        return `<div class="level-chip ${cls}" role="button" tabindex="0" onclick="filterByLevel('${key.toLowerCase()}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByLevel('${key.toLowerCase()}');}">${key} (${count})</div>`;
                     })
                     .join('');
             }
@@ -34380,7 +34403,9 @@ body {
                     var bpTileBg = tierKey === 'rare' ? 'rgba(196,93,0,0.04)' : tierKey === 'uncommon' ? 'rgba(0,113,227,0.03)' : 'rgba(0,0,0,0.015)';
                     var bpTileBorder = tierKey === 'rare' ? 'rgba(196,93,0,0.12)' : tierKey === 'uncommon' ? 'rgba(0,113,227,0.10)' : 'rgba(0,0,0,0.05)';
                     html += '<div style="background:' + bpTileBg + '; border:1px solid ' + bpTileBorder + '; border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s; position:relative;" '
+                        + 'role="button" tabindex="0" '
                         + 'onclick="openUnifiedSkillEditor(\'' + escapedName + '\')" '
+                        + 'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openUnifiedSkillEditor(\'' + escapedName + '\');}" '
                         + 'onmouseover="this.style.borderColor=\'' + meta.accent + '\';this.style.boxShadow=\'0 2px 12px rgba(0,0,0,0.06)\'" '
                         + 'onmouseout="this.style.borderColor=\'' + bpTileBorder + '\';this.style.boxShadow=\'none\'">';
 

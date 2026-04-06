@@ -218,18 +218,18 @@
             gap: 6px;
             padding: 4px 10px;
             border-radius: 6px;
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.25);
+            background: rgba(178, 80, 0, 0.10);
+            border: 1px solid rgba(178, 80, 0, 0.25);
             font-size: 0.65em;
             font-weight: 700;
-            color: #f59e0b;
+            color: #7a3800;
             letter-spacing: 0.5px;
             white-space: nowrap;
         }
         .demo-indicator-dot {
             width: 6px; height: 6px;
             border-radius: 50%;
-            background: #f59e0b;
+            background: #b25000;
             animation: demoPulse 2s ease-in-out infinite;
         }
         @keyframes demoPulse {
@@ -243,12 +243,12 @@
         .demo-exit-btn {
             background: none;
             border: none;
-            color: #f59e0b;
+            color: #7a3800;
             font-size: 1.3em;
             cursor: pointer;
             padding: 0 2px;
             line-height: 1;
-            opacity: 0.6;
+            opacity: 0.7;
             transition: opacity 0.2s;
         }
         .demo-exit-btn:hover { opacity: 1; }
