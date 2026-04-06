@@ -26308,6 +26308,29 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             return lines;
         }
 
+        var _networkZoom = null;
+        function fitNetworkToViewport(svg, container, svgW, svgH) {
+            var bbox = container.node().getBBox();
+            if (!bbox.width || !bbox.height) return;
+            var pad = 50;
+            var fullW = bbox.width + 2 * pad;
+            var fullH = bbox.height + 2 * pad;
+            var midX = bbox.x + bbox.width / 2;
+            var midY = bbox.y + bbox.height / 2;
+            var scale = Math.min(svgW / fullW, svgH / fullH, 1);
+            var tx = svgW / 2 - midX * scale;
+            var ty = svgH / 2 - midY * scale;
+
+            _networkZoom = d3.zoom()
+                .scaleExtent([0.25, 2.5])
+                .on('zoom', function(event) {
+                    container.attr('transform', event.transform);
+                });
+            svg.call(_networkZoom);
+            svg.on('dblclick.zoom', null);
+            svg.call(_networkZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+        }
+
         // Network label visibility state
         var networkShowRoleLabels = true;
         var networkShowSkillLabels = true;
@@ -26430,7 +26453,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             ];
 
             var visibleRoles = getVisibleRoles();
-            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.24 : 0.25);
+            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.28 : 0.32);
             visibleRoles.forEach((role, i) => {
                 const angle = (i / visibleRoles.length) * 2 * Math.PI - Math.PI / 2;
                 const radius = roleOrbitR;
@@ -26545,9 +26568,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
             });
 
-            var linkDist = isMobile ? [130, 65] : [150 * scaleFactor, 70 * scaleFactor];
-            var chargeStr = isMobile ? [-280, -140] : [-300 * scaleFactor, -150 * scaleFactor];
-            var collisionR = isMobile ? [40, 38, 28] : [45 * scaleFactor, 40 * scaleFactor, 30 * scaleFactor];
+            var linkDist = isMobile ? [150, 80] : [200 * scaleFactor, 100 * scaleFactor];
+            var chargeStr = isMobile ? [-350, -180] : [-450 * scaleFactor, -220 * scaleFactor];
+            var collisionR = isMobile ? [45, 42, 30] : [55 * scaleFactor, 48 * scaleFactor, 36 * scaleFactor];
             var gravityCenter = isMobile ? height * 0.44 : height * 0.45;
             
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
@@ -26566,27 +26589,30 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return collisionR[1];
                     return collisionR[2];
                 }).iterations(2))
-                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.12 : 0.12))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.12 : 0.10))
+                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.06 : 0.05))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.06 : 0.05))
                 .force("radial", d3.forceRadial(d => {
                     if (d.type === "role") return roleOrbitR;
-                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.08 : 0.10) * scaleFactor;
+                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.12 : 0.16) * scaleFactor;
                     return 0;
                 }, networkCenterX, gravityCenter).strength(d => {
-                    if (d.type === "role") return 0.85;
-                    if (d.type === "skill") return 0.3;
+                    if (d.type === "role") return 0.8;
+                    if (d.type === "skill") return 0.2;
                     return 0;
                 }));
 
+            // Container group for zoom/pan
+            var networkContainer = svg.append("g").attr("class", "network-container");
+
             // Draw links
-            const link = svg.append("g").attr("class", "link-layer")
+            const link = networkContainer.append("g").attr("class", "link-layer")
                 .selectAll("line")
                 .data(links)
                 .join("line")
                 .attr("class", "link");
 
             // Draw nodes
-            const node = svg.append("g").attr("class", "node-layer")
+            const node = networkContainer.append("g").attr("class", "node-layer")
                 .selectAll("g")
                 .data(nodes)
                 .join("g")
@@ -26659,36 +26685,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             node.filter(d => d.type === 'center').raise();
 
             simulation.on("tick", () => {
-                // Constrain nodes to viewport with padding
-                const padding = isMobile ? 40 : 180;
-                nodes.forEach(d => {
-                    if (d.type !== "center") {
-                        d.x = Math.max(padding, Math.min(width - padding, d.x));
-                        d.y = Math.max(padding, Math.min(height - padding, d.y));
-                    }
-                });
-                
                 link
                     .attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)
                     .attr("x2", d => d.target.x)
                     .attr("y2", d => d.target.y);
-
                 node.attr("transform", d => `translate(${d.x},${d.y})`);
             });
 
             simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
-            var _pad = isMobile ? 40 : 180;
-            nodes.forEach(function(d) {
-                if (d.type !== "center") {
-                    d.x = Math.max(_pad, Math.min(width - _pad, d.x));
-                    d.y = Math.max(_pad, Math.min(height - _pad, d.y));
-                }
-            });
             link
                 .attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
             node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            fitNetworkToViewport(svg, networkContainer, width, height);
 
             window.networkData = { nodes, links, svg, link, node };
             setTimeout(applyLabelToggles, 100);
@@ -26897,7 +26907,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
             
             var categories = Object.keys(categoryMap);
-            var jobRoleOrbitR = Math.min(width, height) * (isMobile ? 0.24 : 0.26);
+            var jobRoleOrbitR = Math.min(width, height) * (isMobile ? 0.28 : 0.32);
             categories.forEach(function(cat, i) {
                 var angle = -Math.PI * 0.5 + (i / categories.length) * 2 * Math.PI;
                 var radius = jobRoleOrbitR;
@@ -26939,25 +26949,28 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
-                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 120 : 140 * scaleFactor) : (isMobile ? 65 : 70 * scaleFactor); }))
-                .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -280 : -280) * scaleFactor : (isMobile ? -140 : -140) * scaleFactor; }))
-                .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 36 : 42) * scaleFactor : d.type === 'role' ? (isMobile ? 36 : 36) * scaleFactor : (isMobile ? 24 : 30) * scaleFactor; }).iterations(2))
-                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : centerX; }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.08 : 0.10); }))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.06 : 0.08))
+                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 150 : 200 * scaleFactor) : (isMobile ? 80 : 100 * scaleFactor); }))
+                .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -350 : -400) * scaleFactor : (isMobile ? -180 : -200) * scaleFactor; }))
+                .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 42 : 50) * scaleFactor : d.type === 'role' ? (isMobile ? 40 : 44) * scaleFactor : (isMobile ? 28 : 36) * scaleFactor; }).iterations(2))
+                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : centerX; }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.05 : 0.05); }))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.05 : 0.05))
                 .force("radial", d3.forceRadial(function(d) {
                     if (d.type === 'role') return jobRoleOrbitR;
-                    if (d.type === 'skill') return Math.min(width, height) * (isMobile ? 0.10 : 0.12) * scaleFactor;
+                    if (d.type === 'skill') return Math.min(width, height) * (isMobile ? 0.14 : 0.18) * scaleFactor;
                     return 0;
                 }, centerX, gravityCenter).strength(function(d) {
-                    if (d.type === 'role') return 0.8;
-                    if (d.type === 'skill') return 0.25;
+                    if (d.type === 'role') return 0.75;
+                    if (d.type === 'skill') return 0.15;
                     return 0;
                 }));
             
+            // Container group for zoom/pan
+            var jobContainer = svg.append("g").attr("class", "network-container");
+
             // Draw - links layer BELOW nodes layer
             var isLtC = false;
-            var linkLayer = svg.append("g").attr("class", "link-layer");
-            var nodeLayer = svg.append("g").attr("class", "node-layer");
+            var linkLayer = jobContainer.append("g").attr("class", "link-layer");
+            var nodeLayer = jobContainer.append("g").attr("class", "node-layer");
             var link = linkLayer.selectAll("line").data(links).join("line")
                 .attr("class", "link")
                 .style("stroke", isLtC ? 'rgba(100,116,139,0.25)' : undefined)
@@ -27011,11 +27024,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             node.filter(function(d) { return d.type === 'center'; }).raise();
             
             simulation.on("tick", function() {
-                var padding = isMobile ? 40 : 180;
-                nodes.forEach(function(d) { if (d.type !== 'center') { d.x = Math.max(padding, Math.min(width - padding, d.x)); d.y = Math.max(padding, Math.min(height - padding, d.y)); } });
                 link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             });
+            fitNetworkToViewport(svg, jobContainer, width, height);
             
             // Add job info tile
             addJobInfoTile(job);
@@ -27050,11 +27062,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var gapSkills = new Set();
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
-            var pad = isMobile ? 60 : 180;
-            var nameX = isMobile ? width * 0.50 : pad + (width - 2 * pad) * 0.22;
+            var nameX = isMobile ? width * 0.50 : width * 0.25;
             var nameY = isMobile ? height * 0.15 : height * 0.35;
-            var networkBodyX = isMobile ? width * 0.50 : pad + (width - 2 * pad) * 0.40;
-            var jobX = isMobile ? width * 0.50 : pad + (width - 2 * pad) * 0.78;
+            var networkBodyX = isMobile ? width * 0.50 : width * 0.45;
+            var jobX = isMobile ? width * 0.50 : width * 0.75;
             var jobY = isMobile ? height * 0.15 : height * 0.30;
             
             var matchCenterName = userData.profile.name || "You";
@@ -27068,7 +27079,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             ];
             
             var matchVisibleRoles = getVisibleRoles();
-            var matchRoleOrbitR = Math.min(width, height) * (isMobile ? 0.20 : 0.22);
+            var matchRoleOrbitR = Math.min(width, height) * (isMobile ? 0.26 : 0.28);
             matchVisibleRoles.forEach(function(role, i) {
                 var angle = -Math.PI * 0.6 + (i / Math.max(matchVisibleRoles.length - 1, 1)) * Math.PI * 1.2;
                 var radius = matchRoleOrbitR;
@@ -27146,37 +27157,36 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             };
             
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
-            var matchMidX = (nameX + jobX) / 2;
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
-                    if (d.type === 'role') return (isMobile ? 130 : 150) * scaleFactor;
-                    if (d.type === 'match') return (isMobile ? 70 : 85) * scaleFactor;
-                    return (isMobile ? 80 : 85) * scaleFactor;
+                    if (d.type === 'role') return (isMobile ? 160 : 200) * scaleFactor;
+                    if (d.type === 'match') return (isMobile ? 90 : 110) * scaleFactor;
+                    return (isMobile ? 100 : 110) * scaleFactor;
                 }))
                 .force("charge", d3.forceManyBody().strength(function(d) {
                     if (d.type === 'center') return 0;
-                    if (d.type === 'role') return (isMobile ? -250 : -240) * scaleFactor;
-                    if (d.matchState === 'gap') return (isMobile ? -120 : -120) * scaleFactor;
-                    return (isMobile ? -130 : -140) * scaleFactor;
+                    if (d.type === 'role') return (isMobile ? -320 : -350) * scaleFactor;
+                    if (d.matchState === 'gap') return (isMobile ? -150 : -180) * scaleFactor;
+                    return (isMobile ? -160 : -200) * scaleFactor;
                 }))
                 .force("collision", d3.forceCollide().radius(function(d) {
-                    if (d.type === 'center') return (isMobile ? 32 : 38) * scaleFactor;
-                    if (d.type === 'role') return (isMobile ? 34 : 36) * scaleFactor;
-                    return (isMobile ? 22 : 28) * scaleFactor;
+                    if (d.type === 'center') return (isMobile ? 38 : 45) * scaleFactor;
+                    if (d.type === 'role') return (isMobile ? 40 : 42) * scaleFactor;
+                    return (isMobile ? 28 : 34) * scaleFactor;
                 }).iterations(2))
                 .force("x", d3.forceX(function(d) {
                     if (d.type === 'center') return nameX;
                     if (d.id === 'role-job-req') return jobX;
-                    if (d.matchState === 'gap') return isMobile ? width * 0.50 : matchMidX + (jobX - matchMidX) * 0.3;
-                    if (d.matchState === 'matched') return isMobile ? width * 0.50 : matchMidX;
-                    return isMobile ? width * 0.50 : matchMidX - (matchMidX - nameX) * 0.2;
+                    if (d.matchState === 'gap') return isMobile ? width * 0.50 : (nameX + jobX) / 2 + (jobX - nameX) * 0.15;
+                    if (d.matchState === 'matched') return isMobile ? width * 0.50 : (nameX + jobX) / 2;
+                    return isMobile ? width * 0.50 : nameX + (jobX - nameX) * 0.35;
                 }).strength(function(d) {
                     if (d.type === 'center' || d.id === 'role-job-req') return 0;
-                    if (d.matchState === 'matched') return 0.08;
-                    if (d.matchState === 'gap') return 0.07;
-                    return isMobile ? 0.05 : 0.06;
+                    if (d.matchState === 'matched') return 0.05;
+                    if (d.matchState === 'gap') return 0.04;
+                    return isMobile ? 0.03 : 0.04;
                 }))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.05 : 0.06))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.03 : 0.04))
                 .force("radial", d3.forceRadial(function(d) {
                     if (d.type === 'role' && d.id !== 'role-job-req') return matchRoleOrbitR;
                     return 0;
@@ -27185,10 +27195,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return 0;
                 }));
             
+            // Container group for zoom/pan
+            var matchContainer = svg.append("g").attr("class", "network-container");
+
             // Draw links - BELOW nodes
             var isLt = false;
-            var linkLayerM = svg.append("g").attr("class", "link-layer");
-            var nodeLayerM = svg.append("g").attr("class", "node-layer");
+            var linkLayerM = matchContainer.append("g").attr("class", "link-layer");
+            var nodeLayerM = matchContainer.append("g").attr("class", "node-layer");
             var link = linkLayerM.selectAll("line").data(links).join("line")
                 .attr("class", "link")
                 .style("stroke", function(d) { return d.type === 'match' ? matchColors.matched : (isLt ? 'rgba(100,116,139,0.25)' : undefined); })
@@ -27283,11 +27296,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Tick
             simulation.on("tick", function() {
-                var padding = isMobile ? 40 : 180;
-                nodes.forEach(function(d) { if (d.type !== 'center') { d.x = Math.max(padding, Math.min(width - padding, d.x)); d.y = Math.max(padding, Math.min(height - padding, d.y)); } });
                 link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             });
+            fitNetworkToViewport(svg, matchContainer, width, height);
             
             // Add legend and job info tile
             addMatchLegend(match);
@@ -27508,8 +27520,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Layout: user values on left, company values on right
             var centerY = height * 0.45;
-            var leftX = isMobile ? width * 0.32 : width * 0.38;
-            var rightX = isMobile ? width * 0.68 : width * 0.58;
+            var leftX = isMobile ? width * 0.32 : width * 0.35;
+            var rightX = isMobile ? width * 0.68 : width * 0.65;
             var topY = isMobile ? Math.max(45, height * 0.10) : Math.max(60, height * 0.13);
             
             // Build lookup sets
@@ -27620,34 +27632,37 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Simulation
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
-                    if (d.type === 'bridge') return (isMobile ? 140 : 180) * scaleFactor;
-                    if (d.type === 'tension-link') return (isMobile ? 80 : 100) * scaleFactor;
-                    return (isMobile ? 80 : 110) * scaleFactor;
+                    if (d.type === 'bridge') return (isMobile ? 180 : 260) * scaleFactor;
+                    if (d.type === 'tension-link') return (isMobile ? 100 : 140) * scaleFactor;
+                    return (isMobile ? 100 : 150) * scaleFactor;
                 }).strength(function(d) {
-                    if (d.type === 'bridge') return 0.15;
+                    if (d.type === 'bridge') return 0.12;
                     return 0.5;
                 }))
                 .force("charge", d3.forceManyBody().strength(function(d) {
                     if (d.type === 'hub') return 0;
-                    if (d.type === 'tension-marker') return -30;
-                    return (isMobile ? -200 : -220) * scaleFactor;
+                    if (d.type === 'tension-marker') return -40;
+                    return (isMobile ? -280 : -300) * scaleFactor;
                 }))
                 .force("collision", d3.forceCollide().radius(function(d) {
-                    if (d.type === 'hub') return (isMobile ? 32 : 40) * scaleFactor;
-                    if (d.type === 'tension-marker') return 14;
-                    return (isMobile ? 24 : 30) * scaleFactor;
+                    if (d.type === 'hub') return (isMobile ? 38 : 48) * scaleFactor;
+                    if (d.type === 'tension-marker') return 16;
+                    return (isMobile ? 30 : 38) * scaleFactor;
                 }))
                 .force("x", d3.forceX(function(d) {
                     if (d.side === 'user') return leftX;
                     if (d.side === 'company') return rightX;
-                    return (leftX + rightX) / 2;
-                }).strength(0.12))
-                .force("y", d3.forceY(centerY).strength(0.06));
+                    return width / 2;
+                }).strength(0.08))
+                .force("y", d3.forceY(centerY).strength(0.04));
             
+            // Container group for zoom/pan
+            var valuesContainer = svg.append("g").attr("class", "network-container");
+
             // Draw links - BELOW nodes
             var isLtV = false;
-            var linkLayerV = svg.append("g").attr("class", "link-layer");
-            var nodeLayerV = svg.append("g").attr("class", "node-layer");
+            var linkLayerV = valuesContainer.append("g").attr("class", "link-layer");
+            var nodeLayerV = valuesContainer.append("g").attr("class", "node-layer");
             var link = linkLayerV.selectAll("line").data(links).join("line")
                 .attr("class", "link")
                 .style("stroke", function(d) {
@@ -27757,13 +27772,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Tick
             simulation.on("tick", function() {
-                var padding = isMobile ? 50 : 180;
-                nodes.forEach(function(d) {
-                    if (d.type !== 'hub') {
-                        d.x = Math.max(padding, Math.min(width - padding, d.x));
-                        d.y = Math.max(padding, Math.min(height - padding, d.y));
-                    }
-                });
                 link
                     .attr("x1", function(d) { return d.source.x; })
                     .attr("y1", function(d) { return d.source.y; })
@@ -27771,6 +27779,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     .attr("y2", function(d) { return d.target.y; });
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             });
+            fitNetworkToViewport(svg, valuesContainer, width, height);
             
             // Add values panel (includes job info) — skip separate job tile
             addValuesAlignmentPanel(alignment, job, cv);
