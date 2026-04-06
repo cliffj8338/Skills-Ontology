@@ -14,5 +14,8 @@
   "devDependencies": {
     "terser": "^5.46.1",
     "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.7.0"
   }
 }
