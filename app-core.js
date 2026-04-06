@@ -1630,7 +1630,7 @@
                         _clearSaveBackup();
                         window._lastSavedAt = new Date();
                         var si = document.getElementById('saveIndicator');
-                        if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = 'var(--success)'; setTimeout(function() { updateLastSavedDisplay(); }, 2500); }
+                        if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#1e7e34'; setTimeout(function() { updateLastSavedDisplay(); }, 2500); }
                         return true;
                     })
                     .catch(function(err) {
@@ -28749,8 +28749,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
             });
 
-            var html = '<div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:8px 16px; margin-bottom:8px; font-size:0.72em; color:var(--c-muted, var(--text-muted));">'
-                + '<span style="font-weight:600; color:var(--c-faint, var(--text-muted));">Legend:</span>'
+            var html = '<div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:8px 16px; margin-bottom:8px; font-size:0.72em; color:#6e6e73;">'
+                + '<span style="font-weight:600; color:#6e6e73;">Legend:</span>'
                 + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--c-orange);">&#9733;</span> Core</span>'
                 + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--success);">' + bpIcon('shield',11) + '</span> Verified</span>'
                 + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--success);">' + bpIcon('check',11) + '</span> Evidence</span>'
@@ -28791,11 +28791,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + '<div style="display:flex; align-items:center; gap:10px;">'
                     + '<span style="color:' + tier.accent + ';">' + tier.icon + '</span>'
                     + '<div>'
-                    + '<div style="font-weight:700; font-size:0.95em; color:var(--c-heading, var(--text-secondary));">' + tier.label + ' <span style="font-weight:400; opacity:0.6;">(' + tier.skills.length + ')</span></div>'
-                    + '<div style="font-size:0.75em; color:var(--c-muted, var(--text-muted)); margin-top:2px;">' + tier.desc + '</div>'
+                    + '<div style="font-weight:700; font-size:0.95em; color:#1d1d1f;">' + tier.label + ' <span style="font-weight:400; opacity:0.6;">(' + tier.skills.length + ')</span></div>'
+                    + '<div style="font-size:0.75em; color:#6e6e73; margin-top:2px;">' + tier.desc + '</div>'
                     + '</div></div>'
                     + '</div>'
-                    + '<div style="font-size:0.73em; padding:8px 18px; color:var(--c-muted, var(--text-muted)); border-bottom:1px solid rgba(0,0,0,0.03);">'
+                    + '<div style="font-size:0.73em; padding:8px 18px; color:#6e6e73; border-bottom:1px solid rgba(0,0,0,0.03);">'
                     + levelStatsHtml + evidenceHtml + verifiedHtml
                     + '</div>';
 
@@ -28840,7 +28840,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
                     html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
                         + '<div style="width:10px; height:10px; border-radius:6px; background:' + lc + '; flex-shrink:0;"></div>'
-                        + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading, var(--text-secondary)); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.name) + '</span>'
+                        + '<span style="font-size:0.92em; font-weight:600; color:#1d1d1f; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.name) + '</span>'
                         + '<div style="display:flex; gap:4px; flex-shrink:0;">'
                         + (skill.key ? '<span title="Core Skill" style="color:var(--c-orange); font-size:0.85em; line-height:1;">&#9733;</span>' : '')
                         + (isVerified ? '<span title="Verified by ' + evs.verifiedCount + '" style="color:var(--success); font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
@@ -28853,12 +28853,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lc + '22; color:' + lc + '; font-weight:600;">' + escapeHtml(skill.level || 'Proficient') + '</span>'
                         + '<span title="' + skillImpact.label + '" style="font-size:0.75em; color:' + impactColor + ';">' + skillImpact.icon + '</span>'
                         + '<span style="font-size:0.62em; padding:1px 7px; border-radius:8px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;">' + tier.label + '</span>'
-                        + (years ? '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + 'y</span>' : '')
+                        + (years ? '<span style="font-size:0.68em; color:#6e6e73;">' + years + 'y</span>' : '')
                         + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(155,89,182,0.08); color:#6b2d7b; font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
                         + '</div>';
 
                     if (roleNames.length > 0) {
-                        html += '<div style="margin-top:6px; padding-left:18px; font-size:0.68em; color:var(--c-faint, var(--text-muted)); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + roleNames.join(' \u00B7 ') + '</div>';
+                        html += '<div style="margin-top:6px; padding-left:18px; font-size:0.68em; color:#6e6e73; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + roleNames.join(' \u00B7 ') + '</div>';
                     }
 
                     html += '</div>';
@@ -28883,7 +28883,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 suggestions.slice(0, 20).forEach(function(s) {
                     html += '<span role="button" tabindex="0" style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:12px; '
                         + 'font-size:0.82em; cursor:pointer; transition:all 0.15s; '
-                        + 'background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.2); color:var(--text-muted);" '
+                        + 'background:rgba(0,113,227,0.04); border:1px solid rgba(0,113,227,0.2); color:#48484a;" '
                         + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\')" '
                         + 'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\',\'' + escapeHtml(s.level) + '\',\'' + escapeHtml(s.roleId) + '\');}" '
                         + 'title="Expected for ' + escapeHtml(s.reason) + ' (' + escapeHtml(s.level) + ') — click to add">'

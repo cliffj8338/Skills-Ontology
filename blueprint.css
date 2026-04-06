@@ -2323,7 +2323,7 @@
         .match-active-badge button {
             background: none;
             border: none;
-            color: var(--text-muted);
+            color: #48484a;
             cursor: pointer;
             font-size: 1.1em;
             padding: 0 2px;
