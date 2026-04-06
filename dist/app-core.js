@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.44b';
+        var BP_VERSION = 'v4.47.45';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -4195,12 +4195,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.44b: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.45: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.44b: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
-                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.44b: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.45: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.45: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.44b: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.45: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -31576,6 +31576,7 @@ body {
 
             var card = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:16px; padding:24px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;';
+            var canEdit = !isReadOnlyProfile;
 
             var entryVal = selectedPath && selectedPath.entryValue ? selectedPath.entryValue : 0;
             var midVal = selectedPath && selectedPath.midValue ? selectedPath.midValue : 0;
@@ -31600,8 +31601,8 @@ body {
                     + escapeHtml(driveStatement)
                     + '<span style="font-size:1.6em; color:rgba(139,92,246,0.3); font-family:Georgia,serif; line-height:0;">\u201D</span>'
                     + '</div>';
-                html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:rgba(139,92,246,0.5); font-size:0.72em; margin-top:6px;">\u270E edit</button>';
-            } else {
+                if (canEdit) html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:rgba(139,92,246,0.5); font-size:0.72em; margin-top:6px;">\u270E edit</button>';
+            } else if (canEdit) {
                 html += '<div style="font-size:0.88em; color:var(--text-muted); max-width:420px; margin:0 auto 12px;">What kind of work excites you? What problems do you want to solve?</div>';
                 html += '<button onclick="explorerDashEditDrive()" style="padding:8px 20px; background:rgba(139,92,246,0.1); color:#8b5cf6; border:1px solid rgba(139,92,246,0.25); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em;">Add your motivation</button>';
             }
@@ -31623,7 +31624,7 @@ body {
             html += '</div>';
 
             // ZONE 2: YOUR DIRECTION
-            if (careerPaths.length === 0) {
+            if (careerPaths.length === 0 && canEdit) {
                 html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(139,92,246,0.2); background:linear-gradient(135deg,var(--card-bg),rgba(139,92,246,0.03));">'
                     + '<div style="font-size:3em; margin-bottom:16px; opacity:0.25;">\uD83D\uDEE4\uFE0F</div>'
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); font-size:1.15em; margin-bottom:8px;">Discover Your Career Paths</div>'
@@ -31719,7 +31720,8 @@ body {
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="' + ls + ' color:#f59e0b;">\uD83C\uDF93 Education</div>'
-                + '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.2); background:rgba(245,158,11,0.04); color:#f59e0b; cursor:pointer; font-weight:600;">+ Add</button></div>';
+                + (canEdit ? '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.2); background:rgba(245,158,11,0.04); color:#f59e0b; cursor:pointer; font-weight:600;">+ Add</button>' : '')
+                + '</div>';
             if (allSchools.length > 0) {
                 allSchools.forEach(function(s, i) {
                     var typeEmoji = s.schoolType === 'highschool' ? '\uD83C\uDFEB' : s.schoolType === 'trade' ? '\uD83D\uDD27' : s.schoolType === 'community' ? '\uD83D\uDCDA' : s.schoolType === 'bootcamp' ? '\uD83D\uDCBB' : '\uD83C\uDF93';
@@ -31731,10 +31733,11 @@ body {
                         + (s.gradYear ? ' \u00B7 ' + escapeHtml(s.gradYear) : '')
                         + (s.currentYear ? ' \u00B7 ' + escapeHtml(s.currentYear) : '')
                         + '</div></div>'
-                        + '<div style="display:flex; gap:4px; flex-shrink:0;">'
+                        + (canEdit ? '<div style="display:flex; gap:4px; flex-shrink:0;">'
                         + '<button onclick="explorerDashEditSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.78em;">\u270E</button>'
                         + (allSchools.length > 1 ? '<button onclick="explorerDashRemoveSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.82em;">\u00D7</button>' : '')
-                        + '</div></div>';
+                        + '</div>' : '')
+                        + '</div>';
                 });
             } else {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No schools added yet.</div>';
@@ -31745,7 +31748,8 @@ body {
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="' + ls + ' color:#8b5cf6;">\u26A1 Activities</div>'
-                + '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(139,92,246,0.2); background:rgba(139,92,246,0.04); color:#8b5cf6; cursor:pointer; font-weight:600;">+ Add</button></div>';
+                + (canEdit ? '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(139,92,246,0.2); background:rgba(139,92,246,0.04); color:#8b5cf6; cursor:pointer; font-weight:600;">+ Add</button>' : '')
+                + '</div>';
             if (activities.length === 0) {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No activities added yet.</div>';
             } else {
@@ -31756,10 +31760,11 @@ body {
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">' + catObj.icon + ' ' + escapeHtml(catObj.label) + (a.role ? ' \u2014 ' + escapeHtml(a.role) : '') + '</div>';
                     html += (a.description ? '<div style="font-size:0.75em; color:var(--text-secondary); margin-top:3px; line-height:1.4;">' + escapeHtml(a.description) + '</div>' : '')
                         + '</div>'
-                        + '<div style="display:flex; gap:4px; flex-shrink:0;">'
+                        + (canEdit ? '<div style="display:flex; gap:4px; flex-shrink:0;">'
                         + '<button onclick="explorerDashEditActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.78em;">\u270E</button>'
                         + '<button onclick="explorerDashRemoveActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.82em;">\u00D7</button>'
-                        + '</div></div>';
+                        + '</div>' : '')
+                        + '</div>';
                 });
             }
             html += '</div>';
@@ -31770,20 +31775,21 @@ body {
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
                 + '<div style="' + ls + ' color:#60a5fa;">\u2728 Interests</div>'
-                + '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.2); background:rgba(96,165,250,0.04); color:#60a5fa; cursor:pointer; font-weight:600;">\u270E Edit</button></div>';
+                + (canEdit ? '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.2); background:rgba(96,165,250,0.04); color:#60a5fa; cursor:pointer; font-weight:600;">\u270E Edit</button>' : '')
+                + '</div>';
             if (interests.length === 0) {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No interests added yet.</div>';
             } else {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 interests.forEach(function(int) {
                     var lvl = _interestIntensityLevels.find(function(l) { return l.id === int.intensity; }) || _interestIntensityLevels[0];
-                    html += '<span onclick="explorerDashCycleIntensity(\'' + escapeAttr(int.name).replace(/'/g, "\\'") + '\')" style="display:inline-flex; align-items:center; gap:4px; cursor:pointer; background:' + lvl.color + '12; color:' + lvl.color + '; font-size:0.76em; font-weight:600; padding:5px 11px; border-radius:10px; border:1px solid ' + lvl.color + '30; transition:all 0.15s;">'
+                    html += '<span' + (canEdit ? ' onclick="explorerDashCycleIntensity(\'' + escapeAttr(int.name).replace(/'/g, "\\'") + '\')" style="display:inline-flex; align-items:center; gap:4px; cursor:pointer;' : ' style="display:inline-flex; align-items:center; gap:4px;') + ' background:' + lvl.color + '12; color:' + lvl.color + '; font-size:0.76em; font-weight:600; padding:5px 11px; border-radius:10px; border:1px solid ' + lvl.color + '30; transition:all 0.15s;">'
                         + lvl.icon + ' ' + escapeHtml(int.name) + '</span>';
                 });
                 html += '</div>';
             }
             html += '</div>';
-            html += _renderExplorerValues(ed);
+            html += _renderExplorerValues(ed, canEdit);
             html += '</div>';
 
             html += '</div>';
@@ -31797,7 +31803,8 @@ body {
             }
             html += _renderPeopleLikeYou(ed, skills);
 
-            // ZONE 5: UTILITY
+            // ZONE 5: UTILITY (hidden in showcase/readonly mode)
+            if (canEdit) {
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; margin-top:12px; opacity:0.85;">';
             html += '<div style="' + card + ' padding:16px; display:flex; align-items:center; justify-content:space-between; gap:12px;">'
                 + '<div style="min-width:0;">'
@@ -31810,6 +31817,7 @@ body {
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-bottom:8px;">Convert to unlock salary insights & negotiation tools</div>'
                 + '<button onclick="explorerConvertToFull()" style="padding:8px 18px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.78em;">Convert to Full Blueprint</button></div>';
             html += '</div>';
+            }
 
             return html;
         }
@@ -32177,21 +32185,26 @@ body {
             { id: 'leadership', name: 'Leadership', icon: '\uD83D\uDCA1', color: '#6366f1', desc: 'Guiding others, making decisions, and shaping direction' }
         ];
 
-        function _renderExplorerValues(ed) {
+        function _renderExplorerValues(ed, canEdit) {
             var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+            if (typeof canEdit === 'undefined') canEdit = !isReadOnlyProfile;
             var workValues = ed.workValues || [];
             var html = '<div style="' + cs + '">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="' + ls + ' color:#f59e0b; margin-bottom:0;">\uD83C\uDFAF What You Value in Work</div>'
-                + '<button onclick="explorerDashEditValues()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">' + (workValues.length > 0 ? '\u270E' : '+ Choose') + '</button>'
+                + (canEdit ? '<button onclick="explorerDashEditValues()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">' + (workValues.length > 0 ? '\u270E' : '+ Choose') + '</button>' : '')
                 + '</div>';
             if (workValues.length === 0) {
+                if (canEdit) {
                 html += '<div style="text-align:center; padding:16px 10px;">'
                     + '<div style="font-size:2em; margin-bottom:8px; opacity:0.3;">\uD83C\uDFAF</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); margin-bottom:12px;">What matters most to you in a career? Pick your top values so we can find paths that actually fit you.</div>'
                     + '<button onclick="explorerDashEditValues()" style="padding:10px 22px; background:linear-gradient(135deg,#f59e0b,#f97316); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Choose Your Values</button>'
                     + '</div>';
+                } else {
+                html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No values selected yet.</div>';
+                }
             } else {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
                 workValues.forEach(function(wv, idx) {
@@ -32290,9 +32303,11 @@ body {
         function _renderPeopleLikeYou(ed, skills) {
             var card = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:16px; padding:24px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;';
+            var _canEdit = !isReadOnlyProfile;
             var people = ed.peopleInspirations || [];
 
             if (people.length === 0) {
+                if (!_canEdit) return '';
                 return '<div style="' + card + ' text-align:center; border-color:rgba(244,114,182,0.2); margin-bottom:16px;">'
                     + '<div style="' + ls + ' color:#f472b6; margin-bottom:10px;">People Like You</div>'
                     + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; max-width:400px; margin:0 auto 18px;">Discover accomplished people who started with similar backgrounds and interests as you.</div>'
@@ -32307,7 +32322,7 @@ body {
             var html = '<div style="margin-bottom:16px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">'
                 + '<div style="' + ls + ' color:#f472b6;">People Like You</div>'
-                + '<button onclick="explorerDiscoverPeople(this)" style="font-size:0.7em; padding:4px 10px; border-radius:6px; border:1px solid rgba(244,114,182,0.2); background:rgba(244,114,182,0.04); color:#f472b6; cursor:pointer; font-weight:600;">Refresh</button>'
+                + (_canEdit ? '<button onclick="explorerDiscoverPeople(this)" style="font-size:0.7em; padding:4px 10px; border-radius:6px; border:1px solid rgba(244,114,182,0.2); background:rgba(244,114,182,0.04); color:#f472b6; cursor:pointer; font-weight:600;">Refresh</button>' : '')
                 + '</div>';
 
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px;">';
@@ -32827,6 +32842,21 @@ body {
         }
         window.switchToExplorerMode = switchToExplorerMode;
 
+        function _backupCurrentProfile() {
+            var backup = JSON.parse(JSON.stringify(userData));
+            backup._backupAt = new Date().toISOString();
+            backup._backupReason = 'pre-import safety backup';
+            var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'blueprint-backup-' + new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-') + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
         function explorerImportJSON(fileInput) {
             if (readOnlyGuard()) return;
             var file = fileInput.files[0];
@@ -32835,7 +32865,20 @@ body {
             reader.onload = function(e) {
                 try {
                     var imported = sanitizeImport(JSON.parse(e.target.result));
-                    if (!confirm('This will replace your current profile data with the imported file. Continue?')) return;
+                    var hasExistingData = (userData.skills && userData.skills.length > 0) || (userData.explorerData && Object.keys(userData.explorerData).length > 0) || (userData.profile && userData.profile.name);
+                    if (hasExistingData) {
+                        _backupCurrentProfile();
+                        showToast('Safety backup downloaded! Your current profile has been saved.', 'info');
+                        if (!confirm('A backup of your current profile was just downloaded to your device.\n\nIMPORTING WILL REPLACE ALL YOUR CURRENT DATA with the contents of "' + file.name + '".\n\nAre you sure you want to continue?')) {
+                            fileInput.value = '';
+                            return;
+                        }
+                    } else {
+                        if (!confirm('This will load the profile from "' + file.name + '". Continue?')) {
+                            fileInput.value = '';
+                            return;
+                        }
+                    }
                     imported.initialized = true;
                     imported.profileType = 'explorer';
                     if (Array.isArray(imported.skills)) {
