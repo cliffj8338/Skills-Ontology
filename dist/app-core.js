@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.7';
+        var BP_VERSION = 'v4.48.8';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -21061,7 +21061,7 @@
             if (!file.name.endsWith('.zip')) { showToast('Please upload a LinkedIn .zip archive.', 'warning'); return; }
             
             var statusEl = document.getElementById('liMergeStatus');
-            if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = bpIcon('settings', 12) + ' Reading LinkedIn archive...'; }
+            if (statusEl) { statusEl.style.display = 'block'; statusEl.innerHTML = bpIcon('settings', 12) + ' Reading LinkedIn archive...'; }
             
             try {
                 var parsed = await parseLinkedInZipContents(file);
