@@ -1887,14 +1887,14 @@
             gap: 0;
             padding: 0;
             border-radius: 12px;
-            background: rgba(15,15,30,0.92);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(96,165,250,0.2);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             z-index: 10;
             font-size: 0.82em;
             min-width: 260px;
             max-width: 320px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
             overflow: hidden;
         }
         .job-info-tile {
@@ -1906,14 +1906,14 @@
             gap: 0;
             padding: 14px 18px;
             border-radius: 12px;
-            background: rgba(15,15,30,0.92);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(96,165,250,0.15);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             z-index: 10;
             font-size: 0.82em;
             min-width: 200px;
             max-width: 280px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
         }
         .jit-title {
             font-weight: 600;
@@ -1988,7 +1988,7 @@
         .match-legend.dragging .ml-score-row { cursor: grabbing; }
         .ml-header {
             padding: 14px 16px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         }
         .ml-title {
             font-weight: 600;
@@ -2020,7 +2020,7 @@
             flex: 1;
             height: 6px;
             border-radius: 3px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.04);
             overflow: hidden;
         }
         .ml-score-fill {
@@ -2036,7 +2036,7 @@
         .ml-stat {
             text-align: center;
             padding: 10px 6px;
-            border-right: 1px solid rgba(255,255,255,0.04);
+            border-right: 1px solid rgba(0, 0, 0, 0.06);
         }
         .ml-stat:last-child { border-right: none; }
         .ml-stat-num {
@@ -2073,29 +2073,29 @@
             display: flex;
             gap: 6px;
             padding: 8px 12px;
-            border-top: 1px solid rgba(255,255,255,0.06);
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
         .ml-action-btn {
             flex: 1;
             padding: 6px 10px;
             border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             background: transparent;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             cursor: pointer;
             font-size: 0.82em;
             text-align: center;
             transition: background 0.15s;
         }
-        .ml-action-btn:hover { background: rgba(255,255,255,0.06); }
+        .ml-action-btn:hover { background: rgba(0, 0, 0, 0.03); }
 
         .ml-scout-btn {
             width: 100%;
             margin-top: 8px;
             padding: 10px 16px;
             border-radius: 8px;
-            border: 1px solid rgba(96,165,250,0.2);
-            background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(99,102,241,0.05));
+            border: 1px solid rgba(0, 113, 227, 0.2);
+            background: rgba(0, 113, 227, 0.06);
             color: var(--accent);
             font-family: var(--font-main);
             font-size: 0.82em;
@@ -2108,8 +2108,8 @@
             transition: all 0.2s;
         }
         .ml-scout-btn:hover {
-            border-color: rgba(96,165,250,0.4);
-            background: rgba(96,165,250,0.12);
+            border-color: rgba(0, 113, 227, 0.4);
+            background: rgba(0, 113, 227, 0.1);
         }
         
         /* ---- VALUES ALIGNMENT PANEL ---- */
@@ -2118,20 +2118,20 @@
             bottom: 16px;
             left: 16px;
             width: 320px;
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: 14px;
             overflow: hidden;
             z-index: 1000;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
         }
         .vap-header {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
             padding: 12px 12px 10px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             cursor: grab;
             user-select: none;
         }
@@ -2163,8 +2163,8 @@
             width: 26px;
             height: 26px;
             border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.03);
             color: var(--text-muted);
             font-size: 14px;
             cursor: pointer;
@@ -2176,7 +2176,7 @@
             padding: 0;
         }
         .vap-ctrl-btn:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.06);
             color: var(--text-primary);
         }
         .vap-score-row {
@@ -2228,7 +2228,7 @@
         }
         .val-story {
             padding: 8px 16px;
-            border-top: 1px solid rgba(255,255,255,0.04);
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
         .val-story-label {
             display: flex;
@@ -2411,8 +2411,11 @@
         .node text {
             font-size: 11px;
             pointer-events: none;
-            text-shadow: 0 0 4px #000, 0 0 4px #000, 0 0 4px #000;
             fill: var(--text-primary);
+            paint-order: stroke;
+            stroke: var(--bg-base, #fbfbfd);
+            stroke-width: 3px;
+            stroke-linejoin: round;
             display: block;
         }
         
@@ -2425,6 +2428,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            fill: var(--text-primary);
         }
         
         @media (max-width: 768px) {
@@ -2436,7 +2440,7 @@
                 font-size: 8px;
             }
             .node text {
-                text-shadow: 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000;
+                stroke-width: 3.5px;
             }
         }
         
@@ -2444,7 +2448,8 @@
             font-size: 16px;
             font-weight: bold;
             fill: var(--accent);
-            text-shadow: 0 0 6px #000, 0 0 6px #000;
+            stroke: var(--bg-base, #fbfbfd);
+            stroke-width: 4px;
         }
         
         .node.skill text {
@@ -2452,9 +2457,9 @@
         }
         
         .link {
-            stroke: #4a5568;
-            stroke-opacity: 0.3;
-            stroke-width: 1.5px;
+            stroke: rgba(0, 0, 0, 0.12);
+            stroke-opacity: 0.5;
+            stroke-width: 1px;
             fill: none;
         }
         
@@ -2470,9 +2475,9 @@
         
         .tooltip {
             position: absolute;
-            background: rgba(20,20,25, 0.98);
-            border: 1px solid var(--accent);
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
             padding: 15px;
             pointer-events: none;
             opacity: 0;
@@ -2480,30 +2485,32 @@
             max-width: 350px;
             font-size: 13px;
             z-index: 10000;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+            color: var(--text-primary);
         }
         
         .tooltip-title {
             font-weight: bold;
-            color: var(--accent);
+            color: var(--text-primary);
             margin-bottom: 8px;
             font-size: 15px;
         }
         
         .tooltip-level {
-            color: var(--warning);
+            color: var(--c-orange);
             font-size: 12px;
             margin-bottom: 8px;
         }
         
         .tooltip-roles {
-            color: #d1d1d6;
+            color: var(--text-secondary);
             line-height: 1.6;
         }
         
         .tooltip-role-tag {
             display: inline-block;
-            background: rgba(96, 165, 250, 0.2);
+            background: rgba(0, 113, 227, 0.08);
+            color: var(--accent);
             padding: 2px 8px;
             border-radius: 10px;
             margin: 2px;
@@ -3130,7 +3137,7 @@
             .wb-compare-intel-row > div:first-child {
                 font-size: 0.82em !important;
                 padding-bottom: 2px !important;
-                border-bottom: 1px solid var(--c-surface-5, rgba(255,255,255,0.08));
+                border-bottom: 1px solid var(--c-surface-5, rgba(0, 0, 0, 0.06));
             }
             .wb-compare-skills-grid {
                 grid-template-columns: 1fr !important;
@@ -3575,8 +3582,8 @@
         
         .onet-skill-item {
             padding: 12px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: 6px;
             margin-bottom: 8px;
             cursor: pointer;
@@ -3587,7 +3594,7 @@
         }
         
         .onet-skill-item:hover:not(.disabled) {
-            background: rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.04);
             border-color: rgba(96,165,250,0.15);
         }
         
@@ -3661,7 +3668,7 @@
         
         .skill-mgmt-tab:hover {
             color: var(--text-primary);
-            background: rgba(255,255,255,0.05);
+            background: rgba(0, 0, 0, 0.03);
         }
         
         .skill-mgmt-tab.active {
@@ -3691,7 +3698,7 @@
         
         .your-skill-item {
             padding: 15px;
-            background: rgba(255,255,255,0.03);
+            background: rgba(0, 0, 0, 0.02);
             border-radius: 8px;
             border-left: 3px solid var(--accent);
             margin-bottom: 10px;
@@ -3699,7 +3706,7 @@
         }
         
         .your-skill-item:hover {
-            background: rgba(255,255,255,0.06);
+            background: rgba(0, 0, 0, 0.04);
             transform: translateX(4px);
         }
 

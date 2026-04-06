@@ -26566,8 +26566,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return collisionR[1];
                     return collisionR[2];
                 }).iterations(2))
-                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.06 : 0.04))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.06 : 0.05))
+                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.08 : 0.06))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.08 : 0.07))
                 .force("radial", d3.forceRadial(d => {
                     if (d.type === "role") return roleOrbitR;
                     if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.10 : 0.14) * scaleFactor;
@@ -26660,7 +26660,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             simulation.on("tick", () => {
                 // Constrain nodes to viewport with padding
-                const padding = isMobile ? 30 : 100;
+                const padding = isMobile ? 40 : 120;
                 nodes.forEach(d => {
                     if (d.type !== "center") {  // Don't constrain center node
                         d.x = Math.max(padding, Math.min(width - padding, d.x));
@@ -26678,7 +26678,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
 
             simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
-            var _pad = isMobile ? 30 : 100;
+            var _pad = isMobile ? 40 : 120;
             nodes.forEach(function(d) {
                 if (d.type !== "center") {
                     d.x = Math.max(_pad, Math.min(width - _pad, d.x));
@@ -27012,7 +27012,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             node.filter(function(d) { return d.type === 'center'; }).raise();
             
             simulation.on("tick", function() {
-                var padding = isMobile ? 30 : 80;
+                var padding = isMobile ? 40 : 120;
                 nodes.forEach(function(d) { if (d.type !== 'center') { d.x = Math.max(padding, Math.min(width - padding, d.x)); d.y = Math.max(padding, Math.min(height - padding, d.y)); } });
                 link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
@@ -27282,7 +27282,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Tick
             simulation.on("tick", function() {
-                var padding = isMobile ? 30 : 80;
+                var padding = isMobile ? 40 : 120;
                 nodes.forEach(function(d) { if (d.type !== 'center') { d.x = Math.max(padding, Math.min(width - padding, d.x)); d.y = Math.max(padding, Math.min(height - padding, d.y)); } });
                 link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
