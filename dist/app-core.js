@@ -31941,23 +31941,31 @@ body {
             var nodeMap = {};
 
             normalized.forEach(function(int) {
-                var nid = 'int_' + int.name;
-                nodeMap[nid] = { id: nid, label: int.name, type: 'interest', intensity: int.intensity };
+                var name = String(int.name || '');
+                if (!name) return;
+                var nid = 'int_' + name;
+                nodeMap[nid] = { id: nid, label: name, type: 'interest', intensity: int.intensity || 'curious' };
                 nodes.push(nodeMap[nid]);
             });
 
             var skillNames = {};
             skills.forEach(function(sk) {
-                var nid = 'sk_' + sk.name;
+                var name = String(sk.name || '');
+                if (!name) return;
+                var nid = 'sk_' + name;
                 if (!nodeMap[nid]) {
-                    nodeMap[nid] = { id: nid, label: sk.name, type: 'skill' };
+                    nodeMap[nid] = { id: nid, label: name, type: 'skill' };
                     nodes.push(nodeMap[nid]);
-                    skillNames[sk.name] = true;
+                    skillNames[name] = true;
                 }
-                if (sk.reason) {
+                var reason = String(sk.reason || '').toLowerCase();
+                if (reason) {
                     normalized.forEach(function(int) {
-                        if (sk.reason.toLowerCase().indexOf(int.name.toLowerCase()) >= 0 || sk.reason.toLowerCase().indexOf(int.name.split(' / ')[0].toLowerCase()) >= 0) {
-                            edges.push({ from: 'int_' + int.name, to: nid });
+                        var iname = String(int.name || '');
+                        if (!iname) return;
+                        var parts = iname.split(' / ');
+                        if (reason.indexOf(iname.toLowerCase()) >= 0 || (parts.length > 1 && reason.indexOf(parts[0].toLowerCase()) >= 0)) {
+                            edges.push({ from: 'int_' + iname, to: nid });
                         }
                     });
                 }
@@ -31965,14 +31973,16 @@ body {
 
             var careerNodes = [];
             careerPaths.forEach(function(cp) {
-                var nid = 'cp_' + cp.title;
+                var title = String(cp.title || '');
+                if (!title) return;
+                var nid = 'cp_' + title;
                 if (!nodeMap[nid]) {
-                    nodeMap[nid] = { id: nid, label: cp.title, type: 'career' };
+                    nodeMap[nid] = { id: nid, label: title, type: 'career' };
                     nodes.push(nodeMap[nid]);
                     careerNodes.push(nid);
                 }
                 (cp.skillsYouHave || []).forEach(function(skName) {
-                    var skId = 'sk_' + skName;
+                    var skId = 'sk_' + String(skName || '');
                     if (nodeMap[skId]) {
                         edges.push({ from: skId, to: nid });
                     }
@@ -32068,10 +32078,11 @@ body {
                 + '</div>';
 
             people.forEach(function(person) {
-                var bgColor = person.fieldColor || '#8b5cf6';
+                var rawColor = String(person.fieldColor || '#8b5cf6');
+                var bgColor = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(rawColor) ? rawColor : '#8b5cf6';
                 html += '<div style="padding:16px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:10px; background:var(--bg-elevated);">'
                     + '<div style="display:flex; align-items:flex-start; gap:12px;">'
-                    + '<div style="flex-shrink:0; width:44px; height:44px; border-radius:50%; background:' + bgColor + '20; border:2px solid ' + bgColor + '; display:flex; align-items:center; justify-content:center; font-size:1.4em;">' + (person.emoji || '\uD83C\uDF1F') + '</div>'
+                    + '<div style="flex-shrink:0; width:44px; height:44px; border-radius:50%; background:' + bgColor + '20; border:2px solid ' + bgColor + '; display:flex; align-items:center; justify-content:center; font-size:1.4em;">' + escapeHtml(String(person.emoji || '\uD83C\uDF1F').slice(0, 4)) + '</div>'
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:700; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(person.name || '') + '</div>'
                     + '<div style="font-size:0.78em; color:' + bgColor + '; font-weight:600; margin-top:1px;">' + escapeHtml(person.role || '') + '</div>'
