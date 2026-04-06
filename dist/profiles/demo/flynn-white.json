@@ -23,13 +23,13 @@
       { "name": "Family Caregiving", "type": "responsibility", "description": "Took on significant household responsibilities during family health crisis. Managed logistics, provided emotional support to younger sibling, and maintained academic performance under extreme stress." }
     ],
     "interests": [
-      "Cooking & Breakfast Culture",
-      "Web Design & Digital Media",
-      "Cars & Driving",
-      "Disability Rights & Accessibility",
-      "Family & Community",
-      "Social Media & Online Fundraising",
-      "Photography"
+      { "name": "Cooking & Breakfast Culture", "intensity": "passionate" },
+      { "name": "Web Design & Digital Media", "intensity": "learning" },
+      { "name": "Cars & Driving", "intensity": "curious" },
+      { "name": "Disability Rights & Accessibility", "intensity": "talented" },
+      { "name": "Family & Community", "intensity": "passionate" },
+      { "name": "Social Media & Online Fundraising", "intensity": "learning" },
+      { "name": "Photography", "intensity": "curious" }
     ],
     "partTimeJobs": [],
     "driveStatement": "I want to do something that matters. I've been through stuff most people my age haven't, and it made me tougher. I don't want to just get a job — I want to build something, maybe in food or media or something where I can be my own person and not just 'Walter White's kid.'",
@@ -162,6 +162,51 @@
       { "name": "Food Knowledge", "reason": "Deep enthusiasm and developing expertise in breakfast cuisine and cooking" },
       { "name": "Accessibility Awareness", "reason": "Lived experience with physical disability and navigating inaccessible environments" },
       { "name": "Payment Processing", "reason": "Set up and managed online donation system for fundraising website" }
+    ],
+    "workValues": [
+      { "id": "impact", "rank": 1 },
+      { "id": "autonomy", "rank": 2 },
+      { "id": "creativity", "rank": 3 },
+      { "id": "purpose", "rank": 4 },
+      { "id": "challenge", "rank": 5 }
+    ],
+    "peopleInspirations": [
+      {
+        "name": "Haben Girma",
+        "role": "Disability Rights Lawyer & Author",
+        "emoji": "\u2696\uFE0F",
+        "fieldColor": "#8b5cf6",
+        "similarity": "Like Flynn, Haben navigated a world not designed for her as a deafblind person. She turned her lived experience with accessibility barriers into advocacy that changed how institutions think about inclusion — exactly the kind of impact Flynn's daily navigation of cerebral palsy has prepared him for.",
+        "careerArc": "Grew up navigating inaccessible systems \u2192 First deafblind graduate of Harvard Law School \u2192 White House Champion of Change \u2192 Bestselling author of 'Haben' \u2192 International disability rights advocate and tech accessibility consultant.",
+        "insight": "Disability is not something that needs to be fixed. The real problem is the barriers society creates."
+      },
+      {
+        "name": "Guy Fieri",
+        "role": "Celebrity Chef, Restaurateur & TV Host",
+        "emoji": "\uD83C\uDF54",
+        "fieldColor": "#f59e0b",
+        "similarity": "Guy's career started with a deep passion for food and an entrepreneurial streak that kicked in young — he was selling pretzels from a cart at age 10. Flynn shares that same fire for food culture and the hustle instinct of building SaveWalterWhite.com from scratch.",
+        "careerArc": "Sold pretzels as a kid \u2192 Studied hospitality management \u2192 Opened first restaurant at 28 \u2192 Won Food Network Star \u2192 Built a restaurant empire and became one of the most recognized food personalities in America.",
+        "insight": "I'm not a chef. I'm a cook who figured out how to make people happy with food. That's all any of us are trying to do."
+      },
+      {
+        "name": "Marlee Matlin",
+        "role": "Academy Award-Winning Actress & Advocate",
+        "emoji": "\uD83C\uDFAC",
+        "fieldColor": "#ec4899",
+        "similarity": "Marlee lost her hearing at 18 months and was told repeatedly what she couldn't do. She built a career by refusing to let others define her limitations — the same resilience Flynn shows maintaining his academics and family role through extraordinary challenges.",
+        "careerArc": "Lost hearing as a toddler \u2192 Started acting at age 7 \u2192 Won Academy Award at 21 (youngest Best Actress winner) \u2192 Decades of film and TV work \u2192 Advocate for deaf representation in media and entertainment.",
+        "insight": "The handicap of deafness is not in the ear; it is in the mind."
+      },
+      {
+        "name": "Ben Silbermann",
+        "role": "Co-Founder & CEO of Pinterest",
+        "emoji": "\uD83D\uDCCC",
+        "fieldColor": "#ef4444",
+        "similarity": "Ben wasn't a typical Silicon Valley founder — he studied political science, not computer science. What he had was a deep personal interest in collecting and organizing things he loved online. Flynn's experience building a real website that went viral shows the same instinct for digital platforms and community building.",
+        "careerArc": "Political science major \u2192 Worked at Google in customer support \u2192 Built failed apps \u2192 Created Pinterest from personal passion for collecting \u2192 Grew it to 450M+ users and a public company worth billions.",
+        "insight": "Don't take too much advice. Most people who have a lot of advice to give generalize whatever worked for them. The world changes and your path is your own."
+      }
     ]
   },
   "roles": [

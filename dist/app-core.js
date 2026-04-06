@@ -12546,7 +12546,7 @@
                         + bpIcon('archive', 24) + '<div style="margin-top:8px;">No saved comparisons yet. Run a comparison and click Save.</div></div>';
                     return;
                 }
-                var syncBadge = fbUser ? '<span style="font-size:0.68em; color:#30d158; margin-left:8px; padding:2px 7px; background:rgba(48,209,88,0.1); border-radius:10px;">' + bpIcon('cloud',10) + ' Synced</span>' : '';
+                var syncBadge = fbUser ? '<span style="font-size:0.68em; color:#30d158; margin-left:8px; padding:2px 7px; background:rgba(48,209,88,0.1); border-radius:10px;">' + bpIcon('check',10) + ' Synced</span>' : '';
                 var html = '<div style="margin-bottom:10px; display:flex; align-items:center;">'
                     + '<span style="font-size:0.75em; color:var(--c-muted);">' + saved.length + ' saved comparison' + (saved.length !== 1 ? 's' : '') + syncBadge + '</span>'
                     + '</div>';
@@ -18980,7 +18980,7 @@
             var html = '<div class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">' + bpIcon('cancel', 20) + '</span>'
+                + '<span class="section-icon">' + bpIcon('x', 20) + '</span>'
                 + '<span>Skill Blocklist (' + sorted.length + ')</span>'
                 + '</div>'
                 + '</div>'
@@ -46423,11 +46423,11 @@ body {
             // Diagnostic warnings: blocklist impact and library status (admin only or always subtle)
             var diagnosticWarnings = [];
             if (match.blocklistedCount > 0) {
-                diagnosticWarnings.push(bpIcon('alert-triangle',14) + ' ' + match.blocklistedCount + ' gap skill' + (match.blocklistedCount !== 1 ? 's' : '') + ' filtered by admin blocklist'
+                diagnosticWarnings.push(bpIcon('warning',14) + ' ' + match.blocklistedCount + ' gap skill' + (match.blocklistedCount !== 1 ? 's' : '') + ' filtered by admin blocklist'
                     + ' <button onclick="showAdminBlocklistInContext(' + idx + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82em;text-decoration:underline;padding:0;">Review</button>');
             }
             if (match.libraryAvailable === false) {
-                diagnosticWarnings.push(bpIcon('alert-triangle',14) + ' Skill library was not loaded during analysis. <button onclick="reanalyzeJob(' + idx + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82em;text-decoration:underline;padding:0;">Re-analyze now</button> for better results.');
+                diagnosticWarnings.push(bpIcon('warning',14) + ' Skill library was not loaded during analysis. <button onclick="reanalyzeJob(' + idx + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82em;text-decoration:underline;padding:0;">Re-analyze now</button> for better results.');
             }
             var parsedSkillCount = getJobSkills(job).length;
             if (parsedSkillCount > 0 && parsedSkillCount < 8) {
