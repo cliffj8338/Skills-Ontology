@@ -27027,6 +27027,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             });
+
+            simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
+            link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
+            node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             fitNetworkToViewport(svg, jobContainer, width, height);
             
             // Add job info tile
@@ -27299,6 +27303,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             });
+
+            simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
+            link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
+            node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             fitNetworkToViewport(svg, matchContainer, width, height);
             
             // Add legend and job info tile
@@ -27779,6 +27787,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     .attr("y2", function(d) { return d.target.y; });
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             });
+
+            simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
+            link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
+            node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             fitNetworkToViewport(svg, valuesContainer, width, height);
             
             // Add values panel (includes job info) — skip separate job tile
