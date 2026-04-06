@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.9';
+        var BP_VERSION = 'v4.48.10';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -42005,6 +42005,7 @@ body {
         }
         
         function renderFindJobs() {
+            if (window._lastJobRadius === undefined && userData.preferences.searchRadius) window._lastJobRadius = userData.preferences.searchRadius;
             // Build role suggestions from user's profile
             var roleSuggestions = '';
             if (userData.roles && userData.roles.length > 0) {
@@ -42026,8 +42027,8 @@ body {
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:2; min-width:180px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
-                + '<input id="findJobsLocation" type="text" placeholder="City, state, or remote..." '
-                + 'value="' + escapeAttr(window._lastJobLocation || '') + '" '
+                + '<input id="findJobsLocation" type="text" placeholder="Zip, city, or state..." '
+                + 'value="' + escapeAttr(window._lastJobLocation || userData.profile.zipCode || userData.profile.cityState || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:1; min-width:140px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
@@ -42055,8 +42056,23 @@ body {
                 + '<option value="devops">DevOps / SysAdmin</option>'
                 + '</select>'
                 
-                + '<label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.85em; color:var(--text-secondary);">'
-                + '<input type="checkbox" id="findJobsRemote" ' + (window._lastJobRemote ? 'checked' : '') + ' style="accent-color:var(--accent);"> Remote only</label>'
+                + '<select id="findJobsRadius" style="padding:10px 14px; background:var(--c-input-bg); '
+                + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.88em; min-width:110px;">'
+                + '<option value="0"' + ((window._lastJobRadius || 0) == 0 ? ' selected' : '') + '>Any distance</option>'
+                + '<option value="10"' + (window._lastJobRadius == 10 ? ' selected' : '') + '>10 miles</option>'
+                + '<option value="25"' + (window._lastJobRadius == 25 ? ' selected' : '') + '>25 miles</option>'
+                + '<option value="50"' + (window._lastJobRadius == 50 ? ' selected' : '') + '>50 miles</option>'
+                + '<option value="100"' + (window._lastJobRadius == 100 ? ' selected' : '') + '>100 miles</option>'
+                + '<option value="200"' + (window._lastJobRadius == 200 ? ' selected' : '') + '>200 miles</option>'
+                + '</select>'
+                
+                + '<select id="findJobsWorkArrangement" style="padding:10px 14px; background:var(--c-input-bg); '
+                + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.88em; min-width:120px;">'
+                + '<option value="all"' + ((window._lastJobArrangement || 'all') === 'all' ? ' selected' : '') + '>All types</option>'
+                + '<option value="remote"' + (window._lastJobArrangement === 'remote' ? ' selected' : '') + '>Remote only</option>'
+                + '<option value="hybrid"' + (window._lastJobArrangement === 'hybrid' ? ' selected' : '') + '>Hybrid</option>'
+                + '<option value="onsite"' + (window._lastJobArrangement === 'onsite' ? ' selected' : '') + '>On-site</option>'
+                + '</select>'
                 
                 + '<button onclick="clearJobSearch();" '
                 + 'style="padding:8px 12px; background:none; border:1px solid var(--border); border-radius:8px; '
@@ -42088,8 +42104,10 @@ body {
             var kw = document.getElementById('findJobsKeyword'); if (kw) kw.value = '';
             var loc = document.getElementById('findJobsLocation'); if (loc) loc.value = '';
             var cat = document.getElementById('findJobsCategory'); if (cat) cat.selectedIndex = 0;
-            var rem = document.getElementById('findJobsRemote'); if (rem) rem.checked = false;
+            var rad = document.getElementById('findJobsRadius'); if (rad) rad.selectedIndex = 0;
+            var arr = document.getElementById('findJobsWorkArrangement'); if (arr) arr.selectedIndex = 0;
             window._lastJobSearch = ''; window._lastJobLocation = ''; window._lastJobRemote = false;
+            window._lastJobRadius = 0; window._lastJobArrangement = 'all';
             opportunitiesData = [];
             var r = document.getElementById('opportunitiesResults'); if (r) r.innerHTML = '';
         }
@@ -47277,8 +47295,10 @@ body {
             location = location.trim();
             window._lastJobLocation = location;
             
-            var remoteOnly = (document.getElementById('findJobsRemote') || {}).checked || false;
-            window._lastJobRemote = remoteOnly;
+            var arrangement = (document.getElementById('findJobsWorkArrangement') || {}).value || 'all';
+            window._lastJobArrangement = arrangement;
+            var radius = parseInt((document.getElementById('findJobsRadius') || {}).value || '0', 10);
+            window._lastJobRadius = radius;
             
             searchLiveFromAPIs();
         }
@@ -47295,8 +47315,11 @@ body {
             window._lastJobLocation = location;
             
             var category = (document.getElementById('findJobsCategory') || {}).value || '';
-            var remoteOnly = (document.getElementById('findJobsRemote') || {}).checked || false;
-            window._lastJobRemote = remoteOnly;
+            var arrangement = (document.getElementById('findJobsWorkArrangement') || {}).value || 'all';
+            window._lastJobArrangement = arrangement;
+            var remoteOnly = arrangement === 'remote';
+            var radius = parseInt((document.getElementById('findJobsRadius') || {}).value || '0', 10);
+            window._lastJobRadius = radius;
             
             var resultsDiv = document.getElementById('opportunitiesResults');
             if (!resultsDiv) return;
@@ -47325,14 +47348,14 @@ body {
             }, 30000);
             
             if (JOBS_PROXY_AVAILABLE !== false) {
-                searchViaProxy(keyword, location, category, remoteOnly, resultsDiv);
+                searchViaProxy(keyword, location, category, remoteOnly, resultsDiv, radius, arrangement);
             } else {
                 searchDirect(keyword, category, resultsDiv);
             }
         }
         window.searchLiveFromAPIs = searchLiveFromAPIs;
         
-        async function searchViaProxy(keyword, location, category, remoteOnly, resultsDiv) {
+        async function searchViaProxy(keyword, location, category, remoteOnly, resultsDiv, radius, arrangement) {
             try {
                 // HYBRID MODE: Proxy handles JSearch/Remotive/USAJobs/Himalayas/Jobicy
                 // Browser directly calls Adzuna/Muse with user-entered keys in parallel
@@ -47341,6 +47364,7 @@ body {
                     if (location) params.set('location', location);
                     if (category) params.set('category', category);
                     if (remoteOnly) params.set('remote', 'true');
+                    if (radius && radius > 0) params.set('radius', String(radius));
                     
                     var res = await fetch(JOBS_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(25000) });
                     if (!res.ok) throw new Error('Proxy returned ' + res.status);
@@ -47400,6 +47424,19 @@ body {
                     seen[key] = true;
                     return true;
                 });
+                
+                if (arrangement && arrangement !== 'all') {
+                    opportunitiesData = opportunitiesData.filter(function(job) {
+                        var loc = ((job.location || '') + ' ' + (job.type || '') + ' ' + ((job.tags || []).join(' '))).toLowerCase();
+                        var title = (job.title || '').toLowerCase();
+                        var isRemote = loc.indexOf('remote') !== -1 || title.indexOf('remote') !== -1 || job.remote;
+                        var isHybrid = loc.indexOf('hybrid') !== -1 || title.indexOf('hybrid') !== -1;
+                        if (arrangement === 'remote') return isRemote;
+                        if (arrangement === 'hybrid') return isHybrid;
+                        if (arrangement === 'onsite') return !isRemote && !isHybrid;
+                        return true;
+                    });
+                }
                 
                 opportunitiesData.sort(function(a, b) { return b.matchScore - a.matchScore; });
                 
@@ -48276,6 +48313,25 @@ body {
                             <option value="Rural US">Rural US</option>
                         </select>
                         <div class="settings-help">Your location affects skill market valuations (cost of living adjustment)</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Zip Code</label>
+                        <input type="text" class="settings-input" id="settingZipCode" 
+                               value="${userData.profile.zipCode || ''}" 
+                               placeholder="e.g. 19103"
+                               maxlength="10"
+                               style="max-width:160px;"
+                               oninput="this.value = this.value.replace(/[^0-9-]/g, '')">
+                        <div class="settings-help">Used as default location for job searches and radius-based matching</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">City / State (Optional)</label>
+                        <input type="text" class="settings-input" id="settingCityState" 
+                               value="${userData.profile.cityState || ''}" 
+                               placeholder="e.g. Philadelphia, PA">
+                        <div class="settings-help">Fallback when zip code isn\u2019t supported by a job source</div>
                     </div>
                     
                     <div class="settings-group">
@@ -49890,6 +49946,36 @@ body {
                     </div>
                     
                     <div class="settings-group">
+                        <label class="settings-label">Search Radius</label>
+                        <select class="settings-select" id="settingSearchRadius">
+                            <option value="0" ${(userData.preferences.searchRadius || 0) == 0 ? 'selected' : ''}>Any distance</option>
+                            <option value="10" ${userData.preferences.searchRadius == 10 ? 'selected' : ''}>10 miles</option>
+                            <option value="25" ${userData.preferences.searchRadius == 25 ? 'selected' : ''}>25 miles</option>
+                            <option value="50" ${userData.preferences.searchRadius == 50 ? 'selected' : ''}>50 miles</option>
+                            <option value="100" ${userData.preferences.searchRadius == 100 ? 'selected' : ''}>100 miles</option>
+                            <option value="200" ${userData.preferences.searchRadius == 200 ? 'selected' : ''}>200 miles</option>
+                        </select>
+                        <div class="settings-help">Filters results by distance from your zip code (applies to USAJobs and JSearch)</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Work Arrangement</label>
+                        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;">
+                            ${['On-site', 'Hybrid', 'Remote'].map(function(arr) {
+                                var prefs = userData.preferences.workArrangement || ['On-site', 'Hybrid', 'Remote'];
+                                var isActive = prefs.indexOf(arr) !== -1;
+                                return '<label style="display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:0.88em; '
+                                    + 'border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + '; '
+                                    + 'background:' + (isActive ? 'rgba(96,165,250,0.08)' : 'transparent') + '; '
+                                    + 'color:' + (isActive ? 'var(--accent)' : 'var(--text-secondary)') + ';">'
+                                    + '<input type="checkbox" class="workArrangementCheck" value="' + arr + '" '
+                                    + (isActive ? 'checked' : '') + ' style="accent-color:var(--accent);"> ' + arr + '</label>';
+                            }).join('')}
+                        </div>
+                        <div class="settings-help">Select which work arrangements you\u2019re interested in. Controls job search filtering.</div>
+                    </div>
+                    
+                    <div class="settings-group">
                         <label class="settings-label">Minimum Salary (Optional)</label>
                         <input type="number" class="settings-input" id="settingMinSalary" 
                                value="${userData.preferences.minSalary || ''}"
@@ -51086,6 +51172,11 @@ body {
                 userData.profile.reportedComp = compVal > 0 ? compVal : null;
             }
             
+            var zipEl = document.getElementById('settingZipCode');
+            if (zipEl) userData.profile.zipCode = zipEl.value.trim();
+            var cityStateEl = document.getElementById('settingCityState');
+            if (cityStateEl) userData.profile.cityState = cityStateEl.value.trim();
+            
             var seniorityEl = document.getElementById('settingSeniority');
             var newSeniority = seniorityEl ? seniorityEl.value : userData.preferences.seniorityLevel;
             userData.preferences.seniorityLevel = newSeniority;
@@ -51093,6 +51184,14 @@ body {
             if (minSalaryEl) {
                 var minSalaryInput = minSalaryEl.value;
                 userData.preferences.minSalary = minSalaryInput ? parseInt(minSalaryInput) : null;
+            }
+            var radiusEl = document.getElementById('settingSearchRadius');
+            if (radiusEl) userData.preferences.searchRadius = parseInt(radiusEl.value) || 0;
+            var workArrChecks = document.querySelectorAll('.workArrangementCheck');
+            if (workArrChecks.length > 0) {
+                var arr = [];
+                workArrChecks.forEach(function(cb) { if (cb.checked) arr.push(cb.value); });
+                userData.preferences.workArrangement = arr.length > 0 ? arr : ['On-site', 'Hybrid', 'Remote'];
             }
             
             // Update seniority keywords based on level

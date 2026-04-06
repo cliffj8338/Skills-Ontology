@@ -16,7 +16,7 @@ function corsHeaders(origin) {
 }
 
 // === JSEARCH (RapidAPI — Google for Jobs aggregator) ===
-async function fetchJSearch(query, location, page, remoteOnly) {
+async function fetchJSearch(query, location, page, remoteOnly, radius) {
   const apiKey = process.env.RAPIDAPI_KEY;
   if (!apiKey) return { jobs: [], source: 'jsearch', error: 'RAPIDAPI_KEY not configured' };
 
@@ -28,6 +28,7 @@ async function fetchJSearch(query, location, page, remoteOnly) {
       date_posted: 'all'
     });
     if (remoteOnly) params.set('remote_jobs_only', 'true');
+    if (radius && parseInt(radius) > 0) params.set('radius', String(radius));
 
     const res = await fetch('https://jsearch.p.rapidapi.com/search?' + params.toString(), {
       headers: {
@@ -114,7 +115,7 @@ async function fetchRemotive(query, category) {
 }
 
 // === USAJOBS (free, requires email + api key headers) ===
-async function fetchUSAJobs(query, location) {
+async function fetchUSAJobs(query, location, radius) {
   const email = process.env.USAJOBS_EMAIL;
   const apiKey = process.env.USAJOBS_API_KEY;
   if (!email || !apiKey) return { jobs: [], source: 'usajobs', error: 'USAJOBS credentials not configured' };
@@ -122,6 +123,7 @@ async function fetchUSAJobs(query, location) {
   try {
     const params = new URLSearchParams({ Keyword: query, ResultsPerPage: '50' });
     if (location) params.set('LocationName', location);
+    if (radius && parseInt(radius) > 0) params.set('Radius', String(radius));
 
     const res = await fetch('https://data.usajobs.gov/api/Search?' + params.toString(), {
       headers: {
@@ -334,6 +336,7 @@ export default async function handler(req, res) {
     const category = url.searchParams.get('category') || '';
     const page = parseInt(url.searchParams.get('page') || '1', 10);
     const remoteOnly = url.searchParams.get('remote') === 'true';
+    const radius = url.searchParams.get('radius') || '';
     const sourcesParam = url.searchParams.get('sources') || 'all';
 
     if (!query) {
@@ -347,9 +350,9 @@ export default async function handler(req, res) {
       : sourcesParam.split(',').map(s => s.trim());
 
     const fetchers = [];
-    if (wantedSources.includes('jsearch'))   fetchers.push(fetchJSearch(query, location, page, remoteOnly));
+    if (wantedSources.includes('jsearch'))   fetchers.push(fetchJSearch(query, location, page, remoteOnly, radius));
     if (wantedSources.includes('remotive'))  fetchers.push(fetchRemotive(query, category));
-    if (wantedSources.includes('usajobs'))   fetchers.push(fetchUSAJobs(query, location));
+    if (wantedSources.includes('usajobs'))   fetchers.push(fetchUSAJobs(query, location, radius));
     if (wantedSources.includes('himalayas')) fetchers.push(fetchHimalayas(query));
     if (wantedSources.includes('jobicy'))    fetchers.push(fetchJobicy(query, category));
     if (wantedSources.includes('adzuna'))    fetchers.push(fetchAdzuna(query, location));
