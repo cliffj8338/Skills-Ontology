@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.38i';
+        var BP_VERSION = 'v4.47.39';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -244,8 +244,88 @@
             log[today][featureTag] = (log[today][featureTag] || 0) + 1;
             saveAIUsageLog(log);
         }
-        
+
+        var BP_AI_DAILY_LIMIT = 30;
+        var _aiCacheTTL = 24 * 60 * 60 * 1000;
+        var _aiCacheableFeatures = {
+            'explorer-skills': true,
+            'explorer-careers': true,
+            'wb-value-desc-bulk': true,
+            'wb-value-desc': true,
+            'wb-skill-outcome-bulk': true,
+            'wb-skill-outcome': true
+        };
+
+        function _aiCacheKey(featureTag, promptText) {
+            var hash = 0;
+            var str = (featureTag || '') + ':' + (promptText || '').slice(0, 2000);
+            for (var i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return 'bpAICache_' + Math.abs(hash).toString(36);
+        }
+
+        function _aiCacheGet(featureTag, promptText) {
+            try {
+                var key = _aiCacheKey(featureTag, promptText);
+                var raw = localStorage.getItem(key);
+                if (!raw) return null;
+                var entry = JSON.parse(raw);
+                if (Date.now() - entry.ts > _aiCacheTTL) {
+                    localStorage.removeItem(key);
+                    return null;
+                }
+                console.log('[AI Cache] Hit for', featureTag);
+                return entry.data;
+            } catch (e) { return null; }
+        }
+
+        function _aiCacheSet(featureTag, promptText, data) {
+            try {
+                var key = _aiCacheKey(featureTag, promptText);
+                localStorage.setItem(key, JSON.stringify({ ts: Date.now(), tag: featureTag, data: data }));
+            } catch (e) {
+                console.warn('[AI Cache] Storage full, clearing old entries');
+                _aiCachePurge();
+            }
+        }
+
+        function _aiCachePurge() {
+            try {
+                var keys = [];
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    if (k && k.indexOf('bpAICache_') === 0) keys.push(k);
+                }
+                keys.forEach(function(k) { localStorage.removeItem(k); });
+            } catch (e) {}
+        }
+
+        function _aiDailyCount() {
+            var log = getAIUsageLog();
+            var today = new Date().toISOString().slice(0, 10);
+            var day = log[today] || {};
+            var total = 0;
+            Object.keys(day).forEach(function(k) { total += day[k]; });
+            return total;
+        }
+
         async function callAnthropicAPI(requestBody, userApiKey, featureTag) {
+            var promptText = '';
+            if (requestBody && requestBody.messages && requestBody.messages.length > 0) {
+                promptText = requestBody.messages[requestBody.messages.length - 1].content || '';
+            }
+
+            if (featureTag && _aiCacheableFeatures[featureTag]) {
+                var cached = _aiCacheGet(featureTag, promptText);
+                if (cached) return cached;
+            }
+
+            if (_aiDailyCount() >= BP_AI_DAILY_LIMIT) {
+                throw new Error('Daily AI limit reached (' + BP_AI_DAILY_LIMIT + ' calls). Resets at midnight. Save your work and try again tomorrow.');
+            }
+
             trackAICall(featureTag);
             console.log('[BP API] callAnthropicAPI called for:', featureTag, 'model:', requestBody.model);
             var idToken = null;
@@ -269,6 +349,7 @@
                         recordApiHealth('anthropic-proxy', 'ok', 'Operational');
                         var jsonData = await proxyRes.json();
                         console.log('[BP API] Proxy success, response type:', jsonData?.type);
+                        if (featureTag && _aiCacheableFeatures[featureTag]) _aiCacheSet(featureTag, promptText, jsonData);
                         return jsonData;
                     }
                     if (proxyRes.status === 429) {
@@ -336,7 +417,9 @@
                 throw new Error(directErr);
             }
             recordApiHealth('anthropic-direct', 'ok', 'Operational');
-            return await directRes.json();
+            var directData = await directRes.json();
+            if (featureTag && _aiCacheableFeatures[featureTag]) _aiCacheSet(featureTag, promptText, directData);
+            return directData;
         }
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
@@ -879,6 +962,15 @@
             fbAuth = firebase.auth();
             fbDb = firebase.firestore();
             fbReady = true;
+            fbDb.enablePersistence({ synchronizeTabs: true }).then(function() {
+                console.log('✓ Firestore offline persistence enabled');
+            }).catch(function(err) {
+                if (err.code === 'failed-precondition') {
+                    console.warn('Firestore persistence unavailable: multiple tabs open');
+                } else if (err.code === 'unimplemented') {
+                    console.warn('Firestore persistence not supported in this browser');
+                }
+            });
             console.log('✓ Firebase initialized (project: ' + firebaseConfig.projectId + ', auth domain: ' + firebaseConfig.authDomain + ')');
             console.log('ℹ️ Ensure ' + window.location.hostname + ' is in Firebase Console → Authentication → Settings → Authorized domains');
         } catch(e) {
