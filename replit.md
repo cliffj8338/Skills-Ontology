@@ -72,9 +72,19 @@ Blueprint is a confidence engine. Not a job board, not a resume tool, not anothe
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.47.42. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
+Current: v4.47.47. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
+
+## Admin Version Manager (v4.47.46–47)
+- Admin panel → System → Versions tab for saving/restoring app-core.js snapshots
+- **Save**: Fetches live app-core.js, validates integrity (size + BP_VERSION marker), stores in IndexedDB with metadata synced to Firestore `app_versions` collection
+- **Download**: Exports any saved version as a .js file
+- **Restore**: Auto-saves current version as safety backup first (aborts if backup fails), then downloads the selected version as RESTORE_app-core.js for manual deployment
+- **Delete**: Removes from IndexedDB + Firestore metadata
+- Firestore sync is graceful — local save succeeds independently if Firestore write fails
+- Functions: `adminSaveVersion(silentComment?)`, `adminDownloadVersion(id)`, `adminRestoreVersion(id)`, `adminDeleteVersion(id)`
+- Storage: IndexedDB `BlueprintVersions` database, `snapshots` object store
 
 ## Security Hardening (v4.46.90)
 - **Security Headers (vercel.json)**: HSTS, X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, CSP. API responses get `no-store` cache control.
