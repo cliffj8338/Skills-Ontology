@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.46';
+        var BP_VERSION = 'v4.47.47';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2274,7 +2274,7 @@
             overview: 'ops', users: 'ops', waitlist: 'ops',
             samples: 'content',
             jdconverter: 'wb', wbwizard: 'wb', wbrepo: 'wb', wbcompare: 'wb', parseaudit: 'wb',
-            config: 'sys', status: 'sys', architecture: 'sys', userflows: 'sys',
+            config: 'sys', status: 'sys', versions: 'sys', architecture: 'sys', userflows: 'sys',
             roadmap: 'plan', costs: 'plan'
         };
 
@@ -4197,12 +4197,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.46: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.47: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.46: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
-                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.46: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.47: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.47: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.46: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.47: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -13876,16 +13876,29 @@
             });
         }
 
-        async function adminSaveVersion() {
-            if (showcaseMode) { showToast('Cannot save versions in showcase mode.', 'warning'); return; }
-            var comment = prompt('Version comment (what changed):');
-            if (comment === null) return;
-            comment = comment.trim() || 'No comment';
+        async function adminSaveVersion(silentComment) {
+            if (showcaseMode) { showToast('Cannot save versions in showcase mode.', 'warning'); return { ok: false, reason: 'showcase' }; }
+            var comment;
+            if (typeof silentComment === 'string') {
+                comment = silentComment;
+            } else {
+                comment = prompt('Version comment (what changed):');
+                if (comment === null) return { ok: false, reason: 'cancelled' };
+                comment = comment.trim() || 'No comment';
+            }
 
-            var saving = showToast('Saving version snapshot...', 'info');
+            showToast('Saving version snapshot...', 'info');
             try {
                 var response = await fetch('/app-core.js?v=' + Date.now());
+                if (!response.ok) {
+                    showToast('Failed to fetch app-core.js: HTTP ' + response.status, 'error');
+                    return { ok: false, reason: 'fetch_error' };
+                }
                 var fileContent = await response.text();
+                if (fileContent.length < 10000 || fileContent.indexOf('BP_VERSION') === -1) {
+                    showToast('Fetched file does not look like valid app-core.js. Aborting save.', 'error');
+                    return { ok: false, reason: 'invalid_content' };
+                }
 
                 var versionId = 'v_' + Date.now();
                 var meta = {
@@ -13904,13 +13917,16 @@
                 await new Promise(function(res, rej) { tx.oncomplete = res; tx.onerror = rej; });
 
                 if (fbDb && fbUser) {
-                    await fbDb.collection('app_versions').doc(versionId).set(meta);
+                    try { await fbDb.collection('app_versions').doc(versionId).set(meta); }
+                    catch(e) { console.warn('[Versions] Firestore metadata sync failed (local save OK):', e.message); }
                 }
 
                 showToast('Version saved: ' + BP_VERSION + ' — "' + comment + '"', 'success');
                 if (adminSubTab === 'versions') renderAdminVersions(document.getElementById('adminTabContent'));
+                return { ok: true, id: versionId };
             } catch (err) {
                 showToast('Failed to save version: ' + err.message, 'error');
+                return { ok: false, reason: err.message };
             }
         }
         window.adminSaveVersion = adminSaveVersion;
@@ -13953,9 +13969,13 @@
                     return;
                 }
                 var meta = record.meta;
-                if (!confirm('RESTORE VERSION?\n\nVersion: ' + meta.version + '\nSaved: ' + new Date(meta.savedAt).toLocaleString() + '\nComment: ' + meta.comment + '\n\nThis will:\n1. Save a backup of the CURRENT version first\n2. Replace app-core.js with the selected version\n3. Download the restored file for you to deploy\n\nContinue?')) return;
+                if (!confirm('RESTORE VERSION?\n\nVersion: ' + meta.version + '\nSaved: ' + new Date(meta.savedAt).toLocaleString() + '\nComment: ' + meta.comment + '\n\nThis will:\n1. Save a backup of the CURRENT version first\n2. Download the selected version as RESTORE_app-core.js for you to deploy\n\nContinue?')) return;
 
-                await adminSaveVersion();
+                var backupResult = await adminSaveVersion('Auto-backup before restoring ' + meta.version);
+                if (!backupResult || !backupResult.ok) {
+                    showToast('Backup of current version failed. Restore aborted for safety.', 'error');
+                    return;
+                }
 
                 var blob = new Blob([record.content], { type: 'application/javascript' });
                 var url = URL.createObjectURL(blob);
