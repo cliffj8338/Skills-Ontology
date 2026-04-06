@@ -111,6 +111,40 @@ Current: v4.48.9. Single source of truth: `src/core/constants.js` (`BP_VERSION` 
 - **52 event listeners / 9 removeEventListeners**: Potential leak area for future cleanup.
 - **3.2MB app-core.js**: Monolith size; code splitting would require full refactor.
 
+## WCAG AA 2.1 Compliance
+Blueprint must meet WCAG AA 2.1 standards. All text colors on light backgrounds must achieve minimum contrast ratios:
+- **Normal text**: 4.5:1 minimum contrast ratio
+- **Large text** (18pt+ or 14pt+ bold): 3:1 minimum
+- **UI components** (icons, borders, form controls): 3:1 minimum
+
+### Accessible Color Palette (all verified ≥4.5:1 on white)
+| Token | Hex | Ratio | Use |
+|-------|-----|-------|-----|
+| --text-primary | #1d1d1f | 16.83:1 | Primary text |
+| --text-secondary | #6e6e73 | 5.07:1 | Secondary text |
+| --text-muted | #6e6e73 | 5.07:1 | Muted text |
+| --c-faint | #757578 | 4.59:1 | Tertiary/hint text |
+| --accent | #0071e3 | 4.70:1 | Links, interactive |
+| --success | #1e7e34 | 5.14:1 | Success states |
+| --warning | #b25000 | 5.20:1 | Warning states |
+| --danger | #d70015 | 5.38:1 | Error states |
+| --c-orange | #ad5000 | 5.35:1 | Orange accent text |
+| --c-purple | #9b59b6 | 4.67:1 | Purple accent text |
+| --c-cyan | #0a7da0 | 4.71:1 | Cyan accent text |
+
+### Accessibility Features
+- **Skip navigation**: "Skip to main content" link (visible on Tab focus)
+- **Focus indicators**: `*:focus-visible` global outline (2px solid accent)
+- **Screen reader support**: `aria-live` announcements for view changes, toasts, and dynamic content. `.sr-only` utility class for visually-hidden text.
+- **ARIA landmarks**: `role="main"`, `role="navigation"`, `role="dialog"` on key regions
+- **Keyboard navigation**: All interactive elements focusable and operable via keyboard
+- **Canvas 2D rule**: Network map nodes use raw hex (Canvas API cannot resolve CSS vars); all hex values verified accessible
+
+### Rules for Contributors
+- Never use text colors lighter than 4.5:1 ratio on white (#fbfbfd). The lightest permissible gray is approximately #767679.
+- When using accent colors (orange, purple, cyan) as text, always use the CSS variable which has been darkened for accessibility. Never use bright hex values (#ff9f0a, #bf5af2, #5ac8fa) as text colors.
+- Test contrast with https://webaim.org/resources/contrastchecker/ before adding new color pairings.
+
 ## Proficiency Color Palette
 Gradient from cool to warm to green (achievement): Novice `#94a3b8` (slate) → Proficient `#60a5fa` (blue) → Advanced `#a78bfa` (purple) → Expert `#fb923c` (orange) → Mastery `#10b981` (green). Red `#ef4444` is ONLY for errors/problems. Yellow `#fbbf24` for caution/warnings.
 

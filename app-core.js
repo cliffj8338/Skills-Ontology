@@ -3366,7 +3366,7 @@
                             + '<div style="flex:1; min-width:200px;">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
                             + '<strong style="color:var(--text-primary); font-size:1.05em;">' + escapeHtml(d.displayName || d.email || doc.id) + '</strong>'
-                            + (isAdmin ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(178,80,0,0.15); color:var(--warning); font-weight:700;">ADMIN</span>' : '')
+                            + (isAdmin ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(178,80,0,0.18); color:#8a4100; font-weight:700;">ADMIN</span>' : '')
                             + (isCurrentUser ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(0,113,227,0.15); color:var(--accent); font-weight:600;">YOU</span>' : '')
                             + '</div>'
                             + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(d.email || '') + '</div>'
