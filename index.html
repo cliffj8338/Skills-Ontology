@@ -430,7 +430,7 @@
                 <button onclick="sendFeedback('menu'); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="edit"></span> Give Feedback</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
-                <button id="overflowAdmin" onclick="showAdminPanel(); closeOverflowMenu();" style="color: #fbbf24; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="shield"></span> Admin Dashboard</button>
+                <button id="overflowAdmin" onclick="showAdminPanel(); closeOverflowMenu();" style="color: #8a4100; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="shield"></span> Admin Dashboard</button>
                 <button id="overflowSignOut" onclick="authSignOut(); closeOverflowMenu();" style="color: #ef4444; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="power"></span> Sign Out</button>
             </div>
         </div>
@@ -503,7 +503,7 @@
         <div id="networkFilterPill" style="display:none;"><span id="networkFilterPillDot"></span><span id="networkFilterPillText"></span></div>
     </div>
     
-    <div class="main-content" id="mainContentArea" role="main" aria-label="Main content" style="padding-bottom:80px;">
+    <div class="main-content" id="mainContentArea" role="main" aria-label="Main content" tabindex="-1" style="padding-bottom:80px;">
         <div id="welcomeView" style="display:none;"></div>
         <div id="skillsPageHeader" style="display:none; max-width:1200px; margin:0 auto; padding:20px 24px 0;">
             <div class="page-header">
@@ -1028,7 +1028,7 @@
                     </div>
                 </div>
                 
-                <div id="assessSkillName" style="font-size: 1.2em; font-weight: 600; margin-bottom: 25px; color: #fbbf24;"></div>
+                <div id="assessSkillName" style="font-size: 1.2em; font-weight: 600; margin-bottom: 25px; color: var(--warning);"></div>
                 
                 <div class="settings-group">
                     <label class="settings-label">How many years of experience do you have with this skill? *</label>
@@ -1227,31 +1227,31 @@
                         </div>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                             <button onclick="searchAddSkillsByCategory('Technology')" 
-                                    style="padding: 8px 16px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(0,113,227,0.1); border: 1px solid rgba(0,113,227,0.25); color: var(--accent); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
                                 <span data-icon="tool" class="nav-icon"></span> Technology
                             </button>
                             <button onclick="searchAddSkillsByCategory('Business')" 
-                                    style="padding: 8px 16px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(155,89,182,0.1); border: 1px solid rgba(155,89,182,0.25); color: var(--c-purple); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
                                 <span data-icon="briefcase" class="nav-icon"></span> Business
                             </button>
                             <button onclick="searchAddSkillsByCategory('Finance')" 
-                                    style="padding: 8px 16px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(30,126,52,0.1); border: 1px solid rgba(30,126,52,0.25); color: var(--success); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
                                 <span data-icon="money" class="nav-icon"></span> Finance
                             </button>
                             <button onclick="searchAddSkillsByCategory('Marketing')" 
-                                    style="padding: 8px 16px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(178, 80, 0, 0.1); border: 1px solid rgba(178, 80, 0, 0.25); color: var(--warning); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
                                 <span data-icon="send" class="nav-icon"></span> Marketing
                             </button>
                             <button onclick="searchAddSkillsByCategory('Creative')" 
-                                    style="padding: 8px 16px; background: rgba(249, 115, 22, 0.2); border: 1px solid rgba(249, 115, 22, 0.4); color: #fb923c; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(173,80,0,0.1); border: 1px solid rgba(173,80,0,0.25); color: var(--c-orange); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
                                 <span data-icon="compass" class="nav-icon"></span> Creative
                             </button>
                             <button onclick="searchAddSkillsByCategory('Leadership')" 
-                                    style="padding: 8px 16px; background: rgba(100, 116, 139, 0.2); border: 1px solid rgba(100, 116, 139, 0.4); color: #94a3b8; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(117,117,120,0.1); border: 1px solid rgba(117,117,120,0.25); color: var(--c-faint); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
                                 <span data-icon="star" class="nav-icon"></span> Leadership
                             </button>
                             <button onclick="searchAddSkillsByCategory('Trades')" 
-                                    style="padding: 8px 16px; background: rgba(180, 83, 9, 0.2); border: 1px solid rgba(180, 83, 9, 0.4); color: #d97706; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(173,80,0,0.1); border: 1px solid rgba(173,80,0,0.25); color: var(--c-orange); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
                                 <span data-icon="tool" class="nav-icon"></span> Trades
                             </button>
                         </div>

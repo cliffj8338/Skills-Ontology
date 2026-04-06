@@ -2612,10 +2612,10 @@
             // AI column
             html += '<div style="padding:16px; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.2); border-radius:10px;">'
                 + '<div style="font-size:0.78em; font-weight:700; color:var(--c-cyan); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('wand',14) + ' AI Vibe-Coding</div>'
-                + devBar('Calendar Time', monthsElapsed + ' mo', Math.max(monthsElapsed, tradMonths), '#5ac8fa')
-                + devBar('Work Hours', Math.round(aiHoursTotal), Math.max(aiHoursTotal, tradDays * 8), '#30d158')
-                + devBar('Work Days', aiDays, Math.max(aiDays, tradDays), '#5ac8fa')
-                + devBar('Total Cost', '$' + aiTotalCost.toLocaleString(), Math.max(aiTotalCost, tradTotalCost), '#30d158')
+                + devBar('Calendar Time', monthsElapsed + ' mo', Math.max(monthsElapsed, tradMonths), 'var(--c-cyan)')
+                + devBar('Work Hours', Math.round(aiHoursTotal), Math.max(aiHoursTotal, tradDays * 8), 'var(--success)')
+                + devBar('Work Days', aiDays, Math.max(aiDays, tradDays), 'var(--c-cyan)')
+                + devBar('Total Cost', '$' + aiTotalCost.toLocaleString(), Math.max(aiTotalCost, tradTotalCost), 'var(--success)')
                 + '<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(6,182,212,0.15); font-size:0.72em; color:var(--text-muted);">'
                 + 'Claude Pro: $' + devStats.aiSubscriptionMonthly + '/mo &middot; Hosting: $' + devStats.hostingMonthly + '/mo</div>'
                 + '</div>';
@@ -2623,10 +2623,10 @@
             // Traditional column
             html += '<div style="padding:16px; background:rgba(215,0,21,0.04); border:1px solid rgba(215,0,21,0.15); border-radius:10px;">'
                 + '<div style="font-size:0.78em; font-weight:700; color:var(--danger); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('users',14) + ' Traditional Solo Dev</div>'
-                + devBar('Calendar Time', tradMonths + ' mo', Math.max(monthsElapsed, tradMonths), '#ff453a')
-                + devBar('Work Hours', (tradDays * 8).toLocaleString(), Math.max(aiHoursTotal, tradDays * 8), '#ff9f0a')
-                + devBar('Work Days', tradDays, Math.max(aiDays, tradDays), '#ff453a')
-                + devBar('Total Cost', '$' + tradTotalCost.toLocaleString(), Math.max(aiTotalCost, tradTotalCost), '#ff453a')
+                + devBar('Calendar Time', tradMonths + ' mo', Math.max(monthsElapsed, tradMonths), 'var(--danger)')
+                + devBar('Work Hours', (tradDays * 8).toLocaleString(), Math.max(aiHoursTotal, tradDays * 8), 'var(--c-orange)')
+                + devBar('Work Days', tradDays, Math.max(aiDays, tradDays), 'var(--danger)')
+                + devBar('Total Cost', '$' + tradTotalCost.toLocaleString(), Math.max(aiTotalCost, tradTotalCost), 'var(--danger)')
                 + '<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(215,0,21,0.1); font-size:0.72em; color:var(--text-muted);">'
                 + 'Sr. Full-Stack: ~$175K/yr loaded &middot; ' + tradLocPerDay + ' LOC/day</div>'
                 + '</div>';
@@ -2733,13 +2733,13 @@
                 var maxCount = srcEntries.length > 0 ? srcEntries[0].count : 1;
                 
                 var sourceColors = {
-                    jsearch: '#60a5fa', remotive: '#30d158', usajobs: '#bf5af2',
-                    himalayas: '#ff9f0a', adzuna: '#ff9f0a', themuse: '#5ac8fa',
-                    jobicy: '#ff453a'
+                    jsearch: 'var(--accent)', remotive: 'var(--success)', usajobs: 'var(--c-purple)',
+                    himalayas: 'var(--c-orange)', adzuna: 'var(--c-orange)', themuse: 'var(--c-cyan)',
+                    jobicy: 'var(--danger)'
                 };
                 
                 var srcHtml = srcEntries.map(function(entry) {
-                    var color = sourceColors[entry.name] || '#a1a1a6';
+                    var color = sourceColors[entry.name] || 'var(--text-secondary)';
                     var pct = maxCount > 0 ? Math.max((entry.count / maxCount) * 100, 2) : 0;
                     var isZero = entry.count === 0;
                     return '<div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">'
@@ -2901,7 +2901,7 @@
             
             // Views by section
             var viewLabels = { network:'Map', card:'Card View', opportunities:'Jobs', blueprint:'Blueprint', reports:'Reports', settings:'Settings', welcome:'Welcome', admin:'Admin' };
-            var viewColors = { network:'#60a5fa', card:'#bf5af2', opportunities:'#ff9f0a', blueprint:'#30d158', reports:'#ff453a', settings:'#636366', welcome:'#bf5af2', admin:'#ffd60a' };
+            var viewColors = { network:'var(--accent)', card:'var(--c-purple)', opportunities:'var(--c-orange)', blueprint:'var(--success)', reports:'var(--danger)', settings:'var(--text-muted)', welcome:'var(--c-purple)', admin:'var(--warning)' };
             var sortedViews = Object.entries(s.viewCounts).sort(function(a,b){return b[1]-a[1];});
             var maxView = sortedViews.length > 0 ? sortedViews[0][1] : 1;
             
@@ -2911,7 +2911,7 @@
             sortedViews.forEach(function(entry) {
                 var view = entry[0], count = entry[1];
                 var pct = Math.max((count / maxView) * 100, 2);
-                var color = viewColors[view] || '#636366';
+                var color = viewColors[view] || 'var(--text-muted)';
                 html += '<div style="margin-bottom:6px;">'
                     + '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:2px;">'
                     + '<span style="color:var(--text-secondary);">' + (viewLabels[view] || view) + '</span>'
@@ -2931,7 +2931,7 @@
             sortedDurs.forEach(function(entry) {
                 var view = entry[0], dur = entry[1];
                 var pct = Math.max((dur / maxDur) * 100, 2);
-                var color = viewColors[view] || '#636366';
+                var color = viewColors[view] || 'var(--text-muted)';
                 html += '<div style="margin-bottom:6px;">'
                     + '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:2px;">'
                     + '<span style="color:var(--text-secondary);">' + (viewLabels[view] || view) + '</span>'
@@ -3019,14 +3019,14 @@
                     + '<span style="font-size:0.65em; color:var(--text-muted);">Last ' + days + ' days</span></div>'
                     + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(90px, 1fr)); gap:8px;">';
                 var wbTiles = [
-                    { k:'wb_created', l:'Created', c:'#30d158' },
-                    { k:'wb_edited', l:'Edited', c:'#60a5fa' },
-                    { k:'wb_converted', l:'Converted', c:'#bf5af2' },
-                    { k:'wb_wizard_complete', l:'Wizard', c:'#bf5af2' },
-                    { k:'wb_exported_pdf', l:'PDF', c:'#ff453a' },
+                    { k:'wb_created', l:'Created', c:'var(--success)' },
+                    { k:'wb_edited', l:'Edited', c:'var(--accent)' },
+                    { k:'wb_converted', l:'Converted', c:'var(--c-purple)' },
+                    { k:'wb_wizard_complete', l:'Wizard', c:'var(--c-purple)' },
+                    { k:'wb_exported_pdf', l:'PDF', c:'var(--danger)' },
                     { k:'wb_exported_word', l:'Word', c:'#4a9eff' },
-                    { k:'wb_exported_json', l:'JSON', c:'#ff9f0a' },
-                    { k:'wb_deleted', l:'Deleted', c:'#636366' }
+                    { k:'wb_exported_json', l:'JSON', c:'var(--c-orange)' },
+                    { k:'wb_deleted', l:'Deleted', c:'var(--text-muted)' }
                 ];
                 wbTiles.forEach(function(t) {
                     var cnt = s.featureCounts[t.k] || 0;
@@ -3242,7 +3242,7 @@
                 // Right: skills by category
                 html += '<div>'
                     + '<div style="font-weight:600; color:var(--text-secondary); font-size:0.88em; margin-bottom:12px;">Skills by Category</div>';
-                var catColors = { skill: '#60a5fa', ability: '#bf5af2', workstyle: '#ff9f0a', knowledge: '#30d158', workactivity: '#ff453a', unique: '#ffd60a', trade: '#ff9f0a' };
+                var catColors = { skill: 'var(--accent)', ability: 'var(--c-purple)', workstyle: 'var(--c-orange)', knowledge: 'var(--success)', workactivity: 'var(--danger)', unique: 'var(--warning)', trade: 'var(--c-orange)' };
                 var catLabels = { skill: 'O*NET Skills', ability: 'Abilities', workstyle: 'Work Styles', knowledge: 'Knowledge', workactivity: 'Work Activities', unique: 'Custom/Unique', trade: 'Trades & Creative' };
                 
                 var sortedCats = Object.entries(skillCategories).sort(function(a, b) { return b[1] - a[1]; });
@@ -3252,7 +3252,7 @@
                 sortedCats.forEach(function(entry) {
                     var cat = entry[0], count = entry[1];
                     var pct = totalSkills > 0 ? Math.round(count / totalSkills * 100) : 0;
-                    var color = catColors[cat] || '#636366';
+                    var color = catColors[cat] || 'var(--text-muted)';
                     html += '<div style="margin-bottom:8px;">'
                         + '<div style="display:flex; justify-content:space-between; font-size:0.82em; margin-bottom:3px;">'
                         + '<span style="color:var(--text-secondary);">' + (catLabels[cat] || cat) + '</span>'
@@ -4097,7 +4097,7 @@
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
                         { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.80: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
-                        { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ff453a) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #ffd60a for caution/warnings.' },
+                        { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (var(--danger)) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow var(--warning) for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
                         { id: 'p2-6y', name: 'Pipeline 0% match fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.2: Jobs added from Fit For Me showed 0% in Pipeline due to field name mismatch. _fitAddToPipeline() saved matchResult/parsedData but pipeline reads matchData/parsedSkills. Fixed save path and added legacy field migration in renderSavedJobs() and rescoreAllJobs().' },
@@ -4486,10 +4486,10 @@
             loadRoadmapState();
             
             var statusColors = {
-                'planned': { bg: 'rgba(99,99,102,0.15)', text: '#a1a1a6', label: 'Planned' },
-                'in-progress': { bg: 'rgba(0,113,227,0.15)', text: '#60a5fa', label: 'In Progress' },
-                'done': { bg: 'rgba(36,138,61,0.15)', text: '#30d158', label: 'Done' },
-                'deferred': { bg: 'rgba(196,93,0,0.15)', text: '#ff9f0a', label: 'Deferred' }
+                'planned': { bg: 'rgba(99,99,102,0.15)', text: 'var(--text-secondary)', label: 'Planned' },
+                'in-progress': { bg: 'rgba(0,113,227,0.15)', text: 'var(--accent)', label: 'In Progress' },
+                'done': { bg: 'rgba(36,138,61,0.15)', text: 'var(--success)', label: 'Done' },
+                'deferred': { bg: 'rgba(196,93,0,0.15)', text: 'var(--c-orange)', label: 'Deferred' }
             };
             
             var categoryIcons = {
@@ -4502,10 +4502,10 @@
             };
             
             var priorityColors = {
-                'critical': '#ff453a',
-                'high': '#ff9f0a',
-                'medium': '#60a5fa',
-                'low': '#636366'
+                'critical': 'var(--danger)',
+                'high': 'var(--c-orange)',
+                'medium': 'var(--accent)',
+                'low': 'var(--text-muted)'
             };
             
             // Count stats
@@ -4631,7 +4631,7 @@
             var categories = { ai: 'AI Services', infra: 'Infrastructure', jobs: 'Job Search APIs', data: 'Data Assets' };
             var categoryOrder = ['ai', 'infra', 'jobs', 'data'];
             
-            var statusColors = { ok: '#30d158', degraded: '#ff9f0a', down: '#ff453a', unknown: '#636366' };
+            var statusColors = { ok: 'var(--success)', degraded: 'var(--c-orange)', down: 'var(--danger)', unknown: 'var(--text-muted)' };
             var statusLabels = { ok: 'Operational', degraded: 'Degraded', down: 'Down', unknown: 'Unknown' };
             var statusIcons = { ok: 'check', degraded: 'warning', down: 'x', unknown: 'help' };
             
@@ -4748,7 +4748,7 @@
                 html += '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85em;">'
                     + bpIcon('check', 14) + ' No incidents recorded</div>';
             } else {
-                var sevColors = { critical: '#ff453a', warning: '#ff9f0a', info: '#60a5fa' };
+                var sevColors = { critical: 'var(--danger)', warning: 'var(--c-orange)', info: 'var(--accent)' };
                 var sevIcons = { critical: 'x', warning: 'warning', info: 'about' };
                 
                 html += '<div style="max-height:350px; overflow-y:auto;">';
@@ -5418,9 +5418,9 @@
             // === LIGHT THEME COLORS ===
             var BG = '#ffffff';
             var FILL = '#f8fafc';
-            var TEXT = '#1c1c22';
-            var TEXT_SUB = '#636366';
-            var TEXT_MUTED = '#a1a1a6';
+            var TEXT = 'var(--c-bg-solid-alt)';
+            var TEXT_SUB = 'var(--text-muted)';
+            var TEXT_MUTED = 'var(--text-secondary)';
             var GRID_LINE = 'rgba(0,0,0,0.04)';
             var FLOW_LABEL = 'rgba(0,0,0,0.30)';
             
@@ -5903,7 +5903,7 @@
             var stepNames = ['Company & Title', 'Skills & Outcomes', 'Requirements', 'Values & Culture', 'Review & Finish'];
             for (var i = 1; i <= 5; i++) {
                 var active = s.step === i, done = s.step > i;
-                var bg = active ? 'var(--accent)' : done ? '#30d158' : 'var(--c-surface-3)';
+                var bg = active ? 'var(--accent)' : done ? 'var(--success)' : 'var(--c-surface-3)';
                 var clr = active || done ? '#fff' : 'var(--c-muted)';
                 html += '<div style="flex:1; text-align:center;">'
                     + '<div style="height:4px; border-radius:6px; background:' + bg + '; margin-bottom:6px;"></div>'
@@ -6289,7 +6289,7 @@
             s.skills.forEach(function(sk, idx) {
                 var bgColor = sk.selected ? 'var(--c-surface-2)' : 'var(--c-surface-1)';
                 var opacity = sk.selected ? '1' : '0.5';
-                var badgeColor = sk.source === 'O*NET' ? '#60a5fa' : '#bf5af2';
+                var badgeColor = sk.source === 'O*NET' ? 'var(--accent)' : 'var(--c-purple)';
                 html += '<div style="display:grid; grid-template-columns:32px 1fr 140px; gap:10px; align-items:start; padding:12px 14px; background:' + bgColor + '; border:1px solid var(--c-surface-5); border-radius:10px; opacity:' + opacity + ';" id="wbwSkillRow' + idx + '">';
 
                 html += '<label style="cursor:pointer; display:flex; align-items:center; margin-top:4px;">'
@@ -6745,7 +6745,7 @@
                     html += '<button onclick="wbwFinish(\'save\')" style="padding:10px 20px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save to Repository</button>';
                 }
             }
-            html += '<button onclick="wbwReset()" style="padding:10px 20px; background:var(--c-surface-3); color:var(--danger); border:1px solid #ff453a40; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Start Over</button>'
+            html += '<button onclick="wbwReset()" style="padding:10px 20px; background:var(--c-surface-3); color:var(--danger); border:1px solid var(--danger)40; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Start Over</button>'
                 + '</div>';
             return html;
         }
@@ -8798,11 +8798,11 @@
             var totalComp = 0;
             data.skills.forEach(function(s, i) {
                 var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
-                var levelColors = { 'Mastery': '#30d158', 'Expert': '#ff9f0a', 'Advanced': '#bf5af2', 'Proficient': '#60a5fa', 'Foundational': '#a1a1a6', 'Awareness': '#cbd5e1' };
-                var lc = levelColors[s.blueprintLevel] || '#636366';
+                var levelColors = { 'Mastery': 'var(--success)', 'Expert': 'var(--c-orange)', 'Advanced': 'var(--c-purple)', 'Proficient': 'var(--accent)', 'Foundational': 'var(--text-secondary)', 'Awareness': '#cbd5e1' };
+                var lc = levelColors[s.blueprintLevel] || 'var(--text-muted)';
                 totalComp += (s.compValue || 0);
                 var sourceLabel = s.source === 'onet+jd' ? 'O*NET + JD' : s.source === 'onet' ? 'O*NET' : 'JD';
-                var sourceColor = s.source === 'onet+jd' ? '#30d158' : s.source === 'onet' ? '#60a5fa' : '#ff9f0a';
+                var sourceColor = s.source === 'onet+jd' ? 'var(--success)' : s.source === 'onet' ? 'var(--accent)' : 'var(--c-orange)';
                 html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';">'
                     + '<td style="padding:10px; font-weight:600; color:' + headingColor + '; white-space:nowrap;">' + escapeHtml(s.name) + '</td>'
                     + '<td style="padding:10px; text-align:center;"><span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:' + sourceColor + '18; color:' + sourceColor + '; font-weight:600;">' + sourceLabel + '</span></td>'
@@ -8960,7 +8960,7 @@
 
                 html += '<div style="margin-bottom:20px;">'
                     + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">' + bandLabel + '</div>'
-                    + '<div style="position:relative; height:10px; border-radius:8px; background:linear-gradient(to right, #1e3a2f, #30d158 50%, #ffd60a); margin-bottom:6px;">'
+                    + '<div style="position:relative; height:10px; border-radius:8px; background:linear-gradient(to right, #1e3a2f, var(--success) 50%, var(--warning)); margin-bottom:6px;">'
                     + '<div style="position:absolute; top:-4px; left:' + markerPct + '%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:var(--accent); border:2px solid var(--c-surface-1); box-shadow:0 0 0 2px var(--accent)44;" title="' + seniorityLabel + ' target"></div>'
                     + '</div>'
                     + '<div style="display:flex; justify-content:space-between;">';
@@ -9000,7 +9000,7 @@
                     var isTarget = p.key === seniorityPctKey;
                     var displayVal = Math.round((p.val || 0) * geo * ctxMult);
                     var eyeIcon = isHidden ? bpIcon('eye-off',14) : bpIcon('eye',14);
-                    var toggleColor = isHidden ? '#ff453a' : '#30d158';
+                    var toggleColor = isHidden ? 'var(--danger)' : 'var(--success)';
                     html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isTarget ? 'font-weight:700;' : '') + (isHidden ? ' opacity:0.45;' : '') + '">'
                         + '<td style="padding:8px 10px; color:' + headingColor + ';">'
                         + (isTarget ? '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent); margin-right:6px; vertical-align:middle;"></span>' : '<span style="display:inline-block; width:6px; margin-right:6px;"></span>')
@@ -9023,7 +9023,7 @@
                             + '<div style="display:grid; gap:6px;">';
                         topSkills.forEach(function(s) {
                             var pct = Math.round(((s.compValue || 0) / maxPremium) * 100);
-                            var lc = { 'Mastery': '#30d158', 'Expert': '#ff9f0a', 'Advanced': '#bf5af2', 'Proficient': '#60a5fa', 'Foundational': '#a1a1a6' }[s.blueprintLevel] || '#636366';
+                            var lc = { 'Mastery': 'var(--success)', 'Expert': 'var(--c-orange)', 'Advanced': 'var(--c-purple)', 'Proficient': 'var(--accent)', 'Foundational': 'var(--text-secondary)' }[s.blueprintLevel] || 'var(--text-muted)';
                             html += '<div style="display:flex; align-items:center; gap:8px;">'
                                 + '<div style="flex:0 0 120px; font-size:0.8em; color:' + headingColor + '; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(s.name) + '</div>'
                                 + '<div style="flex:1; height:6px; border-radius:6px; background:var(--c-surface-2); overflow:hidden;">'
@@ -11100,7 +11100,7 @@
             
             // Header with score
             var score = structResult.valuesScore || 0;
-            var scoreColor = score >= 60 ? '#30d158' : score >= 30 ? '#ff9f0a' : '#ff453a';
+            var scoreColor = score >= 60 ? 'var(--success)' : score >= 30 ? 'var(--c-orange)' : 'var(--danger)';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
                 + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1em; color:var(--c-heading);">'
                 + bpIcon('heart', 16) + ' Values Alignment Detail</div>'
@@ -11113,7 +11113,7 @@
             var allCompany = (compVals.primary || []).concat(compVals.secondary || []);
             var sourceLabel = compVals._source === 'ai-discovered' ? 'AI-sourced' : compVals.inferred ? 'Inferred from JD' : 'Company database';
             var sourceIcon = compVals.inferred ? '\u26A0' : '\u2713';
-            var sourceColor2 = compVals.inferred ? '#ff9f0a' : '#30d158';
+            var sourceColor2 = compVals.inferred ? 'var(--c-orange)' : 'var(--success)';
             
             html += '<div style="margin-bottom:14px;">'
                 + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-muted); font-weight:600; margin-bottom:6px;">'
@@ -11216,7 +11216,7 @@
                         matches.forEach(function(m) {
                             var quality = Math.round((m.score || 0.5) * 100);
                             var matchType = quality >= 95 ? 'exact' : quality >= 85 ? 'synonym' : quality >= 70 ? 'semantic' : 'related';
-                            var typeColor = quality >= 95 ? '#30d158' : quality >= 85 ? '#30d158' : quality >= 70 ? '#ff9f0a' : '#60a5fa';
+                            var typeColor = quality >= 95 ? 'var(--success)' : quality >= 85 ? 'var(--success)' : quality >= 70 ? 'var(--c-orange)' : 'var(--accent)';
                             html += '<span style="font-size:0.73em; padding:2px 8px; border-radius:10px; background:rgba(36,138,61,0.08); color:var(--c-body);">'
                                 + escapeHtml(m.name.charAt(0).toUpperCase() + m.name.slice(1))
                                 + ' <span style="color:' + typeColor + '; font-size:0.88em; font-weight:500;">(' + matchType + ')</span>'
@@ -11439,7 +11439,7 @@
             // Section: Signal Strength
             if (candidateStrengths.length > 0) {
                 var strengthLevel = candidateStrengths.length >= 4 ? 'High' : candidateStrengths.length >= 2 ? 'Medium' : 'Low';
-                var strengthColor = strengthLevel === 'High' ? '#30d158' : strengthLevel === 'Medium' ? '#ff9f0a' : '#ff453a';
+                var strengthColor = strengthLevel === 'High' ? 'var(--success)' : strengthLevel === 'Medium' ? 'var(--c-orange)' : 'var(--danger)';
                 html += '<div style="padding-top:14px; border-top:1px solid var(--c-surface-3);">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading);">'
@@ -11516,8 +11516,8 @@
             rawResult = rawResult || { score: 0, matched: [], gaps: [], skillsExtracted: 0 };
             structResult = structResult || { score: 0, matched: [], gaps: [], skillsUsed: 0, valuesScore: 0 };
 
-            var beforeColor = '#636366';
-            var afterColor = '#30d158';
+            var beforeColor = 'var(--text-muted)';
+            var afterColor = 'var(--success)';
             var scoreDelta = structResult.score - rawResult.score;
             var scoreDeltaLabel = scoreDelta > 0 ? '+' + scoreDelta + ' pts' : scoreDelta + ' pts';
 
@@ -11674,7 +11674,7 @@
                 wbMatched.slice(0, 12).forEach(function(m) {
                     var quality = Math.round(m.nameMatch * m.profMatch * 100);
                     var nameQ = Math.round((m.nameMatch || 0) * 100);
-                    var qualityColor = quality >= 90 ? '#30d158' : quality >= 60 ? '#ff9f0a' : '#ff453a';
+                    var qualityColor = quality >= 90 ? 'var(--success)' : quality >= 60 ? 'var(--c-orange)' : 'var(--danger)';
                     var candidateLevel = m.userLevel || '';
                     var requiredLevel = m.jobProficiency || '';
                     var profOk = !m.profGap;
@@ -12049,7 +12049,7 @@
                 var active = n === _wbCompWizStep;
                 var done = n < _wbCompWizStep;
                 var bg = active ? 'var(--accent)' : done ? 'rgba(36,138,61,0.2)' : 'var(--c-surface-3)';
-                var col = active ? '#fff' : done ? '#30d158' : 'var(--c-muted)';
+                var col = active ? '#fff' : done ? 'var(--success)' : 'var(--c-muted)';
                 html += '<div style="flex:1; text-align:center; padding:10px 6px; background:' + bg + '; border-radius:8px; font-size:0.78em; font-weight:' + (active ? '700' : '500') + '; color:' + col + ';">'
                     + '<span style="display:inline-block; width:18px; height:18px; line-height:18px; border-radius:50%; background:' + (active ? '#fff' : done ? 'var(--success)' : 'var(--c-surface-5)') + '; color:' + (active ? 'var(--accent)' : done ? '#fff' : 'var(--c-muted)') + '; font-size:0.8em; font-weight:700; margin-right:4px;">' + (done ? '\u2713' : n) + '</span>'
                     + s + '</div>';
@@ -12555,7 +12555,7 @@
                     var date = new Date(s.savedAt);
                     var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                     var delta = s.wbScore - s.jdScore;
-                    var deltaColor = delta > 0 ? '#30d158' : delta < 0 ? '#ff453a' : 'var(--c-muted)';
+                    var deltaColor = delta > 0 ? 'var(--success)' : delta < 0 ? 'var(--danger)' : 'var(--c-muted)';
                     html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-3); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'var(--success)\'" onmouseout="this.style.borderColor=\'var(--c-surface-3)\'" onclick="_wbCompOpenModal(\'' + s.id + '\')">'
                         + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">'
                         + '<div>'
@@ -12896,15 +12896,15 @@
             var isLight = theme === 'light';
             
             // Theme colors
-            var bg = isLight ? '#ffffff' : '#0a0a0f';
-            var surface2 = isLight ? '#f5f5f7' : '#1c1c22';
-            var surface3 = isLight ? '#d1d1d6' : '#48484a';
-            var surface5 = isLight ? '#cbd5e1' : '#636366';
-            var heading = isLight ? '#0a0a0f' : '#f5f5f7';
-            var headingBold = isLight ? '#0a0a0f' : '#ffffff';
+            var bg = isLight ? '#ffffff' : 'var(--bg-base)';
+            var surface2 = isLight ? 'var(--text-primary)' : 'var(--c-bg-solid-alt)';
+            var surface3 = isLight ? 'var(--c-muted)' : '#48484a';
+            var surface5 = isLight ? '#cbd5e1' : 'var(--text-muted)';
+            var heading = isLight ? 'var(--bg-base)' : 'var(--text-primary)';
+            var headingBold = isLight ? 'var(--bg-base)' : '#ffffff';
             var body = isLight ? '#48484a' : '#cbd5e1';
-            var muted = isLight ? '#636366' : '#a1a1a6';
-            var accent = '#30d158';
+            var muted = isLight ? 'var(--text-muted)' : 'var(--text-secondary)';
+            var accent = 'var(--success)';
             
             // 1. Create off-screen container
             var container = document.createElement('div');
@@ -13332,10 +13332,10 @@
             var mutedColor     = 'var(--text-muted)';
             var borderColor    = 'var(--border)';
             var surfaceBg      = 'var(--bg-elevated)';
-            var accentBlue     = '#60a5fa';
-            var accentGreen    = '#30d158';
-            var accentAmber    = '#ff9f0a';
-            var accentPurple   = '#bf5af2';
+            var accentBlue     = 'var(--accent)';
+            var accentGreen    = 'var(--success)';
+            var accentAmber    = 'var(--c-orange)';
+            var accentPurple   = 'var(--c-purple)';
 
             function row(label, val, note) {
                 return '<tr>'
@@ -13732,8 +13732,8 @@
                 if (!a) return;
                 var isExpanded = _parseAuditExpandedIdx === idx;
                 var sc = a.score;
-                var scColor = sc >= 70 ? '#30d158' : sc >= 45 ? '#ff9f0a' : '#636366';
-                var covColor = a.coverageRatio >= 80 ? '#30d158' : a.coverageRatio >= 50 ? '#ff9f0a' : '#ff453a';
+                var scColor = sc >= 70 ? 'var(--success)' : sc >= 45 ? 'var(--c-orange)' : 'var(--text-muted)';
+                var covColor = a.coverageRatio >= 80 ? 'var(--success)' : a.coverageRatio >= 50 ? 'var(--c-orange)' : 'var(--danger)';
 
                 html += '<div style="padding:12px 16px; margin-bottom:6px; border:1px solid var(--c-surface-5); border-radius:8px; background:var(--c-surface-1); cursor:pointer;" onclick="_parseAuditExpandedIdx=' + (isExpanded ? -1 : idx) + '; renderParseAudit(document.getElementById(\'adminTabContent\'));">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">'
@@ -14483,7 +14483,7 @@
             
             featureCosts.forEach(function(f) {
                 var barWidth = Math.max((f.cost / maxFeatureCost) * 100, 0.5);
-                var barColor = f.calls === 0 ? '#48484a' : f.cost < 0.01 ? '#30d158' : f.cost < 1 ? '#60a5fa' : f.cost < 10 ? '#ff9f0a' : '#ff453a';
+                var barColor = f.calls === 0 ? '#48484a' : f.cost < 0.01 ? 'var(--success)' : f.cost < 1 ? 'var(--accent)' : f.cost < 10 ? 'var(--c-orange)' : 'var(--danger)';
                 
                 html += '<div style="margin-bottom:12px;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">'
@@ -14564,7 +14564,7 @@
                 var monthUsage = getMonthlyAPIUsage(tag);
                 var isPaid = spec.monthlyCost > 0;
                 var usagePct = spec.monthlyLimit ? Math.min(Math.round(monthUsage / spec.monthlyLimit * 100), 100) : 0;
-                var usageColor = usagePct > 90 ? '#ff453a' : usagePct > 70 ? '#ff9f0a' : '#30d158';
+                var usageColor = usagePct > 90 ? 'var(--danger)' : usagePct > 70 ? 'var(--c-orange)' : 'var(--success)';
                 monthlyFixedCost += spec.monthlyCost;
                 
                 html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid ' + (isPaid ? 'rgba(0,113,227,0.3)' : 'var(--c-border-faint)') + '; border-radius:10px;">'
@@ -14613,7 +14613,7 @@
                 var calls = apiTotals[tag] || 0;
                 var cost = calls * spec.costPer;
                 apiTotalCost += cost;
-                var barColor = calls === 0 ? '#48484a' : spec.costPer === 0 ? '#30d158' : '#60a5fa';
+                var barColor = calls === 0 ? '#48484a' : spec.costPer === 0 ? 'var(--success)' : 'var(--accent)';
                 var barWidth = Math.max((calls / maxCalls) * 100, 0.5);
                 
                 html += '<div style="margin-bottom:8px;">'
@@ -14708,7 +14708,7 @@
                   items.forEach(function(item) {
                       var costDisplay = item._isPrepaid ? '$' + (item._hasActual ? actuals[item.key].amount : item.cost).toFixed(2) + ' prepaid'
                           : item._monthly > 0 ? '$' + item._monthly.toFixed(2) : (item.editable ? '$0.00' : 'Free');
-                      var costColor = item._isPrepaid ? '#ff9f0a' : item._monthly > 0 ? 'var(--text-primary)' : '#30d158';
+                      var costColor = item._isPrepaid ? 'var(--c-orange)' : item._monthly > 0 ? 'var(--text-primary)' : 'var(--success)';
                       var actualBadge = item._hasActual ? '<span style="font-size:0.55em; padding:1px 4px; border-radius:6px; background:rgba(36,138,61,0.15); color:var(--success); vertical-align:middle;">actual</span>' : '';
                       var editBtn = '<a href="#" onclick="costActualEdit(\'' + item.key + '\',\'' + escapeHtml(item.name).replace(/'/g, "\\'") + '\'); return false;" style="color:var(--text-muted); text-decoration:none; opacity:0.6;" title="Edit actual cost">' + bpIcon('edit', 10) + '</a>';
                       html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0 5px 12px; font-size:0.8em;">'
@@ -14749,7 +14749,7 @@
             var costBreakdown = [];
             INFRASTRUCTURE.forEach(function(item) {
                 if (item._monthly > 0) {
-                    var colors = { platform: '#ff9f0a', ai: '#bf5af2', api: '#60a5fa', hosting: '#000', domain: '#ff9f0a', database: '#5ac8fa', devops: '#636366' };
+                    var colors = { platform: 'var(--c-orange)', ai: 'var(--c-purple)', api: 'var(--accent)', hosting: '#000', domain: 'var(--c-orange)', database: 'var(--c-cyan)', devops: 'var(--text-muted)' };
                     costBreakdown.push({ label: item.name + (item._hasActual ? ' *' : ''), amount: item._monthly, color: colors[item.category] || 'var(--text-secondary)' });
                 }
             });
@@ -17990,7 +17990,7 @@
             var score = text ? scoreOutcome(text) : 0;
             var preview = document.getElementById('outcomeScorePreview');
             if (preview) {
-                var color = score >= 4 ? '#30d158' : score >= 2.5 ? '#60a5fa' : 'var(--c-muted)';
+                var color = score >= 4 ? 'var(--success)' : score >= 2.5 ? 'var(--accent)' : 'var(--c-muted)';
                 preview.innerHTML = 'Score: <strong style="color:' + color + ';">' + score + '</strong> pts'
                     + (score >= 4 ? ' ' + bpIcon('flame',12) + ' High impact' : score >= 2.5 ? ' \u2714 Solid' : score > 0 ? ' \u2197 Add metrics for more' : '');
             }
@@ -19052,18 +19052,18 @@
 
         function getCategoryColor(category) {
             const colors = {
-                'Technology': '#60a5fa',
-                'Business & Management': '#bf5af2',
-                'Finance & Accounting': '#30d158',
-                'Marketing & Sales': '#ff9f0a',
-                'Human Resources': '#ff453a',
+                'Technology': 'var(--accent)',
+                'Business & Management': 'var(--c-purple)',
+                'Finance & Accounting': 'var(--success)',
+                'Marketing & Sales': 'var(--c-orange)',
+                'Human Resources': 'var(--danger)',
                 'Healthcare & Medical': '#14b8a6',
-                'Engineering & Manufacturing': '#bf5af2',
+                'Engineering & Manufacturing': 'var(--c-purple)',
                 'Legal & Compliance': '#78716c',
-                'Creative & Design': '#ff9f0a',
-                'General Professional': '#636366'
+                'Creative & Design': 'var(--c-orange)',
+                'General Professional': 'var(--text-muted)'
             };
-            return colors[category] || '#a1a1a6';
+            return colors[category] || 'var(--text-secondary)';
         }
 
         function isSkillAlreadyAdded(skillName) {
@@ -19176,7 +19176,7 @@
             scored.forEach(function(item) {
                 var s = item.skill;
                 var checked = toRemove.has(item.idx);
-                var levelColors = { 'Mastery': '#30d158', 'Expert': '#ff9f0a', 'Advanced': '#bf5af2', 'Proficient': '#60a5fa', 'Novice': '#a1a1a6' };
+                var levelColors = { 'Mastery': 'var(--success)', 'Expert': 'var(--c-orange)', 'Advanced': 'var(--c-purple)', 'Proficient': 'var(--accent)', 'Novice': 'var(--text-secondary)' };
                 var badges = '';
                 if (s.verified) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(36,138,61,0.15); color:var(--success);">\u2713 Verified</span> ';
                 if (s.key) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(196,93,0,0.15); color:var(--c-orange);">\u2605 Key</span> ';
@@ -19423,8 +19423,8 @@
             var mc = modal.querySelector('.modal-content');
             if (!mc) return;
 
-            var levelColors = { 'Mastery': '#30d158', 'Expert': '#ff9f0a', 'Advanced': '#bf5af2', 'Proficient': '#60a5fa', 'Foundational': '#a1a1a6', 'Novice': '#a1a1a6' };
-            var impactColors = { critical: '#ff453a', high: '#ff9f0a', moderate: '#60a5fa', standard: '#a1a1a6' };
+            var levelColors = { 'Mastery': 'var(--success)', 'Expert': 'var(--c-orange)', 'Advanced': 'var(--c-purple)', 'Proficient': 'var(--accent)', 'Foundational': 'var(--text-secondary)', 'Novice': 'var(--text-secondary)' };
+            var impactColors = { critical: 'var(--danger)', high: 'var(--c-orange)', moderate: 'var(--accent)', standard: 'var(--text-secondary)' };
 
             var html = '<div class="modal-header" style="display:flex; align-items:center; justify-content:space-between;">'
                 + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('trending-up',18) + ' Skill Growth Advisor</h2></div>'
@@ -19460,7 +19460,7 @@
 
                 topUpgrades.forEach(function(rec) {
                     var deltaStr = rec.delta > 0 ? '+' + formatCompValue(rec.delta) : (rec.delta === 0 ? 'builds premium factors' : formatCompValue(rec.delta));
-                    var deltaColor = rec.delta > 0 ? '#30d158' : (rec.delta === 0 ? '#ff9f0a' : 'var(--c-muted)');
+                    var deltaColor = rec.delta > 0 ? 'var(--success)' : (rec.delta === 0 ? 'var(--c-orange)' : 'var(--c-muted)');
                     var impactClr = impactColors[rec.impact.level] || impactColors.standard;
                     var safeName = escapeHtml(rec.name).replace(/'/g, "\\'");
                     var canEdit = !isReadOnlyProfile;
@@ -19530,7 +19530,7 @@
 
                 topAdjacent.forEach(function(rec) {
                     var deltaStr = rec.delta > 0 ? '+' + formatCompValue(rec.delta) : (rec.delta === 0 ? 'builds premium factors' : formatCompValue(rec.delta));
-                    var deltaColor = rec.delta > 0 ? '#30d158' : (rec.delta === 0 ? '#ff9f0a' : 'var(--c-muted)');
+                    var deltaColor = rec.delta > 0 ? 'var(--success)' : (rec.delta === 0 ? 'var(--c-orange)' : 'var(--c-muted)');
                     var canAdd = skills.length < PROFILE_SKILL_CAP && !isReadOnlyProfile;
 
                     html += '<div style="display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--c-surface-1); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
@@ -22404,11 +22404,11 @@
             }
 
             var selectedCount = skills.filter(function(s) { return s.selected; }).length;
-            var catColors = { skill: '#60a5fa', ability: '#bf5af2', workstyle: '#30d158', unique: '#ffd60a' };
+            var catColors = { skill: 'var(--accent)', ability: 'var(--c-purple)', workstyle: 'var(--success)', unique: 'var(--warning)' };
             var catLabels = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique' };
 
             var skillCards = skills.map(function(s, i) {
-                var cc = catColors[s.category] || '#60a5fa';
+                var cc = catColors[s.category] || 'var(--accent)';
                 return '<div onclick="explorerToggleSkill(' + i + ')" style="padding:12px 14px; border-radius:10px; cursor:pointer; transition:all 0.15s; '
                     + 'background:' + (s.selected ? 'rgba(' + (s.category === 'ability' ? '139,92,246' : s.category === 'workstyle' ? '16,185,129' : '96,165,250') + ',0.08)' : 'var(--c-surface-1)') + '; '
                     + 'border:1px solid ' + (s.selected ? cc + '40' : 'var(--c-surface-4)') + ';">'
@@ -24641,9 +24641,9 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             };
 
             var confidenceColor = function(c) {
-                if (c >= 0.9) return '#30d158';
-                if (c >= 0.7) return '#ff9f0a';
-                return '#ff9f0a';
+                if (c >= 0.9) return 'var(--success)';
+                if (c >= 0.7) return 'var(--c-orange)';
+                return 'var(--c-orange)';
             };
 
             var categoryIcon = function(cat) {
@@ -25391,7 +25391,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             if (window.renderWizardStep6 && window.renderWizardStep6 !== renderWizardStep6) return window.renderWizardStep6(el);
             const skills = wizardState.skills;
             const isFromResume = skills.length > 0;
-            const levelColors = { Mastery:'#30d158', Expert:'#ff9f0a', Advanced:'#bf5af2', Proficient:'#60a5fa', Novice:'#a1a1a6' };
+            const levelColors = { Mastery:'var(--success)', Expert:'var(--c-orange)', Advanced:'var(--c-purple)', Proficient:'var(--accent)', Novice:'var(--text-secondary)' };
             var intel = wizardState.marketIntel || null;
 
             el.innerHTML = `
@@ -25413,7 +25413,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                             <input type="checkbox" id="skill-check-${i}" checked
                                    style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">
                             <div style="width:10px; height:10px; border-radius:50%; flex-shrink:0;
-                                        background:${levelColors[s.level] || '#636366'};"></div>
+                                        background:${levelColors[s.level] || 'var(--text-muted)'};"></div>
                             <div style="flex:1; min-width:0;">
                                 <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
                                     ${escapeHtml(s.name)}${s._marketKeep ? ' <span style="font-size:0.65em; background:var(--success); color:#fff; padding:1px 5px; border-radius:6px; font-weight:700; vertical-align:middle;">KEY</span>' : ''}
@@ -26033,7 +26033,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // Normalize roles: ensure every role has id, color, and skills list
         function normalizeUserRoles() {
             var roleColors = ['#60a5fa', '#ff9f0a', '#30d158', '#ff9f0a', '#bf5af2', '#ff453a', '#5ac8fa', '#30d158'];
-            var bannedReds = ['#ff453a','#ff6961','#ff453a','#d70015','#fca5a5','#fee2e2'];
+            var bannedReds = ['var(--danger)','#ff6961','var(--danger)','#d70015','#fca5a5','#fee2e2'];
             (userData.roles || []).forEach(function(role, i) {
                 if (!role.id) role.id = role.name;
                 if (!role.color || bannedReds.indexOf(role.color) !== -1) role.color = roleColors[i % roleColors.length];
@@ -26105,11 +26105,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             .catch(error => console.error('Error loading skill evidence:', error));
 
         const levelColors = {
-            "Mastery":    "#30d158",
-            "Expert":     "#ff9f0a",
-            "Advanced":   "#bf5af2",
-            "Proficient": "#60a5fa",
-            "Novice":     "#a1a1a6"
+            "Mastery":    "var(--success)",
+            "Expert":     "var(--c-orange)",
+            "Advanced":   "var(--c-purple)",
+            "Proficient": "var(--accent)",
+            "Novice":     "var(--text-secondary)"
         };
 
         let currentView = 'network';
@@ -26213,7 +26213,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 jobs.forEach(function(job, idx) {
                     var isSel = activeJobForNetwork && activeJobForNetwork.id === job.id;
                     var score = job.matchData ? job.matchData.score : 0;
-                    var sColor = score >= 70 ? '#30d158' : score >= 45 ? '#ff9f0a' : '#636366';
+                    var sColor = score >= 70 ? 'var(--success)' : score >= 45 ? 'var(--c-orange)' : 'var(--text-muted)';
                     html += '<div class="jsel-row" data-act="pick" data-idx="' + idx + '" style="'
                         + 'display:flex; align-items:center; gap:10px; padding:9px 14px; cursor:pointer; '
                         + 'background:' + (isSel ? 'rgba(0,113,227,0.12)' : 'transparent') + ';">'
@@ -26604,9 +26604,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return isMobile ? (d.key ? 14 : 10) : Math.round(base * scaleFactor);
                 })
                 .attr("fill", d => {
-                    if (d.type === "center") return "#60a5fa";
+                    if (d.type === "center") return "var(--accent)";
                     if (d.type === "role") return d.color;
-                    return levelColors[d.level] || '#636366';
+                    return levelColors[d.level] || 'var(--text-muted)';
                 })
                 .style("cursor", d => d.type === "center" ? "pointer" : "grab")
                 .on("click", (event, d) => {
@@ -26975,9 +26975,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return d.required ? Math.round(13 * scaleFactor) : Math.round(10 * scaleFactor);
                 })
                 .attr("fill", function(d) {
-                    if (d.type === 'center') return '#ff9f0a';
+                    if (d.type === 'center') return 'var(--c-orange)';
                     if (d.type === 'role') return d.color;
-                    return d.required ? '#ff9f0a' : '#bf5af2';
+                    return d.required ? 'var(--c-orange)' : 'var(--c-purple)';
                 })
                 .attr("stroke", function(d) { return d.required ? '#fff' : 'none'; })
                 .attr("stroke-width", function(d) { return d.required ? 2 : 0; })
@@ -27140,9 +27140,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Color scheme
             var matchColors = {
-                matched: '#30d158', // green
-                gap: '#ffd60a',     // amber — attention needed
-                surplus: '#636366'  // slate grey (dimmed)
+                matched: 'var(--success)', // green
+                gap: 'var(--warning)',     // amber — attention needed
+                surplus: 'var(--text-muted)'  // slate grey (dimmed)
             };
             
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
@@ -27209,12 +27209,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return isMobile ? 7 : Math.round(8 * scaleFactor); // surplus
                 })
                 .attr("fill", function(d) {
-                    if (d.type === 'center') return isLt ? '#4a9eff' : '#60a5fa';
+                    if (d.type === 'center') return isLt ? '#4a9eff' : 'var(--accent)';
                     if (d.type === 'role') {
                         if (d.id === 'role-job-req') return isLt ? '#fef3c7' : '#422006';
-                        return isLt ? '#d1d1d6' : '#1c1c22';
+                        return isLt ? 'var(--c-muted)' : 'var(--c-bg-solid-alt)';
                     }
-                    return matchColors[d.matchState] || '#636366';
+                    return matchColors[d.matchState] || 'var(--text-muted)';
                 })
                 .attr("opacity", function(d) {
                     if (d.matchState === 'surplus') return 0.35;
@@ -27222,9 +27222,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 })
                 .attr("stroke", function(d) {
                     if (d.type === 'role') {
-                        return d.id === 'role-job-req' ? '#ffd60a' : (isLt ? '#a1a1a6' : '#636366');
+                        return d.id === 'role-job-req' ? 'var(--warning)' : (isLt ? 'var(--text-secondary)' : 'var(--text-muted)');
                     }
-                    if (d.matchState === 'matched') return isLt ? '#d1d1d6' : '#fff';
+                    if (d.matchState === 'matched') return isLt ? 'var(--c-muted)' : '#fff';
                     if (d.matchState === 'gap') return '#fde68a';
                     return 'none';
                 })
@@ -27265,10 +27265,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .style("fill", function(d) {
                     if (d.matchState === 'matched') return matchColors.matched;
                     if (d.matchState === 'gap') return matchColors.gap;
-                    if (d.matchState === 'surplus') return isLt ? '#636366' : '#636366';
-                    if (d.type === 'role' && d.id === 'role-job-req') return '#ffd60a';
-                    if (d.type === 'role') return isLt ? '#1c1c22' : '#a1a1a6';
-                    return isLt ? '#1c1c22' : undefined;
+                    if (d.matchState === 'surplus') return isLt ? 'var(--text-muted)' : 'var(--text-muted)';
+                    if (d.type === 'role' && d.id === 'role-job-req') return 'var(--warning)';
+                    if (d.type === 'role') return isLt ? 'var(--c-bg-solid-alt)' : 'var(--text-secondary)';
+                    return isLt ? 'var(--c-bg-solid-alt)' : undefined;
                 })
                 .style("font-weight", function(d) { return (d.type === 'center' || d.type === 'role') ? '700' : '500'; })
                 .style("opacity", function(d) { return d.matchState === 'surplus' ? 0.4 : 1; });
@@ -27413,7 +27413,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var score = match.score || 0;
             
             // Score color
-            var scoreColor = score >= 70 ? '#30d158' : score >= 45 ? '#ff9f0a' : '#ff453a';
+            var scoreColor = score >= 70 ? 'var(--success)' : score >= 45 ? 'var(--c-orange)' : 'var(--danger)';
             
             // Job info
             var job = activeJobForNetwork || {};
@@ -27610,10 +27610,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Value state colors
             var valColors = {
-                aligned: '#30d158',
-                yours: '#ff9f0a',
-                theirs: '#bf5af2',
-                tension: '#ffd60a'
+                aligned: 'var(--success)',
+                yours: 'var(--c-orange)',
+                theirs: 'var(--c-purple)',
+                tension: 'var(--warning)'
             };
             
             // Simulation
@@ -27687,9 +27687,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return isMobile ? 12 : Math.round(15 * scaleFactor);
                 })
                 .attr("fill", function(d) {
-                    if (d.type === 'hub') return d.side === 'user' ? (isLtV ? '#4a9eff' : '#60a5fa') : '#ff9f0a';
+                    if (d.type === 'hub') return d.side === 'user' ? (isLtV ? '#4a9eff' : 'var(--accent)') : 'var(--c-orange)';
                     if (d.type === 'tension-marker') return valColors.tension;
-                    return valColors[d.valState] || '#636366';
+                    return valColors[d.valState] || 'var(--text-muted)';
                 })
                 .attr("stroke", function(d) {
                     if (d.type === 'hub') return isLtV ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.18)';
@@ -27737,9 +27737,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return isMobile ? '9px' : '10.5px';
                 })
                 .style("fill", function(d) {
-                    if (d.type === 'hub') return d.side === 'user' ? (isLtV ? '#1e40af' : '#93c5fd') : (isLtV ? '#c78400' : '#ffd60a');
+                    if (d.type === 'hub') return d.side === 'user' ? (isLtV ? '#1e40af' : '#93c5fd') : (isLtV ? '#c78400' : 'var(--warning)');
                     if (d.type === 'tension-marker') return valColors.tension;
-                    return valColors[d.valState] || (isLtV ? '#48484a' : '#a1a1a6');
+                    return valColors[d.valState] || (isLtV ? '#48484a' : 'var(--text-secondary)');
                 })
                 .style("font-weight", function(d) {
                     if (d.type === 'hub') return '700';
@@ -27784,7 +27784,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (existing) existing.remove();
             
             var score = alignment.score;
-            var scoreColor = score >= 65 ? '#30d158' : score >= 40 ? '#ff9f0a' : '#ff453a';
+            var scoreColor = score >= 65 ? 'var(--success)' : score >= 40 ? 'var(--c-orange)' : 'var(--danger)';
             var isMobile = window.innerWidth <= 768;
             
             var panel = document.createElement('div');
@@ -27974,7 +27974,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // ── Rarity-based grouping — market intelligence view ──────────────
             const levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
-            const levelColors = { Mastery: '#30d158', Expert: '#ff9f0a', Advanced: '#bf5af2', Proficient: '#60a5fa', Novice: '#a1a1a6' };
+            const levelColors = { Mastery: 'var(--success)', Expert: 'var(--c-orange)', Advanced: 'var(--c-purple)', Proficient: 'var(--accent)', Novice: 'var(--text-secondary)' };
 
             const rarityTiers = {
                 rare: {
@@ -27982,21 +27982,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     icon: bpIcon('flame', 20),
                     bg: 'rgba(196,93,0,0.08)',
                     border: 'rgba(196,93,0,0.3)', accent: 'var(--c-orange)',
-                    pillBg: 'rgba(196,93,0,0.2)', pillColor: '#ff9f0a', skills: []
+                    pillBg: 'rgba(196,93,0,0.2)', pillColor: 'var(--c-orange)', skills: []
                 },
                 uncommon: {
                     label: 'Uncommon', desc: 'Strong competitive advantages',
                     icon: bpIcon('diamond', 20),
                     bg: 'rgba(0,113,227,0.06)',
                     border: 'rgba(0,113,227,0.25)', accent: 'var(--accent)',
-                    pillBg: 'rgba(0,113,227,0.2)', pillColor: '#60a5fa', skills: []
+                    pillBg: 'rgba(0,113,227,0.2)', pillColor: 'var(--accent)', skills: []
                 },
                 common: {
                     label: 'Common', desc: 'Foundational capabilities',
                     icon: bpIcon('check', 20),
                     bg: 'var(--c-surface-2a, rgba(0,0,0,0.02))',
                     border: 'var(--border, rgba(0,0,0,0.06))', accent: 'var(--text-muted)',
-                    pillBg: 'rgba(99,99,102,0.2)', pillColor: '#a1a1a6', skills: []
+                    pillBg: 'rgba(99,99,102,0.2)', pillColor: 'var(--text-secondary)', skills: []
                 }
             };
 
@@ -28075,7 +28075,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px; padding:14px;">';
 
                 tier.skills.forEach(function(skill) {
-                    var lc = levelColors[skill.level] || '#636366';
+                    var lc = levelColors[skill.level] || 'var(--text-muted)';
                     var escapedName = escapeHtml(skill.name).replace(/'/g, "\\'");
 
                     var roleNames = (skill.roles || []).map(function(roleId) {
@@ -28097,7 +28097,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var isVerified = evs && evs.verifiedCount > 0;
 
                     var catIcons = { skill: bpIcon('tool',11), ability: bpIcon('zap',11), workstyle: bpIcon('heart',11), unique: bpIcon('star',11) };
-                    var catColors = { skill: '#60a5fa', ability: '#bf5af2', workstyle: '#30d158', unique: '#ffd60a' };
+                    var catColors = { skill: 'var(--accent)', ability: 'var(--c-purple)', workstyle: 'var(--success)', unique: 'var(--warning)' };
                     var catTitles = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique Skill' };
 
                     html += '<div onclick=\'openUnifiedSkillEditor("' + escapedName + '")\' style="'
@@ -28115,7 +28115,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + (isVerified ? '<span title="Verified by ' + evs.verifiedCount + '" style="color:var(--success); font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
                         + (evs && evs.inferredActive ? '<span title="' + (evs.experienceYears||0) + 'yr experience infers ' + evs.inferredLevel + '" style="color:var(--c-purple); font-size:0.8em; line-height:1;">\u2728</span>' : '')
                         + (hasGap ? '<span title="Evidence gap: claimed ' + (evs.claimedLevel||'') + ', supports ' + (evs.effectiveLevel||'') + '" style="color:var(--warning); font-size:0.8em; line-height:1;">&#9888;</span>' : (hasEvidence ? '<span title="' + evs.evidenceCount + ' outcomes, ' + evs.points + ' pts" style="color:var(--success); font-size:0.75em; line-height:1;">' + bpIcon('check',12) + '</span>' : ''))
-                        + '<span title="' + (catTitles[skill.category] || 'Skill') + '" style="color:' + (catColors[skill.category] || '#60a5fa') + '; font-size:0.75em; line-height:1;">' + (catIcons[skill.category] || bpIcon('tool',11)) + '</span>'
+                        + '<span title="' + (catTitles[skill.category] || 'Skill') + '" style="color:' + (catColors[skill.category] || 'var(--accent)') + '; font-size:0.75em; line-height:1;">' + (catIcons[skill.category] || bpIcon('tool',11)) + '</span>'
                         + '</div></div>';
 
                     html += '<div style="display:flex; align-items:center; gap:6px; padding-left:18px; flex-wrap:wrap;">'
@@ -28649,7 +28649,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         var _TYPE_LABELS = { action: 'Action', nav: 'Navigate', skill: 'Skill', outcome: 'Outcome', job: 'Job', history: 'Work History' };
-        var _TYPE_COLORS = { action: '#60a5fa', nav: '#bf5af2', skill: '#30d158', outcome: '#ff9f0a', job: '#ff9f0a', history: '#a1a1a6' };
+        var _TYPE_COLORS = { action: 'var(--accent)', nav: 'var(--c-purple)', skill: 'var(--success)', outcome: 'var(--c-orange)', job: 'var(--c-orange)', history: 'var(--text-secondary)' };
 
         function _renderPaletteResults() {
             var list = document.getElementById('cmdPaletteList');
@@ -28664,7 +28664,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             _paletteResults.forEach(function(r, i) {
                 var isActive = i === _paletteIdx;
                 var typeLabel = _TYPE_LABELS[r.type] || r.type;
-                var typeColor = _TYPE_COLORS[r.type] || '#a1a1a6';
+                var typeColor = _TYPE_COLORS[r.type] || 'var(--text-secondary)';
                 if (r.type !== lastType) {
                     if (lastType !== null) rendered += '</div>';
                     rendered += '<div class="cmd-group">';
@@ -28705,9 +28705,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var isLight = false;
                 var palBg = isLight ? '#ffffff' : '#1a1f2e';
                 var palBorder = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(0,113,227,0.25)';
-                var palText = isLight ? '#0a0a0f' : '#d1d1d6';
-                var palMuted = isLight ? '#636366' : '#a1a1a6';
-                var palFaint = isLight ? '#a1a1a6' : '#636366';
+                var palText = isLight ? 'var(--bg-base)' : 'var(--c-muted)';
+                var palMuted = isLight ? 'var(--text-muted)' : 'var(--text-secondary)';
+                var palFaint = isLight ? 'var(--text-secondary)' : 'var(--text-muted)';
                 var palDivider = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.07)';
                 var palHover = isLight ? 'rgba(0,113,227,0.12)' : 'rgba(0,113,227,0.1)';
                 var palKbdBg = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.06)';
@@ -29425,7 +29425,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     
                     var statsHtml = '<div style="margin-bottom:6px;">' + bpIcon('layers',13) + ' <strong>' + roleSkills.length + '</strong> skills</div>';
                     var levelOrder = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Novice'];
-                    var levelIcons = { Mastery: '#ff9f0a', Expert: '#bf5af2', Advanced: '#60a5fa', Proficient: '#30d158', Novice: '#636366' };
+                    var levelIcons = { Mastery: 'var(--c-orange)', Expert: 'var(--c-purple)', Advanced: 'var(--accent)', Proficient: 'var(--success)', Novice: 'var(--text-muted)' };
                     var levelBars = '';
                     levelOrder.forEach(function(lv) {
                         if (levelCounts[lv]) {
@@ -29551,7 +29551,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var desc = getCatalogDescription(d.name);
                 if (desc) html += `<div style="font-size:0.82em; color:var(--text-secondary); margin-top:3px; line-height:1.4;">${escapeHtml(desc)}</div>`;
                 var stateLabels = { aligned: '\u2705 Shared value', yours: '● Your priority', theirs: '◆ Their priority', tension: '\u26A0 Friction risk' };
-                var stateColors = { aligned: '#30d158', yours: '#ff9f0a', theirs: '#bf5af2', tension: '#ff453a' };
+                var stateColors = { aligned: 'var(--success)', yours: 'var(--c-orange)', theirs: 'var(--c-purple)', tension: 'var(--danger)' };
                 if (d.valState) {
                     html += `<div style="font-size:0.78em; color:${stateColors[d.valState] || 'var(--text-secondary)'}; margin-top:5px; font-weight:600;">${stateLabels[d.valState] || ''}</div>`;
                 }
@@ -30043,7 +30043,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (rawEvidence.length > 0) {
                 rawEvidence.forEach(function(ev, idx) {
                     var pts = scoreOutcome(((ev.outcome || '') + ' ' + (ev.description || '')).trim());
-                    var ptColor = pts >= 4 ? '#30d158' : pts >= 2.5 ? '#60a5fa' : 'var(--c-muted)';
+                    var ptColor = pts >= 4 ? 'var(--success)' : pts >= 2.5 ? 'var(--accent)' : 'var(--c-muted)';
                     
                     bodyHTML += '<div style="padding:10px 12px; margin-bottom:8px; background:var(--c-surface-1); '
                         + 'border:1px solid var(--c-surface-4); border-radius:8px; position:relative;">';
@@ -30104,7 +30104,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                                     ${escapeHtml(skillImpact.rationale)}
                                 </div>
                                 <button onclick="closeSkillModal(); openAssessSkillModal('${escapeHtml(skillData.name).replace(/'/g, "\\'")}');" 
-                                        style="padding: 8px 16px; background: linear-gradient(135deg, #ffd60a 0%, #ff9f0a 100%); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: #000;">
+                                        style="padding: 8px 16px; background: linear-gradient(135deg, var(--warning) 0%, var(--c-orange) 100%); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: #000;">
                                     ${bpIcon("clipboard",14)} Assess This Skill
                                 </button>
                             </div>
@@ -30563,10 +30563,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --ink:       #0a0a0f;
+  --ink:       var(--bg-base);
   --ink-2:     #48484a;
-  --ink-3:     #636366;
-  --rule:      #d1d1d6;
+  --ink-3:     var(--text-muted);
+  --rule:      var(--c-muted);
   --accent:    #1e40af;
   --accent-lt: #eff6ff;
   --pg-w:      8.5in;
@@ -30786,7 +30786,7 @@ body {
   background: #f9fafb;
   padding: 2pt 8pt;
   border-radius: 2pt;
-  border: 0.5pt solid #d1d1d6;
+  border: 0.5pt solid var(--c-muted);
   display: inline-block;
   margin: 0 6pt 4pt 0;
 }
@@ -31956,7 +31956,7 @@ body {
                 }
 
                 if (skillsToLearn.length > 0) {
-                    var barColors = ['#ff9f0a', '#ff9f0a', '#ff453a', '#ff453a'];
+                    var barColors = ['var(--c-orange)', 'var(--c-orange)', 'var(--danger)', 'var(--danger)'];
                     var maxVal = potentialVal || (entryVal + totalSkillValue) || 1;
                     html += '<div style="' + ls + ' color:var(--c-orange); margin-bottom:14px;">Your Growth Path</div>';
                     html += '<div style="position:relative; margin-bottom:24px;">';
@@ -32110,7 +32110,7 @@ body {
         function _renderCompensationTrajectory(careerPaths, selectedIdx) {
             var cs = 'background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
-            var pathColors = ['#bf5af2', '#60a5fa', '#30d158', '#ff9f0a', '#ff453a'];
+            var pathColors = ['var(--c-purple)', 'var(--accent)', 'var(--success)', 'var(--c-orange)', 'var(--danger)'];
             var maxVal = 0;
             careerPaths.forEach(function(p) {
                 var sv = Number(p.seniorValue) || 0;
@@ -32613,8 +32613,8 @@ body {
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px;">';
 
             people.forEach(function(person) {
-                var rawColor = String(person.fieldColor || '#bf5af2');
-                var bgColor = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(rawColor) ? rawColor : '#bf5af2';
+                var rawColor = String(person.fieldColor || 'var(--c-purple)');
+                var bgColor = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(rawColor) ? rawColor : 'var(--c-purple)';
                 var initials = _pInitials(person.name);
 
                 html += '<div style="' + card + ' padding:20px; position:relative; overflow:hidden;">';
@@ -33424,7 +33424,7 @@ body {
                 + '</div>';
 
             if (topMatch && topMatchScore > 0) {
-                var tmColor = topMatchScore >= 70 ? '#30d158' : topMatchScore >= 50 ? '#ff9f0a' : '#ff453a';
+                var tmColor = topMatchScore >= 70 ? 'var(--success)' : topMatchScore >= 50 ? 'var(--c-orange)' : 'var(--danger)';
                 html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; cursor:pointer;" onclick="switchView(\'jobs\')">'
                     + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Best Match</div>'
                     + '<div style="font-size:1.9em; font-weight:700; color:' + tmColor + '; line-height:1;">' + topMatchScore + '%</div>'
@@ -33490,7 +33490,7 @@ body {
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
                     var isCrit   = skill.impact === 'Critical';
                     // green=Critical(Mastery), orange=High(Expert) — red reserved for risks
-                    var dotColor = isCrit ? '#30d158' : '#ff9f0a';
+                    var dotColor = isCrit ? 'var(--success)' : 'var(--c-orange)';
                     html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(36,138,61,0.07)' : 'rgba(251,146,60,0.07)') + '; border-radius:6px;">'
                         + '<div style="width:6px; height:6px; border-radius:50%; background:' + dotColor + '; flex-shrink:0;"></div>'
                         + '<div style="flex:1; min-width:0;">'
@@ -33557,7 +33557,7 @@ body {
                 var radius    = (ringSize - sw) / 2;
                 var circ      = 2 * Math.PI * radius;
                 var offset    = circ - (readinessPct / 100) * circ;
-                var ringColor = readinessPct >= 100 ? '#30d158' : readinessPct >= 60 ? '#60a5fa' : '#ff9f0a';
+                var ringColor = readinessPct >= 100 ? 'var(--success)' : readinessPct >= 60 ? 'var(--accent)' : 'var(--c-orange)';
                 var ringLabel = readinessPct >= 100 ? 'Profile Complete' : readinessPct >= 80 ? 'Almost There' : readinessPct >= 60 ? 'Good Progress' : 'Getting Started';
 
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px 18px;">';
@@ -33659,7 +33659,7 @@ body {
             
             // Stats summary
             var levelCounts = { 'Mastery': 0, 'Expert': 0, 'Advanced': 0, 'Proficient': 0, 'Novice': 0 };
-            var levelColors = { 'Mastery': '#30d158', 'Expert': '#ff9f0a', 'Advanced': '#bf5af2', 'Proficient': '#60a5fa', 'Novice': '#a1a1a6' };
+            var levelColors = { 'Mastery': 'var(--success)', 'Expert': 'var(--c-orange)', 'Advanced': 'var(--c-purple)', 'Proficient': 'var(--accent)', 'Novice': 'var(--text-secondary)' };
             skills.forEach(function(s) { var lv = s.level || 'Novice'; if (levelCounts[lv] !== undefined) levelCounts[lv]++; else levelCounts['Novice']++; });
             
             html += '<div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:24px;">';
@@ -33758,7 +33758,7 @@ body {
 
                 tSkills.forEach(function(s) {
                     var lv = s.level || 'Novice';
-                    var lvColor = levelColors[lv] || '#636366';
+                    var lvColor = levelColors[lv] || 'var(--text-muted)';
                     var escapedName = s.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
                     var rolesArr = s.roles || (s.role ? [s.role] : []);
@@ -33769,7 +33769,7 @@ body {
 
                     var skillImpact = typeof calculateSkillValue === 'function' ? calculateSkillValue(s) : null;
                     var impactLabel = skillImpact ? skillImpact.label : '';
-                    var impactColor = skillImpact ? getImpactColor(skillImpact.level) : '#636366';
+                    var impactColor = skillImpact ? getImpactColor(skillImpact.level) : 'var(--text-muted)';
 
                     var skillVerifs = getSkillVerifications(s.name);
                     var hasConfirmed = skillVerifs.some(function(v) { return v.status === 'confirmed'; });
@@ -34235,7 +34235,7 @@ body {
             
             // Done button
             var count = blueprintData.values.filter(function(v) { return v.selected; }).length;
-            var countColor = count > 10 ? '#ff453a' : count >= 3 ? '#30d158' : '#ff9f0a';
+            var countColor = count > 10 ? 'var(--danger)' : count >= 3 ? 'var(--success)' : 'var(--c-orange)';
             html += '<div style="margin-top:16px; display:flex; gap:10px; align-items:center;">'
                 + '<button onclick="toggleValuesPicker()" style="'
                 + 'background:var(--c-accent-inv); color:#fff; border:none; '
@@ -34502,7 +34502,7 @@ body {
                     var isHigh = count >= 25;
                     var isMed = count >= 10;
                     var bg = isHigh ? 'rgba(196,93,0,0.12)' : isMed ? 'rgba(0,113,227,0.1)' : 'var(--c-surface-4a)';
-                    var color = isHigh ? '#ff9f0a' : isMed ? '#60a5fa' : 'var(--c-muted)';
+                    var color = isHigh ? 'var(--c-orange)' : isMed ? 'var(--accent)' : 'var(--c-muted)';
                     var boost = isHigh ? ' (+2)' : isMed ? ' (+1)' : '';
                     html += '<span style="padding:4px 10px; border-radius:12px; font-size:0.78em; font-weight:600; '
                         + 'background:' + bg + '; color:' + color + ';">'
@@ -34665,7 +34665,7 @@ body {
                 html += sectionHead('compass', 'Career Intelligence');
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">';
                 html += exportCard({
-                    icon: 'target', iconColor: '#60a5fa', title: '\u25C8 Scouting Report',
+                    icon: 'target', iconColor: 'var(--accent)', title: '\u25C8 Scouting Report',
                     titleColor: 'var(--c-text-alt)',
                     badge: { text: 'PDF', bg: 'rgba(0,113,227,0.2)', color: 'var(--accent)' },
                     bg: 'var(--c-accent-bg-2c)',
@@ -34747,7 +34747,7 @@ body {
             
             // Scouting Report
             html += exportCard({
-                icon: 'target', iconColor: '#60a5fa', title: '\u25C8 Scouting Report',
+                icon: 'target', iconColor: 'var(--accent)', title: '\u25C8 Scouting Report',
                 titleColor: 'var(--c-text-alt)',
                 badge: { text: 'NEW', bg: 'rgba(0,113,227,0.2)', color: 'var(--accent)' },
                 bg: 'var(--c-accent-bg-2c)',
@@ -34781,8 +34781,8 @@ body {
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">';
             
             html += exportCard({
-                icon: 'send', iconColor: '#30d158', title: 'Cover Letter',
-                titleColor: '#30d158',
+                icon: 'send', iconColor: 'var(--success)', title: 'Cover Letter',
+                titleColor: 'var(--success)',
                 bg: 'rgba(36,138,61,0.12)',
                 border: 'rgba(36,138,61,0.25)',
                 desc: 'Cover letter tailored to a saved job. Uses your matched skills, outcomes, and values.',
@@ -34790,8 +34790,8 @@ body {
             });
             
             html += exportCard({
-                icon: 'interview', iconColor: '#ffd60a', title: 'Interview Prep',
-                titleColor: '#ffd60a',
+                icon: 'interview', iconColor: 'var(--warning)', title: 'Interview Prep',
+                titleColor: 'var(--warning)',
                 bg: 'rgba(178,80,0,0.12)',
                 border: 'rgba(178,80,0,0.25)',
                 desc: 'STAR stories for matched skills, bridging language for gaps, and talking points for your strengths.',
@@ -34943,15 +34943,15 @@ body {
                     html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; padding:12px;">';
                     tGroup.forEach(function(v) {
                         var skill = v._skill;
-                        var levelColors = { 'Mastery':'#30d158','Expert':'#ff9f0a','Advanced':'#bf5af2','Proficient':'#60a5fa','Novice':'#a1a1a6' };
+                        var levelColors = { 'Mastery':'var(--success)','Expert':'var(--c-orange)','Advanced':'var(--c-purple)','Proficient':'var(--accent)','Novice':'var(--text-secondary)' };
                         var lv = skill ? skill.level : v.claimedLevel || '?';
-                        var lvColor = levelColors[lv] || '#636366';
+                        var lvColor = levelColors[lv] || 'var(--text-muted)';
                         var cred = getCredibilityLabel(v.relationship || 'Other');
                         var respondedDate = v.respondedAt ? new Date(v.respondedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
                         var suggestedBadge = '';
                         if (v.confirmedLevel && v.confirmedLevel !== lv) {
-                            var sugColor = levelColors[v.confirmedLevel] || '#636366';
+                            var sugColor = levelColors[v.confirmedLevel] || 'var(--text-muted)';
                             var sugVal = proficiencyValue(v.confirmedLevel);
                             var claimedVal = proficiencyValue(lv);
                             var arrow = sugVal > claimedVal ? '\u2191' : '\u2193';
@@ -35002,7 +35002,7 @@ body {
                 pending.forEach(function(v) {
                     var requestedDate = v.requestedAt ? new Date(v.requestedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                     var daysPending = v.requestedAt ? Math.floor((Date.now() - new Date(v.requestedAt).getTime()) / 86400000) : 0;
-                    var urgencyColor = daysPending > 21 ? '#ff453a' : daysPending > 14 ? '#ff9f0a' : '#636366';
+                    var urgencyColor = daysPending > 21 ? 'var(--danger)' : daysPending > 14 ? 'var(--c-orange)' : 'var(--text-muted)';
                     
                     html += '<div style="background:var(--c-surface-1); border:1px solid rgba(196,93,0,0.2); border-radius:10px; padding:14px;">';
                     html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">'
@@ -35035,7 +35035,7 @@ body {
                     + '<div style="border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden; opacity:0.65;">';
                 
                 inactive.forEach(function(v) {
-                    var statusColor = v.status === 'expired' ? '#636366' : '#ff453a';
+                    var statusColor = v.status === 'expired' ? 'var(--text-muted)' : 'var(--danger)';
                     var statusLabel = v.status === 'expired' ? 'Expired' : 'Declined';
                     
                     html += '<div style="display:flex; align-items:center; gap:10px; padding:8px 16px; border-bottom:1px solid var(--c-surface-1b);">'
@@ -35057,7 +35057,7 @@ body {
                     common: { label: 'Common', accent: 'var(--text-muted)', bg: 'transparent', border: 'var(--c-border-subtle)' }
                 };
                 var uvTiers = { rare: [], uncommon: [], common: [] };
-                var levelColors2 = { 'Mastery':'#30d158','Expert':'#ff9f0a','Advanced':'#bf5af2','Proficient':'#60a5fa','Novice':'#a1a1a6' };
+                var levelColors2 = { 'Mastery':'var(--success)','Expert':'var(--c-orange)','Advanced':'var(--c-purple)','Proficient':'var(--accent)','Novice':'var(--text-secondary)' };
 
                 unverifiedSkills.forEach(function(s) {
                     var impact = typeof getSkillImpact === 'function' ? getSkillImpact(s) : null;
@@ -35084,7 +35084,7 @@ body {
                         + '<div style="font-size:0.78em; font-weight:600; color:' + tm.accent + '; margin-bottom:8px;">' + tm.label + ' (' + tSkills.length + ')</div>'
                         + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:8px;">';
                     tSkills.forEach(function(s) {
-                        var c = levelColors2[s.level] || '#636366';
+                        var c = levelColors2[s.level] || 'var(--text-muted)';
                         var escapedName = (s.name || '').replace(/'/g, "\\'");
                         html += '<div style="background:var(--c-surface-1); border:1px solid ' + tm.border + '; border-radius:8px; padding:10px 12px; cursor:pointer; transition:all 0.15s;" '
                             + 'onclick="requestVerification([\'' + escapedName + '\'])" '
@@ -35861,7 +35861,7 @@ body {
                 var score = (job.matchData && job.matchData.score) || 0;
                 var matchedCount = (job.matchData && job.matchData.matched) ? job.matchData.matched.length : 0;
                 var gapCount = (job.matchData && job.matchData.gaps) ? job.matchData.gaps.length : 0;
-                var scoreColor = score >= 70 ? '#30d158' : score >= 50 ? '#ff9f0a' : '#ff453a';
+                var scoreColor = score >= 70 ? 'var(--success)' : score >= 50 ? 'var(--c-orange)' : 'var(--danger)';
                 var realIdx = userData.savedJobs.indexOf(job);
                 
                 return '<div onclick="showReportFormatPicker(' + realIdx + ')" style="padding:16px; background:var(--c-surface-2a); '
@@ -35916,7 +35916,7 @@ body {
                 var modal = document.getElementById('exportModal');
                 var modalContent = modal.querySelector('.modal-content');
                 var score = (job && job.matchData && job.matchData.score) || 0;
-                var scoreColor = score >= 70 ? '#30d158' : score >= 50 ? '#ff9f0a' : '#ff453a';
+                var scoreColor = score >= 70 ? 'var(--success)' : score >= 50 ? 'var(--c-orange)' : 'var(--danger)';
                 
                 modalContent.innerHTML = '<div class="modal-header">'
                     + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
@@ -35967,7 +35967,7 @@ body {
             var modal = document.getElementById('exportModal');
             var modalContent = modal.querySelector('.modal-content');
             var score = isGeneral ? 0 : ((job.matchData && job.matchData.score) || 0);
-            var scoreColor = score >= 70 ? '#30d158' : score >= 50 ? '#ff9f0a' : '#ff453a';
+            var scoreColor = score >= 70 ? 'var(--success)' : score >= 50 ? 'var(--c-orange)' : 'var(--danger)';
             
             // Reset per-instance overrides
             _blindOverrides = null;
@@ -36364,25 +36364,25 @@ body {
                         // Type colors match the main app skill type palette
                         // Level colors match the main app proficiency palette
                         + '  var bpColors = {'
-                        + '    Technology:"#60a5fa",'
-                        + '    "Business & Management":"#bf5af2",'
-                        + '    "Finance & Accounting":"#30d158",'
-                        + '    "Marketing & Sales":"#ff9f0a",'
-                        + '    "Human Resources":"#ff453a",'
+                        + '    Technology:"var(--accent)",'
+                        + '    "Business & Management":"var(--c-purple)",'
+                        + '    "Finance & Accounting":"var(--success)",'
+                        + '    "Marketing & Sales":"var(--c-orange)",'
+                        + '    "Human Resources":"var(--danger)",'
                         + '    "Healthcare & Medical":"#14b8a6",'
-                        + '    "Engineering & Manufacturing":"#bf5af2",'
+                        + '    "Engineering & Manufacturing":"var(--c-purple)",'
                         + '    "Legal & Compliance":"#78716c",'
-                        + '    "Creative & Design":"#ff9f0a",'
-                        + '    "General Professional":"#636366",'
-                        + '    skill:"#60a5fa", ability:"#bf5af2",'
+                        + '    "Creative & Design":"var(--c-orange)",'
+                        + '    "General Professional":"var(--text-muted)",'
+                        + '    skill:"var(--accent)", ability:"var(--c-purple)",'
                         + '    workstyle:"var(--success)", unique:"var(--warning)",'
-                        + '    knowledge:"#5ac8fa", workactivity:"#ff453a",'
-                        + '    trade:"#ff9f0a", Transversal:"#a1a1a6"'
+                        + '    knowledge:"var(--c-cyan)", workactivity:"var(--danger)",'
+                        + '    trade:"var(--c-orange)", Transversal:"var(--text-secondary)"'
                         + '  };'
                         // Level → color for nodes that expose proficiency instead of category
                         + '  var lvColors = {'
-                        + '    Mastery:"#30d158", Expert:"#ff9f0a",'
-                        + '    Advanced:"#bf5af2", Proficient:"#60a5fa", Novice:"#a1a1a6"'
+                        + '    Mastery:"var(--success)", Expert:"var(--c-orange)",'
+                        + '    Advanced:"var(--c-purple)", Proficient:"var(--accent)", Novice:"var(--text-secondary)"'
                         + '  };'
                         + '  function recolorNetwork() {'
                         + '    document.querySelectorAll("svg circle").forEach(function(c) {'
@@ -36765,7 +36765,7 @@ body {
                     reports.forEach(function(r, idx) {
                         var isActive = r.status === 'active';
                         var createdDate = r.createdAt && r.createdAt.toDate ? r.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
-                        var scoreColor = (r.matchScore || 0) >= 70 ? '#30d158' : (r.matchScore || 0) >= 50 ? '#ff9f0a' : '#ff453a';
+                        var scoreColor = (r.matchScore || 0) >= 70 ? 'var(--success)' : (r.matchScore || 0) >= 50 ? 'var(--c-orange)' : 'var(--danger)';
                         var shareUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/reports/view.html?id=' + r._id + '&token=' + (r.shareToken || ''));
                         var blindCount = 0;
                         if (r.blindSettings) { Object.keys(r.blindSettings).forEach(function(k) { if (r.blindSettings[k]) blindCount++; }); }
@@ -37061,18 +37061,18 @@ body {
             // ── Colors — match HTML CSS variables exactly ──
             var C = {
                 bg:    [10, 14, 26],         // --bg: #0a0e1a
-                card:  [17, 24, 39],         // --card: #0a0a0f
+                card:  [17, 24, 39],         // --card: var(--bg-base)
                 elev:  [26, 32, 53],         // --elev: #1a2035
                 border:[255, 255, 255, 0.06],// --border (will draw as rgb)
                 borderRGB: [35, 42, 60],     // approx rendered border on dark
-                a:     [59, 130, 246],       // --a: #60a5fa
-                g:     [16, 185, 129],       // --g: #30d158
-                am:    [245, 158, 11],       // --am: #ff9f0a
-                r:     [239, 68, 68],        // --r: #ff453a
-                p:     [99, 102, 241],       // --p: #bf5af2
-                t1:    [241, 245, 249],      // --t1: #f5f5f7
-                t2:    [148, 163, 184],      // --t2: #a1a1a6
-                tm:    [100, 116, 139],      // --tm: #636366
+                a:     [59, 130, 246],       // --a: var(--accent)
+                g:     [16, 185, 129],       // --g: var(--success)
+                am:    [245, 158, 11],       // --am: var(--c-orange)
+                r:     [239, 68, 68],        // --r: var(--danger)
+                p:     [99, 102, 241],       // --p: var(--c-purple)
+                t1:    [241, 245, 249],      // --t1: var(--text-primary)
+                t2:    [148, 163, 184],      // --t2: var(--text-secondary)
+                tm:    [100, 116, 139],      // --tm: var(--text-muted)
                 white: [255, 255, 255],
                 orange:[249, 115, 22],
                 purple:[168, 85, 247]
@@ -37323,7 +37323,7 @@ body {
                     var barY = y + ri * 7;
                     var count = rSkillCounts[role.id] || 0;
                     var barW = Math.max(4, (count / maxCount) * (MW * 0.55));
-                    var rc = role.color || '#60a5fa';
+                    var rc = role.color || 'var(--accent)';
                     var rgb = [parseInt(rc.slice(1,3),16)||59, parseInt(rc.slice(3,5),16)||130, parseInt(rc.slice(5,7),16)||246];
                     
                     // Role name
@@ -38155,7 +38155,7 @@ body {
                     check(8);
                     sd(C.borderRGB); doc.setLineWidth(0.1); doc.line(M, y + 5.5, W - M, y + 5.5);
                     
-                    var rc = dom.cl || '#60a5fa';
+                    var rc = dom.cl || 'var(--accent)';
                     var rgb = [parseInt(rc.slice(1,3),16)||59, parseInt(rc.slice(3,5),16)||130, parseInt(rc.slice(5,7),16)||246];
                     
                     // Domain name
@@ -39104,20 +39104,20 @@ body {
             // Color palette
             var C = {
                 brand: [30, 64, 175],       // #1e40af
-                accent: [96, 165, 250],      // #60a5fa
-                dark: [15, 23, 42],          // #0a0a0f
-                text: [30, 41, 59],          // #1c1c22
-                textLight: [100, 116, 139],  // #636366
-                textMuted: [148, 163, 184],  // #a1a1a6
-                green: [16, 185, 129],       // #30d158
-                amber: [245, 158, 11],       // #ff9f0a
+                accent: [96, 165, 250],      // var(--accent)
+                dark: [15, 23, 42],          // var(--bg-base)
+                text: [30, 41, 59],          // var(--c-bg-solid-alt)
+                textLight: [100, 116, 139],  // var(--text-muted)
+                textMuted: [148, 163, 184],  // var(--text-secondary)
+                green: [16, 185, 129],       // var(--success)
+                amber: [245, 158, 11],       // var(--c-orange)
                 rose: [244, 114, 182],       // #ff6961
-                purple: [129, 140, 248],     // #bf5af2
+                purple: [129, 140, 248],     // var(--c-purple)
                 bgLight: [248, 250, 252],    // #f8fafc
-                border: [226, 232, 240],     // #d1d1d6
+                border: [226, 232, 240],     // var(--c-muted)
                 white: [255, 255, 255],
-                red: [239, 68, 68],          // #ff453a
-                orange: [249, 115, 22]       // #ff9f0a
+                red: [239, 68, 68],          // var(--danger)
+                orange: [249, 115, 22]       // var(--c-orange)
             };
             
             // Level colors
@@ -39825,7 +39825,7 @@ body {
                 if (group.skills.length === 0) return;
                 
                 var roleName = group.role.name;
-                var roleColor = group.role.color || '#60a5fa';
+                var roleColor = group.role.color || 'var(--accent)';
                 var rc = [
                     parseInt(roleColor.slice(1,3), 16) || 96,
                     parseInt(roleColor.slice(3,5), 16) || 165,
@@ -39913,7 +39913,7 @@ body {
                     var group = roleGroups[roleId];
                     var angle = (i / roleList.length) * Math.PI * 2 - Math.PI / 2;
                     var dist = graphR * 0.38;
-                    var rc = group.role.color || '#60a5fa';
+                    var rc = group.role.color || 'var(--accent)';
                     var rgb = [
                         parseInt(rc.slice(1,3), 16) || 96,
                         parseInt(rc.slice(3,5), 16) || 165,
@@ -40123,7 +40123,7 @@ body {
                 
                 roleSorted.forEach(function(group) {
                     checkPage(14);
-                    var rc = group.role.color || '#60a5fa';
+                    var rc = group.role.color || 'var(--accent)';
                     var rgb = [
                         parseInt(rc.slice(1,3), 16) || 96,
                         parseInt(rc.slice(3,5), 16) || 165,
@@ -40663,7 +40663,7 @@ body {
                 + '<div class="modal-body" style="padding:24px;">'
                 + jobs.map(function(j, i) {
                     var score = j.matchData ? Math.round(j.matchData.score) : 0;
-                    var scoreColor = score >= 70 ? '#30d158' : score >= 50 ? '#ff9f0a' : '#ff453a';
+                    var scoreColor = score >= 70 ? 'var(--success)' : score >= 50 ? 'var(--c-orange)' : 'var(--danger)';
                     return '<div onclick="buildCoverLetter(' + i + ')" style="display:flex; align-items:center; gap:14px; '
                         + 'padding:16px; border:1px solid var(--border); border-radius:10px; cursor:pointer; '
                         + 'margin-bottom:10px; transition:all 0.15s;" '
@@ -40844,7 +40844,7 @@ body {
                 + '<div class="modal-body" style="padding:24px;">'
                 + jobs.map(function(j, i) {
                     var score = j.matchData ? Math.round(j.matchData.score) : 0;
-                    var scoreColor = score >= 70 ? '#30d158' : score >= 50 ? '#ff9f0a' : '#ff453a';
+                    var scoreColor = score >= 70 ? 'var(--success)' : score >= 50 ? 'var(--c-orange)' : 'var(--danger)';
                     return '<div onclick="buildInterviewPrep(' + i + ')" style="display:flex; align-items:center; gap:14px; '
                         + 'padding:16px; border:1px solid var(--border); border-radius:10px; cursor:pointer; '
                         + 'margin-bottom:10px; transition:all 0.15s;" '
@@ -41356,7 +41356,7 @@ body {
             html += '<div style="display:flex; flex-direction:column; gap:10px;">';
             sorted.slice(0, 50).forEach(function(job, idx) {
                 var score = job.matchScore || 0;
-                var matchColor = score >= 70 ? '#30d158' : score >= 45 ? '#ff9f0a' : '#636366';
+                var matchColor = score >= 70 ? 'var(--success)' : score >= 45 ? 'var(--c-orange)' : 'var(--text-muted)';
                 var jobUrl = (job.url && /^https?:\/\//i.test(job.url)) ? escapeHtml(job.url) : '#';
                 var isExpanded = _fitForMeExpanded[idx];
                 var matchResult = job._fitMatch || {};
@@ -41402,7 +41402,7 @@ body {
                             + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:4px; margin-bottom:12px;">';
                         matched.forEach(function(m) {
                             var quality = Math.round((m.nameMatch || 0) * (m.profMatch || 1) * 100);
-                            var qColor = quality >= 80 ? '#30d158' : quality >= 50 ? '#ff9f0a' : '#ff453a';
+                            var qColor = quality >= 80 ? 'var(--success)' : quality >= 50 ? 'var(--c-orange)' : 'var(--danger)';
                             html += '<div style="padding:6px 10px; background:rgba(36,138,61,0.04); border-radius:6px; border-left:2px solid ' + qColor + '; font-size:0.82em;">'
                                 + '<span style="font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</span>'
                                 + (m.userSkill !== m.jobSkill ? ' <span style="color:var(--text-muted);">\u2192 ' + escapeHtml(m.userSkill) + '</span>' : '')
@@ -41716,7 +41716,7 @@ body {
                         }
 
                         // Score color
-                        var scoreColor = matchScore >= 75 ? '#30d158' : matchScore >= 50 ? '#ff9f0a' : matchScore >= 30 ? '#bf5af2' : '#a1a1a6';
+                        var scoreColor = matchScore >= 75 ? 'var(--success)' : matchScore >= 50 ? 'var(--c-orange)' : matchScore >= 30 ? 'var(--c-purple)' : 'var(--text-secondary)';
                         var readinessLabel = matchScore >= 75 ? 'Ready Now' : matchScore >= 50 ? 'Near Ready' : matchScore >= 30 ? 'Developing' : 'Gap Heavy';
 
                         html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:12px; overflow:hidden;">';
@@ -41743,7 +41743,7 @@ body {
                         if (compDelta !== null) {
                             var deltaAbs = Math.abs(Math.round(compDelta / 1000));
                             var deltaBg = compDeltaDir === 'up' ? 'rgba(36,138,61,0.12)' : 'rgba(215,0,21,0.12)';
-                            var deltaFg = compDeltaDir === 'up' ? '#30d158' : '#ff453a';
+                            var deltaFg = compDeltaDir === 'up' ? 'var(--success)' : 'var(--danger)';
                             var deltaArrow = compDeltaDir === 'up' ? '↑' : '↓';
                             html += '<div style="margin-top:5px; display:inline-block; background:' + deltaBg + '; color:' + deltaFg + '; border-radius:8px; padding:2px 8px; font-size:0.75em; font-weight:600;">'
                                 + deltaArrow + ' $' + deltaAbs + 'K vs your current comp'
@@ -41924,7 +41924,7 @@ body {
             jobs.forEach(function(job, idx) {
                 var match = job.matchData || {};
                 var matchPct = match.score || 0;
-                var matchColor = matchPct >= 70 ? '#30d158' : matchPct >= 45 ? '#ff9f0a' : '#636366';
+                var matchColor = matchPct >= 70 ? 'var(--success)' : matchPct >= 45 ? 'var(--c-orange)' : 'var(--text-muted)';
                 var matchedCount = (match.matched || []).length;
                 var gapCount = (match.gaps || []).length;
                 var surplusCount = (match.surplus || []).length;
@@ -46230,7 +46230,7 @@ body {
                 + levels.map(function(lvl, i) {
                     var isSelected = i === sugIdx;
                     var barWidth = ((i + 1) / 5 * 100);
-                    var barColor = i < sugIdx ? '#ff9f0a' : i === sugIdx ? '#30d158' : '#60a5fa';
+                    var barColor = i < sugIdx ? 'var(--c-orange)' : i === sugIdx ? 'var(--success)' : 'var(--accent)';
                     return '<label style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; '
                         + 'border:1px solid ' + (isSelected ? 'var(--accent)' : 'var(--border)') + '; '
                         + 'background:' + (isSelected ? 'var(--accent-glow)' : 'transparent') + ';">'
@@ -46328,7 +46328,7 @@ body {
             
             var match = job.matchData || {};
             var matchPct = match.score || 0;
-            var matchColor = matchPct >= 70 ? '#30d158' : matchPct >= 45 ? '#ff9f0a' : '#636366';
+            var matchColor = matchPct >= 70 ? 'var(--success)' : matchPct >= 45 ? 'var(--c-orange)' : 'var(--text-muted)';
             var matched = match.matched || [];
             var gaps = match.gaps || [];
             var surplus = match.surplus || [];
@@ -46476,7 +46476,7 @@ body {
             var userVals = (blueprintData && blueprintData.values) || [];
             var valAlign = jobCV ? computeValuesAlignment(userVals, jobCV) : null;
             if (valAlign) {
-                var vaColor = valAlign.score >= 65 ? '#30d158' : valAlign.score >= 40 ? '#ff9f0a' : '#ff453a';
+                var vaColor = valAlign.score >= 65 ? 'var(--success)' : valAlign.score >= 40 ? 'var(--c-orange)' : 'var(--danger)';
                 var vaBg = valAlign.score >= 65 ? 'rgba(36,138,61,0.06)' : valAlign.score >= 40 ? 'rgba(196,93,0,0.06)' : 'rgba(215,0,21,0.06)';
                 var vaBorder = valAlign.score >= 65 ? 'rgba(36,138,61,0.2)' : valAlign.score >= 40 ? 'rgba(196,93,0,0.15)' : 'rgba(215,0,21,0.2)';
                 html += '<div style="display:flex; align-items:center; gap:16px; padding:14px 20px; margin-bottom:20px; '
@@ -46539,7 +46539,7 @@ body {
                     + '<h3 style="font-size:0.95em; font-weight:700; color:var(--success); margin-bottom:10px;">\u2713 Matched Skills</h3>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 matched.forEach(function(m) {
-                    var profColor = m.profGap ? '#ff9f0a' : '#30d158';
+                    var profColor = m.profGap ? 'var(--c-orange)' : 'var(--success)';
                     var profLabel = m.userLevel || '';
                     var tierBadge = (m.tier === 'required' || m.requirement === 'Required') ? ' \u2605' : '';
                     var profTip = m.profGap ? ' (job wants ' + (m.jobProficiency || '?') + ')' : '';
@@ -46994,7 +46994,7 @@ body {
                 var pipelineKey = (job.title + '-' + (job.company || '')).toLowerCase();
                 var alreadyInPipeline = pipelineIds[pipelineKey];
                 var displayScore = job.matchScore;
-                var matchColor = displayScore >= 70 ? '#30d158' : displayScore >= 45 ? '#ff9f0a' : '#636366';
+                var matchColor = displayScore >= 70 ? 'var(--success)' : displayScore >= 45 ? 'var(--c-orange)' : 'var(--text-muted)';
                 var jobUrl = (job.url && /^https?:\/\//i.test(job.url)) ? escapeHtml(job.url) : '#';
                 var salary = job.salary || '';
                 
@@ -48651,7 +48651,7 @@ body {
             } else {
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:8px; margin-bottom:24px;">';
                 certItems.forEach(function(cert, idx) {
-                    var tierColor = cert.tier >= 2 ? '#ff9f0a' : '#30d158';
+                    var tierColor = cert.tier >= 2 ? 'var(--c-orange)' : 'var(--success)';
                     var tierTag   = cert.tier >= 2 ? 'ADV' : 'PRO';
                     var linkedCount = (cert.linkedSkills || []).length;
                     var libSkills   = cert.libraryMatch ? (findCertInLibrary(cert.libraryMatch) || {}).skills : null;
@@ -49481,7 +49481,7 @@ body {
             // Determine tier display
             var tierLevel = cert.tier || 1;
             var tierLabel = tierLevel >= 2 ? 'Advanced' : 'Proficient';
-            var tierColor = tierLevel >= 2 ? '#ff9f0a' : '#30d158';
+            var tierColor = tierLevel >= 2 ? 'var(--c-orange)' : 'var(--success)';
             
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
@@ -49571,7 +49571,7 @@ body {
             var html = '';
             matches.forEach(function(c) {
                 var tierBg = c.tier >= 2 ? 'rgba(196,93,0,0.1)' : 'rgba(36,138,61,0.1)';
-                var tierColor = c.tier >= 2 ? '#ff9f0a' : '#30d158';
+                var tierColor = c.tier >= 2 ? 'var(--c-orange)' : 'var(--success)';
                 var tierTag = c.tier >= 2 ? 'ADV' : 'PRO';
                 
                 html += '<div onclick="selectCertFromLibrary(\'' + escapeHtml(c.abbr).replace(/'/g,"&#39;") + '\')" '
@@ -49614,7 +49614,7 @@ body {
             var badge = document.getElementById('certTierBadge');
             var floorLabel = document.getElementById('certFloorLabel');
             if (badge) {
-                var tColor = cert.tier >= 2 ? '#ff9f0a' : '#30d158';
+                var tColor = cert.tier >= 2 ? 'var(--c-orange)' : 'var(--success)';
                 var tBg = cert.tier >= 2 ? '245,158,11' : '16,185,129';
                 badge.style.display = '';
                 badge.innerHTML = '<span style="font-size:0.78em; padding:3px 10px; border-radius:10px; font-weight:600; background:rgba(' + tBg + ',0.12); color:' + tColor + ';">'
@@ -49770,7 +49770,7 @@ body {
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
             
-            var tierColor = cert.tier >= 2 ? '#ff9f0a' : '#30d158';
+            var tierColor = cert.tier >= 2 ? 'var(--c-orange)' : 'var(--success)';
             var tierLabel = cert.tier >= 2 ? 'Tier 2 (Advanced)' : 'Tier 1 (Proficient)';
             
             var html = '<div class="modal-header">'
@@ -50191,9 +50191,9 @@ body {
                 
                 var blindKeyLabels = { identity: 'ID', location: 'Loc', employer: 'Emp', institution: 'Inst', outcomes: 'Out', compensation: 'Comp' };
                 var fmtLabels = { html: 'HTML', pdf: 'PDF', share: 'Share' };
-                var fmtColors = { html: '#60a5fa', pdf: '#ff9f0a', share: '#30d158' };
+                var fmtColors = { html: 'var(--accent)', pdf: 'var(--c-orange)', share: 'var(--success)' };
                 var presetLabels = { full: 'Full', executive: 'Executive', advisory: 'Advisory', board: 'Board', custom: 'Custom' };
-                var presetColors = { full: '#30d158', executive: '#60a5fa', advisory: '#bf5af2', board: '#ff9f0a', custom: '#a1a1a6' };
+                var presetColors = { full: 'var(--success)', executive: 'var(--accent)', advisory: 'var(--c-purple)', board: 'var(--c-orange)', custom: 'var(--text-secondary)' };
                 
                 privLog.slice(0, 50).forEach(function(entry) {
                     var d = new Date(entry.ts);
@@ -50367,11 +50367,11 @@ body {
                     }).join(', ');
                     
                     const levelColors = {
-                        'Mastery':    '#30d158',
-                        'Expert':     '#ff9f0a',
-                        'Advanced':   '#bf5af2',
-                        'Proficient': '#60a5fa',
-                        'Novice':     '#a1a1a6'
+                        'Mastery':    'var(--success)',
+                        'Expert':     'var(--c-orange)',
+                        'Advanced':   'var(--c-purple)',
+                        'Proficient': 'var(--accent)',
+                        'Novice':     'var(--text-secondary)'
                     };
                     
                     html += `
@@ -51541,11 +51541,11 @@ body {
             
             // Compa-ratio status label
             var compaStatus, compaColor;
-            if (compaRatio < 80)       { compaStatus = 'Significantly below market — high retention risk flag'; compaColor = '#ff453a'; }
-            else if (compaRatio < 90)  { compaStatus = 'Below market midpoint — room to correct without budget strain'; compaColor = '#ff9f0a'; }
-            else if (compaRatio < 110) { compaStatus = 'Within normal range — incremental increase is well-supported'; compaColor = '#30d158'; }
-            else if (compaRatio < 120) { compaStatus = 'Above midpoint — strong justification needed for any increase'; compaColor = '#60a5fa'; }
-            else                       { compaStatus = 'At or above market ceiling for this level'; compaColor = '#a1a1a6'; }
+            if (compaRatio < 80)       { compaStatus = 'Significantly below market — high retention risk flag'; compaColor = 'var(--danger)'; }
+            else if (compaRatio < 90)  { compaStatus = 'Below market midpoint — room to correct without budget strain'; compaColor = 'var(--c-orange)'; }
+            else if (compaRatio < 110) { compaStatus = 'Within normal range — incremental increase is well-supported'; compaColor = 'var(--success)'; }
+            else if (compaRatio < 120) { compaStatus = 'Above midpoint — strong justification needed for any increase'; compaColor = 'var(--accent)'; }
+            else                       { compaStatus = 'At or above market ceiling for this level'; compaColor = 'var(--text-secondary)'; }
             
             var modal = document.getElementById('exportModal');
             var modalContent = modal.querySelector('.modal-content');
@@ -51988,7 +51988,7 @@ body {
             var standard     = tv ? (tv.standardOffer || 0) : 0;
             var competitive  = tv ? (tv.competitiveOffer || 0) : 0;
             var justified    = tv ? (tv.yourWorth || tv.total || 0) : 0;
-            var modeColor    = mode === 'external' ? '#60a5fa' : mode === 'internal' ? '#bf5af2' : '#30d158';
+            var modeColor    = mode === 'external' ? 'var(--accent)' : mode === 'internal' ? 'var(--c-purple)' : 'var(--success)';
             var modeLabel    = mode === 'external' ? 'External Offer' : mode === 'internal' ? 'Internal Move' : 'Performance Review';
 
             function section(title, color, content) {
@@ -52315,13 +52315,13 @@ body {
             // Color scheme aligned with skill levels: green=Mastery, orange=Expert, purple=Advanced
             // Red (#ff453a) is reserved exclusively for risks/gaps
             const colors = {
-                'critical':      '#30d158',  // green  — Mastery-tier
-                'high':          '#ff9f0a',  // orange — Expert-tier
-                'moderate':      '#bf5af2',  // purple — Advanced-tier
-                'standard':      '#60a5fa',  // blue   — Proficient-tier
-                'supplementary': '#a1a1a6'   // gray   — Novice-tier
+                'critical':      'var(--success)',  // green  — Mastery-tier
+                'high':          'var(--c-orange)',  // orange — Expert-tier
+                'moderate':      'var(--c-purple)',  // purple — Advanced-tier
+                'standard':      'var(--accent)',  // blue   — Proficient-tier
+                'supplementary': 'var(--text-secondary)'   // gray   — Novice-tier
             };
-            return colors[level] || '#60a5fa';
+            return colors[level] || 'var(--accent)';
         }
         
         // ===== SKILL MANAGEMENT FUNCTIONS =====
@@ -53136,10 +53136,10 @@ body {
             
             document.getElementById('bulkManagerCount').textContent = skills.length + ' skill' + (skills.length !== 1 ? 's' : '');
             
-            var levelColors = { Novice: '#a1a1a6', Competent: '#5ac8fa', Proficient: '#60a5fa', Advanced: '#bf5af2', Expert: '#ff9f0a', Mastery: '#30d158' };
+            var levelColors = { Novice: 'var(--text-secondary)', Competent: 'var(--c-cyan)', Proficient: 'var(--accent)', Advanced: 'var(--c-purple)', Expert: 'var(--c-orange)', Mastery: 'var(--success)' };
             
             var html = skills.map(function(skill) {
-                var lc = levelColors[skill.level] || '#636366';
+                var lc = levelColors[skill.level] || 'var(--text-muted)';
                 var roleNames = (skill.roles || []).map(function(rid) {
                     var r = (userData.roles || []).find(function(role) { return role.id === rid; });
                     return r ? r.name : rid;
@@ -53390,7 +53390,7 @@ body {
             currentEditingSkill = skillName;
             
             var levels = ['Novice','Competent','Proficient','Advanced','Expert','Mastery'];
-            var levelColors = { 'Novice':'#a1a1a6','Competent':'#5ac8fa','Proficient':'#60a5fa','Advanced':'#bf5af2','Expert':'#ff9f0a','Mastery':'#30d158' };
+            var levelColors = { 'Novice':'var(--text-secondary)','Competent':'var(--c-cyan)','Proficient':'var(--accent)','Advanced':'var(--c-purple)','Expert':'var(--c-orange)','Mastery':'var(--success)' };
             var evs = (typeof getEvidenceSummary === 'function') ? getEvidenceSummary(skill) : null;
             var roles = typeof getAllRoles === 'function' ? getAllRoles() : (typeof getVisibleRoles === 'function' ? getVisibleRoles() : (userData.roles || []));
             var skillRoles = skill.roles || [];
@@ -53433,7 +53433,7 @@ body {
             html += '<div id="uniGapWarning" style="margin-top:6px;"></div>';
             // Evidence summary
             if (evs) {
-                var evColor = evs.hasGap ? '#ff9f0a' : '#30d158';
+                var evColor = evs.hasGap ? 'var(--c-orange)' : 'var(--success)';
                 html += '<div style="margin-top:6px; padding:6px 10px; border-radius:6px; font-size:0.78em; background:var(--bg-elevated); border:1px solid var(--border);">'
                     + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + evs.effectiveLevel + '</span>'
                     + '<span style="color:var(--text-muted); margin-left:6px;">(' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + ')</span>'
@@ -54356,7 +54356,7 @@ body {
                     container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-secondary);">Trades library not loaded yet.</div>';
                     return;
                 }
-                var catColors = {'Woodworking & Construction':'#c78400','Electrical/Plumbing/Mechanical':'#0891b2','Painting & Finishing':'#9d4edd','Culinary Arts':'#ff9f0a','Visual Arts':'#db2777','Fiber & Textile':'#28a745','Performing Arts':'#ea580c','Outdoor & Agriculture':'#16a34a','Technology & Making':'#4a9eff'};
+                var catColors = {'Woodworking & Construction':'#c78400','Electrical/Plumbing/Mechanical':'#0891b2','Painting & Finishing':'#9d4edd','Culinary Arts':'var(--c-orange)','Visual Arts':'#db2777','Fiber & Textile':'#28a745','Performing Arts':'#ea580c','Outdoor & Agriculture':'#16a34a','Technology & Making':'#4a9eff'};
                 container.innerHTML = tradeResults.map(function(skill) {
                     var isAdded = isSkillAlreadyAdded(skill.n);
                     var color = catColors[skill.c] || '#c78400';
