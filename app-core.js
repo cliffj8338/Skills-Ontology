@@ -26426,7 +26426,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Safety: ensure roles are normalized before building D3 graph
             if (typeof normalizeUserRoles === 'function') normalizeUserRoles();
-            const width = window.innerWidth;
+            var svgParent = document.getElementById('networkView') && document.getElementById('networkView').parentElement;
+            const width = svgParent ? svgParent.clientWidth : window.innerWidth;
             const isMobile = width <= 768;
             // Height: subtract navbar + controls (no page header on desktop)
             var heightOffset = 100; // desktop: navbar(52) + controls(48)
@@ -26893,7 +26894,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var jobSkillsArr = getJobSkills(job);
             if (!job || !jobSkillsArr.length) return;
             
-            var width = window.innerWidth;
+            var svgParent = document.getElementById('networkView') && document.getElementById('networkView').parentElement;
+            var width = svgParent ? svgParent.clientWidth : window.innerWidth;
             var height = window.innerHeight - 100;
             var isMobile = width <= 768;
             var scaleFactor = Math.min(width, height) / 900;
@@ -27059,7 +27061,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function initMatchNetwork(job) {
             if (!job || !job.matchData) return;
             
-            var width = window.innerWidth;
+            var svgParent = document.getElementById('networkView') && document.getElementById('networkView').parentElement;
+            var width = svgParent ? svgParent.clientWidth : window.innerWidth;
             var height = window.innerHeight - 100;
             var isMobile = width <= 768;
             var match = job.matchData;
@@ -27530,7 +27533,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var alignment = computeValuesAlignment(userVals, cv);
             if (!alignment) { showToast('Select values in your Blueprint first.', 'warning'); return; }
             
-            var width = window.innerWidth;
+            var svgParent = document.getElementById('networkView') && document.getElementById('networkView').parentElement;
+            var width = svgParent ? svgParent.clientWidth : window.innerWidth;
             var isMobile = width <= 768;
             var height = isMobile ? Math.max(window.innerHeight - 200, 400) : window.innerHeight - 100;
             var scaleFactor = Math.min(width, height) / 900;
