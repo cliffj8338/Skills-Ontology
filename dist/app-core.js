@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.11';
+        var BP_VERSION = 'v4.48.23';
 
         var BP_PALETTE = {
             blue: '#60a5fa', purple: '#bf5af2', green: '#30d158',
@@ -571,7 +571,7 @@
             if (url) {
                 var img = document.createElement('img');
                 img.src = url;
-                img.alt = '';
+                img.alt = 'Profile photo';
                 img.style.cssText = 'width:100%;height:100%;object-fit:cover;' + (rounded ? 'border-radius:50%;' : '');
                 el.innerHTML = '';
                 el.appendChild(img);
@@ -22449,7 +22449,7 @@
         var explorerLabelStyle = 'display:block; font-size:0.82em; font-weight:600; color:var(--text-secondary); margin-bottom:5px;';
         var explorerCardStyle = 'background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px;';
         var explorerChipStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-secondary);';
-        var explorerChipActiveStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--c-purple); background:rgba(155,89,182,0.15); color:var(--c-purple); font-weight:600;';
+        var explorerChipActiveStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--c-purple); background:rgba(155,89,182,0.08); color:#6b2d7b; font-weight:600;';
 
         function _explorerSchoolCard(s, idx, total) {
             var isHS = s.schoolType === 'highschool';
@@ -26761,7 +26761,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     cmdBtn.onclick = function() { if (typeof openCommandPalette === 'function') openCommandPalette(); };
                     cmdBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--c-surface-2,rgba(0,0,0,0.05));border:1px solid var(--c-border-subtle,rgba(0,0,0,0.07));border-radius:8px;color:var(--c-muted);font-size:0.75em;cursor:pointer;transition:all 0.15s;white-space:nowrap;';
                     cmdBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
-                        + '<span style="color:var(--c-faint);font-size:0.9em;">⌘K</span>';
+                        + '<span style="color:var(--c-muted);font-size:0.9em;">⌘K</span>';
                     cmdBtn.onmouseover = function() { this.style.borderColor='rgba(0,113,227,0.4)'; this.style.color='var(--c-text)'; };
                     cmdBtn.onmouseout  = function() { this.style.borderColor='var(--c-border-subtle,rgba(0,0,0,0.07))'; this.style.color='var(--c-muted)'; };
                     saveInd.parentNode.insertBefore(cmdBtn, saveInd);
@@ -28709,21 +28709,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     icon: bpIcon('flame', 20),
                     bg: 'rgba(196,93,0,0.08)',
                     border: 'rgba(196,93,0,0.3)', accent: 'var(--c-orange)',
-                    pillBg: 'rgba(196,93,0,0.2)', pillColor: 'var(--c-orange)', skills: []
+                    pillBg: 'rgba(196,93,0,0.12)', pillColor: '#7a3800', skills: []
                 },
                 uncommon: {
                     label: 'Uncommon', desc: 'Strong competitive advantages',
                     icon: bpIcon('diamond', 20),
                     bg: 'rgba(0,113,227,0.06)',
                     border: 'rgba(0,113,227,0.25)', accent: 'var(--accent)',
-                    pillBg: 'rgba(0,113,227,0.2)', pillColor: 'var(--accent)', skills: []
+                    pillBg: 'rgba(0,113,227,0.12)', pillColor: '#004a8c', skills: []
                 },
                 common: {
                     label: 'Common', desc: 'Foundational capabilities',
                     icon: bpIcon('check', 20),
                     bg: 'var(--c-surface-2a, rgba(0,0,0,0.02))',
                     border: 'var(--border, rgba(0,0,0,0.06))', accent: 'var(--text-muted)',
-                    pillBg: 'rgba(99,99,102,0.2)', pillColor: 'var(--text-secondary)', skills: []
+                    pillBg: 'rgba(99,99,102,0.12)', pillColor: 'var(--text-secondary)', skills: []
                 }
             };
 
@@ -28852,7 +28852,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<span title="' + skillImpact.label + '" style="font-size:0.75em; color:' + impactColor + ';">' + skillImpact.icon + '</span>'
                         + '<span style="font-size:0.62em; padding:1px 7px; border-radius:8px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;">' + tier.label + '</span>'
                         + (years ? '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + 'y</span>' : '')
-                        + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(155,89,182,0.15); color:var(--c-purple); font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
+                        + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(155,89,182,0.08); color:#6b2d7b; font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
                         + '</div>';
 
                     if (roleNames.length > 0) {
@@ -30604,7 +30604,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var subtitleInferred = '';
             var _evSumSub = getEvidenceSummary(skillData);
             if (_evSumSub.inferredActive) {
-                subtitleInferred = '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(155,89,182,0.15); color:var(--c-purple); font-weight:600;">\u2728 Inferred ' + _evSumSub.inferredLevel + '</span>';
+                subtitleInferred = '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(155,89,182,0.08); color:#6b2d7b; font-weight:600;">\u2728 Inferred ' + _evSumSub.inferredLevel + '</span>';
             }
             var subtitleVerified = (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; var vrel = conf[0].relationship || 'Peer'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(36,138,61,0.15); color:var(--success); font-weight:600;">\u2713 Verified</span>'; } return ''; })();
             subtitle.innerHTML = `
@@ -34420,9 +34420,9 @@ body {
             // Group skills by impact-based rarity
             var impactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
             var tierMeta = {
-                rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'rgba(196,93,0,0.08)', border: 'rgba(196,93,0,0.3)', accent: 'var(--c-orange)', pillBg: 'rgba(196,93,0,0.2)' },
-                uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'rgba(0,113,227,0.06)', border: 'rgba(0,113,227,0.25)', accent: 'var(--accent)', pillBg: 'rgba(0,113,227,0.2)' },
-                common: { label: 'Common', desc: 'Foundational capabilities', icon: 'check', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)', accent: 'var(--text-muted)', pillBg: 'rgba(99,99,102,0.2)' }
+                rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'rgba(196,93,0,0.08)', border: 'rgba(196,93,0,0.3)', accent: 'var(--c-orange)', pillBg: 'rgba(196,93,0,0.12)', pillText: '#7a3800' },
+                uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'rgba(0,113,227,0.06)', border: 'rgba(0,113,227,0.25)', accent: 'var(--accent)', pillBg: 'rgba(0,113,227,0.12)', pillText: '#004a8c' },
+                common: { label: 'Common', desc: 'Foundational capabilities', icon: 'check', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)', accent: 'var(--text-muted)', pillBg: 'rgba(99,99,102,0.12)', pillText: 'var(--text-secondary)' }
             };
             var tierSkills = { rare: [], uncommon: [], common: [] };
             var levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
@@ -54036,7 +54036,7 @@ body {
                 var evPills = '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">';
                 evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(0,113,227,0.12); color:var(--accent); font-size:0.82em; font-weight:600;">' + bpIcon('check',11) + ' Evidence: ' + (evs.evidenceOnlyLevel || evs.effectiveLevel) + ' <span style="font-weight:400; opacity:0.7;">(' + evs.points + ' pts)</span></span>';
                 if (evs.inferredActive) {
-                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(155,89,182,0.12); color:var(--c-purple); font-size:0.82em; font-weight:600;" title="' + evs.experienceYears + ' years experience">\u2728 Inferred: ' + evs.inferredLevel + '</span>';
+                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(155,89,182,0.08); color:#6b2d7b; font-size:0.82em; font-weight:600;" title="' + evs.experienceYears + ' years experience">\u2728 Inferred: ' + evs.inferredLevel + '</span>';
                 }
                 if (evs.verifiedCount > 0) {
                     evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(36,138,61,0.12); color:var(--success); font-size:0.82em; font-weight:600;">' + bpIcon('shield',11) + ' Verified: ' + evs.verifiedCount + '</span>';
