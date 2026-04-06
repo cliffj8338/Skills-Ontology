@@ -28149,12 +28149,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var catColors = { skill: 'var(--accent)', ability: 'var(--c-purple)', workstyle: 'var(--success)', unique: 'var(--warning)' };
                     var catTitles = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique Skill' };
 
+                    var tileBg = tierKey === 'rare' ? 'rgba(196,93,0,0.04)' : tierKey === 'uncommon' ? 'rgba(0,113,227,0.03)' : 'rgba(0,0,0,0.015)';
+                    var tileBorder = tierKey === 'rare' ? 'rgba(196,93,0,0.12)' : tierKey === 'uncommon' ? 'rgba(0,113,227,0.10)' : 'rgba(0,0,0,0.05)';
                     html += '<div onclick=\'openUnifiedSkillEditor("' + escapedName + '")\' style="'
-                        + 'background:var(--c-surface-1, var(--card-bg, rgba(0,0,0,0.02))); '
-                        + 'border:1px solid var(--c-surface-4, rgba(0,0,0,0.05)); border-radius:10px; '
+                        + 'background:' + tileBg + '; '
+                        + 'border:1px solid ' + tileBorder + '; border-radius:10px; '
                         + 'padding:14px 16px; cursor:pointer; transition:all 0.15s;" '
-                        + 'onmouseover="this.style.borderColor=\'' + tier.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.3)\'" '
-                        + 'onmouseout="this.style.borderColor=\'var(--c-surface-4, rgba(0,0,0,0.05))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
+                        + 'onmouseover="this.style.borderColor=\'' + tier.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.06)\'" '
+                        + 'onmouseout="this.style.borderColor=\'' + tileBorder + '\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
 
                     html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
                         + '<div style="width:10px; height:10px; border-radius:6px; background:' + lc + '; flex-shrink:0;"></div>'
@@ -33828,10 +33830,12 @@ body {
                     var details = skillsData.skillDetails && skillsData.skillDetails[s.name];
                     var years = details && details.years ? details.years : 0;
 
-                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s; position:relative;" '
+                    var bpTileBg = tierKey === 'rare' ? 'rgba(196,93,0,0.04)' : tierKey === 'uncommon' ? 'rgba(0,113,227,0.03)' : 'rgba(0,0,0,0.015)';
+                    var bpTileBorder = tierKey === 'rare' ? 'rgba(196,93,0,0.12)' : tierKey === 'uncommon' ? 'rgba(0,113,227,0.10)' : 'rgba(0,0,0,0.05)';
+                    html += '<div style="background:' + bpTileBg + '; border:1px solid ' + bpTileBorder + '; border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s; position:relative;" '
                         + 'onclick="openUnifiedSkillEditor(\'' + escapedName + '\')" '
-                        + 'onmouseover="this.style.borderColor=\'' + meta.accent + '\';this.style.boxShadow=\'0 2px 12px rgba(0,0,0,0.15)\'" '
-                        + 'onmouseout="this.style.borderColor=\'var(--c-surface-4)\';this.style.boxShadow=\'none\'">';
+                        + 'onmouseover="this.style.borderColor=\'' + meta.accent + '\';this.style.boxShadow=\'0 2px 12px rgba(0,0,0,0.06)\'" '
+                        + 'onmouseout="this.style.borderColor=\'' + bpTileBorder + '\';this.style.boxShadow=\'none\'">';
 
                     html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
                         + '<div style="display:flex; align-items:center; gap:6px; flex:1; min-width:0;">'
@@ -35007,10 +35011,12 @@ body {
                             suggestedBadge = '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:' + sugColor + '18; color:' + sugColor + '; font-weight:600;">' + arrow + ' ' + escapeHtml(v.confirmedLevel) + '</span>';
                         }
 
-                        html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:14px; cursor:pointer; transition:all 0.15s; position:relative;" '
+                        var vTileBg = tKey === 'rare' ? 'rgba(196,93,0,0.04)' : tKey === 'uncommon' ? 'rgba(0,113,227,0.03)' : 'rgba(0,0,0,0.015)';
+                        var vTileBorder = tKey === 'rare' ? 'rgba(196,93,0,0.12)' : tKey === 'uncommon' ? 'rgba(0,113,227,0.10)' : 'rgba(0,0,0,0.05)';
+                        html += '<div style="background:' + vTileBg + '; border:1px solid ' + vTileBorder + '; border-radius:10px; padding:14px; cursor:pointer; transition:all 0.15s; position:relative;" '
                             + 'onclick="openUnifiedSkillEditor(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" '
-                            + 'onmouseover="this.style.borderColor=\'' + tm.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.3)\'" '
-                            + 'onmouseout="this.style.borderColor=\'var(--c-surface-4)\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
+                            + 'onmouseover="this.style.borderColor=\'' + tm.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.06)\'" '
+                            + 'onmouseout="this.style.borderColor=\'' + vTileBorder + '\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
 
                         html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">'
                             + '<div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">'
@@ -35135,10 +35141,12 @@ body {
                     tSkills.forEach(function(s) {
                         var c = levelColors2[s.level] || 'var(--text-muted)';
                         var escapedName = (s.name || '').replace(/'/g, "\\'");
-                        html += '<div style="background:var(--c-surface-1); border:1px solid ' + tm.border + '; border-radius:8px; padding:10px 12px; cursor:pointer; transition:all 0.15s;" '
+                        var uvTileBg = tKey === 'rare' ? 'rgba(196,93,0,0.04)' : tKey === 'uncommon' ? 'rgba(0,113,227,0.03)' : 'rgba(0,0,0,0.015)';
+                        var uvTileBorder = tKey === 'rare' ? 'rgba(196,93,0,0.12)' : tKey === 'uncommon' ? 'rgba(0,113,227,0.10)' : 'rgba(0,0,0,0.05)';
+                        html += '<div style="background:' + uvTileBg + '; border:1px solid ' + uvTileBorder + '; border-radius:8px; padding:10px 12px; cursor:pointer; transition:all 0.15s;" '
                             + 'onclick="requestVerification([\'' + escapedName + '\'])" '
                             + 'onmouseover="this.style.borderColor=\'' + tm.accent + '\';this.style.transform=\'translateY(-1px)\'" '
-                            + 'onmouseout="this.style.borderColor=\'' + tm.border + '\';this.style.transform=\'none\'">'
+                            + 'onmouseout="this.style.borderColor=\'' + uvTileBorder + '\';this.style.transform=\'none\'">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
                             + '<div style="width:8px; height:8px; border-radius:6px; background:' + c + '; flex-shrink:0;"></div>'
                             + '<span style="font-size:0.85em; font-weight:500; color:var(--c-label); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(s.name) + '</span>'
