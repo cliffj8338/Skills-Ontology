@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.0';
+        var BP_VERSION = 'v4.48.1';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -4197,12 +4197,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.48.0: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.48.1: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.48.0: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
-                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.48.0: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.48.1: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.48.1: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.48.0: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.48.1: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -14015,7 +14015,7 @@
 
         async function renderAdminVersions(el) {
             if (!el) return;
-            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:20px; margin-bottom:16px;';
+            var cs = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:20px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-bottom:12px;';
 
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
@@ -22207,7 +22207,7 @@
 
             var selectedHtml = '';
             if (interests.length > 0) {
-                selectedHtml = '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border-color);">'
+                selectedHtml = '<div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">'
                     + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:8px; font-size:0.85em;">Your Interests \u2014 tap to change intensity level:</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
                 interests.forEach(function(int) {
@@ -31859,7 +31859,7 @@ body {
             var skillCount = skills.length;
             var driveStatement = ed.driveStatement || '';
 
-            var card = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:24px;';
+            var card = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:24px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;';
             var canEdit = !isReadOnlyProfile;
 
@@ -31875,24 +31875,20 @@ body {
             var html = '';
 
             // ZONE 1: HERO
-            html += '<div style="background:linear-gradient(160deg,rgba(191,90,242,0.12) 0%,rgba(96,165,250,0.08) 50%,rgba(48,209,88,0.06) 100%); border:1px solid rgba(191,90,242,0.15); border-radius:20px; padding:32px 28px; margin-bottom:28px; text-align:center; position:relative; overflow:hidden;">';
-            html += '<div style="position:absolute; top:-40px; right:-40px; width:120px; height:120px; background:radial-gradient(circle,rgba(191,90,242,0.08) 0%,transparent 70%); border-radius:50%;"></div>';
-            html += '<div style="position:absolute; bottom:-30px; left:-30px; width:100px; height:100px; background:radial-gradient(circle,rgba(96,165,250,0.06) 0%,transparent 70%); border-radius:50%;"></div>';
-            html += '<div style="display:inline-block; background:#60a5fa; color:#fff; font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:5px 16px; border-radius:20px; margin-bottom:16px;">Explorer Mode</div>';
-            html += '<div style="font-family:Outfit,sans-serif; font-size:1.5em; font-weight:800; color:var(--text-primary); margin-bottom:8px; letter-spacing:-0.01em;">Your Career Value Map</div>';
+            html += '<div style="padding:48px 28px 40px; margin-bottom:36px; text-align:center; position:relative;">';
+            html += '<div style="font-size:0.72em; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:#60a5fa; margin-bottom:16px; opacity:0.8;">Explorer</div>';
+            html += '<div style="font-family:Outfit,sans-serif; font-size:2em; font-weight:300; color:var(--text-primary); margin-bottom:8px; letter-spacing:-0.02em; line-height:1.2;">Your Career Value Map</div>';
             if (driveStatement) {
-                html += '<div style="font-size:0.92em; color:var(--text-secondary); line-height:1.7; max-width:540px; margin:0 auto; font-style:italic; position:relative; padding:0 20px;">'
-                    + '<span style="position:absolute; left:0; top:-4px; font-size:1.6em; color:rgba(191,90,242,0.3); font-family:Georgia,serif;">\u201C</span>'
+                html += '<div style="font-size:1.05em; color:var(--text-secondary); line-height:1.8; max-width:560px; margin:12px auto 0; font-style:italic;">'
                     + escapeHtml(driveStatement)
-                    + '<span style="font-size:1.6em; color:rgba(191,90,242,0.3); font-family:Georgia,serif; line-height:0;">\u201D</span>'
                     + '</div>';
-                if (canEdit) html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:rgba(191,90,242,0.5); font-size:0.72em; margin-top:6px;">\u270E edit</button>';
+                if (canEdit) html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.72em; margin-top:10px; opacity:0.6;">\u270E edit</button>';
             } else if (canEdit) {
-                html += '<div style="font-size:0.88em; color:var(--text-muted); max-width:420px; margin:0 auto 12px;">What kind of work excites you? What problems do you want to solve?</div>';
-                html += '<button onclick="explorerDashEditDrive()" style="padding:8px 20px; background:rgba(191,90,242,0.1); color:#bf5af2; border:1px solid rgba(191,90,242,0.25); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em;">Add your motivation</button>';
+                html += '<div style="font-size:0.92em; color:var(--text-muted); max-width:420px; margin:12px auto 0; line-height:1.6;">What kind of work excites you? What problems do you want to solve?</div>';
+                html += '<button onclick="explorerDashEditDrive()" style="padding:10px 24px; background:rgba(96,165,250,0.08); color:#60a5fa; border:1px solid rgba(96,165,250,0.15); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em; margin-top:12px;">Add your motivation</button>';
             }
             if (entryVal > 0) {
-                html += '<div style="display:flex; align-items:center; justify-content:center; gap:0; margin-top:20px; padding-top:18px; border-top:1px solid rgba(191,90,242,0.1);">';
+                html += '<div style="display:flex; align-items:center; justify-content:center; gap:0; margin-top:28px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06);">';
                 html += '<div style="text-align:center; padding:0 20px;">'
                     + '<div style="font-size:1.4em; font-weight:800; color:#30d158;">' + _expFmt(entryVal) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Entry</div></div>';
@@ -31910,7 +31906,7 @@ body {
 
             // ZONE 2: YOUR DIRECTION
             if (careerPaths.length === 0 && canEdit) {
-                html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(191,90,242,0.2); background:linear-gradient(135deg,var(--card-bg),rgba(191,90,242,0.03));">'
+                html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(191,90,242,0.2); background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(191,90,242,0.03));">'
                     + '<div style="font-size:3em; margin-bottom:16px; opacity:0.25;">\uD83D\uDEE4\uFE0F</div>'
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); font-size:1.15em; margin-bottom:8px;">Discover Your Career Paths</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); max-width:400px; margin:0 auto 20px; line-height:1.6;">AI will analyze your skills, education, and interests to suggest career directions with salary data and growth roadmaps.</div>'
@@ -31926,7 +31922,7 @@ body {
                     var isSel = idx === selectedIdx;
                     var pEntry = path.entryValue || 0;
                     var pSenior = path.seniorValue || 0;
-                    html += '<div style="padding:14px; border:' + (isSel ? '2px solid #bf5af2' : '1px solid var(--border-color)') + '; border-radius:12px; cursor:pointer; background:' + (isSel ? 'rgba(191,90,242,0.06)' : 'transparent') + '; transition:all 0.2s;" onclick="explorerDashSelectPath(' + idx + ')">'
+                    html += '<div style="padding:14px; border:' + (isSel ? '2px solid #bf5af2' : '1px solid rgba(255,255,255,0.06)') + '; border-radius:12px; cursor:pointer; background:' + (isSel ? 'rgba(191,90,242,0.06)' : 'transparent') + '; transition:all 0.2s;" onclick="explorerDashSelectPath(' + idx + ')">'
                         + '<div style="font-weight:700; color:' + (isSel ? '#bf5af2' : 'var(--text-primary)') + '; font-size:0.88em; margin-bottom:4px;">' + escapeHtml(path.title) + '</div>'
                         + (pEntry > 0 ? '<div style="font-size:0.76em; color:#30d158; font-weight:600;">' + _expFmt(pEntry) + ' \u2192 ' + _expFmt(pSenior) + '</div>' : '')
                         + (path.growth ? '<div style="font-size:0.7em; color:var(--text-muted); margin-top:3px; line-height:1.3;">' + escapeHtml(path.growth) + '</div>' : '')
@@ -31937,7 +31933,7 @@ body {
 
             if (selectedPath) {
                 html += '<div style="' + card + ' margin-bottom:28px; border-color:rgba(191,90,242,0.2); position:relative;">';
-                html += '<div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#bf5af2,#60a5fa,#30d158); border-radius:12px 16px 0 0;"></div>';
+                html += '<div style="position:absolute; top:0; left:0; right:0; height:2px; background:rgba(96,165,250,0.2); border-radius:12px 12px 0 0;"></div>';
                 html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; padding-top:4px;">'
                     + '<div style="' + ls + ' color:#bf5af2;">Focused Path</div>'
                     + (selectedPath.salary ? '<div style="font-size:0.82em; font-weight:700; color:#30d158; background:rgba(48,209,88,0.08); padding:3px 10px; border-radius:8px;">' + escapeHtml(selectedPath.salary) + '</div>' : '')
@@ -31960,7 +31956,7 @@ body {
                     var maxVal = potentialVal || (entryVal + totalSkillValue) || 1;
                     html += '<div style="' + ls + ' color:#ff9f0a; margin-bottom:14px;">Your Growth Path</div>';
                     html += '<div style="position:relative; margin-bottom:24px;">';
-                    html += '<div style="display:flex; align-items:center; height:44px; border-radius:12px; overflow:hidden; background:var(--bg-elevated); border:1px solid var(--border-color);">';
+                    html += '<div style="display:flex; align-items:center; height:44px; border-radius:12px; overflow:hidden; background:var(--bg-elevated); border:1px solid rgba(255,255,255,0.06);">';
                     var basePct = Math.max(((entryVal / maxVal) * 100), 15);
                     html += '<div style="width:' + basePct + '%; height:100%; background:#30d158; display:flex; align-items:center; justify-content:center;">'
                         + '<span style="font-size:0.72em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3);">You Now</span></div>';
@@ -31983,8 +31979,8 @@ body {
                     html += '<div style="position:relative; padding-left:28px;">';
                     skillsToLearn.forEach(function(sk, si) {
                         var bc = barColors[si % barColors.length];
-                        html += '<div style="position:relative; padding:10px 0 14px 0;' + (si < skillsToLearn.length - 1 ? ' border-left:2px solid var(--border-color); margin-left:-14px; padding-left:26px;' : ' margin-left:-14px; padding-left:26px;') + '">'
-                            + '<div style="position:absolute; left:-21px; top:12px; width:14px; height:14px; border-radius:50%; background:' + bc + '; border:3px solid var(--card-bg);"></div>'
+                        html += '<div style="position:relative; padding:10px 0 14px 0;' + (si < skillsToLearn.length - 1 ? ' border-left:2px solid rgba(255,255,255,0.06); margin-left:-14px; padding-left:26px;' : ' margin-left:-14px; padding-left:26px;') + '">'
+                            + '<div style="position:absolute; left:-21px; top:12px; width:14px; height:14px; border-radius:50%; background:' + bc + '; border:3px solid rgba(255,255,255,0.02);"></div>'
                             + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:4px;">'
                             + '<div style="font-weight:700; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(sk.name) + '</div>'
                             + '<div style="font-weight:700; color:' + bc + '; font-size:0.82em;">+' + _expFmt(sk.valueAdd || 0) + '/yr</div></div>'
@@ -32010,7 +32006,7 @@ body {
             if (allSchools.length > 0) {
                 allSchools.forEach(function(s, i) {
                     var typeEmoji = s.schoolType === 'highschool' ? '\uD83C\uDFEB' : s.schoolType === 'trade' ? '\uD83D\uDD27' : s.schoolType === 'community' ? '\uD83D\uDCDA' : s.schoolType === 'bootcamp' ? '\uD83D\uDCBB' : '\uD83C\uDF93';
-                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid rgba(255,255,255,0.06);' : '') + '">'
                         + '<div>'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + typeEmoji + ' ' + escapeHtml(s.school || '') + '</div>'
                         + '<div style="font-size:0.78em; color:var(--text-secondary);">'
@@ -32040,7 +32036,7 @@ body {
             } else {
                 activities.forEach(function(a, i) {
                     var catObj = _explorerActCategories.find(function(c) { return c.id === a.category; }) || { label: a.category, icon: bpIcon('compass',14) };
-                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:7px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:7px 0;' + (i > 0 ? ' border-top:1px solid rgba(255,255,255,0.06);' : '') + '">'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">' + catObj.icon + ' ' + escapeHtml(catObj.label) + (a.role ? ' \u2014 ' + escapeHtml(a.role) : '') + '</div>';
                     html += (a.description ? '<div style="font-size:0.75em; color:var(--text-secondary); margin-top:3px; line-height:1.4;">' + escapeHtml(a.description) + '</div>' : '')
@@ -32108,7 +32104,7 @@ body {
         }
 
         function _renderCompensationTrajectory(careerPaths, selectedIdx) {
-            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:22px; margin-bottom:16px;';
+            var cs = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
             var pathColors = ['#bf5af2', '#60a5fa', '#30d158', '#ff9f0a', '#ff453a'];
             var maxVal = 0;
@@ -32128,7 +32124,7 @@ body {
             for (var g = 0; g <= gridSteps; g++) {
                 var gy = padT + (chartH * g / gridSteps);
                 var gVal = maxVal - (maxVal * g / gridSteps);
-                gridLines += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="var(--border-color)" stroke-width="0.5" stroke-dasharray="4,4" />';
+                gridLines += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="rgba(255,255,255,0.06)" stroke-width="0.5" stroke-dasharray="4,4" />';
                 gridLines += '<text x="' + (padL - 10) + '" y="' + (gy + 5) + '" text-anchor="end" fill="var(--text-muted)" font-size="12" font-family="Outfit,sans-serif">$' + Math.round(gVal / 1000) + 'k</text>';
             }
             stages.forEach(function(label, si) {
@@ -32161,13 +32157,13 @@ body {
 
                 [[x0,y0,ev],[x1,y1,mv],[x2,y2,sv]].forEach(function(pt) {
                     var dotR = isSel ? 7 : 4;
-                    dotsSvg += '<circle cx="' + pt[0] + '" cy="' + pt[1] + '" r="' + dotR + '" fill="' + c + '" stroke="var(--card-bg)" stroke-width="' + (isSel ? '3' : '2') + '" opacity="' + opacity + '" />';
+                    dotsSvg += '<circle cx="' + pt[0] + '" cy="' + pt[1] + '" r="' + dotR + '" fill="' + c + '" stroke="rgba(255,255,255,0.02)" stroke-width="' + (isSel ? '3' : '2') + '" opacity="' + opacity + '" />';
                     if (isSel) {
                         dotsSvg += '<text x="' + pt[0] + '" y="' + (pt[1] - 14) + '" text-anchor="middle" fill="' + c + '" font-size="13" font-weight="700" font-family="Outfit,sans-serif">$' + Math.round(pt[2] / 1000) + 'k</text>';
                     }
                 });
 
-                legendHtml += '<div onclick="explorerDashSelectPath(' + pi + ')" style="display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:8px; cursor:pointer; font-size:0.82em; border:1px solid ' + (isSel ? c : 'var(--border-color)') + '; background:' + (isSel ? c + '12' : 'transparent') + '; color:' + (isSel ? c : 'var(--text-muted)') + '; font-weight:' + (isSel ? '700' : '500') + '; transition:all 0.15s;">'
+                legendHtml += '<div onclick="explorerDashSelectPath(' + pi + ')" style="display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:8px; cursor:pointer; font-size:0.82em; border:1px solid ' + (isSel ? c : 'rgba(255,255,255,0.06)') + '; background:' + (isSel ? c + '12' : 'transparent') + '; color:' + (isSel ? c : 'var(--text-muted)') + '; font-weight:' + (isSel ? '700' : '500') + '; transition:all 0.15s;">'
                     + '<span style="width:12px; height:4px; background:' + c + '; border-radius:6px; flex-shrink:0;"></span>'
                     + escapeHtml(p.title) + '</div>';
             });
@@ -32183,7 +32179,7 @@ body {
         }
 
         function _renderSkillAdjacencyMap(interests, skills, careerPaths, selectedPath) {
-            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:22px; margin-bottom:16px;';
+            var cs = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
             var normalized = _normalizeInterests(interests);
 
@@ -32245,7 +32241,7 @@ body {
             var result = '<div style="' + cs + '">'
                 + '<div style="' + ls + ' color:#bf5af2;">Skill Adjacency Map</div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:6px;">How your interests connect to skills and career paths</div>'
-                + '<div id="' + containerId + '" style="width:100%; height:520px; position:relative; overflow:hidden; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-elevated);"></div>'
+                + '<div id="' + containerId + '" style="width:100%; height:520px; position:relative; overflow:hidden; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:var(--bg-elevated);"></div>'
                 + '<div style="display:flex; gap:16px; margin-top:12px; justify-content:center; flex-wrap:wrap;">'
                 + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:#bf5af2; font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#bf5af220; border:2px solid #bf5af2; display:inline-block;"></span> Interests</span>'
                 + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:#60a5fa; font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#60a5fa20; border:2px solid #60a5fa; display:inline-block;"></span> Skills</span>'
@@ -32471,7 +32467,7 @@ body {
         ];
 
         function _renderExplorerValues(ed, canEdit) {
-            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:22px; margin-bottom:16px;';
+            var cs = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
             if (typeof canEdit === 'undefined') canEdit = !isReadOnlyProfile;
             var workValues = ed.workValues || [];
@@ -32522,7 +32518,7 @@ body {
 
             _explorerWorkValues.forEach(function(v) {
                 var isSel = currentValues.indexOf(v.id) >= 0;
-                html += '<div id="val_' + v.id + '" onclick="explorerToggleValue(\'' + v.id + '\')" style="padding:14px; border-radius:12px; cursor:pointer; transition:all 0.15s; border:2px solid ' + (isSel ? v.color : 'var(--border-color)') + '; background:' + (isSel ? v.color + '10' : 'transparent') + ';">'
+                html += '<div id="val_' + v.id + '" onclick="explorerToggleValue(\'' + v.id + '\')" style="padding:14px; border-radius:12px; cursor:pointer; transition:all 0.15s; border:2px solid ' + (isSel ? v.color : 'rgba(255,255,255,0.06)') + '; background:' + (isSel ? v.color + '10' : 'transparent') + ';">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
                     + '<span style="font-size:1.3em;">' + v.icon + '</span>'
                     + '<span style="font-weight:700; color:' + (isSel ? v.color : 'var(--text-primary)') + '; font-size:0.92em;">' + v.name + '</span>'
@@ -32533,7 +32529,7 @@ body {
 
             html += '</div>'
                 + '<div style="display:flex; gap:10px; margin-top:20px; justify-content:center;">'
-                + '<button onclick="closeModal()" style="padding:10px 24px; background:var(--bg-elevated); color:var(--text-secondary); border:1px solid var(--border-color); border-radius:10px; cursor:pointer; font-weight:600;">Cancel</button>'
+                + '<button onclick="closeModal()" style="padding:10px 24px; background:var(--bg-elevated); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.06); border-radius:10px; cursor:pointer; font-weight:600;">Cancel</button>'
                 + '<button onclick="explorerDashSaveValues()" style="padding:10px 28px; background:linear-gradient(135deg,#ff9f0a,#ff9f0a); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700;">Save Values</button>'
                 + '</div></div>';
 
@@ -32560,7 +32556,7 @@ body {
                 var el = document.getElementById('val_' + v.id);
                 if (!el) return;
                 var isSel = sel.indexOf(v.id) >= 0;
-                el.style.borderColor = isSel ? v.color : 'var(--border-color)';
+                el.style.borderColor = isSel ? v.color : 'rgba(255,255,255,0.06)';
                 el.style.background = isSel ? v.color + '10' : 'transparent';
             });
             var countEl = document.getElementById('valuesCount');
@@ -32586,7 +32582,7 @@ body {
         window.explorerDashSaveValues = explorerDashSaveValues;
 
         function _renderPeopleLikeYou(ed, skills) {
-            var card = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:24px;';
+            var card = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:24px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;';
             var _canEdit = !isReadOnlyProfile;
             var people = ed.peopleInspirations || [];
@@ -33069,7 +33065,7 @@ body {
                 + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Convert to Full Blueprint</div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6;">Add your work experience to unlock the complete Blueprint platform \u2014 salary insights, market valuation, negotiation tools, and scouting reports.</div>'
                 + '</div>'
-                + '<div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:18px; margin-bottom:20px;">'
+                + '<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:18px; margin-bottom:20px;">'
                 + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.9em;">What You Keep</div>'
                 + '<div style="display:flex; flex-direction:column; gap:6px;">'
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#30d158; margin-right:6px;">&#10003;</span> All ' + (skillsData.skills || []).length + ' discovered skills</div>'
@@ -33077,7 +33073,7 @@ body {
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#30d158; margin-right:6px;">&#10003;</span> Your career path interests</div>'
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#30d158; margin-right:6px;">&#10003;</span> Your values and purpose</div>'
                 + '</div></div>'
-                + '<div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:18px; margin-bottom:24px;">'
+                + '<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:18px; margin-bottom:24px;">'
                 + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.9em;">What You Unlock</div>'
                 + '<div style="display:flex; flex-direction:column; gap:6px;">'
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> Market valuation & salary benchmarking</div>'
@@ -33086,7 +33082,7 @@ body {
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> Evidence-based skill verification</div>'
                 + '</div></div>'
                 + '<div style="display:flex; gap:12px;">'
-                + '<button onclick="closeExportModal()" style="flex:1; padding:12px; background:var(--card-bg); color:var(--text-secondary); border:1px solid var(--border-color); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.9em;">Not Yet</button>'
+                + '<button onclick="closeExportModal()" style="flex:1; padding:12px; background:rgba(255,255,255,0.02); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.06); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.9em;">Not Yet</button>'
                 + '<button onclick="explorerDoConvert()" style="flex:1; padding:12px; background:#30d158; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert Now</button>'
                 + '</div></div>';
             modal.style.display = 'flex';
@@ -49806,7 +49802,7 @@ body {
                 return '<option value="' + c.id + '"' + (act.category === c.id ? ' selected' : '') + '>' + c.label + '</option>';
             }).join('');
             var modalHTML = '<div id="activityModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; display:flex; align-items:center; justify-content:center;" onclick="if(event.target===this)this.remove()">'
-                + '<div style="background:var(--card-bg); border-radius:12px; padding:24px; max-width:480px; width:90%; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">'
+                + '<div style="background:rgba(255,255,255,0.02); border-radius:12px; padding:24px; max-width:480px; width:90%; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">'
                 + '<div style="font-weight:700; font-size:1.05em; color:var(--text-primary); margin-bottom:16px;">' + (isNew ? 'Add Activity' : 'Edit Activity') + '</div>'
                 + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Activity Name</label>'
                 + '<input id="actName" value="' + escapeAttr(act.name || '') + '" placeholder="e.g. Varsity Baseball" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
