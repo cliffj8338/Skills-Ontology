@@ -26410,9 +26410,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // Create nodes
             // Center node stays with the network body; text label offsets left for readability
-            var networkCenterX = isMobile ? width * 0.45 : width / 2;
-            var centerY = Math.max(80, height * 0.22);
-            var nameX = isMobile ? width * 0.72 : Math.max(width * 0.22, 180);
+            var networkCenterX = isMobile ? width * 0.50 : width * 0.50;
+            var centerY = Math.max(80, height * 0.28);
+            var nameX = isMobile ? width * 0.50 : networkCenterX;
             var nameY = centerY;
             var centerName = userData.profile.name || "You";
             var maxNameLen = isMobile ? 18 : 24;
@@ -26430,7 +26430,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             ];
 
             var visibleRoles = getVisibleRoles();
-            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.38 : 0.44);
+            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.32 : 0.36);
             visibleRoles.forEach((role, i) => {
                 const angle = (i / visibleRoles.length) * 2 * Math.PI - Math.PI / 2;
                 const radius = roleOrbitR;
@@ -26548,7 +26548,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var linkDist = isMobile ? [180, 90] : [240 * scaleFactor, 100 * scaleFactor];
             var chargeStr = isMobile ? [-400, -220] : [-500 * scaleFactor, -250 * scaleFactor];
             var collisionR = isMobile ? [55, 55, 40] : [70 * scaleFactor, 65 * scaleFactor, 50 * scaleFactor];
-            var gravityCenter = isMobile ? height * 0.46 : height * 0.48;
+            var gravityCenter = isMobile ? height * 0.44 : height * 0.45;
             
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(d => d.id).distance(d => {
@@ -26879,8 +26879,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             svg.selectAll("*").remove();
             if (simulation) simulation.stop();
             
-            var centerX = isMobile ? width * 0.68 : width * 0.42;
-            var centerY = isMobile ? height * 0.18 : height * 0.28;
+            var centerX = isMobile ? width * 0.50 : width * 0.50;
+            var centerY = isMobile ? height * 0.22 : height * 0.30;
             var maxTitleLen = isMobile ? 20 : 30;
             var truncTitle = (job.title || "Job").length > maxTitleLen ? (job.title || "Job").substring(0, maxTitleLen - 2) + '\u2026' : (job.title || "Job");
             var nodes = [
@@ -26942,7 +26942,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 180 : 220 * scaleFactor) : (isMobile ? 100 : 110 * scaleFactor); }))
                 .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -400 : -400) * scaleFactor : (isMobile ? -220 : -220) * scaleFactor; }))
                 .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 50 : 60) * scaleFactor : d.type === 'role' ? (isMobile ? 55 : 55) * scaleFactor : (isMobile ? 38 : 48) * scaleFactor; }).iterations(2))
-                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : (isMobile ? width * 0.40 : width * 0.46); }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.04 : 0.05); }))
+                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : centerX; }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.05 : 0.06); }))
                 .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.04 : 0.05))
                 .force("radial", d3.forceRadial(function(d) {
                     if (d.type === 'role') return jobRoleOrbitR;
@@ -27051,11 +27051,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var gapSkills = new Set();
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
-            var nameX = isMobile ? width * 0.75 : width * 0.18;
-            var nameY = isMobile ? height * 0.12 : height * 0.38;
-            var networkBodyX = isMobile ? width * 0.50 : width * 0.32;
-            var jobX = isMobile ? width * 0.18 : width * 0.82;
-            var jobY = isMobile ? height * 0.12 : height * 0.32;
+            var nameX = isMobile ? width * 0.50 : width * 0.30;
+            var nameY = isMobile ? height * 0.15 : height * 0.35;
+            var networkBodyX = isMobile ? width * 0.50 : width * 0.45;
+            var jobX = isMobile ? width * 0.50 : width * 0.72;
+            var jobY = isMobile ? height * 0.15 : height * 0.30;
             
             var matchCenterName = userData.profile.name || "You";
             var maxMatchNameLen = isMobile ? 18 : 28;
@@ -27068,7 +27068,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             ];
             
             var matchVisibleRoles = getVisibleRoles();
-            var matchRoleOrbitR = Math.min(width, height) * (isMobile ? 0.34 : 0.38);
+            var matchRoleOrbitR = Math.min(width, height) * (isMobile ? 0.28 : 0.32);
             matchVisibleRoles.forEach(function(role, i) {
                 var angle = -Math.PI * 0.6 + (i / Math.max(matchVisibleRoles.length - 1, 1)) * Math.PI * 1.2;
                 var radius = matchRoleOrbitR;
@@ -27166,14 +27166,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("x", d3.forceX(function(d) {
                     if (d.type === 'center') return nameX;
                     if (d.id === 'role-job-req') return jobX;
-                    if (d.matchState === 'gap') return isMobile ? width * 0.25 : width * 0.68;
-                    if (d.matchState === 'matched') return isMobile ? width * 0.50 : width * 0.55;
-                    return isMobile ? width * 0.50 : width * 0.42;
+                    if (d.matchState === 'gap') return isMobile ? width * 0.50 : width * 0.58;
+                    if (d.matchState === 'matched') return isMobile ? width * 0.50 : width * 0.50;
+                    return isMobile ? width * 0.50 : width * 0.45;
                 }).strength(function(d) {
                     if (d.type === 'center' || d.id === 'role-job-req') return 0;
-                    if (d.matchState === 'matched') return 0.08;
-                    if (d.matchState === 'gap') return 0.06;
-                    return isMobile ? 0.04 : 0.06;
+                    if (d.matchState === 'matched') return 0.06;
+                    if (d.matchState === 'gap') return 0.05;
+                    return isMobile ? 0.04 : 0.05;
                 }))
                 .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.03 : 0.04))
                 .force("radial", d3.forceRadial(function(d) {
@@ -27507,8 +27507,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Layout: user values on left, company values on right
             var centerY = height * 0.45;
-            var leftX = isMobile ? width * 0.30 : width * 0.28;
-            var rightX = isMobile ? width * 0.70 : width * 0.72;
+            var leftX = isMobile ? width * 0.32 : width * 0.35;
+            var rightX = isMobile ? width * 0.68 : width * 0.65;
             var topY = isMobile ? Math.max(45, height * 0.10) : Math.max(60, height * 0.13);
             
             // Build lookup sets
@@ -27757,7 +27757,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Tick
             simulation.on("tick", function() {
-                var padding = isMobile ? 50 : 55;
+                var padding = isMobile ? 50 : 100;
                 nodes.forEach(function(d) {
                     if (d.type !== 'hub') {
                         d.x = Math.max(padding, Math.min(width - padding, d.x));
