@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.45';
+        var BP_VERSION = 'v4.47.46';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2344,6 +2344,7 @@
                 + _adminSidebarGroup('sys', 'System',
                     _adminSidebarBtn('config', 'settings', 'Config')
                     + _adminSidebarBtn('status', 'shield', 'Status')
+                    + _adminSidebarBtn('versions', 'layers', 'Versions')
                     + _adminSidebarBtn('architecture', 'compass', 'Architecture')
                     + _adminSidebarBtn('userflows', 'network', 'User Flows'))
                 + _adminSidebarGroup('plan', 'Planning',
@@ -2381,6 +2382,7 @@
             else if (adminSubTab === 'wbcompare') renderWBCompareWizard(el);
             else if (adminSubTab === 'parseaudit') renderParseAudit(el);
             else if (adminSubTab === 'wbabout') renderAdminWBAbout(el);
+            else if (adminSubTab === 'versions') renderAdminVersions(el);
             else if (adminSubTab === 'userflows') renderAdminUserFlows(el);
         }
         
@@ -4195,12 +4197,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.45: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.46: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.45: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
-                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.45: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.46: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.46: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.45: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.46: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -13856,6 +13858,269 @@
             renderParseAudit(el);
         }
         window._parseAuditRun = _parseAuditRun;
+
+        // ===== VERSION MANAGEMENT SYSTEM =====
+        var _versionDB = null;
+        function _openVersionDB() {
+            return new Promise(function(resolve, reject) {
+                if (_versionDB) { resolve(_versionDB); return; }
+                var req = indexedDB.open('BlueprintVersions', 1);
+                req.onupgradeneeded = function(e) {
+                    var db = e.target.result;
+                    if (!db.objectStoreNames.contains('snapshots')) {
+                        db.createObjectStore('snapshots', { keyPath: 'id' });
+                    }
+                };
+                req.onsuccess = function(e) { _versionDB = e.target.result; resolve(_versionDB); };
+                req.onerror = function(e) { reject(e.target.error); };
+            });
+        }
+
+        async function adminSaveVersion() {
+            if (showcaseMode) { showToast('Cannot save versions in showcase mode.', 'warning'); return; }
+            var comment = prompt('Version comment (what changed):');
+            if (comment === null) return;
+            comment = comment.trim() || 'No comment';
+
+            var saving = showToast('Saving version snapshot...', 'info');
+            try {
+                var response = await fetch('/app-core.js?v=' + Date.now());
+                var fileContent = await response.text();
+
+                var versionId = 'v_' + Date.now();
+                var meta = {
+                    id: versionId,
+                    version: BP_VERSION,
+                    comment: comment,
+                    savedAt: new Date().toISOString(),
+                    savedBy: fbUser ? fbUser.email : 'unknown',
+                    fileSize: fileContent.length,
+                    lineCount: fileContent.split('\n').length
+                };
+
+                var db = await _openVersionDB();
+                var tx = db.transaction('snapshots', 'readwrite');
+                tx.objectStore('snapshots').put({ id: versionId, meta: meta, content: fileContent });
+                await new Promise(function(res, rej) { tx.oncomplete = res; tx.onerror = rej; });
+
+                if (fbDb && fbUser) {
+                    await fbDb.collection('app_versions').doc(versionId).set(meta);
+                }
+
+                showToast('Version saved: ' + BP_VERSION + ' — "' + comment + '"', 'success');
+                if (adminSubTab === 'versions') renderAdminVersions(document.getElementById('adminTabContent'));
+            } catch (err) {
+                showToast('Failed to save version: ' + err.message, 'error');
+            }
+        }
+        window.adminSaveVersion = adminSaveVersion;
+
+        async function adminDownloadVersion(versionId) {
+            try {
+                var db = await _openVersionDB();
+                var tx = db.transaction('snapshots', 'readonly');
+                var req = tx.objectStore('snapshots').get(versionId);
+                var record = await new Promise(function(res, rej) { req.onsuccess = function() { res(req.result); }; req.onerror = rej; });
+                if (!record || !record.content) {
+                    showToast('Version content not found locally. It may have been saved on a different device.', 'warning');
+                    return;
+                }
+                var blob = new Blob([record.content], { type: 'application/javascript' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'app-core_' + (record.meta.version || 'unknown') + '_' + record.meta.savedAt.slice(0,10) + '.js';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Version downloaded.', 'success');
+            } catch (err) {
+                showToast('Download failed: ' + err.message, 'error');
+            }
+        }
+        window.adminDownloadVersion = adminDownloadVersion;
+
+        async function adminRestoreVersion(versionId) {
+            if (showcaseMode) { showToast('Cannot restore in showcase mode.', 'warning'); return; }
+            try {
+                var db = await _openVersionDB();
+                var tx = db.transaction('snapshots', 'readonly');
+                var req = tx.objectStore('snapshots').get(versionId);
+                var record = await new Promise(function(res, rej) { req.onsuccess = function() { res(req.result); }; req.onerror = rej; });
+                if (!record || !record.content) {
+                    showToast('Version content not found locally. Download the file and restore manually.', 'warning');
+                    return;
+                }
+                var meta = record.meta;
+                if (!confirm('RESTORE VERSION?\n\nVersion: ' + meta.version + '\nSaved: ' + new Date(meta.savedAt).toLocaleString() + '\nComment: ' + meta.comment + '\n\nThis will:\n1. Save a backup of the CURRENT version first\n2. Replace app-core.js with the selected version\n3. Download the restored file for you to deploy\n\nContinue?')) return;
+
+                await adminSaveVersion();
+
+                var blob = new Blob([record.content], { type: 'application/javascript' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'RESTORE_app-core.js';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showToast('Restored version downloaded as RESTORE_app-core.js. Replace public/app-core.js with this file and redeploy.', 'success');
+            } catch (err) {
+                showToast('Restore failed: ' + err.message, 'error');
+            }
+        }
+        window.adminRestoreVersion = adminRestoreVersion;
+
+        async function adminDeleteVersion(versionId) {
+            if (showcaseMode) return;
+            if (!confirm('Delete this saved version? This cannot be undone.')) return;
+            try {
+                var db = await _openVersionDB();
+                var tx = db.transaction('snapshots', 'readwrite');
+                tx.objectStore('snapshots').delete(versionId);
+                await new Promise(function(res, rej) { tx.oncomplete = res; tx.onerror = rej; });
+                if (fbDb && fbUser) {
+                    try { await fbDb.collection('app_versions').doc(versionId).delete(); } catch(e) {}
+                }
+                showToast('Version deleted.', 'success');
+                renderAdminVersions(document.getElementById('adminTabContent'));
+            } catch (err) {
+                showToast('Delete failed: ' + err.message, 'error');
+            }
+        }
+        window.adminDeleteVersion = adminDeleteVersion;
+
+        async function renderAdminVersions(el) {
+            if (!el) return;
+            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:20px; margin-bottom:16px;';
+            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-bottom:12px;';
+
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
+                + '<div>'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('layers', 16) + ' Version Manager</h3>'
+                + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px;">Save snapshots of app-core.js before making changes. Restore anytime.</div>'
+                + '</div>'
+                + (showcaseMode ? '' : '<button onclick="adminSaveVersion()" style="padding:10px 20px; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em; white-space:nowrap;">' + bpIcon('layers', 14) + ' Save Current Version</button>')
+                + '</div>';
+
+            html += '<div style="' + cs + ' border-color:rgba(96,165,250,0.2); background:rgba(96,165,250,0.04);">'
+                + '<div style="display:flex; align-items:center; gap:12px;">'
+                + '<div style="width:10px; height:10px; border-radius:50%; background:#10b981; flex-shrink:0;"></div>'
+                + '<div style="flex:1;">'
+                + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Current: ' + escapeHtml(BP_VERSION) + '</div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted);">Running now &middot; ' + new Date().toLocaleString() + '</div>'
+                + '</div></div></div>';
+
+            var versions = [];
+            try {
+                var db = await _openVersionDB();
+                var tx = db.transaction('snapshots', 'readonly');
+                var store = tx.objectStore('snapshots');
+                var cursor = store.openCursor();
+                await new Promise(function(resolve) {
+                    cursor.onsuccess = function(e) {
+                        var c = e.target.result;
+                        if (c) { versions.push(c.value.meta); c.continue(); }
+                        else resolve();
+                    };
+                    cursor.onerror = function() { resolve(); };
+                });
+            } catch(e) {
+                html += '<div style="font-size:0.82em; color:#ef4444; padding:12px;">Could not load local versions: ' + escapeHtml(e.message) + '</div>';
+            }
+
+            if (fbDb && !showcaseMode) {
+                try {
+                    var snap = await fbDb.collection('app_versions').orderBy('savedAt', 'desc').limit(50).get();
+                    snap.forEach(function(doc) {
+                        var d = doc.data();
+                        var exists = versions.find(function(v) { return v.id === d.id; });
+                        if (!exists) {
+                            d._remoteOnly = true;
+                            versions.push(d);
+                        }
+                    });
+                } catch(e) {}
+            }
+
+            versions.sort(function(a, b) { return (b.savedAt || '').localeCompare(a.savedAt || ''); });
+
+            html += '<div style="' + ls + '">Saved Versions (' + versions.length + ')</div>';
+
+            if (versions.length === 0) {
+                html += '<div style="' + cs + ' text-align:center; padding:40px 20px;">'
+                    + '<div style="font-size:2.5em; margin-bottom:12px; opacity:0.2;">' + bpIcon('layers', 48) + '</div>'
+                    + '<div style="font-size:0.92em; color:var(--text-muted); margin-bottom:8px;">No versions saved yet.</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-secondary); max-width:400px; margin:0 auto;">Click "Save Current Version" before making design changes. Each snapshot captures the full app-core.js so you can roll back if needed.</div>'
+                    + '</div>';
+            } else {
+                versions.forEach(function(v, idx) {
+                    var isRemoteOnly = v._remoteOnly;
+                    var sizeLabel = v.fileSize ? (v.fileSize / 1024 / 1024).toFixed(1) + ' MB' : '?';
+                    var lineLabel = v.lineCount ? v.lineCount.toLocaleString() + ' lines' : '';
+                    var dateStr = v.savedAt ? new Date(v.savedAt).toLocaleString() : 'Unknown date';
+                    var relTime = v.savedAt ? _relativeTime(new Date(v.savedAt)) : '';
+
+                    html += '<div style="' + cs + ' padding:16px;">';
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">';
+                    html += '<div style="flex:1; min-width:0;">';
+                    html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">';
+                    html += '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">' + escapeHtml(v.version || '?') + '</span>';
+                    if (idx === 0) html += '<span style="font-size:0.65em; font-weight:700; background:rgba(139,92,246,0.1); color:#8b5cf6; padding:2px 8px; border-radius:4px; text-transform:uppercase;">Latest</span>';
+                    if (isRemoteOnly) html += '<span style="font-size:0.65em; font-weight:600; background:rgba(245,158,11,0.1); color:#f59e0b; padding:2px 8px; border-radius:4px;">Remote Only</span>';
+                    html += '</div>';
+                    html += '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.5; margin-bottom:4px;">' + escapeHtml(v.comment || '') + '</div>';
+                    html += '<div style="font-size:0.72em; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:12px;">'
+                        + '<span>' + escapeHtml(dateStr) + '</span>'
+                        + (relTime ? '<span>(' + relTime + ')</span>' : '')
+                        + '<span>' + escapeHtml(sizeLabel) + '</span>'
+                        + (lineLabel ? '<span>' + escapeHtml(lineLabel) + '</span>' : '')
+                        + (v.savedBy ? '<span>by ' + escapeHtml(v.savedBy) + '</span>' : '')
+                        + '</div>';
+                    html += '</div>';
+
+                    if (!showcaseMode) {
+                        html += '<div style="display:flex; gap:6px; flex-shrink:0;">';
+                        if (!isRemoteOnly) {
+                            html += '<button onclick="adminDownloadVersion(\'' + v.id + '\')" title="Download" style="padding:6px 10px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:6px; cursor:pointer; color:#60a5fa; font-size:0.78em; font-weight:600;">' + bpIcon('layers',12) + ' DL</button>';
+                            html += '<button onclick="adminRestoreVersion(\'' + v.id + '\')" title="Restore" style="padding:6px 10px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:6px; cursor:pointer; color:#10b981; font-size:0.78em; font-weight:600;">' + bpIcon('check',12) + ' Restore</button>';
+                        }
+                        html += '<button onclick="adminDeleteVersion(\'' + v.id + '\')" title="Delete" style="padding:6px 10px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15); border-radius:6px; cursor:pointer; color:#ef4444; font-size:0.78em; font-weight:600;">&times;</button>';
+                        html += '</div>';
+                    }
+                    html += '</div></div>';
+                });
+            }
+
+            html += '<div style="margin-top:20px; padding:16px; background:rgba(245,158,11,0.04); border:1px solid rgba(245,158,11,0.15); border-radius:10px;">'
+                + '<div style="font-size:0.82em; font-weight:700; color:#f59e0b; margin-bottom:6px;">How Version Restore Works</div>'
+                + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.6;">'
+                + '1. Saved versions are stored locally in your browser (IndexedDB) with metadata synced to Firebase.<br>'
+                + '2. <strong>Download</strong> exports the saved app-core.js file to your computer.<br>'
+                + '3. <strong>Restore</strong> auto-saves the current version first (safety net), then downloads the chosen version as RESTORE_app-core.js.<br>'
+                + '4. To complete a restore: replace <code>public/app-core.js</code> with the downloaded file and push to GitHub.<br>'
+                + '5. Versions are browser-local. Save important versions on different devices by downloading them.'
+                + '</div></div>';
+
+            el.innerHTML = html;
+        }
+
+        function _relativeTime(date) {
+            var now = new Date();
+            var diff = now - date;
+            var mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'just now';
+            if (mins < 60) return mins + 'm ago';
+            var hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            var days = Math.floor(hrs / 24);
+            if (days < 30) return days + 'd ago';
+            var months = Math.floor(days / 30);
+            return months + 'mo ago';
+        }
 
         function renderAdminUserFlows(el) {
             var _ufFlows = [
