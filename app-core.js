@@ -26309,14 +26309,30 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         var _networkZoom = null;
-        function fitNetworkToViewport(svg, container, svgW, svgH) {
-            var bbox = container.node().getBBox();
-            if (!bbox.width || !bbox.height) return;
-            var pad = 50;
-            var fullW = bbox.width + 2 * pad;
-            var fullH = bbox.height + 2 * pad;
-            var midX = bbox.x + bbox.width / 2;
-            var midY = bbox.y + bbox.height / 2;
+        function fitNetworkToViewport(svg, container, svgW, svgH, nodesData) {
+            var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            if (nodesData && nodesData.length) {
+                nodesData.forEach(function(d) {
+                    var r = d.radius || 30;
+                    if (d.x - r < minX) minX = d.x - r;
+                    if (d.x + r > maxX) maxX = d.x + r;
+                    if (d.y - r < minY) minY = d.y - r;
+                    if (d.y + r > maxY) maxY = d.y + r;
+                });
+            } else {
+                var bbox = container.node().getBBox();
+                if (!bbox.width || !bbox.height) return;
+                minX = bbox.x; maxX = bbox.x + bbox.width;
+                minY = bbox.y; maxY = bbox.y + bbox.height;
+            }
+            var bw = maxX - minX;
+            var bh = maxY - minY;
+            if (bw < 1 || bh < 1) return;
+            var pad = 60;
+            var fullW = bw + 2 * pad;
+            var fullH = bh + 2 * pad;
+            var midX = minX + bw / 2;
+            var midY = minY + bh / 2;
             var scale = Math.min(svgW / fullW, svgH / fullH, 1);
             var tx = svgW / 2 - midX * scale;
             var ty = svgH / 2 - midY * scale;
@@ -26698,7 +26714,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
             node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-            fitNetworkToViewport(svg, networkContainer, width, height);
+            fitNetworkToViewport(svg, networkContainer, width, height, nodes);
 
             window.networkData = { nodes, links, svg, link, node };
             setTimeout(applyLabelToggles, 100);
@@ -27031,7 +27047,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
             link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
             node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
-            fitNetworkToViewport(svg, jobContainer, width, height);
+            fitNetworkToViewport(svg, jobContainer, width, height, nodes);
             
             // Add job info tile
             addJobInfoTile(job);
@@ -27307,7 +27323,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
             link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
             node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
-            fitNetworkToViewport(svg, matchContainer, width, height);
+            fitNetworkToViewport(svg, matchContainer, width, height, nodes);
             
             // Add legend and job info tile
             addMatchLegend(match);
@@ -27791,7 +27807,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             simulation.tick(Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())));
             link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
             node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
-            fitNetworkToViewport(svg, valuesContainer, width, height);
+            fitNetworkToViewport(svg, valuesContainer, width, height, nodes);
             
             // Add values panel (includes job info) — skip separate job tile
             addValuesAlignmentPanel(alignment, job, cv);
