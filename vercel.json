@@ -24,8 +24,17 @@
       ]
     }
   ],
+  "crons": [
+    {
+      "path": "/api/jobs-sync",
+      "schedule": "0 */6 * * *"
+    }
+  ],
   "functions": {
     "api/ai.js": {
+      "maxDuration": 60
+    },
+    "api/jobs-sync.js": {
       "maxDuration": 60
     }
   }
