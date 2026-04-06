@@ -1,6 +1,6 @@
 {
   "name": "blueprint",
-  "version": "4.48.8",
+  "version": "4.48.9",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,9 +8,11 @@
     "dev": "vite",
     "prebuild": "node scripts/count-lines.js",
     "build": "vite build",
+    "postbuild": "node scripts/minify-appcore.js",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "terser": "^5.46.1",
     "vite": "^5.4.0"
   }
 }

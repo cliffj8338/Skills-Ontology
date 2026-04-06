@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.8';
+        var BP_VERSION = 'v4.48.9';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2156,7 +2156,7 @@
                         + summary + '</pre>'
                         + '<div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">'
                         + '<button onclick="exportMyData()" style="background:var(--c-accent-inv); color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600;">Download Full Export (JSON)</button>'
-                        + '<button onclick="closeExportModal(); requestDataDeletion();" style="background:transparent; color:#ff453a; border:1px solid #ff453a; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600;">Delete All My Data</button>'
+                        + '<button onclick="closeExportModal(); requestDataDeletion();" style="background:transparent; color:var(--danger); border:1px solid var(--danger); padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600;">Delete All My Data</button>'
                         + '</div></div>';
                     
                     history.pushState({ modal: true }, ''); modal.classList.add('active');
@@ -2318,7 +2318,7 @@
             
             view.innerHTML = '<div style="max-width:1400px; margin:0 auto; padding:24px 24px 80px;">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">'
-                + '<h1 style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:700; color:#ffd60a; letter-spacing:0.08em; text-transform:uppercase; margin:0;">'
+                + '<h1 style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:700; color:var(--warning); letter-spacing:0.08em; text-transform:uppercase; margin:0;">'
                 + bpIcon('shield', 24) + ' Admin</h1>'
                 + '<span style="font-size:0.82em; color:var(--text-muted);">' + escapeHtml(authName) + '</span>'
                 + '</div>'
@@ -2411,9 +2411,9 @@
                 var showcaseUrl = window.location.origin + window.location.pathname + '?showcase=' + SHOWCASE_CONFIG.key;
                 html += '<div style="margin-bottom:24px; padding:14px 18px; background:rgba(255,214,10,0.08); border:1px solid rgba(255,214,10,0.2); border-radius:10px;">'
                     + '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
-                    + '<div style="font-size:0.78em; color:#ffd60a; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Investor Showcase</div>'
+                    + '<div style="font-size:0.78em; color:var(--warning); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Investor Showcase</div>'
                     + '<code id="showcaseUrlText" style="flex:1; min-width:200px; font-size:0.82em; color:var(--text-secondary); background:var(--c-surface-2); padding:8px 12px; border-radius:6px; border:1px solid var(--c-surface-5); word-break:break-all; cursor:text; user-select:all;">' + escapeHtml(showcaseUrl) + '</code>'
-                    + '<button onclick="navigator.clipboard.writeText(document.getElementById(\'showcaseUrlText\').textContent); this.textContent=\'Copied!\'; this.style.background=\'#30d158\'; setTimeout(function(){document.querySelector(\'[data-showcase-copy]\').textContent=\'Copy\'; document.querySelector(\'[data-showcase-copy]\').style.background=\'rgba(255,214,10,0.15)\';}, 1500);" data-showcase-copy style="padding:6px 16px; background:rgba(255,214,10,0.15); color:#ffd60a; border:1px solid rgba(255,214,10,0.3); border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Copy</button>'
+                    + '<button onclick="navigator.clipboard.writeText(document.getElementById(\'showcaseUrlText\').textContent); this.textContent=\'Copied!\'; this.style.background=\'#30d158\'; setTimeout(function(){document.querySelector(\'[data-showcase-copy]\').textContent=\'Copy\'; document.querySelector(\'[data-showcase-copy]\').style.background=\'rgba(255,214,10,0.15)\';}, 1500);" data-showcase-copy style="padding:6px 16px; background:rgba(255,214,10,0.15); color:var(--warning); border:1px solid rgba(255,214,10,0.3); border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Copy</button>'
                     + '</div>'
                     + '<div style="margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">'
                     + '<button onclick="exportShowcaseProfile()" style="padding:6px 14px; background:var(--c-surface-5); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('upload', 12) + ' Update Showcase Profile</button>'
@@ -2492,8 +2492,8 @@
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('tool', 16) + ' Jobs Sync</h3>'
                 + '<div style="display:flex; align-items:center; gap:10px;">'
-                + '<span style="font-size:0.68em; padding:3px 8px; border-radius:6px; background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600; letter-spacing:0.03em;">CRON · 6h</span>'
-                + '<button onclick="purgeJobDuplicates()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(255,159,10,0.3); background:rgba(255,159,10,0.08); color:#ff9f0a; cursor:pointer; font-weight:600;">Purge Dupes</button></div></div>'
+                + '<span style="font-size:0.68em; padding:3px 8px; border-radius:6px; background:rgba(96,165,250,0.1); color:var(--accent); font-weight:600; letter-spacing:0.03em;">CRON · 6h</span>'
+                + '<button onclick="purgeJobDuplicates()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(255,159,10,0.3); background:rgba(255,159,10,0.08); color:var(--c-orange); cursor:pointer; font-weight:600;">Purge Dupes</button></div></div>'
                 + '<div id="adminJobsSyncContent" style="color:var(--text-muted); font-size:0.85em;">Loading sync status...</div></div>';
             
             // ===== SITE TRAFFIC & ANALYTICS =====
@@ -2504,7 +2504,7 @@
                 + '<div id="trafficTiles">Loading...</div></div>';
             
             // ===== AI ROI CALCULATOR TRAFFIC =====
-            html += '<div id="adminAiroi" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-top:3px solid #30d158; border-radius:10px; margin-bottom:20px;">'
+            html += '<div id="adminAiroi" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-top:3px solid var(--success); border-radius:10px; margin-bottom:20px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('trending-up', 16) + ' AI ROI Calculator</h3>'
                 + '<a href="https://myblueprint.work/airoi" target="_blank" style="font-size:0.72em; color:var(--text-muted); text-decoration:none; letter-spacing:0.05em;">myblueprint.work/airoi ↗</a>'
@@ -2586,7 +2586,7 @@
             html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('trending-up',16) + ' Dev Velocity</h3>'
-                + '<span style="font-size:0.68em; padding:3px 10px; border-radius:8px; background:rgba(48,209,88,0.1); color:#30d158; font-weight:700;">' + speedMultiplier + 'x FASTER</span>'
+                + '<span style="font-size:0.68em; padding:3px 10px; border-radius:8px; background:rgba(48,209,88,0.1); color:var(--success); font-weight:700;">' + speedMultiplier + 'x FASTER</span>'
                 + '</div>';
             
             // Top stats grid
@@ -2611,7 +2611,7 @@
             
             // AI column
             html += '<div style="padding:16px; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.2); border-radius:10px;">'
-                + '<div style="font-size:0.78em; font-weight:700; color:#5ac8fa; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('wand',14) + ' AI Vibe-Coding</div>'
+                + '<div style="font-size:0.78em; font-weight:700; color:var(--c-cyan); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('wand',14) + ' AI Vibe-Coding</div>'
                 + devBar('Calendar Time', monthsElapsed + ' mo', Math.max(monthsElapsed, tradMonths), '#5ac8fa')
                 + devBar('Work Hours', Math.round(aiHoursTotal), Math.max(aiHoursTotal, tradDays * 8), '#30d158')
                 + devBar('Work Days', aiDays, Math.max(aiDays, tradDays), '#5ac8fa')
@@ -2622,7 +2622,7 @@
             
             // Traditional column
             html += '<div style="padding:16px; background:rgba(255,69,58,0.04); border:1px solid rgba(255,69,58,0.15); border-radius:10px;">'
-                + '<div style="font-size:0.78em; font-weight:700; color:#ff453a; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('users',14) + ' Traditional Solo Dev</div>'
+                + '<div style="font-size:0.78em; font-weight:700; color:var(--danger); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('users',14) + ' Traditional Solo Dev</div>'
                 + devBar('Calendar Time', tradMonths + ' mo', Math.max(monthsElapsed, tradMonths), '#ff453a')
                 + devBar('Work Hours', (tradDays * 8).toLocaleString(), Math.max(aiHoursTotal, tradDays * 8), '#ff9f0a')
                 + devBar('Work Days', tradDays, Math.max(aiDays, tradDays), '#ff453a')
@@ -2674,8 +2674,8 @@
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Quick Actions</h3>'
                 + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
                 + '<button onclick="switchView(\'blueprint\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('blueprint',14) + ' My Blueprint</button>'
-                + '<button onclick="switchAdminTab(\'users\')" style="padding:10px 20px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('users',14) + ' Manage Users</button>'
-                + '<button onclick="switchAdminTab(\'samples\')" style="padding:10px 20px; background:#ff9f0a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('skills',14) + ' Edit Samples</button>'
+                + '<button onclick="switchAdminTab(\'users\')" style="padding:10px 20px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('users',14) + ' Manage Users</button>'
+                + '<button onclick="switchAdminTab(\'samples\')" style="padding:10px 20px; background:var(--c-orange); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('skills',14) + ' Edit Samples</button>'
                 + '<button onclick="switchView(\'welcome\')" style="padding:10px 20px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">' + bpIcon('home',14) + ' View Welcome Page</button>'
                 + '</div></div>';
             
@@ -2755,9 +2755,9 @@
                 var errHtml = errCount > 0
                     ? '<details style="margin-top:12px;">'
                     + '<summary style="font-size:0.75em; color:var(--text-muted); cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
-                    + '<span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#ff453a;"></span> '
+                    + '<span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--danger);"></span> '
                     + errCount + ' error' + (errCount > 1 ? 's' : '') + '</summary>'
-                    + '<div style="font-size:0.72em; color:#ff453a; margin-top:8px; padding:8px; background:rgba(255,69,58,0.06); border-radius:6px; max-height:120px; overflow-y:auto; font-family:monospace;">'
+                    + '<div style="font-size:0.72em; color:var(--danger); margin-top:8px; padding:8px; background:rgba(255,69,58,0.06); border-radius:6px; max-height:120px; overflow-y:auto; font-family:monospace;">'
                     + m.errors.map(function(e) { return '<div style="padding:2px 0; border-bottom:1px solid rgba(255,69,58,0.1);">' + escapeHtml(e) + '</div>'; }).join('') + '</div></details>' : '';
                 
                 el.innerHTML = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:18px;">'
@@ -2765,7 +2765,7 @@
                     + '<div style="font-size:1.4em; font-weight:700; color:var(--accent);">' + (m.totalJobs || 0).toLocaleString() + '</div>'
                     + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Total Jobs</div></div>'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                    + '<div style="font-size:1.4em; font-weight:700; color:#30d158;">' + (m.jobsSynced || 0).toLocaleString() + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:var(--success);">' + (m.jobsSynced || 0).toLocaleString() + '</div>'
                     + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Last Sync</div></div>'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
                     + '<div style="font-size:1.4em; font-weight:700; color:var(--text-primary);">' + ago + '</div>'
@@ -2981,8 +2981,8 @@
                 + '<span style="color:var(--text-secondary);">Mobile</span>'
                 + '<span style="color:var(--text-secondary);">Desktop</span></div>'
                 + '<div style="display:flex; height:8px; border-radius:6px; overflow:hidden; background:var(--c-surface-3a);">'
-                + '<div style="width:' + mobilePct + '%; background:#ff9f0a;"></div>'
-                + '<div style="width:' + (100-mobilePct) + '%; background:#60a5fa;"></div></div>'
+                + '<div style="width:' + mobilePct + '%; background:var(--c-orange);"></div>'
+                + '<div style="width:' + (100-mobilePct) + '%; background:var(--accent);"></div></div>'
                 + '<div style="display:flex; justify-content:space-between; font-size:0.7em; color:var(--text-muted); margin-top:2px;">'
                 + '<span>' + mobilePct + '% (' + (dev.mobile||0) + ')</span><span>' + (100-mobilePct) + '% (' + (dev.desktop||0) + ')</span></div></div>';
             
@@ -2992,8 +2992,8 @@
                 + '<span style="color:var(--text-secondary);">Dark Mode</span>'
                 + '<span style="color:var(--text-secondary);">Light Mode</span></div>'
                 + '<div style="display:flex; height:8px; border-radius:6px; overflow:hidden; background:var(--c-surface-3a);">'
-                + '<div style="width:' + darkPct + '%; background:#bf5af2;"></div>'
-                + '<div style="width:' + (100-darkPct) + '%; background:#ffd60a;"></div></div>'
+                + '<div style="width:' + darkPct + '%; background:var(--c-purple);"></div>'
+                + '<div style="width:' + (100-darkPct) + '%; background:var(--warning);"></div></div>'
                 + '<div style="display:flex; justify-content:space-between; font-size:0.7em; color:var(--text-muted); margin-top:2px;">'
                 + '<span>' + darkPct + '%</span><span>' + (100-darkPct) + '%</span></div></div>';
             
@@ -3126,7 +3126,7 @@
                 html += '</div>';
                 container.innerHTML = html;
             }).catch(function(err) {
-                container.innerHTML = '<div style="color:#ff453a; font-size:0.82em;">Failed to load: ' + escapeHtml(err.message) + '</div>';
+                container.innerHTML = '<div style="color:var(--danger); font-size:0.82em;">Failed to load: ' + escapeHtml(err.message) + '</div>';
             });
         }
 
@@ -3316,7 +3316,7 @@
                 
                 container.innerHTML = html;
             }).catch(function(err) {
-                container.innerHTML = '<div style="color:#ff453a; padding:12px;">Analytics load error: ' + escapeHtml(err.message) + '</div>';
+                container.innerHTML = '<div style="color:var(--danger); padding:12px;">Analytics load error: ' + escapeHtml(err.message) + '</div>';
             });
         }
         
@@ -3335,7 +3335,7 @@
                     + '</div>';
                 return;
             }
-            if (!fbDb) { el.innerHTML = '<div style="color:#ff453a;">Firebase not connected.</div>'; return; }
+            if (!fbDb) { el.innerHTML = '<div style="color:var(--danger);">Firebase not connected.</div>'; return; }
             
             el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading users...</div>';
             
@@ -3366,8 +3366,8 @@
                             + '<div style="flex:1; min-width:200px;">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
                             + '<strong style="color:var(--text-primary); font-size:1.05em;">' + escapeHtml(d.displayName || d.email || doc.id) + '</strong>'
-                            + (isAdmin ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(255,214,10,0.15); color:#ffd60a; font-weight:700;">ADMIN</span>' : '')
-                            + (isCurrentUser ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(96,165,250,0.15); color:#60a5fa; font-weight:600;">YOU</span>' : '')
+                            + (isAdmin ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(255,214,10,0.15); color:var(--warning); font-weight:700;">ADMIN</span>' : '')
+                            + (isCurrentUser ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(96,165,250,0.15); color:var(--accent); font-weight:600;">YOU</span>' : '')
                             + '</div>'
                             + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(d.email || '') + '</div>'
                             + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px;">Joined ' + created + '</div>'
@@ -3378,7 +3378,7 @@
                             + '<div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary); font-size:1.2em;">' + jobCount + '</div>jobs</div>'
                             + '<div style="text-align:center;"><div style="font-size:0.82em;">Last login</div><div style="font-weight:600; color:var(--text-secondary);">' + lastLogin + '</div></div>'
                             + (!isCurrentUser && !isAdmin ? '<button onclick="adminResetUser(\'' + doc.id + '\', \'' + escapeHtml(d.displayName || d.email || 'this user') + '\')" '
-                                + 'style="padding:6px 14px; background:rgba(255,69,58,0.1); color:#ff453a; border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600; white-space:nowrap;">'
+                                + 'style="padding:6px 14px; background:rgba(255,69,58,0.1); color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600; white-space:nowrap;">'
                                 + '\u21BB Reset</button>' : '')
                             + '</div>'
                             + '</div></div>';
@@ -3388,7 +3388,7 @@
                     el.innerHTML = html;
                 })
                 .catch(function(err) {
-                    el.innerHTML = '<div style="color:#ff453a;">Error loading users: ' + escapeHtml(err.message) + '</div>';
+                    el.innerHTML = '<div style="color:var(--danger);">Error loading users: ' + escapeHtml(err.message) + '</div>';
                 });
         }
         
@@ -3602,7 +3602,7 @@
                     + '</div>';
                 return;
             }
-            if (!fbDb) { el.innerHTML = '<div style="color:#ff453a;">Firebase not connected.</div>'; return; }
+            if (!fbDb) { el.innerHTML = '<div style="color:var(--danger);">Firebase not connected.</div>'; return; }
             
             el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading waitlist...</div>';
             
@@ -3622,13 +3622,13 @@
                 // Summary cards
                 html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:24px;">';
                 html += '<div style="padding:18px; background:var(--c-accent-bg-4b); border-radius:10px; text-align:center;">'
-                    + '<div style="font-size:1.8em; font-weight:700; color:#60a5fa;">' + (waiting.length + invited.length) + '</div>'
+                    + '<div style="font-size:1.8em; font-weight:700; color:var(--accent);">' + (waiting.length + invited.length) + '</div>'
                     + '<div style="font-size:0.82em; color:var(--text-muted);">Total</div></div>';
                 html += '<div style="padding:18px; background:var(--c-amber-bg-3a); border-radius:10px; text-align:center;">'
-                    + '<div style="font-size:1.8em; font-weight:700; color:#ffd60a;">' + waiting.length + '</div>'
+                    + '<div style="font-size:1.8em; font-weight:700; color:var(--warning);">' + waiting.length + '</div>'
                     + '<div style="font-size:0.82em; color:var(--text-muted);">Waiting</div></div>';
                 html += '<div style="padding:18px; background:var(--c-green-bg-3a); border-radius:10px; text-align:center;">'
-                    + '<div style="font-size:1.8em; font-weight:700; color:#30d158;">' + invited.length + '</div>'
+                    + '<div style="font-size:1.8em; font-weight:700; color:var(--success);">' + invited.length + '</div>'
                     + '<div style="font-size:0.82em; color:var(--text-muted);">Invited</div></div>';
                 html += '</div>';
                 
@@ -3636,7 +3636,7 @@
                 if (waiting.length > 0) {
                     html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                         + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em;">Waiting (' + waiting.length + ')</h3>'
-                        + '<button onclick="bulkInviteWaitlist()" style="padding:8px 18px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Invite All</button>'
+                        + '<button onclick="bulkInviteWaitlist()" style="padding:8px 18px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Invite All</button>'
                         + '</div>';
                     
                     html += '<div style="display:grid; gap:8px; margin-bottom:24px;">';
@@ -3646,11 +3646,11 @@
                             + 'border:1px solid var(--c-surface-5); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">'
                             + '<div>'
                             + '<strong style="color:var(--text-primary);">' + escapeHtml(user.name || 'Anonymous') + '</strong>'
-                            + ' <span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5a); color:#ffd60a;">' + escapeHtml(user.type || 'individual') + '</span>'
+                            + ' <span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5a); color:var(--warning);">' + escapeHtml(user.type || 'individual') + '</span>'
                             + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(user.email || '') + ' \u00B7 #' + (user.position || '?') + ' \u00B7 ' + created + '</div>'
                             + '</div>'
                             + '<button onclick="inviteWaitlistUser(\'' + escapeHtml(user._id) + '\', \'' + escapeHtml((user.name || '').replace(/'/g,"\\'")) + '\'); setTimeout(function(){renderAdminWaitlist(document.getElementById(\'adminTabContent\'));}, 500);" '
-                            + 'style="padding:8px 16px; background:#60a5fa; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap;">Invite</button>'
+                            + 'style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap;">Invite</button>'
                             + '</div>';
                     });
                     html += '</div>';
@@ -3665,7 +3665,7 @@
                             + 'border:1px solid var(--c-green-bg-5b); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">'
                             + '<div>'
                             + '<strong style="color:var(--text-primary);">' + escapeHtml(user.name || 'Anonymous') + '</strong>'
-                            + ' <span style="font-size:0.72em; color:#30d158; font-weight:600;">\u2714 Invited</span>'
+                            + ' <span style="font-size:0.72em; color:var(--success); font-weight:600;">\u2714 Invited</span>'
                             + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(user.email || '') + '</div>'
                             + '</div></div>';
                     });
@@ -3678,7 +3678,7 @@
                 
                 el.innerHTML = html;
             }).catch(function(err) {
-                el.innerHTML = '<div style="color:#ff453a;">Error: ' + escapeHtml(err.message) + '</div>';
+                el.innerHTML = '<div style="color:var(--danger);">Error: ' + escapeHtml(err.message) + '</div>';
             });
         }
         
@@ -3689,7 +3689,7 @@
                 
                 // Evidence Thresholds (visible, read-only)
                 html += '<div style="padding:20px; background:var(--c-green-bg-1b); border:1px solid var(--c-green-bg-6); border-radius:10px; margin-bottom:20px;">'
-                    + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:#30d158; margin:0 0 8px; font-size:1em;">Evidence Threshold Configuration</h3>'
+                    + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--success); margin:0 0 8px; font-size:1em;">Evidence Threshold Configuration</h3>'
                     + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:16px;">Points required for each effective level. Quality outcomes earn 1-5 points each.</p>'
                     + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px;">';
                 ['Competent','Proficient','Advanced','Expert','Mastery'].forEach(function(level) {
@@ -3706,9 +3706,9 @@
                 html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                     + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 12px; font-size:1em;">Bulk Skill Tools</h3>'
                     + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
-                    + '<button disabled style="padding:10px 20px; background:#bf5af2; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
+                    + '<button disabled style="padding:10px 20px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
                     + bpIcon('upload',14) + ' Bulk Import Skills</button>'
-                    + '<button disabled style="padding:10px 20px; background:#ff453a; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
+                    + '<button disabled style="padding:10px 20px; background:var(--danger); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
                     + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
                     + '</div></div>';
                 
@@ -3735,7 +3735,7 @@
             // Evidence Threshold Configuration
             html += '<div style="padding:20px; background:var(--c-green-bg-1b); '
                 + 'border:1px solid var(--c-green-bg-6); border-radius:10px; margin-bottom:20px;">'
-                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:#30d158; margin:0 0 8px; font-size:1em;">Evidence Threshold Configuration</h3>'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--success); margin:0 0 8px; font-size:1em;">Evidence Threshold Configuration</h3>'
                 + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:16px;">Points required for each effective level. Quality outcomes earn 1-5 points each.</p>'
                 + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px;">';
             
@@ -3760,7 +3760,7 @@
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.9em; text-align:center;">'
                 + '</div></div>'
                 + '<div style="display:flex; gap:10px; margin-top:16px;">'
-                + '<button onclick="saveAdminThresholds()" style="padding:10px 20px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Save Thresholds</button>'
+                + '<button onclick="saveAdminThresholds()" style="padding:10px 20px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Save Thresholds</button>'
                 + '<button onclick="resetAdminThresholds()" style="padding:10px 20px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Reset Defaults</button>'
                 + '</div></div>';
 
@@ -3772,7 +3772,7 @@
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em;">Experience-Based Inference</h3>'
                 + '<label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.82em; color:var(--text-secondary);">'
-                + '<input type="checkbox" id="eiEnabledToggle" ' + (eiEnabled ? 'checked' : '') + ' onchange="toggleExperienceInference(this.checked)" style="accent-color:#bf5af2;">'
+                + '<input type="checkbox" id="eiEnabledToggle" ' + (eiEnabled ? 'checked' : '') + ' onchange="toggleExperienceInference(this.checked)" style="accent-color:var(--c-purple);">'
                 + ' Enabled</label></div>'
                 + '<p style="font-size:0.78em; color:var(--text-muted); margin:0 0 14px;">If someone has X+ years with a skill, infer at least this proficiency level \u2014 even without evidence points. Creates an "Inferred" verification type distinct from peer or certification verification.</p>'
                 + '<div id="eiThresholdGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; opacity:' + (eiEnabled ? '1' : '0.4') + '; pointer-events:' + (eiEnabled ? 'auto' : 'none') + ';">';
@@ -3786,7 +3786,7 @@
             });
             html += '</div>'
                 + '<div style="display:flex; gap:10px; margin-top:14px;">'
-                + '<button onclick="saveExperienceInference()" style="padding:10px 20px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Save Inference</button>'
+                + '<button onclick="saveExperienceInference()" style="padding:10px 20px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Save Inference</button>'
                 + '<button onclick="resetExperienceInference()" style="padding:10px 20px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Reset Defaults</button>'
                 + '</div></div>';
             
@@ -3795,9 +3795,9 @@
                 + 'border:1px solid var(--c-surface-5); border-radius:10px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 12px; font-size:1em;">Bulk Skill Tools</h3>'
                 + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
-                + '<button onclick="openBulkImport();" style="padding:10px 20px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + '<button onclick="openBulkImport();" style="padding:10px 20px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('upload',14) + ' Bulk Import Skills</button>'
-                + '<button onclick="openBulkManager();" style="padding:10px 20px; background:#ff453a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + '<button onclick="openBulkManager();" style="padding:10px 20px; background:var(--danger); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
                 + '</div></div>';
             
@@ -3808,7 +3808,7 @@
             function _maskKey(k) { return k.length > 6 ? k.slice(0,3) + '\u2022\u2022\u2022' + k.slice(-3) : k ? '\u2022\u2022\u2022\u2022\u2022' : ''; }
             function _keyBadge(hasKey, label) {
                 return '<span style="display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:0.75em; font-weight:600; '
-                    + (hasKey ? 'background:rgba(48,209,88,0.15); color:#30d158;' : 'background:rgba(255,69,58,0.12); color:#ff453a;') + '">'
+                    + (hasKey ? 'background:rgba(48,209,88,0.15); color:var(--success);' : 'background:rgba(255,69,58,0.12); color:var(--danger);') + '">'
                     + (hasKey ? '\u2713 ' : '\u2717 ') + label + '</span>';
             }
             
@@ -3823,7 +3823,7 @@
                 // Adzuna
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna App ID'
-                + (_adzId ? ' <span style="color:#30d158; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzId)) + ')</span>' : '') + '</label>'
+                + (_adzId ? ' <span style="color:var(--success); font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzId)) + ')</span>' : '') + '</label>'
                 + '<input type="text" id="cfgAdzunaAppId" value="' + escapeAttr(_adzId) + '" placeholder="Register at developer.adzuna.com" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzId ? '#30d158' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://developer.adzuna.com/" target="_blank" rel="noopener" style="color:var(--accent);">Get free Adzuna credentials \u2192</a></div>'
@@ -3831,7 +3831,7 @@
                 
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna API Key'
-                + (_adzKey ? ' <span style="color:#30d158; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzKey)) + ')</span>' : '') + '</label>'
+                + (_adzKey ? ' <span style="color:var(--success); font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzKey)) + ')</span>' : '') + '</label>'
                 + '<input type="password" id="cfgAdzunaAppKey" value="' + escapeAttr(_adzKey) + '" placeholder="Your Adzuna app_key" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzKey ? '#30d158' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '</div>'
@@ -3839,7 +3839,7 @@
                 // The Muse
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">The Muse API Key <span style="color:var(--text-muted); font-weight:400;">(optional)</span>'
-                + (_musKey ? ' <span style="color:#30d158; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_musKey)) + ')</span>' : '') + '</label>'
+                + (_musKey ? ' <span style="color:var(--success); font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_musKey)) + ')</span>' : '') + '</label>'
                 + '<input type="text" id="cfgMuseApiKey" value="' + escapeAttr(_musKey) + '" placeholder="Works without key (lower rate limit)" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_musKey ? '#30d158' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://www.themuse.com/developers/api/v2" target="_blank" rel="noopener" style="color:var(--accent);">Register for higher rate limit \u2192</a> (3600/hr vs 500/hr)</div>'
@@ -3849,12 +3849,12 @@
                 + '<div style="font-size:0.75em; color:var(--text-muted); padding:10px 12px; border-radius:6px; background:var(--c-accent-bg-1); border:1px solid var(--border); margin-bottom:14px;">'
                 + '<strong>Proxy sources:</strong> JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy (via /api/jobs)<br>'
                 + '<strong>Direct sources:</strong> '
-                + (_adzId && _adzKey ? '<span style="color:#30d158;">\u2713 Adzuna</span>' : '<span style="color:#ff453a;">\u2717 Adzuna (needs keys)</span>') + ' \u00B7 '
-                + '<span style="color:#30d158;">\u2713 The Muse' + (_musKey ? ' (keyed)' : ' (unkeyed)') + '</span>'
+                + (_adzId && _adzKey ? '<span style="color:var(--success);">\u2713 Adzuna</span>' : '<span style="color:var(--danger);">\u2717 Adzuna (needs keys)</span>') + ' \u00B7 '
+                + '<span style="color:var(--success);">\u2713 The Muse' + (_musKey ? ' (keyed)' : ' (unkeyed)') + '</span>'
                 + '</div>'
                 
                 // Save button
-                + '<button onclick="saveJobSourceKeys()" style="padding:10px 20px; background:#60a5fa; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + '<button onclick="saveJobSourceKeys()" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('save',14) + ' Save API Keys</button>'
                 + '</div>';
             
@@ -4425,7 +4425,7 @@
                 
                 // Actions
                 + '<div style="display:flex; gap:10px; justify-content:space-between; align-items:center;">'
-                + '<button onclick="deleteRoadmapItem(\'' + item.id + '\')" style="padding:8px 16px; background:transparent; border:1px solid #ff453a; color:#ff453a; border-radius:8px; cursor:pointer; font-size:0.82em;">' + bpIcon('trash',13) + ' Delete</button>'
+                + '<button onclick="deleteRoadmapItem(\'' + item.id + '\')" style="padding:8px 16px; background:transparent; border:1px solid var(--danger); color:var(--danger); border-radius:8px; cursor:pointer; font-size:0.82em;">' + bpIcon('trash',13) + ' Delete</button>'
                 + '<div style="display:flex; gap:10px;">'
                 + '<button onclick="closeExportModal()" style="padding:8px 20px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer;">Cancel</button>'
                 + '<button onclick="saveRoadmapItem(\'' + item.id + '\')" style="padding:8px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save Changes</button>'
@@ -4527,22 +4527,22 @@
             // Header stats
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">'
                 + '<div style="padding:16px; background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.2); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:700; color:#30d158;">' + pct + '%</div>'
+                + '<div style="font-size:2em; font-weight:700; color:var(--success);">' + pct + '%</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Complete</div></div>'
                 + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:700; color:#30d158;">' + done + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:var(--success);">' + done + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Done</div></div>'
                 + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:700; color:#60a5fa;">' + inProgress + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:var(--accent);">' + inProgress + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">In Progress</div></div>'
                 + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:700; color:#a1a1a6;">' + planned + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:var(--text-secondary);">' + planned + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Planned</div></div>'
                 + '</div>';
             
             // Progress bar
             html += '<div style="height:6px; background:var(--c-surface-5); border-radius:6px; margin-bottom:24px; overflow:hidden;">'
-                + '<div style="height:100%; width:' + pct + '%; background:#30d158; border-radius:6px; transition:width 0.3s;"></div></div>';
+                + '<div style="height:100%; width:' + pct + '%; background:var(--success); border-radius:6px; transition:width 0.3s;"></div></div>';
             
             // Filter bar
             html += '<div style="display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;">';
@@ -4615,10 +4615,10 @@
                 + '<span>' + bpIcon('dollar', 12) + ' Monetization</span>'
                 + '<span>' + bpIcon('network', 12) + ' Integration</span>'
                 + '<span>' + bpIcon('file-text', 12) + ' Compliance</span>'
-                + '<span style="margin-left:16px;"><span style="color:#ff453a;">\u25CF</span> Critical</span>'
-                + '<span><span style="color:#ff9f0a;">\u25CF</span> High</span>'
-                + '<span><span style="color:#60a5fa;">\u25CF</span> Medium</span>'
-                + '<span><span style="color:#636366;">\u25CF</span> Low</span>'
+                + '<span style="margin-left:16px;"><span style="color:var(--danger);">\u25CF</span> Critical</span>'
+                + '<span><span style="color:var(--c-orange);">\u25CF</span> High</span>'
+                + '<span><span style="color:var(--accent);">\u25CF</span> Medium</span>'
+                + '<span><span style="color:var(--text-muted);">\u25CF</span> Low</span>'
                 + '</div></div>';
             
             el.innerHTML = html;
@@ -4690,7 +4690,7 @@
                 services.forEach(function(svc) {
                     var age = svc.timestamp ? Math.round((Date.now() - new Date(svc.timestamp).getTime()) / 60000) : null;
                     var ageText = age === null ? '' : age < 1 ? 'just now' : age < 60 ? age + 'm ago' : Math.round(age / 60) + 'h ago';
-                    var staleTag = svc.stale ? ' <span style="color:#ff9f0a; font-size:0.8em;">(stale)</span>' : '';
+                    var staleTag = svc.stale ? ' <span style="color:var(--c-orange); font-size:0.8em;">(stale)</span>' : '';
                     
                     html += '<div style="display:flex; align-items:center; gap:12px; padding:8px 0;'
                         + ' border-bottom:1px solid var(--border);">'
@@ -4700,7 +4700,7 @@
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">'
                         + escapeHtml(svc.name)
-                        + (svc.critical ? ' <span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:#ff453a20; color:#ff453a; font-weight:700;">CRITICAL</span>' : '')
+                        + (svc.critical ? ' <span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:#ff453a20; color:var(--danger); font-weight:700;">CRITICAL</span>' : '')
                         + '</div>'
                         + '<div style="font-size:0.78em; color:var(--text-muted);">'
                         + escapeHtml(svc.message || statusLabels[svc.status] || 'Unknown')
@@ -4732,7 +4732,7 @@
                 + '<div style="font-size:0.82em; font-weight:700; color:var(--text-secondary);'
                 + ' text-transform:uppercase; letter-spacing:0.05em;">'
                 + '' + bpIcon('clipboard', 14) + ' Incident Log'
-                + (unresolvedCount > 0 ? ' <span style="background:#ff453a; color:#fff; padding:1px 8px; border-radius:10px; font-size:0.85em; margin-left:6px;">' + unresolvedCount + ' open</span>' : '')
+                + (unresolvedCount > 0 ? ' <span style="background:var(--danger); color:#fff; padding:1px 8px; border-radius:10px; font-size:0.85em; margin-left:6px;">' + unresolvedCount + ' open</span>' : '')
                 + '</div>'
                 + '<div style="display:flex; gap:8px;">'
                 + '<button onclick="resolveAllIncidents()" style="padding:4px 12px; background:var(--input-bg);'
@@ -4772,7 +4772,7 @@
                         + ' background:' + (sevColors[inc.severity] || '#636366') + '20;'
                         + ' color:' + (sevColors[inc.severity] || '#636366') + '; font-weight:700;">'
                         + inc.severity.toUpperCase() + '</span>'
-                        + (resolved ? '<span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:#30d15820; color:#30d158; font-weight:700;">RESOLVED</span>' : '')
+                        + (resolved ? '<span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:#30d15820; color:var(--success); font-weight:700;">RESOLVED</span>' : '')
                         + '</div>'
                         + '<div style="font-size:0.78em; color:var(--text-secondary); margin-top:2px;">'
                         + escapeHtml(inc.message) + '</div>';
@@ -5321,7 +5321,7 @@
             
             // === DIAGRAM VIEW ===
             html += '<div id="archDiagramView" style="display:none;">'
-                + '<div id="archSvgContainer" style="width:100%; overflow-x:auto; border:1px solid #d1d1d6; border-radius:12px; background:#fff; min-height:400px;"></div>'
+                + '<div id="archSvgContainer" style="width:100%; overflow-x:auto; border:1px solid var(--c-label); border-radius:12px; background:#fff; min-height:400px;"></div>'
                 + '</div>';
             
             // Detail panel (shared)
@@ -5699,18 +5699,18 @@
             if (existingLegend) existingLegend.remove();
             var legendDiv = document.createElement('div');
             legendDiv.className = 'arch-legend-float';
-            legendDiv.style.cssText = 'position:absolute; top:8px; right:12px; background:rgba(255,255,255,0.95); backdrop-filter:blur(8px); border:1px solid #d1d1d6; border-radius:8px; padding:10px 14px; font-size:0.68em; display:flex; gap:18px; box-shadow:0 2px 8px rgba(0,0,0,0.06); z-index:2;';
-            legendDiv.innerHTML = '<div><div style="font-weight:700; color:#636366; margin-bottom:5px; letter-spacing:0.5px; font-size:0.9em;">FLOWS</div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#0891b2" stroke-width="1.5"/></svg><span style="color:#636366;">Data</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#ff453a" stroke-width="1.5" stroke-dasharray="5,3"/></svg><span style="color:#636366;">API</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#c78400" stroke-width="1.5" stroke-dasharray="3,3"/></svg><span style="color:#636366;">Sync</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#a1a1a6" stroke-width="1.2" stroke-dasharray="2,3"/></svg><span style="color:#636366;">Read</span></div>'
+            legendDiv.style.cssText = 'position:absolute; top:8px; right:12px; background:rgba(255,255,255,0.95); backdrop-filter:blur(8px); border:1px solid var(--c-label); border-radius:8px; padding:10px 14px; font-size:0.68em; display:flex; gap:18px; box-shadow:0 2px 8px rgba(0,0,0,0.06); z-index:2;';
+            legendDiv.innerHTML = '<div><div style="font-weight:700; color:var(--text-muted); margin-bottom:5px; letter-spacing:0.5px; font-size:0.9em;">FLOWS</div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#0891b2" stroke-width="1.5"/></svg><span style="color:var(--text-muted);">Data</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#ff453a" stroke-width="1.5" stroke-dasharray="5,3"/></svg><span style="color:var(--text-muted);">API</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#c78400" stroke-width="1.5" stroke-dasharray="3,3"/></svg><span style="color:var(--text-muted);">Sync</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#a1a1a6" stroke-width="1.2" stroke-dasharray="2,3"/></svg><span style="color:var(--text-muted);">Read</span></div>'
                 + '</div>'
-                + '<div><div style="font-weight:700; color:#636366; margin-bottom:5px; letter-spacing:0.5px; font-size:0.9em;">SHAPES</div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="10"><rect x="0" y="0" width="16" height="10" rx="2" fill="none" stroke="#bf5af2" stroke-width="1"/></svg><span style="color:#636366;">View</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="14"><polygon points="8,0 15,4 15,10 8,14 1,10 1,4" fill="none" stroke="#ff9f0a" stroke-width="1"/></svg><span style="color:#636366;">Engine</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="12"><ellipse cx="8" cy="3" rx="8" ry="3" fill="none" stroke="#30d158" stroke-width="1"/><line x1="0" y1="3" x2="0" y2="9" stroke="#30d158" stroke-width="1"/><line x1="16" y1="3" x2="16" y2="9" stroke="#30d158" stroke-width="1"/><ellipse cx="8" cy="9" rx="8" ry="3" fill="none" stroke="#30d158" stroke-width="1"/></svg><span style="color:#636366;">Database</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;"><svg width="16" height="10"><rect x="0" y="0" width="16" height="10" rx="5" fill="none" stroke="#ff453a" stroke-width="1"/></svg><span style="color:#636366;">API / Cloud</span></div>'
+                + '<div><div style="font-weight:700; color:var(--text-muted); margin-bottom:5px; letter-spacing:0.5px; font-size:0.9em;">SHAPES</div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="10"><rect x="0" y="0" width="16" height="10" rx="2" fill="none" stroke="#bf5af2" stroke-width="1"/></svg><span style="color:var(--text-muted);">View</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="14"><polygon points="8,0 15,4 15,10 8,14 1,10 1,4" fill="none" stroke="#ff9f0a" stroke-width="1"/></svg><span style="color:var(--text-muted);">Engine</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="12"><ellipse cx="8" cy="3" rx="8" ry="3" fill="none" stroke="#30d158" stroke-width="1"/><line x1="0" y1="3" x2="0" y2="9" stroke="#30d158" stroke-width="1"/><line x1="16" y1="3" x2="16" y2="9" stroke="#30d158" stroke-width="1"/><ellipse cx="8" cy="9" rx="8" ry="3" fill="none" stroke="#30d158" stroke-width="1"/></svg><span style="color:var(--text-muted);">Database</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;"><svg width="16" height="10"><rect x="0" y="0" width="16" height="10" rx="5" fill="none" stroke="#ff453a" stroke-width="1"/></svg><span style="color:var(--text-muted);">API / Cloud</span></div>'
                 + '</div>';
             container.parentElement.style.position = 'relative';
             container.parentElement.appendChild(legendDiv);
@@ -5833,13 +5833,13 @@
                 + '</div></div>';
             
             // Inputs
-            html += '<div><div style="font-weight:700; color:#30d158; margin-bottom:4px; font-size:0.9em;">Inputs</div>'
+            html += '<div><div style="font-weight:700; color:var(--success); margin-bottom:4px; font-size:0.9em;">Inputs</div>'
                 + '<div style="color:var(--text-secondary); line-height:1.7;">'
                 + d.inputs.map(function(inp) { return '\u25B6 ' + inp; }).join('<br>')
                 + '</div></div>';
             
             // Outputs
-            html += '<div><div style="font-weight:700; color:#ff9f0a; margin-bottom:4px; font-size:0.9em;">Outputs</div>'
+            html += '<div><div style="font-weight:700; color:var(--c-orange); margin-bottom:4px; font-size:0.9em;">Outputs</div>'
                 + '<div style="color:var(--text-secondary); line-height:1.7;">'
                 + d.outputs.map(function(out) { return '\u25C0 ' + out; }).join('<br>')
                 + '</div></div>';
@@ -5850,11 +5850,11 @@
                     + '<div style="font-weight:700; color:var(--accent); margin-bottom:6px; font-size:0.9em;">Data Flows</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 incoming.forEach(function(f) {
-                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:#30d158; border:1px solid rgba(48,209,88,0.2);">'
+                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:var(--success); border:1px solid rgba(48,209,88,0.2);">'
                         + f[0] + ' \u2192 <strong>' + f[2] + '</strong></span>';
                 });
                 outgoing.forEach(function(f) {
-                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(255,159,10,0.1); color:#ff9f0a; border:1px solid rgba(255,159,10,0.2);">'
+                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(255,159,10,0.1); color:var(--c-orange); border:1px solid rgba(255,159,10,0.2);">'
                         + '<strong>' + f[2] + '</strong> \u2192 ' + f[1] + '</span>';
                 });
                 html += '</div></div>';
@@ -5863,7 +5863,7 @@
             // Tech debt
             if (d.debt) {
                 html += '<div style="grid-column:1/-1; border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">'
-                    + '<div style="font-weight:700; color:#ff453a; margin-bottom:4px; font-size:0.9em;">' + bpIcon('warning', 12) + ' Tech Debt / Gotchas</div>'
+                    + '<div style="font-weight:700; color:var(--danger); margin-bottom:4px; font-size:0.9em;">' + bpIcon('warning', 12) + ' Tech Debt / Gotchas</div>'
                     + '<div style="color:var(--text-secondary); font-size:0.9em;">' + d.debt + '</div>'
                     + '</div>';
             }
@@ -5991,7 +5991,7 @@
                 html += '<div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">'
                     + '<input id="wbwCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + _wbwFieldStyle + ' max-width:180px;" />'
                     + '<input id="wbwCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + _wbwFieldStyle + '" />'
-                    + '<button onclick="wbwRemoveCustomField(' + i + ')" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.1em; padding:4px 8px;">&times;</button>'
+                    + '<button onclick="wbwRemoveCustomField(' + i + ')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1em; padding:4px 8px;">&times;</button>'
                     + '</div>';
             });
             html += '<button onclick="wbwAddCustomField()" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button>';
@@ -6407,7 +6407,7 @@
             s.certifications.forEach(function(cert, ci) {
                 html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:var(--c-heading); font-size:0.82em; font-weight:500;">'
                     + escapeHtml(cert)
-                    + '<button onclick="wbwRemoveCert(' + ci + ')" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button>'
+                    + '<button onclick="wbwRemoveCert(' + ci + ')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button>'
                     + '</span>';
             });
             html += '</div></div>';
@@ -6418,7 +6418,7 @@
             s.qualifications.forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px;">'
                     + '<input id="wbwQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + _wbwFieldStyle + ' flex:1;" />'
-                    + '<button onclick="wbwRemoveQual(' + qi + ')" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button>'
+                    + '<button onclick="wbwRemoveQual(' + qi + ')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button>'
                     + '</div>';
             });
             html += '<button onclick="wbwAddQual()" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button>';
@@ -6598,7 +6598,7 @@
             });
 
             html += '<div style="margin-top:12px; font-size:0.8em; color:var(--c-muted);">Selected: ' + s.selectedValues.length + ' values '
-                + (s.selectedValues.length < 4 ? '<span style="color:#ff9f0a;">— select at least 4</span>' : '<span style="color:#30d158;">✓</span>') + '</div>';
+                + (s.selectedValues.length < 4 ? '<span style="color:var(--c-orange);">— select at least 4</span>' : '<span style="color:var(--success);">✓</span>') + '</div>';
 
             if (s.selectedValues.length > 0) {
                 html += '<div style="margin-top:18px; padding:16px; background:var(--c-surface-2); border-radius:10px; border:1px solid var(--c-surface-5);">'
@@ -6734,18 +6734,18 @@
             html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">'
                 + '<button onclick="wbwGoStep(4)" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('arrow-left',14) + ' Back</button>';
             if (_wbwEditMode) {
-                html += '<button onclick="wbwSaveEditAndPreview()" style="padding:10px 20px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('check',14) + ' Apply Edits</button>'
+                html += '<button onclick="wbwSaveEditAndPreview()" style="padding:10px 20px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('check',14) + ' Apply Edits</button>'
                     + '<button onclick="_wbwEditMode=false; renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>';
             } else {
-                html += '<button onclick="_wbwEditMode=true; renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:10px 20px; background:#ff9f0a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('edit',14) + ' Edit</button>'
+                html += '<button onclick="_wbwEditMode=true; renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:10px 20px; background:var(--c-orange); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('edit',14) + ' Edit</button>'
                     + '<button onclick="wbwFinish(\'json\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export JSON</button>'
-                    + '<button onclick="wbwFinish(\'pdf\')" style="padding:10px 20px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export PDF</button>'
+                    + '<button onclick="wbwFinish(\'pdf\')" style="padding:10px 20px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export PDF</button>'
                     + '<button onclick="wbwFinish(\'word\')" style="padding:10px 20px; background:#4a9eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export Word</button>';
                 if (typeof fbUser !== 'undefined' && fbUser) {
-                    html += '<button onclick="wbwFinish(\'save\')" style="padding:10px 20px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save to Repository</button>';
+                    html += '<button onclick="wbwFinish(\'save\')" style="padding:10px 20px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save to Repository</button>';
                 }
             }
-            html += '<button onclick="wbwReset()" style="padding:10px 20px; background:var(--c-surface-3); color:#ff453a; border:1px solid #ff453a40; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Start Over</button>'
+            html += '<button onclick="wbwReset()" style="padding:10px 20px; background:var(--c-surface-3); color:var(--danger); border:1px solid #ff453a40; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Start Over</button>'
                 + '</div>';
             return html;
         }
@@ -6873,7 +6873,7 @@
             (_wbw.certifications || []).forEach(function(cert, ci) {
                 html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:var(--c-heading); font-size:0.82em; font-weight:500;">'
                     + escapeHtml(cert)
-                    + '<button onclick="_wbw.certifications.splice(' + ci + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
+                    + '<button onclick="_wbw.certifications.splice(' + ci + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
             });
             html += '</div></div>';
 
@@ -6881,7 +6881,7 @@
             (_wbw.qualifications || []).forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
                     + '<input id="wbwEditQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + fs + ' flex:1;" />'
-                    + '<button onclick="_wbw.qualifications.splice(' + qi + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_wbw.qualifications.splice(' + qi + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_wbw.qualifications.push(\'\');renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
@@ -6890,7 +6890,7 @@
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
                     + '<input id="wbwEditCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + fs + ' max-width:180px;" />'
                     + '<input id="wbwEditCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + fs + ' flex:1;" />'
-                    + '<button onclick="_wbw.customFields.splice(' + i + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_wbw.customFields.splice(' + i + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_wbw.customFields.push({key:\'\',value:\'\'});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
 
@@ -7391,7 +7391,7 @@
                 })
                 .catch(function(err) {
                     console.warn('JDC URL fetch error:', err);
-                    if (statusEl) statusEl.innerHTML = '<span style="color:#ff453a;">' + bpIcon('alert',14) + ' Failed to fetch: ' + escapeHtml(err.message) + '. Try pasting the job description directly instead.</span>';
+                    if (statusEl) statusEl.innerHTML = '<span style="color:var(--danger);">' + bpIcon('alert',14) + ' Failed to fetch: ' + escapeHtml(err.message) + '. Try pasting the job description directly instead.</span>';
                     showToast('Could not fetch job posting. Try pasting the text instead.', 'error');
                 });
         }
@@ -8588,17 +8588,17 @@
             var h = '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; ' + margin + '">'
                 + '<button onclick="exportWorkBlueprintJSON()" style="padding:7px 15px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                 + bpIcon('download',13) + ' Export JSON</button>'
-                + '<button onclick="exportWorkBlueprintPDF()" style="padding:7px 15px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + '<button onclick="exportWorkBlueprintPDF()" style="padding:7px 15px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                 + bpIcon('download',13) + ' Export PDF</button>'
                 + '<button onclick="exportWorkBlueprintWord()" style="padding:7px 15px; background:#4a9eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                 + bpIcon('download',13) + ' Export Word</button>'
                 + '<button onclick="copyWorkBlueprintJSON()" style="padding:7px 15px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                 + bpIcon('share',13) + ' Copy JSON</button>'
-                + '<button onclick="jdcEditBlueprint()" style="padding:7px 15px; background:#ff9f0a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + '<button onclick="jdcEditBlueprint()" style="padding:7px 15px; background:var(--c-orange); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                 + bpIcon('edit',13) + ' Edit</button>';
 
             if (typeof fbUser !== 'undefined' && fbUser) {
-                h += '<button onclick="jdcSaveToRepository()" style="padding:7px 15px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                h += '<button onclick="jdcSaveToRepository()" style="padding:7px 15px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                     + bpIcon('save',13) + ' ' + saveLabel + '</button>';
             }
 
@@ -8675,11 +8675,11 @@
                     + '<div style="display:flex; align-items:flex-start; gap:8px;">'
                     + '<div style="flex-shrink:0; margin-top:1px;">' + bpIcon('warning', 14) + '</div>'
                     + '<div>'
-                    + '<div style="font-size:0.8em; font-weight:700; color:#ff9f0a; margin-bottom:4px;">Fetch Quality Warning — results may be incomplete</div>'
+                    + '<div style="font-size:0.8em; font-weight:700; color:var(--c-orange); margin-bottom:4px;">Fetch Quality Warning — results may be incomplete</div>'
                     + '<div style="font-size:0.77em; color:var(--c-muted); line-height:1.6;">'
                     + data._extractQuality.warnings.map(function(w) { return '&bull; ' + escapeHtml(w); }).join('<br>')
                     + '</div>'
-                    + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:6px;">This page is likely JavaScript-rendered. For best results, <strong style="color:#ff9f0a;">copy and paste</strong> the job description text directly using the Paste tab.</div>'
+                    + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:6px;">This page is likely JavaScript-rendered. For best results, <strong style="color:var(--c-orange);">copy and paste</strong> the job description text directly using the Paste tab.</div>'
                     + '</div></div>'
                     + '</div>';
             }
@@ -8704,7 +8704,7 @@
                 var wbDataId = data._wbId || '';
 
                 html += '<div style="margin-top:16px; padding:14px 16px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.18); border-radius:10px;">';
-                html += '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; font-weight:700; margin-bottom:10px;">' + bpIcon('money',11) + ' Compensation Range</div>';
+                html += '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:10px;">' + bpIcon('money',11) + ' Compensation Range</div>';
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">';
 
                 // JD Posted Range
@@ -8723,9 +8723,9 @@
 
                 // Blueprint Calculated Range
                 html += '<div style="padding:10px 12px; background:rgba(48,209,88,0.05); border-radius:8px; border:1px solid rgba(48,209,88,0.2);">';
-                html += '<div style="font-size:0.68em; color:#30d158; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Blueprint Calculated</div>';
+                html += '<div style="font-size:0.68em; color:var(--success); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Blueprint Calculated</div>';
                 if (bpSuggestedRange) {
-                    html += '<div style="font-size:1.05em; font-weight:700; color:#30d158;">' + escapeHtml(bpSuggestedRange) + '</div>';
+                    html += '<div style="font-size:1.05em; font-weight:700; color:var(--success);">' + escapeHtml(bpSuggestedRange) + '</div>';
                     if (_compCtxP && _compCtxP.active) {
                         html += '<div style="font-size:0.67em; color:var(--c-faint); margin-top:3px;">BLS + ' + Math.round((_ctxMultP-1)*100) + '% market adj. \u00B7 ' + escapeHtml(_compCtxP.industryLabel || '') + '</div>';
                     } else {
@@ -8743,8 +8743,8 @@
                 html += '<input id="wbActiveCompRange" type="text" value="' + escapeAttr(activeRange) + '" placeholder="e.g. $180,000 \u2013 $220,000" style="flex:1; min-width:180px; padding:6px 10px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-text); font-size:0.82em; font-family:inherit;" oninput="wbUpdateActiveCompRange(this.value)">';
                 if (jdRange || bpSuggestedRange) {
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
-                    if (jdRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(jdRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:8px; background:transparent; color:#60a5fa; cursor:pointer; font-weight:600;">Use JD Range</button>';
-                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(bpSuggestedRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(48,209,88,0.3); border-radius:8px; background:transparent; color:#30d158; cursor:pointer; font-weight:600;">Use Blueprint</button>';
+                    if (jdRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(jdRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:8px; background:transparent; color:var(--accent); cursor:pointer; font-weight:600;">Use JD Range</button>';
+                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(bpSuggestedRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(48,209,88,0.3); border-radius:8px; background:transparent; color:var(--success); cursor:pointer; font-weight:600;">Use Blueprint</button>';
                     html += '</div>';
                 }
                 html += '</div>'; // end active range row
@@ -8761,7 +8761,7 @@
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">1) Skills / Outcomes / Proficiency</span></div>'
                 + (!opts.hideButtons ? '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:8px; padding:2px;">'
                     + '<button onclick="wbToggleComp(\'without\')" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (!showComp ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">Base Only</button>'
-                    + '<button onclick="wbToggleComp(\'with\')" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (showComp ? 'background:#30d158; color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">' + bpIcon('money',12) + ' + Skill Premiums</button>'
+                    + '<button onclick="wbToggleComp(\'with\')" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (showComp ? 'background:var(--success); color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">' + bpIcon('money',12) + ' + Skill Premiums</button>'
                     + '</div>' : '')
                 + '</div>'
                 + '<div style="overflow-x:auto;">'
@@ -8771,7 +8771,7 @@
                 + '<th style="text-align:center; padding:8px 10px; color:' + accentColor + '; font-weight:700; width:70px;">Source</th>'
                 + '<th style="text-align:left; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Expected Outcome</th>'
                 + '<th style="text-align:center; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Proficiency</th>'
-                + (showComp ? '<th style="text-align:right; padding:8px 10px; color:#30d158; font-weight:700;">Skill Premium</th>' : '')
+                + (showComp ? '<th style="text-align:right; padding:8px 10px; color:var(--success); font-weight:700;">Skill Premium</th>' : '')
                 + '</tr></thead><tbody>';
 
             // Always recompute compValues fresh at render time — never trust stored values.
@@ -8808,13 +8808,13 @@
                     + '<td style="padding:10px; text-align:center;"><span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:' + sourceColor + '18; color:' + sourceColor + '; font-weight:600;">' + sourceLabel + '</span></td>'
                     + '<td style="padding:10px; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(s.outcome || '') + '</td>'
                     + '<td style="padding:10px; text-align:center;"><span style="padding:3px 10px; border-radius:12px; font-size:0.82em; font-weight:600; background:' + lc + '22; color:' + lc + '; border:1px solid ' + lc + '44;">' + escapeHtml(s.blueprintLevel) + '</span></td>'
-                    + (showComp ? '<td style="padding:10px; text-align:right; font-weight:700; color:#30d158;">$' + (s.compValue || 0).toLocaleString() + '</td>' : '')
+                    + (showComp ? '<td style="padding:10px; text-align:right; font-weight:700; color:var(--success);">$' + (s.compValue || 0).toLocaleString() + '</td>' : '')
                     + '</tr>';
             });
             if (showComp) {
                 html += '<tr style="border-top:2px solid ' + borderColor + '; background:rgba(48,209,88,0.06);">'
                     + '<td colspan="4" style="padding:10px; font-weight:700; text-align:right; color:' + headingColor + ';">Total Skill Premiums</td>'
-                    + '<td style="padding:10px; text-align:right; font-weight:700; color:#30d158; font-size:1.05em;">+$' + totalComp.toLocaleString() + '</td></tr>';
+                    + '<td style="padding:10px; text-align:right; font-weight:700; color:var(--success); font-size:1.05em;">+$' + totalComp.toLocaleString() + '</td></tr>';
             }
             html += '</tbody></table></div></div>';
 
@@ -8822,7 +8822,7 @@
             if (hasReqs) {
                 html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
-                    + '<span style="color:#ff9f0a;">' + bpIcon('check',18) + '</span>'
+                    + '<span style="color:var(--c-orange);">' + bpIcon('check',18) + '</span>'
                     + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">2) Requirements</span></div>'
                     + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">';
 
@@ -8830,7 +8830,7 @@
                     html += '<div><div style="font-size:0.82em; font-weight:600; color:' + accentColor + '; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Experience</div>';
                     data.yearsRequired.forEach(function(yr) {
                         html += '<div style="display:flex; gap:8px; align-items:center; padding:6px 10px; background:var(--c-surface-2); border-radius:6px; margin-bottom:4px;">'
-                            + '<span style="font-weight:700; color:#ff9f0a; font-size:0.9em; min-width:40px;">' + escapeHtml(yr.range) + ' yr</span>'
+                            + '<span style="font-weight:700; color:var(--c-orange); font-size:0.9em; min-width:40px;">' + escapeHtml(yr.range) + ' yr</span>'
                             + '<span style="font-size:0.85em; color:var(--text-secondary);">' + escapeHtml(yr.area) + '</span></div>';
                     });
                     html += '</div>';
@@ -8842,7 +8842,7 @@
                         html += '<div style="display:flex; gap:8px; align-items:center; padding:6px 10px; background:var(--c-surface-2); border-radius:6px; margin-bottom:4px;">'
                             + '<span style="font-weight:600; color:' + headingColor + '; font-size:0.88em;">' + escapeHtml(ed.level) + '</span>'
                             + (ed.field ? '<span style="font-size:0.85em; color:var(--text-secondary);">in ' + escapeHtml(ed.field) + '</span>' : '')
-                            + (ed.preferred ? '<span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:#ff9f0a22; color:#ff9f0a; font-weight:600;">Preferred</span>' : '')
+                            + (ed.preferred ? '<span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:#ff9f0a22; color:var(--c-orange); font-weight:600;">Preferred</span>' : '')
                             + '</div>';
                     });
                     html += '</div>';
@@ -8872,7 +8872,7 @@
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:18px; flex-wrap:wrap;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
-                + '<span style="color:#30d158;">' + bpIcon('money',18) + '</span>'
+                + '<span style="color:var(--success);">' + bpIcon('money',18) + '</span>'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">3) Compensation Intelligence</span></div>'
                 + (!opts.hideButtons ? '<div style="display:flex; align-items:center; gap:6px;">'
                     + '<span style="font-size:0.75em; color:var(--c-muted);">Market:</span>'
@@ -8918,26 +8918,26 @@
                 if (compCtx && compCtx.active) {
                     html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.2); border-radius:8px; font-size:0.75em; color:var(--c-muted); display:flex; align-items:center; gap:8px;">'
                         + bpIcon('trending-up', 12)
-                        + ' <span><strong style="color:#ffd60a;">Market Adjustment: ' + Math.round((compCtx.multiplier - 1) * 100) + '% above BLS baseline</strong>'
+                        + ' <span><strong style="color:var(--warning);">Market Adjustment: ' + Math.round((compCtx.multiplier - 1) * 100) + '% above BLS baseline</strong>'
                         + (compCtx.label ? ' &nbsp;&middot;&nbsp; ' + escapeHtml(compCtx.label) : '')
                         + ' &nbsp;&middot;&nbsp; BLS cross-industry data adjusted for employer market position</span></div>';
                 }
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr' + (showComp ? ' 1fr' : '') + '; gap:10px; margin-bottom:20px;">';
 
                 html += '<div style="padding:14px 16px; background:rgba(48,209,88,0.07); border:1px solid rgba(48,209,88,0.2); border-radius:10px;">'
-                    + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#30d158; font-weight:700; margin-bottom:4px;">Minimum Market Value</div>'
-                    + '<div style="font-size:1.3em; font-weight:700; color:#30d158;">$' + Math.round((bls.pct25 || 0) * geo).toLocaleString() + '</div>'
+                    + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:var(--success); font-weight:700; margin-bottom:4px;">Minimum Market Value</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:var(--success);">$' + Math.round((bls.pct25 || 0) * geo).toLocaleString() + '</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">25th pct \u00B7 BLS floor' + (geo !== 1.0 ? ' \u00B7 ' + geoLabel : '') + '</div></div>';
 
                 html += '<div style="padding:14px 16px; background:rgba(96,165,250,0.07); border:1px solid rgba(96,165,250,0.2); border-radius:10px;">'
-                    + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; font-weight:700; margin-bottom:4px;">Seniority Target</div>'
-                    + '<div style="font-size:1.3em; font-weight:700; color:#60a5fa;">$' + blsBase.toLocaleString() + '</div>'
+                    + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:4px;">Seniority Target</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:var(--accent);">$' + blsBase.toLocaleString() + '</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">' + seniorityLabel + ' pct \u00B7 ' + (data.seniority ? data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) : 'Mid') + ' level</div></div>';
 
                 if (showComp) {
                     html += '<div style="padding:14px 16px; background:rgba(255,214,10,0.07); border:1px solid rgba(255,214,10,0.25); border-radius:10px;">'
-                        + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#ffd60a; font-weight:700; margin-bottom:4px;">Justified Value</div>'
-                        + '<div style="font-size:1.3em; font-weight:700; color:#ffd60a;">$' + totalJustified.toLocaleString() + '</div>'
+                        + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:var(--warning); font-weight:700; margin-bottom:4px;">Justified Value</div>'
+                        + '<div style="font-size:1.3em; font-weight:700; color:var(--warning);">$' + totalJustified.toLocaleString() + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">75th pct \u00B7 BLS base + skill premiums</div>'
                         + '<div style="font-size:0.68em; color:var(--c-faint); margin-top:5px; padding-top:5px; border-top:1px solid rgba(255,214,10,0.12);">Max justifiable: <span style="color:rgba(255,214,10,0.6); font-weight:600;">$' + justifiedMax.toLocaleString() + '</span></div></div>';
                 }
@@ -8961,7 +8961,7 @@
                 html += '<div style="margin-bottom:20px;">'
                     + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">' + bandLabel + '</div>'
                     + '<div style="position:relative; height:10px; border-radius:8px; background:linear-gradient(to right, #1e3a2f, #30d158 50%, #ffd60a); margin-bottom:6px;">'
-                    + '<div style="position:absolute; top:-4px; left:' + markerPct + '%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:#60a5fa; border:2px solid var(--c-surface-1); box-shadow:0 0 0 2px #60a5fa44;" title="' + seniorityLabel + ' target"></div>'
+                    + '<div style="position:absolute; top:-4px; left:' + markerPct + '%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:var(--accent); border:2px solid var(--c-surface-1); box-shadow:0 0 0 2px #60a5fa44;" title="' + seniorityLabel + ' target"></div>'
                     + '</div>'
                     + '<div style="display:flex; justify-content:space-between;">';
                 pctBandData.forEach(function(p) {
@@ -8980,10 +8980,10 @@
                 // ── Full BLS table ──────────────────────────────────────────
                 html += '<table style="width:100%; border-collapse:collapse; font-size:0.85em; margin-bottom:12px;">'
                     + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
-                    + '<th style="text-align:left; padding:8px 10px; color:#30d158; font-weight:700;">Percentile</th>'
-                    + '<th style="text-align:right; padding:8px 10px; color:#30d158; font-weight:700;">Annual (USD)</th>'
-                    + '<th style="text-align:left; padding:8px 10px; color:#30d158; font-weight:700;">Profile</th>'
-                    + (showBlindCol ? '<th style="text-align:center; padding:8px 10px; color:#30d158; font-weight:700; width:70px;">Export</th>' : '')
+                    + '<th style="text-align:left; padding:8px 10px; color:var(--success); font-weight:700;">Percentile</th>'
+                    + '<th style="text-align:right; padding:8px 10px; color:var(--success); font-weight:700;">Annual (USD)</th>'
+                    + '<th style="text-align:left; padding:8px 10px; color:var(--success); font-weight:700;">Profile</th>'
+                    + (showBlindCol ? '<th style="text-align:center; padding:8px 10px; color:var(--success); font-weight:700; width:70px;">Export</th>' : '')
                     + '</tr></thead><tbody>';
 
                 var pctDataFull = [
@@ -9003,10 +9003,10 @@
                     var toggleColor = isHidden ? '#ff453a' : '#30d158';
                     html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isTarget ? 'font-weight:700;' : '') + (isHidden ? ' opacity:0.45;' : '') + '">'
                         + '<td style="padding:8px 10px; color:' + headingColor + ';">'
-                        + (isTarget ? '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#60a5fa; margin-right:6px; vertical-align:middle;"></span>' : '<span style="display:inline-block; width:6px; margin-right:6px;"></span>')
+                        + (isTarget ? '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent); margin-right:6px; vertical-align:middle;"></span>' : '<span style="display:inline-block; width:6px; margin-right:6px;"></span>')
                         + p.label + '</td>'
                         + '<td style="padding:8px 10px; text-align:right; color:' + (isTarget ? '#60a5fa' : '#30d158') + '; font-weight:600;">' + (isHidden ? '<s style="opacity:0.5;">$' + displayVal.toLocaleString() + '</s>' : '$' + displayVal.toLocaleString()) + '</td>'
-                        + '<td style="padding:8px 10px; color:' + mutedColor + '; font-size:0.9em;">' + p.note + (isTarget ? ' <span style="color:#60a5fa; font-weight:600;">\u2190 target</span>' : '') + '</td>'
+                        + '<td style="padding:8px 10px; color:' + mutedColor + '; font-size:0.9em;">' + p.note + (isTarget ? ' <span style="color:var(--accent); font-weight:600;">\u2190 target</span>' : '') + '</td>'
                         + (showBlindCol ? '<td style="text-align:center; padding:8px 4px;"><button onclick="toggleCompBlinding(\'' + p.key + '\')" title="' + (isHidden ? 'Hidden on export' : 'Visible on export') + '" style="background:none; border:1px solid ' + toggleColor + '44; border-radius:6px; padding:4px 8px; cursor:pointer; color:' + toggleColor + '; font-size:0.8em;">' + eyeIcon + '</button></td>' : '')
                         + '</tr>';
                 });
@@ -9028,7 +9028,7 @@
                                 + '<div style="flex:0 0 120px; font-size:0.8em; color:' + headingColor + '; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(s.name) + '</div>'
                                 + '<div style="flex:1; height:6px; border-radius:6px; background:var(--c-surface-2); overflow:hidden;">'
                                 + '<div style="width:' + pct + '%; height:100%; border-radius:6px; background:' + lc + ';"></div></div>'
-                                + '<div style="flex:0 0 56px; text-align:right; font-size:0.8em; font-weight:700; color:#ffd60a;">+$' + (s.compValue || 0).toLocaleString() + '</div>'
+                                + '<div style="flex:0 0 56px; text-align:right; font-size:0.8em; font-weight:700; color:var(--warning);">+$' + (s.compValue || 0).toLocaleString() + '</div>'
                                 + '</div>';
                         });
                         html += '</div></div>';
@@ -9043,29 +9043,29 @@
 
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
-                + '<span style="color:#bf5af2;">' + bpIcon('check',18) + '</span>'
+                + '<span style="color:var(--c-purple);">' + bpIcon('check',18) + '</span>'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">4) Demonstrated Experience</span></div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:14px; line-height:1.6;">'
                 + 'A <strong>' + escapeHtml(data.title) + '</strong> does more than fill a role. Evidence of mastery should include:</div>'
                 + '<div style="display:grid; gap:8px;">';
             (data.demonstrated.evidence || []).forEach(function(e) {
                 html += '<div style="display:flex; gap:8px; align-items:flex-start; padding:8px 12px; background:var(--c-surface-2); border-radius:8px;">'
-                    + '<span style="color:#bf5af2; flex-shrink:0; margin-top:2px;">' + bpIcon('check',14) + '</span>'
+                    + '<span style="color:var(--c-purple); flex-shrink:0; margin-top:2px;">' + bpIcon('check',14) + '</span>'
                     + '<span style="font-size:0.85em; color:var(--text-secondary); line-height:1.6;">' + escapeHtml(e) + '</span></div>';
             });
             html += '</div>'
                 + '<div style="margin-top:14px; padding:10px 14px; background:rgba(191,90,242,0.06); border:1px solid rgba(191,90,242,0.15); border-radius:8px; font-size:0.82em; color:' + mutedColor + '; line-height:1.5;">'
-                + '<strong style="color:#bf5af2;">Artifacts:</strong> ' + escapeHtml(data.demonstrated.artifacts) + '</div></div>';
+                + '<strong style="color:var(--c-purple);">Artifacts:</strong> ' + escapeHtml(data.demonstrated.artifacts) + '</div></div>';
 
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
-                + '<span style="color:#ffd60a;">' + bpIcon('values',18) + '</span>'
+                + '<span style="color:var(--warning);">' + bpIcon('values',18) + '</span>'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">5) Values & Purpose</span></div>'
                 + '<div style="display:grid; gap:10px;">';
             (data.values || []).forEach(function(v) {
                 var vDesc = v.desc || v.description || '';
                 html += '<div style="display:flex; gap:10px; align-items:flex-start; padding:10px 14px; background:var(--c-surface-2); border-radius:8px;">'
-                    + '<span style="color:#ffd60a; flex-shrink:0; margin-top:2px;">' + bpIcon('check',14) + '</span>'
+                    + '<span style="color:var(--warning); flex-shrink:0; margin-top:2px;">' + bpIcon('check',14) + '</span>'
                     + '<div><strong style="color:' + headingColor + '; font-size:0.9em;">' + escapeHtml(v.name) + '</strong>'
                     + '<span style="color:' + mutedColor + '; font-size:0.85em;"> \u2014 ' + escapeHtml(vDesc) + '</span></div></div>';
             });
@@ -9075,7 +9075,7 @@
                 var respNum = hasReqs ? '3' : '2';
                 html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
-                    + '<span style="color:#bf5af2;">' + bpIcon('list',18) + '</span>'
+                    + '<span style="color:var(--c-purple);">' + bpIcon('list',18) + '</span>'
                     + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">' + respNum + ') Key Responsibilities</span></div>';
                 data.keyResponsibilities.forEach(function(cat) {
                     html += '<div style="margin-bottom:14px;">'
@@ -9083,7 +9083,7 @@
                         + '<div style="display:grid; gap:5px;">';
                     cat.items.forEach(function(item) {
                         html += '<div style="display:flex; gap:8px; align-items:flex-start; padding:6px 12px;">'
-                            + '<span style="color:#bf5af2; flex-shrink:0; margin-top:3px; font-size:0.7em;">\u25CF</span>'
+                            + '<span style="color:var(--c-purple); flex-shrink:0; margin-top:3px; font-size:0.7em;">\u25CF</span>'
                             + '<span style="font-size:0.85em; color:var(--text-secondary); line-height:1.6;">' + escapeHtml(item) + '</span></div>';
                     });
                     html += '</div></div>';
@@ -9394,27 +9394,27 @@
             var whcr = d.hiddenCompRows || [];
             function _esc(s) { return escapeHtml(s || ''); }
             var h = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
-                + 'body{font-family:Calibri,Arial,sans-serif;color:#1c1c22;max-width:780px;margin:0 auto;padding:20px 30px;font-size:11pt;line-height:1.5;}'
+                + 'body{font-family:Calibri,Arial,sans-serif;color:var(--c-bg-solid-alt);max-width:780px;margin:0 auto;padding:20px 30px;font-size:11pt;line-height:1.5;}'
                 + '.header{background:#0a0a0f;padding:18px 24px;margin:-20px -30px 20px;}'
-                + '.header .label{color:#60a5fa;font-size:8pt;text-transform:uppercase;letter-spacing:3px;font-weight:bold;margin-bottom:6px;}'
+                + '.header .label{color:var(--accent);font-size:8pt;text-transform:uppercase;letter-spacing:3px;font-weight:bold;margin-bottom:6px;}'
                 + '.header h1{color:white;font-size:18pt;margin:0 0 6px;}'
                 + '.header .sub{color:#b4bedd;font-size:10pt;margin:0;}'
-                + 'h2{color:#60a5fa;font-size:12pt;margin-top:22px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #60a5fa;}'
-                + 'h3{color:#1c1c22;font-size:11pt;margin:10px 0 4px;}'
-                + '.logistics{background:#f8fafc;padding:10px 14px;margin-bottom:16px;font-size:9pt;color:#636366;}'
+                + 'h2{color:var(--accent);font-size:12pt;margin-top:22px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--accent);}'
+                + 'h3{color:var(--c-bg-solid-alt);font-size:11pt;margin:10px 0 4px;}'
+                + '.logistics{background:#f8fafc;padding:10px 14px;margin-bottom:16px;font-size:9pt;color:var(--text-muted);}'
                 + '.logistics span{margin-right:16px;}'
-                + '.logistics .lbl{font-weight:bold;color:#636366;text-transform:uppercase;font-size:8pt;}'
+                + '.logistics .lbl{font-weight:bold;color:var(--text-muted);text-transform:uppercase;font-size:8pt;}'
                 + 'table{border-collapse:collapse;width:100%;margin:8px 0;}'
-                + 'th{background:#f5f5f7;color:#60a5fa;font-weight:bold;padding:7px 10px;text-align:left;font-size:9pt;border:1px solid #d1d1d6;}'
-                + 'td{padding:6px 10px;font-size:10pt;border:1px solid #d1d1d6;vertical-align:top;}'
+                + 'th{background:var(--text-primary);color:var(--accent);font-weight:bold;padding:7px 10px;text-align:left;font-size:9pt;border:1px solid var(--c-label);}'
+                + 'td{padding:6px 10px;font-size:10pt;border:1px solid var(--c-label);vertical-align:top;}'
                 + 'tr:nth-child(even) td{background:#fafbfd;}'
                 + '.prof{font-weight:bold;font-size:9pt;}'
                 + 'ul{margin:4px 0;padding-left:18px;} li{margin:4px 0;font-size:10pt;color:#48484a;}'
-                + '.value-name{font-weight:bold;color:#1c1c22;}'
-                + '.value-desc{color:#636366;font-size:10pt;}'
+                + '.value-name{font-weight:bold;color:var(--c-bg-solid-alt);}'
+                + '.value-desc{color:var(--text-muted);font-size:10pt;}'
                 + '.comp-row .amt{font-weight:bold;color:#28a745;font-size:12pt;}'
-                + '.comp-row .pct{color:#636366;font-size:8pt;}'
-                + '.footer{color:#a1a1a6;font-size:8pt;margin-top:30px;border-top:1px solid #d1d1d6;padding-top:8px;}'
+                + '.comp-row .pct{color:var(--text-muted);font-size:8pt;}'
+                + '.footer{color:var(--text-secondary);font-size:8pt;margin-top:30px;border-top:1px solid var(--c-label);padding-top:8px;}'
                 + '</style></head><body>';
             h += '<div class="header"><div class="label">WORK BLUEPRINT</div>';
             h += '<h1>' + _esc(d.title) + '</h1>';
@@ -9480,7 +9480,7 @@
                         var isMed = p.key === 'median';
                         h += '<td style="text-align:center; font-weight:bold; font-size:12pt; color:' + (isMed ? 'white' : '#28a745') + '; background:' + (isMed ? '#28a745' : '#f0fdf4') + '; border:1px solid ' + (isMed ? '#28a745' : '#bbf7d0') + ';">$' + (p.val || 0).toLocaleString() + '</td>';
                     });
-                    h += '</tr></tbody></table><p style="font-size:8pt;color:#a1a1a6;">Source: BLS OEWS ' + _esc(d.bls.source || 'May 2024') + ' &middot; SOC: ' + _esc(d.bls.soc || '') + '</p>';
+                    h += '</tr></tbody></table><p style="font-size:8pt;color:var(--text-secondary);">Source: BLS OEWS ' + _esc(d.bls.source || 'May 2024') + ' &middot; SOC: ' + _esc(d.bls.soc || '') + '</p>';
                 }
             }
 
@@ -9515,7 +9515,7 @@
                 h += '<h2>Demonstrated Experience</h2><ul>';
                 (d.demonstrated.evidence || []).forEach(function(e) { h += '<li>' + _esc(e) + '</li>'; });
                 h += '</ul>';
-                if (d.demonstrated.artifacts) h += '<p style="font-size:9pt;color:#636366;"><strong>Artifacts:</strong> ' + _esc(d.demonstrated.artifacts) + '</p>';
+                if (d.demonstrated.artifacts) h += '<p style="font-size:9pt;color:var(--text-muted);"><strong>Artifacts:</strong> ' + _esc(d.demonstrated.artifacts) + '</p>';
             }
 
             h += '<div class="footer">Generated by Blueprint\u2122 &middot; ' + new Date().toLocaleDateString() + ' &middot; myblueprint.work</div>';
@@ -9968,7 +9968,7 @@
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.15em; color:var(--c-heading-bold);">' + bpIcon('edit',18) + ' Edit Work Blueprint</span>'
                 + '<div style="display:flex; gap:8px;">'
-                + '<button onclick="' + saveFn + '" style="padding:8px 18px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('save',14) + ' ' + saveLabel + '</button>'
+                + '<button onclick="' + saveFn + '" style="padding:8px 18px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('save',14) + ' ' + saveLabel + '</button>'
                 + '<button onclick="' + cancelFn + '" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
                 + '</div></div>';
 
@@ -10028,8 +10028,8 @@
                 var editHiddenPcts2 = data.hiddenCompRows || [];
                 html += '<table style="width:100%; border-collapse:collapse; font-size:0.8em; margin-top:10px; max-width:600px;">'
                     + '<thead><tr style="border-bottom:1px solid ' + borderColor + ';">'
-                    + '<th style="text-align:left; padding:4px 8px; color:#30d158; font-weight:600; font-size:0.9em;">Percentile</th>'
-                    + '<th style="text-align:right; padding:4px 8px; color:#30d158; font-weight:600; font-size:0.9em;">Annual</th>'
+                    + '<th style="text-align:left; padding:4px 8px; color:var(--success); font-weight:600; font-size:0.9em;">Percentile</th>'
+                    + '<th style="text-align:right; padding:4px 8px; color:var(--success); font-weight:600; font-size:0.9em;">Annual</th>'
                     + '<th style="text-align:left; padding:4px 8px; color:var(--text-muted); font-weight:600; font-size:0.9em;">Notes</th>'
                     + '</tr></thead><tbody>';
                 [
@@ -10042,7 +10042,7 @@
                     var hidden = editHiddenPcts2.indexOf(p.key) !== -1;
                     html += '<tr style="' + (hidden ? 'opacity:0.35;' : '') + (i % 2 === 1 ? 'background:var(--c-surface-2);' : '') + '">'
                         + '<td style="padding:4px 8px; color:var(--c-heading);">' + p.label + '</td>'
-                        + '<td style="padding:4px 8px; text-align:right; color:#30d158; font-weight:600;">' + (hidden ? '<s>$' + (p.val || 0).toLocaleString() + '</s>' : '$' + (p.val || 0).toLocaleString()) + '</td>'
+                        + '<td style="padding:4px 8px; text-align:right; color:var(--success); font-weight:600;">' + (hidden ? '<s>$' + (p.val || 0).toLocaleString() + '</s>' : '$' + (p.val || 0).toLocaleString()) + '</td>'
                         + '<td style="padding:4px 8px; color:var(--text-muted);">' + p.note + '</td></tr>';
                 });
                 html += '</tbody></table>'
@@ -10086,7 +10086,7 @@
             (data.certifications || []).forEach(function(cert, ci) {
                 html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:var(--c-heading); font-size:0.82em; font-weight:500;">'
                     + escapeHtml(cert)
-                    + '<button onclick="_jdcSyncFormToState();_jdcResult.certifications.splice(' + ci + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.certifications.splice(' + ci + ',1);' + refreshEsc + ';" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
             });
             html += '</div></div>';
 
@@ -10094,7 +10094,7 @@
             (data.qualifications || []).forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
                     + '<input id="jdcEditQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + fieldStyle + ' flex:1;" />'
-                    + '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications.splice(' + qi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications.splice(' + qi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications=_jdcResult.qualifications||[];_jdcResult.qualifications.push(\'\');' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
@@ -10123,7 +10123,7 @@
                     html += '<option' + (s.blueprintLevel === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select></td>'
-                    + '<td style="padding:8px;"><button onclick="_jdcSyncFormToState();_jdcResult.skills.splice(' + si + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.2em;">&times;</button></td></tr>';
+                    + '<td style="padding:8px;"><button onclick="_jdcSyncFormToState();_jdcResult.skills.splice(' + si + ',1);' + refreshEsc + ';" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em;">&times;</button></td></tr>';
             });
             html += '</tbody></table></div>';
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.skills=_jdcResult.skills||[];_jdcResult.skills.push({name:\'\',outcome:\'\',blueprintLevel:\'Proficient\',source:\'jd\'});' + refreshEsc + ';" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:8px;">' + bpIcon('plus',10) + ' Add Skill</button>'
@@ -10166,7 +10166,7 @@
                     + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeAttr(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
                     + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeAttr(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="jdcAIFillOneValueDesc(' + vi + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:0 3px;" title="AI generate description">' + bpIcon('wand',13) + '</button>'
-                    + '<button onclick="_jdcSyncFormToState();_jdcResult.values.splice(' + vi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.values.splice(' + vi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.values=_jdcResult.values||[];_jdcResult.values.push({name:\'\',description:\'\'});' + refreshEsc + ';" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Value</button>'
                 + '</div>';
@@ -10184,7 +10184,7 @@
             ].filter(function(v) { return existingValNames.indexOf(v.name.toLowerCase()) === -1; });
             if (suggestedValues.length > 0) {
                 html += '<div style="background:rgba(191,90,242,0.08); border:1px solid rgba(191,90,242,0.2); border-radius:10px; padding:12px 16px; margin-bottom:20px;">'
-                    + '<div style="font-weight:600; font-size:0.82em; color:#bf5af2; margin-bottom:8px;">' + bpIcon('star',12) + ' Suggested Values</div>'
+                    + '<div style="font-weight:600; font-size:0.82em; color:var(--c-purple); margin-bottom:8px;">' + bpIcon('star',12) + ' Suggested Values</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 suggestedValues.forEach(function(v) {
                     html += '<button onclick="_jdcSyncFormToState();_jdcResult.values.push({name:\'' + v.name.replace(/'/g, "\\'") + '\',description:\'' + v.description.replace(/'/g, "\\'") + '\'});' + refreshEsc + ';" '
@@ -10199,13 +10199,13 @@
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold);">' + bpIcon('check',18) + ' Demonstrated Experience</span>'
-                + '<button onclick="jdcAIFillDemonstrated()" style="padding:4px 12px; background:rgba(48,209,88,0.15); color:#30d158; border:1px solid rgba(48,209,88,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to generate demonstrated experience evidence tailored to this role">' + bpIcon('wand',12) + ' AI Generate</button>'
+                + '<button onclick="jdcAIFillDemonstrated()" style="padding:4px 12px; background:rgba(48,209,88,0.15); color:var(--success); border:1px solid rgba(48,209,88,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to generate demonstrated experience evidence tailored to this role">' + bpIcon('wand',12) + ' AI Generate</button>'
                 + '</div>';
             (demoData.evidence || []).forEach(function(ev, ei) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
-                    + '<span style="color:#30d158; font-size:0.9em;">' + bpIcon('check',12) + '</span>'
+                    + '<span style="color:var(--success); font-size:0.9em;">' + bpIcon('check',12) + '</span>'
                     + '<input id="jdcEditEvidence' + ei + '" type="text" value="' + escapeAttr(ev) + '" style="' + fieldStyle + ' flex:1;" />'
-                    + '<button onclick="_jdcSyncFormToState();_jdcResult.demonstrated.evidence.splice(' + ei + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.demonstrated.evidence.splice(' + ei + ',1);' + refreshEsc + ';" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();if(!_jdcResult.demonstrated)_jdcResult.demonstrated={evidence:[],artifacts:\'\'};_jdcResult.demonstrated.evidence.push(\'\');' + refreshEsc + ';" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px; margin-bottom:12px;">' + bpIcon('plus',10) + ' Add Evidence</button>';
             html += '<div style="margin-top:8px;"><label style="' + labelStyle + '">Artifacts</label>'
@@ -10218,15 +10218,15 @@
                 html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">'
                     + '<input id="jdcEditCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + fieldStyle + ' max-width:180px;" />'
                     + '<input id="jdcEditCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + fieldStyle + '" />'
-                    + '<button onclick="_jdcSyncFormToState(); _jdcResult.customFields.splice(' + i + ',1); ' + refreshEsc + ';" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState(); _jdcResult.customFields.splice(' + i + ',1); ' + refreshEsc + ';" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState(); if(!_jdcResult.customFields) _jdcResult.customFields=[]; _jdcResult.customFields.push({key:\'\',value:\'\'}); ' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
 
             if (showBottomRow) {
                 html += '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
-                + '<button onclick="' + saveFn + '" style="padding:10px 24px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save & Preview</button>';
+                + '<button onclick="' + saveFn + '" style="padding:10px 24px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save & Preview</button>';
                 if (typeof fbUser !== 'undefined' && fbUser) {
-                    html += '<button onclick="jdcSaveAndRepository()" style="padding:10px 24px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' ' + _repoSaveLabel + '</button>';
+                    html += '<button onclick="jdcSaveAndRepository()" style="padding:10px 24px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' ' + _repoSaveLabel + '</button>';
                 }
                 html += '<button onclick="' + cancelFn + '" style="padding:10px 24px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
                     + '</div>';
@@ -10354,7 +10354,7 @@
                     + '<p style="font-size:0.88em;">Use the <strong>Converter</strong> or <strong>Wizard</strong> to create and save blueprints.</p>'
                     + '<div style="display:flex; gap:10px; justify-content:center; margin-top:16px;">'
                     + '<button onclick="adminSubTab=\'jdconverter\'; renderAdminTabContent();" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('wand',14) + ' Open Converter</button>'
-                    + '<button onclick="adminSubTab=\'wbwizard\'; renderAdminTabContent();" style="padding:8px 16px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('blueprint',14) + ' Open Wizard</button>'
+                    + '<button onclick="adminSubTab=\'wbwizard\'; renderAdminTabContent();" style="padding:8px 16px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('blueprint',14) + ' Open Wizard</button>'
                     + '</div></div>';
                 el.innerHTML = html + '</div>';
                 return;
@@ -10374,7 +10374,7 @@
                     + '<div style="font-weight:600; font-size:0.95em; color:var(--c-heading-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(bp.title || 'Untitled') + '</div>'
                     + '<div style="font-size:0.8em; color:var(--c-muted); margin-top:3px;">' + escapeHtml(bp.company || '') + (bp.location ? ' \u00B7 ' + escapeHtml(bp.location) : '') + ' \u00B7 ' + (bp.skills ? bp.skills.length : 0) + ' skills' + (savedDate ? ' \u00B7 ' + savedDate : '') + '</div></div>'
                     + '<button onclick="event.stopPropagation(); wbRepoClone(' + idx + ')" style="background:none; border:none; color:var(--accent, #60a5fa); cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(96,165,250,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Clone">' + bpIcon('copy',16) + '</button>'
-                    + '<button onclick="event.stopPropagation(); wbRepoDelete(\'' + (bp.id || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; color:#ff453a; cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(255,69,58,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Delete">' + bpIcon('trash',16) + '</button>'
+                    + '<button onclick="event.stopPropagation(); wbRepoDelete(\'' + (bp.id || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(255,69,58,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Delete">' + bpIcon('trash',16) + '</button>'
                     + '</div>';
             });
             html += '</div>';
@@ -10383,13 +10383,13 @@
                 var viewBp = _wbRepoCache[_wbRepoViewIdx];
                 html += '<div class="wb-repo-actions" style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">'
                     + '<button onclick="wbRepoExport(\'json\')" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' JSON</button>'
-                    + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' PDF</button>'
+                    + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' PDF</button>'
                     + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#4a9eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' Word</button>'
                     + '<button onclick="wbRepoEditModal(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('edit',14) + ' Edit</button>'
                     + '<button onclick="wbRepoClone(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--accent, #60a5fa); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('copy',14) + ' Clone</button>'
-                    + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(48,209,88,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
-                    + '<button onclick="generateScoutingReportFromWB(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:#60a5fa; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:none; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('file-text',14) + ' Scouting Report</button>'
-                    + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:#ff453a; border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trash',14) + ' Delete</button>'
+                    + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(48,209,88,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
+                    + '<button onclick="generateScoutingReportFromWB(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:none; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('file-text',14) + ' Scouting Report</button>'
+                    + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, _jdcCompMode === 'with');
                 html += '<div id="wbCompareContainer"></div>';
@@ -11122,7 +11122,7 @@
             // Primary values as prominent pills
             html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;">';
             (compVals.primary || []).forEach(function(v) {
-                html += '<span style="font-size:0.82em; padding:4px 12px; border-radius:12px; font-weight:600; background:rgba(48,209,88,0.12); color:#30d158; border:1px solid rgba(48,209,88,0.2);">'
+                html += '<span style="font-size:0.82em; padding:4px 12px; border-radius:12px; font-weight:600; background:rgba(48,209,88,0.12); color:var(--success); border:1px solid rgba(48,209,88,0.2);">'
                     + escapeHtml(v) + '</span>';
             });
             html += '</div>';
@@ -11198,7 +11198,7 @@
                 // Aligned values — grouped by company value
                 if (aligned.length > 0) {
                     html += '<div style="margin-bottom:14px;">'
-                        + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:#30d158; font-weight:600; margin-bottom:6px;">'
+                        + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:var(--success); font-weight:600; margin-bottom:6px;">'
                         + '\u2713 Aligned Values (' + aligned.length + ' candidate values \u2192 ' + Object.keys(alignedByCompany).length + ' company values)</div>';
                     
                     Object.keys(alignedByCompany).forEach(function(companyVal) {
@@ -11210,7 +11210,7 @@
                             + '<span style="font-size:0.82em; font-weight:700; color:var(--c-heading);">' + escapeHtml(companyVal) + '</span>'
                             + '<span style="font-size:0.68em; color:var(--c-muted); margin-left:6px;">(' + (isPrimary ? 'core' : 'secondary') + ')</span>'
                             + '</div>'
-                            + '<span style="font-size:0.7em; color:#30d158; font-weight:600;">\u2713 matched</span>'
+                            + '<span style="font-size:0.7em; color:var(--success); font-weight:600;">\u2713 matched</span>'
                             + '</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">';
                         matches.forEach(function(m) {
@@ -11230,7 +11230,7 @@
                 // Company values NOT matched
                 if (theirPriority.length > 0) {
                     html += '<div style="margin-bottom:14px;">'
-                        + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:#ffd60a; font-weight:600; margin-bottom:6px;">'
+                        + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:var(--warning); font-weight:600; margin-bottom:6px;">'
                         + '\u2717 Unmatched Company Values (' + theirPriority.length + ')</div>';
                     theirPriority.forEach(function(v) {
                         var isPrimary = v.strength === 'primary';
@@ -11245,12 +11245,12 @@
                 // Candidate's unique values (not matching company)
                 if (yourPriority.length > 0) {
                     html += '<div style="margin-bottom:14px;">'
-                        + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:#60a5fa; font-weight:600; margin-bottom:6px;">'
+                        + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:var(--accent); font-weight:600; margin-bottom:6px;">'
                         + bpIcon('user', 12) + ' Candidate\'s Independent Values (' + yourPriority.length + ')</div>'
                         + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:6px;">Values this candidate prioritizes beyond company requirements. These represent independent character, not misalignment.</div>'
                         + '<div style="display:flex; flex-wrap:wrap; gap:4px;">';
                     yourPriority.forEach(function(v) {
-                        html += '<span style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.08); color:#60a5fa; border:1px solid rgba(96,165,250,0.15);">'
+                        html += '<span style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.08); color:var(--accent); border:1px solid rgba(96,165,250,0.15);">'
                             + escapeHtml(v.name.charAt(0).toUpperCase() + v.name.slice(1)) + '</span>';
                     });
                     html += '</div></div>';
@@ -11352,14 +11352,14 @@
 
                 // WB-only tile
                 html += '<div style="padding:14px; background:rgba(48,209,88,0.04); border:1px solid rgba(48,209,88,0.15); border-radius:10px;">'
-                    + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#30d158; font-weight:700; margin-bottom:8px;">'
+                    + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--success); font-weight:700; margin-bottom:8px;">'
                     + '\u2728 Discovered by Blueprint Only (' + wbOnly.length + ')</div>';
                 if (wbOnly.length > 0) {
                     wbOnly.forEach(function(m) {
                         var quality = Math.round(m.nameMatch * m.profMatch * 100);
-                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(48,209,88,0.06); border-radius:6px; border-left:2px solid #30d158;">'
+                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(48,209,88,0.06); border-radius:6px; border-left:2px solid var(--success);">'
                             + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
-                            + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + (m.userLevel ? ' (' + m.userLevel + ')' : '') + ' <span style="color:#30d158;">' + quality + '%</span></div>'
+                            + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + (m.userLevel ? ' (' + m.userLevel + ')' : '') + ' <span style="color:var(--success);">' + quality + '%</span></div>'
                             + '</div>';
                     });
                     html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:6px; padding:4px 0; border-top:1px solid rgba(48,209,88,0.1); line-height:1.4;">Invisible to ATS keyword scanning. Requires synonym and ontology-aware matching.</div>';
@@ -11370,13 +11370,13 @@
 
                 // JD-only tile
                 html += '<div style="padding:14px; background:rgba(255,159,10,0.04); border:1px solid rgba(255,159,10,0.12); border-radius:10px;">'
-                    + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ff9f0a; font-weight:700; margin-bottom:8px;">'
+                    + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--c-orange); font-weight:700; margin-bottom:8px;">'
                     + '' + bpIcon('file-text',14) + ' Discovered by JD Parsing Only (' + jdOnly.length + ')</div>';
                 if (jdOnly.length > 0) {
                     jdOnly.forEach(function(m) {
-                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(255,159,10,0.04); border-radius:6px; border-left:2px solid #ff9f0a;">'
+                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(255,159,10,0.04); border-radius:6px; border-left:2px solid var(--c-orange);">'
                             + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
-                            + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + ' <span style="color:#ff9f0a;">keyword match</span></div>'
+                            + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + ' <span style="color:var(--c-orange);">keyword match</span></div>'
                             + '</div>';
                     });
                     html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:6px; padding:4px 0; border-top:1px solid rgba(255,159,10,0.1); line-height:1.4;">Keyword-based extraction. No proficiency validation or evidence.</div>';
@@ -11395,13 +11395,13 @@
                     + bpIcon('trending-up', 14) + ' Development Focus Areas</div>';
 
                 if (criticalGaps.length > 0) {
-                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ffd60a; font-weight:600; margin-bottom:6px;">Required Skills \u2014 Not Currently Matched</div>';
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--warning); font-weight:600; margin-bottom:6px;">Required Skills \u2014 Not Currently Matched</div>';
                     criticalGaps.forEach(function(g) {
                         var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
-                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(255,214,10,0.04); border-radius:8px; border-left:3px solid #ffd60a;">'
+                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(255,214,10,0.04); border-radius:8px; border-left:3px solid var(--warning);">'
                             + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                             + '<span style="font-size:0.85em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
-                            + '<span style="font-size:0.7em; color:#ffd60a; font-weight:500;">' + (g.proficiency || 'Proficient') + ' required</span>'
+                            + '<span style="font-size:0.7em; color:var(--warning); font-weight:500;">' + (g.proficiency || 'Proficient') + ' required</span>'
                             + '</div>'
                             + '<div style="font-size:0.75em; color:var(--c-body); margin-top:4px; line-height:1.5;">' + recText + '</div>'
                             + '</div>';
@@ -11409,13 +11409,13 @@
                 }
 
                 if (developmentGaps.length > 0) {
-                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ff9f0a; font-weight:600; margin:10px 0 6px;">Preferred Skills \u2014 Growth Opportunities</div>';
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--c-orange); font-weight:600; margin:10px 0 6px;">Preferred Skills \u2014 Growth Opportunities</div>';
                     developmentGaps.forEach(function(g) {
                         var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
-                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(255,159,10,0.04); border-radius:8px; border-left:3px solid #ff9f0a;">'
+                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(255,159,10,0.04); border-radius:8px; border-left:3px solid var(--c-orange);">'
                             + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                             + '<span style="font-size:0.85em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
-                            + '<span style="font-size:0.7em; color:#ff9f0a; font-weight:500;">' + (g.proficiency || 'Proficient') + ' preferred</span>'
+                            + '<span style="font-size:0.7em; color:var(--c-orange); font-weight:500;">' + (g.proficiency || 'Proficient') + ' preferred</span>'
                             + '</div>'
                             + '<div style="font-size:0.75em; color:var(--c-body); margin-top:4px; line-height:1.5;">' + recText + '</div>'
                             + '</div>';
@@ -11423,9 +11423,9 @@
                 }
 
                 if (devAreas.length > 0) {
-                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin:10px 0 6px;">Adjacent Skills \u2014 Strengthen Existing Capabilities</div>';
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:600; margin:10px 0 6px;">Adjacent Skills \u2014 Strengthen Existing Capabilities</div>';
                     devAreas.forEach(function(d) {
-                        html += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(96,165,250,0.04); border-radius:8px; border-left:3px solid #60a5fa;">'
+                        html += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(96,165,250,0.04); border-radius:8px; border-left:3px solid var(--accent);">'
                             + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(d.skill) + '</div>'
                             + '<div style="font-size:0.75em; color:var(--c-body); margin-top:2px;">'
                             + (d.type === 'proficiency' ? 'Current: ' + d.has + ' \u2192 Needed: ' + d.needs : 'Related skill present. Direct experience recommended.')
@@ -11449,7 +11449,7 @@
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Skills where this candidate\'s profile data closely aligns with role requirements.</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 candidateStrengths.forEach(function(s) {
-                    html += '<span style="font-size:0.78em; background:rgba(48,209,88,0.08); color:#30d158; padding:5px 12px; border-radius:12px; font-weight:500; border:1px solid rgba(48,209,88,0.15);">' + escapeHtml(s) + '</span>';
+                    html += '<span style="font-size:0.78em; background:rgba(48,209,88,0.08); color:var(--success); padding:5px 12px; border-radius:12px; font-weight:500; border:1px solid rgba(48,209,88,0.15);">' + escapeHtml(s) + '</span>';
                 });
                 html += '</div></div>';
             }
@@ -11650,7 +11650,7 @@
                     html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(255,69,58,0.04); border-radius:6px; border-left:3px solid rgba(255,69,58,0.3);">'
                         + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                         + '<span style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(g.name) + '</span>'
-                        + '<span style="font-size:0.7em; color:#ff453a;">\u2717 no match</span>'
+                        + '<span style="font-size:0.7em; color:var(--danger);">\u2717 no match</span>'
                         + '</div></div>';
                 });
                 html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:8px; padding:4px 0; border-top:1px solid var(--c-surface-3);">Keyword extraction only. No proficiency data, no evidence validation.</div>';
@@ -11665,8 +11665,8 @@
                 + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:' + afterColor + '; margin-bottom:4px;">'
                 + bpIcon('blueprint', 14) + ' Blueprint Structured Matching</div>'
                 + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:10px;">'
-                + '<span style="color:#30d158; font-weight:600;">' + wbMatched.length + ' matched</span>'
-                + ' + <span style="color:#ff9f0a; font-weight:600;">' + wbGaps.length + ' gaps</span>'
+                + '<span style="color:var(--success); font-weight:600;">' + wbMatched.length + ' matched</span>'
+                + ' + <span style="color:var(--c-orange); font-weight:600;">' + wbGaps.length + ' gaps</span>'
                 + ' = ' + wbTotal + ' skills evaluated</div>';
             
             // Matched skills as cards
@@ -11689,16 +11689,16 @@
                         // Row 3: Proficiency comparison
                         + '<div style="display:flex; gap:8px; align-items:center; margin-top:5px; font-size:0.68em;">';
                     if (candidateLevel && requiredLevel) {
-                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(99,102,241,0.1); color:#bf5af2; font-weight:500;">Required: ' + requiredLevel + '</span>'
+                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(99,102,241,0.1); color:var(--c-purple); font-weight:500;">Required: ' + requiredLevel + '</span>'
                             + '<span style="color:var(--c-muted);">\u2192</span>'
-                            + '<span style="padding:2px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:#30d158; font-weight:500;">Has: ' + candidateLevel + '</span>';
+                            + '<span style="padding:2px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:var(--success); font-weight:500;">Has: ' + candidateLevel + '</span>';
                         if (profOk) {
-                            html += '<span style="color:#30d158; font-weight:600;">\u2713 Met</span>';
+                            html += '<span style="color:var(--success); font-weight:600;">\u2713 Met</span>';
                         } else {
-                            html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(255,159,10,0.1); color:#ff9f0a; font-weight:500;">\u26A0 Below required</span>';
+                            html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(255,159,10,0.1); color:var(--c-orange); font-weight:500;">\u26A0 Below required</span>';
                         }
                     } else if (candidateLevel) {
-                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:#30d158; font-weight:500;">Candidate: ' + candidateLevel + '</span>';
+                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:var(--success); font-weight:500;">Candidate: ' + candidateLevel + '</span>';
                     }
                     html += '</div></div>';
                 });
@@ -11708,10 +11708,10 @@
             if (wbGaps.length > 0) {
                 html += '<div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,159,10,0.3);">';
                 wbGaps.slice(0, 10).forEach(function(g) {
-                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(255,159,10,0.04); border-radius:6px; border-left:3px solid #ff9f0a;">'
+                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(255,159,10,0.04); border-radius:6px; border-left:3px solid var(--c-orange);">'
                         + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                         + '<span style="font-size:0.82em; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
-                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,159,10,0.1); color:#ff9f0a; font-weight:500;">' + (g.requirement || 'Required') + ' \u00B7 ' + (g.proficiency || 'Proficient') + '</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,159,10,0.1); color:var(--c-orange); font-weight:500;">' + (g.requirement || 'Required') + ' \u00B7 ' + (g.proficiency || 'Proficient') + '</span>'
                         + '</div>'
                         + '<div style="font-size:0.7em; color:var(--c-muted); margin-top:2px;">Not found in candidate profile</div>'
                         + '</div>';
@@ -12175,13 +12175,13 @@
                 + '<div style="font-size:0.84em; color:var(--c-muted); margin-bottom:16px;">This raw JD text will be matched using keyword scanning \u2014 the way most ATS systems work today.</div>';
 
             if (_wbCompWizData.rawJD) {
-                html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(48,209,88,0.08); border-radius:8px; font-size:0.82em; color:#30d158;">'
+                html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(48,209,88,0.08); border-radius:8px; font-size:0.82em; color:var(--success);">'
                     + bpIcon('check',14) + ' JD text loaded (' + _wbCompWizData.rawJD.split(/\s+/).length + ' words). You can edit below or replace.</div>';
             }
 
             html += '<div style="display:flex; gap:8px; margin-bottom:12px;">'
                 + '<input id="wbCompJDUrl" type="text" placeholder="Paste a job posting URL to fetch..." style="flex:1; padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:8px; color:var(--c-heading); font-size:0.88em;" />'
-                + '<button onclick="_wbCompWizFetchURL()" style="padding:10px 18px; background:#60a5fa; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap;">' + bpIcon('link',14) + ' Fetch</button>'
+                + '<button onclick="_wbCompWizFetchURL()" style="padding:10px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap;">' + bpIcon('link',14) + ' Fetch</button>'
                 + '</div>'
                 + '<div id="wbCompFetchStatus" style="display:none; font-size:0.82em; color:var(--c-muted); margin-bottom:8px;"></div>'
                 + '<textarea id="wbCompJDText" rows="12" placeholder="Or paste the full job description text here..." style="width:100%; padding:14px; background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:8px; color:var(--c-heading); font-size:0.85em; line-height:1.5; resize:vertical; font-family:inherit;">' + escapeHtml(_wbCompWizData.rawJD || '') + '</textarea>';
@@ -12217,10 +12217,10 @@
                 if (text.length < 50) throw new Error('Could not extract enough text from page.');
                 var ta = document.getElementById('wbCompJDText');
                 if (ta) ta.value = text;
-                statusEl.innerHTML = '<span style="color:#30d158;">' + bpIcon('check',14) + ' Fetched ' + text.split(/\s+/).length + ' words from URL.</span>';
+                statusEl.innerHTML = '<span style="color:var(--success);">' + bpIcon('check',14) + ' Fetched ' + text.split(/\s+/).length + ' words from URL.</span>';
                 showToast('JD text fetched successfully!', 'success');
             } catch (err) {
-                statusEl.innerHTML = '<span style="color:#ff453a;">' + bpIcon('alert',14) + ' ' + escapeHtml(err.message) + '</span>';
+                statusEl.innerHTML = '<span style="color:var(--danger);">' + bpIcon('alert',14) + ' ' + escapeHtml(err.message) + '</span>';
                 showToast('URL fetch failed. Try pasting the text directly.', 'warning');
             }
         }
@@ -12332,7 +12332,7 @@
             } catch (err) {
                 console.warn('Compare wizard error:', err);
                 if (body) {
-                    body.innerHTML = '<div style="text-align:center; padding:40px; color:#ff453a;">'
+                    body.innerHTML = '<div style="text-align:center; padding:40px; color:var(--danger);">'
                         + bpIcon('alert',28) + '<p style="margin-top:12px;">Comparison failed: ' + escapeHtml(err.message) + '</p>'
                         + '<button onclick="_wbCompWizStep=3; _wbCompWizRenderStep();" style="margin-top:12px; padding:8px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer;">\u2190 Go Back</button>'
                         + '</div>';
@@ -12366,11 +12366,11 @@
                 + ' &nbsp;\u00B7&nbsp; <strong>Candidate:</strong> ' + escapeHtml(((candidate || {}).profile || {}).name || _wbCompWizData.candidateId)
                 + '</div>'
                 + '<div style="display:flex; gap:8px;">'
-                + '<button onclick="_wbCompSaveCurrent()" style="padding:6px 14px; background:#30d158; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('save',12) + ' Save</button>'
-                + '<button onclick="_wbCompShareCurrent()" style="padding:6px 14px; background:#bf5af2; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
+                + '<button onclick="_wbCompSaveCurrent()" style="padding:6px 14px; background:var(--success); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('save',12) + ' Save</button>'
+                + '<button onclick="_wbCompShareCurrent()" style="padding:6px 14px; background:var(--c-purple); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
                 + '<button onclick="_wbCompExportPDF()" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('file-text',12) + ' PDF</button>'
                 + '<button onclick="_wbCompWizStep=1; _wbCompWizData={wb:null,rawJD:\'\',candidateId:\'\',candidate:null}; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('refresh',12) + ' New Comparison</button>'
-                + '<button onclick="_wbCompWizStep=1; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:#ff453a; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
+                + '<button onclick="_wbCompWizStep=1; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:var(--danger); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
                 + '</div></div>';
 
             html += _wbRenderComparison(wb, rawResult, structResult, candidate);
@@ -12546,7 +12546,7 @@
                         + bpIcon('archive', 24) + '<div style="margin-top:8px;">No saved comparisons yet. Run a comparison and click Save.</div></div>';
                     return;
                 }
-                var syncBadge = fbUser ? '<span style="font-size:0.68em; color:#30d158; margin-left:8px; padding:2px 7px; background:rgba(48,209,88,0.1); border-radius:10px;">' + bpIcon('check',10) + ' Synced</span>' : '';
+                var syncBadge = fbUser ? '<span style="font-size:0.68em; color:var(--success); margin-left:8px; padding:2px 7px; background:rgba(48,209,88,0.1); border-radius:10px;">' + bpIcon('check',10) + ' Synced</span>' : '';
                 var html = '<div style="margin-bottom:10px; display:flex; align-items:center;">'
                     + '<span style="font-size:0.75em; color:var(--c-muted);">' + saved.length + ' saved comparison' + (saved.length !== 1 ? 's' : '') + syncBadge + '</span>'
                     + '</div>';
@@ -12567,7 +12567,7 @@
                         + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">' + escapeHtml(s.blueprintTitle) + (s.company ? ' at ' + escapeHtml(s.company) : '') + '</div>'
                         + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:8px;">'
                         + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
-                        + '<div style="font-size:1em; font-weight:700; color:#30d158;">' + s.wbScore + '%</div>'
+                        + '<div style="font-size:1em; font-weight:700; color:var(--success);">' + s.wbScore + '%</div>'
                         + '<div style="font-size:0.65em; color:var(--c-muted);">WB Score</div></div>'
                         + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
                         + '<div style="font-size:1em; font-weight:700; color:var(--c-muted);">' + s.jdScore + '%</div>'
@@ -12609,12 +12609,12 @@
                 overlay.id = 'wbCompModal';
                 overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#0a0a0f; overflow-y:auto; padding:20px 20px 60px;';
                 var closeBar = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 16px; background:rgba(30,41,59,0.95); border-radius:10px; border:1px solid rgba(51,65,85,0.5); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);">'
-                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:#f5f5f7;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary);">'
                     + bpIcon('trending-up', 16) + ' Saved Comparison \u2014 ' + escapeHtml(entry.candidateName) + '</div>'
                     + '<div style="display:flex; gap:8px;">'
-                    + '<button onclick="_wbCompShareSaved(\'' + id + '\')" style="padding:8px 16px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
-                    + '<button onclick="_wbCompExportPDFFromSaved(\'' + id + '\')" style="padding:8px 16px; background:rgba(51,65,85,0.8); color:#d1d1d6; border:1px solid rgba(71,85,105,0.5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:500;">' + bpIcon('file-text',12) + ' Export PDF</button>'
-                    + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:#ff453a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
+                    + '<button onclick="_wbCompShareSaved(\'' + id + '\')" style="padding:8px 16px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
+                    + '<button onclick="_wbCompExportPDFFromSaved(\'' + id + '\')" style="padding:8px 16px; background:rgba(51,65,85,0.8); color:var(--c-label); border:1px solid rgba(71,85,105,0.5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:500;">' + bpIcon('file-text',12) + ' Export PDF</button>'
+                    + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:var(--danger); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
                     + '</div></div>';
                 var content = _wbRenderComparison(entry.wb, entry.rawResult, entry.structResult, entry.candidate);
                 overlay.innerHTML = '<div style="max-width:960px; margin:0 auto;">' + closeBar + content + '</div>';
@@ -12762,11 +12762,11 @@
                     overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#0a0a0f; overflow-y:auto; padding:20px 20px 60px;';
                     var sharedAt = data.sharedAt ? new Date(data.sharedAt).toLocaleDateString() : '';
                     var closeBar = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 16px; background:rgba(30,41,59,0.95); border-radius:10px; border:1px solid rgba(51,65,85,0.5); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);">'
-                        + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:#f5f5f7;">'
+                        + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary);">'
                         + bpIcon('trending-up', 16) + ' Shared Comparison \u2014 ' + escapeHtml(data.candidateName)
-                        + '<span style="font-size:0.68em; color:#636366; margin-left:10px; font-weight:400;">Shared ' + sharedAt + ' \u00B7 Read-only</span>'
+                        + '<span style="font-size:0.68em; color:var(--text-muted); margin-left:10px; font-weight:400;">Shared ' + sharedAt + ' \u00B7 Read-only</span>'
                         + '</div>'
-                        + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:#ff453a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
+                        + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:var(--danger); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
                         + '</div>';
                     var content = _wbRenderComparison(data.wb, data.rawResult, data.structResult, data.candidate);
                     overlay.innerHTML = '<div style="max-width:960px; margin:0 auto;">' + closeBar + content + '</div>';
@@ -12821,31 +12821,31 @@
             popup.style.cssText = 'position:fixed; top:0; left:0; right:0; bottom:0; z-index:999999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);';
             popup.onclick = function(e) { if (e.target === popup) popup.remove(); };
             
-            popup.innerHTML = '<div style="background:#1c1c22; border:1px solid #48484a; border-radius:12px; padding:24px 28px; max-width:380px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.5);">'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:#f5f5f7; margin-bottom:4px;">' + bpIcon('file-text', 16) + ' Export PDF</div>'
-                + '<div style="font-size:0.78em; color:#a1a1a6; margin-bottom:16px;">Choose a theme for your export.</div>'
+            popup.innerHTML = '<div style="background:var(--c-bg-solid-alt); border:1px solid #48484a; border-radius:12px; padding:24px 28px; max-width:380px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.5);">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--text-primary); margin-bottom:4px;">' + bpIcon('file-text', 16) + ' Export PDF</div>'
+                + '<div style="font-size:0.78em; color:var(--text-secondary); margin-bottom:16px;">Choose a theme for your export.</div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
                 // Light option
                 + '<div id="pdfThemeLight" style="cursor:pointer; border-radius:10px; border:2px solid #48484a; padding:14px; text-align:center; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#30d158\'" onmouseout="this.style.borderColor=\'#48484a\'">'
                 + '<div style="width:100%; height:48px; background:#f8fafc; border-radius:6px; margin-bottom:8px; display:flex; align-items:center; justify-content:center;">'
-                + '<div style="width:30px; height:6px; background:#30d158; border-radius:6px; margin:2px;"></div>'
-                + '<div style="width:20px; height:6px; background:#a1a1a6; border-radius:6px; margin:2px;"></div>'
+                + '<div style="width:30px; height:6px; background:var(--success); border-radius:6px; margin:2px;"></div>'
+                + '<div style="width:20px; height:6px; background:var(--text-secondary); border-radius:6px; margin:2px;"></div>'
                 + '</div>'
-                + '<div style="font-size:0.82em; font-weight:600; color:#f5f5f7;">Light</div>'
-                + '<div style="font-size:0.68em; color:#636366;">Best for print & email</div>'
+                + '<div style="font-size:0.82em; font-weight:600; color:var(--text-primary);">Light</div>'
+                + '<div style="font-size:0.68em; color:var(--text-muted);">Best for print & email</div>'
                 + '</div>'
                 // Dark option
                 + '<div id="pdfThemeDark" style="cursor:pointer; border-radius:10px; border:2px solid #48484a; padding:14px; text-align:center; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#30d158\'" onmouseout="this.style.borderColor=\'#48484a\'">'
-                + '<div style="width:100%; height:48px; background:#0a0a0f; border-radius:6px; margin-bottom:8px; border:1px solid #1c1c22; display:flex; align-items:center; justify-content:center;">'
-                + '<div style="width:30px; height:6px; background:#30d158; border-radius:6px; margin:2px;"></div>'
-                + '<div style="width:20px; height:6px; background:#636366; border-radius:6px; margin:2px;"></div>'
+                + '<div style="width:100%; height:48px; background:#0a0a0f; border-radius:6px; margin-bottom:8px; border:1px solid var(--c-bg-solid-alt); display:flex; align-items:center; justify-content:center;">'
+                + '<div style="width:30px; height:6px; background:var(--success); border-radius:6px; margin:2px;"></div>'
+                + '<div style="width:20px; height:6px; background:var(--text-muted); border-radius:6px; margin:2px;"></div>'
                 + '</div>'
-                + '<div style="font-size:0.82em; font-weight:600; color:#f5f5f7;">Dark</div>'
-                + '<div style="font-size:0.68em; color:#636366;">Matches app theme</div>'
+                + '<div style="font-size:0.82em; font-weight:600; color:var(--text-primary);">Dark</div>'
+                + '<div style="font-size:0.68em; color:var(--text-muted);">Matches app theme</div>'
                 + '</div>'
                 + '</div>'
                 + '<div style="text-align:center; margin-top:12px;">'
-                + '<button id="pdfThemeCancel" style="padding:6px 16px; background:none; color:#636366; border:none; cursor:pointer; font-size:0.78em;">Cancel</button>'
+                + '<button id="pdfThemeCancel" style="padding:6px 16px; background:none; color:var(--text-muted); border:none; cursor:pointer; font-size:0.78em;">Cancel</button>'
                 + '</div>'
                 + '</div>';
             
@@ -13451,7 +13451,7 @@
                 + '</ul>'
                 + '</div>'
                 + '<div>'
-                + '<div style="font-size:0.72em; font-weight:700; color:#ff453a; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">&#10007; What it IS NOT</div>'
+                + '<div style="font-size:0.72em; font-weight:700; color:var(--danger); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">&#10007; What it IS NOT</div>'
                 + '<ul style="font-size:0.8em; color:' + mutedColor + '; line-height:1.75; padding-left:16px; margin:0;">'
                 + '<li>A guarantee or offer letter</li>'
                 + '<li>A substitute for direct compensation research</li>'
@@ -13684,39 +13684,39 @@
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;">';
 
                 html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
-                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:#ff453a; margin-bottom:10px;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--danger); margin-bottom:10px;">'
                     + bpIcon('search',14) + ' Most Frequently Missed Terms (' + topMissed.length + ')</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Terms found in JD requirement phrases but not extracted by parseJobLocally(). May indicate parser gaps or intentional filtering.</div>';
                 topMissed.forEach(function(t) {
                     var isBlocked = isSkillBlocklisted(t);
                     var isApproved = isSkillApproved(t);
-                    var statusLabel = isBlocked ? '<span style="color:#636366; font-size:0.8em; font-style:italic;">blocked</span>'
-                        : isApproved ? '<span style="color:#30d158; font-size:0.8em; font-style:italic;">approved</span>' : '';
+                    var statusLabel = isBlocked ? '<span style="color:var(--text-muted); font-size:0.8em; font-style:italic;">blocked</span>'
+                        : isApproved ? '<span style="color:var(--success); font-size:0.8em; font-style:italic;">approved</span>' : '';
                     html += '<div style="display:flex; align-items:center; padding:4px 8px; margin-bottom:2px; background:rgba(255,69,58,0.04); border-radius:6px; font-size:0.82em; gap:6px;">'
                         + '<span style="flex:1; color:var(--c-heading);">' + escapeHtml(t) + '</span>'
                         + statusLabel
-                        + '<span style="color:#ff453a; font-weight:600; margin-right:4px;">' + globalMissed[t] + 'x</span>'
-                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(48,209,88,0.12); border:none; color:#30d158; cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
-                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(255,69,58,0.12); border:none; color:#ff453a; cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
+                        + '<span style="color:var(--danger); font-weight:600; margin-right:4px;">' + globalMissed[t] + 'x</span>'
+                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(48,209,88,0.12); border:none; color:var(--success); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
+                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(255,69,58,0.12); border:none; color:var(--danger); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
                         + '</div>';
                 });
                 html += '</div>';
 
                 html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
-                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:#30d158; margin-bottom:10px;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--success); margin-bottom:10px;">'
                     + bpIcon('lightbulb',14) + ' Recommended Additions (' + topRec.length + ')</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Skills from O*NET library found in JD text but not extracted. These may be legitimate skills the parser should capture.</div>';
                 topRec.forEach(function(t) {
                     var isApproved = isSkillApproved(t);
                     var isBlocked = isSkillBlocklisted(t);
-                    var statusLabel = isApproved ? '<span style="color:#30d158; font-size:0.8em; font-style:italic;">approved</span>'
-                        : isBlocked ? '<span style="color:#636366; font-size:0.8em; font-style:italic;">blocked</span>' : '';
+                    var statusLabel = isApproved ? '<span style="color:var(--success); font-size:0.8em; font-style:italic;">approved</span>'
+                        : isBlocked ? '<span style="color:var(--text-muted); font-size:0.8em; font-style:italic;">blocked</span>' : '';
                     html += '<div style="display:flex; align-items:center; padding:4px 8px; margin-bottom:2px; background:rgba(48,209,88,0.04); border-radius:6px; font-size:0.82em; gap:6px;">'
                         + '<span style="flex:1; color:var(--c-heading);">' + escapeHtml(t) + '</span>'
                         + statusLabel
-                        + '<span style="color:#30d158; font-weight:600; margin-right:4px;">' + globalRecommended[t] + 'x</span>'
-                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(48,209,88,0.12); border:none; color:#30d158; cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
-                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(255,69,58,0.12); border:none; color:#ff453a; cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
+                        + '<span style="color:var(--success); font-weight:600; margin-right:4px;">' + globalRecommended[t] + 'x</span>'
+                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(48,209,88,0.12); border:none; color:var(--success); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
+                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(255,69,58,0.12); border:none; color:var(--danger); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
                         + '</div>';
                 });
                 html += '</div>';
@@ -13748,7 +13748,7 @@
                     + '<div style="font-size:1.1em; font-weight:700; color:' + covColor + ';">' + a.coverageRatio + '%</div>'
                     + '<div style="font-size:0.6em; color:var(--text-muted);">coverage</div></div>'
                     + '<div style="text-align:center;">'
-                    + '<div style="font-size:1.1em; font-weight:700; color:#60a5fa;">' + a.skillsExtracted + '</div>'
+                    + '<div style="font-size:1.1em; font-weight:700; color:var(--accent);">' + a.skillsExtracted + '</div>'
                     + '<div style="font-size:0.6em; color:var(--text-muted);">skills</div></div>'
                     + '<span style="color:var(--c-muted); font-size:0.9em;">' + (isExpanded ? '\u25B2' : '\u25BC') + '</span>'
                     + '</div></div>';
@@ -13765,7 +13765,7 @@
                         + '</div>';
 
                     if ((a.parsed.skills || []).length > 0) {
-                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#30d158; font-weight:600; margin-bottom:4px;">Extracted Skills (' + a.parsed.skills.length + ')</div>'
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--success); font-weight:600; margin-bottom:4px;">Extracted Skills (' + a.parsed.skills.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
                         (a.parsed.skills || []).forEach(function(s) {
                             var isMatched = (a.matchResult.matched || []).some(function(m) { return m.jobSkill === s.name; });
@@ -13776,46 +13776,46 @@
                     }
 
                     if (a.missedCandidates.length > 0) {
-                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ff453a; font-weight:600; margin-bottom:4px;">Potentially Missed (' + a.missedCandidates.length + ')</div>'
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--danger); font-weight:600; margin-bottom:4px;">Potentially Missed (' + a.missedCandidates.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
                         a.missedCandidates.forEach(function(m) {
                             var mBlocked = isSkillBlocklisted(m);
                             var mApproved = isSkillApproved(m);
-                            var tagStyle = mBlocked ? 'background:rgba(99,99,102,0.08); color:#636366; border:1px solid rgba(99,99,102,0.15); text-decoration:line-through;'
-                                : mApproved ? 'background:rgba(48,209,88,0.08); color:#30d158; border:1px solid rgba(48,209,88,0.15);'
-                                : 'background:rgba(255,69,58,0.06); color:#ff453a; border:1px solid rgba(255,69,58,0.12);';
+                            var tagStyle = mBlocked ? 'background:rgba(99,99,102,0.08); color:var(--text-muted); border:1px solid rgba(99,99,102,0.15); text-decoration:line-through;'
+                                : mApproved ? 'background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15);'
+                                : 'background:rgba(255,69,58,0.06); color:var(--danger); border:1px solid rgba(255,69,58,0.12);';
                             html += '<span style="padding:2px 4px 2px 8px; border-radius:8px; font-size:0.75em; display:inline-flex; align-items:center; gap:3px; ' + tagStyle + '">'
                                 + escapeHtml(m)
-                                + '<button data-audit-action="approve" data-skill="' + escapeHtml(m) + '" title="Approve" style="background:none; border:none; color:#30d158; cursor:pointer; padding:0 2px; font-size:1.1em; font-weight:700; line-height:1;">+</button>'
-                                + '<button data-audit-action="block" data-skill="' + escapeHtml(m) + '" title="Block" style="background:none; border:none; color:#ff453a; cursor:pointer; padding:0 2px; font-size:1em; font-weight:700; line-height:1;">\u2717</button>'
+                                + '<button data-audit-action="approve" data-skill="' + escapeHtml(m) + '" title="Approve" style="background:none; border:none; color:var(--success); cursor:pointer; padding:0 2px; font-size:1.1em; font-weight:700; line-height:1;">+</button>'
+                                + '<button data-audit-action="block" data-skill="' + escapeHtml(m) + '" title="Block" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:0 2px; font-size:1em; font-weight:700; line-height:1;">\u2717</button>'
                                 + '</span>';
                         });
                         html += '</div>';
                     }
 
                     if (a.recommendedSkills.length > 0) {
-                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin-bottom:4px;">Recommended Additions (' + a.recommendedSkills.length + ')</div>'
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:600; margin-bottom:4px;">Recommended Additions (' + a.recommendedSkills.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
                         a.recommendedSkills.forEach(function(r) {
                             var rApproved = isSkillApproved(r);
                             var rBlocked = isSkillBlocklisted(r);
-                            var rStyle = rApproved ? 'background:rgba(48,209,88,0.08); color:#30d158; border:1px solid rgba(48,209,88,0.15);'
-                                : rBlocked ? 'background:rgba(99,99,102,0.08); color:#636366; border:1px solid rgba(99,99,102,0.15); text-decoration:line-through;'
-                                : 'background:rgba(96,165,250,0.06); color:#60a5fa; border:1px solid rgba(96,165,250,0.12);';
+                            var rStyle = rApproved ? 'background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15);'
+                                : rBlocked ? 'background:rgba(99,99,102,0.08); color:var(--text-muted); border:1px solid rgba(99,99,102,0.15); text-decoration:line-through;'
+                                : 'background:rgba(96,165,250,0.06); color:var(--accent); border:1px solid rgba(96,165,250,0.12);';
                             html += '<span style="padding:2px 4px 2px 8px; border-radius:8px; font-size:0.75em; display:inline-flex; align-items:center; gap:3px; ' + rStyle + '">'
                                 + escapeHtml(r)
-                                + '<button data-audit-action="approve" data-skill="' + escapeHtml(r) + '" title="Approve" style="background:none; border:none; color:#30d158; cursor:pointer; padding:0 2px; font-size:1.1em; font-weight:700; line-height:1;">+</button>'
-                                + '<button data-audit-action="block" data-skill="' + escapeHtml(r) + '" title="Block" style="background:none; border:none; color:#ff453a; cursor:pointer; padding:0 2px; font-size:1em; font-weight:700; line-height:1;">\u2717</button>'
+                                + '<button data-audit-action="approve" data-skill="' + escapeHtml(r) + '" title="Approve" style="background:none; border:none; color:var(--success); cursor:pointer; padding:0 2px; font-size:1.1em; font-weight:700; line-height:1;">+</button>'
+                                + '<button data-audit-action="block" data-skill="' + escapeHtml(r) + '" title="Block" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:0 2px; font-size:1em; font-weight:700; line-height:1;">\u2717</button>'
                                 + '</span>';
                         });
                         html += '</div>';
                     }
 
                     if (a.gaps.length > 0) {
-                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ff9f0a; font-weight:600; margin-bottom:4px;">Profile Gaps (' + a.gaps.length + ')</div>'
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--c-orange); font-weight:600; margin-bottom:4px;">Profile Gaps (' + a.gaps.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
                         a.gaps.forEach(function(g) {
-                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(255,159,10,0.06); color:#ff9f0a; border:1px solid rgba(255,159,10,0.12);">' + escapeHtml(g.name) + '</span>';
+                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(255,159,10,0.06); color:var(--c-orange); border:1px solid rgba(255,159,10,0.12);">' + escapeHtml(g.name) + '</span>';
                         });
                         html += '</div>';
                     }
@@ -14023,12 +14023,12 @@
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('layers', 16) + ' Version Manager</h3>'
                 + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px;">Save snapshots of app-core.js before making changes. Restore anytime.</div>'
                 + '</div>'
-                + (showcaseMode ? '' : '<button onclick="adminSaveVersion()" style="padding:10px 20px; background:#60a5fa; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em; white-space:nowrap;">' + bpIcon('layers', 14) + ' Save Current Version</button>')
+                + (showcaseMode ? '' : '<button onclick="adminSaveVersion()" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em; white-space:nowrap;">' + bpIcon('layers', 14) + ' Save Current Version</button>')
                 + '</div>';
 
             html += '<div style="' + cs + ' border-color:rgba(96,165,250,0.2); background:rgba(96,165,250,0.04);">'
                 + '<div style="display:flex; align-items:center; gap:12px;">'
-                + '<div style="width:10px; height:10px; border-radius:50%; background:#30d158; flex-shrink:0;"></div>'
+                + '<div style="width:10px; height:10px; border-radius:50%; background:var(--success); flex-shrink:0;"></div>'
                 + '<div style="flex:1;">'
                 + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Current: ' + escapeHtml(BP_VERSION) + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Running now &middot; ' + new Date().toLocaleString() + '</div>'
@@ -14049,7 +14049,7 @@
                     cursor.onerror = function() { resolve(); };
                 });
             } catch(e) {
-                html += '<div style="font-size:0.82em; color:#ff453a; padding:12px;">Could not load local versions: ' + escapeHtml(e.message) + '</div>';
+                html += '<div style="font-size:0.82em; color:var(--danger); padding:12px;">Could not load local versions: ' + escapeHtml(e.message) + '</div>';
             }
 
             if (fbDb && !showcaseMode) {
@@ -14089,8 +14089,8 @@
                     html += '<div style="flex:1; min-width:0;">';
                     html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">';
                     html += '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">' + escapeHtml(v.version || '?') + '</span>';
-                    if (idx === 0) html += '<span style="font-size:0.65em; font-weight:700; background:rgba(191,90,242,0.1); color:#bf5af2; padding:2px 8px; border-radius:6px; text-transform:uppercase;">Latest</span>';
-                    if (isRemoteOnly) html += '<span style="font-size:0.65em; font-weight:600; background:rgba(255,159,10,0.1); color:#ff9f0a; padding:2px 8px; border-radius:6px;">Remote Only</span>';
+                    if (idx === 0) html += '<span style="font-size:0.65em; font-weight:700; background:rgba(191,90,242,0.1); color:var(--c-purple); padding:2px 8px; border-radius:6px; text-transform:uppercase;">Latest</span>';
+                    if (isRemoteOnly) html += '<span style="font-size:0.65em; font-weight:600; background:rgba(255,159,10,0.1); color:var(--c-orange); padding:2px 8px; border-radius:6px;">Remote Only</span>';
                     html += '</div>';
                     html += '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.5; margin-bottom:4px;">' + escapeHtml(v.comment || '') + '</div>';
                     html += '<div style="font-size:0.72em; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:12px;">'
@@ -14105,10 +14105,10 @@
                     if (!showcaseMode) {
                         html += '<div style="display:flex; gap:6px; flex-shrink:0;">';
                         if (!isRemoteOnly) {
-                            html += '<button onclick="adminDownloadVersion(\'' + v.id + '\')" title="Download" style="padding:6px 10px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:6px; cursor:pointer; color:#60a5fa; font-size:0.78em; font-weight:600;">' + bpIcon('layers',12) + ' DL</button>';
-                            html += '<button onclick="adminRestoreVersion(\'' + v.id + '\')" title="Restore" style="padding:6px 10px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:6px; cursor:pointer; color:#30d158; font-size:0.78em; font-weight:600;">' + bpIcon('check',12) + ' Restore</button>';
+                            html += '<button onclick="adminDownloadVersion(\'' + v.id + '\')" title="Download" style="padding:6px 10px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:6px; cursor:pointer; color:var(--accent); font-size:0.78em; font-weight:600;">' + bpIcon('layers',12) + ' DL</button>';
+                            html += '<button onclick="adminRestoreVersion(\'' + v.id + '\')" title="Restore" style="padding:6px 10px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:6px; cursor:pointer; color:var(--success); font-size:0.78em; font-weight:600;">' + bpIcon('check',12) + ' Restore</button>';
                         }
-                        html += '<button onclick="adminDeleteVersion(\'' + v.id + '\')" title="Delete" style="padding:6px 10px; background:rgba(255,69,58,0.06); border:1px solid rgba(255,69,58,0.15); border-radius:6px; cursor:pointer; color:#ff453a; font-size:0.78em; font-weight:600;">&times;</button>';
+                        html += '<button onclick="adminDeleteVersion(\'' + v.id + '\')" title="Delete" style="padding:6px 10px; background:rgba(255,69,58,0.06); border:1px solid rgba(255,69,58,0.15); border-radius:6px; cursor:pointer; color:var(--danger); font-size:0.78em; font-weight:600;">&times;</button>';
                         html += '</div>';
                     }
                     html += '</div></div>';
@@ -14116,7 +14116,7 @@
             }
 
             html += '<div style="margin-top:20px; padding:16px; background:rgba(255,159,10,0.04); border:1px solid rgba(255,159,10,0.15); border-radius:10px;">'
-                + '<div style="font-size:0.82em; font-weight:700; color:#ff9f0a; margin-bottom:6px;">How Version Restore Works</div>'
+                + '<div style="font-size:0.82em; font-weight:700; color:var(--c-orange); margin-bottom:6px;">How Version Restore Works</div>'
                 + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.6;">'
                 + '1. Saved versions are stored locally in your browser (IndexedDB) with metadata synced to Firebase.<br>'
                 + '2. <strong>Download</strong> exports the saved app-core.js file to your computer.<br>'
@@ -14353,7 +14353,7 @@
                             + '<span style="background:var(--accent); color:#fff; font-size:0.65em; font-weight:700; padding:2px 7px; border-radius:6px;">STEP ' + (selectedStep + 1) + '</span>'
                             + '<span style="font-weight:700; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(s.label) + '</span></div>'
                             + '<div style="margin-bottom:6px;"><code style="font-size:0.82em; padding:3px 8px; border-radius:6px; '
-                            + 'background:rgba(255,159,10,0.08); color:#ff9f0a; font-family:\'SF Mono\',monospace;">' + escapeHtml(s.fn) + '</code></div>'
+                            + 'background:rgba(255,159,10,0.08); color:var(--c-orange); font-family:\'SF Mono\',monospace;">' + escapeHtml(s.fn) + '</code></div>'
                             + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(s.desc) + '</div>';
                         // Show downstream connections
                         if (selectedStep < flow.steps.length - 1) {
@@ -14431,17 +14431,17 @@
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">';
             
             html += '<div style="padding:16px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:700; color:#60a5fa;">' + totalCalls + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:var(--accent);">' + totalCalls + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">API Calls</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Last ' + costsTimeRange + ' days</div></div>';
             
             html += '<div style="padding:16px; background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.2); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:700; color:#30d158;">' + fmt(totalEstCost) + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:var(--success);">' + fmt(totalEstCost) + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Est. Cost</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Last ' + costsTimeRange + ' days</div></div>';
             
             html += '<div style="padding:16px; background:rgba(255,159,10,0.1); border:1px solid rgba(255,159,10,0.2); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:700; color:#ff9f0a;">' + fmt(projectedMonthlyCost) + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:var(--c-orange);">' + fmt(projectedMonthlyCost) + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Projected</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Monthly at current pace</div></div>';
             
@@ -14458,7 +14458,7 @@
                 var isActive = costsTimeRange === d;
                 html += '<button onclick="setCostsTimeRange(' + d + ')" style="padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + '; background:' + (isActive ? 'var(--accent)' : 'transparent') + '; color:' + (isActive ? '#fff' : 'var(--text-secondary)') + ';">' + d + 'd</button>';
             });
-            html += '<button onclick="clearAIUsageLog()" style="margin-left:auto; padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid rgba(255,69,58,0.3); background:transparent; color:#ff453a;">Clear Log</button>';
+            html += '<button onclick="clearAIUsageLog()" style="margin-left:auto; padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid rgba(255,69,58,0.3); background:transparent; color:var(--danger);">Clear Log</button>';
             html += '</div>';
             
             // Sparkline
@@ -14503,11 +14503,11 @@
             
             // Projection calculator
             html += '<div style="padding:20px; background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:20px;">'
-                + '<div style="font-size:0.85em; font-weight:700; color:#60a5fa; margin-bottom:14px;">Scale Projection Calculator</div>'
+                + '<div style="font-size:0.85em; font-weight:700; color:var(--accent); margin-bottom:14px;">Scale Projection Calculator</div>'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">'
                 + '<label style="font-size:0.82em; color:var(--text-secondary); white-space:nowrap;">Active users/month:</label>'
-                + '<input type="range" min="1" max="15000" value="' + costsProjectionUsers + '" oninput="setCostsProjectionUsers(this.value)" style="flex:1; accent-color:#60a5fa; cursor:pointer;" />'
-                + '<span style="font-weight:700; color:#60a5fa; min-width:60px; text-align:right;">' + costsProjectionUsers.toLocaleString() + '</span></div>';
+                + '<input type="range" min="1" max="15000" value="' + costsProjectionUsers + '" oninput="setCostsProjectionUsers(this.value)" style="flex:1; accent-color:var(--accent); cursor:pointer;" />'
+                + '<span style="font-weight:700; color:var(--accent); min-width:60px; text-align:right;">' + costsProjectionUsers.toLocaleString() + '</span></div>';
             
             // Calculate projection
             var projFeatures = [];
@@ -14629,7 +14629,7 @@
             // Totals
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-top:14px; margin-top:14px; border-top:1px solid var(--border);">'
                 + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                + '<div style="font-size:1.3em; font-weight:700; color:#60a5fa;">$' + monthlyFixedCost.toFixed(2) + '</div>'
+                + '<div style="font-size:1.3em; font-weight:700; color:var(--accent);">$' + monthlyFixedCost.toFixed(2) + '</div>'
                 + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase;">Monthly subscriptions</div></div>'
                 + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
                 + '<div style="font-size:1.3em; font-weight:700; color:' + (apiTotalCost > 0 ? '#ff9f0a' : '#30d158') + ';">$' + apiTotalCost.toFixed(2) + '</div>'
@@ -14693,7 +14693,7 @@
                   + '<span style="font-size:0.85em; font-weight:700; color:var(--text-primary);">' + bpIcon('settings', 14) + ' Infrastructure</span>'
                   + '<div style="display:flex; gap:6px; align-items:center;">'
                   + '<span style="font-size:0.65em; color:var(--text-muted);">Click ' + bpIcon('edit', 10) + ' to enter actual costs</span>'
-                  + '<button onclick="costActualClearAll()" style="padding:3px 10px; font-size:0.68em; background:transparent; color:#ff453a; border:1px solid rgba(255,69,58,0.3); border-radius:6px; cursor:pointer;">Reset</button>'
+                  + '<button onclick="costActualClearAll()" style="padding:3px 10px; font-size:0.68em; background:transparent; color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:6px; cursor:pointer;">Reset</button>'
                   + '</div></div>';
               
               categoryOrder.filter(function(c){ return infraByCategory[c]; }).forEach(function(cat) {
@@ -14709,7 +14709,7 @@
                       var costDisplay = item._isPrepaid ? '$' + (item._hasActual ? actuals[item.key].amount : item.cost).toFixed(2) + ' prepaid'
                           : item._monthly > 0 ? '$' + item._monthly.toFixed(2) : (item.editable ? '$0.00' : 'Free');
                       var costColor = item._isPrepaid ? '#ff9f0a' : item._monthly > 0 ? 'var(--text-primary)' : '#30d158';
-                      var actualBadge = item._hasActual ? '<span style="font-size:0.55em; padding:1px 4px; border-radius:6px; background:rgba(48,209,88,0.15); color:#30d158; vertical-align:middle;">actual</span>' : '';
+                      var actualBadge = item._hasActual ? '<span style="font-size:0.55em; padding:1px 4px; border-radius:6px; background:rgba(48,209,88,0.15); color:var(--success); vertical-align:middle;">actual</span>' : '';
                       var editBtn = '<a href="#" onclick="costActualEdit(\'' + item.key + '\',\'' + escapeHtml(item.name).replace(/'/g, "\\'") + '\'); return false;" style="color:var(--text-muted); text-decoration:none; opacity:0.6;" title="Edit actual cost">' + bpIcon('edit', 10) + '</a>';
                       html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0 5px 12px; font-size:0.8em;">'
                           + '<div style="flex:1; min-width:0;">'
@@ -14762,7 +14762,7 @@
             
             // Big total
             html += '<div style="text-align:center; margin-bottom:20px;">'
-                + '<div style="font-size:2.6em; font-weight:900; color:#60a5fa; line-height:1;">$' + totalMonthly.toFixed(2) + '</div>'
+                + '<div style="font-size:2.6em; font-weight:900; color:var(--accent); line-height:1;">$' + totalMonthly.toFixed(2) + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:4px;">estimated monthly total</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">$' + (totalMonthly * 12).toFixed(0) + '/year</div></div>';
             
@@ -14833,20 +14833,20 @@
                 
                 var html = '<div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">'
                     + '<div style="flex:1; min-width:120px; padding:14px; background:var(--c-accent-bg-4c); border-radius:10px; text-align:center;">'
-                    + '<div style="font-size:1.6em; font-weight:700; color:#60a5fa;">' + (waiting.length + invited.length) + '</div>'
+                    + '<div style="font-size:1.6em; font-weight:700; color:var(--accent);">' + (waiting.length + invited.length) + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Total</div></div>'
                     + '<div style="flex:1; min-width:120px; padding:14px; background:var(--c-amber-bg-3b); border-radius:10px; text-align:center;">'
-                    + '<div style="font-size:1.6em; font-weight:700; color:#ffd60a;">' + waiting.length + '</div>'
+                    + '<div style="font-size:1.6em; font-weight:700; color:var(--warning);">' + waiting.length + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Waiting</div></div>'
                     + '<div style="flex:1; min-width:120px; padding:14px; background:var(--c-green-bg-3b); border-radius:10px; text-align:center;">'
-                    + '<div style="font-size:1.6em; font-weight:700; color:#30d158;">' + invited.length + '</div>'
+                    + '<div style="font-size:1.6em; font-weight:700; color:var(--success);">' + invited.length + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Invited</div></div>'
                     + '</div>';
                 
                 if (waiting.length > 0) {
                     html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
                         + '<div style="font-weight:700; color:var(--c-text);">Waiting (' + waiting.length + ')</div>'
-                        + '<button onclick="bulkInviteWaitlist()" style="padding:6px 16px; background:#30d158; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82em;">Invite All</button>'
+                        + '<button onclick="bulkInviteWaitlist()" style="padding:6px 16px; background:var(--success); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82em;">Invite All</button>'
                         + '</div>';
                     
                     html += '<div style="display:grid; gap:8px; margin-bottom:20px;">';
@@ -14856,11 +14856,11 @@
                             + 'border:1px solid var(--c-surface-5); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">'
                             + '<div>'
                             + '<strong style="color:var(--c-text);">' + escapeHtml(user.name || 'Anonymous') + '</strong>'
-                            + '<span style="font-size:0.75em; padding:2px 8px; margin-left:8px; border-radius:10px; background:var(--c-amber-bg-5a); color:#ffd60a;">' + escapeHtml(user.type || 'individual') + '</span>'
+                            + '<span style="font-size:0.75em; padding:2px 8px; margin-left:8px; border-radius:10px; background:var(--c-amber-bg-5a); color:var(--warning);">' + escapeHtml(user.type || 'individual') + '</span>'
                             + '<div style="font-size:0.8em; color:var(--c-muted);">' + escapeHtml(user.email || '') + ' \u00B7 #' + (user.position || '?') + ' \u00B7 ' + created + '</div>'
                             + '</div>'
                             + '<button onclick="inviteWaitlistUser(\'' + escapeHtml(user._id) + '\', \'' + escapeHtml((user.name || '').replace(/'/g,"\\'")) + '\')" '
-                            + 'style="padding:6px 14px; background:#60a5fa; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Invite</button>'
+                            + 'style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Invite</button>'
                             + '</div>';
                     });
                     html += '</div>';
@@ -14874,7 +14874,7 @@
                             + 'border:1px solid var(--c-green-bg-5b); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">'
                             + '<div>'
                             + '<strong style="color:var(--c-text);">' + escapeHtml(user.name || 'Anonymous') + '</strong>'
-                            + ' <span style="font-size:0.75em; color:#30d158;">\u2714 Invited</span>'
+                            + ' <span style="font-size:0.75em; color:var(--success);">\u2714 Invited</span>'
                             + '<div style="font-size:0.8em; color:var(--c-muted);">' + escapeHtml(user.email || '') + '</div>'
                             + '</div></div>';
                     });
@@ -14887,7 +14887,7 @@
                 
                 container.innerHTML = html;
             }).catch(function(err) {
-                container.innerHTML = '<div style="color:#ff453a;">Error: ' + escapeHtml(err.message) + '</div>';
+                container.innerHTML = '<div style="color:var(--danger);">Error: ' + escapeHtml(err.message) + '</div>';
             });
         }
         window.loadAdminWaitlist = loadAdminWaitlist;
@@ -15012,11 +15012,11 @@
                 if (fbIsAdmin) {
                     bannerHTML = bpIcon(isDemoMode ? 'eye' : 'lock', 14) + ' <strong>Editing: ' + profileName + '</strong> \u00B7 '
                         + '<a href="#" onclick="event.preventDefault(); adminSaveSampleProfile();" '
-                        + 'style="color:#30d158; text-decoration:none; font-weight:700; margin:0 8px;">Save Changes</a>'
+                        + 'style="color:var(--success); text-decoration:none; font-weight:700; margin:0 8px;">Save Changes</a>'
                         + '\u00B7 <a href="#" onclick="event.preventDefault(); adminDownloadSampleJSON();" '
-                        + 'style="color:#60a5fa; text-decoration:none; font-weight:700; margin:0 8px;">\u2B07 Download JSON</a>'
+                        + 'style="color:var(--accent); text-decoration:none; font-weight:700; margin:0 8px;">\u2B07 Download JSON</a>'
                         + '\u00B7 <a href="#" onclick="event.preventDefault(); adminResetSampleProfile();" '
-                        + 'style="color:#ff9f0a; text-decoration:none; font-weight:600; margin:0 8px; font-size:0.9em;">Reset</a>'
+                        + 'style="color:var(--c-orange); text-decoration:none; font-weight:600; margin:0 8px; font-size:0.9em;">Reset</a>'
                         + '\u00B7 <a href="#" onclick="event.preventDefault(); exitDemoMode();" '
                         + 'style="color:inherit; text-decoration:underline; font-weight:700; margin-left:8px;">\u2190 Return</a>';
                 } else if (fbUser && isDemoMode) {
@@ -15163,7 +15163,7 @@
                 + '<div style="font-size:2.8em; margin-bottom:16px; opacity:0.8;">\u25C8</div>'
                 + '<div style="font-size:1.1em; color:var(--text-primary); margin-bottom:8px; font-weight:600;">This feature is available to invited members</div>'
                 + '<div style="font-size:0.9em; color:var(--text-secondary); margin-bottom:24px; line-height:1.6;">' + msg + '</div>'
-                + '<button onclick="' + btnAction + '" style="padding:12px 32px; border-radius:10px; border:none; background:#60a5fa; color:#fff; font-weight:700; font-size:0.95em; cursor:pointer;">' + btnText + '</button>'
+                + '<button onclick="' + btnAction + '" style="padding:12px 32px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:700; font-size:0.95em; cursor:pointer;">' + btnText + '</button>'
                 + '<div style="margin-top:16px; font-size:0.78em; color:var(--text-muted);">Explore sample profiles in the meantime \u2014 they\u2019re fully interactive.</div>'
                 + '</div>';
             
@@ -15580,7 +15580,7 @@
                     // Welcome badge
                     + '<div style="display:inline-block; padding:6px 16px; border-radius:20px; '
                     + 'background:rgba(48,209,88,0.12); border:1px solid rgba(48,209,88,0.25); '
-                    + 'font-size:0.82em; font-weight:600; color:#30d158; letter-spacing:0.5px; margin-bottom:24px;">'
+                    + 'font-size:0.82em; font-weight:600; color:var(--success); letter-spacing:0.5px; margin-bottom:24px;">'
                     + bpIcon('check',14) + ' You\u2019re In</div>'
                     
                     // Headline
@@ -15602,13 +15602,13 @@
                     + '43,000+ skills from ESCO, O*NET, and Lightcast mapped to your experience.</div></div>'
                     
                     + '<div style="padding:22px 20px; border-radius:12px; background:var(--bg-card); border:1px solid var(--border-subtle);">'
-                    + '<div style="font-size:0.92em; font-weight:600; color:#30d158; margin-bottom:6px;">'
+                    + '<div style="font-size:0.92em; font-weight:600; color:var(--success); margin-bottom:6px;">'
                     + bpIcon('dollar',14) + ' Market Valuation</div>'
                     + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.6;">'
                     + 'Compensation intelligence from BLS data. Know your worth before negotiation starts.</div></div>'
                     
                     + '<div style="padding:22px 20px; border-radius:12px; background:var(--bg-card); border:1px solid var(--border-subtle);">'
-                    + '<div style="font-size:0.92em; font-weight:600; color:#ff9f0a; margin-bottom:6px;">'
+                    + '<div style="font-size:0.92em; font-weight:600; color:var(--c-orange); margin-bottom:6px;">'
                     + bpIcon('briefcase',14) + ' Job Intelligence</div>'
                     + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.6;">'
                     + '6-pass ontology matching scores every JD against your actual capability.</div></div>'
@@ -15681,7 +15681,7 @@
                 + '</button>'
                 + '<button onclick="showAbout()" style="'
                 + 'padding:16px 20px; border-radius:10px; font-size:0.95em; cursor:pointer; text-align:center; '
-                + 'background:transparent; color:#30d158; border:2px solid #30d158; transition:all 0.2s;'
+                + 'background:transparent; color:var(--success); border:2px solid var(--success); transition:all 0.2s;'
                 + '"><div style="font-weight:700;">' + bpIcon('about',16) + ' Why Blueprint</div>'
                 + '<div style="font-size:0.75em; font-weight:400; color:var(--text-muted); margin-top:4px;">The intelligence behind it</div>'
                 + '</button>'
@@ -15721,7 +15721,7 @@
                 
                 + '<div style="text-align:center; padding:20px 16px;">'
                 + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(48,209,88,0.12); '
-                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:#30d158; font-weight:700;">2</div>'
+                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:var(--success); font-weight:700;">2</div>'
                 + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">Know Your Market Value</div>'
                 + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
                 + 'Compensation analysis powered by BLS salary data, skill rarity, and impact tier. The intelligence recruiters charge thousands for \u2014 instantly.</div>'
@@ -15729,7 +15729,7 @@
                 
                 + '<div style="text-align:center; padding:20px 16px;">'
                 + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(255,214,10,0.12); '
-                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:#ffd60a; font-weight:700;">3</div>'
+                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:var(--warning); font-weight:700;">3</div>'
                 + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">Own Every Conversation</div>'
                 + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
                 + 'Scouting reports, negotiation guides, executive blueprints \u2014 walk into any interview or review armed with data, not guesswork.</div>'
@@ -16145,7 +16145,7 @@
             
             // Header
             html += '<div style="text-align:center; margin-bottom:36px;">'
-                + '<div style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:#60a5fa; margin-bottom:12px;">SAMPLE BLUEPRINTS</div>'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:12px;">SAMPLE BLUEPRINTS</div>'
                 + '<div style="font-size:1em; color:var(--text-secondary); max-width:600px; margin:0 auto; line-height:1.6;">Famous fictional characters &rarr; real-world career Blueprints. Explore their skills, outcomes, and job matches to see how Blueprint works.</div>'
                 + '</div>';
             
@@ -16249,7 +16249,7 @@
                     // Description
                     + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">' + ch.desc + '</div>'
                     
-                    + (ch.explorer ? '<div style="margin-top:8px;"><span style="display:inline-block; background:#60a5fa; color:#fff; font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:3px 10px; border-radius:12px;">Explorer Mode</span></div>' : '')
+                    + (ch.explorer ? '<div style="margin-top:8px;"><span style="display:inline-block; background:var(--accent); color:#fff; font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:3px 10px; border-radius:12px;">Explorer Mode</span></div>' : '')
                     
                     + (hasProfile 
                         ? '<div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">'
@@ -16713,15 +16713,15 @@
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
                 + '<h2 class="modal-title">' + bpIcon('bar-chart', 18) + ' BLS Compensation Category</h2>'
-                + '<p style="color:#a1a1a6; margin-top:5px;">This determines your market benchmark</p>'
+                + '<p style="color:var(--text-secondary); margin-top:5px;">This determines your market benchmark</p>'
                 + '</div>'
                 + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:30px;">'
                 + '<div style="margin-bottom:20px; padding:16px; background:rgba(96,165,250,0.1); border-radius:8px;">'
-                + '<div style="font-size:0.82em; color:#a1a1a6; margin-bottom:4px;">Auto-detected from your title, roles, and skills:</div>'
+                + '<div style="font-size:0.82em; color:var(--text-secondary); margin-bottom:4px;">Auto-detected from your title, roles, and skills:</div>'
                 + '<div style="font-weight:600; color:var(--c-text);">' + BLS_FUNCTION_LABELS[auto] + '</div>'
-                + (isOverride ? '<div style="font-size:0.78em; color:#ffd60a; margin-top:4px;">Currently overridden to: ' + BLS_FUNCTION_LABELS[current] + '</div>' : '')
+                + (isOverride ? '<div style="font-size:0.78em; color:var(--warning); margin-top:4px;">Currently overridden to: ' + BLS_FUNCTION_LABELS[current] + '</div>' : '')
                 + '</div>'
                 + '<div style="margin-bottom:20px;">'
                 + '<label style="display:block; font-size:0.85em; font-weight:600; color:var(--c-text); margin-bottom:8px;">Select your BLS category:</label>'
@@ -16729,7 +16729,7 @@
                 + '<div style="font-size:0.78em; color:var(--c-muted); margin-top:6px;">BLS categories determine the salary bands used for your market benchmark. Pick the one closest to your actual role.</div>'
                 + '</div>'
                 + '<div style="display:flex; gap:10px; justify-content:flex-end;">'
-                + (isOverride ? '<button onclick="clearBlsCategoryOverride()" style="padding:8px 16px; background:transparent; border:1px solid rgba(255,69,58,0.4); color:#ff453a; border-radius:6px; cursor:pointer; font-size:0.85em;">Reset to Auto</button>' : '')
+                + (isOverride ? '<button onclick="clearBlsCategoryOverride()" style="padding:8px 16px; background:transparent; border:1px solid rgba(255,69,58,0.4); color:var(--danger); border-radius:6px; cursor:pointer; font-size:0.85em;">Reset to Auto</button>' : '')
                 + '<button onclick="saveBlsCategoryOverride()" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">Save Category</button>'
                 + '</div>'
                 + '</div>';
@@ -17604,7 +17604,7 @@
                 banner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; '
                     + 'background:rgba(255,214,10,0.12); '
                     + 'border-bottom:1px solid rgba(255,214,10,0.25); color:var(--text-secondary);';
-                banner.innerHTML = '<span style="color:#ffd60a; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
+                banner.innerHTML = '<span style="color:var(--warning); font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
                     + ' &mdash; ' + SHOWCASE_CONFIG.bannerText
                     + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--accent); text-decoration:underline;">Exit showcase</a>';
                 header.parentNode.insertBefore(banner, header.nextSibling);
@@ -17681,7 +17681,7 @@
             var viewingSample = window._showcaseViewingSample;
             var sampleName = viewingSample ? escapeHtml((userData.profile && userData.profile.name) || 'Sample Profile') : '';
             if (viewingSample) {
-                banner.innerHTML = '<span style="color:#ffd60a; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
+                banner.innerHTML = '<span style="color:var(--warning); font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
                     + ' &mdash; Viewing: <strong>' + sampleName + '</strong>'
                     + ' &bull; <a href="#" onclick="event.preventDefault(); returnToShowcaseAdmin();" '
                     + 'style="color:var(--accent); text-decoration:underline; font-weight:700;">&larr; Return to Admin Dashboard</a>'
@@ -17689,7 +17689,7 @@
                     + 'style="color:var(--accent); text-decoration:underline;">Browse Samples</a>'
                     + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--text-muted); text-decoration:underline;">Exit showcase</a>';
             } else {
-                banner.innerHTML = '<span style="color:#ffd60a; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
+                banner.innerHTML = '<span style="color:var(--warning); font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
                     + ' &mdash; ' + SHOWCASE_CONFIG.bannerText
                     + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--accent); text-decoration:underline;">Exit showcase</a>';
             }
@@ -17705,16 +17705,16 @@
             // Create standalone verification container
             var container = document.createElement('div');
             container.id = 'verifierLanding';
-            container.style.cssText = 'min-height:100vh; background:var(--bg, #0a0a0f); color:#d1d1d6; display:flex; align-items:center; justify-content:center; padding:20px; font-family:Inter,system-ui,sans-serif;';
+            container.style.cssText = 'min-height:100vh; background:var(--bg, #0a0a0f); color:var(--c-label); display:flex; align-items:center; justify-content:center; padding:20px; font-family:Inter,system-ui,sans-serif;';
             container.innerHTML = '<div style="max-width:640px; width:100%; text-align:center;">'
                 + '<div style="margin-bottom:32px;">'
-                + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; letter-spacing:0.12em; color:#60a5fa;">BLUEPRINT\u2122</div>'
-                + '<div style="font-size:0.85em; color:#a1a1a6; margin-top:4px;">Skill Verification</div>'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; letter-spacing:0.12em; color:var(--accent);">BLUEPRINT\u2122</div>'
+                + '<div style="font-size:0.85em; color:var(--text-secondary); margin-top:4px;">Skill Verification</div>'
                 + '</div>'
                 + '<div id="verifyLandingContent" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:32px;">'
-                + '<div style="color:#a1a1a6;">Loading verification request\u2026</div>'
+                + '<div style="color:var(--text-secondary);">Loading verification request\u2026</div>'
                 + '</div>'
-                + '<div style="margin-top:24px; font-size:0.75em; color:#636366;">Powered by Blueprint\u2122 Career Intelligence \u00B7 myblueprint.work</div>'
+                + '<div style="margin-top:24px; font-size:0.75em; color:var(--text-muted);">Powered by Blueprint\u2122 Career Intelligence \u00B7 myblueprint.work</div>'
                 + '</div>';
             document.body.appendChild(container);
             
@@ -17733,8 +17733,8 @@
                 })
                 .then(function(data) {
                     if (!data.records || data.records.length === 0) {
-                        el.innerHTML = '<div style="color:#ff453a; font-size:1.1em; font-weight:600; margin-bottom:12px;">Verification Not Found</div>'
-                            + '<div style="color:#a1a1a6;">This verification link may have expired or already been completed.</div>';
+                        el.innerHTML = '<div style="color:var(--danger); font-size:1.1em; font-weight:600; margin-bottom:12px;">Verification Not Found</div>'
+                            + '<div style="color:var(--text-secondary);">This verification link may have expired or already been completed.</div>';
                         return;
                     }
                     renderVerifierForm(data.records, data.profileName || 'A professional', token, uid);
@@ -17749,19 +17749,19 @@
                                 var d = doc.data();
                                 var vRecords = (d.verifications || []).filter(function(v) { return v.token === token && v.status === 'pending'; });
                                 if (vRecords.length === 0) {
-                                    el.innerHTML = '<div style="color:#ff453a; font-size:1.1em; font-weight:600; margin-bottom:12px;">Verification Not Found</div>'
-                                        + '<div style="color:#a1a1a6;">This link may have expired or been completed already.</div>';
+                                    el.innerHTML = '<div style="color:var(--danger); font-size:1.1em; font-weight:600; margin-bottom:12px;">Verification Not Found</div>'
+                                        + '<div style="color:var(--text-secondary);">This link may have expired or been completed already.</div>';
                                     return;
                                 }
                                 renderVerifierForm(vRecords, d.profile ? d.profile.name : 'A professional', token, uid);
                             })
                             .catch(function(e2) {
-                                el.innerHTML = '<div style="color:#ff453a; font-size:1.1em; font-weight:600; margin-bottom:12px;">Unable to Load</div>'
-                                    + '<div style="color:#a1a1a6;">The verification API is not yet deployed. Please ask the profile owner to deploy <code>/api/verify.js</code> to Vercel.</div>';
+                                el.innerHTML = '<div style="color:var(--danger); font-size:1.1em; font-weight:600; margin-bottom:12px;">Unable to Load</div>'
+                                    + '<div style="color:var(--text-secondary);">The verification API is not yet deployed. Please ask the profile owner to deploy <code>/api/verify.js</code> to Vercel.</div>';
                             });
                     } else {
-                        el.innerHTML = '<div style="color:#ff453a; font-size:1.1em; font-weight:600; margin-bottom:12px;">Unable to Load</div>'
-                            + '<div style="color:#a1a1a6;">Could not connect to the verification service. The link may be invalid.</div>';
+                        el.innerHTML = '<div style="color:var(--danger); font-size:1.1em; font-weight:600; margin-bottom:12px;">Unable to Load</div>'
+                            + '<div style="color:var(--text-secondary);">Could not connect to the verification service. The link may be invalid.</div>';
                     }
                 });
         }
@@ -17773,24 +17773,24 @@
                 var outcomesHTML = '';
                 if (rec.outcomes && rec.outcomes.length > 0) {
                     outcomesHTML = '<div style="margin:10px 0 12px; padding:10px 12px; background:rgba(96,165,250,0.06); border-left:3px solid rgba(96,165,250,0.3); border-radius:0 8px 8px 0;">'
-                        + '<div style="font-size:0.75em; color:#60a5fa; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Outcomes & Evidence</div>'
+                        + '<div style="font-size:0.75em; color:var(--accent); font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Outcomes & Evidence</div>'
                         + rec.outcomes.map(function(o) {
                             return '<div style="font-size:0.82em; color:#cbd5e1; padding:3px 0; line-height:1.4;">\u2022 ' + escapeHtml(o) + '</div>';
                         }).join('')
                         + '</div>';
                 } else if (rec.evidenceSummary) {
-                    outcomesHTML = '<div style="font-size:0.82em; color:#a1a1a6; margin-bottom:12px; line-height:1.5;">' + escapeHtml(rec.evidenceSummary).substring(0, 300) + '</div>';
+                    outcomesHTML = '<div style="font-size:0.82em; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;">' + escapeHtml(rec.evidenceSummary).substring(0, 300) + '</div>';
                 }
                 
                 return '<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:20px; margin-bottom:12px; text-align:left;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
-                    + '<div style="font-weight:700; font-size:1.05em; color:#d1d1d6;">' + escapeHtml(rec.skillName) + '</div>'
-                    + '<div style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.15); color:#60a5fa;">Claimed: ' + escapeHtml(rec.claimedLevel) + '</div>'
+                    + '<div style="font-weight:700; font-size:1.05em; color:var(--c-label);">' + escapeHtml(rec.skillName) + '</div>'
+                    + '<div style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.15); color:var(--accent);">Claimed: ' + escapeHtml(rec.claimedLevel) + '</div>'
                     + '</div>'
                     + outcomesHTML
                     + '<div style="margin-bottom:8px;">'
-                    + '<label style="font-size:0.82em; color:#a1a1a6; display:block; margin-bottom:4px;">Your assessment:</label>'
-                    + '<select id="verifyLevel_' + idx + '" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#d1d1d6; font-size:0.9em;">'
+                    + '<label style="font-size:0.82em; color:var(--text-secondary); display:block; margin-bottom:4px;">Your assessment:</label>'
+                    + '<select id="verifyLevel_' + idx + '" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--c-label); font-size:0.9em;">'
                     + '<option value="confirm">\u2713 Confirm ' + escapeHtml(rec.claimedLevel) + ' level</option>'
                     + '<option value="Mastery">\u2191 Suggest: Mastery</option>'
                     + '<option value="Expert">\u2191 Suggest: Expert</option>'
@@ -17805,25 +17805,25 @@
             
             el.innerHTML = '<div style="text-align:left;">'
                 + '<div style="margin-bottom:20px;">'
-                + '<div style="font-size:1.2em; font-weight:700; color:#d1d1d6; margin-bottom:6px;">'
+                + '<div style="font-size:1.2em; font-weight:700; color:var(--c-label); margin-bottom:6px;">'
                 + escapeHtml(profileName) + ' has requested your verification</div>'
-                + '<div style="font-size:0.88em; color:#a1a1a6; line-height:1.5;">Please review each skill below. You can confirm, suggest a different proficiency level, add a comment, or decline.</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.5;">Please review each skill below. You can confirm, suggest a different proficiency level, add a comment, or decline.</div>'
                 + '</div>'
                 
                 + '<div style="margin-bottom:16px;">' + skillCards + '</div>'
                 
                 + '<div style="margin-bottom:16px;">'
-                + '<label style="font-size:0.82em; color:#a1a1a6; display:block; margin-bottom:4px;">Your note (optional \u2014 required if commenting):</label>'
-                + '<textarea id="verifyResponseNote" rows="3" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#d1d1d6; font-size:0.88em; resize:vertical; box-sizing:border-box;" '
+                + '<label style="font-size:0.82em; color:var(--text-secondary); display:block; margin-bottom:4px;">Your note (optional \u2014 required if commenting):</label>'
+                + '<textarea id="verifyResponseNote" rows="3" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--c-label); font-size:0.88em; resize:vertical; box-sizing:border-box;" '
                 + 'placeholder="Share context about your professional experience with this person\u2019s skills\u2026"></textarea></div>'
                 
                 + '<div style="margin-bottom:16px;">'
-                + '<label style="font-size:0.82em; color:#a1a1a6; display:block; margin-bottom:4px;">Your name (for attribution):</label>'
+                + '<label style="font-size:0.82em; color:var(--text-secondary); display:block; margin-bottom:4px;">Your name (for attribution):</label>'
                 + '<input type="text" id="verifyResponseName" value="' + escapeAttr(records[0].verifierName || '') + '" '
-                + 'style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#d1d1d6; font-size:0.9em; box-sizing:border-box;"></div>'
+                + 'style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--c-label); font-size:0.9em; box-sizing:border-box;"></div>'
                 
                 + '<button onclick="submitVerifierResponse(\'' + escapeHtml(token).replace(/'/g,"\\'") + '\',\'' + escapeHtml(uid).replace(/'/g,"\\'") + '\',' + records.length + ')" '
-                + 'style="width:100%; padding:14px; background:#60a5fa; color:#fff; border:none; border-radius:10px; font-weight:700; font-size:1em; cursor:pointer; transition:opacity 0.2s;" '
+                + 'style="width:100%; padding:14px; background:var(--accent); color:#fff; border:none; border-radius:10px; font-weight:700; font-size:1em; cursor:pointer; transition:opacity 0.2s;" '
                 + 'onmouseover="this.style.opacity=\'0.9\'" onmouseout="this.style.opacity=\'1\'">Submit Verification</button>'
                 + '</div>';
         }
@@ -17867,21 +17867,21 @@
             .then(function(data) {
                 el.innerHTML = '<div style="text-align:center; padding:40px 20px;">'
                     + '<div style="font-size:3em; margin-bottom:16px;">\u2705</div>'
-                    + '<div style="font-size:1.3em; font-weight:700; color:#30d158; margin-bottom:12px;">Verification Submitted</div>'
-                    + '<div style="color:#a1a1a6; line-height:1.6;">Thank you for verifying ' + escapeHtml(data.profileName || 'this professional') + '\'s skills. '
+                    + '<div style="font-size:1.3em; font-weight:700; color:var(--success); margin-bottom:12px;">Verification Submitted</div>'
+                    + '<div style="color:var(--text-secondary); line-height:1.6;">Thank you for verifying ' + escapeHtml(data.profileName || 'this professional') + '\'s skills. '
                     + 'Your assessment has been recorded and will strengthen their Blueprint profile.</div>'
-                    + '<div style="margin-top:24px; padding:16px; background:rgba(48,209,88,0.1); border-radius:10px; font-size:0.85em; color:#a1a1a6;">'
-                    + 'Verification weight: <strong style="color:#30d158;">' + (data.credibilityLabel || 'Standard') + '</strong></div>'
+                    + '<div style="margin-top:24px; padding:16px; background:rgba(48,209,88,0.1); border-radius:10px; font-size:0.85em; color:var(--text-secondary);">'
+                    + 'Verification weight: <strong style="color:var(--success);">' + (data.credibilityLabel || 'Standard') + '</strong></div>'
                     + '</div>';
             })
             .catch(function(err) {
                 console.warn('Verify submit error:', err);
                 el.innerHTML = '<div style="text-align:center; padding:40px 20px;">'
                     + '<div style="font-size:3em; margin-bottom:16px;">\u26A0\uFE0F</div>'
-                    + '<div style="font-size:1.1em; font-weight:600; color:#ff9f0a; margin-bottom:12px;">Submission Issue</div>'
-                    + '<div style="color:#a1a1a6;">The verification API may not be deployed yet. Your response was:</div>'
-                    + '<pre style="text-align:left; background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; margin-top:12px; font-size:0.8em; color:#a1a1a6; overflow-x:auto;">' + JSON.stringify(payload, null, 2) + '</pre>'
-                    + '<div style="margin-top:12px; font-size:0.82em; color:#636366;">Please share this response with the profile owner.</div>'
+                    + '<div style="font-size:1.1em; font-weight:600; color:var(--c-orange); margin-bottom:12px;">Submission Issue</div>'
+                    + '<div style="color:var(--text-secondary);">The verification API may not be deployed yet. Your response was:</div>'
+                    + '<pre style="text-align:left; background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; margin-top:12px; font-size:0.8em; color:var(--text-secondary); overflow-x:auto;">' + JSON.stringify(payload, null, 2) + '</pre>'
+                    + '<div style="margin-top:12px; font-size:0.82em; color:var(--text-muted);">Please share this response with the profile owner.</div>'
                     + '</div>';
             });
         }
@@ -17965,7 +17965,7 @@
                 + 'Score: <strong>' + previewScore + '</strong> pts</div>'
                 + '<div style="display:flex; gap:8px;">'
                 + '<button onclick="saveOutcomeForm(\'' + escapedName + '\',' + idx + ')" '
-                + 'style="padding:7px 18px; background:#30d158; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                + 'style="padding:7px 18px; background:var(--success); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">'
                 + (isEdit ? 'Save' : 'Add Outcome') + '</button>'
                 + '<button onclick="cancelOutcomeForm(\'' + escapedName + '\')" '
                 + 'style="padding:7px 14px; background:transparent; color:var(--c-muted); border:1px solid var(--c-border-solid); border-radius:6px; cursor:pointer; font-size:0.85em;">'
@@ -18965,7 +18965,7 @@
                     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin-bottom:4px;border-radius:8px;background:var(--elev-1);border:1px solid var(--border);">'
                         + '<span style="font-size:0.88em;color:var(--text-primary);">' + escapeHtml(name) + '</span>'
                         + '<button onclick="adminUnblockSkill(\'' + escapeHtml(name).replace(/'/g, "\\'") + '\');this.parentElement.style.opacity=0.3;this.disabled=true;showToast(\'Unblocked: ' + escapeHtml(name).replace(/'/g, "\\'") + '. Re-analyze to update.\',\'success\')" '
-                        + 'style="background:none;border:1px solid rgba(48,209,88,0.3);color:#30d158;padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.78em;">Unblock</button></div>';
+                        + 'style="background:none;border:1px solid rgba(48,209,88,0.3);color:var(--success);padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.78em;">Unblock</button></div>';
                 }).join('')
                 + '<div style="margin-top:16px;text-align:right;">'
                 + '<button onclick="this.closest(\'div[style*=fixed]\').remove();reanalyzeJob(' + jobIdx + ')" style="padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.88em;">Unblock & Re-analyze</button></div>';
@@ -18995,7 +18995,7 @@
             } else {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 sorted.forEach(function(skill) {
-                    html += '<span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.3); border-radius:8px; font-size:0.82em; color:#ff453a;">'
+                    html += '<span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.3); border-radius:8px; font-size:0.82em; color:var(--danger);">'
                         + escapeHtml(skill)
                         + '<span onclick="adminUnblockSkill(\'' + escapeHtml(skill).replace(/'/g, "\\'") + '\'); renderAdminBlocklistPanel();" style="cursor:pointer; opacity:0.6; font-size:1.1em;" title="Unblock">\u00D7</span>'
                         + '</span>';
@@ -19164,12 +19164,12 @@
                 + '</div>'
                 + '<div class="modal-body" style="padding:20px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="padding:12px 16px; background:rgba(255,69,58,0.08); border:1px solid rgba(255,69,58,0.25); border-radius:10px; margin-bottom:16px;">'
-                + '<div style="font-weight:700; color:#ff453a; margin-bottom:4px;">Profile has ' + skills.length + ' skills (cap: ' + PROFILE_SKILL_CAP + ')</div>'
+                + '<div style="font-weight:700; color:var(--danger); margin-bottom:4px;">Profile has ' + skills.length + ' skills (cap: ' + PROFILE_SKILL_CAP + ')</div>'
                 + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.5;">Select at least ' + excess + ' skill' + (excess !== 1 ? 's' : '') + ' to remove. '
                 + 'Skills with low proficiency and no evidence are pre-selected. Verified and key skills are preserved.</div>'
                 + '</div>'
                 + '<div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">'
-                + '<span id="triageCount" style="font-size:0.88em; font-weight:600; color:#ff453a;">' + toRemove.size + ' selected for removal</span>'
+                + '<span id="triageCount" style="font-size:0.88em; font-weight:600; color:var(--danger);">' + toRemove.size + ' selected for removal</span>'
                 + '<span style="font-size:0.78em; color:var(--text-muted);">Need: ' + excess + '+</span>'
                 + '</div>';
             
@@ -19178,13 +19178,13 @@
                 var checked = toRemove.has(item.idx);
                 var levelColors = { 'Mastery': '#30d158', 'Expert': '#ff9f0a', 'Advanced': '#bf5af2', 'Proficient': '#60a5fa', 'Novice': '#a1a1a6' };
                 var badges = '';
-                if (s.verified) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(48,209,88,0.15); color:#30d158;">\u2713 Verified</span> ';
-                if (s.key) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(255,159,10,0.15); color:#ff9f0a;">\u2605 Key</span> ';
-                if ((s.evidence || []).length > 0) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(96,165,250,0.15); color:#60a5fa;">' + s.evidence.length + ' evidence</span>';
+                if (s.verified) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(48,209,88,0.15); color:var(--success);">\u2713 Verified</span> ';
+                if (s.key) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(255,159,10,0.15); color:var(--c-orange);">\u2605 Key</span> ';
+                if ((s.evidence || []).length > 0) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(96,165,250,0.15); color:var(--accent);">' + s.evidence.length + ' evidence</span>';
                 
                 html += '<label style="display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; transition:background 0.15s; border:1px solid ' + (checked ? 'rgba(255,69,58,0.3)' : 'transparent') + '; background:' + (checked ? 'rgba(255,69,58,0.05)' : 'transparent') + ';"'
                     + ' onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'' + (checked ? 'rgba(255,69,58,0.05)' : 'transparent') + '\'">'
-                    + '<input type="checkbox" data-triage-idx="' + item.idx + '" ' + (checked ? 'checked' : '') + ' onchange="updateTriageCount()" style="accent-color:#ff453a; flex-shrink:0;">'
+                    + '<input type="checkbox" data-triage-idx="' + item.idx + '" ' + (checked ? 'checked' : '') + ' onchange="updateTriageCount()" style="accent-color:var(--danger); flex-shrink:0;">'
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
                     + '<span style="font-weight:600; font-size:0.88em; color:var(--text-primary);">' + escapeHtml(s.name) + '</span>'
@@ -19195,7 +19195,7 @@
             
             html += '</div>'
                 + '<div style="padding:16px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px;">'
-                + '<button id="triageConfirmBtn" onclick="confirmSkillCapTriage()" style="padding:10px 24px; background:#ff453a; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.92em;">'
+                + '<button id="triageConfirmBtn" onclick="confirmSkillCapTriage()" style="padding:10px 24px; background:var(--danger); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.92em;">'
                 + 'Remove Selected (' + excess + '+)</button></div>';
             
             mc.innerHTML = html;
@@ -19445,8 +19445,8 @@
                 + '</div>'
                 + '<div style="padding:16px; background:rgba(48,209,88,0.1); border:2px solid rgba(48,209,88,0.25); border-radius:12px; text-align:center;">'
                 + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(48,209,88,0.7); margin-bottom:6px;">Potential Value</div>'
-                + '<div style="font-size:1.8em; font-weight:700; color:#30d158;">' + formatCompValue(maxPotential) + '</div>'
-                + '<div style="font-size:0.75em; color:#30d158; font-weight:600;">+' + formatCompValue(totalUplift) + ' growth opportunity</div>'
+                + '<div style="font-size:1.8em; font-weight:700; color:var(--success);">' + formatCompValue(maxPotential) + '</div>'
+                + '<div style="font-size:0.75em; color:var(--success); font-weight:600;">+' + formatCompValue(totalUplift) + ' growth opportunity</div>'
                 + '</div></div>';
 
             if (topUpgrades.length > 0) {
@@ -19455,7 +19455,7 @@
                     + '<div style="width:28px; height:28px; border-radius:8px; background:rgba(96,165,250,0.13); display:flex; align-items:center; justify-content:center;">' + bpIcon('trending-up',16) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Level Up Existing Skills</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Build evidence, get verified, then upgrade your proficiency</div></div>'
-                    + (topUpgradeDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:#30d158;">+' + formatCompValue(topUpgradeDelta) + '</div>' : '')
+                    + (topUpgradeDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:var(--success);">+' + formatCompValue(topUpgradeDelta) + '</div>' : '')
                     + '</div>';
 
                 topUpgrades.forEach(function(rec) {
@@ -19478,13 +19478,13 @@
 
                     var stepsHtml = '<div style="display:flex; gap:4px; margin-top:6px;">';
                     stepsHtml += '<span title="Add evidence/outcomes" style="font-size:0.68em; padding:2px 7px; border-radius:6px; cursor:help; '
-                        + (hasEvidence ? 'background:rgba(48,209,88,0.15); color:#30d158;' : 'background:rgba(96,165,250,0.1); color:#60a5fa; border:1px dashed rgba(96,165,250,0.3);')
+                        + (hasEvidence ? 'background:rgba(48,209,88,0.15); color:var(--success);' : 'background:rgba(96,165,250,0.1); color:var(--accent); border:1px dashed rgba(96,165,250,0.3);')
                         + ' font-weight:600;">' + (hasEvidence ? '\u2713 ' : '') + 'Evidence</span>';
                     stepsHtml += '<span title="Certificate, degree, course, or peer verification" style="font-size:0.68em; padding:2px 7px; border-radius:6px; cursor:help; '
-                        + (hasCert || hasVerify ? 'background:rgba(48,209,88,0.15); color:#30d158;' : 'background:rgba(255,159,10,0.1); color:#ff9f0a; border:1px dashed rgba(255,159,10,0.3);')
+                        + (hasCert || hasVerify ? 'background:rgba(48,209,88,0.15); color:var(--success);' : 'background:rgba(255,159,10,0.1); color:var(--c-orange); border:1px dashed rgba(255,159,10,0.3);')
                         + ' font-weight:600;">' + (hasCert || hasVerify ? '\u2713 ' : '') + 'Verified</span>';
                     stepsHtml += '<span title="Upgrade proficiency level" style="font-size:0.68em; padding:2px 7px; border-radius:6px; cursor:help; '
-                        + 'background:rgba(148,163,184,0.1); color:#a1a1a6; border:1px dashed rgba(148,163,184,0.3);'
+                        + 'background:rgba(148,163,184,0.1); color:var(--text-secondary); border:1px dashed rgba(148,163,184,0.3);'
                         + ' font-weight:600;">Level Up</span>';
                     stepsHtml += '</div>';
 
@@ -19492,7 +19492,7 @@
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; font-size:0.92em; color:var(--c-heading); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
                         + escapeHtml(rec.name)
-                        + (rec.hasGap ? ' <span style="font-size:0.7em; padding:1px 6px; background:rgba(255,69,58,0.1); color:#ff453a; border-radius:6px; font-weight:600;">EVIDENCE GAP</span>' : '')
+                        + (rec.hasGap ? ' <span style="font-size:0.7em; padding:1px 6px; background:rgba(255,69,58,0.1); color:var(--danger); border-radius:6px; font-weight:600;">EVIDENCE GAP</span>' : '')
                         + '</div>'
                         + '<div style="display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap;">'
                         + '<span style="font-size:0.78em; padding:2px 8px; border-radius:6px; background:' + (levelColors[rec.currentLevel] || '#a1a1a6') + '22; color:' + (levelColors[rec.currentLevel] || '#a1a1a6') + '; font-weight:600;">' + rec.currentLevel + '</span>'
@@ -19507,7 +19507,7 @@
                         + '<div style="font-weight:700; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div></div>';
                     if (canEdit) {
-                        html += '<button onclick="closeExportModal(); setTimeout(function(){ var sk=(skillsData.skills||[]).find(function(s){return s.name===\'' + safeName + '\';}); if(sk && typeof openSkillModal===\'function\') openSkillModal(\'' + safeName + '\',sk); },150);" style="font-size:0.72em; padding:4px 10px; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); color:#60a5fa; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Build Case</button>';
+                        html += '<button onclick="closeExportModal(); setTimeout(function(){ var sk=(skillsData.skills||[]).find(function(s){return s.name===\'' + safeName + '\';}); if(sk && typeof openSkillModal===\'function\') openSkillModal(\'' + safeName + '\',sk); },150);" style="font-size:0.72em; padding:4px 10px; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); color:var(--accent); border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Build Case</button>';
                     }
                     html += '</div></div>';
                 });
@@ -19525,7 +19525,7 @@
                     + '<div style="width:28px; height:28px; border-radius:8px; background:rgba(48,209,88,0.13); display:flex; align-items:center; justify-content:center;">' + bpIcon('plus',16) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Add Adjacent Skills</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">New skills that complement your profile and increase market value</div></div>'
-                    + (topAdjacentDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:#30d158;">+' + formatCompValue(topAdjacentDelta) + '</div>' : '')
+                    + (topAdjacentDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:var(--success);">+' + formatCompValue(topAdjacentDelta) + '</div>' : '')
                     + '</div>';
 
                 topAdjacent.forEach(function(rec) {
@@ -19552,9 +19552,9 @@
             html += '<div style="padding:14px 16px; background:rgba(48,209,88,0.06); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
                 + '<div style="font-size:0.82em; color:var(--c-muted); line-height:1.6;">'
                 + '<strong style="color:var(--c-heading);">How to grow your value:</strong> '
-                + 'Each skill shows a 3-step path: <strong style="color:#60a5fa;">Evidence</strong> (add outcomes that demonstrate the skill), '
-                + '<strong style="color:#ff9f0a;">Verification</strong> (link a certificate, degree, course completion, or request a peer verification), '
-                + 'and <strong style="color:#a1a1a6;">Level Up</strong> (upgrade proficiency once your evidence supports it). '
+                + 'Each skill shows a 3-step path: <strong style="color:var(--accent);">Evidence</strong> (add outcomes that demonstrate the skill), '
+                + '<strong style="color:var(--c-orange);">Verification</strong> (link a certificate, degree, course completion, or request a peer verification), '
+                + 'and <strong style="color:var(--text-secondary);">Level Up</strong> (upgrade proficiency once your evidence supports it). '
                 + 'Skills with evidence and verification backing their claimed level earn full valuation. Without evidence, upgrades create gaps that actually reduce your effective market value.'
                 + '</div></div>';
 
@@ -21167,7 +21167,7 @@
                     + '<div style="display:flex; align-items:center; gap:8px;">'
                     + '<span style="font-size:1em;">' + icon + '</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">' + title + '</span>'
-                    + (newCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(48,209,88,0.12); color:#30d158; font-weight:700;">+' + newCount + ' new</span>' : '')
+                    + (newCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:700;">+' + newCount + ' new</span>' : '')
                     + (existCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600;">' + existCount + ' existing</span>' : '')
                     + '</div>';
                 
@@ -21188,12 +21188,12 @@
                             + '</div></div>';
                     } else {
                         s += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(48,209,88,0.04); border:1px solid rgba(48,209,88,0.12); border-radius:6px; display:flex; align-items:center; gap:10px;">'
-                            + '<input type="checkbox" id="' + cbId + '" data-merge-section="' + sectionKey + '" checked style="accent-color:#30d158; flex-shrink:0; width:16px; height:16px; cursor:pointer;">'
+                            + '<input type="checkbox" id="' + cbId + '" data-merge-section="' + sectionKey + '" checked style="accent-color:var(--success); flex-shrink:0; width:16px; height:16px; cursor:pointer;">'
                             + '<div style="flex:1; min-width:0;">'
                             + '<div style="font-size:0.85em; font-weight:600; color:var(--c-text-alt);">' + escapeHtml(item.label) + '</div>'
                             + (item.sub ? '<div style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(item.sub) + '</div>' : '')
                             + '</div>'
-                            + '<span style="font-size:0.68em; padding:2px 6px; border-radius:6px; background:rgba(48,209,88,0.12); color:#30d158; font-weight:700; flex-shrink:0;">NEW</span>'
+                            + '<span style="font-size:0.68em; padding:2px 6px; border-radius:6px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:700; flex-shrink:0;">NEW</span>'
                             + '</div>';
                     }
                 });
@@ -21215,7 +21215,7 @@
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
                     + '<span style="font-size:1em;">\u2B50</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Skills</span>'
-                    + (newSkillItems.length > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(48,209,88,0.12); color:#30d158; font-weight:700;">+' + newSkillItems.length + ' new</span>' : '')
+                    + (newSkillItems.length > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:700;">+' + newSkillItems.length + ' new</span>' : '')
                     + (existSkillItems.length > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600;">' + existSkillItems.length + ' existing</span>' : '')
                     + '</div>';
                 
@@ -21226,8 +21226,8 @@
                         var cbId = 'merge-skill-' + idx;
                         html += '<label for="' + cbId + '" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; '
                             + 'border-radius:12px; font-size:0.78em; font-weight:600; cursor:pointer; '
-                            + 'background:rgba(48,209,88,0.08); color:#30d158; border:1px solid rgba(48,209,88,0.15);">'
-                            + '<input type="checkbox" id="' + cbId + '" data-merge-section="skill" checked style="accent-color:#30d158; width:12px; height:12px;">'
+                            + 'background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15);">'
+                            + '<input type="checkbox" id="' + cbId + '" data-merge-section="skill" checked style="accent-color:var(--success); width:12px; height:12px;">'
                             + escapeHtml(item.label) + '</label>';
                     });
                     html += '</div>';
@@ -21248,7 +21248,7 @@
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
                     + '<span style="font-size:1em;">' + bpIcon('check',14) + '</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Endorsements</span>'
-                    + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(255,159,10,0.12); color:#ff9f0a; font-weight:700;">' + totalEndorsements + ' across ' + endorseKeys.length + ' skills</span>'
+                    + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(255,159,10,0.12); color:var(--c-orange); font-weight:700;">' + totalEndorsements + ' across ' + endorseKeys.length + ' skills</span>'
                     + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Endorsement counts will be applied to matching skills. Skills with 10+ endorsements get +1 level boost, 25+ get +2.</div>'
                     + '</div>';
@@ -21320,7 +21320,7 @@
                 + '</div></div></div>';
             
             html += '<div style="display:flex; gap:10px;">'
-                + '<button onclick="applyMergeSelections()" style="padding:12px 28px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.95em;">'
+                + '<button onclick="applyMergeSelections()" style="padding:12px 28px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.95em;">'
                 + bpIcon('check', 14) + ' Merge Selected</button>'
                 + '<button onclick="closeExportModal()" style="padding:12px 20px; background:transparent; color:var(--c-muted); border:1px solid var(--c-border-solid); border-radius:8px; cursor:pointer;">Cancel</button>'
                 + '</div>';
@@ -21565,7 +21565,7 @@
                             margin-bottom:24px;"
                      onmouseover="this.style.borderColor='#bf5af2'"
                      onmouseout="this.style.borderColor='rgba(191,90,242,0.25)'">
-                    <div style="width:48px; height:48px; border-radius:12px; background:#60a5fa;
+                    <div style="width:48px; height:48px; border-radius:12px; background:var(--accent);
                                 display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                         ${bpIcon('compass',24)}
                     </div>
@@ -21577,7 +21577,7 @@
                             Student, recent grad, or career changer? No resume needed. We'll discover your skills from
                             school, activities, interests, and hobbies \u2014 then suggest career paths that fit you.
                         </div>
-                        <div style="margin-top:8px; font-size:0.72em; color:#bf5af2; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">
+                        <div style="margin-top:8px; font-size:0.72em; color:var(--c-purple); font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">
                             Explorer Mode \u00B7 AI-Guided
                         </div>
                     </div>
@@ -21634,11 +21634,11 @@
                 <div style="max-width:560px; margin:0 auto; padding:20px;">
                     <div style="text-align:center; margin-bottom:24px;">
                         <div style="font-size:2.5em; margin-bottom:12px;">' + bpIcon('alert',24) + '</div>
-                        <div style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:#ff9f0a; margin-bottom:8px;">
+                        <div style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--c-orange); margin-bottom:8px;">
                             You Have an Existing Blueprint
                         </div>
                         <div style="color:var(--text-secondary); font-size:0.92em; line-height:1.6;">
-                            Starting fresh will <strong style="color:#ff453a;">replace your entire profile</strong>, including ${counts.join(', ')}.
+                            Starting fresh will <strong style="color:var(--danger);">replace your entire profile</strong>, including ${counts.join(', ')}.
                             This cannot be undone.
                         </div>
                     </div>
@@ -21674,7 +21674,7 @@
                             \u2190 Go Back
                         </button>
                         <button id="wizardOverwriteConfirmBtn" onclick="window._wizardOverwriteProceed && window._wizardOverwriteProceed()" 
-                            style="padding:8px 18px; background:transparent; border:1px solid rgba(255,69,58,0.3); color:#ff453a; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">
+                            style="padding:8px 18px; background:transparent; border:1px solid rgba(255,69,58,0.3); color:var(--danger); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">
                             I understand, start fresh
                         </button>
                     </div>
@@ -21771,7 +21771,7 @@
         var explorerLabelStyle = 'display:block; font-size:0.82em; font-weight:600; color:var(--text-secondary); margin-bottom:5px;';
         var explorerCardStyle = 'background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px;';
         var explorerChipStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-secondary);';
-        var explorerChipActiveStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid #bf5af2; background:rgba(191,90,242,0.15); color:#bf5af2; font-weight:600;';
+        var explorerChipActiveStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--c-purple); background:rgba(191,90,242,0.15); color:var(--c-purple); font-weight:600;';
 
         function _explorerSchoolCard(s, idx, total) {
             var isHS = s.schoolType === 'highschool';
@@ -22081,7 +22081,7 @@
         }
         window._explorerAIExpand = _explorerAIExpand;
 
-        var _aiExpandBtnStyle = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:12px; font-size:0.72em; cursor:pointer; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.06); color:#bf5af2; font-weight:600; margin-top:4px;';
+        var _aiExpandBtnStyle = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:12px; font-size:0.72em; cursor:pointer; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.06); color:var(--c-purple); font-weight:600; margin-top:4px;';
 
         function explorerAIActivityHelp(idx, btnEl) {
             var a = wizardState.explorerData.activities[idx];
@@ -22417,7 +22417,7 @@
                     + '<div style="display:flex; align-items:center; gap:6px;">'
                     + '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:' + cc + '18; color:' + cc + '; font-weight:600;">' + (catLabels[s.category] || 'Skill') + '</span>'
                     + '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:var(--c-surface-3); color:var(--text-muted);">' + escapeHtml(s.level) + '</span>'
-                    + (s.selected ? '<span style="color:#30d158;">\u2713</span>' : '<span style="color:var(--c-muted);">\u25CB</span>') + '</div></div>'
+                    + (s.selected ? '<span style="color:var(--success);">\u2713</span>' : '<span style="color:var(--c-muted);">\u25CB</span>') + '</div></div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">' + escapeHtml(s.reason || '') + '</div>'
                     + '</div>';
             }).join('');
@@ -22576,21 +22576,21 @@
                     + 'border:2px solid ' + (isSelected ? '#bf5af2' : 'var(--border)') + ';">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-weight:700; color:var(--text-primary); font-size:1em;">' + escapeHtml(p.title) + '</div>'
-                    + (isSelected ? '<span style="color:#bf5af2; font-weight:700;">\u2713 Selected</span>' : '')
+                    + (isSelected ? '<span style="color:var(--c-purple); font-weight:700;">\u2713 Selected</span>' : '')
                     + '</div>'
                     + (entryV > 0 ? '<div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; font-size:0.82em; flex-wrap:wrap;">'
-                        + '<span style="color:#30d158; font-weight:700;">$' + entryV.toLocaleString() + '</span>'
+                        + '<span style="color:var(--success); font-weight:700;">$' + entryV.toLocaleString() + '</span>'
                         + '<span style="color:var(--text-muted); font-size:0.75em;">\u2192</span>'
-                        + (midV > 0 ? '<span style="color:#60a5fa; font-weight:700;">$' + midV.toLocaleString() + '</span>'
+                        + (midV > 0 ? '<span style="color:var(--accent); font-weight:700;">$' + midV.toLocaleString() + '</span>'
                             + '<span style="color:var(--text-muted); font-size:0.75em;">\u2192</span>' : '')
-                        + '<span style="color:#bf5af2; font-weight:700;">$' + seniorV.toLocaleString() + '</span>'
+                        + '<span style="color:var(--c-purple); font-weight:700;">$' + seniorV.toLocaleString() + '</span>'
                         + '<span style="color:var(--text-muted); font-size:0.72em; margin-left:4px;">salary progression</span>'
                         + '</div>' : '')
                     + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4; margin-bottom:10px;">' + escapeHtml(p.whyFit) + '</div>'
                     + '<div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.78em;">'
                     + '<span style="color:var(--text-muted);">' + bpIcon('dollar',14) + ' ' + escapeHtml(salaryStr) + '</span>'
                     + '<span style="color:var(--text-muted);">' + bpIcon('trending-up',14) + ' ' + escapeHtml(growthStr) + '</span>'
-                    + (totalAdd > 0 ? '<span style="color:#30d158; font-weight:600;">' + bpIcon('lightbulb',14) + ' +$' + totalAdd.toLocaleString() + ' skill growth</span>' : '')
+                    + (totalAdd > 0 ? '<span style="color:var(--success); font-weight:600;">' + bpIcon('lightbulb',14) + ' +$' + totalAdd.toLocaleString() + ' skill growth</span>' : '')
                     + '</div>'
                     + (isSelected && p.nextSteps ? '<div style="margin-top:10px; padding:10px; background:var(--c-surface-1); border-radius:8px;">'
                         + '<div style="font-size:0.78em; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Next Steps:</div>'
@@ -22644,11 +22644,11 @@
                 <div style="${explorerCardStyle}">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; text-align:center;">
                         <div style="padding:14px; background:rgba(96,165,250,0.08); border-radius:10px;">
-                            <div style="font-size:1.8em; font-weight:700; color:#60a5fa;">${skillCount}</div>
+                            <div style="font-size:1.8em; font-weight:700; color:var(--accent);">${skillCount}</div>
                             <div style="font-size:0.78em; color:var(--text-muted);">Skills Discovered</div>
                         </div>
                         <div style="padding:14px; background:rgba(191,90,242,0.08); border-radius:10px;">
-                            <div style="font-size:1.8em; font-weight:700; color:#bf5af2;">${pathCount}</div>
+                            <div style="font-size:1.8em; font-weight:700; color:var(--c-purple);">${pathCount}</div>
                             <div style="font-size:0.78em; color:var(--text-muted);">Career Paths</div>
                         </div>
                     </div>
@@ -22656,7 +22656,7 @@
 
                 ${selectedPath ? `
                 <div style="${explorerCardStyle} border-color:#bf5af240;">
-                    <div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#bf5af2; margin-bottom:6px;">Focused Career Path</div>
+                    <div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--c-purple); margin-bottom:6px;">Focused Career Path</div>
                     <div style="font-weight:700; color:var(--text-primary); font-size:1.05em; margin-bottom:4px;">${escapeHtml(selectedPath.title)}</div>
                     <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.5;">${escapeHtml(selectedPath.whyFit)}</div>
                 </div>` : ''}
@@ -22669,13 +22669,13 @@
 
                 <div style="padding:14px 18px; background:rgba(191,90,242,0.06); border:1px solid rgba(191,90,242,0.2); border-radius:10px; margin-bottom:16px;">
                     <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6;">
-                        <strong style="color:#bf5af2;">Explorer Mode</strong> \u2014 Your Blueprint focuses on potential and transferable skills.
+                        <strong style="color:var(--c-purple);">Explorer Mode</strong> \u2014 Your Blueprint focuses on potential and transferable skills.
                         Once you land your first role, you can convert to a full Blueprint with salary data, market valuation, and advanced evidence tracking.
                     </div>
                 </div>
 
                 <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
-                    <button onclick="explorerLaunch()" style="width:100%; max-width:360px; background:#60a5fa; color:#fff; border:none; border-radius:12px; padding:14px 28px; cursor:pointer; font-weight:700; font-size:1em;">
+                    <button onclick="explorerLaunch()" style="width:100%; max-width:360px; background:var(--accent); color:#fff; border:none; border-radius:12px; padding:14px 28px; cursor:pointer; font-weight:700; font-size:1em;">
                         Launch My Explorer Blueprint
                     </button>
                 </div>
@@ -24665,7 +24665,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         : 'No role titles could be matched. Continue to review your skills.')}
 
                 ${hasMultipleRoles ? '<div style="background:rgba(255,214,10,0.08); border:1px solid rgba(255,159,10,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
-                    + '<div style="font-weight:700; color:#ff9f0a; font-size:0.82em; margin-bottom:6px;">' + bpIcon('lightbulb',14) + ' Pro Tip: Less is More</div>'
+                    + '<div style="font-weight:700; color:var(--c-orange); font-size:0.82em; margin-bottom:6px;">' + bpIcon('lightbulb',14) + ' Pro Tip: Less is More</div>'
                     + '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.5;">'
                     + 'Listing more than your past 3 roles isn\'t necessary. You can <strong>hide a role but keep the skills</strong>. '
                     + 'This way you demonstrate currency and relevance to the market without showing past roles that may create more noise than signal.</div>'
@@ -24783,7 +24783,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                                 + escapeHtml(g.name) + '</div>'
                                 + '<div style="font-size:0.76em; color:var(--text-muted);">'
                                 + (g.category || 'skill') + ' · ' + (g.occupationLevel || 'Proficient')
-                                + (isDomain ? ' · <span style="color:#60a5fa; font-weight:600;">Domain</span>' : '')
+                                + (isDomain ? ' · <span style="color:var(--accent); font-weight:600;">Domain</span>' : '')
                                 + '</div></div></div>';
                         }).join('')}
                     </div>
@@ -24798,12 +24798,12 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                     </div>
                     <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
                                 border-radius:10px; padding:14px; text-align:center;">
-                        <div style="font-size:1.5em; font-weight:700; color:#30d158;">${gapResult.matched.length}</div>
+                        <div style="font-size:1.5em; font-weight:700; color:var(--success);">${gapResult.matched.length}</div>
                         <div style="font-size:0.78em; color:var(--text-muted);">Skills Matched</div>
                     </div>
                     <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
                                 border-radius:10px; padding:14px; text-align:center;">
-                        <div style="font-size:1.5em; font-weight:700; color:#ff9f0a;">${gapSkills.length}</div>
+                        <div style="font-size:1.5em; font-weight:700; color:var(--c-orange);">${gapSkills.length}</div>
                         <div style="font-size:0.78em; color:var(--text-muted);">Gaps Found</div>
                     </div>
                 </div>
@@ -24993,21 +24993,21 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             if (intel.keepSkills.length > 0) {
                 html += '<div style="background:rgba(48,209,88,0.06); border:1px solid rgba(48,209,88,0.25);'
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
-                    + '<div style="font-weight:700; font-size:0.82em; color:#30d158; margin-bottom:8px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:var(--success); margin-bottom:8px;">'
                     + '' + bpIcon('trending-up',14) + ' Keep & Highlight \u2014 Your Strongest Market Assets</div>';
                 intel.keepSkills.forEach(function(k, ki) {
                     var accepted = k._accepted;
                     html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
-                        + '<span style="color:#30d158; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2713</span>'
+                        + '<span style="color:var(--success); font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2713</span>'
                         + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
                         + escapeHtml(k.name) + '</span>'
-                        + (accepted ? '<span style="font-size:0.68em; background:#30d158; color:#fff; padding:1px 6px; border-radius:6px; margin-left:6px; font-weight:700;">KEY</span>' : '')
+                        + (accepted ? '<span style="font-size:0.68em; background:var(--success); color:#fff; padding:1px 6px; border-radius:6px; margin-left:6px; font-weight:700;">KEY</span>' : '')
                         + '<span style="font-size:0.75em; color:var(--text-secondary); margin-left:6px;">'
                         + escapeHtml(k.rationale) + '</span></div>'
                         + (k._dismissed ? '' : '<button onclick="wizardAcceptKeep(' + ki + ')" id="keep-btn-' + ki + '"'
                         + (accepted ? ' disabled' : '')
                         + ' style="background:' + (accepted ? 'rgba(48,209,88,0.15)' : 'rgba(48,209,88,0.1)') + '; border:1px solid rgba(48,209,88,0.3);'
-                        + ' color:#30d158; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' color:var(--success); border-radius:6px; padding:2px 10px; cursor:pointer;'
                         + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
                         + (accepted ? ' opacity:0.7;' : '') + '">' + (accepted ? '\u2713 Key Skill' : 'Mark Key') + '</button>')
                         + (k._dismissed || accepted ? '' : '<button onclick="wizardDismissRec(\'keep\',' + ki + ')"'
@@ -25022,11 +25022,11 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             if (intel.dropSkills.length > 0) {
                 html += '<div style="background:rgba(255,69,58,0.05); border:1px solid rgba(255,69,58,0.2);'
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
-                    + '<div style="font-weight:700; font-size:0.82em; color:#ff453a; margin-bottom:8px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:var(--danger); margin-bottom:8px;">'
                     + '\u2702 Consider Removing \u2014 Low Market Signal</div>';
                 intel.dropSkills.forEach(function(d, di) {
                     html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
-                        + '<span style="color:#ff453a; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2717</span>'
+                        + '<span style="color:var(--danger); font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2717</span>'
                         + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);'
                         + ' text-decoration:line-through; opacity:0.7;">'
                         + escapeHtml(d.name) + '</span>'
@@ -25035,7 +25035,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         + (d._dismissed ? '' : '<button onclick="wizardAcceptDrop(' + di + ')" id="drop-btn-' + di + '"'
                         + (d._accepted ? ' disabled' : '')
                         + ' style="background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.3);'
-                        + ' color:#ff453a; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' color:var(--danger); border-radius:6px; padding:2px 10px; cursor:pointer;'
                         + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
                         + (d._accepted ? ' opacity:0.5;' : '') + '">' + (d._accepted ? 'Removed' : 'Remove') + '</button>')
                         + (d._dismissed || d._accepted ? '' : '<button onclick="wizardDismissRec(\'drop\',' + di + ')"'
@@ -25050,17 +25050,17 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             if (intel.growthSkills.length > 0) {
                 html += '<div style="background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.25);'
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
-                    + '<div style="font-weight:700; font-size:0.82em; color:#60a5fa; margin-bottom:8px;">'
+                    + '<div style="font-weight:700; font-size:0.82em; color:var(--accent); margin-bottom:8px;">'
                     + '' + bpIcon('trending-up',14) + ' Growth Opportunities \u2014 Add These to Increase Market Value</div>';
                 intel.growthSkills.forEach(function(g, gi) {
                     var dollarStr = g.estimatedValueAdd >= 1000
                         ? '+~$' + (g.estimatedValueAdd / 1000).toFixed(0) + 'K/yr'
                         : '+~$' + g.estimatedValueAdd + '/yr';
                     html += '<div style="display:flex; align-items:start; gap:8px; padding:5px 0;">'
-                        + '<span style="color:#60a5fa; font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2191</span>'
+                        + '<span style="color:var(--accent); font-size:0.8em; flex-shrink:0; margin-top:1px;">\u2191</span>'
                         + '<div style="flex:1;"><span style="font-weight:600; font-size:0.82em; color:var(--text-primary);">'
                         + escapeHtml(g.name) + '</span>'
-                        + '<span style="font-size:0.75em; color:#ff9f0a; font-weight:700; margin-left:6px;">'
+                        + '<span style="font-size:0.75em; color:var(--c-orange); font-weight:700; margin-left:6px;">'
                         + dollarStr + '</span>'
                         + '<div style="font-size:0.74em; color:var(--text-secondary); margin-top:2px;">'
                         + escapeHtml(g.rationale) + '</div></div>'
@@ -25289,7 +25289,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         + '</div></div>';
                 } else {
                     html += '<input type="checkbox" ' + (selected ? 'checked' : '') + ' onchange="wizardToggleSuggestedOutcome(' + i + ')"'
-                        + ' style="margin-top:3px; accent-color:#30d158; flex-shrink:0; cursor:pointer;">'
+                        + ' style="margin-top:3px; accent-color:var(--success); flex-shrink:0; cursor:pointer;">'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.85em; color:var(--text-primary);' + (selected ? ' font-weight:600;' : '') + '">'
                         + escapeHtml(o.text) + '</div>';
@@ -25416,7 +25416,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                                         background:${levelColors[s.level] || '#636366'};"></div>
                             <div style="flex:1; min-width:0;">
                                 <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
-                                    ${escapeHtml(s.name)}${s._marketKeep ? ' <span style="font-size:0.65em; background:#30d158; color:#fff; padding:1px 5px; border-radius:6px; font-weight:700; vertical-align:middle;">KEY</span>' : ''}
+                                    ${escapeHtml(s.name)}${s._marketKeep ? ' <span style="font-size:0.65em; background:var(--success); color:#fff; padding:1px 5px; border-radius:6px; font-weight:700; vertical-align:middle;">KEY</span>' : ''}
                                 </div>
                                 <div style="font-size:0.78em; color:var(--text-muted);">
                                     ${escapeHtml(s.level)} \u00b7 ${s.evidence?.length || 0} evidence items
@@ -26703,7 +26703,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var badge = document.createElement('div');
                     badge.id = 'mobileNetworkBadge';
                     badge.style.cssText = 'position:absolute; bottom:12px; left:50%; transform:translateX(-50%); '
-                        + 'background:rgba(96,165,250,0.8); color:#f5f5f7; font-size:0.72em; padding:5px 14px; '
+                        + 'background:rgba(96,165,250,0.8); color:var(--text-primary); font-size:0.72em; padding:5px 14px; '
                         + 'border-radius:20px; backdrop-filter:blur(8px); pointer-events:none; z-index:10;';
                     badge.textContent = 'Showing top ' + skillsToShow.length + ' of ' + skillsData.skills.length + ' skills';
                     var container = document.getElementById('networkView').parentElement;
@@ -27440,19 +27440,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 
                 // Stats grid
                 + '<div class="ml-stats">'
-                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#30d158;">' + matchCount + '</div><div class="ml-stat-label">Matched</div></div>'
-                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#ff453a;">' + gapCount + '</div><div class="ml-stat-label">Gaps</div></div>'
-                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#636366;">' + surplusCount + '</div><div class="ml-stat-label">Surplus</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:var(--success);">' + matchCount + '</div><div class="ml-stat-label">Matched</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:var(--danger);">' + gapCount + '</div><div class="ml-stat-label">Gaps</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:var(--text-muted);">' + surplusCount + '</div><div class="ml-stat-label">Surplus</div></div>'
                 + '</div>'
                 
                 // Proficiency gaps if any
-                + (profGapCount > 0 ? '<div style="padding:6px 16px; font-size:0.78em; color:#ff9f0a; background:rgba(255,159,10,0.06);">' + bpIcon('warning',12) + ' ' + profGapCount + ' skill' + (profGapCount > 1 ? 's' : '') + ' matched at a lower proficiency</div>' : '')
+                + (profGapCount > 0 ? '<div style="padding:6px 16px; font-size:0.78em; color:var(--c-orange); background:rgba(255,159,10,0.06);">' + bpIcon('warning',12) + ' ' + profGapCount + ' skill' + (profGapCount > 1 ? 's' : '') + ' matched at a lower proficiency</div>' : '')
                 
                 // Legend dots
                 + '<div class="ml-legend-row">'
-                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#30d158;"></div>You have</div>'
-                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#ff453a;"></div>You need</div>'
-                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#636366; opacity:0.4;"></div>Your extra</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:var(--success);"></div>You have</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:var(--danger);"></div>You need</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:var(--text-muted); opacity:0.4;"></div>Your extra</div>'
                 + '</div>'
                 
                 // Action buttons
@@ -27819,11 +27819,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Stats grid
             html += '<div class="ml-stats">'
-                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#30d158;">' + alignment.aligned.length + '</div><div class="ml-stat-label">Aligned</div></div>'
-                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#ff9f0a;">' + alignment.yourPriority.length + '</div><div class="ml-stat-label">Your Priority</div></div>'
-                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#bf5af2;">' + alignment.theirPriority.length + '</div><div class="ml-stat-label">Their Priority</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:var(--success);">' + alignment.aligned.length + '</div><div class="ml-stat-label">Aligned</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:var(--c-orange);">' + alignment.yourPriority.length + '</div><div class="ml-stat-label">Your Priority</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:var(--c-purple);">' + alignment.theirPriority.length + '</div><div class="ml-stat-label">Their Priority</div></div>'
                 + (alignment.tensionRisk.length > 0
-                    ? '<div class="ml-stat"><div class="ml-stat-num" style="color:#ff453a;">' + alignment.tensionRisk.length + '</div><div class="ml-stat-label">Friction</div></div>'
+                    ? '<div class="ml-stat"><div class="ml-stat-num" style="color:var(--danger);">' + alignment.tensionRisk.length + '</div><div class="ml-stat-label">Friction</div></div>'
                     : '')
                 + '</div>';
             
@@ -27841,7 +27841,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + '<div style="font-weight:600; margin-bottom:4px;">\u26A0 Friction Risk</div>';
                 alignment.tensionRisk.forEach(function(t) {
                     html += '<div class="val-tension-item">'
-                        + '<span style="color:#ff453a;">' + t.name + '</span>'
+                        + '<span style="color:var(--danger);">' + t.name + '</span>'
                         + ' \u2014 <span style="color:var(--text-muted); font-size:0.85em;">you value this, but this culture may not support it</span>'
                         + '</div>';
                 });
@@ -27850,11 +27850,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Legend
             html += '<div class="ml-legend-row">'
-                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#30d158;"></div>Aligned</div>'
-                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#ff9f0a;"></div>Your priority</div>'
-                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#bf5af2;"></div>Their priority</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:var(--success);"></div>Aligned</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:var(--c-orange);"></div>Your priority</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:var(--c-purple);"></div>Their priority</div>'
                 + (alignment.tensionRisk.length > 0
-                    ? '<div class="match-legend-item"><div class="match-legend-dot" style="background:#ff453a;"></div>Friction</div>'
+                    ? '<div class="match-legend-item"><div class="match-legend-dot" style="background:var(--danger);"></div>Friction</div>'
                     : '')
                 + '</div>';
             
@@ -28024,14 +28024,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             var html = '<div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:8px 16px; margin-bottom:8px; font-size:0.72em; color:var(--c-muted, var(--text-muted));">'
                 + '<span style="font-weight:600; color:var(--c-faint, var(--text-muted));">Legend:</span>'
-                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#ff9f0a;">&#9733;</span> Core</span>'
-                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#30d158;">' + bpIcon('shield',11) + '</span> Verified</span>'
-                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#30d158;">' + bpIcon('check',11) + '</span> Evidence</span>'
-                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#ffd60a;">&#9888;</span> Gap</span>'
-                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#60a5fa;">' + bpIcon('tool',11) + '</span> Skill</span>'
-                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#bf5af2;">' + bpIcon('zap',11) + '</span> Ability</span>'
-                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#30d158;">' + bpIcon('heart',11) + '</span> Work Style</span>'
-                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#ffd60a;">' + bpIcon('star',11) + '</span> Unique</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--c-orange);">&#9733;</span> Core</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--success);">' + bpIcon('shield',11) + '</span> Verified</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--success);">' + bpIcon('check',11) + '</span> Evidence</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--warning);">&#9888;</span> Gap</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--accent);">' + bpIcon('tool',11) + '</span> Skill</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--c-purple);">' + bpIcon('zap',11) + '</span> Ability</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--success);">' + bpIcon('heart',11) + '</span> Work Style</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:var(--warning);">' + bpIcon('star',11) + '</span> Unique</span>'
                 + '</div>';
             html += '<div class="cards-grid">';
 
@@ -28056,8 +28056,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     .filter(function(lv) { return levelCounts[lv]; })
                     .map(function(lv) { return '<span style="color:' + (levelColors[lv] || '#636366') + ';">' + levelCounts[lv] + ' ' + lv + '</span>'; })
                     .join(' <span style="opacity:0.3;">\u00B7</span> ');
-                var evidenceHtml = evidenceBacked > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:#30d158;">' + evidenceBacked + '/' + tier.skills.length + ' evidence-backed</span>' : '';
-                var verifiedHtml = verifiedTotal > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:#30d158;">' + verifiedTotal + ' verified</span>' : '';
+                var evidenceHtml = evidenceBacked > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:var(--success);">' + evidenceBacked + '/' + tier.skills.length + ' evidence-backed</span>' : '';
+                var verifiedHtml = verifiedTotal > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:var(--success);">' + verifiedTotal + ' verified</span>' : '';
 
                 html += '<div style="margin-bottom:20px; border:1px solid ' + tier.border + '; border-radius:12px; overflow:hidden;">'
                     + '<div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:' + tier.bg + '; border-bottom:1px solid ' + tier.border + ';">'
@@ -28111,10 +28111,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<div style="width:10px; height:10px; border-radius:6px; background:' + lc + '; flex-shrink:0;"></div>'
                         + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading, var(--text-secondary)); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.name) + '</span>'
                         + '<div style="display:flex; gap:4px; flex-shrink:0;">'
-                        + (skill.key ? '<span title="Core Skill" style="color:#ff9f0a; font-size:0.85em; line-height:1;">&#9733;</span>' : '')
-                        + (isVerified ? '<span title="Verified by ' + evs.verifiedCount + '" style="color:#30d158; font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
-                        + (evs && evs.inferredActive ? '<span title="' + (evs.experienceYears||0) + 'yr experience infers ' + evs.inferredLevel + '" style="color:#bf5af2; font-size:0.8em; line-height:1;">\u2728</span>' : '')
-                        + (hasGap ? '<span title="Evidence gap: claimed ' + (evs.claimedLevel||'') + ', supports ' + (evs.effectiveLevel||'') + '" style="color:#ffd60a; font-size:0.8em; line-height:1;">&#9888;</span>' : (hasEvidence ? '<span title="' + evs.evidenceCount + ' outcomes, ' + evs.points + ' pts" style="color:#30d158; font-size:0.75em; line-height:1;">' + bpIcon('check',12) + '</span>' : ''))
+                        + (skill.key ? '<span title="Core Skill" style="color:var(--c-orange); font-size:0.85em; line-height:1;">&#9733;</span>' : '')
+                        + (isVerified ? '<span title="Verified by ' + evs.verifiedCount + '" style="color:var(--success); font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
+                        + (evs && evs.inferredActive ? '<span title="' + (evs.experienceYears||0) + 'yr experience infers ' + evs.inferredLevel + '" style="color:var(--c-purple); font-size:0.8em; line-height:1;">\u2728</span>' : '')
+                        + (hasGap ? '<span title="Evidence gap: claimed ' + (evs.claimedLevel||'') + ', supports ' + (evs.effectiveLevel||'') + '" style="color:var(--warning); font-size:0.8em; line-height:1;">&#9888;</span>' : (hasEvidence ? '<span title="' + evs.evidenceCount + ' outcomes, ' + evs.points + ' pts" style="color:var(--success); font-size:0.75em; line-height:1;">' + bpIcon('check',12) + '</span>' : ''))
                         + '<span title="' + (catTitles[skill.category] || 'Skill') + '" style="color:' + (catColors[skill.category] || '#60a5fa') + '; font-size:0.75em; line-height:1;">' + (catIcons[skill.category] || bpIcon('tool',11)) + '</span>'
                         + '</div></div>';
 
@@ -28123,7 +28123,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<span title="' + skillImpact.label + '" style="font-size:0.75em; color:' + impactColor + ';">' + skillImpact.icon + '</span>'
                         + '<span style="font-size:0.62em; padding:1px 7px; border-radius:8px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;">' + tier.label + '</span>'
                         + (years ? '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + 'y</span>' : '')
-                        + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(191,90,242,0.15); color:#bf5af2; font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
+                        + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(191,90,242,0.15); color:var(--c-purple); font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
                         + '</div>';
 
                     if (roleNames.length > 0) {
@@ -28316,7 +28316,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 
                 // Analytics (sample)
                 html += '<div style="position:relative;">'
-                    + '<div style="position:absolute; top:8px; right:12px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(255,159,10,0.15); color:#ff9f0a; border:1px solid rgba(255,159,10,0.3); font-weight:600;">SAMPLE DATA</div>'
+                    + '<div style="position:absolute; top:8px; right:12px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(255,159,10,0.15); color:var(--c-orange); border:1px solid rgba(255,159,10,0.3); font-weight:600;">SAMPLE DATA</div>'
                     + '<div class="rpt-metrics">'
                     + '<div class="rpt-metric-card"><div class="rpt-metric-n">' + mockAnalytics.totalViews.toLocaleString() + '</div><div class="rpt-metric-l">' + bpIcon('eye', 14) + ' Total Views</div><div class="rpt-metric-sub">' + mockAnalytics.uniqueViewers + ' unique viewers</div></div>'
                     + '<div class="rpt-metric-card"><div class="rpt-metric-n" style="color:var(--c-success, #30d158);">' + mockAnalytics.shortlisted + '</div><div class="rpt-metric-l">' + bpIcon('star', 14) + ' Shortlisted</div><div class="rpt-metric-sub">by recruiters</div></div>'
@@ -28326,7 +28326,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 
                 // Heatmap (sample)
                 html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
-                    + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(255,159,10,0.15); color:#ff9f0a; border:1px solid rgba(255,159,10,0.3); font-weight:600;">SAMPLE DATA</div>'
+                    + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(255,159,10,0.15); color:var(--c-orange); border:1px solid rgba(255,159,10,0.3); font-weight:600;">SAMPLE DATA</div>'
                     + '<div class="rpt-card-h">' + bpIcon('bar-chart', 16) + ' Section Engagement Heatmap</div>'
                     + '<div class="rpt-card-sub">Which sections recruiters spend the most time on</div>'
                     + '<div style="margin-top:16px;">';
@@ -28406,7 +28406,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     html += '</div>';
                     html += '<div style="font-size:0.71em; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px;">' + escapeHtml(r.company) + (r.date ? ' \u00B7 ' + r.date : '') + '</div>';
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
-                        + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(48,209,88,0.1); color:#30d158; border:1px solid rgba(48,209,88,0.2); font-weight:600;">' + r.matched + ' matched</span>'
+                        + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(48,209,88,0.1); color:var(--success); border:1px solid rgba(48,209,88,0.2); font-weight:600;">' + r.matched + ' matched</span>'
                         + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(255,69,58,0.08); color:#ff6961; border:1px solid rgba(255,69,58,0.18); font-weight:600;">' + r.gaps + ' gap' + (r.gaps !== 1 ? 's' : '') + '</span>'
                     html += '</div>';
                     html += '</div>';
@@ -28827,7 +28827,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var header = document.createElement('div');
             header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
-            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">' + escapeHtml(name || 'Scouting Report') + '</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(255,159,10,0.1);color:#ff9f0a;font-weight:600;">DEMO</span></div>'
+            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">' + escapeHtml(name || 'Scouting Report') + '</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(255,159,10,0.1);color:var(--c-orange);font-weight:600;">DEMO</span></div>'
                 + '<button onclick="document.getElementById(\'scoutReportOverlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">✕</button>';
             
             // Context banner for mismatched or generic demo viewing
@@ -28842,13 +28842,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + '<strong>Sample Report:</strong> You\u2019re viewing ' + reportCharName + '\u2019s scouting report. '
                     + 'During the preview, sample reports are available for select characters. When you build your own Blueprint, reports are generated from your actual skills and job matches.'
                     + '</div>'
-                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(255,159,10,0.2);background:rgba(255,159,10,0.08);color:#ffd60a;font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
+                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(255,159,10,0.2);background:rgba(255,159,10,0.08);color:var(--warning);font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
             } else {
                 contextBanner.style.cssText = 'padding:10px 20px;background:rgba(96,165,250,0.05);border-bottom:1px solid rgba(96,165,250,0.12);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
-                contextBanner.innerHTML = '<div style="font-size:0.8em;color:#636366;line-height:1.5;">'
+                contextBanner.innerHTML = '<div style="font-size:0.8em;color:var(--text-muted);line-height:1.5;">'
                     + 'This is a sample Scouting Report showing how Blueprint builds targeted career intelligence for a specific job. When you build your own Blueprint, these are generated from your actual data.'
                     + '</div>'
-                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(96,165,250,0.2);background:rgba(96,165,250,0.06);color:#60a5fa;font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
+                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(96,165,250,0.2);background:rgba(96,165,250,0.06);color:var(--accent);font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
             }
             
             var iframe = document.createElement('iframe');
@@ -29268,7 +29268,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // Calculate total market value
                 const totalValue = getEffectiveComp();
                 const valueFormatted = totalValue.displayComp > 0 ? formatCompValue(totalValue.displayComp) : '';
-                const valueDisplay = valueFormatted ? ` • <span style="color: #30d158; font-weight: 700;">${totalValue.compLabel}: ${valueFormatted}/yr</span>` : '';
+                const valueDisplay = valueFormatted ? ` • <span style="color:var(--success); font-weight: 700;">${totalValue.compLabel}: ${valueFormatted}/yr</span>` : '';
                 
                 // Dynamic counts by category
                 const skillCount = userData.skills?.length || 0;
@@ -29437,7 +29437,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     
                     // Verified skills count
                     var verifiedInRole = roleSkills.filter(function(sk) { var vs = getSkillVerifications(sk.name); return vs.some(function(v) { return v.status === 'confirmed'; }); }).length;
-                    if (verifiedInRole > 0) statsHtml += '<div style="margin-top:4px; color:#30d158;">\u2713 <strong>' + verifiedInRole + '</strong> verified</div>';
+                    if (verifiedInRole > 0) statsHtml += '<div style="margin-top:4px; color:var(--success);">\u2713 <strong>' + verifiedInRole + '</strong> verified</div>';
                     
                     var riStats = document.getElementById('roleInfoStats');
                     if (riStats) riStats.innerHTML = statsHtml;
@@ -29448,7 +29448,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         window._hideRoleTarget = roleName;
                         riActions.innerHTML = '<button onclick="hideRoleFromNetwork(window._hideRoleTarget)" '
                             + 'style="padding:5px 12px; border-radius:6px; font-size:0.78em; font-weight:600; cursor:pointer; '
-                            + 'background:rgba(255,159,10,0.1); color:#ff9f0a; border:1px solid rgba(255,159,10,0.2); '
+                            + 'background:rgba(255,159,10,0.1); color:var(--c-orange); border:1px solid rgba(255,159,10,0.2); '
                             + 'display:flex; align-items:center; gap:4px; transition:all 0.15s;"'
                             + ' onmouseover="this.style.background=\'rgba(255,159,10,0.2)\'" onmouseout="this.style.background=\'rgba(255,159,10,0.1)\'">'
                             + bpIcon('eye',12) + ' Hide Role</button>';
@@ -29540,22 +29540,22 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else if (d.type === 'hub') {
                 html = `<div class="tooltip-title">${escapeHtml(d.name)}</div><div style="font-size:0.78em; opacity:0.6; margin-top:2px;">Click to reset layout</div>`;
             } else if (d.type === 'tension-marker') {
-                html = `<div class="tooltip-title" style="color:#ff453a;">\u26A0 Friction Risk</div>`;
-                html += `<div style="font-size:0.82em; color:#a1a1a6; margin-top:2px;">This value may conflict with the company culture</div>`;
+                html = `<div class="tooltip-title" style="color:var(--danger);">\u26A0 Friction Risk</div>`;
+                html += `<div style="font-size:0.82em; color:var(--text-secondary); margin-top:2px;">This value may conflict with the company culture</div>`;
             } else if (d.type === 'value') {
                 html = `<div class="tooltip-title">${escapeHtml(d.name)}</div>`;
                 var desc = getCatalogDescription(d.name);
-                if (desc) html += `<div style="font-size:0.82em; color:#a1a1a6; margin-top:3px; line-height:1.4;">${escapeHtml(desc)}</div>`;
+                if (desc) html += `<div style="font-size:0.82em; color:var(--text-secondary); margin-top:3px; line-height:1.4;">${escapeHtml(desc)}</div>`;
                 var stateLabels = { aligned: '\u2705 Shared value', yours: '● Your priority', theirs: '◆ Their priority', tension: '\u26A0 Friction risk' };
                 var stateColors = { aligned: '#30d158', yours: '#ff9f0a', theirs: '#bf5af2', tension: '#ff453a' };
                 if (d.valState) {
                     html += `<div style="font-size:0.78em; color:${stateColors[d.valState] || '#a1a1a6'}; margin-top:5px; font-weight:600;">${stateLabels[d.valState] || ''}</div>`;
                 }
-                if (d.tier) html += `<div style="font-size:0.72em; color:#636366; margin-top:2px;">${d.tier === 'primary' ? 'Core company value' : 'Secondary value'}</div>`;
+                if (d.tier) html += `<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">${d.tier === 'primary' ? 'Core company value' : 'Secondary value'}</div>`;
             } else if (d.type === 'role') {
                 var roleSkillCount = (skillsData.skills || []).filter(s => (s.roles || []).indexOf(d.id) !== -1).length;
                 html = `<div class="tooltip-title">${escapeHtml(d.name)}</div>`;
-                html += `<div style="font-size:0.82em; color:#a1a1a6; margin-top:2px;">${roleSkillCount} skills · Click to filter</div>`;
+                html += `<div style="font-size:0.82em; color:var(--text-secondary); margin-top:2px;">${roleSkillCount} skills · Click to filter</div>`;
             } else {
                 html = `<div class="tooltip-title">${escapeHtml(d.name)}</div>`;
                 var levelText = d.level || '';
@@ -29581,7 +29581,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     });
                     html += `</div>`;
                 }
-                html += `<div style="font-size:0.72em; color:#636366; margin-top:6px; border-top:1px solid rgba(255,255,255,0.08); padding-top:5px;">Click for full detail</div>`;
+                html += `<div style="font-size:0.72em; color:var(--text-muted); margin-top:6px; border-top:1px solid rgba(255,255,255,0.08); padding-top:5px;">Click for full detail</div>`;
             }
 
             tooltip
@@ -29808,7 +29808,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         function createBlueprintHTML(data) {
             var e = escapeHtml; // shorthand
-            const htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Blueprint - ' + e(data.name) + '</title><link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary:#1e40af;--accent:#ff9f0a;--text:#1c1c22;--text-light:#636366;--border:#d1d1d6;--bg:#fff;--bg-alt:#f9fafb}body{font-family:Crimson Pro,Georgia,serif;color:var(--text);background:var(--bg);line-height:1.7;font-size:18px}.container{max-width:900px;margin:0 auto;padding:60px 40px}header{border-bottom:3px solid var(--primary);padding-bottom:40px;margin-bottom:60px}h1{font-size:48px;font-weight:700;color:var(--primary);margin-bottom:10px}h2{font-size:32px;font-weight:700;color:var(--primary);margin-bottom:20px;border-left:4px solid var(--accent);padding-left:20px}section{margin-bottom:60px}p{margin-bottom:16px}.subtitle{font-size:24px;color:var(--text-light);margin-bottom:20px}.headline{font-size:20px;color:var(--accent);font-weight:600}.meta{font-family:JetBrains Mono,monospace;font-size:14px;color:var(--text-light);margin-top:20px}.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin-top:30px}.skill-card{background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid #60a5fa;padding:20px}.skill-name{font-size:18px;font-weight:600;color:var(--primary);margin-bottom:8px}.skill-level{font-family:JetBrains Mono,monospace;font-size:12px;color:var(--accent);text-transform:uppercase}.outcome{background:linear-gradient(to right,var(--bg-alt),var(--bg));border-left:4px solid var(--accent);padding:24px;margin-bottom:20px}.outcome-title{font-size:20px;font-weight:600;color:var(--primary);margin-bottom:8px}.outcome-metric{font-family:JetBrains Mono,monospace;font-size:16px;color:var(--accent);margin-bottom:10px}.comp-framework{background:var(--bg-alt);border:2px solid var(--primary);padding:30px;margin-top:30px}.comp-row{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border)}.comp-label{font-weight:600}.comp-value{font-family:JetBrains Mono,monospace;color:var(--primary);font-weight:600}.quote-block{background:linear-gradient(135deg,var(--primary),#60a5fa);color:#fff;padding:40px;margin:40px 0;font-size:22px;font-style:italic}@media print{body{font-size:11pt}.container{padding:20px}h1{font-size:28pt}h2{font-size:18pt}}</style></head><body><div class="container"><header><h1>' + e(data.name) + '</h1><div class="subtitle">' + e(data.title) + '</div><div class="headline">' + e(data.headline) + '</div><div class="meta">Generated: ' + e(data.generatedDate) + '</div></header><section><h2>Executive Summary</h2><p>' + e(data.executiveSummary) + '</p></section><section><h2>Core Competencies</h2><p>Strategic capabilities driving measurable impact:</p><div class="skills-grid">' + data.coreCompetencies.map(s => '<div class="skill-card"><div class="skill-name">' + e(s.name) + '</div><div class="skill-level">' + e(s.proficiency || 'Expert') + '</div></div>').join('') + '</div></section><section><h2>Strategic Outcomes</h2>' + data.strategicOutcomes.map(o => '<div class="outcome"><div class="outcome-title">' + e(o.title) + '</div><div class="outcome-metric">' + e(o.metric) + '</div><p>' + e(o.description) + '</p></div>').join('') + '</section><section><h2>Leadership Philosophy</h2><p>' + e(data.leadershipPhilosophy) + '</p></section><div class="quote-block">"' + e(data.marketPositioning) + '"</div><section><h2>Compensation Framework</h2><p>Market-informed positioning based on skill depth and impact:</p><div class="comp-framework"><div class="comp-row"><span class="comp-label">Base Market Rate</span><span class="comp-value">$' + Math.round(data.compensation.marketRate || 200000).toLocaleString() + '</span></div><div class="comp-row"><span class="comp-label">Conservative Range</span><span class="comp-value">$' + Math.round(data.compensation.conservativeOffer || 225000).toLocaleString() + '</span></div><div class="comp-row"><span class="comp-label">Competitive Range</span><span class="comp-value">$' + Math.round(data.compensation.competitiveOffer || 275000).toLocaleString() + '</span></div></div></section><section><h2>Career Narrative</h2><p>' + e(data.careerNarrative) + '</p></section><section><h2>Future Vision</h2><p>' + e(data.futureVision) + '</p></section><footer style="margin-top:80px;padding-top:40px;border-top:2px solid var(--border);color:var(--text-light);font-size:14px"><p>This Blueprint is a living document representing strategic capabilities and market positioning as of ' + e(data.generatedDate) + '.</p><p style=\"margin-top:8px;\">&copy; ' + new Date().getFullYear() + ' Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its methodologies are the intellectual property of Cliff Jurkiewicz. &middot; myblueprint.work</p></footer></div></body></html>';
+            const htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Blueprint - ' + e(data.name) + '</title><link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary:#1e40af;--accent:#ff9f0a;--text:#1c1c22;--text-light:#636366;--border:#d1d1d6;--bg:#fff;--bg-alt:#f9fafb}body{font-family:Crimson Pro,Georgia,serif;color:var(--text);background:var(--bg);line-height:1.7;font-size:18px}.container{max-width:900px;margin:0 auto;padding:60px 40px}header{border-bottom:3px solid var(--primary);padding-bottom:40px;margin-bottom:60px}h1{font-size:48px;font-weight:700;color:var(--primary);margin-bottom:10px}h2{font-size:32px;font-weight:700;color:var(--primary);margin-bottom:20px;border-left:4px solid var(--accent);padding-left:20px}section{margin-bottom:60px}p{margin-bottom:16px}.subtitle{font-size:24px;color:var(--text-light);margin-bottom:20px}.headline{font-size:20px;color:var(--accent);font-weight:600}.meta{font-family:JetBrains Mono,monospace;font-size:14px;color:var(--text-light);margin-top:20px}.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin-top:30px}.skill-card{background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid var(--accent);padding:20px}.skill-name{font-size:18px;font-weight:600;color:var(--primary);margin-bottom:8px}.skill-level{font-family:JetBrains Mono,monospace;font-size:12px;color:var(--accent);text-transform:uppercase}.outcome{background:linear-gradient(to right,var(--bg-alt),var(--bg));border-left:4px solid var(--accent);padding:24px;margin-bottom:20px}.outcome-title{font-size:20px;font-weight:600;color:var(--primary);margin-bottom:8px}.outcome-metric{font-family:JetBrains Mono,monospace;font-size:16px;color:var(--accent);margin-bottom:10px}.comp-framework{background:var(--bg-alt);border:2px solid var(--primary);padding:30px;margin-top:30px}.comp-row{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border)}.comp-label{font-weight:600}.comp-value{font-family:JetBrains Mono,monospace;color:var(--primary);font-weight:600}.quote-block{background:linear-gradient(135deg,var(--primary),#60a5fa);color:#fff;padding:40px;margin:40px 0;font-size:22px;font-style:italic}@media print{body{font-size:11pt}.container{padding:20px}h1{font-size:28pt}h2{font-size:18pt}}</style></head><body><div class="container"><header><h1>' + e(data.name) + '</h1><div class="subtitle">' + e(data.title) + '</div><div class="headline">' + e(data.headline) + '</div><div class="meta">Generated: ' + e(data.generatedDate) + '</div></header><section><h2>Executive Summary</h2><p>' + e(data.executiveSummary) + '</p></section><section><h2>Core Competencies</h2><p>Strategic capabilities driving measurable impact:</p><div class="skills-grid">' + data.coreCompetencies.map(s => '<div class="skill-card"><div class="skill-name">' + e(s.name) + '</div><div class="skill-level">' + e(s.proficiency || 'Expert') + '</div></div>').join('') + '</div></section><section><h2>Strategic Outcomes</h2>' + data.strategicOutcomes.map(o => '<div class="outcome"><div class="outcome-title">' + e(o.title) + '</div><div class="outcome-metric">' + e(o.metric) + '</div><p>' + e(o.description) + '</p></div>').join('') + '</section><section><h2>Leadership Philosophy</h2><p>' + e(data.leadershipPhilosophy) + '</p></section><div class="quote-block">"' + e(data.marketPositioning) + '"</div><section><h2>Compensation Framework</h2><p>Market-informed positioning based on skill depth and impact:</p><div class="comp-framework"><div class="comp-row"><span class="comp-label">Base Market Rate</span><span class="comp-value">$' + Math.round(data.compensation.marketRate || 200000).toLocaleString() + '</span></div><div class="comp-row"><span class="comp-label">Conservative Range</span><span class="comp-value">$' + Math.round(data.compensation.conservativeOffer || 225000).toLocaleString() + '</span></div><div class="comp-row"><span class="comp-label">Competitive Range</span><span class="comp-value">$' + Math.round(data.compensation.competitiveOffer || 275000).toLocaleString() + '</span></div></div></section><section><h2>Career Narrative</h2><p>' + e(data.careerNarrative) + '</p></section><section><h2>Future Vision</h2><p>' + e(data.futureVision) + '</p></section><footer style="margin-top:80px;padding-top:40px;border-top:2px solid var(--border);color:var(--text-light);font-size:14px"><p>This Blueprint is a living document representing strategic capabilities and market positioning as of ' + e(data.generatedDate) + '.</p><p style=\"margin-top:8px;\">&copy; ' + new Date().getFullYear() + ' Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its methodologies are the intellectual property of Cliff Jurkiewicz. &middot; myblueprint.work</p></footer></div></body></html>';
             return htmlContent;
         }
         
@@ -29859,21 +29859,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Category badge for all O*NET types + Unique
             let categoryBadge = '';
             if (skillData.category === 'skill') {
-                categoryBadge = '<span class="modal-category-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">' + bpIcon('graduation',12) + ' O*NET Skill</span>';
+                categoryBadge = '<span class="modal-category-badge" style="background: rgba(59, 130, 246, 0.2); color:var(--accent);">' + bpIcon('graduation',12) + ' O*NET Skill</span>';
             } else if (skillData.category === 'ability') {
-                categoryBadge = '<span class="modal-category-badge" style="background: rgba(139, 92, 246, 0.2); color: #bf5af2;">' + bpIcon('zap',12) + ' O*NET Ability</span>';
+                categoryBadge = '<span class="modal-category-badge" style="background: rgba(139, 92, 246, 0.2); color:var(--c-purple);">' + bpIcon('zap',12) + ' O*NET Ability</span>';
             } else if (skillData.category === 'workstyle') {
-                categoryBadge = '<span class="modal-category-badge" style="background: rgba(16, 185, 129, 0.2); color: #30d158;">' + bpIcon('briefcase',12) + ' O*NET Work Style</span>';
+                categoryBadge = '<span class="modal-category-badge" style="background: rgba(16, 185, 129, 0.2); color:var(--success);">' + bpIcon('briefcase',12) + ' O*NET Work Style</span>';
             } else if (skillData.category === 'unique') {
-                categoryBadge = '<span class="modal-category-badge" style="background: rgba(251, 191, 36, 0.2); color: #ffd60a;">' + bpIcon('star',12) + ' Unique Differentiator</span>';
+                categoryBadge = '<span class="modal-category-badge" style="background: rgba(251, 191, 36, 0.2); color:var(--warning);">' + bpIcon('star',12) + ' Unique Differentiator</span>';
             }
             
             var subtitleInferred = '';
             var _evSumSub = getEvidenceSummary(skillData);
             if (_evSumSub.inferredActive) {
-                subtitleInferred = '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(191,90,242,0.15); color:#bf5af2; font-weight:600;">\u2728 Inferred ' + _evSumSub.inferredLevel + '</span>';
+                subtitleInferred = '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(191,90,242,0.15); color:var(--c-purple); font-weight:600;">\u2728 Inferred ' + _evSumSub.inferredLevel + '</span>';
             }
-            var subtitleVerified = (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; var vrel = conf[0].relationship || 'Peer'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(48,209,88,0.15); color:#30d158; font-weight:600;">\u2713 Verified</span>'; } return ''; })();
+            var subtitleVerified = (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; var vrel = conf[0].relationship || 'Peer'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(48,209,88,0.15); color:var(--success); font-weight:600;">\u2713 Verified</span>'; } return ''; })();
             subtitle.innerHTML = `
                 <span class="modal-level-badge ${levelClass}">${skillData.level || 'Proficient'}</span>
                 <span class="modal-years">${years} years experience</span>
@@ -29917,19 +29917,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var maxPts = evidenceConfig.thresholds['Mastery'];
             var pctFill = Math.min((evSummary.points / maxPts) * 100, 100);
             bodyHTML += '<div style="' + vRowStyle + '">'
-                + '<div style="' + vIconBox + ' background:rgba(96,165,250,0.15); color:#60a5fa;">' + bpIcon('check',16) + '</div>'
+                + '<div style="' + vIconBox + ' background:rgba(96,165,250,0.15); color:var(--accent);">' + bpIcon('check',16) + '</div>'
                 + '<div style="flex:1; min-width:0;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center;">'
-                + '<span style="' + vLabelStyle + ' color:#60a5fa;">Evidence-Based</span>'
+                + '<span style="' + vLabelStyle + ' color:var(--accent);">Evidence-Based</span>'
                 + '<span style="' + vLevelStyle + ' color:' + (evActive ? '#60a5fa' : 'var(--c-muted)') + ';">' + evLevel + '</span></div>'
                 + '<div style="' + vDescStyle + '">' + evSummary.points + ' evidence points from ' + evSummary.evidenceCount + ' outcome' + (evSummary.evidenceCount !== 1 ? 's' : '') + '</div>'
                 + '<div style="height:4px; background:var(--c-surface-5); border-radius:6px; margin-top:4px; overflow:hidden;">'
-                + '<div style="height:100%; width:' + pctFill + '%; background:#60a5fa; border-radius:6px;"></div></div>';
+                + '<div style="height:100%; width:' + pctFill + '%; background:var(--accent); border-radius:6px;"></div></div>';
             if (evSummary.nextLevel) {
                 bodyHTML += '<div style="font-size:0.7em; color:var(--c-faint); margin-top:3px;">' + evSummary.pointsNeeded + ' more pts for ' + evSummary.nextLevel + '</div>';
             }
             if (evSummary.hasCert) {
-                bodyHTML += '<div style="font-size:0.7em; color:#bf5af2; margin-top:3px;">' + bpIcon('award',10) + ' Certification linked (floor: ' + evidenceConfig.certFloor + ')</div>';
+                bodyHTML += '<div style="font-size:0.7em; color:var(--c-purple); margin-top:3px;">' + bpIcon('award',10) + ' Certification linked (floor: ' + evidenceConfig.certFloor + ')</div>';
             }
             bodyHTML += '</div></div>';
 
@@ -29938,19 +29938,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var eiLevel = evSummary.inferredLevel;
             var eiActive = evSummary.inferredActive;
             bodyHTML += '<div style="' + vRowStyle + (eiActive ? ' border-color:rgba(191,90,242,0.3);' : '') + '">'
-                + '<div style="' + vIconBox + ' background:rgba(191,90,242,0.15); color:#bf5af2;">' + bpIcon('clock',16) + '</div>'
+                + '<div style="' + vIconBox + ' background:rgba(191,90,242,0.15); color:var(--c-purple);">' + bpIcon('clock',16) + '</div>'
                 + '<div style="flex:1; min-width:0;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center;">'
-                + '<span style="' + vLabelStyle + ' color:#bf5af2;">Experience-Inferred</span>';
+                + '<span style="' + vLabelStyle + ' color:var(--c-purple);">Experience-Inferred</span>';
             if (eiLevel) {
-                bodyHTML += '<span style="' + vLevelStyle + ' color:#bf5af2;">' + eiLevel + (eiActive ? ' \u2728' : '') + '</span>';
+                bodyHTML += '<span style="' + vLevelStyle + ' color:var(--c-purple);">' + eiLevel + (eiActive ? ' \u2728' : '') + '</span>';
             } else {
                 bodyHTML += '<span style="' + vLevelStyle + ' color:var(--c-muted);">\u2014</span>';
             }
             bodyHTML += '</div><div style="' + vDescStyle + '">';
             if (eiYears > 0 && eiLevel) {
                 bodyHTML += eiYears + ' year' + (eiYears !== 1 ? 's' : '') + ' of experience infers at least ' + eiLevel + ' proficiency';
-                if (eiActive) bodyHTML += ' \u2014 <span style="color:#bf5af2; font-weight:600;">raising effective level above evidence alone</span>';
+                if (eiActive) bodyHTML += ' \u2014 <span style="color:var(--c-purple); font-weight:600;">raising effective level above evidence alone</span>';
             } else if (eiYears > 0) {
                 bodyHTML += eiYears + ' year' + (eiYears !== 1 ? 's' : '') + ' of experience (below inference threshold)';
             } else {
@@ -29963,12 +29963,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var pRecs = (userData.verifications || []).filter(function(v) { return v.skillName === skillName && v.status === 'pending'; });
             var pvActive = vRecs.length > 0;
             bodyHTML += '<div style="' + vRowStyle + (pvActive ? ' border-color:rgba(48,209,88,0.3);' : '') + '">'
-                + '<div style="' + vIconBox + ' background:rgba(48,209,88,0.15); color:#30d158;">' + bpIcon('shield',16) + '</div>'
+                + '<div style="' + vIconBox + ' background:rgba(48,209,88,0.15); color:var(--success);">' + bpIcon('shield',16) + '</div>'
                 + '<div style="flex:1; min-width:0;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center;">'
-                + '<span style="' + vLabelStyle + ' color:#30d158;">Peer-Verified</span>';
+                + '<span style="' + vLabelStyle + ' color:var(--success);">Peer-Verified</span>';
             if (pvActive) {
-                bodyHTML += '<span style="' + vLevelStyle + ' color:#30d158;">\u2713 ' + vRecs.length + ' verification' + (vRecs.length !== 1 ? 's' : '') + '</span>';
+                bodyHTML += '<span style="' + vLevelStyle + ' color:var(--success);">\u2713 ' + vRecs.length + ' verification' + (vRecs.length !== 1 ? 's' : '') + '</span>';
             } else {
                 bodyHTML += '<span style="' + vLevelStyle + ' color:var(--c-muted);">\u2014</span>';
             }
@@ -29987,7 +29987,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else if (pRecs.length > 0) {
                 bodyHTML += '\u23F3 ' + pRecs.length + ' verification request' + (pRecs.length !== 1 ? 's' : '') + ' pending';
             } else {
-                bodyHTML += 'No peer verifications yet \u2014 <a href="#" onclick="event.preventDefault(); closeSkillModal(); setTimeout(function(){ requestVerification([\'' + escapeHtml(skillName).replace(/'/g, "\\'") + '\']); },200);" style="color:#30d158; text-decoration:underline;">request one</a>';
+                bodyHTML += 'No peer verifications yet \u2014 <a href="#" onclick="event.preventDefault(); closeSkillModal(); setTimeout(function(){ requestVerification([\'' + escapeHtml(skillName).replace(/'/g, "\\'") + '\']); },200);" style="color:var(--success); text-decoration:underline;">request one</a>';
             }
             bodyHTML += '</div></div></div>';
 
@@ -30029,7 +30029,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (!isReadOnlyProfile) {
                 bodyHTML += '<button onclick="addOutcomeToSkill(\'' + escapedSkillName + '\')" '
                     + 'style="padding:5px 14px; background:var(--c-green-bg-5a); '
-                    + 'color:#30d158; border:1px solid var(--c-green-border-2); border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">'
+                    + 'color:var(--success); border:1px solid var(--c-green-border-2); border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">'
                     + '+ Add Outcome</button>';
             }
             bodyHTML += '</div>';
@@ -30089,14 +30089,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             ${skillImpact.icon} ${skillImpact.label}
                         </div>
                         
-                        <div style="color: #a1a1a6; font-size: 0.9em; margin-bottom: 15px; line-height: 1.5;">
+                        <div style="color:var(--text-secondary); font-size: 0.9em; margin-bottom: 15px; line-height: 1.5;">
                             ${skillImpact.rationale || 'This skill contributes to your overall market value based on proficiency level and market demand.'}
                         </div>
                         
                         ${skillData.category === 'unique' && skillImpact.needsAssessment && !isReadOnlyProfile ? `
-                            <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #ffd60a;">
-                                <div style="color: #ffd60a; font-weight: 600; margin-bottom: 8px;">${bpIcon("warning",14)} Estimated Rating</div>
-                                <div style="color: #d1d1d6; font-size: 0.9em; line-height: 1.5; margin-bottom: 12px;">
+                            <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid var(--warning);">
+                                <div style="color:var(--warning); font-weight: 600; margin-bottom: 8px;">${bpIcon("warning",14)} Estimated Rating</div>
+                                <div style="color:var(--c-label); font-size: 0.9em; line-height: 1.5; margin-bottom: 12px;">
                                     ${escapeHtml(skillImpact.rationale)}
                                 </div>
                                 <button onclick="closeSkillModal(); openAssessSkillModal('${escapeHtml(skillData.name).replace(/'/g, "\\'")}');" 
@@ -30108,8 +30108,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         
                         ${skillData.category === 'unique' && skillImpact.userAssessed ? `
                             <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-                                <div style="color: #30d158; font-weight: 600; margin-bottom: 5px;">✓ User Assessed</div>
-                                <div style="color: #d1d1d6; font-size: 0.85em;">
+                                <div style="color:var(--success); font-weight: 600; margin-bottom: 5px;">✓ User Assessed</div>
+                                <div style="color:var(--c-label); font-size: 0.85em;">
                                     Based on your assessment of this skill's experience, impact, and market scarcity.
                                     ${!isReadOnlyProfile ? `<button onclick="closeSkillModal(); openAssessSkillModal('${escapeHtml(skillData.name).replace(/'/g, "\\'")}');" 
                                             style="margin-left: 10px; padding: 4px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius:6px; cursor: pointer; font-size: 0.85em;">
@@ -30120,19 +30120,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         ` : ''}
                         
                         <div style="background: rgba(96, 165, 250, 0.1); padding: 15px; border-radius: 6px; margin-top: 15px;">
-                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 8px; display:flex; align-items:center; gap:6px;">${bpIcon("bar-chart",16)} Impact Scale</div>
-                            <div style="color: #d1d1d6; font-size: 0.9em; line-height: 1.6;">
-                                • <strong style="color: #ff453a;">${bpIcon('flame',13)} Critical:</strong> Top 5% differentiators, significant premium<br>
-                                • <strong style="color: #ff9f0a;">${bpIcon('star',13)} High:</strong> Top 20% skills, strong differentiator<br>
-                                • <strong style="color: #60a5fa;">${bpIcon('diamond',13)} Moderate:</strong> Expected for role level, valuable<br>
-                                • <strong style="color: #636366;">${bpIcon('check',13)} Standard:</strong> Baseline expectations<br>
-                                • <strong style="color: #a1a1a6;">${bpIcon('check',13)} Supplementary:</strong> Supporting capabilities
+                            <div style="color:var(--accent); font-weight: 600; margin-bottom: 8px; display:flex; align-items:center; gap:6px;">${bpIcon("bar-chart",16)} Impact Scale</div>
+                            <div style="color:var(--c-label); font-size: 0.9em; line-height: 1.6;">
+                                • <strong style="color:var(--danger);">${bpIcon('flame',13)} Critical:</strong> Top 5% differentiators, significant premium<br>
+                                • <strong style="color:var(--c-orange);">${bpIcon('star',13)} High:</strong> Top 20% skills, strong differentiator<br>
+                                • <strong style="color:var(--accent);">${bpIcon('diamond',13)} Moderate:</strong> Expected for role level, valuable<br>
+                                • <strong style="color:var(--text-muted);">${bpIcon('check',13)} Standard:</strong> Baseline expectations<br>
+                                • <strong style="color:var(--text-secondary);">${bpIcon('check',13)} Supplementary:</strong> Supporting capabilities
                             </div>
                         </div>
                         
                         <div style="margin-top: 15px; padding: 12px; background: rgba(251, 191, 36, 0.1); border-radius: 6px;">
-                            <div style="color: #ffd60a; font-weight: 600; margin-bottom: 5px;">${bpIcon('lightbulb',14)} How This Affects Your Strategic Value</div>
-                            <div style="color: #d1d1d6; font-size: 0.85em; line-height: 1.5;">
+                            <div style="color:var(--warning); font-weight: 600; margin-bottom: 5px;">${bpIcon('lightbulb',14)} How This Affects Your Strategic Value</div>
+                            <div style="color:var(--c-label); font-size: 0.85em; line-height: 1.5;">
                                 Your compensation positioning is driven by your <strong>Critical and High Impact skills combined</strong> with your experience level. Focus on developing and demonstrating these capabilities to command premium offers.
                             </div>
                         </div>
@@ -30182,10 +30182,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + 'style="padding:10px 20px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('clipboard',14)} Assess</button>`
                 + '<button onclick="closeSkillModal(); requestVerification([\'' + escapedSkillName + '\']);" '
-                + 'style="padding:10px 20px; background:rgba(48,209,88,0.12); color:#30d158; border:1px solid rgba(48,209,88,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + 'style="padding:10px 20px; background:rgba(48,209,88,0.12); color:var(--success); border:1px solid rgba(48,209,88,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('check',14)} Verify</button>`
                 + '<button onclick="if(confirm(\'Remove ' + escapedSkillName + ' from your profile?\')){deleteSkillFromProfile(\'' + escapedSkillName + '\'); closeSkillModal();}" '
-                + 'style="margin-left:auto; padding:10px 16px; background:none; color:#ff453a; border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + 'style="margin-left:auto; padding:10px 16px; background:none; color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('trash',14)} Remove</button>`
                 + '</div>';
             } // end !isReadOnlyProfile
@@ -30574,7 +30574,7 @@ html { font-size: 11pt; }
 body {
   font-family: 'Georgia', 'Times New Roman', serif;
   color: var(--ink);
-  background: #f5f5f7;
+  background:var(--text-primary);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
@@ -30909,7 +30909,7 @@ body {
       </div>
       <div class="exp-company">${d.company}${location ? ' · ' + location : ''}</div>
     </div>
-    ${d.purpose ? '<p class="summary-text" style="font-size:9.5pt; color: #636366;">' + d.purpose + '</p>' : ''}
+    ${d.purpose ? '<p class="summary-text" style="font-size:9.5pt; color:var(--text-muted);">' + d.purpose + '</p>' : ''}
   </section>`}
 
   <!-- SELECTED ACHIEVEMENTS -->
@@ -31822,7 +31822,7 @@ body {
                 } catch(e) {
                     console.error('Blueprint tab render error (' + tab + '):', e);
                     showToast('Blueprint view failed to render.', 'error');
-                    contentEl.innerHTML = '<div style="padding:40px; text-align:center; color:#ff453a;">'
+                    contentEl.innerHTML = '<div style="padding:40px; text-align:center; color:var(--danger);">'
                         + '<div style="font-size:1.2em; margin-bottom:8px;">' + bpIcon('warning',18) + ' Rendering Error</div>'
                         + '<div style="font-size:0.85em; color:var(--c-muted);">' + (e.message || e) + '</div></div>';
                 }
@@ -31876,7 +31876,7 @@ body {
 
             // ZONE 1: HERO
             html += '<div style="padding:48px 28px 40px; margin-bottom:36px; text-align:center; position:relative;">';
-            html += '<div style="font-size:0.72em; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:#60a5fa; margin-bottom:16px; opacity:0.8;">Explorer</div>';
+            html += '<div style="font-size:0.72em; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; color:var(--accent); margin-bottom:16px; opacity:0.8;">Explorer</div>';
             html += '<div style="font-family:Outfit,sans-serif; font-size:2em; font-weight:300; color:var(--text-primary); margin-bottom:8px; letter-spacing:-0.02em; line-height:1.2;">Your Career Value Map</div>';
             if (driveStatement) {
                 html += '<div style="font-size:1.05em; color:var(--text-secondary); line-height:1.8; max-width:560px; margin:12px auto 0; font-style:italic;">'
@@ -31885,20 +31885,20 @@ body {
                 if (canEdit) html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.72em; margin-top:10px; opacity:0.6;">' + bpIcon('edit',12) + ' edit</button>';
             } else if (canEdit) {
                 html += '<div style="font-size:0.92em; color:var(--text-muted); max-width:420px; margin:12px auto 0; line-height:1.6;">What kind of work excites you? What problems do you want to solve?</div>';
-                html += '<button onclick="explorerDashEditDrive()" style="padding:10px 24px; background:rgba(96,165,250,0.08); color:#60a5fa; border:1px solid rgba(96,165,250,0.15); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em; margin-top:12px;">Add your motivation</button>';
+                html += '<button onclick="explorerDashEditDrive()" style="padding:10px 24px; background:rgba(96,165,250,0.08); color:var(--accent); border:1px solid rgba(96,165,250,0.15); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em; margin-top:12px;">Add your motivation</button>';
             }
             if (entryVal > 0) {
                 html += '<div style="display:flex; align-items:center; justify-content:center; gap:0; margin-top:28px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06);">';
                 html += '<div style="text-align:center; padding:0 20px;">'
-                    + '<div style="font-size:1.4em; font-weight:700; color:#30d158;">' + _expFmt(entryVal) + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:var(--success);">' + _expFmt(entryVal) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Entry</div></div>';
                 html += '<div style="color:var(--text-muted); font-size:1.2em; opacity:0.3;">\u2192</div>';
                 html += '<div style="text-align:center; padding:0 20px;">'
-                    + '<div style="font-size:1.4em; font-weight:700; color:#60a5fa;">' + _expFmt(midVal) + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:var(--accent);">' + _expFmt(midVal) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Mid-Career</div></div>';
                 html += '<div style="color:var(--text-muted); font-size:1.2em; opacity:0.3;">\u2192</div>';
                 html += '<div style="text-align:center; padding:0 20px;">'
-                    + '<div style="font-size:1.4em; font-weight:700; color:#bf5af2;">' + _expFmt(seniorVal) + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:var(--c-purple);">' + _expFmt(seniorVal) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Senior</div></div>';
                 html += '</div>';
             }
@@ -31910,21 +31910,21 @@ body {
                     + '<div style="margin-bottom:16px; opacity:0.3;">' + bpIcon('compass',48) + '</div>'
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); font-size:1.15em; margin-bottom:8px;">Discover Your Career Paths</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); max-width:400px; margin:0 auto 20px; line-height:1.6;">AI will analyze your skills, education, and interests to suggest career directions with salary data and growth roadmaps.</div>'
-                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:14px 32px; background:#60a5fa; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1em; box-shadow:none;">Discover Career Paths</button>'
+                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:14px 32px; background:var(--accent); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1em; box-shadow:none;">Discover Career Paths</button>'
                     + '</div>';
             }
 
             if (careerPaths.length > 1) {
                 html += '<div style="' + card + ' padding:20px; margin-bottom:12px;">'
-                    + '<div style="' + ls + ' color:#60a5fa; margin-bottom:12px;">Choose Your Direction</div>'
+                    + '<div style="' + ls + ' color:var(--accent); margin-bottom:12px;">Choose Your Direction</div>'
                     + '<div style="display:grid; grid-template-columns:' + (careerPaths.length <= 3 ? 'repeat(' + careerPaths.length + ',1fr)' : 'repeat(2,1fr)') + '; gap:10px;">';
                 careerPaths.forEach(function(path, idx) {
                     var isSel = idx === selectedIdx;
                     var pEntry = path.entryValue || 0;
                     var pSenior = path.seniorValue || 0;
-                    html += '<div style="padding:14px; border:' + (isSel ? '2px solid #bf5af2' : '1px solid rgba(255,255,255,0.06)') + '; border-radius:12px; cursor:pointer; background:' + (isSel ? 'rgba(191,90,242,0.06)' : 'transparent') + '; transition:all 0.2s;" onclick="explorerDashSelectPath(' + idx + ')">'
+                    html += '<div style="padding:14px; border:' + (isSel ? '2px solid var(--c-purple)' : '1px solid rgba(255,255,255,0.06)') + '; border-radius:12px; cursor:pointer; background:' + (isSel ? 'rgba(191,90,242,0.06)' : 'transparent') + '; transition:all 0.2s;" onclick="explorerDashSelectPath(' + idx + ')">'
                         + '<div style="font-weight:700; color:' + (isSel ? '#bf5af2' : 'var(--text-primary)') + '; font-size:0.88em; margin-bottom:4px;">' + escapeHtml(path.title) + '</div>'
-                        + (pEntry > 0 ? '<div style="font-size:0.76em; color:#30d158; font-weight:600;">' + _expFmt(pEntry) + ' \u2192 ' + _expFmt(pSenior) + '</div>' : '')
+                        + (pEntry > 0 ? '<div style="font-size:0.76em; color:var(--success); font-weight:600;">' + _expFmt(pEntry) + ' \u2192 ' + _expFmt(pSenior) + '</div>' : '')
                         + (path.growth ? '<div style="font-size:0.7em; color:var(--text-muted); margin-top:3px; line-height:1.3;">' + escapeHtml(path.growth) + '</div>' : '')
                         + '</div>';
                 });
@@ -31935,18 +31935,18 @@ body {
                 html += '<div style="' + card + ' margin-bottom:28px; border-color:rgba(191,90,242,0.2); position:relative;">';
                 html += '<div style="position:absolute; top:0; left:0; right:0; height:2px; background:rgba(96,165,250,0.2); border-radius:12px 12px 0 0;"></div>';
                 html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; padding-top:4px;">'
-                    + '<div style="' + ls + ' color:#bf5af2;">Focused Path</div>'
-                    + (selectedPath.salary ? '<div style="font-size:0.82em; font-weight:700; color:#30d158; background:rgba(48,209,88,0.08); padding:3px 10px; border-radius:8px;">' + escapeHtml(selectedPath.salary) + '</div>' : '')
+                    + '<div style="' + ls + ' color:var(--c-purple);">Focused Path</div>'
+                    + (selectedPath.salary ? '<div style="font-size:0.82em; font-weight:700; color:var(--success); background:rgba(48,209,88,0.08); padding:3px 10px; border-radius:8px;">' + escapeHtml(selectedPath.salary) + '</div>' : '')
                     + '</div>';
                 html += '<div style="font-weight:800; font-size:1.15em; color:var(--text-primary); margin-bottom:8px; letter-spacing:-0.01em;">' + escapeHtml(selectedPath.title) + '</div>';
                 html += '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.7; margin-bottom:16px;">' + escapeHtml(selectedPath.whyFit || '') + '</div>';
 
                 var skillsHave = selectedPath.skillsYouHave || [];
                 if (skillsHave.length > 0) {
-                    html += '<div style="' + ls + ' color:#30d158; margin-bottom:8px;">Skills You Already Have</div>'
+                    html += '<div style="' + ls + ' color:var(--success); margin-bottom:8px;">Skills You Already Have</div>'
                         + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px;">';
                     skillsHave.forEach(function(sk) {
-                        html += '<span style="display:inline-block; background:rgba(48,209,88,0.08); color:#30d158; font-size:0.78em; font-weight:600; padding:5px 12px; border-radius:8px; border:1px solid rgba(48,209,88,0.15);">' + escapeHtml(sk) + '</span>';
+                        html += '<span style="display:inline-block; background:rgba(48,209,88,0.08); color:var(--success); font-size:0.78em; font-weight:600; padding:5px 12px; border-radius:8px; border:1px solid rgba(48,209,88,0.15);">' + escapeHtml(sk) + '</span>';
                     });
                     html += '</div>';
                 }
@@ -31954,11 +31954,11 @@ body {
                 if (skillsToLearn.length > 0) {
                     var barColors = ['#ff9f0a', '#ff9f0a', '#ff453a', '#ff453a'];
                     var maxVal = potentialVal || (entryVal + totalSkillValue) || 1;
-                    html += '<div style="' + ls + ' color:#ff9f0a; margin-bottom:14px;">Your Growth Path</div>';
+                    html += '<div style="' + ls + ' color:var(--c-orange); margin-bottom:14px;">Your Growth Path</div>';
                     html += '<div style="position:relative; margin-bottom:24px;">';
                     html += '<div style="display:flex; align-items:center; height:44px; border-radius:12px; overflow:hidden; background:var(--bg-elevated); border:1px solid rgba(255,255,255,0.06);">';
                     var basePct = Math.max(((entryVal / maxVal) * 100), 15);
-                    html += '<div style="width:' + basePct + '%; height:100%; background:#30d158; display:flex; align-items:center; justify-content:center;">'
+                    html += '<div style="width:' + basePct + '%; height:100%; background:var(--success); display:flex; align-items:center; justify-content:center;">'
                         + '<span style="font-size:0.72em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3);">You Now</span></div>';
                     var runningPct = basePct;
                     skillsToLearn.forEach(function(sk, si) {
@@ -31972,8 +31972,8 @@ body {
                     });
                     html += '</div>';
                     html += '<div style="display:flex; justify-content:space-between; margin-top:6px;">'
-                        + '<span style="font-size:0.72em; font-weight:600; color:#30d158;">' + _expFmt(entryVal) + '</span>'
-                        + '<span style="font-size:0.72em; font-weight:700; color:#bf5af2;">' + _expFmt(potentialVal) + '/yr potential</span></div>';
+                        + '<span style="font-size:0.72em; font-weight:600; color:var(--success);">' + _expFmt(entryVal) + '</span>'
+                        + '<span style="font-size:0.72em; font-weight:700; color:var(--c-purple);">' + _expFmt(potentialVal) + '/yr potential</span></div>';
                     html += '</div>';
 
                     html += '<div style="position:relative; padding-left:28px;">';
@@ -32000,8 +32000,8 @@ body {
             var allSchools = ed.schools || (education.school ? [education] : []);
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                + '<div style="' + ls + ' color:#ff9f0a;">' + bpIcon('graduation',14) + ' Education</div>'
-                + (canEdit ? '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(255,159,10,0.2); background:rgba(255,159,10,0.04); color:#ff9f0a; cursor:pointer; font-weight:600;">+ Add</button>' : '')
+                + '<div style="' + ls + ' color:var(--c-orange);">' + bpIcon('graduation',14) + ' Education</div>'
+                + (canEdit ? '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(255,159,10,0.2); background:rgba(255,159,10,0.04); color:var(--c-orange); cursor:pointer; font-weight:600;">+ Add</button>' : '')
                 + '</div>';
             if (allSchools.length > 0) {
                 allSchools.forEach(function(s, i) {
@@ -32028,8 +32028,8 @@ body {
             var activities = ed.activities || [];
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                + '<div style="' + ls + ' color:#bf5af2;">' + bpIcon('activity',14) + ' Activities</div>'
-                + (canEdit ? '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(191,90,242,0.2); background:rgba(191,90,242,0.04); color:#bf5af2; cursor:pointer; font-weight:600;">+ Add</button>' : '')
+                + '<div style="' + ls + ' color:var(--c-purple);">' + bpIcon('activity',14) + ' Activities</div>'
+                + (canEdit ? '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(191,90,242,0.2); background:rgba(191,90,242,0.04); color:var(--c-purple); cursor:pointer; font-weight:600;">+ Add</button>' : '')
                 + '</div>';
             if (activities.length === 0) {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No activities added yet.</div>';
@@ -32055,8 +32055,8 @@ body {
             html += '<div style="display:flex; flex-direction:column; gap:16px;">';
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
-                + '<div style="' + ls + ' color:#60a5fa;">' + bpIcon('compass',14) + ' Interests</div>'
-                + (canEdit ? '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.2); background:rgba(96,165,250,0.04); color:#60a5fa; cursor:pointer; font-weight:600;">' + bpIcon('edit',12) + ' Edit</button>' : '')
+                + '<div style="' + ls + ' color:var(--accent);">' + bpIcon('compass',14) + ' Interests</div>'
+                + (canEdit ? '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.2); background:rgba(96,165,250,0.04); color:var(--accent); cursor:pointer; font-weight:600;">' + bpIcon('edit',12) + ' Edit</button>' : '')
                 + '</div>';
             if (interests.length === 0) {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No interests added yet.</div>';
@@ -32096,7 +32096,7 @@ body {
             html += '<div style="' + card + ' padding:16px; text-align:center;">'
                 + '<div style="font-size:0.8em; font-weight:600; color:var(--text-primary); margin-bottom:4px;">Ready for Your First Role?</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-bottom:8px;">Convert to unlock salary insights & negotiation tools</div>'
-                + '<button onclick="explorerConvertToFull()" style="padding:8px 18px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.78em;">Convert to Full Blueprint</button></div>';
+                + '<button onclick="explorerConvertToFull()" style="padding:8px 18px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.78em;">Convert to Full Blueprint</button></div>';
             html += '</div>';
             }
 
@@ -32169,7 +32169,7 @@ body {
             });
 
             return '<div style="' + cs + '">'
-                + '<div style="' + ls + ' color:#30d158;">Compensation Trajectory</div>'
+                + '<div style="' + ls + ' color:var(--success);">Compensation Trajectory</div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px;">How your earning potential grows over time — tap a path to focus</div>'
                 + '<div style="overflow-x:auto;"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%; height:auto; min-height:280px;" xmlns="http://www.w3.org/2000/svg">'
                 + gridLines + pathsSvg + dotsSvg
@@ -32239,13 +32239,13 @@ body {
             var edgesJson = JSON.stringify(edges);
 
             var result = '<div style="' + cs + '">'
-                + '<div style="' + ls + ' color:#bf5af2;">Skill Adjacency Map</div>'
+                + '<div style="' + ls + ' color:var(--c-purple);">Skill Adjacency Map</div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:6px;">How your interests connect to skills and career paths</div>'
                 + '<div id="' + containerId + '" style="width:100%; height:520px; position:relative; overflow:hidden; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:var(--bg-elevated);"></div>'
                 + '<div style="display:flex; gap:16px; margin-top:12px; justify-content:center; flex-wrap:wrap;">'
-                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:#bf5af2; font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#bf5af220; border:2px solid #bf5af2; display:inline-block;"></span> Interests</span>'
-                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:#60a5fa; font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#60a5fa20; border:2px solid #60a5fa; display:inline-block;"></span> Skills</span>'
-                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:#30d158; font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#30d15820; border:2px solid #30d158; display:inline-block;"></span> Careers</span>'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--c-purple); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#bf5af220; border:2px solid var(--c-purple); display:inline-block;"></span> Interests</span>'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--accent); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#60a5fa20; border:2px solid var(--accent); display:inline-block;"></span> Skills</span>'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--success); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#30d15820; border:2px solid var(--success); display:inline-block;"></span> Careers</span>'
                 + '</div></div>';
             var _adjCid = containerId, _adjN = nodes, _adjE = edges;
             setTimeout(function() { _initAdjacencyForce(_adjCid, _adjN, _adjE); }, 100);
@@ -32473,7 +32473,7 @@ body {
             var workValues = ed.workValues || [];
             var html = '<div style="' + cs + '">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                + '<div style="' + ls + ' color:#ff9f0a; margin-bottom:0;">' + bpIcon('target',14) + ' What You Value in Work</div>'
+                + '<div style="' + ls + ' color:var(--c-orange); margin-bottom:0;">' + bpIcon('target',14) + ' What You Value in Work</div>'
                 + (canEdit ? '<button onclick="explorerDashEditValues()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">' + (workValues.length > 0 ? bpIcon('edit',12) : '+ Choose') + '</button>' : '')
                 + '</div>';
             if (workValues.length === 0) {
@@ -32481,7 +32481,7 @@ body {
                 html += '<div style="text-align:center; padding:16px 10px;">'
                     + '<div style="margin-bottom:8px; opacity:0.3;">' + bpIcon('target',36) + '</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); margin-bottom:12px;">What matters most to you in a career? Pick your top values so we can find paths that actually fit you.</div>'
-                    + '<button onclick="explorerDashEditValues()" style="padding:10px 22px; background:#ff9f0a; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Choose Your Values</button>'
+                    + '<button onclick="explorerDashEditValues()" style="padding:10px 22px; background:var(--c-orange); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Choose Your Values</button>'
                     + '</div>';
                 } else {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No values selected yet.</div>';
@@ -32512,7 +32512,7 @@ body {
                 + '<div style="text-align:center; margin-bottom:20px;">'
                 + '<div style="font-size:1.3em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Choose Your Work Values</div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.5;">Pick up to ' + maxPicks + ' values that matter most to you in a career. These help us recommend paths that truly fit.</div>'
-                + '<div id="valuesCount" style="font-size:0.82em; font-weight:700; color:#ff9f0a; margin-top:8px;">' + currentValues.length + ' / ' + maxPicks + ' selected</div>'
+                + '<div id="valuesCount" style="font-size:0.82em; font-weight:700; color:var(--c-orange); margin-top:8px;">' + currentValues.length + ' / ' + maxPicks + ' selected</div>'
                 + '</div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="valuesGrid">';
 
@@ -32530,7 +32530,7 @@ body {
             html += '</div>'
                 + '<div style="display:flex; gap:10px; margin-top:20px; justify-content:center;">'
                 + '<button onclick="closeModal()" style="padding:10px 24px; background:var(--bg-elevated); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.06); border-radius:10px; cursor:pointer; font-weight:600;">Cancel</button>'
-                + '<button onclick="explorerDashSaveValues()" style="padding:10px 28px; background:#ff9f0a; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700;">Save Values</button>'
+                + '<button onclick="explorerDashSaveValues()" style="padding:10px 28px; background:var(--c-orange); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700;">Save Values</button>'
                 + '</div></div>';
 
             window._explorerSelectedValues = currentValues.slice();
@@ -32592,7 +32592,7 @@ body {
                 return '<div style="' + card + ' text-align:center; border-color:rgba(244,114,182,0.2); margin-bottom:16px;">'
                     + '<div style="' + ls + ' color:#ff6961; margin-bottom:10px;">People Like You</div>'
                     + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; max-width:400px; margin:0 auto 18px;">Discover accomplished people who started with similar backgrounds and interests as you.</div>'
-                    + '<button id="peopleLikeYouBtn" onclick="explorerDiscoverPeople(this)" style="padding:12px 24px; background:#bf5af2; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:0.9em; box-shadow:0 4px 14px rgba(244,114,182,0.2);">Discover Inspirations</button>'
+                    + '<button id="peopleLikeYouBtn" onclick="explorerDiscoverPeople(this)" style="padding:12px 24px; background:var(--c-purple); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:0.9em; box-shadow:0 4px 14px rgba(244,114,182,0.2);">Discover Inspirations</button>'
                     + '</div>';
             }
 
@@ -33068,22 +33068,22 @@ body {
                 + '<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:18px; margin-bottom:20px;">'
                 + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.9em;">What You Keep</div>'
                 + '<div style="display:flex; flex-direction:column; gap:6px;">'
-                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#30d158; margin-right:6px;">&#10003;</span> All ' + (skillsData.skills || []).length + ' discovered skills</div>'
-                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#30d158; margin-right:6px;">&#10003;</span> Your education background</div>'
-                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#30d158; margin-right:6px;">&#10003;</span> Your career path interests</div>'
-                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#30d158; margin-right:6px;">&#10003;</span> Your values and purpose</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--success); margin-right:6px;">&#10003;</span> All ' + (skillsData.skills || []).length + ' discovered skills</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--success); margin-right:6px;">&#10003;</span> Your education background</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--success); margin-right:6px;">&#10003;</span> Your career path interests</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--success); margin-right:6px;">&#10003;</span> Your values and purpose</div>'
                 + '</div></div>'
                 + '<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:18px; margin-bottom:24px;">'
                 + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.9em;">What You Unlock</div>'
                 + '<div style="display:flex; flex-direction:column; gap:6px;">'
-                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> Market valuation & salary benchmarking</div>'
-                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> AI-powered negotiation guide</div>'
-                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> Job matching & scouting reports</div>'
-                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:#60a5fa; margin-right:6px;">&#x2B50;</span> Evidence-based skill verification</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--accent); margin-right:6px;">&#x2B50;</span> Market valuation & salary benchmarking</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--accent); margin-right:6px;">&#x2B50;</span> AI-powered negotiation guide</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--accent); margin-right:6px;">&#x2B50;</span> Job matching & scouting reports</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--accent); margin-right:6px;">&#x2B50;</span> Evidence-based skill verification</div>'
                 + '</div></div>'
                 + '<div style="display:flex; gap:12px;">'
                 + '<button onclick="closeExportModal()" style="flex:1; padding:12px; background:rgba(255,255,255,0.02); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.06); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.9em;">Not Yet</button>'
-                + '<button onclick="explorerDoConvert()" style="flex:1; padding:12px; background:#30d158; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert Now</button>'
+                + '<button onclick="explorerDoConvert()" style="flex:1; padding:12px; background:var(--success); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert Now</button>'
                 + '</div></div>';
             modal.style.display = 'flex';
         }
@@ -33323,15 +33323,15 @@ body {
                 // Box 1 — Market Value (BLS baseline)
                 html += '<div style="background:rgba(48,209,88,0.12); border:2px solid rgba(48,209,88,0.28); border-radius:12px; padding:18px 20px;">'
                     + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(48,209,88,0.7); margin-bottom:8px;">' + bpIcon('money',11) + ' Minimum Market Value</div>'
-                    + '<div style="font-size:2.3em; font-weight:700; color:#30d158; line-height:1; margin-bottom:8px;">' + formatCompValue(worthValue) + '</div>'
-                    + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">' + escapeHtml(fnLabel) + (isOverride ? ' <span style="color:#ffd60a;">(manual)</span>' : '') + ' \u00B7 ' + escapeHtml(totalValue.roleLevel) + '</div>'
+                    + '<div style="font-size:2.3em; font-weight:700; color:var(--success); line-height:1; margin-bottom:8px;">' + formatCompValue(worthValue) + '</div>'
+                    + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">' + escapeHtml(fnLabel) + (isOverride ? ' <span style="color:var(--warning);">(manual)</span>' : '') + ' \u00B7 ' + escapeHtml(totalValue.roleLevel) + '</div>'
                     + '<div style="font-size:0.69em; color:rgba(48,209,88,0.65); margin-top:4px;">' + (totalValue.compaRatio || '') + '% of BLS median</div>'
                     + '</div>';
 
                 // Box 2 — Evidence Value (skill-premium adjusted)
                 html += '<div style="background:rgba(96,165,250,0.1); border:2px solid rgba(96,165,250,0.25); border-radius:12px; padding:18px 20px;">'
                     + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(96,165,250,0.7); margin-bottom:8px;">' + bpIcon('flame',11) + ' Justified Value</div>'
-                    + '<div style="font-size:2.3em; font-weight:700; color:#60a5fa; line-height:1; margin-bottom:8px;">' + formatCompValue(evComp) + '</div>'
+                    + '<div style="font-size:2.3em; font-weight:700; color:var(--accent); line-height:1; margin-bottom:8px;">' + formatCompValue(evComp) + '</div>'
                     + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Skill-premium adjusted</div>'
                     + '<div style="font-size:0.69em; color:rgba(96,165,250,0.65); margin-top:4px;">'
                     + (evDelta !== 0 ? evDeltaSign + formatCompValue(Math.abs(evDelta)) + ' vs market' : 'At market median')
@@ -33351,20 +33351,20 @@ body {
                     var pillHtml = '';
                     if (aboveJust) {
                         pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:8px;">'
-                            + '<div style="font-size:1.0em; font-weight:700; color:#30d158;">Ahead of market</div>'
+                            + '<div style="font-size:1.0em; font-weight:700; color:var(--success);">Ahead of market</div>'
                             + '</div>';
                     } else if (midZone) {
                         var midGapPct = reportedComp > 0 ? Math.round((evGap / reportedComp) * 100) : 0;
                         pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.18); border-radius:8px;">'
                             + '<div style="font-size:0.67em; color:var(--c-muted);">Underpaid by</div>'
-                            + '<div style="font-size:1.1em; font-weight:700; color:#ff9f0a;">' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + midGapPct + '%)</span></div>'
+                            + '<div style="font-size:1.1em; font-weight:700; color:var(--c-orange);">' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + midGapPct + '%)</span></div>'
                             + '</div>';
                     } else {
                         pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.18); border-radius:8px;">'
                             + '<div style="font-size:0.67em; color:var(--c-muted);">Underpaid by</div>'
                             + (showRange
-                                ? '<div style="font-size:1.1em; font-weight:700; color:#ff9f0a;">' + formatCompValue(Math.abs(delta)) + ' – ' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '–' + evGapPct + '%)</span></div>'
-                                : '<div style="font-size:1.1em; font-weight:700; color:#ff9f0a;">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '%)</span></div>'
+                                ? '<div style="font-size:1.1em; font-weight:700; color:var(--c-orange);">' + formatCompValue(Math.abs(delta)) + ' – ' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '–' + evGapPct + '%)</span></div>'
+                                : '<div style="font-size:1.1em; font-weight:700; color:var(--c-orange);">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '%)</span></div>'
                             )
                             + '</div>';
                     }
@@ -33374,13 +33374,13 @@ body {
                         + '<div style="font-size:2.3em; font-weight:700; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
                         + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Reported annual comp</div>'
                         + pillHtml
-                        + (belowJust ? '<button onclick="showCompReviewGuide()" style="margin-top:10px; width:100%; padding:7px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.08); color:#60a5fa; font-size:0.74em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">' + bpIcon('target',12) + ' Review Prep</button>' : '')
+                        + (belowJust ? '<button onclick="showCompReviewGuide()" style="margin-top:10px; width:100%; padding:7px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.08); color:var(--accent); font-size:0.74em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">' + bpIcon('target',12) + ' Review Prep</button>' : '')
                         + '</div>';
                 } else {
                     html += '<div style="background:var(--c-surface-1); border:1px dashed var(--c-surface-5); border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between;">'
                         + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:8px;">Current Pay</div>'
                         + '<div style="font-size:0.82em; color:var(--c-faint); line-height:1.6; margin-top:8px;">Add your salary to see your pay gap.</div>'
-                        + '<button onclick="switchView(\'settings\'); setTimeout(function(){ window.currentSettingsTab=\'profile\'; initSettings(); },100);" style="margin-top:12px; font-size:0.75em; padding:5px 12px; border-radius:8px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:#60a5fa; cursor:pointer; align-self:flex-start;">+ Add Salary</button>'
+                        + '<button onclick="switchView(\'settings\'); setTimeout(function(){ window.currentSettingsTab=\'profile\'; initSettings(); },100);" style="margin-top:12px; font-size:0.75em; padding:5px 12px; border-radius:8px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:var(--accent); cursor:pointer; align-self:flex-start;">+ Add Salary</button>'
                         + '</div>';
                 }
 
@@ -33403,19 +33403,19 @@ body {
 
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; cursor:pointer;" onclick="switchView(\'skills\')">'
                 + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Skills</div>'
-                + '<div style="font-size:1.9em; font-weight:700; color:#60a5fa; line-height:1;">' + skills.length + '</div>'
+                + '<div style="font-size:1.9em; font-weight:700; color:var(--accent); line-height:1;">' + skills.length + '</div>'
                 + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:5px;">' + visRoles.length + ' domains \u00B7 ' + (masteryCount + expertCount) + ' expert+</div>'
                 + '</div>';
 
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; cursor:pointer;" onclick="switchBlueprintTab(\'outcomes\')">'
                 + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Outcomes</div>'
-                + '<div style="font-size:1.9em; font-weight:700; color:#ff9f0a; line-height:1;">' + outcomes.length + '</div>'
+                + '<div style="font-size:1.9em; font-weight:700; color:var(--c-orange); line-height:1;">' + outcomes.length + '</div>'
                 + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:5px;">' + sharedOutcomes + ' shared \u00B7 ' + (outcomes.length - sharedOutcomes) + ' private</div>'
                 + '</div>';
 
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; cursor:pointer;" onclick="switchBlueprintTab(\'values\')">'
                 + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Values</div>'
-                + '<div style="font-size:1.9em; font-weight:700; color:#bf5af2; line-height:1;">' + values.length + '</div>'
+                + '<div style="font-size:1.9em; font-weight:700; color:var(--c-purple); line-height:1;">' + values.length + '</div>'
                 + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:5px;">' + (values.length >= 3 ? '\u2713 Selected' : 'Pick 3\u201310') + '</div>'
                 + '</div>';
 
@@ -33439,12 +33439,12 @@ body {
             html += '<div style="display:flex; flex-direction:column; gap:8px;">';
 
             html += '<button onclick="switchBlueprintTab(\'skills\')" style="flex:1; display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-green-bg-2b); border:1px solid var(--c-green-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:#30d158;">' + bpIcon('skills',16) + '</span>'
+                + '<span style="color:var(--success);">' + bpIcon('skills',16) + '</span>'
                 + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">Manage Skills</div>'
                 + '<div style="font-size:0.71em; color:var(--c-muted);">Add, edit, organize</div></div></button>';
 
             html += '<button onclick="showScoutingReportPicker()" style="flex:1; display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-accent-bg-3c); border:1px solid var(--c-accent-border-3c); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:#60a5fa;">' + bpIcon('target',16) + '</span>'
+                + '<span style="color:var(--accent);">' + bpIcon('target',16) + '</span>'
                 + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">\u25C8 Scouting Report</div>'
                 + '<div style="font-size:0.71em; color:var(--c-muted);">Targeted job analysis</div></div></button>';
 
@@ -33473,7 +33473,7 @@ body {
                 html += '<div style="border:1px solid var(--c-surface-4); border-radius:12px; overflow:hidden; margin-bottom:16px;">';
 
                 html += '<div style="padding:9px 16px; background:var(--c-surface-1); border-bottom:1px solid var(--c-surface-4); display:flex; justify-content:space-between; align-items:center; font-size:0.78em;">'
-                    + '<span style="color:var(--c-muted);">' + bpIcon('target',11) + ' BLS: <strong style="color:var(--c-text);">' + escapeHtml(fnLabelMkt) + '</strong> \u00B7 ' + escapeHtml(totalValue.roleLevel) + (isOvr ? ' <span style="color:#ffd60a;">(manual)</span>' : '') + '</span>'
+                    + '<span style="color:var(--c-muted);">' + bpIcon('target',11) + ' BLS: <strong style="color:var(--c-text);">' + escapeHtml(fnLabelMkt) + '</strong> \u00B7 ' + escapeHtml(totalValue.roleLevel) + (isOvr ? ' <span style="color:var(--warning);">(manual)</span>' : '') + '</span>'
                     + '<a href="#" onclick="showBlsCategoryEditor();return false;" style="color:var(--accent); text-decoration:none; font-weight:600;">Change</a>'
                     + '</div>';
 
@@ -33481,7 +33481,7 @@ body {
 
                 // Left: Top Skills
                 html += '<div style="padding:16px 18px; border-right:1px solid var(--c-surface-4);">'
-                    + '<div style="font-size:0.78em; font-weight:700; color:#60a5fa; margin-bottom:10px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
+                    + '<div style="font-size:0.78em; font-weight:700; color:var(--accent); margin-bottom:10px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
                     + '<div style="display:grid; gap:5px;">';
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
                     var isCrit   = skill.impact === 'Critical';
@@ -33500,7 +33500,7 @@ body {
 
                 // Right: Negotiation tiers
                 html += '<div style="padding:16px 18px;">'
-                    + '<div style="font-size:0.78em; font-weight:700; color:#ffd60a; margin-bottom:10px;">' + bpIcon('dollar',12) + ' Negotiation Guide</div>'
+                    + '<div style="font-size:0.78em; font-weight:700; color:var(--warning); margin-bottom:10px;">' + bpIcon('dollar',12) + ' Negotiation Guide</div>'
                     + '<div style="display:grid; gap:6px;">';
 
                 var tiers = [
@@ -33519,12 +33519,12 @@ body {
 
                 if (totalValue.negotiationGap && totalValue.negotiationGap > 0) {
                     html += '<div style="margin-top:6px; padding:9px 12px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); border-radius:8px;">'
-                        + '<div style="font-size:0.75em; font-weight:700; color:#ffd60a;">\u{1F4A1} Gap: ' + formatCompValue(totalValue.negotiationGap) + '</div>'
+                        + '<div style="font-size:0.75em; font-weight:700; color:var(--warning);">\u{1F4A1} Gap: ' + formatCompValue(totalValue.negotiationGap) + '</div>'
                         + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:2px;">Start at ' + formatCompValue(totalValue.yourWorth || totalValue.marketRate) + ', target ' + formatCompValue(totalValue.competitiveOffer) + '+</div>'
                         + '</div>';
                 }
 
-                html += '<button onclick="showNegotiationGuideV2()" style="margin-top:10px; width:100%; padding:8px 12px; background:rgba(255,214,10,0.15); border:1px solid rgba(255,214,10,0.3); border-radius:8px; color:#ffd60a; font-size:0.78em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">'
+                html += '<button onclick="showNegotiationGuideV2()" style="margin-top:10px; width:100%; padding:8px 12px; background:rgba(255,214,10,0.15); border:1px solid rgba(255,214,10,0.3); border-radius:8px; color:var(--warning); font-size:0.78em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">'
                     + bpIcon('target',13) + ' Build My Negotiation Guide</button>';
 
                 html += '</div></div>'; // end right col
@@ -33533,7 +33533,7 @@ body {
                 // Talking points full width
                 if (totalValue.talkingPoints && totalValue.talkingPoints.length > 0) {
                     html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:12px; padding:16px 18px; margin-bottom:16px;">'
-                        + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#ffd60a; margin-bottom:10px;">Talking Points</div>'
+                        + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--warning); margin-bottom:10px;">Talking Points</div>'
                         + '<div style="display:grid; gap:8px;">';
                     totalValue.talkingPoints.forEach(function(tp) {
                         html += '<div style="font-size:0.83em; color:var(--c-text); line-height:1.5;"><strong style="color:var(--c-heading);">' + escapeHtml(tp.label) + ':</strong> ' + escapeHtml(tp.text) + '</div>';
@@ -33559,8 +33559,8 @@ body {
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px 18px;">';
                 if (readinessPct >= 100) {
                     html += '<div style="display:flex; align-items:center; gap:12px;">'
-                        + '<span style="color:#30d158; font-size:1.8em;">' + bpIcon('check',28) + '</span>'
-                        + '<div><div style="font-size:0.88em; font-weight:700; color:#30d158;">Blueprint Complete</div>'
+                        + '<span style="color:var(--success); font-size:1.8em;">' + bpIcon('check',28) + '</span>'
+                        + '<div><div style="font-size:0.88em; font-weight:700; color:var(--success);">Blueprint Complete</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">' + skills.length + ' skills \u00B7 ' + outcomes.length + ' outcomes \u00B7 ' + values.length + ' values</div>'
                         + '</div></div>';
                 } else {
@@ -33577,7 +33577,7 @@ body {
                         + '<div style="display:flex; gap:5px; flex-wrap:wrap;">';
                     completeness.forEach(function(c) {
                         if (!c.done) {
-                            html += '<button onclick="' + c.action + '" style="font-size:0.68em; padding:3px 9px; border-radius:10px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:#60a5fa; cursor:pointer; white-space:nowrap;">' + bpIcon('plus',9) + ' ' + c.label + '</button>';
+                            html += '<button onclick="' + c.action + '" style="font-size:0.68em; padding:3px 9px; border-radius:10px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:var(--accent); cursor:pointer; white-space:nowrap;">' + bpIcon('plus',9) + ' ' + c.label + '</button>';
                         }
                     });
                     html += '</div></div></div>';
@@ -33603,7 +33603,7 @@ body {
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4c); border-radius:12px; padding:16px 18px;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                     + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-faint);">Skill Distribution</div>'
-                    + '<button onclick="switchBlueprintTab(\'skills\')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage \u2192</button>'
+                    + '<button onclick="switchBlueprintTab(\'skills\')" style="font-size:0.72em; color:var(--accent); background:none; border:none; cursor:pointer; font-weight:600;">Manage \u2192</button>'
                     + '</div>'
                     + '<div style="display:flex; height:8px; border-radius:6px; overflow:hidden; background:var(--c-surface-2b); margin-bottom:12px;">';
                 profLevels.forEach(function(p) {
@@ -33633,12 +33633,12 @@ body {
             // Action bar
             html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
             if (!isReadOnlyProfile) {
-            html += '<button onclick="showAddSkillsEmpty()" style="display:flex; align-items:center; gap:8px; padding:10px 20px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.15); border-radius:8px; color:#60a5fa; cursor:pointer; font-weight:600; font-size:0.85em;">'
+            html += '<button onclick="showAddSkillsEmpty()" style="display:flex; align-items:center; gap:8px; padding:10px 20px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.15); border-radius:8px; color:var(--accent); cursor:pointer; font-weight:600; font-size:0.85em;">'
                 + bpIcon('plus',14) + ' Add Skill</button>';
             html += '<button onclick="openBulkImport()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('upload',14) + ' Bulk Import</button>';
             }
-            html += '<button onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(48,209,88,0.15); border:1px solid rgba(48,209,88,0.25); border-radius:8px; color:#30d158; cursor:pointer; font-weight:600; font-size:0.88em;">'
+            html += '<button onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(48,209,88,0.15); border:1px solid rgba(48,209,88,0.25); border-radius:8px; color:var(--success); cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('trending-up',14) + ' Growth Advisor</button>';
             html += '<button onclick="switchView(\'skills\')" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em; margin-left:auto;">'
                 + bpIcon('skills',14) + ' Network View</button>';
@@ -33670,16 +33670,16 @@ body {
             if (skills.length > PROFILE_SKILL_CAP && !isReadOnlyProfile) {
                 var excess = skills.length - PROFILE_SKILL_CAP;
                 html += '<div style="padding:12px 16px; background:rgba(255,69,58,0.08); border:1px solid rgba(255,69,58,0.25); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
-                    + '<span style="color:#ff453a; font-size:1.1em;">\u26A0</span>'
-                    + '<div style="flex:1;"><div style="font-weight:700; font-size:0.88em; color:#ff453a;">Over skill cap by ' + excess + '</div>'
+                    + '<span style="color:var(--danger); font-size:1.1em;">\u26A0</span>'
+                    + '<div style="flex:1;"><div style="font-weight:700; font-size:0.88em; color:var(--danger);">Over skill cap by ' + excess + '</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Remove ' + excess + ' skill' + (excess !== 1 ? 's' : '') + ' to unlock adding new ones. System will not allow new skills until at or below ' + PROFILE_SKILL_CAP + '.</div>'
                     + '</div>'
-                    + '<button onclick="showSkillCapTriage()" style="padding:8px 16px; background:#ff453a; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.82em; cursor:pointer; white-space:nowrap;">Manage \u2192</button>'
+                    + '<button onclick="showSkillCapTriage()" style="padding:8px 16px; background:var(--danger); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.82em; cursor:pointer; white-space:nowrap;">Manage \u2192</button>'
                     + '</div>';
             } else if (skills.length >= SKILL_CAP_WARN && !isReadOnlyProfile) {
                 var remaining = PROFILE_SKILL_CAP - skills.length;
                 html += '<div style="padding:10px 16px; background:rgba(255,159,10,0.06); border:1px solid rgba(255,159,10,0.2); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
-                    + '<span style="color:#ff9f0a; font-size:0.95em;">\u25CF</span>'
+                    + '<span style="color:var(--c-orange); font-size:0.95em;">\u25CF</span>'
                     + '<div style="font-size:0.82em; color:var(--text-muted);">' + remaining + ' skill slot' + (remaining !== 1 ? 's' : '') + ' remaining (cap: ' + PROFILE_SKILL_CAP + ')</div>'
                     + '</div>';
             }
@@ -33746,8 +33746,8 @@ body {
                 ['Mastery','Expert','Advanced','Proficient','Novice'].forEach(function(lv) {
                     if (tierLevelCounts[lv]) statsItems.push('<span style="color:' + (levelColors[lv] || '#636366') + ';">' + tierLevelCounts[lv] + ' ' + lv + '</span>');
                 });
-                if (tierEvidenceCount > 0) statsItems.push('<span style="color:#30d158;">' + tierEvidenceCount + '/' + tSkills.length + ' evidence</span>');
-                if (tierVerifiedCount > 0) statsItems.push('<span style="color:#30d158;">' + tierVerifiedCount + ' verified</span>');
+                if (tierEvidenceCount > 0) statsItems.push('<span style="color:var(--success);">' + tierEvidenceCount + '/' + tSkills.length + ' evidence</span>');
+                if (tierVerifiedCount > 0) statsItems.push('<span style="color:var(--success);">' + tierVerifiedCount + ' verified</span>');
                 html += '<div style="font-size:0.72em; padding:6px 16px; color:var(--c-muted); border-bottom:1px solid var(--c-surface-1b);">' + statsItems.join(' <span style="opacity:0.3;">\u00B7</span> ') + '</div>';
 
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; padding:12px;">';
@@ -33795,8 +33795,8 @@ body {
 
                     html += '<div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">'
                         + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600;">' + escapeHtml(lv) + '</span>'
-                        + (s.core ? '<span title="Core Skill" style="color:#ff9f0a; font-size:0.85em; line-height:1;">&#9733;</span>' : '')
-                        + (hasConfirmed ? '<span title="Verified" style="color:#30d158; font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
+                        + (s.core ? '<span title="Core Skill" style="color:var(--c-orange); font-size:0.85em; line-height:1;">&#9733;</span>' : '')
+                        + (hasConfirmed ? '<span title="Verified" style="color:var(--success); font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
                         + (skillImpact ? '<span title="' + (skillImpact.label || '') + '" style="color:' + impactColor + '; font-size:0.75em; line-height:1;">' + (skillImpact.icon || '') + '</span>' : '')
                         + '<span title="' + (smCatTitles[s.category] || 'Skill') + '" style="color:' + (smCatColors[s.category] || '#60a5fa') + '; font-size:0.75em; line-height:1;">' + (smCatIcons[s.category] || bpIcon('tool',11)) + '</span>'
                         + (years ? '<span style="font-size:0.68em; color:var(--c-muted);">' + years + 'y</span>' : '')
@@ -33886,7 +33886,7 @@ body {
                 html += '<div onclick="toggleOutcomeGroup(\'' + groupId + '\')" style="display:flex; align-items:center; gap:8px; padding:8px 0 6px; border-bottom:1px solid var(--c-surface-4); cursor:pointer; user-select:none; margin-bottom:10px;">'
                     + '<span style="font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-accent);">' + cat + '</span>'
                     + '<span style="font-size:0.7em; padding:1px 7px; border-radius:10px; background:var(--c-surface-3); color:var(--c-muted);">' + items.length + '</span>'
-                    + (sharedCount > 0 ? '<span style="font-size:0.68em; color:#30d158;">' + sharedCount + ' shared</span>' : '')
+                    + (sharedCount > 0 ? '<span style="font-size:0.68em; color:var(--success);">' + sharedCount + ' shared</span>' : '')
                     + '<span style="margin-left:auto; color:var(--c-faint); font-size:0.8em;">' + (isCollapsed ? '\u25b8' : '\u25be') + '</span>'
                     + '</div>';
                 if (!isCollapsed) {
@@ -33932,7 +33932,7 @@ body {
                 // ── Stats bar ────────────────────────────────────────────────
                 + '<div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center; padding:10px 0 14px; border-bottom:1px solid var(--c-surface-4); margin-bottom:14px; font-size:0.8em; color:var(--c-muted);">'
                 + '<span>' + bpIcon('check',12) + ' <strong style="color:var(--c-heading);">' + sharedTotal + '</strong> shared in reports</span>'
-                + (sensitiveTotal > 0 ? '<span>' + bpIcon('warning',12) + ' <strong style="color:#ff9f0a;">' + sensitiveTotal + '</strong> sensitive</span>' : '')
+                + (sensitiveTotal > 0 ? '<span>' + bpIcon('warning',12) + ' <strong style="color:var(--c-orange);">' + sensitiveTotal + '</strong> sensitive</span>' : '')
                 + '<button onclick="var d=document.getElementById(\'outcomesTips\'); d.style.display=d.style.display===\'none\'?\'\':\'none\';" style="margin-left:auto; background:none; border:1px solid var(--c-border-subtle); color:var(--c-muted); font-size:0.78em; padding:3px 10px; border-radius:6px; cursor:pointer;">'
                 + bpIcon('lightbulb',11) + ' Tips &amp; Prompts</button>'
                 + '</div>'
@@ -33968,7 +33968,7 @@ body {
                 + 'style="padding:7px 12px; border-radius:8px; border:1px solid ' + (f.shared === 'shared' ? 'var(--c-accent)' : 'var(--c-border-subtle)') + '; background:' + (f.shared === 'shared' ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-2)') + '; color:' + (f.shared === 'shared' ? 'var(--c-accent)' : 'var(--c-muted)') + '; font-size:0.82em; cursor:pointer; white-space:nowrap;">'
                 + bpIcon('check',12) + ' Shared only</button>'
                 + (f.search || f.category !== 'all' || f.shared !== 'all' ?
-                    '<button onclick="window._outcomeFilter={search:\'\',category:\'all\',shared:\'all\'}; _renderFilteredOutcomes(); document.getElementById(\'outcomeSearchInput\').value=\'\';" style="padding:7px 10px; border-radius:8px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:#ff453a; font-size:0.82em; cursor:pointer;">Clear</button>'
+                    '<button onclick="window._outcomeFilter={search:\'\',category:\'all\',shared:\'all\'}; _renderFilteredOutcomes(); document.getElementById(\'outcomeSearchInput\').value=\'\';" style="padding:7px 10px; border-radius:8px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:var(--danger); font-size:0.82em; cursor:pointer;">Clear</button>'
                     : '')
                 + '</div>'
 
@@ -34012,7 +34012,7 @@ body {
                     <div class="outcome-actions">
                         <button class="outcome-btn" onclick="editOutcome(${idx})">${bpIcon("edit",12)} Edit</button>
                         <button class="outcome-btn" onclick="viewOutcomeEvidence(${idx})">${bpIcon("search",12)} View Evidence</button>
-                        <button class="outcome-btn" onclick="deleteBlueprintOutcome(${idx})" style="color:#ff453a;">${bpIcon("trash",12)} Delete</button>
+                        <button class="outcome-btn" onclick="deleteBlueprintOutcome(${idx})" style="color:var(--danger);">${bpIcon("trash",12)} Delete</button>
                     </div>
                 </div>
             `;
@@ -34095,17 +34095,17 @@ body {
                     if (value.inferred) {
                         html += '<span style="font-size:0.7em; padding:2px 7px; border-radius:10px; '
                             + 'background:var(--c-green-bg-4a); '
-                            + 'color:#30d158;">Evidence-matched</span>';
+                            + 'color:var(--success);">Evidence-matched</span>';
                     }
                     if (value.custom) {
                         html += '<span style="font-size:0.7em; padding:2px 7px; border-radius:10px; '
                             + 'background:var(--c-purple-bg-1); '
-                            + 'color:#bf5af2;">Custom</span>';
+                            + 'color:var(--c-purple);">Custom</span>';
                     }
                     if (evCount > 0) {
                         html += '<span style="font-size:0.7em; padding:2px 7px; border-radius:10px; '
                             + 'background:var(--c-amber-bg-4); '
-                            + 'color:#ff9f0a;">' + evCount + ' evidence</span>';
+                            + 'color:var(--c-orange);">' + evCount + ' evidence</span>';
                     }
                     html += '</div>';
                     
@@ -34239,7 +34239,7 @@ body {
                 + 'Done (' + count + '/10)</button>'
                 + '<span style="font-size:0.82em; color:var(--c-faint);">'
                 + '\u2022 = evidence in your profile'
-                + (count >= 10 ? ' &nbsp;\u2022&nbsp; <span style="color:#ff9f0a;">Maximum reached</span>' : '')
+                + (count >= 10 ? ' &nbsp;\u2022&nbsp; <span style="color:var(--c-orange);">Maximum reached</span>' : '')
                 + '</span>'
                 + '</div>';
             
@@ -34371,10 +34371,10 @@ body {
             if (!isReadOnlyProfile) {
                 html += '<div style="display:flex; gap:6px; align-items:center;">'
                     + '<button onclick="generatePurposeAI()" id="purposeAIBtn" '
-                    + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.08); color:#bf5af2; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
+                    + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.08); color:var(--c-purple); cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
                     + bpIcon('zap',12) + ' Generate</button>'
                     + '<button onclick="var ta=document.getElementById(\'contentPurposeEdit\'); if(ta.readOnly){ta.readOnly=false; ta.focus(); ta.style.background=\'var(--c-input-bg)\'; this.textContent=\'Save\';} else {ta.readOnly=true; ta.style.background=\'transparent\'; updatePurpose(ta.value); this.textContent=\'Edit\';}" '
-                    + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid var(--c-accent-border-2); background:transparent; color:#60a5fa; cursor:pointer;">'
+                    + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid var(--c-accent-border-2); background:transparent; color:var(--accent); cursor:pointer;">'
                     + 'Edit</button>'
                     + '</div>';
             }
@@ -34429,7 +34429,7 @@ body {
             if (recs.length > 0) {
                 html += _sectionHeader(bpIcon('users', 16), 'Recommendations', recs.length, 'Peer testimonials. High-impact evidence for scouting reports.');
                 html += '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<button onclick="contentToggleAllSection(\'rec\',' + recs.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:#30d158; border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
+                    + '<button onclick="contentToggleAllSection(\'rec\',' + recs.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
                     + '<button onclick="contentToggleAllSection(\'rec\',' + recs.length + ',false)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:var(--c-surface-4a); color:var(--c-muted); border:1px solid var(--border); cursor:pointer;">Deselect All</button>'
                     + '</div>';
                 html += '<div style="max-height:280px; overflow-y:auto; border:1px solid var(--c-surface-5b); border-radius:8px; padding:4px;">';
@@ -34449,7 +34449,7 @@ body {
             if (articles.length > 0) {
                 html += _sectionHeader(bpIcon('file-text', 16), 'Articles', articles.length, 'Published thought leadership. Signals expertise and communication ability.');
                 html += '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<button onclick="contentToggleAllSection(\'art\',' + articles.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:#30d158; border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
+                    + '<button onclick="contentToggleAllSection(\'art\',' + articles.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
                     + '<button onclick="contentToggleAllSection(\'art\',' + articles.length + ',false)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:var(--c-surface-4a); color:var(--c-muted); border:1px solid var(--border); cursor:pointer;">Deselect All</button>'
                     + '</div>';
                 html += '<div style="max-height:280px; overflow-y:auto; border:1px solid var(--c-surface-5b); border-radius:8px; padding:4px;">';
@@ -34469,7 +34469,7 @@ body {
             if (posts.length > 0) {
                 html += _sectionHeader(bpIcon('message', 16), 'Posts', posts.length, 'Substantial LinkedIn posts (100+ characters). Thought leadership evidence.');
                 html += '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<button onclick="contentToggleAllSection(\'post\',' + posts.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:#30d158; border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
+                    + '<button onclick="contentToggleAllSection(\'post\',' + posts.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
                     + '<button onclick="contentToggleAllSection(\'post\',' + posts.length + ',false)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:var(--c-surface-4a); color:var(--c-muted); border:1px solid var(--border); cursor:pointer;">Deselect All</button>'
                     + '</div>';
                 html += '<div style="max-height:280px; overflow-y:auto; border:1px solid var(--c-surface-5b); border-radius:8px; padding:4px;">';
@@ -34543,7 +34543,7 @@ body {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">';
                 causes.forEach(function(c) {
                     html += '<span style="padding:5px 12px; border-radius:12px; font-size:0.82em; font-weight:600; '
-                        + 'background:rgba(48,209,88,0.08); color:#30d158; border:1px solid rgba(48,209,88,0.15); display:inline-flex; align-items:center; gap:4px;">'
+                        + 'background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15); display:inline-flex; align-items:center; gap:4px;">'
                         + bpIcon('compass', 12) + ' ' + escapeHtml(c) + '</span>';
                 });
                 html += '</div>';
@@ -34697,9 +34697,9 @@ body {
             var _resumeHero = '<div style="background:rgba(48,209,88,0.15); border:2px solid rgba(48,209,88,0.3); border-radius:12px; padding:24px;'
                 + (_isExplorer ? ' order:-1;' : '') + '">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
-                + '<span style="color:#30d158;">' + bpIcon('file-text',28) + '</span>'
+                + '<span style="color:var(--success);">' + bpIcon('file-text',28) + '</span>'
                 + '<div>'
-                + '<div style="font-size:1.15em; font-weight:700; color:#30d158;">Professional Resume / CV</div>'
+                + '<div style="font-size:1.15em; font-weight:700; color:var(--success);">Professional Resume / CV</div>'
                 + '<div style="font-size:0.85em; color:var(--c-muted);">' + (_isExplorer ? 'Start here \u2014 most applications require a resume' : 'Traditional format for job applications') + '</div>'
                 + '</div></div>'
                 + '<div style="color:var(--c-heading); font-size:0.92em; line-height:1.55;">'
@@ -34708,7 +34708,7 @@ body {
                     : 'ATS-readable resume with skills, experience, achievements, and compensation context. Standard format that recruiters and hiring managers expect.')
                 + '</div>'
                 + '<div style="margin-top:14px;">'
-                + '<button onclick="generateResume()" style="font-size:0.8em; padding:8px 18px; border-radius:20px; background:rgba(48,209,88,0.15); color:#30d158; border:1px solid rgba(48,209,88,0.3); cursor:pointer; font-weight:600;">Generate Resume</button>'
+                + '<button onclick="generateResume()" style="font-size:0.8em; padding:8px 18px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success); border:1px solid rgba(48,209,88,0.3); cursor:pointer; font-weight:600;">Generate Resume</button>'
                 + '</div></div>';
 
             // Executive Blueprint hero tile
@@ -34726,8 +34726,8 @@ body {
                     : 'Standalone document with editorial design. Executive summary, top competencies, strategic outcomes, values, compensation framework, and career narrative.')
                 + '</div>'
                 + '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">'
-                + '<button onclick="generateWorkBlueprint()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-green-bg-5b); color:#30d158; border:1px solid rgba(48,209,88,0.3); cursor:pointer; font-weight:600;">HTML</button>'
-                + '<button onclick="showPdfSectionPicker()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-accent-bg-6c); color:#60a5fa; border:1px solid rgba(96,165,250,0.3); cursor:pointer; font-weight:600;">' + bpIcon('pdf',12) + ' Export PDF</button>'
+                + '<button onclick="generateWorkBlueprint()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-green-bg-5b); color:var(--success); border:1px solid rgba(48,209,88,0.3); cursor:pointer; font-weight:600;">HTML</button>'
+                + '<button onclick="showPdfSectionPicker()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-accent-bg-6c); color:var(--accent); border:1px solid rgba(96,165,250,0.3); cursor:pointer; font-weight:600;">' + bpIcon('pdf',12) + ' Export PDF</button>'
                 + '</div></div>';
 
             if (_isExplorer) {
@@ -34886,7 +34886,7 @@ body {
             if (!isReadOnlyProfile) {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
                 if (unverifiedSkills.length > 0) {
-                    html += '<button onclick="verifyTabRequestNew()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(48,209,88,0.15); border:1px solid rgba(48,209,88,0.3); border-radius:8px; color:#30d158; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                    html += '<button onclick="verifyTabRequestNew()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(48,209,88,0.15); border:1px solid rgba(48,209,88,0.3); border-radius:8px; color:var(--success); cursor:pointer; font-weight:600; font-size:0.88em;">'
                         + bpIcon('plus',14) + ' Request Verification (' + unverifiedSkills.length + ' unverified)</button>';
                 }
                 if (expired.length > 0) {
@@ -34975,7 +34975,7 @@ body {
 
                         html += '<div style="display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--c-surface-4);">'
                             + '<div style="width:24px; height:24px; border-radius:50%; background:rgba(48,209,88,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">'
-                            + '<span style="font-size:0.65em; color:#30d158; font-weight:700;">' + (escapeHtml(v.verifierName || 'U').charAt(0).toUpperCase()) + '</span></div>'
+                            + '<span style="font-size:0.65em; color:var(--success); font-weight:700;">' + (escapeHtml(v.verifierName || 'U').charAt(0).toUpperCase()) + '</span></div>'
                             + '<div style="flex:1; min-width:0;">'
                             + '<div style="font-size:0.8em; font-weight:600; color:var(--c-label);">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
                             + '<div style="font-size:0.7em; color:var(--c-muted);">' + escapeHtml(v.relationship || 'Peer') + (respondedDate ? ' \u00B7 ' + respondedDate : '') + '</div>'
@@ -34992,7 +34992,7 @@ body {
             // ── PENDING REQUESTS ──
             if (pending.length > 0) {
                 html += '<div style="margin-bottom:20px;">'
-                    + '<div style="font-weight:700; font-size:0.92em; color:#ff9f0a; margin-bottom:12px;">' + bpIcon('clock',16) + ' Pending Requests (' + pending.length + ')</div>'
+                    + '<div style="font-weight:700; font-size:0.92em; color:var(--c-orange); margin-bottom:12px;">' + bpIcon('clock',16) + ' Pending Requests (' + pending.length + ')</div>'
                     + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px;">';
                 
                 pending.forEach(function(v) {
@@ -35002,20 +35002,20 @@ body {
                     
                     html += '<div style="background:var(--c-surface-1); border:1px solid rgba(255,159,10,0.2); border-radius:10px; padding:14px;">';
                     html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">'
-                        + '<div style="width:10px; height:10px; border-radius:6px; background:#ff9f0a; flex-shrink:0;"></div>'
+                        + '<div style="width:10px; height:10px; border-radius:6px; background:var(--c-orange); flex-shrink:0;"></div>'
                         + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(v.skillName) + '</span>'
-                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:rgba(255,159,10,0.12); color:#ff9f0a; font-weight:600;">Pending</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:rgba(255,159,10,0.12); color:var(--c-orange); font-weight:600;">Pending</span>'
                         + '</div>';
                     html += '<div style="display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--c-surface-4);">'
                         + '<div style="width:24px; height:24px; border-radius:50%; background:rgba(255,159,10,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">'
-                        + '<span style="font-size:0.65em; color:#ff9f0a; font-weight:700;">' + (escapeHtml(v.verifierName || 'U').charAt(0).toUpperCase()) + '</span></div>'
+                        + '<span style="font-size:0.65em; color:var(--c-orange); font-weight:700;">' + (escapeHtml(v.verifierName || 'U').charAt(0).toUpperCase()) + '</span></div>'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.8em; font-weight:600; color:var(--c-label);">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
                         + '<div style="font-size:0.7em; color:var(--c-muted);">' + (showcaseMode ? '••••@redacted' : escapeHtml(v.verifierEmail || '')) + '</div>'
                         + '</div>'
                         + '<div style="text-align:right; flex-shrink:0;">'
                         + '<div style="font-size:0.7em; color:' + urgencyColor + ';">' + daysPending + 'd ago</div>'
-                        + (!isReadOnlyProfile ? '<button onclick="verifyTabResend(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:2px; font-size:0.7em; font-weight:600;">Resend</button>' : '')
+                        + (!isReadOnlyProfile ? '<button onclick="verifyTabResend(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; cursor:pointer; color:var(--accent); padding:2px; font-size:0.7em; font-weight:600;">Resend</button>' : '')
                         + '</div></div>';
                     html += '</div>';
                 });
@@ -35108,7 +35108,7 @@ body {
                     + '<div style="font-size:0.9em; max-width:440px; margin:0 auto; line-height:1.5; margin-bottom:20px;">'
                     + 'Skill verifications strengthen your profile by having colleagues, managers, and clients confirm your expertise. '
                     + 'Higher-credibility verifiers (managers, executives) multiply your evidence scores more than peers.</div>'
-                    + (!isReadOnlyProfile ? '<button onclick="verifyTabRequestNew()" style="padding:12px 24px; background:#30d158; color:#fff; border:none; border-radius:10px; font-weight:600; cursor:pointer; font-size:0.92em;">'
+                    + (!isReadOnlyProfile ? '<button onclick="verifyTabRequestNew()" style="padding:12px 24px; background:var(--success); color:#fff; border:none; border-radius:10px; font-weight:600; cursor:pointer; font-size:0.92em;">'
                     + bpIcon('plus',14) + ' Request Your First Verification</button>' : '')
                     + '</div>';
             }
@@ -35198,7 +35198,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Edit Outcome</h2>
-                        <p style="color: #a1a1a6; margin-top: 5px;">Refine how you describe this achievement</p>
+                        <p style="color:var(--text-secondary); margin-top: 5px;">Refine how you describe this achievement</p>
                     </div>
                     <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
@@ -35214,7 +35214,7 @@ body {
                             background: rgba(255, 255, 255, 0.05);
                             border: 1px solid rgba(96, 165, 250, 0.3);
                             border-radius: 8px;
-                            color: #f5f5f7;
+                            color:var(--text-primary);
                             font-size: 1em;
                             line-height: 1.6;
                             font-family: inherit;
@@ -35232,7 +35232,7 @@ body {
                             background: rgba(255, 255, 255, 0.05);
                             border: 1px solid rgba(96, 165, 250, 0.3);
                             border-radius: 8px;
-                            color: #f5f5f7;
+                            color:var(--text-primary);
                             font-size: 1em;
                         ">
                             <option value="Business Impact" ${outcome.category === 'Business Impact' ? 'selected' : ''}>Business Impact</option>
@@ -35252,16 +35252,16 @@ body {
                                 height: 20px;
                                 cursor: pointer;
                             ">
-                            <span style="color: #ff453a; font-weight: 600;">Mark as Sensitive Content</span>
+                            <span style="color:var(--danger); font-weight: 600;">Mark as Sensitive Content</span>
                         </label>
-                        <p style="color: #a1a1a6; font-size: 0.85em; margin-top: 5px; margin-left: 30px;">
+                        <p style="color:var(--text-secondary); font-size: 0.85em; margin-top: 5px; margin-left: 30px;">
                             Flag personal stories (recovery, loss, etc.) that require context before sharing
                         </p>
                     </div>
                     
-                    <div style="background: rgba(251, 191, 36, 0.1); border-left: 3px solid #ffd60a; padding: 15px; border-radius:6px; margin-bottom: 20px;">
-                        <strong style="color: #ffd60a;">${bpIcon('lightbulb',12)} COACHING TIP:</strong>
-                        <p style="color: #d1d1d6; margin-top: 8px; font-size: 0.9em;">
+                    <div style="background: rgba(251, 191, 36, 0.1); border-left: 3px solid var(--warning); padding: 15px; border-radius:6px; margin-bottom: 20px;">
+                        <strong style="color:var(--warning);">${bpIcon('lightbulb',12)} COACHING TIP:</strong>
+                        <p style="color:var(--c-label); margin-top: 8px; font-size: 0.9em;">
                             Strong outcomes include:
                             <br>• Quantification (numbers, percentages, time saved)
                             <br>• Who benefited (clients, company, team)
@@ -35325,7 +35325,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Add Custom Outcome</h2>
-                        <p style="color: #a1a1a6; margin-top: 5px;">Describe an achievement or impact you've made</p>
+                        <p style="color:var(--text-secondary); margin-top: 5px;">Describe an achievement or impact you've made</p>
                     </div>
                     <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
@@ -35340,7 +35340,7 @@ body {
                             background: rgba(255, 255, 255, 0.05);
                             border: 1px solid rgba(96, 165, 250, 0.3);
                             border-radius: 8px;
-                            color: #f5f5f7;
+                            color:var(--text-primary);
                             font-size: 1em;
                             margin-bottom: 15px;
                         ">
@@ -35361,7 +35361,7 @@ body {
                             background: rgba(255, 255, 255, 0.05);
                             border: 1px solid rgba(96, 165, 250, 0.3);
                             border-radius: 8px;
-                            color: #f5f5f7;
+                            color:var(--text-primary);
                             font-size: 1em;
                             line-height: 1.6;
                             font-family: inherit;
@@ -35379,7 +35379,7 @@ body {
                             background: rgba(255, 255, 255, 0.05);
                             border: 1px solid rgba(96, 165, 250, 0.3);
                             border-radius: 8px;
-                            color: #f5f5f7;
+                            color:var(--text-primary);
                             font-size: 1em;
                         ">
                             <option value="Business Impact">Business Impact</option>
@@ -35402,7 +35402,7 @@ body {
                             background: rgba(255, 255, 255, 0.05);
                             border: 1px solid rgba(96, 165, 250, 0.3);
                             border-radius: 8px;
-                            color: #f5f5f7;
+                            color:var(--text-primary);
                             font-size: 1em;
                         ">
                             <option value="">-- None --</option>
@@ -35410,9 +35410,9 @@ body {
                         </select>
                     </div>
                     
-                    <div style="background: rgba(251, 191, 36, 0.1); border-left: 3px solid #ffd60a; padding: 15px; border-radius:6px; margin-bottom: 20px;">
-                        <strong style="color: #ffd60a;">${bpIcon('lightbulb',12)} REFLECTION PROMPTS:</strong>
-                        <ul style="color: #d1d1d6; margin-top: 8px; font-size: 0.9em; margin-left: 20px;">
+                    <div style="background: rgba(251, 191, 36, 0.1); border-left: 3px solid var(--warning); padding: 15px; border-radius:6px; margin-bottom: 20px;">
+                        <strong style="color:var(--warning);">${bpIcon('lightbulb',12)} REFLECTION PROMPTS:</strong>
+                        <ul style="color:var(--c-label); margin-top: 8px; font-size: 0.9em; margin-left: 20px;">
                             <li>What problem did you solve that others couldn't?</li>
                             <li>What measurable change resulted from your work?</li>
                             <li>Who benefited and how do you know?</li>
@@ -35935,8 +35935,8 @@ body {
                     + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('external', 28) + '</div>'
                     + '<div style="font-weight:700; margin-bottom:4px;">Interactive HTML</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Shareable web page with D3 networks, blind mode toggles, and full interactivity.</div>'
-                    + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:#60a5fa; font-weight:600;">HTML</span>'
-                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(48,209,88,0.15)); color:#30d158; font-weight:600;">Shareable Link</span></div>'
+                    + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:var(--accent); font-weight:600;">HTML</span>'
+                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(48,209,88,0.15)); color:var(--success); font-weight:600;">Shareable Link</span></div>'
                     + '</div>'
                     // PDF option
                     + '<div onclick="viewDemoSampleReport(\'pdf\')" style="padding:20px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:12px; cursor:pointer; transition:all 0.2s; text-align:center;" '
@@ -35945,12 +35945,12 @@ body {
                     + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('pdf', 28) + '</div>'
                     + '<div style="font-weight:700; margin-bottom:4px;">PDF Document</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Downloadable PDF for email attachments, ATS uploads, and offline sharing.</div>'
-                    + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:#60a5fa; font-weight:600;">PDF</span>'
-                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(255,159,10,0.15)); color:#ff9f0a; font-weight:600;">Attachment</span></div>'
+                    + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:var(--accent); font-weight:600;">PDF</span>'
+                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(255,159,10,0.15)); color:var(--c-orange); font-weight:600;">Attachment</span></div>'
                     + '</div>'
                     + '</div>'
                     + '<div style="margin-top:14px; padding:12px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); border-radius:8px; text-align:center;">'
-                    + '<div style="font-size:0.82em; color:#ff9f0a; font-weight:600; margin-bottom:4px;">Demo Mode</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-orange); font-weight:600; margin-bottom:4px;">Demo Mode</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.5;">Sample profiles include pre-built scouting reports you can preview. Sign up to generate your own with your real skills and career data.</div>'
                     + '</div>'
                     + '<div style="margin-top:10px; text-align:center;">'
@@ -35975,7 +35975,7 @@ body {
                 + '<div onclick="var p=this.nextElementSibling; var c=this.querySelector(\'.bp-chev\'); if(p.style.display===\'none\'){p.style.display=\'block\';c.style.transform=\'rotate(90deg)\';}else{p.style.display=\'none\';c.style.transform=\'rotate(0deg)\';}" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;">'
                 + '<div style="display:flex; align-items:center; gap:6px;">'
                 + bpIcon('privacy', 14) + '<span style="font-size:0.85em; font-weight:600;">Privacy for this report</span>'
-                + (anyBlind ? '<span style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:rgba(48,209,88,0.12); color:#30d158; font-weight:600;">ON</span>' : '')
+                + (anyBlind ? '<span style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:600;">ON</span>' : '')
                 + '</div>'
                 + '<div class="bp-chev" style="color:var(--text-muted); transition:transform 0.2s; transform:rotate(0deg);">' + bpIcon('chevron-right', 14) + '</div>'
                 + '</div>'
@@ -35991,8 +35991,8 @@ body {
             });
             
             blindHTML += '<div style="margin-top:8px; padding:8px 10px; background:rgba(255,159,10,0.07); border:1px solid rgba(255,159,10,0.18); border-radius:6px;">'
-                + '<div style="font-size:0.72em; color:#ff9f0a; line-height:1.5;">'
-                + bpIcon('warning', 10) + ' Overrides apply to this report only. Defaults are managed in <a onclick="closeExportModal(); switchView(\'settings\'); setTimeout(function(){ window.currentSettingsTab=\'privacy\'; initSettings(); },100);" style="color:#60a5fa; cursor:pointer; text-decoration:underline;">Settings &gt; Privacy</a>.</div></div>'
+                + '<div style="font-size:0.72em; color:var(--c-orange); line-height:1.5;">'
+                + bpIcon('warning', 10) + ' Overrides apply to this report only. Defaults are managed in <a onclick="closeExportModal(); switchView(\'settings\'); setTimeout(function(){ window.currentSettingsTab=\'privacy\'; initSettings(); },100);" style="color:var(--accent); cursor:pointer; text-decoration:underline;">Settings &gt; Privacy</a>.</div></div>'
                 + '</div></div>';
             
             modalContent.innerHTML = '<div class="modal-header">'
@@ -36018,8 +36018,8 @@ body {
                 + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('external', 28) + '</div>'
                 + '<div style="font-weight:700; margin-bottom:4px;">Interactive HTML</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Shareable web page with D3 networks, blind mode toggles, and full interactivity.</div>'
-                + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:#60a5fa; font-weight:600;">HTML</span>'
-                + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(48,209,88,0.15)); color:#30d158; font-weight:600;">Shareable Link</span></div>'
+                + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:var(--accent); font-weight:600;">HTML</span>'
+                + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(48,209,88,0.15)); color:var(--success); font-weight:600;">Shareable Link</span></div>'
                 + '</div>'
                 // PDF option
                 + '<div onclick="generateScoutingReport(' + jobIdx + ')" style="padding:20px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:12px; cursor:pointer; transition:all 0.2s; text-align:center;" '
@@ -36028,8 +36028,8 @@ body {
                 + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('pdf', 28) + '</div>'
                 + '<div style="font-weight:700; margin-bottom:4px;">PDF Document</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Downloadable PDF for email attachments, ATS uploads, and offline sharing.</div>'
-                + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:#60a5fa; font-weight:600;">PDF</span>'
-                + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(255,159,10,0.15)); color:#ff9f0a; font-weight:600;">Attachment</span></div>'
+                + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:var(--accent); font-weight:600;">PDF</span>'
+                + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(255,159,10,0.15)); color:var(--c-orange); font-weight:600;">Attachment</span></div>'
                 + '</div>'
                 + '</div>'
                 + blindHTML
@@ -36592,7 +36592,7 @@ body {
                     var headerTitle = reportData.isGeneral
                         ? escapeHtml(candidateName) + ' — Career Intelligence Profile'
                         : escapeHtml(candidateName) + ' \u2192 ' + escapeHtml(reportData.job.title);
-                    var matchBadge = reportData.isGeneral ? '' : '<span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(48,209,88,0.1);color:#30d158;font-weight:600;">' + (reportData.match.percentage || 0) + '% MATCH</span>';
+                    var matchBadge = reportData.isGeneral ? '' : '<span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(48,209,88,0.1);color:var(--success);font-weight:600;">' + (reportData.match.percentage || 0) + '% MATCH</span>';
                     header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">'
                         + '<span style="color:var(--accent);">' + bpIcon('target',18) + '</span>'
                         + '<span style="font-weight:600;font-size:0.92em;">' + headerTitle + '</span>'
@@ -36783,9 +36783,9 @@ body {
                             + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">'
                             + '<span style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px;">' + escapeHtml(r.jobTitle || 'Untitled') + '</span>'
                             + (isActive
-                                ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(48,209,88,0.12); color:#30d158; font-weight:600;">LIVE</span>'
-                                : '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,69,58,0.12); color:#ff453a; font-weight:600;">REVOKED</span>')
-                            + (blindCount > 0 ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,159,10,0.12); color:#ff9f0a; font-weight:600;">' + bpIcon('privacy',10) + ' ' + blindCount + ' blind</span>' : '')
+                                ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:600;">LIVE</span>'
+                                : '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,69,58,0.12); color:var(--danger); font-weight:600;">REVOKED</span>')
+                            + (blindCount > 0 ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,159,10,0.12); color:var(--c-orange); font-weight:600;">' + bpIcon('privacy',10) + ' ' + blindCount + ' blind</span>' : '')
                             + '</div>'
                             + '<div style="font-size:0.82em; color:var(--text-secondary);">'
                             + escapeHtml(r.company || '') + (r.company ? ' \u00B7 ' : '') + createdDate
@@ -36809,10 +36809,10 @@ body {
                                 + '<button onclick="viewPublishedReport(\'' + escapeHtml(r._id) + '\',\'' + escapeHtml(r.shareToken || '') + '\')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('eye',11) + ' Preview</button>'
                                 + '<button onclick="editPublishedPrivacy(' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('privacy',11) + ' Privacy</button>'
                                 + '<button onclick="refreshPublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('refresh',11) + ' Refresh</button>'
-                                + '<button onclick="revokePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:#ff453a; cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Revoke</button>';
+                                + '<button onclick="revokePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:var(--danger); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Revoke</button>';
                         } else {
-                            html += '<button onclick="reactivatePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(48,209,88,0.3); background:transparent; color:#30d158; cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('check',11) + ' Re-activate</button>'
-                                + '<button onclick="deletePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:#ff453a; cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Delete</button>';
+                            html += '<button onclick="reactivatePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(48,209,88,0.3); background:transparent; color:var(--success); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('check',11) + ' Re-activate</button>'
+                                + '<button onclick="deletePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:var(--danger); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Delete</button>';
                         }
                         html += '</div></div>';
                     });
@@ -38406,7 +38406,7 @@ body {
                 var checkedAttr = s.checked ? ' checked' : '';
                 var countBadge = s.count !== undefined ? '<span style="font-size:0.75em;padding:2px 8px;border-radius:10px;background:var(--c-accent-bg-6c,#eff6ff);color:var(--c-accent,#60a5fa);margin-left:8px;">' + s.count + '</span>' : '';
                 bodyHtml += '<label style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--c-border-subtle,#f5f5f7);cursor:pointer;">'
-                    + '<input type="checkbox" id="pdf-sec-' + s.id + '" ' + checkedAttr + (s.locked ? ' disabled' : '') + ' style="margin-top:3px;accent-color:#60a5fa;width:18px;height:18px;flex-shrink:0;">'
+                    + '<input type="checkbox" id="pdf-sec-' + s.id + '" ' + checkedAttr + (s.locked ? ' disabled' : '') + ' style="margin-top:3px;accent-color:var(--accent);width:18px;height:18px;flex-shrink:0;">'
                     + '<div style="flex:1;min-width:0;">'
                     + '<div style="font-weight:600;font-size:0.92em;color:var(--c-text,#1c1c22);">' + s.label + countBadge + '</div>'
                     + '<div style="font-size:0.8em;color:var(--text-muted,#636366);margin-top:2px;">' + s.desc + '</div>'
@@ -41373,10 +41373,10 @@ body {
 
                 html += '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">';
                 (job.matchedSkills || []).slice(0, 8).forEach(function(s) {
-                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(48,209,88,0.1); color:#30d158; border:1px solid rgba(48,209,88,0.2);">' + escapeHtml(s) + '</span>';
+                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(48,209,88,0.1); color:var(--success); border:1px solid rgba(48,209,88,0.2);">' + escapeHtml(s) + '</span>';
                 });
                 (job.gapSkills || []).slice(0, 4).forEach(function(s) {
-                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(255,69,58,0.06); color:#ff453a; border:1px solid rgba(255,69,58,0.15);">' + escapeHtml(s) + '</span>';
+                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(255,69,58,0.06); color:var(--danger); border:1px solid rgba(255,69,58,0.15);">' + escapeHtml(s) + '</span>';
                 });
                 html += '</div>';
 
@@ -41386,7 +41386,7 @@ body {
                 if (!job._inPipeline) {
                     html += '<button onclick="_fitAddToPipeline(' + idx + ')" style="background:none; border:1px solid var(--accent); color:var(--accent); padding:3px 10px; border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:600;">+ Pipeline</button>';
                 } else {
-                    html += '<span style="color:#30d158; font-size:0.85em; font-weight:500;">\u2713 In Pipeline</span>';
+                    html += '<span style="color:var(--success); font-size:0.85em; font-weight:500;">\u2713 In Pipeline</span>';
                 }
                 html += '</div>';
 
@@ -41394,7 +41394,7 @@ body {
                     html += '<div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--c-surface-3);">';
 
                     if (matched.length > 0) {
-                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#30d158; font-weight:600; margin-bottom:6px;">Matched Skills (' + matched.length + ')</div>'
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--success); font-weight:600; margin-bottom:6px;">Matched Skills (' + matched.length + ')</div>'
                             + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:4px; margin-bottom:12px;">';
                         matched.forEach(function(m) {
                             var quality = Math.round((m.nameMatch || 0) * (m.profMatch || 1) * 100);
@@ -41409,10 +41409,10 @@ body {
                     }
 
                     if (gaps.length > 0) {
-                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ff453a; font-weight:600; margin-bottom:6px;">Gaps (' + gaps.length + ')</div>'
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--danger); font-weight:600; margin-bottom:6px;">Gaps (' + gaps.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:12px;">';
                         gaps.forEach(function(g) {
-                            html += '<span style="padding:3px 10px; border-radius:10px; font-size:0.78em; background:rgba(255,69,58,0.06); color:#ff453a; border:1px solid rgba(255,69,58,0.12);">'
+                            html += '<span style="padding:3px 10px; border-radius:10px; font-size:0.78em; background:rgba(255,69,58,0.06); color:var(--danger); border:1px solid rgba(255,69,58,0.12);">'
                                 + escapeHtml(g.name) + ' <span style="font-size:0.85em; color:var(--text-muted);">(' + (g.requirement || 'Required') + ')</span></span>';
                         });
                         html += '</div>';
@@ -41420,10 +41420,10 @@ body {
 
                     var surplus = matchResult.surplus || [];
                     if (surplus.length > 0) {
-                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin-bottom:6px;">Your Additional Skills (' + surplus.length + ')</div>'
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:600; margin-bottom:6px;">Your Additional Skills (' + surplus.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">';
                         surplus.slice(0, 10).forEach(function(s) {
-                            html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(96,165,250,0.06); color:#60a5fa; border:1px solid rgba(96,165,250,0.12);">' + escapeHtml(s.name) + '</span>';
+                            html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(96,165,250,0.06); color:var(--accent); border:1px solid rgba(96,165,250,0.12);">' + escapeHtml(s.name) + '</span>';
                         });
                         if (surplus.length > 10) html += '<span style="font-size:0.73em; color:var(--text-muted);">+' + (surplus.length - 10) + ' more</span>';
                         html += '</div>';
@@ -41443,7 +41443,7 @@ body {
             el.innerHTML = html;
             } catch(e) {
                 console.warn('[FitForMe] Render error:', e.message);
-                if (el) el.innerHTML = '<div style="padding:20px; color:#ff453a;">Error loading Fit For Me: ' + escapeHtml(e.message) + '</div>';
+                if (el) el.innerHTML = '<div style="padding:20px; color:var(--danger);">Error loading Fit For Me: ' + escapeHtml(e.message) + '</div>';
             }
         }
 
@@ -41762,13 +41762,13 @@ body {
 
                             // Gaps
                             html += '<div>'
-                                + '<div style="font-size:0.78em; font-weight:700; color:#ff453a; margin-bottom:8px; letter-spacing:0.03em;">SKILL GAPS TO CLOSE</div>';
+                                + '<div style="font-size:0.78em; font-weight:700; color:var(--danger); margin-bottom:8px; letter-spacing:0.03em;">SKILL GAPS TO CLOSE</div>';
                             if (gaps.length === 0) {
-                                html += '<div style="font-size:0.82em; color:#30d158;">No critical gaps — strong match.</div>';
+                                html += '<div style="font-size:0.82em; color:var(--success);">No critical gaps — strong match.</div>';
                             } else {
                                 gaps.forEach(function(g) {
                                     html += '<div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">'
-                                        + '<span style="width:7px; height:7px; border-radius:50%; background:#ff453a; flex-shrink:0;"></span>'
+                                        + '<span style="width:7px; height:7px; border-radius:50%; background:var(--danger); flex-shrink:0;"></span>'
                                         + '<span style="font-size:0.83em; color:var(--text-primary); font-weight:500;">' + escapeHtml(g.name || '') + '</span>'
                                         + '<span style="font-size:0.72em; color:var(--text-muted);">(' + (g.proficiency || g.required || 'Required') + ')</span>'
                                         + '</div>';
@@ -41778,13 +41778,13 @@ body {
 
                             // Strengths
                             html += '<div>'
-                                + '<div style="font-size:0.78em; font-weight:700; color:#30d158; margin-bottom:8px; letter-spacing:0.03em;">YOUR STRENGTHS</div>';
+                                + '<div style="font-size:0.78em; font-weight:700; color:var(--success); margin-bottom:8px; letter-spacing:0.03em;">YOUR STRENGTHS</div>';
                             if (strengths.length === 0) {
                                 html += '<div style="font-size:0.82em; color:var(--text-muted);">Add more skills to your Blueprint to see matches.</div>';
                             } else {
                                 strengths.forEach(function(s) {
                                     html += '<div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">'
-                                        + '<span style="width:7px; height:7px; border-radius:50%; background:#30d158; flex-shrink:0;"></span>'
+                                        + '<span style="width:7px; height:7px; border-radius:50%; background:var(--success); flex-shrink:0;"></span>'
                                         + '<span style="font-size:0.83em; color:var(--text-primary); font-weight:500;">' + escapeHtml(s.name || '') + '</span>'
                                         + '</div>';
                                 });
@@ -41949,9 +41949,9 @@ body {
                 
                 // Skill summary chips
                 html += '<div style="margin-top:10px; display:flex; gap:12px; font-size:0.78em; color:var(--text-muted);">'
-                    + '<span style="color:#30d158;">\u2713 ' + matchedCount + ' matched</span>'
-                    + '<span style="color:#ff453a;">\u25CB ' + gapCount + ' gaps</span>'
-                    + '<span style="color:#636366;">\u25CF ' + surplusCount + ' surplus</span>'
+                    + '<span style="color:var(--success);">\u2713 ' + matchedCount + ' matched</span>'
+                    + '<span style="color:var(--danger);">\u25CB ' + gapCount + ' gaps</span>'
+                    + '<span style="color:var(--text-muted);">\u25CF ' + surplusCount + ' surplus</span>'
                     + '</div>';
                 
                 // BLS salary range (if available)
@@ -41962,8 +41962,8 @@ body {
                     var med = '$' + bls.median.toLocaleString();
                     var rangeStr = lo && hi ? lo + ' \u2013 ' + hi : 'Median ' + med;
                     html += '<div style="margin-top:8px; font-size:0.78em; color:var(--text-muted); display:flex; align-items:center; gap:6px;">'
-                        + '<span style="color:#bf5af2;">' + bpIcon('dollar', 12) + '</span> '
-                        + '<span style="color:#bf5af2;">' + rangeStr + '</span>'
+                        + '<span style="color:var(--c-purple);">' + bpIcon('dollar', 12) + '</span> '
+                        + '<span style="color:var(--c-purple);">' + rangeStr + '</span>'
                         + '<span style="opacity:0.5;"> \u00B7 ' + bls.title + ' (BLS)</span>'
                         + '</div>';
                 }
@@ -42212,7 +42212,7 @@ body {
                 var srcUrl = document.getElementById('jdSourceUrl');
                 if (srcUrl) srcUrl.value = url;
                 
-                statusEl.innerHTML = '<div style="color:#30d158; font-size:0.88em;">\u2713 Fetched ' + pageText.length + ' characters. Analyzing...</div>';
+                statusEl.innerHTML = '<div style="color:var(--success); font-size:0.88em;">\u2713 Fetched ' + pageText.length + ' characters. Analyzing...</div>';
                 
                 // Auto-trigger analysis
                 await analyzeJob();
@@ -42220,7 +42220,7 @@ body {
             } catch (err) {
                 console.error('URL fetch error:', err);
                 statusEl.style.background = 'var(--c-red-bg-2b)';
-                statusEl.innerHTML = '<div style="color:#ff453a; font-size:0.88em;">\u26A0 ' + escapeHtml(err.message || 'Fetch failed') + '</div>'
+                statusEl.innerHTML = '<div style="color:var(--danger); font-size:0.88em;">\u26A0 ' + escapeHtml(err.message || 'Fetch failed') + '</div>'
                     + '<div style="color:var(--text-muted); font-size:0.78em; margin-top:6px;">Tip: Copy the job description text and paste it in the field below.</div>';
             } finally {
                 fetchBtn.disabled = false;
@@ -42912,7 +42912,7 @@ body {
             } catch (err) {
                 console.error('Job analysis error:', err);
                 statusEl.style.background = 'var(--c-red-bg-2b)';
-                statusEl.innerHTML = '<div style="color:#ff453a; font-size:0.88em;">\u26A0 ' + escapeHtml(err.message || 'Analysis failed.') + '</div>';
+                statusEl.innerHTML = '<div style="color:var(--danger); font-size:0.88em;">\u26A0 ' + escapeHtml(err.message || 'Analysis failed.') + '</div>';
             } finally {
                 btn.disabled = false;
                 btn.style.opacity = '1';
@@ -46323,7 +46323,7 @@ body {
                     + '<button onclick="reanalyzeJob(' + idx + ')" style="background:none; border:1px solid var(--border); '
                     + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u21BB Re-analyze</button>'
                     + '<button onclick="removeJob(' + idx + ')" style="background:none; border:1px solid rgba(255,69,58,0.3); '
-                    + 'color:#ff453a; padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u2715 Delete</button>';
+                    + 'color:var(--danger); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u2715 Delete</button>';
             }
             html += '</div></div>';
             
@@ -46374,7 +46374,7 @@ body {
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('network',16) + ' Compare Skills</button>'
                 + '<button onclick="activateValuesOverlay(' + idx + ')" style="'
-                + 'background:transparent; color:#ff9f0a; border:1px solid rgba(255,159,10,0.4); padding:10px 20px; border-radius:8px; '
+                + 'background:transparent; color:var(--c-orange); border:1px solid rgba(255,159,10,0.4); padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('values',16) + ' Values Fit</button>'
                 + '<button onclick="launchScoutingReport()" style="'
@@ -46389,16 +46389,16 @@ body {
             var profGapCount = matched.filter(function(m) { return m.profGap; }).length;
             html += '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:24px;">'
                 + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2);">'
-                + '<div style="font-size:1.6em; font-weight:700; color:#30d158;">' + matched.length + '</div>'
+                + '<div style="font-size:1.6em; font-weight:700; color:var(--success);">' + matched.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Skills Matched</div></div>'
                 + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.15);">'
-                + '<div style="font-size:1.6em; font-weight:700; color:#ff9f0a;">' + profGapCount + '</div>'
+                + '<div style="font-size:1.6em; font-weight:700; color:var(--c-orange);">' + profGapCount + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Proficiency Gaps</div></div>'
                 + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(255,69,58,0.06); border:1px solid rgba(255,69,58,0.2);">'
-                + '<div style="font-size:1.6em; font-weight:700; color:#ff453a;">' + gaps.length + '</div>'
+                + '<div style="font-size:1.6em; font-weight:700; color:var(--danger);">' + gaps.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Missing Skills</div></div>'
                 + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(99,99,102,0.06); border:1px solid rgba(99,99,102,0.15);">'
-                + '<div style="font-size:1.6em; font-weight:700; color:#636366;">' + surplus.length + '</div>'
+                + '<div style="font-size:1.6em; font-weight:700; color:var(--text-muted);">' + surplus.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Your Surplus</div></div>'
                 + '</div>';
             
@@ -46437,7 +46437,7 @@ body {
                 html += '<div style="margin-bottom:16px; display:flex; flex-direction:column; gap:6px;">';
                 diagnosticWarnings.forEach(function(w) {
                     html += '<div style="display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:8px; '
-                        + 'background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.15); font-size:0.82em; color:#ff9f0a;">'
+                        + 'background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.15); font-size:0.82em; color:var(--c-orange);">'
                         + w + '</div>';
                 });
                 html += '</div>';
@@ -46456,8 +46456,8 @@ body {
                     + '<div style="font-size:0.72em; color:var(--text-muted);">Values Fit</div></div>'
                     + '<div style="flex:1;">'
                     + '<div style="display:flex; gap:12px; font-size:0.82em; margin-bottom:6px;">'
-                    + '<span style="color:#30d158;">' + valAlign.aligned.length + ' aligned</span>'
-                    + (valAlign.tensionRisk.length > 0 ? '<span style="color:#ff453a;">' + valAlign.tensionRisk.length + ' friction</span>' : '')
+                    + '<span style="color:var(--success);">' + valAlign.aligned.length + ' aligned</span>'
+                    + (valAlign.tensionRisk.length > 0 ? '<span style="color:var(--danger);">' + valAlign.tensionRisk.length + ' friction</span>' : '')
                     + '<span style="color:var(--text-muted);">' + valAlign.yourPriority.length + ' unmatched</span>'
                     + '</div>';
                 if (jobCV.story) {
@@ -46473,11 +46473,11 @@ body {
                     + 'background:rgba(167,139,250,0.06); border:1px solid rgba(167,139,250,0.2);">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">'
                     + '<div>'
-                    + '<div style="font-size:0.82em; font-weight:600; color:#bf5af2; margin-bottom:4px;">' + bpIcon('dollar',14) + ' Market Salary Range</div>'
+                    + '<div style="font-size:0.82em; font-weight:600; color:var(--c-purple); margin-bottom:4px;">' + bpIcon('dollar',14) + ' Market Salary Range</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted);">BLS Match: ' + bls.title + ' (SOC ' + bls.soc + ')</div>'
                     + '</div>'
                     + '<div style="text-align:right;">'
-                    + '<div style="font-size:1.3em; font-weight:700; color:#bf5af2;">$' + bls.median.toLocaleString() + '</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:var(--c-purple);">$' + bls.median.toLocaleString() + '</div>'
                     + '<div style="font-size:0.72em; color:var(--text-muted);">median annual</div>'
                     + '</div></div>';
                 
@@ -46491,7 +46491,7 @@ body {
                     html += '<div style="margin-top:12px;">'
                         + '<div style="position:relative; height:8px; background:rgba(167,139,250,0.15); border-radius:6px; margin:8px 0;">'
                         + '<div style="position:absolute; left:' + p25Pos + '%; right:' + (100 - p75Pos) + '%; height:100%; background:rgba(167,139,250,0.4); border-radius:6px;"></div>'
-                        + '<div style="position:absolute; left:' + medPos + '%; width:3px; height:14px; top:-3px; background:#bf5af2; border-radius:6px;"></div>'
+                        + '<div style="position:absolute; left:' + medPos + '%; width:3px; height:14px; top:-3px; background:var(--c-purple); border-radius:6px;"></div>'
                         + '</div>'
                         + '<div style="display:flex; justify-content:space-between; font-size:0.72em; color:var(--text-muted);">'
                         + '<span>$' + bls.pct10.toLocaleString() + ' (10th)</span>'
@@ -46506,7 +46506,7 @@ body {
             // Matched skills (with proficiency comparison)
             if (matched.length > 0) {
                 html += '<div style="margin-bottom:20px;">'
-                    + '<h3 style="font-size:0.95em; font-weight:700; color:#30d158; margin-bottom:10px;">\u2713 Matched Skills</h3>'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:var(--success); margin-bottom:10px;">\u2713 Matched Skills</h3>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 matched.forEach(function(m) {
                     var profColor = m.profGap ? '#ff9f0a' : '#30d158';
@@ -46525,7 +46525,7 @@ body {
             // Gaps (clickable to quick-add)
             if (gaps.length > 0) {
                 html += '<div style="margin-bottom:20px;">'
-                    + '<h3 style="font-size:0.95em; font-weight:700; color:#ff453a; margin-bottom:10px;">\u25CB Gaps (Job Needs, You Don\u2019t Have)</h3>'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:var(--danger); margin-bottom:10px;">\u25CB Gaps (Job Needs, You Don\u2019t Have)</h3>'
                     + '<p style="font-size:0.75em; color:var(--text-muted); margin-bottom:8px;">Click a skill to add it to your profile</p>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 gaps.forEach(function(g, gi) {
@@ -46554,7 +46554,7 @@ body {
             if (profGaps.length > 0) {
                 html += '<div style="margin-bottom:20px; padding:16px; border-radius:10px; '
                     + 'background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.15);">'
-                    + '<h3 style="font-size:0.95em; font-weight:700; color:#ff9f0a; margin-bottom:10px;">\u26A0 Proficiency Gaps (You Have It, But Need to Level Up)</h3>'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:var(--c-orange); margin-bottom:10px;">\u26A0 Proficiency Gaps (You Have It, But Need to Level Up)</h3>'
                     + '<div style="display:flex; flex-direction:column; gap:6px;">';
                 profGaps.forEach(function(m) {
                     var userVal = proficiencyValue(m.userLevel);
@@ -46563,9 +46563,9 @@ body {
                     html += '<div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; padding:8px 10px; '
                         + 'background:rgba(255,214,10,0.04); border-radius:6px; font-size:0.85em;">'
                         + '<span style="font-weight:600; color:var(--text-primary); flex:1 1 120px;">' + m.userSkill + '</span>'
-                        + '<span style="color:#ff9f0a;">You: ' + m.userLevel + '</span>'
+                        + '<span style="color:var(--c-orange);">You: ' + m.userLevel + '</span>'
                         + '<span style="color:var(--text-muted);">\u2192</span>'
-                        + '<span style="color:#ff453a;">Need: ' + m.jobProficiency + '</span>'
+                        + '<span style="color:var(--danger);">Need: ' + m.jobProficiency + '</span>'
                         + '</div>';
                 });
                 html += '</div></div>';
@@ -46586,7 +46586,7 @@ body {
                     + '' + bpIcon('lightbulb',14) + ' Suggested for Your Roles</h3>'
                     + '<p style="font-size:0.75em; color:var(--text-muted); margin-bottom:10px;">Industry-standard skills for your roles. Click to add.</p>';
                 if (roleGapOverlap.length > 0) {
-                    html += '<p style="font-size:0.78em; font-weight:600; color:#ff9f0a; margin-bottom:6px;">Also needed by this job:</p>'
+                    html += '<p style="font-size:0.78em; font-weight:600; color:var(--c-orange); margin-bottom:6px;">Also needed by this job:</p>'
                         + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">';
                     roleGapOverlap.forEach(function(s) {
                         html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:12px; '
@@ -46614,7 +46614,7 @@ body {
                 var showSurplus = surplus.filter(function(s) { return s.level === 'Mastery' || s.level === 'Expert' || s.level === 'Advanced'; }).slice(0, 15);
                 if (showSurplus.length === 0) showSurplus = surplus.slice(0, 10);
                 html += '<div style="margin-bottom:20px;">'
-                    + '<h3 style="font-size:0.95em; font-weight:700; color:#636366; margin-bottom:10px;">\u25CF Your Surplus (Not Listed in JD)</h3>'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:var(--text-muted); margin-bottom:10px;">\u25CF Your Surplus (Not Listed in JD)</h3>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 showSurplus.forEach(function(s) {
                     html += '<span class="jd-skill-chip jd-chip-surplus">' + escapeHtml(s.name) + '</span>';
@@ -46996,7 +46996,7 @@ body {
                     + (job.matchedSkills.length > 0 ? '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px;">'
                     + job.matchedSkills.slice(0, 6).map(function(s) {
                         return '<span style="padding:2px 8px; border-radius:10px; font-size:0.75em; '
-                            + 'background:rgba(48,209,88,0.1); color:#30d158; border:1px solid rgba(48,209,88,0.2);">' + s + '</span>';
+                            + 'background:rgba(48,209,88,0.1); color:var(--success); border:1px solid rgba(48,209,88,0.2);">' + s + '</span>';
                     }).join('')
                     + (job.matchedSkills.length > 6 ? '<span style="font-size:0.75em; color:var(--text-muted); padding:2px 6px;">+' + (job.matchedSkills.length - 6) + ' more</span>' : '')
                     + '</div>' : '')
@@ -47005,7 +47005,7 @@ body {
                     + (job.gapSkills && job.gapSkills.length > 0 ? '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px;">'
                     + job.gapSkills.slice(0, 4).map(function(s) {
                         return '<span style="padding:2px 8px; border-radius:10px; font-size:0.72em; '
-                            + 'background:rgba(255,69,58,0.06); color:#ff453a; border:1px solid rgba(255,69,58,0.15);">' + s + '</span>';
+                            + 'background:rgba(255,69,58,0.06); color:var(--danger); border:1px solid rgba(255,69,58,0.15);">' + s + '</span>';
                     }).join('')
                     + '</div>' : '')
                     
@@ -47015,7 +47015,7 @@ body {
                     + 'background:none; border:1px solid var(--border); color:var(--accent); text-decoration:none; cursor:pointer; '
                     + 'display:inline-flex; align-items:center; gap:4px;">' + bpIcon('external',12) + ' View</a>'
                     + (alreadyInPipeline
-                        ? '<span style="font-size:0.78em; color:#30d158; display:inline-flex; align-items:center; gap:4px;">' + bpIcon('check',12) + ' In Pipeline</span>'
+                        ? '<span style="font-size:0.78em; color:var(--success); display:inline-flex; align-items:center; gap:4px;">' + bpIcon('check',12) + ' In Pipeline</span>'
                         : '<button onclick="addRemoteJobToPipeline(' + idx + ')" style="padding:5px 12px; border-radius:6px; font-size:0.82em; '
                         + 'background:var(--accent); border:none; color:#fff; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
                         + bpIcon('plus',12) + ' Add to Pipeline</button>')
@@ -48213,7 +48213,7 @@ body {
                                         style="background:var(--accent-glow); border:1px solid var(--border); color:var(--text-primary); padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.85em;">
                                     Upload Photo
                                 </button>
-                                ${userData.profile.photo ? '<button onclick="removeProfilePhoto()" style="background:none; border:none; color:#ff453a; cursor:pointer; font-size:0.82em; margin-left:8px;">Remove</button>' : ''}
+                                ${userData.profile.photo ? '<button onclick="removeProfilePhoto()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.82em; margin-left:8px;">Remove</button>' : ''}
                                 <input type="file" id="settingPhotoInput" accept="image/*" onchange="handleProfilePhoto(this)" style="display:none;">
                                 <div class="settings-help" style="margin-top:4px;">Max 200KB, resized to 128px</div>
                             </div>
@@ -48379,7 +48379,7 @@ body {
                 + '<span style="color:var(--c-accent);">' + bpIcon('briefcase',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Work History</span>'
                 + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:var(--c-surface-4); color:var(--c-muted);">' + whItems.length + '</span>'
-                + (hiddenCount > 0 ? '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(255,159,10,0.1); color:#ff9f0a;">' + hiddenCount + ' hidden</span>' : '')
+                + (hiddenCount > 0 ? '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(255,159,10,0.1); color:var(--c-orange);">' + hiddenCount + ' hidden</span>' : '')
                 + '</div>'
                 + '<button onclick="addWorkHistoryItem()" style="font-size:0.78em; padding:5px 12px; border-radius:8px; border:1px solid var(--c-accent-border-4); background:var(--c-accent-bg-5a); color:var(--c-accent-deep); cursor:pointer; font-weight:600;">+ Add Position</button>'
                 + '</div>';
@@ -48421,7 +48421,7 @@ body {
                         html += '<div style="padding:10px 14px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--c-surface-4);">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
                             + '<span style="font-weight:700; color:var(--c-accent); font-size:0.9em;">' + escapeHtml(coName) + '</span>'
-                            + '<span style="font-size:0.65em; padding:2px 7px; border-radius:6px; background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
+                            + '<span style="font-size:0.65em; padding:2px 7px; border-radius:6px; background:rgba(96,165,250,0.1); color:var(--accent); font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
                             + '</div>'
                             + '<span style="font-size:0.72em; color:var(--c-faint);">'
                             + (firstStart ? formatWorkDate(firstStart) + ' \u2013 ' + (lastEnd === 'Present' ? 'Present' : formatWorkDate(lastEnd)) : '')
@@ -48452,7 +48452,7 @@ body {
                                 + '</div>'
                                 + '</div>'
                                 + '<div style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(dateRange) + '</div>'
-                                + (isHidden ? '<div style="font-size:0.65em; color:#ff9f0a; margin-top:3px;">Hidden</div>' : '')
+                                + (isHidden ? '<div style="font-size:0.65em; color:var(--c-orange); margin-top:3px;">Hidden</div>' : '')
                                 + (job.description ? '<div style="font-size:0.72em; color:var(--c-faint); margin-top:5px; line-height:1.4; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">' + escapeHtml(job.description.substring(0,120)) + (job.description.length > 120 ? '\u2026' : '') + '</div>' : '')
                                 + '</div>';
                         });
@@ -48481,7 +48481,7 @@ body {
                             + '</div>'
                             + '<div style="display:flex; align-items:center; gap:8px; font-size:0.73em; color:var(--c-muted);">'
                             + '<span>' + escapeHtml(dateRange) + '</span>'
-                            + (isHidden ? '<span style="color:#ff9f0a;">Hidden</span>' : '')
+                            + (isHidden ? '<span style="color:var(--c-orange);">Hidden</span>' : '')
                             + '</div>'
                             + (job.description ? '<div style="font-size:0.76em; color:var(--c-faint); margin-top:6px; line-height:1.5; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">' + escapeHtml(job.description.substring(0,160)) + (job.description.length > 160 ? '\u2026' : '') + '</div>' : '')
                             + '</div>';
@@ -48538,11 +48538,11 @@ body {
             var actItems = userData.activities || [];
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="display:flex; align-items:center; gap:8px;">'
-                + '<span style="color:#bf5af2;">' + bpIcon('compass',16) + '</span>'
+                + '<span style="color:var(--c-purple);">' + bpIcon('compass',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Activities & Hobbies</span>'
                 + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:var(--c-surface-4); color:var(--c-muted);">' + actItems.length + '</span>'
                 + '</div>'
-                + '<button onclick="addActivityItem()" style="font-size:0.78em; padding:5px 12px; border-radius:8px; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.06); color:#bf5af2; cursor:pointer; font-weight:600;">+ Add Activity</button>'
+                + '<button onclick="addActivityItem()" style="font-size:0.78em; padding:5px 12px; border-radius:8px; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.06); color:var(--c-purple); cursor:pointer; font-weight:600;">+ Add Activity</button>'
                 + '</div>';
 
             if (actItems.length === 0) {
@@ -48950,7 +48950,7 @@ body {
             var bs = window._buildStats;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
-            var autoNote = '<div style="grid-column:1/-1; padding:10px 14px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:8px; font-size:0.78em; color:#30d158; margin-bottom:4px;">'
+            var autoNote = '<div style="grid-column:1/-1; padding:10px 14px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:8px; font-size:0.78em; color:var(--success); margin-bottom:4px;">'
                 + bpIcon('check',12) + ' <strong>Auto-computed:</strong> Lines of Code (from build), Features Shipped (from roadmap), Deploys &amp; AI Sessions (from version number), Calendar Time (from start date), Speed/Cost multipliers (derived).'
                 + (bs ? '<br>Build: ' + (bs.lineCount || 0).toLocaleString() + ' lines across ' + (bs.fileCount || 0) + ' files (' + (bs.jsLines || 0).toLocaleString() + ' JS, ' + (bs.htmlLines || 0).toLocaleString() + ' HTML, ' + (bs.cssLines || 0).toLocaleString() + ' CSS)' : '')
                 + '</div>';
@@ -49926,8 +49926,8 @@ body {
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                         <div style="background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 8px; padding: 20px;">
-                            <h3 style="color: #60a5fa; margin-bottom: 10px;">${bpIcon("upload",14)} Export Profile</h3>
-                            <p style="color: #a1a1a6; font-size: 0.9em; margin-bottom: 15px;">
+                            <h3 style="color:var(--accent); margin-bottom: 10px;">${bpIcon("upload",14)} Export Profile</h3>
+                            <p style="color:var(--text-secondary); font-size: 0.9em; margin-bottom: 15px;">
                                 Download complete backup including skills, outcomes, values, and all settings
                             </p>
                             <button class="export-btn-large" onclick="exportFullProfile()" style="width: 100%;">
@@ -49936,21 +49936,21 @@ body {
                         </div>
                         
                         <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px; ${isReadOnlyProfile ? 'display:none;' : ''}">
-                            <h3 style="color: #30d158; margin-bottom: 10px;">${bpIcon("download",14)} Import Profile</h3>
-                            <p style="color: #a1a1a6; font-size: 0.9em; margin-bottom: 15px;">
+                            <h3 style="color:var(--success); margin-bottom: 10px;">${bpIcon("download",14)} Import Profile</h3>
+                            <p style="color:var(--text-secondary); font-size: 0.9em; margin-bottom: 15px;">
                                 Restore from a previous backup or transfer from another device
                             </p>
                             <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importFullProfile(this)">
                             <button class="export-btn-large" onclick="document.getElementById('importFileInput').click()" 
-                                    style="width: 100%; background: #30d158;">
+                                    style="width: 100%; background:var(--success);">
                                 Select Backup File
                             </button>
                         </div>
                     </div>
                     
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ff453a; border-radius:6px; ${isReadOnlyProfile ? 'display:none;' : ''}">
-                        <strong style="color: #ff453a;">${bpIcon("warning",14)} Warning:</strong>
-                        <span style="color: #d1d1d6; font-size: 0.9em;">
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--danger); border-radius:6px; ${isReadOnlyProfile ? 'display:none;' : ''}">
+                        <strong style="color:var(--danger);">${bpIcon("warning",14)} Warning:</strong>
+                        <span style="color:var(--c-label); font-size: 0.9em;">
                             Importing will replace all current data. Make sure to export first if you want to keep your current profile!
                         </span>
                     </div>
@@ -49987,7 +49987,7 @@ body {
                 + '<div class="values-grid">'
                 + Object.entries(sharePresets).map(function(entry) { return renderPresetCard(entry[0], entry[1]); }).join('')
                 + '</div>'
-                + (currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(96,165,250,0.08); border-left:3px solid #60a5fa; border-radius:6px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the <a onclick="switchView(\'blueprint\');" style="color:#60a5fa; cursor:pointer; text-decoration:underline;">Blueprint</a> tab. Skills are included based on your profile data.</div>' : '')
+                + (currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(96,165,250,0.08); border-left:3px solid var(--accent); border-radius:6px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the <a onclick="switchView(\'blueprint\');" style="color:var(--accent); cursor:pointer; text-decoration:underline;">Blueprint</a> tab. Skills are included based on your profile data.</div>' : '')
                 + '</div>';
             
             // --- What You're Sharing (from Consent) ---
@@ -50003,7 +50003,7 @@ body {
             var sharedValues = blueprintData.values.filter(function(v) { return v.selected; }).length;
             
             function sharingLabel(shared, total, noun) {
-                if (total === 0) return '<div style="font-size:0.72em; color:#ff9f0a; margin-top:4px;">None added yet</div>';
+                if (total === 0) return '<div style="font-size:0.72em; color:var(--c-orange); margin-top:4px;">None added yet</div>';
                 if (shared < total) return '<div style="font-size:0.72em; color:' + sc + '; margin-top:4px;">of ' + total + ' total</div>';
                 return '';
             }
@@ -50017,7 +50017,7 @@ body {
                 + '</div>'
                 + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px;">'
                 + '<div style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.3); border-radius:8px; padding:20px; text-align:center;">'
-                + '<div style="font-size:2em; color:#60a5fa; font-weight:bold;">' + sharedSkills + '</div>'
+                + '<div style="font-size:2em; color:var(--accent); font-weight:bold;">' + sharedSkills + '</div>'
                 + '<div style="color:' + sc + '; margin-top:5px;">Skills</div>'
                 + (sharedSkills < skillCount ? '<div style="font-size:0.72em; color:' + sc + '; margin-top:4px;">of ' + skillCount + ' total</div>' : '')
                 + '</div>'
@@ -50032,8 +50032,8 @@ body {
                 + sharingLabel(sharedValues, totalValues, 'values')
                 + '</div>'
                 + '</div>'
-                + '<div style="margin-top:16px; padding:12px 15px; background:rgba(255,214,10,0.08); border-left:3px solid #ffd60a; border-radius:6px; font-size:0.9em;">'
-                + '<strong style="color:#ffd60a;">Note:</strong> '
+                + '<div style="margin-top:16px; padding:12px 15px; background:rgba(255,214,10,0.08); border-left:3px solid var(--warning); border-radius:6px; font-size:0.9em;">'
+                + '<strong style="color:var(--warning);">Note:</strong> '
                 + '<span style="color:' + tc + ';">Sensitive content (recovery, personal loss) is flagged in Blueprint. Review before sharing.</span>'
                 + '</div>'
                 + '</div>';
@@ -50104,7 +50104,7 @@ body {
                     var blindKeys = entry.blind || {};
                     Object.keys(blindKeys).forEach(function(k) {
                         if (blindKeys[k]) {
-                            blindPills += '<span style="display:inline-block; font-size:0.7em; padding:1px 5px; border-radius:6px; background:rgba(48,209,88,0.12); color:#30d158; margin:1px 2px; font-weight:600;">' + (blindKeyLabels[k] || k) + '</span>';
+                            blindPills += '<span style="display:inline-block; font-size:0.7em; padding:1px 5px; border-radius:6px; background:rgba(48,209,88,0.12); color:var(--success); margin:1px 2px; font-weight:600;">' + (blindKeyLabels[k] || k) + '</span>';
                         }
                     });
                     if (!blindPills) blindPills = '<span style="font-size:0.75em; color:' + sc + ';">None</span>';
@@ -50118,7 +50118,7 @@ body {
                         + '<td style="padding:8px 6px;"><span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:' + (fmtColors[entry.type] || '#636366') + '22; color:' + (fmtColors[entry.type] || '#636366') + '; font-weight:600;">' + (fmtLabels[entry.type] || entry.type) + '</span></td>'
                         + '<td style="padding:8px 6px;">' + presetPill + '</td>'
                         + '<td style="padding:8px 6px;">' + blindPills + '</td>'
-                        + '<td style="padding:8px 6px; text-align:center;">' + (entry.overridden ? '<span style="color:#ff9f0a;" title="Settings were overridden for this report">' + bpIcon('warning', 12) + '</span>' : '') + '</td>'
+                        + '<td style="padding:8px 6px; text-align:center;">' + (entry.overridden ? '<span style="color:var(--c-orange);" title="Settings were overridden for this report">' + bpIcon('warning', 12) + '</span>' : '') + '</td>'
                         + '</tr>';
                 });
                 
@@ -50227,7 +50227,7 @@ body {
             }
             
             if (skills.length === 0) {
-                return `<div style="text-align: center; padding: 40px; color: #a1a1a6;">
+                return `<div style="text-align: center; padding: 40px; color:var(--text-secondary);">
                     No skills found. ${searchQuery ? 'Try a different search.' : 'Add some skills to get started!'}
                 </div>`;
             }
@@ -50289,20 +50289,20 @@ body {
                                                      border-radius:6px;">
                                             ${label.badge}
                                         </span>
-                                        ${skill.key ? '<span style="background: rgba(251, 191, 36, 0.2); color: #ffd60a; font-size: 0.7em; padding: 2px 6px; border-radius:6px;">CORE</span>' : ''}
+                                        ${skill.key ? '<span style="background: rgba(251, 191, 36, 0.2); color:var(--warning); font-size: 0.7em; padding: 2px 6px; border-radius:6px;">CORE</span>' : ''}
                                     </div>
-                                    <div style="color: #a1a1a6; font-size: 0.9em;">
+                                    <div style="color:var(--text-secondary); font-size: 0.9em;">
                                         <span style="color: ${levelColors[skill.level]}; font-weight: 600;">${escapeHtml(skill.level)}</span>
                                         ${roleNames ? ` • ${escapeHtml(roleNames)}` : ''}
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 8px; flex-shrink: 0; ${isReadOnlyProfile ? 'display:none;' : ''}">
                                     <button onclick="openEditSkillModal('${escapeHtml(skill.name).replace(/'/g, "\\'")}', '${category}')" 
-                                            style="padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); border-radius:6px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
+                                            style="padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color:var(--accent); border: 1px solid rgba(59, 130, 246, 0.3); border-radius:6px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
                                         ${bpIcon("edit",12)} Edit
                                     </button>
                                     <button onclick="confirmDeleteSkill('${escapeHtml(skill.name).replace(/'/g, "\\'")}', '${category}')" 
-                                            style="padding: 6px 12px; background: rgba(239, 68, 68, 0.2); color: #ff453a; border: 1px solid rgba(239, 68, 68, 0.3); border-radius:6px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
+                                            style="padding: 6px 12px; background: rgba(239, 68, 68, 0.2); color:var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); border-radius:6px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
                                         ${bpIcon("trash",14)}
                                     </button>
                                 </div>
@@ -50398,8 +50398,8 @@ body {
             
             view.innerHTML = `
                 <div class="applications-header">
-                    <h2 style="font-size: 2em; color: #60a5fa; margin-bottom: 10px;">Application Tracker</h2>
-                    <p style="color: #a1a1a6; margin-bottom: 20px;">Track your job applications and follow-ups</p>
+                    <h2 style="font-size: 2em; color:var(--accent); margin-bottom: 10px;">Application Tracker</h2>
+                    <p style="color:var(--text-secondary); margin-bottom: 20px;">Track your job applications and follow-ups</p>
                     <button class="export-btn-large" onclick="addApplicationModal()" style="display: inline-flex; align-items: center; gap: 8px;">
                         ${bpIcon("plus",14)} Add Application
                     </button>
@@ -50416,12 +50416,12 @@ body {
             
             if (!userData.applications || userData.applications.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: #a1a1a6;">
+                    <div style="text-align: center; padding: 60px 20px; color:var(--text-secondary);">
                         <div style="margin-bottom: 20px;">${bpIcon("clipboard",48)}</div>
-                        <h3 style="color: #d1d1d6; margin-bottom: 10px;">No applications tracked yet</h3>
+                        <h3 style="color:var(--c-label); margin-bottom: 10px;">No applications tracked yet</h3>
                         <p>Click "Add Application" above to start tracking your job search</p>
                         <div style="margin-top: 30px; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
-                            <strong style="color: #60a5fa;">Track from Opportunities:</strong>
+                            <strong style="color:var(--accent);">Track from Opportunities:</strong>
                             <p style="font-size: 0.9em; margin-top: 8px;">When you generate a pitch for a job, you'll have the option to automatically add it to your application tracker.</p>
                         </div>
                     </div>
@@ -50526,7 +50526,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Add Application</h2>
-                        <p style="color: #a1a1a6; margin-top: 5px;">Track a job you've applied to</p>
+                        <p style="color:var(--text-secondary); margin-top: 5px;">Track a job you've applied to</p>
                     </div>
                     <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
@@ -50772,7 +50772,7 @@ body {
                     <div class="values-grid">
                         ${Object.entries(sharePresets).map(([key, preset]) => renderPresetCard(key, preset)).join('')}
                     </div>
-                    ${currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(96,165,250,0.08); border-left:3px solid #60a5fa; border-radius:6px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab. Skills are included based on your profile data.</div>' : ''}
+                    ${currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(96,165,250,0.08); border-left:3px solid var(--accent); border-radius:6px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab. Skills are included based on your profile data.</div>' : ''}
                 </div>
             `;
         }
@@ -50821,11 +50821,11 @@ body {
             var totalValues = (blueprintData.values || []).length;
             var sharedValues = blueprintData.values.filter(v => v.selected).length;
             
-            var skillCtx = sharedSkills < skillCount ? '<div style="font-size:0.72em; color:#a1a1a6; margin-top:4px;">of ' + skillCount + ' total</div>' : '';
-            var outcomeCtx = totalOutcomes === 0 ? '<div style="font-size:0.72em; color:#ff9f0a; margin-top:4px;">None added yet</div>' 
-                           : sharedOutcomes < totalOutcomes ? '<div style="font-size:0.72em; color:#a1a1a6; margin-top:4px;">of ' + totalOutcomes + ' total</div>' : '';
-            var valueCtx = totalValues === 0 ? '<div style="font-size:0.72em; color:#ff9f0a; margin-top:4px;">None added yet</div>'
-                         : sharedValues < totalValues ? '<div style="font-size:0.72em; color:#a1a1a6; margin-top:4px;">of ' + totalValues + ' total</div>' : '';
+            var skillCtx = sharedSkills < skillCount ? '<div style="font-size:0.72em; color:var(--text-secondary); margin-top:4px;">of ' + skillCount + ' total</div>' : '';
+            var outcomeCtx = totalOutcomes === 0 ? '<div style="font-size:0.72em; color:var(--c-orange); margin-top:4px;">None added yet</div>' 
+                           : sharedOutcomes < totalOutcomes ? '<div style="font-size:0.72em; color:var(--text-secondary); margin-top:4px;">of ' + totalOutcomes + ' total</div>' : '';
+            var valueCtx = totalValues === 0 ? '<div style="font-size:0.72em; color:var(--c-orange); margin-top:4px;">None added yet</div>'
+                         : sharedValues < totalValues ? '<div style="font-size:0.72em; color:var(--text-secondary); margin-top:4px;">of ' + totalValues + ' total</div>' : '';
             
             return `
                 <div class="blueprint-section">
@@ -50838,29 +50838,29 @@ body {
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                         <div style="background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
-                            <div style="font-size: 2em; color: #60a5fa; font-weight: bold;">${sharedSkills}</div>
-                            <div style="color: #a1a1a6; margin-top: 5px;">Skills</div>
+                            <div style="font-size: 2em; color:var(--accent); font-weight: bold;">${sharedSkills}</div>
+                            <div style="color:var(--text-secondary); margin-top: 5px;">Skills</div>
                             ${skillCtx}
                         </div>
                         <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
                             <div style="font-size: 2em; color: ${totalOutcomes === 0 ? '#636366' : '#30d158'}; font-weight: bold;">${sharedOutcomes}</div>
-                            <div style="color: #a1a1a6; margin-top: 5px;">Outcomes</div>
+                            <div style="color:var(--text-secondary); margin-top: 5px;">Outcomes</div>
                             ${outcomeCtx}
                         </div>
                         <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
                             <div style="font-size: 2em; color: ${totalValues === 0 ? '#636366' : '#ffd60a'}; font-weight: bold;">${sharedValues}</div>
-                            <div style="color: #a1a1a6; margin-top: 5px;">Values</div>
+                            <div style="color:var(--text-secondary); margin-top: 5px;">Values</div>
                             ${valueCtx}
                         </div>
                         <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
-                            <div style="font-size: 2em; color: #bf5af2; font-weight: bold;">✓</div>
-                            <div style="color: #a1a1a6; margin-top: 5px;">Purpose</div>
+                            <div style="font-size: 2em; color:var(--c-purple); font-weight: bold;">✓</div>
+                            <div style="color:var(--text-secondary); margin-top: 5px;">Purpose</div>
                         </div>
                     </div>
                     
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(251, 191, 36, 0.1); border-left: 3px solid #ffd60a; border-radius:6px;">
-                        <strong style="color: #ffd60a;">Note:</strong> 
-                        <span style="color: #d1d1d6;">Sensitive content (recovery, personal loss) is flagged in Blueprint. Review before sharing.</span>
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(251, 191, 36, 0.1); border-left: 3px solid var(--warning); border-radius:6px;">
+                        <strong style="color:var(--warning);">Note:</strong> 
+                        <span style="color:var(--c-label);">Sensitive content (recovery, personal loss) is flagged in Blueprint. Review before sharing.</span>
                     </div>
                 </div>
             `;
@@ -51234,7 +51234,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">All ${skillsData.skills.length} Skills</h2>
-                        <p style="color: #a1a1a6; margin-top: 5px;">Complete list with impact ratings</p>
+                        <p style="color:var(--text-secondary); margin-top: 5px;">Complete list with impact ratings</p>
                     </div>
                     <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
@@ -51242,34 +51242,34 @@ body {
                     <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; text-align: center;">
                             <div>
-                                <div style="color: #ff453a; font-size: 1.8em; font-weight: 700;">
+                                <div style="color:var(--danger); font-size: 1.8em; font-weight: 700;">
                                     ${allSkillsWithImpact.filter(s => s.impactLevel === 'critical').length}
                                 </div>
-                                <div style="color: #a1a1a6; font-size: 0.9em;">${bpIcon('flame',14)} Critical</div>
+                                <div style="color:var(--text-secondary); font-size: 0.9em;">${bpIcon('flame',14)} Critical</div>
                             </div>
                             <div>
-                                <div style="color: #ff9f0a; font-size: 1.8em; font-weight: 700;">
+                                <div style="color:var(--c-orange); font-size: 1.8em; font-weight: 700;">
                                     ${allSkillsWithImpact.filter(s => s.impactLevel === 'high').length}
                                 </div>
-                                <div style="color: #a1a1a6; font-size: 0.9em;">${bpIcon('star',14)} High</div>
+                                <div style="color:var(--text-secondary); font-size: 0.9em;">${bpIcon('star',14)} High</div>
                             </div>
                             <div>
-                                <div style="color: #60a5fa; font-size: 1.8em; font-weight: 700;">
+                                <div style="color:var(--accent); font-size: 1.8em; font-weight: 700;">
                                     ${allSkillsWithImpact.filter(s => s.impactLevel === 'moderate').length}
                                 </div>
-                                <div style="color: #a1a1a6; font-size: 0.9em;">${bpIcon('diamond',14)} Moderate</div>
+                                <div style="color:var(--text-secondary); font-size: 0.9em;">${bpIcon('diamond',14)} Moderate</div>
                             </div>
                             <div>
-                                <div style="color: #636366; font-size: 1.8em; font-weight: 700;">
+                                <div style="color:var(--text-muted); font-size: 1.8em; font-weight: 700;">
                                     ${allSkillsWithImpact.filter(s => s.impactLevel === 'standard').length}
                                 </div>
-                                <div style="color: #a1a1a6; font-size: 0.9em;">${bpIcon('check',14)} Standard</div>
+                                <div style="color:var(--text-secondary); font-size: 0.9em;">${bpIcon('check',14)} Standard</div>
                             </div>
                         </div>
                     </div>
                     
                     <div style="margin-bottom: 25px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">All Skills (Sorted by Impact)</h3>
+                        <h3 style="color:var(--accent); margin-bottom: 15px;">All Skills (Sorted by Impact)</h3>
                         <div style="display: grid; gap: 8px; max-height: 500px; overflow-y: auto; padding-right: 10px;">
                             ${allSkillsWithImpact.map((skill, idx) => {
                                 const impactColor = getImpactColor(skill.impactLevel);
@@ -51280,10 +51280,10 @@ body {
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255, 255, 255, 0.03); border-radius: 6px; border-left: 3px solid ${impactColor};">
                                     <div style="flex: 1;">
                                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                            <span style="color: #f5f5f7; font-weight: 500;">${escapeHtml(skill.name)}</span>
-                                            <span style="color: #636366; font-size: 0.75em; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius:6px;">${categoryBadge}</span>
+                                            <span style="color:var(--text-primary); font-weight: 500;">${escapeHtml(skill.name)}</span>
+                                            <span style="color:var(--text-muted); font-size: 0.75em; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius:6px;">${categoryBadge}</span>
                                         </div>
-                                        <div style="color: #a1a1a6; font-size: 0.85em;">
+                                        <div style="color:var(--text-secondary); font-size: 0.85em;">
                                             ${escapeHtml(skill.level)} • ${escapeHtml(skill.impact.label)}
                                         </div>
                                     </div>
@@ -51296,32 +51296,32 @@ body {
                     </div>
                     
                     <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">Your Market Value</h3>
-                        <div style="color: #d1d1d6; line-height: 1.8;">
+                        <h3 style="color:var(--accent); margin-bottom: 15px;">Your Market Value</h3>
+                        <div style="color:var(--c-label); line-height: 1.8;">
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
                                 <span>Base Market Rate (${totalValue.percentile} percentile):</span>
                                 <strong>$${totalValue.marketRate.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
                                 <span>Critical Skills Premium (${totalValue.criticalSkills.length} skills):</span>
-                                <strong style="color: #30d158;">+$${totalValue.criticalBonus.toLocaleString()}</strong>
+                                <strong style="color:var(--success);">+$${totalValue.criticalBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
                                 <span>High Impact Skills (${totalValue.highSkills.length} skills):</span>
-                                <strong style="color: #30d158;">+$${totalValue.highBonus.toLocaleString()}</strong>
+                                <strong style="color:var(--success);">+$${totalValue.highBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
                                 <span>Rare Combinations:</span>
-                                <strong style="color: #30d158;">+$${totalValue.rarityBonus.toLocaleString()}</strong>
+                                <strong style="color:var(--success);">+$${totalValue.rarityBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 1.2em; margin-top: 10px;">
                                 <strong>Total Market Value:</strong>
-                                <strong style="color: #30d158;">$${totalValue.total.toLocaleString()}</strong>
+                                <strong style="color:var(--success);">$${totalValue.total.toLocaleString()}</strong>
                             </div>
                         </div>
                     </div>
                     
-                    <button class="export-btn-large" onclick="closeExportModal()" style="width: 100%; background: rgba(96, 165, 250, 0.2); border-color: #60a5fa; color: #60a5fa;">
+                    <button class="export-btn-large" onclick="closeExportModal()" style="width: 100%; background: rgba(96, 165, 250, 0.2); border-color:var(--accent); color:var(--accent);">
                         Close
                     </button>
                 </div>
@@ -51353,12 +51353,12 @@ body {
             // Negotiation gap
             var gap = tv.yourWorth - tv.standardOffer;
             html += '<div style="padding:10px 12px; background:rgba(255,214,10,0.06); border-radius:8px; margin-bottom:14px;">'
-                + '<div style="color:#ffd60a; font-weight:600; font-size:0.82em; margin-bottom:4px;">' + bpIcon('lightbulb',12) + ' Negotiation Gap: $' + gap.toLocaleString() + '</div>'
+                + '<div style="color:var(--warning); font-weight:600; font-size:0.82em; margin-bottom:4px;">' + bpIcon('lightbulb',12) + ' Negotiation Gap: $' + gap.toLocaleString() + '</div>'
                 + '<div style="font-size:0.78em; color:var(--c-muted); line-height:1.5;">'
                 + 'Start at $' + tv.yourWorth.toLocaleString() + ', negotiate to $' + tv.competitiveOffer.toLocaleString() + '+.</div></div>';
             
             // Talking points
-            html += '<div style="font-size:0.78em; font-weight:700; color:#ffd60a; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Talking Points</div>'
+            html += '<div style="font-size:0.78em; font-weight:700; color:var(--warning); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Talking Points</div>'
                 + '<div style="display:grid; gap:6px; margin-bottom:14px;">';
             
             var allSkills = (skillsData && skillsData.skills) || (userData && userData.skills) || [];
@@ -51383,12 +51383,12 @@ body {
             html += '</div>';
             
             // Script for salary expectations
-            html += '<div style="font-size:0.78em; font-weight:700; color:#60a5fa; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">When Asked for Expectations</div>'
+            html += '<div style="font-size:0.78em; font-weight:700; color:var(--accent); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">When Asked for Expectations</div>'
                 + '<div style="padding:10px 12px; background:rgba(255,255,255,0.02); border-radius:8px; font-size:0.82em; color:var(--c-muted); font-style:italic; line-height:1.6; margin-bottom:10px;">'
                 + '"Based on my skill profile and market analysis, I\'m targeting $' + Math.round(tv.competitiveOffer / 1000) * 1000 + '\u2013$' + Math.round(tv.yourWorth / 1000) * 1000 + '. Flexible on total package structure."</div>';
             
             // Best practices
-            html += '<div style="font-size:0.78em; font-weight:700; color:#60a5fa; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Best Practices</div>'
+            html += '<div style="font-size:0.78em; font-weight:700; color:var(--accent); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Best Practices</div>'
                 + '<div style="font-size:0.78em; color:var(--c-muted); line-height:1.6;">'
                 + 'Never share salary history. Name your range first (anchoring). Get the full offer in writing before negotiating. Ask about equity, signing bonus, PTO separately. Express enthusiasm before countering.'
                 + '</div>';
@@ -51445,14 +51445,14 @@ body {
             var html = '<div class="modal-header">'                + '<div class="modal-header-left">'                + '<h2 class="modal-title">' + bpIcon('target',18) + ' Review Prep</h2>'                + '<p style="color:var(--c-muted); margin-top:5px; font-size:0.85em;">Compensation intelligence for your next review conversation</p>'                + '</div>'                + '<button class="modal-close" aria-label="Close" onclick="closeExportModal()">×</button>'                + '</div>'                + '<div class="modal-body" style="padding:24px 28px; max-height:72vh; overflow-y:auto;">';
             
             // Section 1: Your Position
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:12px;">Your Position</div>'                + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Current Pay</div><div style="font-size:1.5em; font-weight:700; color:var(--c-heading);">' + formatCompValue(currentComp) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Market Floor (BLS)</div><div style="font-size:1.5em; font-weight:700; color:#30d158;">' + formatCompValue(marketFloor) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Justified Value</div><div style="font-size:1.5em; font-weight:700; color:#60a5fa;">' + formatCompValue(justifiedVal) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Gap to Justified</div><div style="font-size:1.5em; font-weight:700; color:#ff9f0a;">' + (gap > 0 ? '+' + formatCompValue(gap) : formatCompValue(Math.abs(gap))) + '</div></div>'                + '</div></div>';
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:12px;">Your Position</div>'                + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Current Pay</div><div style="font-size:1.5em; font-weight:700; color:var(--c-heading);">' + formatCompValue(currentComp) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Market Floor (BLS)</div><div style="font-size:1.5em; font-weight:700; color:var(--success);">' + formatCompValue(marketFloor) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Justified Value</div><div style="font-size:1.5em; font-weight:700; color:var(--accent);">' + formatCompValue(justifiedVal) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Gap to Justified</div><div style="font-size:1.5em; font-weight:700; color:var(--c-orange);">' + (gap > 0 ? '+' + formatCompValue(gap) : formatCompValue(Math.abs(gap))) + '</div></div>'                + '</div></div>';
             
             // Section 2: Compa-Ratio
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Compa-Ratio</div>'                + '<div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">'                + '<div style="font-size:2.4em; font-weight:700; color:' + compaColor + ';">' + compaRatio + '%</div>'                + '<div><div style="font-size:0.82em; color:var(--c-text); font-weight:600; line-height:1.4;">' + escapeHtml(compaStatus) + '</div>'                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Your pay vs BLS market midpoint</div></div></div>'                + '<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.7em; text-align:center;">'                + '<div style="padding:5px; background:rgba(255,69,58,0.08); border-radius:8px; color:#ff453a;"><div style="font-weight:700;">&lt;80%</div><div style="color:var(--c-faint);">Underpaid</div></div>'                + '<div style="padding:5px; background:rgba(255,159,10,0.08); border-radius:8px; color:#ff9f0a;"><div style="font-weight:700;">80–100%</div><div style="color:var(--c-faint);">Below mid</div></div>'                + '<div style="padding:5px; background:rgba(48,209,88,0.08); border-radius:8px; color:#30d158;"><div style="font-weight:700;">100–120%</div><div style="color:var(--c-faint);">At/above mid</div></div>'                + '<div style="padding:5px; background:rgba(156,163,175,0.08); border-radius:8px; color:#a1a1a6;"><div style="font-weight:700;">&gt;120%</div><div style="color:var(--c-faint);">At ceiling</div></div>'                + '</div></div>';
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Compa-Ratio</div>'                + '<div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">'                + '<div style="font-size:2.4em; font-weight:700; color:' + compaColor + ';">' + compaRatio + '%</div>'                + '<div><div style="font-size:0.82em; color:var(--c-text); font-weight:600; line-height:1.4;">' + escapeHtml(compaStatus) + '</div>'                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Your pay vs BLS market midpoint</div></div></div>'                + '<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.7em; text-align:center;">'                + '<div style="padding:5px; background:rgba(255,69,58,0.08); border-radius:8px; color:var(--danger);"><div style="font-weight:700;">&lt;80%</div><div style="color:var(--c-faint);">Underpaid</div></div>'                + '<div style="padding:5px; background:rgba(255,159,10,0.08); border-radius:8px; color:var(--c-orange);"><div style="font-weight:700;">80–100%</div><div style="color:var(--c-faint);">Below mid</div></div>'                + '<div style="padding:5px; background:rgba(48,209,88,0.08); border-radius:8px; color:var(--success);"><div style="font-weight:700;">100–120%</div><div style="color:var(--c-faint);">At/above mid</div></div>'                + '<div style="padding:5px; background:rgba(156,163,175,0.08); border-radius:8px; color:var(--text-secondary);"><div style="font-weight:700;">&gt;120%</div><div style="color:var(--c-faint);">At ceiling</div></div>'                + '</div></div>';
             
             // Section 3: Your Ask
             if (gap > 0) {
-                html += '<div style="background:rgba(96,165,250,0.08); border:1.5px solid rgba(96,165,250,0.3); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                    + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#60a5fa; margin-bottom:10px;">' + bpIcon('target',12) + ' Your Ask</div>'                    + '<div style="font-size:0.88em; color:var(--c-text); line-height:1.6; margin-bottom:12px;">'                    + 'A realistic internal raise target is the midpoint between where you are and where your skills justify. '                    + 'This is achievable in a single review cycle and fully supportable by BLS data and your evidence record.'                    + '</div>'                    + '<div style="display:flex; align-items:center; gap:20px; padding:12px 16px; background:rgba(96,165,250,0.06); border-radius:8px;">'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">Suggested ask</div><div style="font-size:2em; font-weight:700; color:#60a5fa;">' + formatCompValue(internalAsk) + '</div></div>'                    + '<div style="color:var(--c-surface-5); font-size:1.5em;">→</div>'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">That’s a</div><div style="font-size:1.4em; font-weight:700; color:#ff9f0a;">+' + internalAskPct + '%</div><div style="font-size:0.68em; color:var(--c-faint);">increase</div></div>'                    + '<div style="flex:1; font-size:0.78em; color:var(--c-faint); line-height:1.5;">Justified value is <strong style="color:#60a5fa;">' + formatCompValue(justifiedVal) + '</strong>. Starting at midpoint leaves room to negotiate and signals data-literacy.</div>'                    + '</div></div>';
+                html += '<div style="background:rgba(96,165,250,0.08); border:1.5px solid rgba(96,165,250,0.3); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                    + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--accent); margin-bottom:10px;">' + bpIcon('target',12) + ' Your Ask</div>'                    + '<div style="font-size:0.88em; color:var(--c-text); line-height:1.6; margin-bottom:12px;">'                    + 'A realistic internal raise target is the midpoint between where you are and where your skills justify. '                    + 'This is achievable in a single review cycle and fully supportable by BLS data and your evidence record.'                    + '</div>'                    + '<div style="display:flex; align-items:center; gap:20px; padding:12px 16px; background:rgba(96,165,250,0.06); border-radius:8px;">'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">Suggested ask</div><div style="font-size:2em; font-weight:700; color:var(--accent);">' + formatCompValue(internalAsk) + '</div></div>'                    + '<div style="color:var(--c-surface-5); font-size:1.5em;">→</div>'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">That’s a</div><div style="font-size:1.4em; font-weight:700; color:var(--c-orange);">+' + internalAskPct + '%</div><div style="font-size:0.68em; color:var(--c-faint);">increase</div></div>'                    + '<div style="flex:1; font-size:0.78em; color:var(--c-faint); line-height:1.5;">Justified value is <strong style="color:var(--accent);">' + formatCompValue(justifiedVal) + '</strong>. Starting at midpoint leaves room to negotiate and signals data-literacy.</div>'                    + '</div></div>';
             }
             
             // Section 4: Your Evidence
@@ -51462,10 +51462,10 @@ body {
                 if (topSkillNames.length > 0) {
                     html += '<div style="font-size:0.78em; color:var(--c-faint); margin-bottom:6px;">Top skills by proficiency</div>'                        + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">';
                     topSkillNames.forEach(function(n) {
-                        html += '<span style="padding:3px 9px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.25); border-radius:20px; font-size:0.77em; color:#60a5fa;">' + escapeHtml(n) + '</span>';
+                        html += '<span style="padding:3px 9px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.25); border-radius:20px; font-size:0.77em; color:var(--accent);">' + escapeHtml(n) + '</span>';
                     });
                     if (premPct > 0) {
-                        html += '<span style="padding:3px 9px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); border-radius:20px; font-size:0.77em; color:#ff9f0a;">+' + premPct + '% skill premium</span>';
+                        html += '<span style="padding:3px 9px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); border-radius:20px; font-size:0.77em; color:var(--c-orange);">+' + premPct + '% skill premium</span>';
                     }
                     html += '</div>';
                 }
@@ -51664,7 +51664,7 @@ body {
             var guide = _buildStaticNegGuide(job, tv);
 
             var disclaimer = '<div style="padding:12px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
-                + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:#60a5fa;">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
+                + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:var(--accent);">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
 
             var renderFn = function(html) {
                 var bodyStart = html.indexOf('<div class="modal-body"');
@@ -51914,7 +51914,7 @@ body {
             compHtml += '</div>';
             if (g.theAsk && g.theAsk.number) {
                 compHtml += '<div style="padding:10px 14px; background:rgba(255,214,10,0.08); border:1px solid rgba(255,214,10,0.2); border-radius:8px;">'
-                    + '<div style="font-size:0.78em; font-weight:700; color:#ffd60a; margin-bottom:4px;">' + bpIcon('target',12) + ' YOUR ASK: $' + Math.round(g.theAsk.number).toLocaleString() + '</div>'
+                    + '<div style="font-size:0.78em; font-weight:700; color:var(--warning); margin-bottom:4px;">' + bpIcon('target',12) + ' YOUR ASK: $' + Math.round(g.theAsk.number).toLocaleString() + '</div>'
                     + (g.theAsk.justification || []).map(function(j, i) {
                         return '<div style="font-size:0.76em; color:var(--c-muted); margin-top:3px;">' + (i+1) + '. ' + escapeHtml(j) + '</div>';
                     }).join('') + '</div>';
@@ -51924,15 +51924,15 @@ body {
             // ── Opening move ──
             if (g.openingMove) {
                 html += section(bpIcon('activity',12) + ' Opening Move', '#60a5fa',
-                    '<div style="font-style:italic; font-size:0.88em; color:var(--c-text); line-height:1.6; padding:10px 14px; background:rgba(96,165,250,0.06); border-left:3px solid #60a5fa; border-radius:0 8px 8px 0;">'
+                    '<div style="font-style:italic; font-size:0.88em; color:var(--c-text); line-height:1.6; padding:10px 14px; background:rgba(96,165,250,0.06); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;">'
                     + '"' + escapeHtml(g.openingMove) + '"</div>');
             }
 
             // ── Strengths ──
             var strHtml = '<div style="display:grid; gap:8px;">';
             (g.strengths || []).forEach(function(s) {
-                strHtml += '<div style="padding:10px 14px; background:rgba(48,209,88,0.06); border-radius:8px; border-left:3px solid #30d158;">'
-                    + '<div style="font-size:0.84em; font-weight:700; color:#30d158; margin-bottom:3px;">' + escapeHtml(s.title || '') + '</div>'
+                strHtml += '<div style="padding:10px 14px; background:rgba(48,209,88,0.06); border-radius:8px; border-left:3px solid var(--success);">'
+                    + '<div style="font-size:0.84em; font-weight:700; color:var(--success); margin-bottom:3px;">' + escapeHtml(s.title || '') + '</div>'
                     + '<div style="font-size:0.79em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(s.evidence || '') + '</div>'
                     + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(s.hook || '') + '"</div>'
                     + '</div>';
@@ -51943,10 +51943,10 @@ body {
             // ── Weakness neutralizations ──
             var weakHtml = '<div style="display:grid; gap:8px;">';
             (g.weaknessNeutralizations || []).forEach(function(w) {
-                weakHtml += '<div style="padding:10px 14px; background:rgba(255,214,10,0.05); border-radius:8px; border-left:3px solid #ffd60a;">'
+                weakHtml += '<div style="padding:10px 14px; background:rgba(255,214,10,0.05); border-radius:8px; border-left:3px solid var(--warning);">'
                     + '<div style="font-size:0.76em; font-weight:700; color:var(--c-muted); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Potential Concern</div>'
                     + '<div style="font-size:0.82em; color:var(--c-text); margin-bottom:5px;">' + escapeHtml(w.weakness || '') + '</div>'
-                    + '<div style="font-size:0.76em; font-weight:700; color:#ffd60a; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Reframe As</div>'
+                    + '<div style="font-size:0.76em; font-weight:700; color:var(--warning); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Reframe As</div>'
                     + '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(w.reframe || '') + '</div>'
                     + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic; border-top:1px solid rgba(255,214,10,0.15); padding-top:5px; margin-top:3px;">"' + escapeHtml(w.bridgeLine || '') + '"</div>'
                     + '</div>';
@@ -51957,8 +51957,8 @@ body {
             // ── Blind spots ──
             var bsHtml = '<div style="display:grid; gap:8px;">';
             (g.blindSpots || []).forEach(function(b) {
-                bsHtml += '<div style="padding:10px 14px; background:rgba(255,69,58,0.06); border-radius:8px; border-left:3px solid #ff453a;">'
-                    + '<div style="font-size:0.84em; font-weight:700; color:#ff453a; margin-bottom:3px;">' + escapeHtml(b.risk || '') + '</div>'
+                bsHtml += '<div style="padding:10px 14px; background:rgba(255,69,58,0.06); border-radius:8px; border-left:3px solid var(--danger);">'
+                    + '<div style="font-size:0.84em; font-weight:700; color:var(--danger); margin-bottom:3px;">' + escapeHtml(b.risk || '') + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:4px;">' + escapeHtml(b.why || '') + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-text);">Mitigation: ' + escapeHtml(b.mitigation || '') + '</div>'
                     + '</div>';
@@ -51969,8 +51969,8 @@ body {
             // ── Counter-offer playbook ──
             var coHtml = '<div style="display:grid; gap:8px;">';
             (g.counterOfferPlaybook || []).forEach(function(c) {
-                coHtml += '<div style="padding:10px 14px; background:rgba(167,139,250,0.06); border-radius:8px; border-left:3px solid #bf5af2;">'
-                    + '<div style="font-size:0.78em; font-weight:700; color:#bf5af2; margin-bottom:4px;">' + escapeHtml(c.scenario || '') + '</div>'
+                coHtml += '<div style="padding:10px 14px; background:rgba(167,139,250,0.06); border-radius:8px; border-left:3px solid var(--c-purple);">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:var(--c-purple); margin-bottom:4px;">' + escapeHtml(c.scenario || '') + '</div>'
                     + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(c.response || '') + '"</div>'
                     + '</div>';
             });
@@ -52262,7 +52262,7 @@ body {
             }
             
             if (!library) {
-                container.innerHTML = `<div style="text-align:center;padding:40px;color:#a1a1a6;">
+                container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-secondary);">
                     Library not loaded.<br><small style="opacity:0.6">Make sure the JSON file is deployed to GitHub.</small>
                 </div>`;
                 return;
@@ -52391,7 +52391,7 @@ body {
             }
             
             if (!html) {
-                html = '<div style="text-align: center; padding: 40px; color: #a1a1a6;">No results found</div>';
+                html = '<div style="text-align: center; padding: 40px; color:var(--text-secondary);">No results found</div>';
             }
             
             container.innerHTML = html;
@@ -52856,16 +52856,16 @@ body {
             
             var summaryHtml = '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:16px;">'
                 + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2);">'
-                + '<div style="font-size:1.4em; font-weight:700; color:#30d158;">' + adding.length + '</div>'
+                + '<div style="font-size:1.4em; font-weight:700; color:var(--success);">' + adding.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">New</div></div>'
                 + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2);">'
-                + '<div style="font-size:1.4em; font-weight:700; color:#60a5fa;">' + upgrading.length + '</div>'
+                + '<div style="font-size:1.4em; font-weight:700; color:var(--accent);">' + upgrading.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Upgrading</div></div>'
                 + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(255,214,10,0.08); border:1px solid rgba(255,214,10,0.2);">'
-                + '<div style="font-size:1.4em; font-weight:700; color:#ff9f0a;">' + overwriting.length + '</div>'
+                + '<div style="font-size:1.4em; font-weight:700; color:var(--c-orange);">' + overwriting.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Overwriting</div></div>'
                 + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(99,99,102,0.06); border:1px solid rgba(99,99,102,0.15);">'
-                + '<div style="font-size:1.4em; font-weight:700; color:#636366;">' + skipping.length + '</div>'
+                + '<div style="font-size:1.4em; font-weight:700; color:var(--text-muted);">' + skipping.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Skipped</div></div>'
                 + '</div>';
             
@@ -52880,15 +52880,15 @@ body {
             _bulkParsedSkills.forEach(function(skill, idx) {
                 var bg, icon, detail;
                 if (skill.action === 'add') {
-                    bg = 'rgba(48,209,88,0.06)'; icon = bpIcon('plus',12); detail = '<span style="color:#30d158;">New at ' + skill.level + '</span>';
+                    bg = 'rgba(48,209,88,0.06)'; icon = bpIcon('plus',12); detail = '<span style="color:var(--success);">New at ' + skill.level + '</span>';
                 } else if (skill.action === 'upgrade') {
-                    bg = 'rgba(96,165,250,0.06)'; icon = '⬆'; detail = '<span style="color:#60a5fa;">' + skill.conflict.level + ' → ' + skill.level + '</span>';
+                    bg = 'rgba(96,165,250,0.06)'; icon = '⬆'; detail = '<span style="color:var(--accent);">' + skill.conflict.level + ' → ' + skill.level + '</span>';
                 } else if (skill.action === 'overwrite') {
-                    bg = 'rgba(255,214,10,0.06)'; icon = '' + bpIcon('refresh',10) + ''; detail = '<span style="color:#ff9f0a;">Replace ' + skill.conflict.level + ' with ' + skill.level + '</span>';
+                    bg = 'rgba(255,214,10,0.06)'; icon = '' + bpIcon('refresh',10) + ''; detail = '<span style="color:var(--c-orange);">Replace ' + skill.conflict.level + ' with ' + skill.level + '</span>';
                 } else {
                     bg = 'rgba(99,99,102,0.04)'; icon = '⊘';
                     var reason = skill.conflict ? 'Already exists as "' + skill.conflict.name + '" (' + skill.conflict.level + ')' : 'Duplicate';
-                    detail = '<span style="color:#636366;">' + reason + '</span>';
+                    detail = '<span style="color:var(--text-muted);">' + reason + '</span>';
                 }
                 
                 listHtml += '<div style="display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:6px; background:' + bg + '; margin-bottom:4px;">'
@@ -53088,7 +53088,7 @@ body {
                 + '<span style="font-size:0.82em; color:var(--text-muted);">Set ' + names.length + ' skill' + (names.length > 1 ? 's' : '') + ' to:</span>';
             levels.forEach(function(l) {
                 html += '<button onclick="executeBulkSetLevel(\'' + l + '\')" style="padding:5px 12px; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600; '
-                    + 'background:rgba(191,90,242,0.1); color:#bf5af2; border:1px solid rgba(191,90,242,0.25);">' + l + '</button>';
+                    + 'background:rgba(191,90,242,0.1); color:var(--c-purple); border:1px solid rgba(191,90,242,0.25);">' + l + '</button>';
             });
             html += '<button onclick="document.getElementById(\'bmLevelPicker\').remove();" style="padding:5px 10px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:0.82em;">Cancel</button>';
             html += '</div>';
@@ -53186,12 +53186,12 @@ body {
                 var evColor = evs.hasGap ? 'var(--c-warn)' : 'var(--c-success)';
                 var evBg = evs.hasGap ? 'var(--c-amber-bg-2b)' : 'var(--c-green-bg-2a)';
                 var evPills = '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">';
-                evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(96,165,250,0.12); color:#60a5fa; font-size:0.82em; font-weight:600;">' + bpIcon('check',11) + ' Evidence: ' + (evs.evidenceOnlyLevel || evs.effectiveLevel) + ' <span style="font-weight:400; opacity:0.7;">(' + evs.points + ' pts)</span></span>';
+                evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(96,165,250,0.12); color:var(--accent); font-size:0.82em; font-weight:600;">' + bpIcon('check',11) + ' Evidence: ' + (evs.evidenceOnlyLevel || evs.effectiveLevel) + ' <span style="font-weight:400; opacity:0.7;">(' + evs.points + ' pts)</span></span>';
                 if (evs.inferredActive) {
-                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(191,90,242,0.12); color:#bf5af2; font-size:0.82em; font-weight:600;" title="' + evs.experienceYears + ' years experience">\u2728 Inferred: ' + evs.inferredLevel + '</span>';
+                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(191,90,242,0.12); color:var(--c-purple); font-size:0.82em; font-weight:600;" title="' + evs.experienceYears + ' years experience">\u2728 Inferred: ' + evs.inferredLevel + '</span>';
                 }
                 if (evs.verifiedCount > 0) {
-                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(48,209,88,0.12); color:#30d158; font-size:0.82em; font-weight:600;">' + bpIcon('shield',11) + ' Verified: ' + evs.verifiedCount + '</span>';
+                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(48,209,88,0.12); color:var(--success); font-size:0.82em; font-weight:600;">' + bpIcon('shield',11) + ' Verified: ' + evs.verifiedCount + '</span>';
                 }
                 evPills += '</div>';
                 evStatus.innerHTML = '<div style="padding:10px 14px; background:' + evBg + '; border-radius:8px; font-size:0.82em;">'
@@ -53200,7 +53200,7 @@ body {
                     + '<span style="color:var(--c-muted); font-size:0.88em;">' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + '</span></div>'
                     + evPills
                     + '<br><button onclick="closeEditSkillModal(true); setTimeout(function(){ var sk = (skillsData.skills||[]).find(function(s){return s.name===\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\';}); if(sk) openSkillModal(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\', sk); }, 100);" '
-                    + 'style="margin-top:4px; padding:3px 10px; background:transparent; border:1px solid var(--c-green-border-2); color:#30d158; border-radius:6px; cursor:pointer; font-size:0.88em;">+ Add Evidence</button>'
+                    + 'style="margin-top:4px; padding:3px 10px; background:transparent; border:1px solid var(--c-green-border-2); color:var(--success); border-radius:6px; cursor:pointer; font-size:0.88em;">+ Add Evidence</button>'
                     + '</div>';
             }
             updateEditSkillGapWarning();
@@ -53295,9 +53295,9 @@ body {
                 + '<h2 style="margin:0; font-size:1.3em; color:var(--text-primary);">' + escapeHtml(skillName) + '</h2>'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;">'
                 + '<span style="padding:3px 10px; border-radius:10px; font-size:0.75em; font-weight:600; background:' + (levelColors[skill.level] || '#636366') + '22; color:' + (levelColors[skill.level] || '#636366') + ';">' + (skill.level || 'Proficient') + '</span>'
-                + (skill.key ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(255,159,10,0.15); color:#ff9f0a; font-weight:600;">CORE</span>' : '')
-                + (isOnetSkill ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(96,165,250,0.15); color:#60a5fa;">O*NET</span>' : '')
-                + (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(48,209,88,0.15); color:#30d158; font-weight:600;">\u2713 Verified by ' + escapeHtml(vn) + '</span>'; } return ''; })()
+                + (skill.key ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(255,159,10,0.15); color:var(--c-orange); font-weight:600;">CORE</span>' : '')
+                + (isOnetSkill ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(96,165,250,0.15); color:var(--accent);">O*NET</span>' : '')
+                + (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(48,209,88,0.15); color:var(--success); font-weight:600;">\u2713 Verified by ' + escapeHtml(vn) + '</span>'; } return ''; })()
                 + '</div></div>'
                 + '<div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">'
                 + '<button onclick="saveUnifiedSkillEdit()" style="padding:6px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82em;">Save</button>'
@@ -53326,7 +53326,7 @@ body {
                 html += '<div style="margin-top:6px; padding:6px 10px; border-radius:6px; font-size:0.78em; background:var(--bg-elevated); border:1px solid var(--border);">'
                     + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + evs.effectiveLevel + '</span>'
                     + '<span style="color:var(--text-muted); margin-left:6px;">(' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + ')</span>'
-                    + (evs.verifiedCount > 0 ? ' <span style="color:#30d158;"> \u2713 ' + evs.verifiedCount + ' verified</span>' : '')
+                    + (evs.verifiedCount > 0 ? ' <span style="color:var(--success);"> \u2713 ' + evs.verifiedCount + ' verified</span>' : '')
                     + '</div>';
             }
             html += '</div>';
@@ -53359,13 +53359,13 @@ body {
                 + '<div onclick="document.getElementById(\'uniAssessBody\').style.display = document.getElementById(\'uniAssessBody\').style.display === \'none\' ? \'block\' : \'none\';" '
                 + 'style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; cursor:pointer; background:var(--bg-elevated);">'
                 + '<div style="font-weight:600; font-size:0.85em; color:var(--accent);">' + bpIcon('bar-chart',14) + ' Impact Assessment'
-                + (hasAssess ? ' <span style="color:#30d158; font-size:0.85em;">\u2713 Assessed</span>' : ' <span style="color:var(--text-muted); font-size:0.85em;">(optional)</span>')
+                + (hasAssess ? ' <span style="color:var(--success); font-size:0.85em;">\u2713 Assessed</span>' : ' <span style="color:var(--text-muted); font-size:0.85em;">(optional)</span>')
                 + '</div>'
                 + '<span style="color:var(--text-muted);">\u25BC</span></div>'
                 + '<div id="uniAssessBody" style="display:' + (isOnetSkill && !hasAssess ? 'none' : 'block') + '; padding:14px;">';
             
             if (!isOnetSkill) {
-                html += '<div style="padding:8px 10px; background:rgba(255,159,10,0.1); border-left:3px solid #ff9f0a; border-radius:6px; font-size:0.78em; color:var(--text-secondary); margin-bottom:12px;">'
+                html += '<div style="padding:8px 10px; background:rgba(255,159,10,0.1); border-left:3px solid var(--c-orange); border-radius:6px; font-size:0.78em; color:var(--text-secondary); margin-bottom:12px;">'
                     + '' + bpIcon('lightbulb',14) + ' This skill doesn\'t have a direct O*NET match. Assess it to improve market impact accuracy.</div>';
             }
             
@@ -53439,7 +53439,7 @@ body {
                 + '<button onclick="saveUnifiedSkillEdit()" style="flex:1; padding:12px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.92em;">Save Changes</button>'
                 + '<button onclick="closeUnifiedSkillEditor()" style="padding:12px 20px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Cancel</button>'
                 + '<button onclick="if(confirm(\'Remove ' + escapeHtml(skillName).replace(/'/g,"\\'") + '?\')) { deleteSkillFromProfile(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\'); closeUnifiedSkillEditor(true); }" '
-                + 'style="margin-left:auto; padding:10px 14px; background:none; color:#ff453a; border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.82em;">'
+                + 'style="margin-left:auto; padding:10px 14px; background:none; color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.82em;">'
                 + bpIcon('trash',14) + ' Remove</button>'
                 + '</div>';
             
@@ -53506,7 +53506,7 @@ body {
             var selectedVal = proficiencyValue(selectedLevel);
             var effectiveVal = proficiencyValue(evs.effectiveLevel);
             if (selectedVal > effectiveVal) {
-                warning.innerHTML = '<div style="padding:6px 10px; background:rgba(255,159,10,0.1); border:1px solid rgba(255,159,10,0.3); border-radius:6px; font-size:0.78em; color:#ff9f0a;">'
+                warning.innerHTML = '<div style="padding:6px 10px; background:rgba(255,159,10,0.1); border:1px solid rgba(255,159,10,0.3); border-radius:6px; font-size:0.78em; color:var(--c-orange);">'
                     + '\u26A0 Claiming <strong>' + selectedLevel + '</strong> but evidence supports <strong>' + evs.effectiveLevel + '</strong>. '
                     + 'Market valuation uses ' + evs.effectiveLevel + ' until more evidence is added.</div>';
             } else { warning.innerHTML = ''; }
@@ -53892,7 +53892,7 @@ body {
             
             if (skills.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: #a1a1a6;">
+                    <div style="text-align: center; padding: 60px 20px; color:var(--text-secondary);">
                         <div style="font-size: 3em; margin-bottom: 10px;">${bpIcon("clipboard",14)}</div>
                         <div style="font-size: 1.1em;">No skills found</div>
                         <div style="font-size: 0.9em; margin-top: 10px;">Try adjusting your filters</div>
@@ -53917,26 +53917,26 @@ body {
             
             container.innerHTML = Object.entries(grouped).map(([cat, catSkills]) => `
                 <div style="margin-bottom: 25px;">
-                    <div style="color: #a1a1a6; font-size: 0.85em; font-weight: 600; margin-bottom: 12px; text-transform: uppercase;">
+                    <div style="color:var(--text-secondary); font-size: 0.85em; font-weight: 600; margin-bottom: 12px; text-transform: uppercase;">
                         ${categoryNames[cat] || cat} (${catSkills.length})
                     </div>
                     ${catSkills.map(skill => `
                         <div class="your-skill-item">
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
                                 <div style="flex: 1;">
-                                    <div style="color: #f5f5f7; font-weight: 600; margin-bottom: 6px; font-size: 1.05em;">
+                                    <div style="color:var(--text-primary); font-weight: 600; margin-bottom: 6px; font-size: 1.05em;">
                                         ${escapeHtml(skill.name)}
                                     </div>
                                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                                        <span style="color: #60a5fa; font-size: 0.8em; padding: 2px 8px; background: rgba(96, 165, 250, 0.2); border-radius:6px;">
+                                        <span style="color:var(--accent); font-size: 0.8em; padding: 2px 8px; background: rgba(96, 165, 250, 0.2); border-radius:6px;">
                                             ${escapeHtml(skill.level)}
                                         </span>
-                                        ${skill.key ? '<span style="color: #ffd60a; font-size: 0.8em;">⭐ Core</span>' : ''}
-                                        ${skill.roles ? `<span style="color: #a1a1a6; font-size: 0.8em;">${skill.roles.length} role${skill.roles.length > 1 ? 's' : ''}</span>` : ''}
+                                        ${skill.key ? '<span style="color:var(--warning); font-size: 0.8em;">⭐ Core</span>' : ''}
+                                        ${skill.roles ? `<span style="color:var(--text-secondary); font-size: 0.8em;">${skill.roles.length} role${skill.roles.length > 1 ? 's' : ''}</span>` : ''}
                                     </div>
                                 </div>
                                 <button onclick="removeSkillFromProfile('${escapeHtml(skill.name).replace(/'/g, "\\'")}', '${cat}')" 
-                                        style="padding: 8px 16px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ff453a; border-radius: 6px; cursor: pointer; font-size: 0.9em; white-space: nowrap; font-weight: 600; transition: all 0.2s;"
+                                        style="padding: 8px 16px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color:var(--danger); border-radius: 6px; cursor: pointer; font-size: 0.9em; white-space: nowrap; font-weight: 600; transition: all 0.2s;"
                                         onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'"
                                         onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">
                                     Remove
@@ -53976,7 +53976,7 @@ body {
             if (readOnlyGuard()) return;
             const container = document.getElementById('addSkillsResults');
             container.innerHTML = `
-                <div style="text-align: center; padding: 60px 20px; color: #a1a1a6;">
+                <div style="text-align: center; padding: 60px 20px; color:var(--text-secondary);">
                     <div style="margin-bottom: 10px;">' + bpIcon('search',48) + '</div>
                     <div style="font-size: 1.1em;">Start typing to search skills</div>
                     <div style="font-size: 0.9em; margin-top: 10px;">Try: "python", "marketing", "leadership"</div>
@@ -54002,7 +54002,7 @@ body {
                     const container = document.getElementById('addSkillsResults');
                     if (!container) return;
                     container.innerHTML = `
-                        <div style="text-align: center; padding: 60px 20px; color: #ff9f0a;">
+                        <div style="text-align: center; padding: 60px 20px; color:var(--c-orange);">
                             <div style="font-size: 3em; margin-bottom: 10px;">' + bpIcon('clock',12) + '</div>
                             <div style="font-size: 1.1em;">Loading skill library...</div>
                             <div style="font-size: 0.9em; margin-top: 10px;">Please wait</div>
@@ -54139,7 +54139,7 @@ body {
                 if (safeResults.length === 0) {
                     console.log('No results found, showing empty state');
                     container.innerHTML = `
-                        <div style="text-align: center; padding: 60px 20px; color: #a1a1a6;">
+                        <div style="text-align: center; padding: 60px 20px; color:var(--text-secondary);">
                             <div style="font-size: 3em; margin-bottom: 10px;">' + bpIcon('alert',28) + '</div>
                             <div style="font-size: 1.1em;">No skills found for "${escapeHtml(query)}"</div>
                             <div style="font-size: 0.9em; margin-top: 10px;">Try a different search term</div>
@@ -54164,23 +54164,23 @@ body {
                                  onmouseout="if (!this.classList.contains('added')) this.style.background='rgba(255,255,255,0.03)'">
                                 <div style="display: flex; justify-content: space-between; align-items: start;">
                                     <div style="flex: 1;">
-                                        <div style="color: #f5f5f7; font-weight: 600; margin-bottom: 4px;">
+                                        <div style="color:var(--text-primary); font-weight: 600; margin-bottom: 4px;">
                                             ${escapeHtml(skill.n)}
-                                            ${isAdded ? '<span style="color: #30d158; font-size: 0.85em; margin-left: 8px;">✓ Already have</span>' : ''}
+                                            ${isAdded ? '<span style="color:var(--success); font-size: 0.85em; margin-left: 8px;">✓ Already have</span>' : ''}
                                         </div>
                                         <div style="display: flex; gap: 8px; align-items: center;">
                                             <span style="color: ${categoryColor}; font-size: 0.75em; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius:6px;">
                                                 ${escapeHtml(skill.c)}
                                             </span>
                                             ${skill.sc ? `
-                                                <span style="color: #a1a1a6; font-size: 0.75em;">
+                                                <span style="color:var(--text-secondary); font-size: 0.75em;">
                                                     ${escapeHtml(skill.sc)}
                                                 </span>
                                             ` : ''}
                                         </div>
                                     </div>
                                     ${!isAdded ? `
-                                        <button style="padding: 6px 12px; background:#60a5fa; border: none; border-radius: 6px; color: white; font-size: 0.85em; font-weight: 600; cursor: pointer;"
+                                        <button style="padding: 6px 12px; background:var(--accent); border: none; border-radius: 6px; color: white; font-size: 0.85em; font-weight: 600; cursor: pointer;"
                                                 onclick="event.stopPropagation(); addSkillFromLibrary('${escapeHtml(skill.id)}')">
                                             + Add
                                         </button>
@@ -54210,13 +54210,13 @@ body {
                 const container = document.getElementById('addSkillsResults');
                 if (container) {
                     container.innerHTML = `
-                        <div style="text-align: center; padding: 60px 20px; color: #ff453a;">
+                        <div style="text-align: center; padding: 60px 20px; color:var(--danger);">
                             <div style="margin-bottom: 10px;">${bpIcon("warning",48)}</div>
                             <div style="font-size: 1.1em; font-weight: bold;">Search Error</div>
                             <div style="font-size: 0.9em; margin-top: 10px; font-family: monospace;">
                                 ${escapeHtml(error.message)}
                             </div>
-                            <div style="font-size: 0.85em; margin-top: 10px; color: #a1a1a6;">
+                            <div style="font-size: 0.85em; margin-top: 10px; color:var(--text-secondary);">
                                 Check browser console (F12) for details
                             </div>
                         </div>
@@ -54242,7 +54242,7 @@ body {
                     });
                 }
                 if (tradeResults.length === 0) {
-                    container.innerHTML = '<div style="text-align:center;padding:30px;color:#a1a1a6;">Trades library not loaded yet.</div>';
+                    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-secondary);">Trades library not loaded yet.</div>';
                     return;
                 }
                 var catColors = {'Woodworking & Construction':'#c78400','Electrical/Plumbing/Mechanical':'#0891b2','Painting & Finishing':'#9d4edd','Culinary Arts':'#ff9f0a','Visual Arts':'#db2777','Fiber & Textile':'#28a745','Performing Arts':'#ea580c','Outdoor & Agriculture':'#16a34a','Technology & Making':'#4a9eff'};
@@ -54251,9 +54251,9 @@ body {
                     var color = catColors[skill.c] || '#c78400';
                     return '<div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid '+color+';cursor:'+(isAdded?'default':'pointer')+';" '+(isAdded?'':'onclick="addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')"')+'>'
                         +'<div style="display:flex;justify-content:space-between;align-items:start;">'
-                        +'<div style="flex:1;"><div style="color:#f5f5f7;font-weight:600;margin-bottom:4px;">'+escapeHtml(skill.n)+(isAdded?' <span style="color:#30d158;font-size:0.85em;">✓ Added</span>':'')+'</div>'
+                        +'<div style="flex:1;"><div style="color:var(--text-primary);font-weight:600;margin-bottom:4px;">'+escapeHtml(skill.n)+(isAdded?' <span style="color:var(--success);font-size:0.85em;">✓ Added</span>':'')+'</div>'
                         +'<span style="color:'+color+';font-size:0.75em;padding:2px 6px;background:rgba(255,255,255,0.1);border-radius:6px;">'+escapeHtml(skill.c)+'</span></div>'
-                        +(!isAdded?'<button style="padding:6px 12px;background:#60a5fa;border:none;border-radius:6px;color:white;font-size:0.85em;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')">+ Add</button>':'')
+                        +(!isAdded?'<button style="padding:6px 12px;background:var(--accent);border:none;border-radius:6px;color:white;font-size:0.85em;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')">+ Add</button>':'')
                         +'</div></div>';
                 }).join('');
                 var statusEl = document.getElementById('skillManagementStatus');
@@ -54440,36 +54440,36 @@ body {
                     : 'closeExportModal(); showWaitlist();';
                 var ctaText = appMode === 'waitlisted' ? 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist \u2714' : 'Join the Waitlist \u2192';
                 demoBanner = '<div style="background:rgba(96,165,250,0.12); border:1px solid rgba(96,165,250,0.25); border-radius:12px; padding:20px; margin-bottom:24px;">'
-                    + '<div style="font-weight:700; color:#60a5fa; margin-bottom:8px; font-size:0.95em;">' + bpIcon('search',14) + ' You\u2019re exploring a sample profile</div>'
+                    + '<div style="font-weight:700; color:var(--accent); margin-bottom:8px; font-size:0.95em;">' + bpIcon('search',14) + ' You\u2019re exploring a sample profile</div>'
                     + '<div style="color:var(--c-muted, #a1a1a6); font-size:0.88em; line-height:1.6; margin-bottom:12px;">'
                     + 'Everything you see is fully interactive \u2014 browse skills, explore job matches, compare values. '
-                    + 'The one export available is the <strong style="color:#30d158;">Scouting Report PDF</strong>, so you can see what Blueprint delivers to hiring teams.</div>'
+                    + 'The one export available is the <strong style="color:var(--success);">Scouting Report PDF</strong>, so you can see what Blueprint delivers to hiring teams.</div>'
                     + '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">'
                     + '<div style="font-size:0.78em; font-weight:600; color:var(--c-faint, #636366); min-width:100%;">AVAILABLE NOW:</div>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:#30d158;">Browse all tabs</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:#30d158;">Skill networks</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:#30d158;">Job matching</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:#30d158;">Scouting Report PDF</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success);">Browse all tabs</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success);">Skill networks</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success);">Job matching</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success);">Scouting Report PDF</span>'
                     + '</div>'
                     + '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">'
                     + '<div style="font-size:0.78em; font-weight:600; color:var(--c-faint, #636366); min-width:100%;">WITH YOUR OWN BLUEPRINT:</div>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:#60a5fa;">Shareable HTML reports</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:#60a5fa;">Executive Blueprint</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:#60a5fa;">Resume &amp; cover letters</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:#60a5fa;">Interview prep</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:#60a5fa;">Negotiation guide</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:#60a5fa;">LinkedIn optimizer</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:#60a5fa;">Share links</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Shareable HTML reports</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Executive Blueprint</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Resume &amp; cover letters</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Interview prep</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Negotiation guide</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">LinkedIn optimizer</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Share links</span>'
                     + '</div>'
-                    + '<button onclick="' + ctaAction + '" style="padding:10px 24px; border-radius:8px; border:none; background:#60a5fa; color:#fff; font-weight:600; font-size:0.88em; cursor:pointer;">' + ctaText + '</button>'
+                    + '<button onclick="' + ctaAction + '" style="padding:10px 24px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; font-size:0.88em; cursor:pointer;">' + ctaText + '</button>'
                     + '</div>';
             }
             
             var settingsHelp = isReadOnlyProfile ? '' : '<div style="display: flex; gap: 15px; align-items: start;">'
                 + '<div style="min-width: 40px;">' + bpIcon("settings",28) + '</div>'
                 + '<div>'
-                + '<div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Settings (More menu)</div>'
-                + '<div style="color: #d1d1d6; font-size: 0.95em; line-height: 1.6;">Update your profile info, preferences, and manage your skills. Export your full profile as JSON to save your work or move it to another device.</div>'
+                + '<div style="color:var(--accent); font-weight: 600; margin-bottom: 5px;">Settings (More menu)</div>'
+                + '<div style="color:var(--c-label); font-size: 0.95em; line-height: 1.6;">Update your profile info, preferences, and manage your skills. Export your full profile as JSON to save your work or move it to another device.</div>'
                 + '</div></div>';
             
             var scoutingDesc = isReadOnlyProfile
@@ -54486,12 +54486,12 @@ body {
                 + '<div class="modal-body" style="padding: 30px;">'
                 // Preview disclosure
                 + '<div style="background:rgba(255,159,10,0.06); border:1px solid rgba(255,159,10,0.18); border-radius:10px; padding:16px; margin-bottom:20px;">'
-                + '<div style="font-size:0.85em; color:#ffd60a; font-weight:700; margin-bottom:6px;">' + bpIcon('zap',14) + ' Active Preview</div>'
+                + '<div style="font-size:0.85em; color:var(--warning); font-weight:700; margin-bottom:6px;">' + bpIcon('zap',14) + ' Active Preview</div>'
                 + '<div style="font-size:0.82em; color:var(--c-muted, #a1a1a6); line-height:1.6; margin-bottom:10px;">'
                 + 'Blueprint is in active development. What you\u2019re exploring is a working preview \u2014 features are shipping weekly and the platform is evolving fast. '
                 + 'Sample scouting reports are available for select characters during the preview. Your feedback directly shapes what gets built next.'
                 + '</div>'
-                + '<button onclick="closeExportModal(); sendFeedback(\'help\');" style="padding:7px 16px; border-radius:8px; border:1px solid rgba(255,159,10,0.25); background:rgba(255,159,10,0.08); color:#ffd60a; font-weight:600; font-size:0.78em; cursor:pointer; transition:all 0.2s;"'
+                + '<button onclick="closeExportModal(); sendFeedback(\'help\');" style="padding:7px 16px; border-radius:8px; border:1px solid rgba(255,159,10,0.25); background:rgba(255,159,10,0.08); color:var(--warning); font-weight:600; font-size:0.78em; cursor:pointer; transition:all 0.2s;"'
                 + ' onmouseover="this.style.background=\'rgba(255,159,10,0.15)\'" onmouseout="this.style.background=\'rgba(255,159,10,0.08)\'">'
                 + '\u2709 Give Feedback</button>'
                 + '</div>'
@@ -54501,46 +54501,46 @@ body {
                 + '<div style="display: flex; gap: 15px; align-items: start;">'
                 + '<div style="min-width: 40px;">' + bpIcon("compass",28) + '</div>'
                 + '<div>'
-                + '<div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Skills Network</div>'
-                + '<div style="color: #d1d1d6; font-size: 0.95em; line-height: 1.6;">Your interactive skill constellation. Every node is a skill; every cluster is a professional domain.</div>'
+                + '<div style="color:var(--accent); font-weight: 600; margin-bottom: 5px;">Skills Network</div>'
+                + '<div style="color:var(--c-label); font-size: 0.95em; line-height: 1.6;">Your interactive skill constellation. Every node is a skill; every cluster is a professional domain.</div>'
                 + '<div style="margin-top:10px; padding:12px 14px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:8px;">'
-                + '<div style="font-size:0.82em; color:#60a5fa; font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Network Controls</div>'
-                + '<div style="display:grid; gap:6px; font-size:0.88em; color:#d1d1d6;">'
-                + '<div><strong style="color:#ff9f0a;">Drag</strong> any node to rearrange the layout \u2014 the network remembers where you put things</div>'
-                + '<div><strong style="color:#ff9f0a;">Hover</strong> over a skill to highlight its connections and see which domains it bridges</div>'
-                + '<div><strong style="color:#ff9f0a;">Click a skill</strong> to open its detail card with evidence, proficiency level, and role assignments</div>'
-                + '<div><strong style="color:#ff9f0a;">Click a domain</strong> (large node) to filter the network to just that role cluster</div>'
-                + '<div><strong style="color:#ff9f0a;">Match Overlay</strong> \u2014 select a job from the Pipeline, then return to Skills. Four overlay modes light up: <em>You \u00B7 Job \u00B7 Match \u00B7 Values</em></div>'
+                + '<div style="font-size:0.82em; color:var(--accent); font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Network Controls</div>'
+                + '<div style="display:grid; gap:6px; font-size:0.88em; color:var(--c-label);">'
+                + '<div><strong style="color:var(--c-orange);">Drag</strong> any node to rearrange the layout \u2014 the network remembers where you put things</div>'
+                + '<div><strong style="color:var(--c-orange);">Hover</strong> over a skill to highlight its connections and see which domains it bridges</div>'
+                + '<div><strong style="color:var(--c-orange);">Click a skill</strong> to open its detail card with evidence, proficiency level, and role assignments</div>'
+                + '<div><strong style="color:var(--c-orange);">Click a domain</strong> (large node) to filter the network to just that role cluster</div>'
+                + '<div><strong style="color:var(--c-orange);">Match Overlay</strong> \u2014 select a job from the Pipeline, then return to Skills. Four overlay modes light up: <em>You \u00B7 Job \u00B7 Match \u00B7 Values</em></div>'
                 + '</div></div></div></div>'
                 // Jobs Tab
                 + '<div style="display: flex; gap: 15px; align-items: start;">'
                 + '<div style="min-width: 40px;">' + bpIcon("briefcase",28) + '</div>'
                 + '<div>'
-                + '<div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Jobs Tab</div>'
-                + '<div style="color: #d1d1d6; font-size: 0.95em; line-height: 1.6;">Find opportunities matched to your actual skill profile. Skills you have are highlighted green; gaps shown in red. Generate a personalized outreach message for any role.</div>'
+                + '<div style="color:var(--accent); font-weight: 600; margin-bottom: 5px;">Jobs Tab</div>'
+                + '<div style="color:var(--c-label); font-size: 0.95em; line-height: 1.6;">Find opportunities matched to your actual skill profile. Skills you have are highlighted green; gaps shown in red. Generate a personalized outreach message for any role.</div>'
                 + '</div></div>'
                 // Blueprint Tab
                 + '<div style="display: flex; gap: 15px; align-items: start;">'
                 + '<div style="min-width: 40px;">' + bpIcon("bar-chart",28) + '</div>'
                 + '<div>'
-                + '<div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Blueprint Tab</div>'
-                + '<div style="color: #d1d1d6; font-size: 0.95em; line-height: 1.6;">' + blueprintDesc + '</div>'
+                + '<div style="color:var(--accent); font-weight: 600; margin-bottom: 5px;">Blueprint Tab</div>'
+                + '<div style="color:var(--c-label); font-size: 0.95em; line-height: 1.6;">' + blueprintDesc + '</div>'
                 + '</div></div>'
                 // Scouting Reports
                 + '<div style="display: flex; gap: 15px; align-items: start;">'
                 + '<div style="min-width: 40px;">' + bpIcon("target",28) + '</div>'
                 + '<div>'
-                + '<div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Scouting Reports</div>'
-                + '<div style="color: #d1d1d6; font-size: 0.95em; line-height: 1.6;">' + scoutingDesc + '</div>'
+                + '<div style="color:var(--accent); font-weight: 600; margin-bottom: 5px;">Scouting Reports</div>'
+                + '<div style="color:var(--c-label); font-size: 0.95em; line-height: 1.6;">' + scoutingDesc + '</div>'
                 + '<div style="margin-top:10px; padding:12px 14px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:8px;">'
-                + '<div style="font-size:0.82em; color:#60a5fa; font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">How to Create</div>'
-                + '<div style="display:grid; gap:6px; font-size:0.88em; color:#d1d1d6;">'
-                + '<div><strong style="color:#ff9f0a;">From any job card</strong> in your Pipeline \u2014 tap \u201CCreate Scouting Report\u201D</div>'
-                + '<div><strong style="color:#ff9f0a;">From Job Detail</strong> \u2014 the Scouting Report button sits alongside Compare Skills and Values Fit</div>'
-                + '<div><strong style="color:#ff9f0a;">From Match Overlay</strong> \u2014 after comparing skills, create the report right from the match legend</div>'
-                + '<div><strong style="color:#ff9f0a;">From Blueprint Tab</strong> \u2014 Export \u2192 Scouting Report card</div>'
+                + '<div style="font-size:0.82em; color:var(--accent); font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">How to Create</div>'
+                + '<div style="display:grid; gap:6px; font-size:0.88em; color:var(--c-label);">'
+                + '<div><strong style="color:var(--c-orange);">From any job card</strong> in your Pipeline \u2014 tap \u201CCreate Scouting Report\u201D</div>'
+                + '<div><strong style="color:var(--c-orange);">From Job Detail</strong> \u2014 the Scouting Report button sits alongside Compare Skills and Values Fit</div>'
+                + '<div><strong style="color:var(--c-orange);">From Match Overlay</strong> \u2014 after comparing skills, create the report right from the match legend</div>'
+                + '<div><strong style="color:var(--c-orange);">From Blueprint Tab</strong> \u2014 Export \u2192 Scouting Report card</div>'
                 + '</div></div>'
-                + '<button onclick="closeExportModal(); openSampleScoutingReport()" style="margin-top:12px; padding:10px 20px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600; font-size:0.88em; cursor:pointer; display:flex; align-items:center; gap:8px;">'
+                + '<button onclick="closeExportModal(); openSampleScoutingReport()" style="margin-top:12px; padding:10px 20px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.1); color:var(--accent); font-weight:600; font-size:0.88em; cursor:pointer; display:flex; align-items:center; gap:8px;">'
                 + bpIcon("file-text",16) + ' View Sample Scouting Report</button>'
                 + '</div></div>'
                 // Settings (hidden for demos)
@@ -54573,27 +54573,27 @@ body {
                 // Feature cards
                 + '<div class="teaser-features">'
                 + '<div class="teaser-feat">'
-                + '<div class="teaser-feat-icon" style="color:#60a5fa;">' + bpIcon('skills', 15) + ' Skills Architecture</div>'
+                + '<div class="teaser-feat-icon" style="color:var(--accent);">' + bpIcon('skills', 15) + ' Skills Architecture</div>'
                 + '<div class="teaser-feat-desc">Your complete skill ontology mapped across roles, proficiency levels, and evidence. Not a keyword list.</div>'
                 + '</div>'
                 + '<div class="teaser-feat">'
-                + '<div class="teaser-feat-icon" style="color:#30d158;">' + bpIcon('jobs', 15) + ' Job Intelligence</div>'
+                + '<div class="teaser-feat-icon" style="color:var(--success);">' + bpIcon('jobs', 15) + ' Job Intelligence</div>'
                 + '<div class="teaser-feat-desc">Paste any job description. Blueprint scores the match, finds gaps, and builds your talking points.</div>'
                 + '</div>'
                 + '<div class="teaser-feat">'
-                + '<div class="teaser-feat-icon" style="color:#ff9f0a;">' + bpIcon('values', 15) + ' Values Alignment</div>'
+                + '<div class="teaser-feat-icon" style="color:var(--c-orange);">' + bpIcon('values', 15) + ' Values Alignment</div>'
                 + '<div class="teaser-feat-desc">Your operating principles surfaced and mapped against company culture. Know the fit before you walk in.</div>'
                 + '</div>'
                 + '<div class="teaser-feat">'
-                + '<div class="teaser-feat-icon" style="color:#bf5af2;">' + bpIcon('target', 15) + ' Scouting Reports</div>'
+                + '<div class="teaser-feat-icon" style="color:var(--c-purple);">' + bpIcon('target', 15) + ' Scouting Reports</div>'
                 + '<div class="teaser-feat-desc">Interactive career intelligence documents that attract recruiters and hiring managers to you.</div>'
                 + '</div>'
                 + '<div class="teaser-feat">'
-                + '<div class="teaser-feat-icon" style="color:#ff453a;">' + bpIcon('dollar', 15) + ' Market Valuation</div>'
+                + '<div class="teaser-feat-icon" style="color:var(--danger);">' + bpIcon('dollar', 15) + ' Market Valuation</div>'
                 + '<div class="teaser-feat-desc">Evidence-based compensation intelligence. Know your worth before negotiation starts.</div>'
                 + '</div>'
                 + '<div class="teaser-feat">'
-                + '<div class="teaser-feat-icon" style="color:#5ac8fa;">' + bpIcon('purpose', 15) + ' Purpose & Narrative</div>'
+                + '<div class="teaser-feat-icon" style="color:var(--c-cyan);">' + bpIcon('purpose', 15) + ' Purpose & Narrative</div>'
                 + '<div class="teaser-feat-desc">Your career story distilled into the language that connects who you are with what the work demands.</div>'
                 + '</div>'
                 + '</div>'
@@ -54660,12 +54660,12 @@ body {
                     <p style="color: var(--text-muted); margin-top: 4px; font-size:0.78em;">${BP_VERSION}</p>
                 </div>
                 <div class="modal-body" style="padding: 30px;">
-                    <p style="color: #d1d1d6; line-height: 1.8; margin-bottom: 20px;">
+                    <p style="color:var(--c-label); line-height: 1.8; margin-bottom: 20px;">
                         Most professionals are forced to collapse their life\u2019s work into a flat, one-dimensional document 
                         that barely scratches the surface of their true capability. You don\u2019t underrepresent yourself because 
                         you lack ability\u2014you do it because the enterprise owns the systems of evaluation.
                     </p>
-                    <p style="color: #d1d1d6; line-height: 1.8; margin-bottom: 28px;">
+                    <p style="color:var(--c-label); line-height: 1.8; margin-bottom: 28px;">
                         Blueprint changes that. This is your counter-intelligence suite. By mapping the hidden architecture 
                         of your skills, proficiency levels, and values against the world\u2019s largest skill ontologies, Blueprint 
                         gives you the same high-fidelity data that employers use. It moves you from a passive applicant to an 
@@ -54674,23 +54674,23 @@ body {
                     </p>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                         <div style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #60a5fa; font-weight: 700; margin-bottom: 4px;">${bpIcon("compass",14)} Decode Your Expertise</div>
-                            <div style="color: #a1a1a6; font-size: 0.9em; line-height:1.6;">Surface the latent skills and differentiators that standard resumes ignore.</div>
+                            <div style="color:var(--accent); font-weight: 700; margin-bottom: 4px;">${bpIcon("compass",14)} Decode Your Expertise</div>
+                            <div style="color:var(--text-secondary); font-size: 0.9em; line-height:1.6;">Surface the latent skills and differentiators that standard resumes ignore.</div>
                         </div>
                         <div style="background: rgba(48,209,88,0.1); border: 1px solid rgba(48,209,88,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #30d158; font-weight: 700; margin-bottom: 4px;">${bpIcon("dollar",14)} Negotiate with Intelligence</div>
-                            <div style="color: #a1a1a6; font-size: 0.9em; line-height:1.6;">Access real-world market ranges to know your worth before you walk into the room.</div>
+                            <div style="color:var(--success); font-weight: 700; margin-bottom: 4px;">${bpIcon("dollar",14)} Negotiate with Intelligence</div>
+                            <div style="color:var(--text-secondary); font-size: 0.9em; line-height:1.6;">Access real-world market ranges to know your worth before you walk into the room.</div>
                         </div>
                         <div style="background: rgba(255,214,10,0.1); border: 1px solid rgba(255,214,10,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #ffd60a; font-weight: 700; margin-bottom: 4px;">${bpIcon("bar-chart",14)} Own Your Narrative</div>
-                            <div style="color: #a1a1a6; font-size: 0.9em; line-height:1.6;">A complete system for documenting outcomes, values, and purpose\u2014on your terms.</div>
+                            <div style="color:var(--warning); font-weight: 700; margin-bottom: 4px;">${bpIcon("bar-chart",14)} Own Your Narrative</div>
+                            <div style="color:var(--text-secondary); font-size: 0.9em; line-height:1.6;">A complete system for documenting outcomes, values, and purpose\u2014on your terms.</div>
                         </div>
                         <div style="background: rgba(191,90,242,0.1); border: 1px solid rgba(191,90,242,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #bf5af2; font-weight: 700; margin-bottom: 4px;">${bpIcon("external",14)} Bridge the Gap</div>
-                            <div style="color: #a1a1a6; font-size: 0.9em; line-height:1.6;">Connect your architecture directly to the role with interactive, human-centric storytelling.</div>
+                            <div style="color:var(--c-purple); font-weight: 700; margin-bottom: 4px;">${bpIcon("external",14)} Bridge the Gap</div>
+                            <div style="color:var(--text-secondary); font-size: 0.9em; line-height:1.6;">Connect your architecture directly to the role with interactive, human-centric storytelling.</div>
                         </div>
                     </div>
-                    <p style="color: #636366; font-size: 0.85em; text-align: center; line-height:1.6;">Free for the individual. No corporate fluff. Your data stays yours.</p>
+                    <p style="color:var(--text-muted); font-size: 0.85em; text-align: center; line-height:1.6;">Free for the individual. No corporate fluff. Your data stays yours.</p>
                 </div>
             `;
             history.pushState({ modal: true }, ''); modal.classList.add('active');
@@ -55277,7 +55277,7 @@ body {
                         title: 'The Skills Network',
                         desc: 'Every node is a skill. <strong>Size</strong> = proficiency level. <strong>Color</strong> = role cluster. Connected nodes share professional context.'
                             + (skillCount > 0 ? '<br><br>This profile has <strong>' + skillCount + ' skills</strong> mapped across ' + ((userData.roles || []).length || 'multiple') + ' professional roles.' : '')
-                            + '<br><br><span style="color:#60a5fa;">Try it \u2014 drag nodes to rearrange, tap one to explore.</span>',
+                            + '<br><br><span style="color:var(--accent);">Try it \u2014 drag nodes to rearrange, tap one to explore.</span>',
                         badge: 'Skills Architecture',
                         target: '#controlsBar',
                         spotlightPad: 6,
@@ -55288,13 +55288,13 @@ body {
                         title: 'Evidence Behind Every Skill',
                         desc: 'Each skill claim is backed by <strong>documented evidence</strong> \u2014 outcomes, metrics, and accomplishments that prove the level.'
                             + '<br><br>No self-reported fluff. Blueprint tracks evidence points and calculates an <strong>effective level</strong> based on what you can actually prove.'
-                            + '<br><br><span style="color:#ff9f0a;">Tap any skill node on the network to see its evidence.</span>',
+                            + '<br><br><span style="color:var(--c-orange);">Tap any skill node on the network to see its evidence.</span>',
                         badge: 'Evidence System',
                         target: null
                     },
                     {
                         title: 'Job Match Intelligence',
-                        desc: 'Paste any job description and Blueprint parses the requirements, scores your match, and breaks down exactly where you align <span style="color:#30d158;">\u25cf</span>, where the gaps are <span style="color:#ff453a;">\u25cf</span>, and where you have leverage <span style="color:#636366;">\u25cf</span>.'
+                        desc: 'Paste any job description and Blueprint parses the requirements, scores your match, and breaks down exactly where you align <span style="color:var(--success);">\u25cf</span>, where the gaps are <span style="color:var(--danger);">\u25cf</span>, and where you have leverage <span style="color:var(--text-muted);">\u25cf</span>.'
                             + (topJob ? '<br><br>This profile has <strong>' + jobCount + ' jobs</strong> analyzed. Top match: <strong>' + topJobLabel + '</strong> at <strong>' + topJobScore + '%</strong>.' : ''),
                         badge: 'Job Intelligence',
                         target: '#nav-jobs',
@@ -55304,7 +55304,7 @@ body {
                     },
                     {
                         title: 'Match Overlay on the Network',
-                        desc: 'Toggle the <strong>Match Overlay</strong> to see job fit directly on the skills network. Matched skills glow <span style="color:#30d158;">green</span>, gaps pulse <span style="color:#ff453a;">red</span>, surplus skills fade \u2014 giving you an instant visual read on any opportunity.'
+                        desc: 'Toggle the <strong>Match Overlay</strong> to see job fit directly on the skills network. Matched skills glow <span style="color:var(--success);">green</span>, gaps pulse <span style="color:var(--danger);">red</span>, surplus skills fade \u2014 giving you an instant visual read on any opportunity.'
                             + '<br><br>This is the view that changes how you think about job fit.',
                         badge: 'Visual Match',
                         target: '#controlsBar',
@@ -55326,7 +55326,7 @@ body {
                         title: 'Negotiation Guide',
                         desc: 'For each job, Blueprint generates a complete <strong>negotiation playbook</strong> \u2014 your opening move, the ask number, strengths to lead with, blind spots to watch for, and counter-offer responses.'
                             + '<br><br>All built from your actual skills, experience, and BLS comp data. No generic advice.'
-                            + '<br><br><span style="color:#30d158;">Try it \u2014 click Negotiation Guide on any saved job.</span>',
+                            + '<br><br><span style="color:var(--success);">Try it \u2014 click Negotiation Guide on any saved job.</span>',
                         badge: 'Negotiation',
                         target: null,
                         beforeShow: function() { switchBlueprintTab('export'); },
@@ -55356,7 +55356,7 @@ body {
                         title: 'Scouting Reports',
                         desc: 'Generate a <strong>Scouting Report</strong> \u2014 an interactive career intelligence page designed to send to recruiters and hiring managers. Skills match, gap analysis, talking points, and values alignment in one shareable document.'
                             + '<br><br>This isn\u2019t a resume. It\u2019s a signal that you\u2019re a different kind of candidate.'
-                            + (isReadOnlyProfile ? '<br><span style="color:#30d158;">Sample reports are available on the Reports page.</span>' : ''),
+                            + (isReadOnlyProfile ? '<br><span style="color:var(--success);">Sample reports are available on the Reports page.</span>' : ''),
                         badge: 'Reports',
                         target: '#nav-reports',
                         spotlightPad: 4,
@@ -55478,7 +55478,7 @@ body {
                     },
                     {
                         title: 'Four Shows. Six Characters Each.',
-                        desc: 'Tap the show tabs to browse collections. <strong style="color:#22c55e;">Breaking Bad</strong> \u2014 chemists to cartel bosses. <strong style="color:#ff453a;">Stranger Things</strong> \u2014 small-town heroes. <strong style="color:#b5cc4b;">Succession</strong> \u2014 corporate royalty. <strong style="color:#B8860B;">Game of Thrones</strong> \u2014 architects of power.',
+                        desc: 'Tap the show tabs to browse collections. <strong style="color:#22c55e;">Breaking Bad</strong> \u2014 chemists to cartel bosses. <strong style="color:var(--danger);">Stranger Things</strong> \u2014 small-town heroes. <strong style="color:#b5cc4b;">Succession</strong> \u2014 corporate royalty. <strong style="color:#B8860B;">Game of Thrones</strong> \u2014 architects of power.',
                         badge: 'Samples', target: null
                     },
                     {
