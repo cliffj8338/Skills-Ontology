@@ -92,16 +92,37 @@ const FREE_SOURCE_QUERIES = [
   'data',
 ];
 
-// USAJobs queries: government-relevant roles (free, no limit)
-const USAJOBS_QUERIES = [
-  'program manager',
-  'analyst',
-  'engineer',
-  'director',
-  'specialist',
-  'technology',
-  'management',
-  'operations',
+// USAJobs queries: free API, no rate limit — go wide and deep
+// Split into A/B groups to cover more ground across syncs
+const USAJOBS_GROUP_A = [
+  'software engineer', 'data scientist', 'program manager', 'analyst',
+  'cybersecurity', 'information technology', 'project manager', 'accountant',
+  'human resources', 'contract specialist', 'nurse', 'physician',
+  'attorney', 'paralegal', 'budget analyst', 'financial analyst',
+  'logistics', 'supply chain', 'procurement', 'acquisition',
+  'intelligence analyst', 'security specialist', 'environmental',
+  'scientist', 'biologist', 'chemist', 'physicist', 'mathematician',
+  'statistician', 'economist', 'social worker', 'psychologist',
+  'public affairs', 'communications', 'writer', 'editor',
+  'architect', 'civil engineer', 'mechanical engineer', 'electrical engineer',
+  'administrative', 'management analyst', 'policy analyst',
+  'inspector', 'investigator', 'compliance',
+];
+const USAJOBS_GROUP_B = [
+  'director', 'supervisor', 'team lead', 'branch chief',
+  'operations', 'specialist', 'technician', 'coordinator',
+  'auditor', 'examiner', 'clerk', 'assistant',
+  'medical', 'dental', 'pharmacist', 'veterinarian',
+  'teacher', 'instructor', 'training', 'education',
+  'criminal investigator', 'law enforcement', 'border patrol',
+  'aviation', 'pilot', 'air traffic', 'transportation',
+  'construction', 'maintenance', 'facilities', 'mechanic',
+  'research', 'development', 'grants', 'program analyst',
+  'GIS', 'cartographer', 'surveyor', 'geologist',
+  'foreign affairs', 'diplomat', 'international',
+  'park ranger', 'forestry', 'wildlife', 'agriculture',
+  'IT specialist', 'network', 'database', 'systems administrator',
+  'contracting officer', 'property manager', 'realty',
 ];
 
 // ============================================================
@@ -253,44 +274,47 @@ async function fetchJobicy(query) {
   }
 }
 
-async function fetchUSAJobs(query) {
+async function fetchUSAJobs(query, page) {
   const apiKey = process.env.USAJOBS_API_KEY;
   const email = process.env.USAJOBS_EMAIL;
-  if (!apiKey || !email) return { jobs: [], source: 'usajobs', error: 'Not configured' };
+  if (!apiKey || !email) return { jobs: [], source: 'usajobs', error: 'Not configured', query };
   try {
-    const params = new URLSearchParams({ Keyword: query, ResultsPerPage: '50' });
+    page = page || 1;
+    const params = new URLSearchParams({ Keyword: query, ResultsPerPage: '500', Page: String(page) });
     const res = await fetch('https://data.usajobs.gov/api/Search?' + params, {
       headers: { 'Authorization-Key': apiKey, 'User-Agent': email },
-      signal: AbortSignal.timeout(15000)
+      signal: AbortSignal.timeout(20000)
     });
-    if (!res.ok) return { jobs: [], source: 'usajobs', error: 'HTTP ' + res.status };
+    if (!res.ok) return { jobs: [], source: 'usajobs', error: 'HTTP ' + res.status, query };
     const data = await res.json();
+    const total = data.SearchResult?.SearchResultCount || 0;
     const items = data.SearchResult?.SearchResultItems || [];
     const jobs = items.map(item => {
       const p = item.MatchedObjectDescriptor;
       const sal = p.PositionRemuneration?.[0] || {};
+      const locs = (p.PositionLocation || []).map(l => [l.CityName, l.CountrySubDivisionCode].filter(Boolean).join(', ')).filter(Boolean);
       return {
         id: 'usajobs-' + (p.PositionID || p.PositionURI),
         title: p.PositionTitle || '',
-        company: p.OrganizationName || 'US Government',
+        company: p.OrganizationName || p.DepartmentName || 'US Government',
         companyLogo: '',
-        location: p.PositionLocationDisplay || '',
+        location: locs.join('; ') || p.PositionLocationDisplay || '',
         type: p.PositionSchedule?.[0]?.Name || 'Full-time',
         salary: sal.MinimumRange && sal.MaximumRange ? '$' + parseInt(sal.MinimumRange).toLocaleString() + '-$' + parseInt(sal.MaximumRange).toLocaleString() : '',
-        remote: (p.PositionLocationDisplay || '').toLowerCase().includes('remote'),
+        remote: (p.PositionLocationDisplay || '').toLowerCase().includes('remote') || (p.PositionOfferingType || []).some(t => (t.Name || '').toLowerCase().includes('remote')),
         source: 'usajobs',
         url: p.PositionURI || p.ApplyURI?.[0] || '',
         description: (p.UserArea?.Details?.MajorDuties?.join(' ') || p.QualificationSummary || '').substring(0, 2000),
-        tags: [],
+        tags: (p.PositionOfferingType || []).map(t => t.Name).filter(Boolean),
         qualifications: p.QualificationSummary ? [p.QualificationSummary.substring(0, 500)] : [],
         responsibilities: p.UserArea?.Details?.MajorDuties || [],
         benefits: '',
         postedAt: p.PublicationStartDate || ''
       };
     });
-    return { jobs, source: 'usajobs', count: jobs.length };
+    return { jobs, source: 'usajobs', count: jobs.length, total, query };
   } catch (e) {
-    return { jobs: [], source: 'usajobs', error: e.message };
+    return { jobs: [], source: 'usajobs', error: e.message, query };
   }
 }
 
@@ -466,11 +490,20 @@ export default async function handler(req, res) {
   );
   freeResults.forEach(collectJobs);
 
-  // USAJobs: dedicated query list, batched 4 at a time
-  for (let i = 0; i < USAJOBS_QUERIES.length; i += 4) {
-    const batch = USAJOBS_QUERIES.slice(i, i + 4);
-    const results = await Promise.all(batch.map(q => fetchUSAJobs(q)));
+  // USAJobs: A/B groups, 500 results/query, paginate if >500 available
+  // Free API, no rate limit — maximize coverage
+  const usajobsQueries = syncGroup === 'A' ? USAJOBS_GROUP_A : USAJOBS_GROUP_B;
+  console.log('[jobs-sync] USAJobs: group ' + syncGroup + ', ' + usajobsQueries.length + ' queries × 500/page');
+  for (let i = 0; i < usajobsQueries.length; i += 5) {
+    const batch = usajobsQueries.slice(i, i + 5);
+    const results = await Promise.all(batch.map(q => fetchUSAJobs(q, 1)));
     results.forEach(collectJobs);
+    // If any query has more than 500 results, fetch page 2
+    const needsPage2 = results.filter(r => r.total > 500);
+    if (needsPage2.length > 0) {
+      const p2 = await Promise.all(needsPage2.map(r => fetchUSAJobs(r.query, 2)));
+      p2.forEach(collectJobs);
+    }
   }
 
   // ── Phase 3: Adzuna (free API key, massive US inventory) ──
@@ -572,7 +605,7 @@ export default async function handler(req, res) {
     jsearchPages: JSEARCH_PAGES,
     jsearchApiCalls,
     freeQueries: FREE_SOURCE_QUERIES.length,
-    usajobsQueries: USAJOBS_QUERIES.length,
+    usajobsQueries: usajobsQueries.length,
     errors: errors.slice(0, 20),
     cleaned,
     duration: Date.now() - startTime
