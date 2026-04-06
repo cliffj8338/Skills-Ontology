@@ -303,7 +303,7 @@
         </article>
     </noscript>
     <!-- Loading Splash -->
-    <div id="appSplash" style="position:fixed; inset:0; z-index:999999; background:var(--bg, #0a0a1a); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; transition:opacity 0.4s ease;">
+    <div id="appSplash" style="position:fixed; inset:0; z-index:999999; background:var(--bg-base, #0a0a0f); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; transition:opacity 0.4s ease;">
         <div style="display:flex; align-items:center; gap:14px;">
             <svg width="48" height="48" viewBox="0 0 52 52" fill="none" style="filter: drop-shadow(0 0 20px rgba(96,165,250,0.3));">
                 <circle cx="26" cy="26" r="24" stroke="#60a5fa" stroke-width="1.5" opacity="0.22"/>
@@ -315,15 +315,15 @@
                 <line x1="42" y1="12" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
                 <line x1="10" y1="40" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
                 <circle cx="26" cy="26" r="4.5" fill="#60a5fa"/>
-                <circle cx="12" cy="10" r="3" fill="#93bbfc"/>
-                <circle cx="42" cy="12" r="2.5" fill="#818cf8"/>
-                <circle cx="40" cy="40" r="3" fill="#93bbfc"/>
-                <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
+                <circle cx="12" cy="10" r="3" fill="#93c5fd"/>
+                <circle cx="42" cy="12" r="2.5" fill="#bf5af2"/>
+                <circle cx="40" cy="40" r="3" fill="#93c5fd"/>
+                <circle cx="10" cy="40" r="2.5" fill="#bf5af2"/>
             </svg>
             <span style="font-family:'Outfit',sans-serif; font-size:1.6em; font-weight:700; color:var(--accent, #60a5fa); letter-spacing:0.12em; text-transform:uppercase;">Blueprint<span style="font-size:0.55em; vertical-align:super; letter-spacing:0; opacity:0.6;">&trade;</span></span>
         </div>
         <div style="width:120px; height:2px; background:rgba(96,165,250,0.15); border-radius:2px; overflow:hidden;">
-            <div id="splashProgress" style="width:0%; height:100%; background:linear-gradient(90deg,#60a5fa,#3b82f6); border-radius:2px; transition:width 0.3s ease;"></div>
+            <div id="splashProgress" style="width:0%; height:100%; background:linear-gradient(90deg,#60a5fa,#60a5fa); border-radius:2px; transition:width 0.3s ease;"></div>
         </div>
         <script>setTimeout(function(){var s=document.getElementById('appSplash');if(s){s.style.opacity='0';setTimeout(function(){s.remove()},400)}},8000);</script>
     </div>
@@ -360,10 +360,10 @@
                 <line x1="42" y1="12" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
                 <line x1="10" y1="40" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
                 <circle cx="26" cy="26" r="4.5" fill="#60a5fa"/>
-                <circle cx="12" cy="10" r="3" fill="#93bbfc"/>
-                <circle cx="42" cy="12" r="2.5" fill="#818cf8"/>
-                <circle cx="40" cy="40" r="3" fill="#93bbfc"/>
-                <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
+                <circle cx="12" cy="10" r="3" fill="#93c5fd"/>
+                <circle cx="42" cy="12" r="2.5" fill="#bf5af2"/>
+                <circle cx="40" cy="40" r="3" fill="#93c5fd"/>
+                <circle cx="10" cy="40" r="2.5" fill="#bf5af2"/>
             </svg></div>
             <h1>Blueprint<span style="font-size:0.55em; vertical-align:super; letter-spacing:0; opacity:0.6;">&trade;</span></h1>
             <span id="adminBadge" onclick="event.stopPropagation(); showAdminPanel()" style="display:none; font-size:0.55em; padding:2px 8px; border-radius:6px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-weight:600; cursor:pointer; letter-spacing:0.04em; margin-left:6px; white-space:nowrap;" title="Admin Dashboard">ADMIN</span>
@@ -388,8 +388,7 @@
             <!-- Stats badge — visible on all tabs -->
             <span id="statsBar" style="font-size:0.78em; color: var(--text-muted); white-space:nowrap; display:none;"></span>
 
-            <!-- Theme toggle -->
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle light/dark mode" aria-label="Toggle light/dark mode">🌙</button>
+            <!-- Theme toggle removed — dark-only design -->
 
             <!-- Auth button (shown when not logged in) -->
             <button class="auth-nav-btn" id="authNavBtn" onclick="showAuthModal('signin')" style="display:none;">Sign In</button>

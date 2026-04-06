@@ -32,8 +32,8 @@
         .rpt-table tr:last-child td { border-bottom:none; }
         
         .rpt-status { font-size:0.72em; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:capitalize; }
-        .rpt-status-active, .rpt-status-shared { background:rgba(16,185,129,0.1); color:#10b981; }
-        .rpt-status-expired { background:rgba(239,68,68,0.1); color:#ef4444; }
+        .rpt-status-active, .rpt-status-shared { background:rgba(16,185,129,0.1); color:#30d158; }
+        .rpt-status-expired { background:rgba(239,68,68,0.1); color:#ff453a; }
         .rpt-status-draft { background:rgba(245,158,11,0.1); color:#f59e0b; }
         .rpt-status-revoked { background:rgba(100,116,139,0.1); color:var(--text-muted); }
         
@@ -133,7 +133,7 @@
         }
         .skill-years {
             font-size: 0.7em;
-            color: var(--text-muted, #6b7280);
+            color: var(--text-muted, #636366);
         }
         .page-header {
             padding: 24px 0 18px;
@@ -354,7 +354,7 @@
             background: rgba(16, 185, 129, 0.03);
         }
         .teaser-promise strong {
-            color: #10b981;
+            color: #30d158;
         }
         .teaser-actions {
             display: flex; gap: 10px;
