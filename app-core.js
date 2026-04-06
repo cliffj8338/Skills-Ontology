@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.6';
+        var BP_VERSION = 'v4.48.7';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -258,10 +258,10 @@
         };
 
         var _interestIntensityLevels = [
-            { id: 'curious', label: 'Curious', icon: '\uD83E\uDD14', color: '#60a5fa', desc: 'Just getting started' },
-            { id: 'learning', label: 'Learning', icon: '\uD83D\uDCDA', color: '#ff9f0a', desc: 'Actively building knowledge' },
-            { id: 'passionate', label: 'Passionate', icon: '\uD83D\uDD25', color: '#ff453a', desc: 'Deeply invested' },
-            { id: 'talented', label: 'Talented', icon: '\u2B50', color: '#bf5af2', desc: 'Strong skill & experience' }
+            { id: 'curious', label: 'Curious', icon: bpIcon('search',14), color: '#60a5fa', desc: 'Just getting started' },
+            { id: 'learning', label: 'Learning', icon: bpIcon('book',14), color: '#ff9f0a', desc: 'Actively building knowledge' },
+            { id: 'passionate', label: 'Passionate', icon: bpIcon('flame',14), color: '#ff453a', desc: 'Deeply invested' },
+            { id: 'talented', label: 'Talented', icon: bpIcon('star',14), color: '#bf5af2', desc: 'Strong skill & experience' }
         ];
 
         function _normalizeInterests(arr) {
@@ -3329,7 +3329,7 @@
                     + '<p style="color:var(--text-muted); font-size:0.85em; margin-top:4px;">User management with Firebase Authentication</p>'
                     + '</div></div>'
                     + '<div style="padding:32px; text-align:center; background:var(--c-surface-2); border:1px dashed var(--c-surface-5); border-radius:12px;">'
-                    + '<div style="font-size:2em; margin-bottom:8px;">🔒</div>'
+                    + '<div style="font-size:2em; margin-bottom:8px;">' + bpIcon('lock',28) + '</div>'
                     + '<div style="color:var(--text-secondary); font-weight:600; margin-bottom:4px;">User Data Redacted</div>'
                     + '<div style="color:var(--text-muted); font-size:0.85em;">Email addresses, login timestamps, and account details are hidden in showcase mode to protect user privacy.</div>'
                     + '</div>';
@@ -3596,7 +3596,7 @@
                     + '<p style="color:var(--text-muted); font-size:0.85em; margin-top:4px;">Invite-gated access with position tracking</p>'
                     + '</div></div>'
                     + '<div style="padding:32px; text-align:center; background:var(--c-surface-2); border:1px dashed var(--c-surface-5); border-radius:12px;">'
-                    + '<div style="font-size:2em; margin-bottom:8px;">🔒</div>'
+                    + '<div style="font-size:2em; margin-bottom:8px;">' + bpIcon('lock',28) + '</div>'
                     + '<div style="color:var(--text-secondary); font-weight:600; margin-bottom:4px;">Waitlist Data Redacted</div>'
                     + '<div style="color:var(--text-muted); font-size:0.85em;">Names, emails, and invitation status are hidden in showcase mode. The waitlist system supports position tracking, batch invites, and status management.</div>'
                     + '</div>';
@@ -3718,7 +3718,7 @@
                     + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em;">' + bpIcon('search',16) + ' Job Source API Keys</h3>'
                     + '</div>'
                     + '<div style="padding:24px; text-align:center; background:var(--c-surface-3a); border:1px dashed var(--c-surface-5); border-radius:10px;">'
-                    + '<div style="font-size:1.5em; margin-bottom:6px;">🔑</div>'
+                    + '<div style="font-size:1.5em; margin-bottom:6px;">' + bpIcon('lock',20) + '</div>'
                     + '<div style="color:var(--text-secondary); font-weight:600; margin-bottom:4px;">API Keys Redacted</div>'
                     + '<div style="color:var(--text-muted); font-size:0.85em;">Credentials for Adzuna and The Muse are hidden in showcase mode.</div>'
                     + '</div>'
@@ -10141,7 +10141,7 @@
             if (aiSuggestions.length > 0) {
                 html += '<div style="background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.25); border-radius:10px; padding:14px 18px; margin-bottom:20px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">'
-                    + '<span style="font-size:1.1em;">🤖</span>'
+                    + '<span style="font-size:1.1em;">' + bpIcon('wand',16) + '</span>'
                     + '<span style="font-weight:600; font-size:0.88em; color:var(--accent);">Consider adding AI skills</span>'
                     + '<span style="font-size:0.78em; color:var(--c-muted);">— Nearly every role benefits from AI competencies</span></div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
@@ -11371,7 +11371,7 @@
                 // JD-only tile
                 html += '<div style="padding:14px; background:rgba(255,159,10,0.04); border:1px solid rgba(255,159,10,0.12); border-radius:10px;">'
                     + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ff9f0a; font-weight:700; margin-bottom:8px;">'
-                    + '\uD83D\uDCC4 Discovered by JD Parsing Only (' + jdOnly.length + ')</div>';
+                    + '' + bpIcon('file-text',14) + ' Discovered by JD Parsing Only (' + jdOnly.length + ')</div>';
                 if (jdOnly.length > 0) {
                     jdOnly.forEach(function(m) {
                         html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(255,159,10,0.04); border-radius:6px; border-left:2px solid #ff9f0a;">'
@@ -17940,7 +17940,7 @@
             var formHTML = '<div id="outcomeFormContainer" style="padding:16px; margin:8px 0; background:var(--c-green-bg-1a); '
                 + 'border:1px solid var(--c-green-bg-6); border-radius:10px;">'
                 + '<div style="font-weight:700; font-size:0.88em; color:var(--c-success); margin-bottom:12px;">'
-                + (isEdit ? '\u270E Edit Outcome' : '+ New Outcome') + '</div>'
+                + (isEdit ? '' + bpIcon('edit',12) + ' Edit Outcome' : '+ New Outcome') + '</div>'
                 
                 + '<div class="settings-group" style="margin-bottom:10px;">'
                 + '<label class="settings-label" style="font-size:0.82em;">What was the measurable result? *</label>'
@@ -17992,7 +17992,7 @@
             if (preview) {
                 var color = score >= 4 ? '#30d158' : score >= 2.5 ? '#60a5fa' : 'var(--c-muted)';
                 preview.innerHTML = 'Score: <strong style="color:' + color + ';">' + score + '</strong> pts'
-                    + (score >= 4 ? ' \uD83D\uDD25 High impact' : score >= 2.5 ? ' \u2714 Solid' : score > 0 ? ' \u2197 Add metrics for more' : '');
+                    + (score >= 4 ? ' ' + bpIcon('flame',12) + ' High impact' : score >= 2.5 ? ' \u2714 Solid' : score > 0 ? ' \u2197 Add metrics for more' : '');
             }
         }
         
@@ -18358,7 +18358,7 @@
         
         // Switch to a different profile (admin functionality)
         function switchProfile(templateId) {
-            console.log('🔄 Switching profile to:', templateId);
+            console.log('' + bpIcon('refresh',12) + ' Switching profile to:', templateId);
             
             // Showcase mode: snapshot admin data before loading any sample
             if (showcaseMode && templateId.indexOf('firestore-') !== 0) {
@@ -20237,7 +20237,7 @@
             jobs.sort(function(a, b) { return (b.matchData.score || 0) - (a.matchData.score || 0); });
             
             var detectedType = isRecruiter ? 'recruiter' : isProduct ? 'product' : isRetail ? 'retail' : isTrades ? 'trades' : (isStrategy || !isTech) ? 'strategy' : 'technology';
-            console.log('📋 Injected ' + jobs.length + ' calibrated sample jobs for ' + profileName + ' (type: ' + detectedType + ')');
+            console.log('' + bpIcon('clipboard',12) + ' Injected ' + jobs.length + ' calibrated sample jobs for ' + profileName + ' (type: ' + detectedType + ')');
             
             return jobs;
         }
@@ -20249,7 +20249,7 @@
                 return false;
             }
             
-            console.log('📋 Loading template:', templateId);
+            console.log('' + bpIcon('clipboard',12) + ' Loading template:', templateId);
             console.log('  → Template has', template.skills.length, 'skills');
             console.log('  → First skill:', template.skills[0].name);
             console.log('  → First skill has evidence:', template.skills[0].evidence ? `YES (${template.skills[0].evidence.length} items)` : 'NO');
@@ -20450,7 +20450,7 @@
 
             var profilesPromise = (async function() {
                 try {
-                    console.log('📋 Loading profiles manifest...');
+                    console.log('' + bpIcon('clipboard',12) + ' Loading profiles manifest...');
                     let manifest = await fetch(`profiles-manifest.json${cacheBust}`).then(r => r.json());
                     if (Array.isArray(manifest)) manifest = { profiles: manifest };
                     window.profilesManifest = manifest;
@@ -20591,7 +20591,7 @@
         
         // Start with selected template
         window.startWithTemplate = function(templateId) {
-            console.log('🎯 Starting with template:', templateId);
+            console.log('' + bpIcon('target',14) + ' Starting with template:', templateId);
             
             if (!templates[templateId]) {
                 showToast('Template not found. Please refresh and try again.', 'error');
@@ -20606,7 +20606,7 @@
                     showOnboardingWizard();
                 } else {
                     // Force hard reload with cache bypass
-                    console.log('🔄 Reloading page...');
+                    console.log('' + bpIcon('refresh',12) + ' Reloading page...');
                     window.location.href = window.location.href.split('?')[0] + '?t=' + Date.now();
                 }
             } else {
@@ -21202,9 +21202,9 @@
                 return s;
             }
             
-            html += section('Positions', '\uD83D\uDCBC', posItems, 'pos');
-            html += section('Education', '\uD83C\uDF93', edItems, 'ed');
-            html += section('Certifications', '\uD83D\uDCDC', certItems, 'cert');
+            html += section('Positions', bpIcon('briefcase',14), posItems, 'pos');
+            html += section('Education', bpIcon('graduation',14), edItems, 'ed');
+            html += section('Certifications', bpIcon('award',14), certItems, 'cert');
             
             // Skills — compact chips instead of full rows
             if (skillItems.length > 0) {
@@ -21246,7 +21246,7 @@
             if (totalEndorsements > 0) {
                 html += '<div style="margin-bottom:20px; padding:12px; background:rgba(255,159,10,0.05); border:1px solid rgba(255,159,10,0.15); border-radius:8px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
-                    + '<span style="font-size:1em;">\uD83D\uDC4D</span>'
+                    + '<span style="font-size:1em;">' + bpIcon('check',14) + '</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Endorsements</span>'
                     + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(255,159,10,0.12); color:#ff9f0a; font-weight:700;">' + totalEndorsements + ' across ' + endorseKeys.length + ' skills</span>'
                     + '</div>'
@@ -21279,19 +21279,19 @@
                     if (contentCounts.articles > 0) {
                         html += '<label style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5b); border-radius:6px; cursor:pointer;">'
                             + '<input type="checkbox" id="merge-opt-articles" checked style="accent-color:var(--accent); width:15px; height:15px;">'
-                            + '<div style="flex:1;"><span style="font-weight:600; color:var(--c-text-alt); font-size:0.85em;">\uD83D\uDCF0 Articles</span>'
+                            + '<div style="flex:1;"><span style="font-weight:600; color:var(--c-text-alt); font-size:0.85em;">' + bpIcon('file',14) + ' Articles</span>'
                             + ' <span style="font-size:0.75em; color:var(--c-muted);">' + contentCounts.articles + ' published</span></div></label>';
                     }
                     if (contentCounts.posts > 0) {
                         html += '<label style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5b); border-radius:6px; cursor:pointer;">'
                             + '<input type="checkbox" id="merge-opt-posts" checked style="accent-color:var(--accent); width:15px; height:15px;">'
-                            + '<div style="flex:1;"><span style="font-weight:600; color:var(--c-text-alt); font-size:0.85em;">\uD83D\uDCAC Posts</span>'
+                            + '<div style="flex:1;"><span style="font-weight:600; color:var(--c-text-alt); font-size:0.85em;">' + bpIcon('message',14) + ' Posts</span>'
                             + ' <span style="font-size:0.75em; color:var(--c-muted);">' + contentCounts.posts + ' substantial posts</span></div></label>';
                     }
                     if (contentCounts.learning > 0) {
                         html += '<label style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5b); border-radius:6px; cursor:pointer;">'
                             + '<input type="checkbox" id="merge-opt-learning" checked style="accent-color:var(--accent); width:15px; height:15px;">'
-                            + '<div style="flex:1;"><span style="font-weight:600; color:var(--c-text-alt); font-size:0.85em;">\uD83D\uDCDA Courses</span>'
+                            + '<div style="flex:1;"><span style="font-weight:600; color:var(--c-text-alt); font-size:0.85em;">' + bpIcon('book',14) + ' Courses</span>'
                             + ' <span style="font-size:0.75em; color:var(--c-muted);">' + contentCounts.learning + ' completed of ' + contentCounts.learningTotal + '</span></div></label>';
                     }
                     html += '</div>';
@@ -21633,7 +21633,7 @@
             inner.innerHTML = `
                 <div style="max-width:560px; margin:0 auto; padding:20px;">
                     <div style="text-align:center; margin-bottom:24px;">
-                        <div style="font-size:2.5em; margin-bottom:12px;">⚠️</div>
+                        <div style="font-size:2.5em; margin-bottom:12px;">' + bpIcon('alert',24) + '</div>
                         <div style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:#ff9f0a; margin-bottom:8px;">
                             You Have an Existing Blueprint
                         </div>
@@ -21809,7 +21809,7 @@
                 + '<span onclick="explorerSetSchoolType(' + idx + ',\'highschool\')" style="' + (s.schoolType === 'highschool' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83C\uDFEB HS</span>'
                 + '<span onclick="explorerSetSchoolType(' + idx + ',\'college\')" style="' + (s.schoolType === 'college' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83C\uDF93 College</span>'
                 + '<span onclick="explorerSetSchoolType(' + idx + ',\'trade\')" style="' + (s.schoolType === 'trade' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDD27 Trade</span>'
-                + '<span onclick="explorerSetSchoolType(' + idx + ',\'community\')" style="' + (s.schoolType === 'community' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDCDA CC</span>'
+                + '<span onclick="explorerSetSchoolType(' + idx + ',\'community\')" style="' + (s.schoolType === 'community' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">' + bpIcon('book',14) + ' CC</span>'
                 + '<span onclick="explorerSetSchoolType(' + idx + ',\'bootcamp\')" style="' + (s.schoolType === 'bootcamp' ? explorerChipActiveStyle : explorerChipStyle) + ' font-size:0.75em; padding:4px 10px;">\uD83D\uDCBB Boot</span>'
                 + '</div></div>'
                 + (total > 1 ? '<button onclick="explorerRemoveSchool(' + idx + ')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; font-size:1em; padding:4px 8px;" title="Remove">\u2715</button>' : '')
@@ -22588,9 +22588,9 @@
                         + '</div>' : '')
                     + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4; margin-bottom:10px;">' + escapeHtml(p.whyFit) + '</div>'
                     + '<div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.78em;">'
-                    + '<span style="color:var(--text-muted);">\uD83D\uDCB0 ' + escapeHtml(salaryStr) + '</span>'
-                    + '<span style="color:var(--text-muted);">\uD83D\uDCC8 ' + escapeHtml(growthStr) + '</span>'
-                    + (totalAdd > 0 ? '<span style="color:#30d158; font-weight:600;">\uD83D\uDCA1 +$' + totalAdd.toLocaleString() + ' skill growth</span>' : '')
+                    + '<span style="color:var(--text-muted);">' + bpIcon('dollar',14) + ' ' + escapeHtml(salaryStr) + '</span>'
+                    + '<span style="color:var(--text-muted);">' + bpIcon('trending-up',14) + ' ' + escapeHtml(growthStr) + '</span>'
+                    + (totalAdd > 0 ? '<span style="color:#30d158; font-weight:600;">' + bpIcon('lightbulb',14) + ' +$' + totalAdd.toLocaleString() + ' skill growth</span>' : '')
                     + '</div>'
                     + (isSelected && p.nextSteps ? '<div style="margin-top:10px; padding:10px; background:var(--c-surface-1); border-radius:8px;">'
                         + '<div style="font-size:0.78em; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Next Steps:</div>'
@@ -23687,17 +23687,17 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                         if (stats.articles > 0) {
                             optionalContent += '<label style="display:flex; align-items:center; gap:6px; margin-bottom:4px; cursor:pointer;">'
                                 + '<input type="checkbox" id="wiz-opt-articles" checked style="accent-color:var(--accent);">'
-                                + '<span style="font-size:0.82em; color:var(--text-secondary);">\uD83D\uDCF0 ' + stats.articles + ' articles</span></label>';
+                                + '<span style="font-size:0.82em; color:var(--text-secondary);">' + bpIcon('file',14) + ' ' + stats.articles + ' articles</span></label>';
                         }
                         if (stats.posts > 0) {
                             optionalContent += '<label style="display:flex; align-items:center; gap:6px; margin-bottom:4px; cursor:pointer;">'
                                 + '<input type="checkbox" id="wiz-opt-posts" checked style="accent-color:var(--accent);">'
-                                + '<span style="font-size:0.82em; color:var(--text-secondary);">\uD83D\uDCAC ' + stats.posts + ' posts</span></label>';
+                                + '<span style="font-size:0.82em; color:var(--text-secondary);">' + bpIcon('message',14) + ' ' + stats.posts + ' posts</span></label>';
                         }
                         if (stats.learning > 0) {
                             optionalContent += '<label style="display:flex; align-items:center; gap:6px; margin-bottom:4px; cursor:pointer;">'
                                 + '<input type="checkbox" id="wiz-opt-learning" checked style="accent-color:var(--accent);">'
-                                + '<span style="font-size:0.82em; color:var(--text-secondary);">\uD83D\uDCDA ' + stats.learningCompleted + '/' + stats.learning + ' courses</span></label>';
+                                + '<span style="font-size:0.82em; color:var(--text-secondary);">' + bpIcon('book',14) + ' ' + stats.learningCompleted + '/' + stats.learning + ' courses</span></label>';
                         }
                         optionalContent += '</div>';
                     }
@@ -24321,7 +24321,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 btn.style.background = isHidden ? 'rgba(255,159,10,0.15)' : 'none';
                 btn.style.borderColor = isHidden ? '#ff9f0a' : 'var(--border)';
                 btn.style.color = isHidden ? '#ff9f0a' : 'var(--text-muted)';
-                btn.innerHTML = isHidden ? '👁 Hidden — skills kept' : '👁 Hide role';
+                btn.innerHTML = isHidden ? '' + bpIcon('eye-off',12) + ' Hidden — skills kept' : '' + bpIcon('eye',12) + ' Hide role';
                 btn.title = isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills';
             });
         }
@@ -24665,7 +24665,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         : 'No role titles could be matched. Continue to review your skills.')}
 
                 ${hasMultipleRoles ? '<div style="background:rgba(255,214,10,0.08); border:1px solid rgba(255,159,10,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
-                    + '<div style="font-weight:700; color:#ff9f0a; font-size:0.82em; margin-bottom:6px;">\uD83D\uDCA1 Pro Tip: Less is More</div>'
+                    + '<div style="font-weight:700; color:#ff9f0a; font-size:0.82em; margin-bottom:6px;">' + bpIcon('lightbulb',14) + ' Pro Tip: Less is More</div>'
                     + '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.5;">'
                     + 'Listing more than your past 3 roles isn\'t necessary. You can <strong>hide a role but keep the skills</strong>. '
                     + 'This way you demonstrate currency and relevance to the market without showing past roles that may create more noise than signal.</div>'
@@ -24716,7 +24716,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                                     + ' style="background:' + (isHidden ? 'rgba(255,159,10,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#ff9f0a' : 'var(--border)') + ';'
                                     + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#ff9f0a' : 'var(--text-muted)') + ';'
                                     + ' white-space:nowrap; transition:all 0.15s;">'
-                                    + (isHidden ? '\uD83D\uDC41 Hidden \u2014 skills kept' : '\uD83D\uDC41 Hide role') + '</button>' : '')
+                                    + (isHidden ? '' + bpIcon('eye-off',12) + ' Hidden \u2014 skills kept' : '' + bpIcon('eye',12) + ' Hide role') + '</button>' : '')
                                 + '</div>'
                                 + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
                                 + g.matches.map(function(m) {
@@ -24755,7 +24755,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                                 + ' style="background:' + (isHidden ? 'rgba(255,159,10,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#ff9f0a' : 'var(--border)') + ';'
                                 + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#ff9f0a' : 'var(--text-muted)') + ';'
                                 + ' white-space:nowrap;">'
-                                + (isHidden ? '\uD83D\uDC41 Hidden' : '\uD83D\uDC41 Hide') + '</button>'
+                                + (isHidden ? '' + bpIcon('eye-off',12) + ' Hidden' : '' + bpIcon('eye',12) + ' Hide') + '</button>'
                                 + '</div>';
                         }).join('')
                         + '</div>';
@@ -24994,7 +24994,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 html += '<div style="background:rgba(48,209,88,0.06); border:1px solid rgba(48,209,88,0.25);'
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
                     + '<div style="font-weight:700; font-size:0.82em; color:#30d158; margin-bottom:8px;">'
-                    + '\uD83D\uDCC8 Keep & Highlight \u2014 Your Strongest Market Assets</div>';
+                    + '' + bpIcon('trending-up',14) + ' Keep & Highlight \u2014 Your Strongest Market Assets</div>';
                 intel.keepSkills.forEach(function(k, ki) {
                     var accepted = k._accepted;
                     html += '<div style="display:flex; align-items:start; gap:8px; padding:4px 0;">'
@@ -25051,7 +25051,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 html += '<div style="background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.25);'
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
                     + '<div style="font-weight:700; font-size:0.82em; color:#60a5fa; margin-bottom:8px;">'
-                    + '\uD83D\uDE80 Growth Opportunities \u2014 Add These to Increase Market Value</div>';
+                    + '' + bpIcon('trending-up',14) + ' Growth Opportunities \u2014 Add These to Increase Market Value</div>';
                 intel.growthSkills.forEach(function(g, gi) {
                     var dollarStr = g.estimatedValueAdd >= 1000
                         ? '+~$' + (g.estimatedValueAdd / 1000).toFixed(0) + 'K/yr'
@@ -25261,7 +25261,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
                 + ' border-radius:12px; padding:16px; margin-bottom:14px;">'
                 + '<div style="font-weight:700; color:var(--text-primary); font-size:0.92em; margin-bottom:4px;">'
-                + '\uD83C\uDFAF Suggested Outcomes</div>'
+                + '' + bpIcon('target',14) + ' Suggested Outcomes</div>'
                 + '<p style="font-size:0.78em; color:var(--text-muted); margin-bottom:12px;">'
                 + 'Common outcomes for <strong>' + escapeHtml(title) + '</strong>. Select the ones that fit, then edit to make them your own.</p>';
 
@@ -26367,7 +26367,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         .style('text-align', 'center')
                         .style('padding', '40px')
                         .html(
-                            '<div style="font-size:3em; margin-bottom:20px; opacity:0.3;">🎯</div>'
+                            '<div style="font-size:3em; margin-bottom:20px; opacity:0.3;">' + bpIcon('target',28) + '</div>'
                             + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:var(--text-primary); margin-bottom:12px; letter-spacing:0.04em;">Build Your Blueprint</div>'
                             + '<div style="font-size:0.95em; color:var(--text-muted); max-width:420px; margin-bottom:28px; line-height:1.6;">'
                             + 'Your career intelligence profile is empty. Add your skills, roles, and experience to unlock the full power of Blueprint.'
@@ -27963,7 +27963,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Safety: if no skills data, show empty state
             if (!skillsData || !skillsData.skills || skillsData.skills.length === 0) {
                 cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
-                    + '<div style="font-size:2em; margin-bottom:12px;">🎯</div>'
+                    + '<div style="font-size:2em; margin-bottom:12px;">' + bpIcon('target',28) + '</div>'
                     + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">No skills to display</div>'
                     + '<div style="font-size:0.88em; line-height:1.6;">Switch to the Network view or select a sample profile to explore skills.</div>'
                     + '</div>';
@@ -28169,7 +28169,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 console.error('initCardView error:', err);
                 showToast('Card view failed to load: ' + err.message, 'error');
                 cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
-                    + '<div style="font-size:2em; margin-bottom:12px;">⚠️</div>'
+                    + '<div style="font-size:2em; margin-bottom:12px;">' + bpIcon('alert',24) + '</div>'
                     + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Card view error</div>'
                     + '<div style="font-size:0.88em; line-height:1.6;">' + escapeHtml(err.message) + '</div>'
                     + '</div>';
@@ -28205,7 +28205,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             detectAppMode();
             checkWaitlistInviteStatus();
             updateWaitlistCounter();
-            console.log('\uD83C\uDFAF App mode:', appMode, waitlistPosition ? '(#' + waitlistPosition + ')' : '');
+            console.log('' + bpIcon('target',14) + ' App mode:', appMode, waitlistPosition ? '(#' + waitlistPosition + ')' : '');
 
             // Check for shared comparison URL (?comp=...&token=...)
             setTimeout(function() { _wbCompCheckSharedUrl(); }, 800);
@@ -28281,10 +28281,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function initReports() {
             var el = document.getElementById('reportsView');
             var demoProfiles = [
-                { name: 'Tyrion Lannister', show: 'Game of Thrones', role: 'Chief of Staff', company: 'United Nations', match: 75, file: 'reports/demos/tyrion-lannister.html', emoji: '🍷', date: 'Feb 22, 2026' },
-                { name: 'Walter White', show: 'Breaking Bad', role: 'Chief Science Officer', company: 'Gray Matter Technologies', match: 82, file: 'reports/demos/walter-white.html', emoji: '⚗️', date: 'Feb 22, 2026' },
-                { name: 'Jim Hopper', show: 'Stranger Things', role: 'Dir. National Crisis Response', company: 'Dept. of Homeland Security', match: 78, file: 'reports/demos/jim-hopper.html', emoji: '🏚️', date: 'Feb 22, 2026' },
-                { name: 'Kendall Roy', show: 'Succession', role: 'Chief Executive Officer', company: 'Waystar Royco', match: 71, file: 'reports/demos/kendall-roy.html', emoji: '👔', date: 'Feb 22, 2026' }
+                { name: 'Tyrion Lannister', show: 'Game of Thrones', role: 'Chief of Staff', company: 'United Nations', match: 75, file: 'reports/demos/tyrion-lannister.html', emoji: '' + bpIcon('sparkle',14) + '', date: 'Feb 22, 2026' },
+                { name: 'Walter White', show: 'Breaking Bad', role: 'Chief Science Officer', company: 'Gray Matter Technologies', match: 82, file: 'reports/demos/walter-white.html', emoji: '' + bpIcon('tool',12) + '️', date: 'Feb 22, 2026' },
+                { name: 'Jim Hopper', show: 'Stranger Things', role: 'Dir. National Crisis Response', company: 'Dept. of Homeland Security', match: 78, file: 'reports/demos/jim-hopper.html', emoji: bpIcon('shield',14), date: 'Feb 22, 2026' },
+                { name: 'Kendall Roy', show: 'Succession', role: 'Chief Executive Officer', company: 'Waystar Royco', match: 71, file: 'reports/demos/kendall-roy.html', emoji: bpIcon('briefcase',14), date: 'Feb 22, 2026' }
             ];
             
             var scoreColor = function(s) { return s >= 70 ? 'var(--c-success, #30d158)' : s >= 50 ? 'var(--c-warning, #ff9f0a)' : 'var(--c-danger, #ff453a)'; };
@@ -28525,7 +28525,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<div class="rpt-card-h">' + bpIcon('award', 16) + ' Credential Vault</div>'
                 + '<div class="rpt-card-sub">Manage education, certifications, and verification documents.</div>'
                 + '<div style="padding:28px; text-align:center;">'
-                + '<div style="font-size:1.6em; margin-bottom:10px; opacity:0.35;">🔒</div>'
+                + '<div style="font-size:1.6em; margin-bottom:10px; opacity:0.35;">' + bpIcon('lock',22) + '</div>'
                 + '<div style="font-weight:600; color:var(--text-secondary); margin-bottom:4px;">Coming Soon</div>'
                 + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.5;">Upload and manage verified credentials that auto-populate across all scouting reports.</div>'
                 + '</div></div>';
@@ -30050,7 +30050,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + pts + ' pt' + (pts !== 1 ? 's' : '') + '</span>';
                     if (!isReadOnlyProfile) {
                         bodyHTML += '<div style="display:flex; gap:6px;">'
-                            + '<button onclick="editSkillOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.8em; color:var(--c-accent);">\u270E</button>'
+                            + '<button onclick="editSkillOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.8em; color:var(--c-accent);">' + bpIcon('edit',12) + '</button>'
                             + '<button onclick="removeOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-danger);">\u00D7</button>'
                             + '</div>';
                     }
@@ -31644,7 +31644,7 @@ body {
             if ((!blueprintData.values || blueprintData.values.length === 0)
                     && window._lastKnownValues && window._lastKnownValues.length > 0) {
                 blueprintData.values = JSON.parse(JSON.stringify(window._lastKnownValues));
-                console.warn('⚡ Values circuit breaker: restored from _lastKnownValues');
+                console.warn('' + bpIcon('zap',12) + ' Values circuit breaker: restored from _lastKnownValues');
                 _inferPurposeOnly();
                 return;
             }
@@ -31659,7 +31659,7 @@ body {
                         if (parsed && parsed.length > 0 && parsed.some(function(v) { return v.selected; })) {
                             window._lastKnownValues = parsed;
                             blueprintData.values = JSON.parse(JSON.stringify(parsed));
-                            console.warn('⚡ Values circuit breaker: restored from durable backup');
+                            console.warn('' + bpIcon('zap',12) + ' Values circuit breaker: restored from durable backup');
                             _inferPurposeOnly();
                             return;
                         }
@@ -31882,7 +31882,7 @@ body {
                 html += '<div style="font-size:1.05em; color:var(--text-secondary); line-height:1.8; max-width:560px; margin:12px auto 0; font-style:italic;">'
                     + escapeHtml(driveStatement)
                     + '</div>';
-                if (canEdit) html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.72em; margin-top:10px; opacity:0.6;">\u270E edit</button>';
+                if (canEdit) html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.72em; margin-top:10px; opacity:0.6;">' + bpIcon('edit',12) + ' edit</button>';
             } else if (canEdit) {
                 html += '<div style="font-size:0.92em; color:var(--text-muted); max-width:420px; margin:12px auto 0; line-height:1.6;">What kind of work excites you? What problems do you want to solve?</div>';
                 html += '<button onclick="explorerDashEditDrive()" style="padding:10px 24px; background:rgba(96,165,250,0.08); color:#60a5fa; border:1px solid rgba(96,165,250,0.15); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em; margin-top:12px;">Add your motivation</button>';
@@ -31907,10 +31907,10 @@ body {
             // ZONE 2: YOUR DIRECTION
             if (careerPaths.length === 0 && canEdit) {
                 html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(191,90,242,0.2); background:rgba(255,255,255,0.02);">'
-                    + '<div style="font-size:3em; margin-bottom:16px; opacity:0.25;">\uD83D\uDEE4\uFE0F</div>'
+                    + '<div style="margin-bottom:16px; opacity:0.3;">' + bpIcon('compass',48) + '</div>'
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); font-size:1.15em; margin-bottom:8px;">Discover Your Career Paths</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); max-width:400px; margin:0 auto 20px; line-height:1.6;">AI will analyze your skills, education, and interests to suggest career directions with salary data and growth roadmaps.</div>'
-                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:14px 32px; background:#60a5fa; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1em; box-shadow:none;">\u26A1 Discover Career Paths</button>'
+                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:14px 32px; background:#60a5fa; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1em; box-shadow:none;">Discover Career Paths</button>'
                     + '</div>';
             }
 
@@ -32000,12 +32000,12 @@ body {
             var allSchools = ed.schools || (education.school ? [education] : []);
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                + '<div style="' + ls + ' color:#ff9f0a;">\uD83C\uDF93 Education</div>'
+                + '<div style="' + ls + ' color:#ff9f0a;">' + bpIcon('graduation',14) + ' Education</div>'
                 + (canEdit ? '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(255,159,10,0.2); background:rgba(255,159,10,0.04); color:#ff9f0a; cursor:pointer; font-weight:600;">+ Add</button>' : '')
                 + '</div>';
             if (allSchools.length > 0) {
                 allSchools.forEach(function(s, i) {
-                    var typeEmoji = s.schoolType === 'highschool' ? '\uD83C\uDFEB' : s.schoolType === 'trade' ? '\uD83D\uDD27' : s.schoolType === 'community' ? '\uD83D\uDCDA' : s.schoolType === 'bootcamp' ? '\uD83D\uDCBB' : '\uD83C\uDF93';
+                    var typeEmoji = bpIcon(s.schoolType === 'highschool' ? 'home' : s.schoolType === 'trade' ? 'tool' : s.schoolType === 'community' ? 'book' : s.schoolType === 'bootcamp' ? 'skills' : 'graduation', 14);
                     html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid rgba(255,255,255,0.06);' : '') + '">'
                         + '<div>'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + typeEmoji + ' ' + escapeHtml(s.school || '') + '</div>'
@@ -32015,7 +32015,7 @@ body {
                         + (s.currentYear ? ' \u00B7 ' + escapeHtml(s.currentYear) : '')
                         + '</div></div>'
                         + (canEdit ? '<div style="display:flex; gap:4px; flex-shrink:0;">'
-                        + '<button onclick="explorerDashEditSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.78em;">\u270E</button>'
+                        + '<button onclick="explorerDashEditSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.78em;">' + bpIcon('edit',12) + '</button>'
                         + (allSchools.length > 1 ? '<button onclick="explorerDashRemoveSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.82em;">\u00D7</button>' : '')
                         + '</div>' : '')
                         + '</div>';
@@ -32028,7 +32028,7 @@ body {
             var activities = ed.activities || [];
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                + '<div style="' + ls + ' color:#bf5af2;">\u26A1 Activities</div>'
+                + '<div style="' + ls + ' color:#bf5af2;">' + bpIcon('activity',14) + ' Activities</div>'
                 + (canEdit ? '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(191,90,242,0.2); background:rgba(191,90,242,0.04); color:#bf5af2; cursor:pointer; font-weight:600;">+ Add</button>' : '')
                 + '</div>';
             if (activities.length === 0) {
@@ -32042,7 +32042,7 @@ body {
                     html += (a.description ? '<div style="font-size:0.75em; color:var(--text-secondary); margin-top:3px; line-height:1.4;">' + escapeHtml(a.description) + '</div>' : '')
                         + '</div>'
                         + (canEdit ? '<div style="display:flex; gap:4px; flex-shrink:0;">'
-                        + '<button onclick="explorerDashEditActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.78em;">\u270E</button>'
+                        + '<button onclick="explorerDashEditActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.78em;">' + bpIcon('edit',12) + '</button>'
                         + '<button onclick="explorerDashRemoveActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.82em;">\u00D7</button>'
                         + '</div>' : '')
                         + '</div>';
@@ -32055,8 +32055,8 @@ body {
             html += '<div style="display:flex; flex-direction:column; gap:16px;">';
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
-                + '<div style="' + ls + ' color:#60a5fa;">\u2728 Interests</div>'
-                + (canEdit ? '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.2); background:rgba(96,165,250,0.04); color:#60a5fa; cursor:pointer; font-weight:600;">\u270E Edit</button>' : '')
+                + '<div style="' + ls + ' color:#60a5fa;">' + bpIcon('compass',14) + ' Interests</div>'
+                + (canEdit ? '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.2); background:rgba(96,165,250,0.04); color:#60a5fa; cursor:pointer; font-weight:600;">' + bpIcon('edit',12) + ' Edit</button>' : '')
                 + '</div>';
             if (interests.length === 0) {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No interests added yet.</div>';
@@ -32452,18 +32452,18 @@ body {
         window._initAdjacencyForce = _initAdjacencyForce;
 
         var _explorerWorkValues = [
-            { id: 'autonomy', name: 'Autonomy', icon: '\uD83E\uDDED', color: '#bf5af2', desc: 'Freedom to make your own decisions and work independently' },
-            { id: 'impact', name: 'Impact', icon: '\uD83C\uDF0D', color: '#30d158', desc: 'Making a meaningful difference in people\'s lives or the world' },
-            { id: 'stability', name: 'Stability', icon: '\uD83C\uDFE0', color: '#60a5fa', desc: 'Job security, predictable income, and a reliable career path' },
-            { id: 'creativity', name: 'Creativity', icon: '\uD83C\uDFA8', color: '#ff453a', desc: 'Expressing ideas, designing, inventing, or building new things' },
-            { id: 'growth', name: 'Growth', icon: '\uD83D\uDE80', color: '#ff9f0a', desc: 'Constantly learning, leveling up, and advancing your career' },
-            { id: 'collaboration', name: 'Collaboration', icon: '\uD83E\uDD1D', color: '#5ac8fa', desc: 'Working closely with others, being part of a great team' },
-            { id: 'recognition', name: 'Recognition', icon: '\u2B50', color: '#eab308', desc: 'Being acknowledged and rewarded for your contributions' },
-            { id: 'balance', name: 'Balance', icon: '\u2696\uFE0F', color: '#bf5af2', desc: 'Having time for life outside work \u2014 family, hobbies, health' },
-            { id: 'challenge', name: 'Challenge', icon: '\uD83E\uDDE9', color: '#ff453a', desc: 'Solving hard problems and pushing yourself beyond comfort zones' },
-            { id: 'purpose', name: 'Purpose', icon: '\uD83D\uDD25', color: '#ff9f0a', desc: 'Feeling your work connects to something bigger than yourself' },
-            { id: 'flexibility', name: 'Flexibility', icon: '\uD83C\uDF0A', color: '#14b8a6', desc: 'Control over when, where, and how you work' },
-            { id: 'leadership', name: 'Leadership', icon: '\uD83D\uDCA1', color: '#bf5af2', desc: 'Guiding others, making decisions, and shaping direction' }
+            { id: 'autonomy', name: 'Autonomy', icon: bpIcon('compass',16), color: '#bf5af2', desc: 'Freedom to make your own decisions and work independently' },
+            { id: 'impact', name: 'Impact', icon: bpIcon('target',16), color: '#30d158', desc: 'Making a meaningful difference in people\'s lives or the world' },
+            { id: 'stability', name: 'Stability', icon: bpIcon('shield',16), color: '#60a5fa', desc: 'Job security, predictable income, and a reliable career path' },
+            { id: 'creativity', name: 'Creativity', icon: bpIcon('sparkle',16), color: '#ff453a', desc: 'Expressing ideas, designing, inventing, or building new things' },
+            { id: 'growth', name: 'Growth', icon: bpIcon('trending-up',16), color: '#ff9f0a', desc: 'Constantly learning, leveling up, and advancing your career' },
+            { id: 'collaboration', name: 'Collaboration', icon: bpIcon('users',16), color: '#5ac8fa', desc: 'Working closely with others, being part of a great team' },
+            { id: 'recognition', name: 'Recognition', icon: bpIcon('star',16), color: '#eab308', desc: 'Being acknowledged and rewarded for your contributions' },
+            { id: 'balance', name: 'Balance', icon: bpIcon('scale',16), color: '#bf5af2', desc: 'Having time for life outside work \u2014 family, hobbies, health' },
+            { id: 'challenge', name: 'Challenge', icon: bpIcon('zap',16), color: '#ff453a', desc: 'Solving hard problems and pushing yourself beyond comfort zones' },
+            { id: 'purpose', name: 'Purpose', icon: bpIcon('flame',16), color: '#ff9f0a', desc: 'Feeling your work connects to something bigger than yourself' },
+            { id: 'flexibility', name: 'Flexibility', icon: bpIcon('refresh',16), color: '#14b8a6', desc: 'Control over when, where, and how you work' },
+            { id: 'leadership', name: 'Leadership', icon: bpIcon('lightbulb',16), color: '#bf5af2', desc: 'Guiding others, making decisions, and shaping direction' }
         ];
 
         function _renderExplorerValues(ed, canEdit) {
@@ -32473,13 +32473,13 @@ body {
             var workValues = ed.workValues || [];
             var html = '<div style="' + cs + '">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                + '<div style="' + ls + ' color:#ff9f0a; margin-bottom:0;">\uD83C\uDFAF What You Value in Work</div>'
-                + (canEdit ? '<button onclick="explorerDashEditValues()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">' + (workValues.length > 0 ? '\u270E' : '+ Choose') + '</button>' : '')
+                + '<div style="' + ls + ' color:#ff9f0a; margin-bottom:0;">' + bpIcon('target',14) + ' What You Value in Work</div>'
+                + (canEdit ? '<button onclick="explorerDashEditValues()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">' + (workValues.length > 0 ? bpIcon('edit',12) : '+ Choose') + '</button>' : '')
                 + '</div>';
             if (workValues.length === 0) {
                 if (canEdit) {
                 html += '<div style="text-align:center; padding:16px 10px;">'
-                    + '<div style="font-size:2em; margin-bottom:8px; opacity:0.3;">\uD83C\uDFAF</div>'
+                    + '<div style="margin-bottom:8px; opacity:0.3;">' + bpIcon('target',36) + '</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); margin-bottom:12px;">What matters most to you in a career? Pick your top values so we can find paths that actually fit you.</div>'
                     + '<button onclick="explorerDashEditValues()" style="padding:10px 22px; background:#ff9f0a; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Choose Your Values</button>'
                     + '</div>';
@@ -32510,7 +32510,7 @@ body {
 
             var html = '<div style="padding:20px; max-width:520px; margin:0 auto;">'
                 + '<div style="text-align:center; margin-bottom:20px;">'
-                + '<div style="font-size:1.3em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">\uD83C\uDFAF Choose Your Work Values</div>'
+                + '<div style="font-size:1.3em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Choose Your Work Values</div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.5;">Pick up to ' + maxPicks + ' values that matter most to you in a career. These help us recommend paths that truly fit.</div>'
                 + '<div id="valuesCount" style="font-size:0.82em; font-weight:700; color:#ff9f0a; margin-top:8px;">' + currentValues.length + ' / ' + maxPicks + ' selected</div>'
                 + '</div>'
@@ -32767,7 +32767,7 @@ body {
                 saveToFirestore();
             } catch (err) {
                 showToast('Error discovering careers: ' + err.message, 'error');
-                if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '\u26A1 Discover Career Paths'; }
+                if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = 'Discover Career Paths'; }
             }
         }
         window.explorerDashDiscoverCareers = explorerDashDiscoverCareers;
@@ -33230,10 +33230,10 @@ body {
 
             if (skills.length === 0 && roles.length === 0 && fbUser && !isReadOnlyProfile) {
                 return '<div style="text-align:center; padding:80px 30px;">'
-                    + '<div style="font-size:3.5em; margin-bottom:20px; opacity:0.25;">🎯</div>'
+                    + '<div style="font-size:3.5em; margin-bottom:20px; opacity:0.25;">' + bpIcon('target',28) + '</div>'
                     + '<div style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:700; color:var(--text-primary); margin-bottom:12px;">Build Your Blueprint</div>'
                     + '<div style="font-size:1em; color:var(--text-muted); max-width:480px; margin:0 auto 32px; line-height:1.7;">Map your skills, define your roles, and track your outcomes to unlock salary estimates, job matching, and scouting reports.</div>'
-                    + '<button onclick="showOnboardingWizard();" style="padding:14px 28px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:1em;">\u26A1 Start Building</button>'
+                    + '<button onclick="showOnboardingWizard();" style="padding:14px 28px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:1em;">' + bpIcon('zap',14) + ' Start Building</button>'
                     + '</div>';
             }
 
@@ -40965,7 +40965,7 @@ body {
                 lines.push('=== UNEXPECTED VALUE (YOUR DIFFERENTIATORS) ===');
                 lines.push('');
                 surplus.slice(0, 4).forEach(function(s) {
-                    lines.push('\uD83D\uDCA1 ' + (s.name || s));
+                    lines.push('' + bpIcon('lightbulb',14) + ' ' + (s.name || s));
                     lines.push('   This skill isn\'t in the job description but adds value because...');
                     lines.push('');
                 });
@@ -41978,7 +41978,7 @@ body {
                         + '<button onclick="event.stopPropagation(); editJobInfo(' + idx + ')" style="'
                         + 'background:none; border:1px solid var(--border); color:var(--text-muted); font-size:0.75em; '
                         + 'cursor:pointer; padding:4px 10px; border-radius:8px;" '
-                        + 'onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">\u270E Edit</button>'
+                        + 'onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">' + bpIcon('edit',12) + ' Edit</button>'
                         + '<button onclick="event.stopPropagation(); removeJob(' + idx + ')" style="'
                         + 'background:none; border:1px solid rgba(255,69,58,0.2); color:var(--text-muted); font-size:0.75em; '
                         + 'cursor:pointer; padding:4px 10px; border-radius:8px;" '
@@ -42122,7 +42122,7 @@ body {
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '<button id="fetchUrlBtn" onclick="fetchAndAnalyzeUrl()" style="'
                 + 'background:var(--accent); color:#fff; border:none; padding:10px 18px; border-radius:6px; '
-                + 'cursor:pointer; font-weight:600; font-size:0.88em; white-space:nowrap;">\uD83D\uDD0D Fetch & Analyze</button>'
+                + 'cursor:pointer; font-weight:600; font-size:0.88em; white-space:nowrap;">' + bpIcon('search',14) + ' Fetch & Analyze</button>'
                 + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">Works with most ATS pages (Greenhouse, Lever, Rippling, Workday, LinkedIn, etc.)</div>'
                 
@@ -42154,7 +42154,7 @@ body {
                 // API key (collapsible, only shown if no proxy)
                 + (hasProxy ? '' : '<details style="margin-top:16px;">'
                 + '<summary style="cursor:pointer; font-size:0.82em; color:var(--text-muted);">'
-                + '\u26A1 AI-powered analysis (optional, requires API key)</summary>'
+                + '' + bpIcon('zap',14) + ' AI-powered analysis (optional, requires API key)</summary>'
                 + '<div style="margin-top:8px; padding:12px; background:var(--c-surface-1); '
                 + 'border:1px solid var(--border); border-radius:8px;">'
                 + '<input id="jdApiKey" type="password" placeholder="sk-ant-..." value="' + escapeAttr(savedKey) + '" style="'
@@ -42173,7 +42173,7 @@ body {
                 + 'padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;">Cancel</button>'
                 + '<button id="analyzeJobBtn" onclick="analyzeJob()" style="'
                 + 'background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; '
-                + 'cursor:pointer; font-weight:600; font-size:0.9em;">\uD83D\uDD0D Analyze Text</button>'
+                + 'cursor:pointer; font-weight:600; font-size:0.9em;">' + bpIcon('search',14) + ' Analyze Text</button>'
                 + '</div></div>';
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
@@ -42224,7 +42224,7 @@ body {
                     + '<div style="color:var(--text-muted); font-size:0.78em; margin-top:6px;">Tip: Copy the job description text and paste it in the field below.</div>';
             } finally {
                 fetchBtn.disabled = false;
-                fetchBtn.textContent = '\uD83D\uDD0D Fetch & Analyze';
+                fetchBtn.textContent = '' + bpIcon('search',14) + ' Fetch & Analyze';
             }
         }
         window.fetchAndAnalyzeUrl = fetchAndAnalyzeUrl;
@@ -44721,7 +44721,7 @@ body {
                 if (window._skillNameSet) window._skillNameSet.add(lower);
                 if (window._skillLibNameMap) window._skillLibNameMap.set(lower, { n: skillName, c: category || 'Custom', source: 'custom' });
                 if (skillLibraryIndex.totalSkills) skillLibraryIndex.totalSkills++;
-                console.log('📚 Registered in skill library:', skillName);
+                console.log('' + bpIcon('book',12) + ' Registered in skill library:', skillName);
             }
         }
         window.registerInSkillLibrary = registerInSkillLibrary;
@@ -46313,11 +46313,11 @@ body {
             
             var isSampleJob = job.sample === true;
             if (isSampleJob && !fbIsAdmin) {
-                html += '<span style="font-size:0.78em; color:var(--text-muted); font-style:italic;">\uD83D\uDD12 Demo job (read-only)</span>';
+                html += '<span style="font-size:0.78em; color:var(--text-muted); font-style:italic;">' + bpIcon('lock',12) + ' Demo job (read-only)</span>';
             } else {
-                if (isSampleJob) html += '<span style="font-size:0.72em; color:var(--text-muted); font-style:italic; margin-right:4px;">\uD83D\uDD12 Demo</span>';
+                if (isSampleJob) html += '<span style="font-size:0.72em; color:var(--text-muted); font-style:italic; margin-right:4px;">' + bpIcon('lock',12) + ' Demo</span>';
                 html += '<button onclick="editJobInfo(' + idx + ')" style="background:none; border:1px solid var(--border); '
-                    + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u270E Edit Info</button>'
+                    + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">' + bpIcon('edit',12) + ' Edit Info</button>'
                     + '<button onclick="rescoreOneJob(' + idx + ')" style="background:none; border:1px solid var(--border); '
                     + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u21BB Refresh Match</button>'
                     + '<button onclick="reanalyzeJob(' + idx + ')" style="background:none; border:1px solid var(--border); '
@@ -46340,7 +46340,7 @@ body {
             var metaBadges = [];
             var loc = (job.jobLocation && job.jobLocation.primary) || '';
             if (loc) metaBadges.push(bpIcon('map-pin',12) + ' ' + escapeHtml(loc));
-            if (job.jobLocation && job.jobLocation.remote === true) metaBadges.push('\uD83C\uDFE0 Remote');
+            if (job.jobLocation && job.jobLocation.remote === true) metaBadges.push('' + bpIcon('home',12) + ' Remote');
             var ind = (job.hiringOrganization && job.hiringOrganization.industry) || '';
             if (ind) metaBadges.push(escapeHtml(ind));
             if (job.employmentType) {
@@ -46473,7 +46473,7 @@ body {
                     + 'background:rgba(167,139,250,0.06); border:1px solid rgba(167,139,250,0.2);">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">'
                     + '<div>'
-                    + '<div style="font-size:0.82em; font-weight:600; color:#bf5af2; margin-bottom:4px;">\uD83D\uDCB0 Market Salary Range</div>'
+                    + '<div style="font-size:0.82em; font-weight:600; color:#bf5af2; margin-bottom:4px;">' + bpIcon('dollar',14) + ' Market Salary Range</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted);">BLS Match: ' + bls.title + ' (SOC ' + bls.soc + ')</div>'
                     + '</div>'
                     + '<div style="text-align:right;">'
@@ -46583,7 +46583,7 @@ body {
                     + 'background:rgba(96,165,250,0.06); '
                     + 'border:1px solid rgba(96,165,250,0.15);">'
                     + '<h3 style="font-size:0.95em; font-weight:700; color:var(--accent); margin-bottom:4px;">'
-                    + '\uD83D\uDCA1 Suggested for Your Roles</h3>'
+                    + '' + bpIcon('lightbulb',14) + ' Suggested for Your Roles</h3>'
                     + '<p style="font-size:0.75em; color:var(--text-muted); margin-bottom:10px;">Industry-standard skills for your roles. Click to add.</p>';
                 if (roleGapOverlap.length > 0) {
                     html += '<p style="font-size:0.78em; font-weight:600; color:#ff9f0a; margin-bottom:6px;">Also needed by this job:</p>'
@@ -47248,7 +47248,7 @@ body {
             var groupLabel = jobsSyncMeta.syncGroup ? ' (group ' + jobsSyncMeta.syncGroup + ')' : '';
             
             el.innerHTML = '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
-                + '<span style="font-size:0.75em; color:var(--text-muted);">\uD83D\uDD04 Synced ' + ago + groupLabel + '</span>'
+                + '<span style="font-size:0.75em; color:var(--text-muted);">' + bpIcon('refresh',12) + ' Synced ' + ago + groupLabel + '</span>'
                 + '<span style="font-size:0.75em; color:var(--accent); font-weight:600;">' + total + ' jobs in database</span>'
                 + (srcParts.length > 0 ? '<span style="font-size:0.68em; color:var(--text-muted);">' + srcParts.join(' \u00B7 ') + '</span>' : '')
                 + '</div>';
@@ -48447,7 +48447,7 @@ body {
                                 + '</div>'
                                 + '<div style="display:flex; gap:1px; flex-shrink:0;">'
                                 + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:' + (isHidden ? '#ff9f0a' : 'var(--c-muted)') + '; line-height:1;">' + bpIcon('eye',11) + '</button>'
-                                + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                                + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">' + bpIcon('edit',12) + '</button>'
                                 + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                                 + '</div>'
                                 + '</div>'
@@ -48475,7 +48475,7 @@ body {
                             + '</div>'
                             + '<div style="display:flex; gap:1px; flex-shrink:0;">'
                             + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? '#ff9f0a' : 'var(--c-muted)') + ';">' + bpIcon('eye',12) + '</button>'
-                            + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                            + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">' + bpIcon('edit',12) + '</button>'
                             + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                             + '</div>'
                             + '</div>'
@@ -48523,7 +48523,7 @@ body {
                         + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:8px;">'
                         + '<span style="font-size:0.68em; padding:3px 8px; border-radius:8px; background:var(--c-surface-4a); color:var(--c-muted); white-space:nowrap; flex-shrink:0;">' + icon + ' ' + typeLabel + '</span>'
                         + '<div style="display:flex; gap:1px; flex-shrink:0;">'
-                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">' + bpIcon('edit',12) + '</button>'
                         + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div>'
                         + '</div>'
@@ -48561,7 +48561,7 @@ body {
                         + (act.description ? '<div style="font-size:0.75em; color:var(--text-muted); margin-top:4px; line-height:1.4;">' + escapeHtml(act.description).substring(0,120) + '</div>' : '')
                         + '</div>'
                         + '<div style="display:flex; gap:1px; flex-shrink:0;">'
-                        + '<button onclick="editActivityItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="editActivityItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">' + bpIcon('edit',12) + '</button>'
                         + '<button onclick="removeActivityItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div></div></div>';
                 });
@@ -48593,10 +48593,10 @@ body {
                         + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:8px;">'
                         + '<div style="display:flex; gap:4px; flex-wrap:wrap; flex:1; min-width:0;">'
                         + (cert.tier ? '<span style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:rgba(' + (cert.tier >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + '; font-weight:700; flex-shrink:0;">' + tierTag + '</span>' : '')
-                        + (totalLinks > 0 ? '<span style="font-size:0.7em; color:var(--c-purple-light); flex-shrink:0;">\uD83D\uDD17 ' + totalLinks + '</span>' : '')
+                        + (totalLinks > 0 ? '<span style="font-size:0.7em; color:var(--c-purple-light); flex-shrink:0;">' + bpIcon('link',12) + ' ' + totalLinks + '</span>' : '')
                         + '</div>'
                         + '<div style="display:flex; gap:1px; flex-shrink:0;">'
-                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">' + bpIcon('edit',12) + '</button>'
                         + '<button onclick="removeCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div>'
                         + '</div>'
@@ -49151,12 +49151,12 @@ body {
             
             // Education type configurations
             var edTypes = {
-                degree:   { label:'Degree',         icon:'🎓', instLabel:'School / University',    credLabel:'Degree',           credPlaceholder:'B.S., M.B.A., Ph.D.', fieldLabel:'Field of Study',  fieldPlaceholder:'Business Administration', showAuthority:false, showDuration:true,  showEnrolled:true  },
-                cert:     { label:'Certificate',     icon:'📜', instLabel:'Issuing Org / School',   credLabel:'Certificate / License', credPlaceholder:'Private Pilot, CDL-A', fieldLabel:'Specialization',  fieldPlaceholder:'Aviation, Cybersecurity', showAuthority:true,  showDuration:true,  showEnrolled:false },
-                trade:    { label:'Trade / Vocational', icon:'🔧', instLabel:'School / Program',    credLabel:'Credential',       credPlaceholder:'Journeyman, Certification', fieldLabel:'Trade / Focus', fieldPlaceholder:'Welding, Electrical, HVAC', showAuthority:false, showDuration:true,  showEnrolled:true  },
-                bootcamp: { label:'Bootcamp',        icon:'⚡', instLabel:'Program / Provider',     credLabel:'Certificate',      credPlaceholder:'Certificate of Completion', fieldLabel:'Focus Area',      fieldPlaceholder:'Full-Stack Development',   showAuthority:false, showDuration:true,  showEnrolled:true  },
-                profdev:  { label:'Professional Dev', icon:'📊', instLabel:'Organization',           credLabel:'Completion',       credPlaceholder:'Executive Certificate',     fieldLabel:'Focus Area',      fieldPlaceholder:'Leadership, Finance',      showAuthority:false, showDuration:false, showEnrolled:false },
-                military: { label:'Military',        icon:'🎖️', instLabel:'Branch / School',        credLabel:'Qualification',    credPlaceholder:'MOS, Rating, NEC',          fieldLabel:'Specialty',        fieldPlaceholder:'Infantry, Aviation, Intel', showAuthority:false, showDuration:true,  showEnrolled:true  }
+                degree:   { label:'Degree',         icon:'' + bpIcon('graduation',12) + '', instLabel:'School / University',    credLabel:'Degree',           credPlaceholder:'B.S., M.B.A., Ph.D.', fieldLabel:'Field of Study',  fieldPlaceholder:'Business Administration', showAuthority:false, showDuration:true,  showEnrolled:true  },
+                cert:     { label:'Certificate',     icon:'' + bpIcon('award',12) + '', instLabel:'Issuing Org / School',   credLabel:'Certificate / License', credPlaceholder:'Private Pilot, CDL-A', fieldLabel:'Specialization',  fieldPlaceholder:'Aviation, Cybersecurity', showAuthority:true,  showDuration:true,  showEnrolled:false },
+                trade:    { label:'Trade / Vocational', icon:'' + bpIcon('tool',12) + '', instLabel:'School / Program',    credLabel:'Credential',       credPlaceholder:'Journeyman, Certification', fieldLabel:'Trade / Focus', fieldPlaceholder:'Welding, Electrical, HVAC', showAuthority:false, showDuration:true,  showEnrolled:true  },
+                bootcamp: { label:'Bootcamp',        icon:bpIcon('zap',14), instLabel:'Program / Provider',     credLabel:'Certificate',      credPlaceholder:'Certificate of Completion', fieldLabel:'Focus Area',      fieldPlaceholder:'Full-Stack Development',   showAuthority:false, showDuration:true,  showEnrolled:true  },
+                profdev:  { label:'Professional Dev', icon:bpIcon('bar-chart',14), instLabel:'Organization',           credLabel:'Completion',       credPlaceholder:'Executive Certificate',     fieldLabel:'Focus Area',      fieldPlaceholder:'Leadership, Finance',      showAuthority:false, showDuration:false, showEnrolled:false },
+                military: { label:'Military',        icon:'' + bpIcon('award',12) + '️', instLabel:'Branch / School',        credLabel:'Qualification',    credPlaceholder:'MOS, Rating, NEC',          fieldLabel:'Specialty',        fieldPlaceholder:'Infantry, Aviation, Intel', showAuthority:false, showDuration:true,  showEnrolled:true  }
             };
             
             var currentType = ed.type || 'degree';
@@ -49320,7 +49320,7 @@ body {
                 var name = cert ? (cert.name + (cert.abbr ? ' (' + cert.abbr + ')' : '')) : 'Credential #' + ci;
                 return '<span style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:var(--c-accent-bg-5a); '
                     + 'color:var(--c-accent-deep); border-radius:12px; font-size:0.78em; font-weight:600;">'
-                    + '\uD83D\uDD17 ' + escapeHtml(name)
+                    + '' + bpIcon('link',12) + ' ' + escapeHtml(name)
                     + ' <button onclick="edRemoveLinkedCred(' + i + ')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button></span>';
             }).join('');
         }
@@ -49426,7 +49426,7 @@ body {
                 
                 // Library search
                 + '<div class="settings-group" style="margin-bottom:16px; position:relative;">'
-                + '<label class="settings-label">\uD83D\uDD0D Search Credential Library <span style="font-weight:400; color:var(--c-faint); font-size:0.88em;">(191 credentials)</span></label>'
+                + '<label class="settings-label">' + bpIcon('search',14) + ' Search Credential Library <span style="font-weight:400; color:var(--c-faint); font-size:0.88em;">(191 credentials)</span></label>'
                 + '<input type="text" class="settings-input" id="certLibrarySearch" '
                 + 'placeholder="Type name, abbreviation, or category..." '
                 + 'oninput="onCertLibrarySearch()" autocomplete="off" '
@@ -49463,7 +49463,7 @@ body {
                 
                 // Linked skills
                 + '<div class="settings-group" style="margin-top:14px;">'
-                + '<label class="settings-label">\uD83D\uDD17 Linked Skills</label>'
+                + '<label class="settings-label">' + bpIcon('link',12) + ' Linked Skills</label>'
                 + '<div class="settings-help" style="margin-bottom:8px;">Skills linked to this credential receive a <strong id="certFloorLabel">' + tierLabel + '</strong> evidence floor for market valuation.</div>'
                 + '<div id="certLinkedSkillsContainer" style="display:flex; flex-wrap:wrap; margin-bottom:8px;">' + linkedHTML + '</div>'
                 + '<div style="display:flex; gap:8px;">'
@@ -49678,9 +49678,9 @@ body {
             // Build notification
             var msgs = [];
             if (idx >= 0) {
-                msgs.push('\uD83C\uDFC5 Credential updated: ' + entry.name);
+                msgs.push('' + bpIcon('award',14) + ' Credential updated: ' + entry.name);
             } else {
-                msgs.push('\uD83C\uDFC5 Credential added: ' + entry.name);
+                msgs.push('' + bpIcon('award',14) + ' Credential added: ' + entry.name);
             }
             
             if (added.length > 0) {
@@ -49707,7 +49707,7 @@ body {
             
             var html = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
-                + '<h2 class="modal-title">\uD83C\uDFC5 Credential Impact</h2>'
+                + '<h2 class="modal-title">' + bpIcon('award',14) + ' Credential Impact</h2>'
                 + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.85em;">' + cert.name + (cert.abbr ? ' (' + cert.abbr + ')' : '') + '</p>'
                 + '</div>'
                 + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
@@ -50502,7 +50502,7 @@ body {
                             ${bpIcon("clock",12)} Update Status
                         </button>
                         <button class="application-btn" onclick="editApplication(${idx})">
-                            ✏️ Edit
+                            ' + bpIcon('edit',12) + ' Edit
                         </button>
                         ${app.url ? `
                             <button class="application-btn" onclick="window.open('${sanitizeUrl(app.url)}', '_blank')">
@@ -50973,7 +50973,7 @@ body {
                 + '<a href="https://gdpr.eu/" target="_blank" rel="noopener noreferrer" style="color:' + hc + '; text-decoration:none; font-size:0.85em;">Learn more \u2192</a>'
                 + '</div>'
                 + '<div style="padding:10px; background:' + bgCard + '; margin-bottom:8px; border-radius:6px;">'
-                + '<strong>\uD83D\uDCCB Employment Data Rights (US)</strong><br>'
+                + '<strong>' + bpIcon('clipboard',14) + ' Employment Data Rights (US)</strong><br>'
                 + '<span style="font-size:0.9em; color:' + sc + ';">Employers must handle your data fairly and cannot discriminate based on protected characteristics</span><br>'
                 + '<a href="https://www.eeoc.gov/" target="_blank" rel="noopener noreferrer" style="color:' + hc + '; text-decoration:none; font-size:0.85em;">EEOC Guidelines \u2192</a>'
                 + '</div>'
@@ -51004,17 +51004,17 @@ body {
                 + 'background:var(--c-accent-bg-5a); '
                 + 'border:1px solid var(--c-accent-border-4); '
                 + 'color:var(--c-accent-deep); padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;'
-                + '">\uD83D\uDCC4 View My Stored Data</button>'
+                + '">' + bpIcon('file-text',14) + ' View My Stored Data</button>'
                 + '<button onclick="exportMyData()" style="'
                 + 'background:var(--c-green-bg-4b); '
                 + 'border:1px solid var(--c-green-border-2b); '
                 + 'color:var(--c-success); padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;'
-                + '">\uD83D\uDCE5 Export My Data (JSON)</button>'
+                + '">' + bpIcon('download',14) + ' Export My Data (JSON)</button>'
                 + '<button onclick="requestDataDeletion()" style="'
                 + 'background:var(--c-red-bg-2a); '
                 + 'border:1px solid var(--c-red-border-2); '
                 + 'color:var(--c-danger); padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;'
-                + '">\uD83D\uDDD1 Delete All My Data</button>'
+                + '">' + bpIcon('trash',14) + ' Delete All My Data</button>'
                 + '</div>'
                 + '<div style="margin-top:12px; font-size:0.82em; color:var(--c-faint);">'
                 + 'You must be signed in to use these features. Data deletion is permanent and cannot be undone.'
@@ -52880,11 +52880,11 @@ body {
             _bulkParsedSkills.forEach(function(skill, idx) {
                 var bg, icon, detail;
                 if (skill.action === 'add') {
-                    bg = 'rgba(48,209,88,0.06)'; icon = '✚'; detail = '<span style="color:#30d158;">New at ' + skill.level + '</span>';
+                    bg = 'rgba(48,209,88,0.06)'; icon = bpIcon('plus',12); detail = '<span style="color:#30d158;">New at ' + skill.level + '</span>';
                 } else if (skill.action === 'upgrade') {
                     bg = 'rgba(96,165,250,0.06)'; icon = '⬆'; detail = '<span style="color:#60a5fa;">' + skill.conflict.level + ' → ' + skill.level + '</span>';
                 } else if (skill.action === 'overwrite') {
-                    bg = 'rgba(255,214,10,0.06)'; icon = '↻'; detail = '<span style="color:#ff9f0a;">Replace ' + skill.conflict.level + ' with ' + skill.level + '</span>';
+                    bg = 'rgba(255,214,10,0.06)'; icon = '' + bpIcon('refresh',10) + ''; detail = '<span style="color:#ff9f0a;">Replace ' + skill.conflict.level + ' with ' + skill.level + '</span>';
                 } else {
                     bg = 'rgba(99,99,102,0.04)'; icon = '⊘';
                     var reason = skill.conflict ? 'Already exists as "' + skill.conflict.name + '" (' + skill.conflict.level + ')' : 'Duplicate';
@@ -53358,7 +53358,7 @@ body {
             html += '<div style="margin-bottom:18px; border:1px solid var(--border); border-radius:10px; overflow:hidden;">'
                 + '<div onclick="document.getElementById(\'uniAssessBody\').style.display = document.getElementById(\'uniAssessBody\').style.display === \'none\' ? \'block\' : \'none\';" '
                 + 'style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; cursor:pointer; background:var(--bg-elevated);">'
-                + '<div style="font-weight:600; font-size:0.85em; color:var(--accent);">\uD83D\uDCCA Impact Assessment'
+                + '<div style="font-weight:600; font-size:0.85em; color:var(--accent);">' + bpIcon('bar-chart',14) + ' Impact Assessment'
                 + (hasAssess ? ' <span style="color:#30d158; font-size:0.85em;">\u2713 Assessed</span>' : ' <span style="color:var(--text-muted); font-size:0.85em;">(optional)</span>')
                 + '</div>'
                 + '<span style="color:var(--text-muted);">\u25BC</span></div>'
@@ -53366,7 +53366,7 @@ body {
             
             if (!isOnetSkill) {
                 html += '<div style="padding:8px 10px; background:rgba(255,159,10,0.1); border-left:3px solid #ff9f0a; border-radius:6px; font-size:0.78em; color:var(--text-secondary); margin-bottom:12px;">'
-                    + '\uD83D\uDCA1 This skill doesn\'t have a direct O*NET match. Assess it to improve market impact accuracy.</div>';
+                    + '' + bpIcon('lightbulb',14) + ' This skill doesn\'t have a direct O*NET match. Assess it to improve market impact accuracy.</div>';
             }
             
             html += '<div style="margin-bottom:12px;">'
@@ -54003,7 +54003,7 @@ body {
                     if (!container) return;
                     container.innerHTML = `
                         <div style="text-align: center; padding: 60px 20px; color: #ff9f0a;">
-                            <div style="font-size: 3em; margin-bottom: 10px;">⏳</div>
+                            <div style="font-size: 3em; margin-bottom: 10px;">' + bpIcon('clock',12) + '</div>
                             <div style="font-size: 1.1em;">Loading skill library...</div>
                             <div style="font-size: 0.9em; margin-top: 10px;">Please wait</div>
                         </div>
@@ -54140,7 +54140,7 @@ body {
                     console.log('No results found, showing empty state');
                     container.innerHTML = `
                         <div style="text-align: center; padding: 60px 20px; color: #a1a1a6;">
-                            <div style="font-size: 3em; margin-bottom: 10px;">❌</div>
+                            <div style="font-size: 3em; margin-bottom: 10px;">' + bpIcon('alert',28) + '</div>
                             <div style="font-size: 1.1em;">No skills found for "${escapeHtml(query)}"</div>
                             <div style="font-size: 0.9em; margin-top: 10px;">Try a different search term</div>
                         </div>
@@ -54440,7 +54440,7 @@ body {
                     : 'closeExportModal(); showWaitlist();';
                 var ctaText = appMode === 'waitlisted' ? 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist \u2714' : 'Join the Waitlist \u2192';
                 demoBanner = '<div style="background:rgba(96,165,250,0.12); border:1px solid rgba(96,165,250,0.25); border-radius:12px; padding:20px; margin-bottom:24px;">'
-                    + '<div style="font-weight:700; color:#60a5fa; margin-bottom:8px; font-size:0.95em;">\uD83D\uDD0D You\u2019re exploring a sample profile</div>'
+                    + '<div style="font-weight:700; color:#60a5fa; margin-bottom:8px; font-size:0.95em;">' + bpIcon('search',14) + ' You\u2019re exploring a sample profile</div>'
                     + '<div style="color:var(--c-muted, #a1a1a6); font-size:0.88em; line-height:1.6; margin-bottom:12px;">'
                     + 'Everything you see is fully interactive \u2014 browse skills, explore job matches, compare values. '
                     + 'The one export available is the <strong style="color:#30d158;">Scouting Report PDF</strong>, so you can see what Blueprint delivers to hiring teams.</div>'
@@ -54486,7 +54486,7 @@ body {
                 + '<div class="modal-body" style="padding: 30px;">'
                 // Preview disclosure
                 + '<div style="background:rgba(255,159,10,0.06); border:1px solid rgba(255,159,10,0.18); border-radius:10px; padding:16px; margin-bottom:20px;">'
-                + '<div style="font-size:0.85em; color:#ffd60a; font-weight:700; margin-bottom:6px;">\u26A1 Active Preview</div>'
+                + '<div style="font-size:0.85em; color:#ffd60a; font-weight:700; margin-bottom:6px;">' + bpIcon('zap',14) + ' Active Preview</div>'
                 + '<div style="font-size:0.82em; color:var(--c-muted, #a1a1a6); line-height:1.6; margin-bottom:10px;">'
                 + 'Blueprint is in active development. What you\u2019re exploring is a working preview \u2014 features are shipping weekly and the platform is evolving fast. '
                 + 'Sample scouting reports are available for select characters during the preview. Your feedback directly shapes what gets built next.'
