@@ -155,6 +155,22 @@ Blueprint must meet WCAG AA 2.1 standards. All text colors on light backgrounds 
 - When using accent colors (orange, purple, cyan) as text, always use the CSS variable which has been darkened for accessibility. Never use bright hex values (#ff9f0a, #bf5af2, #5ac8fa) as text colors.
 - Test contrast with https://webaim.org/resources/contrastchecker/ before adding new color pairings.
 
+## BP_PALETTE (Chart/Visualization Colors)
+Central palette constant at top of `public/app-core.js` for all chart, D3 network, and canvas colors. Canvas 2D cannot resolve CSS vars, so these stay as hex values. All roleColors/colors arrays reference `BP_PALETTE.*` instead of hardcoded hex.
+| Key | Hex | Use |
+|-----|-----|-----|
+| blue | #60a5fa | Primary role/domain color |
+| purple | #bf5af2 | Secondary role color |
+| green | #30d158 | Tertiary role color |
+| orange | #ff9f0a | Accent role color |
+| red | #ff453a | Risk/gap indicators only |
+| cyan | #5ac8fa | Supplementary role color |
+| yellow | #ffd60a | Unique skill category |
+| sky | #38bdf8 | Additional role color |
+| coral | #ff6961 | People/social features |
+
+For inline HTML styles, use CSS vars (e.g., `var(--accent)`, `var(--c-purple)`) instead of hex. BP_PALETTE is only for canvas/chart contexts.
+
 ## Proficiency Color Palette
 Gradient from cool to warm to green (achievement): Novice `#94a3b8` (slate) → Proficient `#60a5fa` (blue) → Advanced `#a78bfa` (purple) → Expert `#fb923c` (orange) → Mastery `#10b981` (green). Red `#ef4444` is ONLY for errors/problems. Yellow `#fbbf24` for caution/warnings.
 

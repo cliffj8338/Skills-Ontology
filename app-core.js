@@ -2,6 +2,12 @@
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
         var BP_VERSION = 'v4.48.11';
+
+        var BP_PALETTE = {
+            blue: '#60a5fa', purple: '#bf5af2', green: '#30d158',
+            orange: '#ff9f0a', red: '#ff453a', cyan: '#5ac8fa',
+            yellow: '#ffd60a', sky: '#38bdf8', coral: '#ff6961'
+        };
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2457,13 +2463,13 @@
 
             var tiles = [
                 { name: 'Skills Library', count: escoCount, source: 'ESCO \u00B7 Lightcast \u00B7 O*NET', color: 'var(--c-purple)', loaded: escoCount > 0 },
-                { name: 'Certifications', count: certLibCount, source: 'Base + Lightcast', color: '#c084fc', loaded: certLibCount > 0 },
+                { name: 'Certifications', count: certLibCount, source: 'Base + Lightcast', color: 'var(--c-purple)', loaded: certLibCount > 0 },
                 { name: 'Synonyms', count: synonymMappingCount, source: 'Bidirectional mappings', color: 'var(--c-purple)', loaded: synonymMappingCount > 0 },
                 { name: 'Abilities', count: abilitiesCount, source: 'O*NET', color: 'var(--accent)', loaded: abilitiesCount > 0 },
                 { name: 'Work Styles', count: wsCount, source: 'O*NET', color: 'var(--accent)', loaded: wsCount > 0 },
                 { name: 'Knowledge', count: knowledgeCount, source: 'O*NET', color: 'var(--accent)', loaded: knowledgeCount > 0 },
                 { name: 'Work Activities', count: activitiesCount, source: 'O*NET', color: 'var(--accent)', loaded: activitiesCount > 0 },
-                { name: 'O*NET Crosswalk', count: cwOccCount, source: cwAliasCount.toLocaleString() + ' title aliases', color: '#38bdf8', loaded: cwOccCount > 0 },
+                { name: 'O*NET Crosswalk', count: cwOccCount, source: cwAliasCount.toLocaleString() + ' title aliases', color: 'var(--c-cyan)', loaded: cwOccCount > 0 },
                 { name: 'Trades & Creative', count: tradesCount, source: 'Custom', color: 'var(--c-orange)', loaded: tradesCount > 0 },
                 { name: 'Values', count: valuesCount, source: 'Blueprint', color: 'var(--success)', loaded: valuesCount > 0 },
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: 'var(--c-orange)', loaded: blsWageCount > 0 },
@@ -3026,7 +3032,7 @@
                     { k:'wb_converted', l:'Converted', c:'var(--c-purple)' },
                     { k:'wb_wizard_complete', l:'Wizard', c:'var(--c-purple)' },
                     { k:'wb_exported_pdf', l:'PDF', c:'var(--danger)' },
-                    { k:'wb_exported_word', l:'Word', c:'#4a9eff' },
+                    { k:'wb_exported_word', l:'Word', c:'var(--accent)' },
                     { k:'wb_exported_json', l:'JSON', c:'var(--c-orange)' },
                     { k:'wb_deleted', l:'Deleted', c:'var(--text-muted)' }
                 ];
@@ -3116,7 +3122,7 @@
                 var html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:10px; margin-bottom:16px;">';
                 [
                     { label: 'All-Time Hits', value: (data.total || 0).toLocaleString(),  color: 'var(--success)' },
-                    { label: 'Avg Time',      value: avgStr,                               color: '#38bdf8' },
+                    { label: 'Avg Time',      value: avgStr,                               color: 'var(--c-cyan)' },
                     { label: 'Exports',       value: (data.exports || 0).toLocaleString(), color: 'var(--c-orange)' },
                     { label: 'Last Seen',     value: lastSeenStr,                          color: 'var(--text-secondary)', small: true }
                 ].forEach(function(c) {
@@ -6742,7 +6748,7 @@
                 html += '<button onclick="_wbwEditMode=true; renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:10px 20px; background:var(--c-orange); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('edit',14) + ' Edit</button>'
                     + '<button onclick="wbwFinish(\'json\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export JSON</button>'
                     + '<button onclick="wbwFinish(\'pdf\')" style="padding:10px 20px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export PDF</button>'
-                    + '<button onclick="wbwFinish(\'word\')" style="padding:10px 20px; background:#4a9eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export Word</button>';
+                    + '<button onclick="wbwFinish(\'word\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export Word</button>';
                 if (typeof fbUser !== 'undefined' && fbUser) {
                     html += '<button onclick="wbwFinish(\'save\')" style="padding:10px 20px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save to Repository</button>';
                 }
@@ -8592,7 +8598,7 @@
                 + bpIcon('download',13) + ' Export JSON</button>'
                 + '<button onclick="exportWorkBlueprintPDF()" style="padding:7px 15px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                 + bpIcon('download',13) + ' Export PDF</button>'
-                + '<button onclick="exportWorkBlueprintWord()" style="padding:7px 15px; background:#4a9eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + '<button onclick="exportWorkBlueprintWord()" style="padding:7px 15px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                 + bpIcon('download',13) + ' Export Word</button>'
                 + '<button onclick="copyWorkBlueprintJSON()" style="padding:7px 15px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">'
                 + bpIcon('share',13) + ' Copy JSON</button>'
@@ -10386,7 +10392,7 @@
                 html += '<div class="wb-repo-actions" style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">'
                     + '<button onclick="wbRepoExport(\'json\')" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' JSON</button>'
                     + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' PDF</button>'
-                    + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#4a9eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' Word</button>'
+                    + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' Word</button>'
                     + '<button onclick="wbRepoEditModal(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('edit',14) + ' Edit</button>'
                     + '<button onclick="wbRepoClone(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--accent); border:1px solid rgba(0,113,227,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('copy',14) + ' Clone</button>'
                     + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(36,138,61,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
@@ -11817,7 +11823,7 @@
             var valAlign    = computeValuesAlignment(userValues, companyVals);
 
             // Role / domain data (same logic as buildReportData)
-            var roleColors = ['#60a5fa','#bf5af2','#30d158','#ff9f0a','#ff453a','#5ac8fa','#ff9f0a','#38bdf8','#30d158'];
+            var roleColors = [BP_PALETTE.blue, BP_PALETTE.purple, BP_PALETTE.green, BP_PALETTE.orange, BP_PALETTE.red, BP_PALETTE.cyan, BP_PALETTE.orange, BP_PALETTE.sky, BP_PALETTE.green];
             var activeRoleIds = new Set();
             var roleNameToId  = {};
             allRoles.forEach(function(r) { roleNameToId[r.name] = r.id; });
@@ -14373,6 +14379,9 @@
 
         var _wcagAuditHistory = (function() { try { return JSON.parse(localStorage.getItem('bp_wcag_audit_history') || '[]'); } catch(e) { return []; } })();
         var _wcagDismissed = (function() { try { return JSON.parse(localStorage.getItem('bp_wcag_dismissed') || '[]'); } catch(e) { return []; } })();
+        var _wcagResolved = (function() { try { return JSON.parse(localStorage.getItem('bp_wcag_resolved') || '{}'); } catch(e) { return {}; } })();
+        var _wcagAccepted = (function() { try { return JSON.parse(localStorage.getItem('bp_wcag_accepted') || '{}'); } catch(e) { return {}; } })();
+        var _wcagIssueFilter = 'open';
 
         function _wcagLuminance(r, g, b) {
             var sR = r / 255, sG = g / 255, sB = b / 255;
@@ -14573,6 +14582,34 @@
 
             issues = issues.filter(function(iss) { return _wcagDismissed.indexOf(iss.id) === -1; });
 
+            var prevAudit = _wcagAuditHistory.length > 0 ? _wcagAuditHistory[0] : null;
+            var prevIds = {};
+            if (prevAudit && prevAudit.issues) {
+                prevAudit.issues.forEach(function(pi) { prevIds[pi.id] = true; });
+            }
+            var newIssueIds = [];
+            var fixedIds = [];
+            var persistentIds = [];
+            issues.forEach(function(iss) {
+                if (prevIds[iss.id]) { persistentIds.push(iss.id); delete prevIds[iss.id]; }
+                else newIssueIds.push(iss.id);
+            });
+            Object.keys(prevIds).forEach(function(pid) { fixedIds.push(pid); });
+
+            Object.keys(_wcagResolved).forEach(function(rid) {
+                if (fixedIds.indexOf(rid) !== -1) {
+                    _wcagResolved[rid].confirmed = true;
+                    _wcagResolved[rid].confirmedAt = now;
+                }
+            });
+            localStorage.setItem('bp_wcag_resolved', JSON.stringify(_wcagResolved));
+
+            issues.forEach(function(iss) {
+                iss._status = newIssueIds.indexOf(iss.id) !== -1 ? 'new' : 'persistent';
+                if (_wcagResolved[iss.id]) iss._status = 'reopened';
+                if (_wcagAccepted[iss.id]) iss._status = 'accepted';
+            });
+
             var result = {
                 timestamp: now,
                 date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
@@ -14583,7 +14620,14 @@
                 minor: issues.filter(function(i) { return i.severity === 'minor'; }).length,
                 issues: issues,
                 page: window.location.hash || '#dashboard',
-                dismissed: _wcagDismissed.length
+                dismissed: _wcagDismissed.length,
+                delta: {
+                    newCount: newIssueIds.length,
+                    fixedCount: fixedIds.length,
+                    persistentCount: persistentIds.length,
+                    fixedIds: fixedIds,
+                    hasPrevious: !!prevAudit
+                }
             };
 
             _wcagAuditHistory.unshift(result);
@@ -14623,6 +14667,41 @@
         }
         window._wcagDismissIssue = _wcagDismissIssue;
 
+        function _wcagResolveIssue(id, note) {
+            _wcagResolved[id] = {
+                resolvedAt: new Date().toISOString(),
+                note: note || '',
+                confirmed: false
+            };
+            localStorage.setItem('bp_wcag_resolved', JSON.stringify(_wcagResolved));
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagResolveIssue = _wcagResolveIssue;
+
+        function _wcagAcceptRisk(id, reason) {
+            _wcagAccepted[id] = {
+                acceptedAt: new Date().toISOString(),
+                reason: reason || 'Accepted risk'
+            };
+            localStorage.setItem('bp_wcag_accepted', JSON.stringify(_wcagAccepted));
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagAcceptRisk = _wcagAcceptRisk;
+
+        function _wcagUnresolve(id) {
+            delete _wcagResolved[id];
+            localStorage.setItem('bp_wcag_resolved', JSON.stringify(_wcagResolved));
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagUnresolve = _wcagUnresolve;
+
+        function _wcagUnaccept(id) {
+            delete _wcagAccepted[id];
+            localStorage.setItem('bp_wcag_accepted', JSON.stringify(_wcagAccepted));
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagUnaccept = _wcagUnaccept;
+
         function _wcagResetDismissed() {
             _wcagDismissed = [];
             localStorage.setItem('bp_wcag_dismissed', '[]');
@@ -14630,12 +14709,41 @@
         }
         window._wcagResetDismissed = _wcagResetDismissed;
 
+        function _wcagResetAll() {
+            _wcagDismissed = [];
+            _wcagResolved = {};
+            _wcagAccepted = {};
+            localStorage.setItem('bp_wcag_dismissed', '[]');
+            localStorage.setItem('bp_wcag_resolved', '{}');
+            localStorage.setItem('bp_wcag_accepted', '{}');
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagResetAll = _wcagResetAll;
+
         function _wcagClearHistory() {
             _wcagAuditHistory = [];
             localStorage.setItem('bp_wcag_audit_history', '[]');
             renderAdminAccessibility(document.getElementById('adminTabContent'));
         }
         window._wcagClearHistory = _wcagClearHistory;
+
+        function _wcagSetFilter(f) {
+            _wcagIssueFilter = f;
+            renderAdminAccessibility(document.getElementById('adminTabContent'));
+        }
+        window._wcagSetFilter = _wcagSetFilter;
+
+        function _wcagPromptResolve(id) {
+            var note = prompt('Optional: describe what you fixed');
+            if (note !== null) _wcagResolveIssue(id, note);
+        }
+        window._wcagPromptResolve = _wcagPromptResolve;
+
+        function _wcagPromptAccept(id) {
+            var reason = prompt('Why is this risk acceptable?');
+            if (reason !== null) _wcagAcceptRisk(id, reason);
+        }
+        window._wcagPromptAccept = _wcagPromptAccept;
 
         function _wcagExportCSV() {
             if (_wcagAuditHistory.length === 0) return;
@@ -16340,7 +16448,7 @@
             var centerX = W / 2, centerY = H / 2;
             
             var isDark = true;
-            var colors = ['#60a5fa', '#ff6961', '#30d158', '#ffd60a', '#bf5af2', '#ff9f0a', '#5ac8fa', '#38bdf8'];
+            var colors = [BP_PALETTE.blue, BP_PALETTE.coral, BP_PALETTE.green, BP_PALETTE.yellow, BP_PALETTE.purple, BP_PALETTE.orange, BP_PALETTE.cyan, BP_PALETTE.sky];
             var domainNames = ['Strategy', 'Leadership', 'Analytics', 'Innovation', 'Communication', 'Technology', 'Operations', 'Finance'];
             
             var nodes = [];
@@ -23950,7 +24058,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
 
                 // Build roles — for multi-position companies, create unified role with progression note
                 var roleMap = {};
-                var roleColors = ['#60a5fa','#ff9f0a','#30d158','#ff9f0a','#bf5af2','#ff453a','#5ac8fa','#30d158'];
+                var roleColors = [BP_PALETTE.blue, BP_PALETTE.orange, BP_PALETTE.green, BP_PALETTE.orange, BP_PALETTE.purple, BP_PALETTE.red, BP_PALETTE.cyan, BP_PALETTE.green];
                 var roleIdx = 0;
                 
                 // Process company groups: multi-position companies get a single role with latest title
@@ -24336,7 +24444,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             var W = canvas.width, H = canvas.height;
             var nodes = [];
             var edges = [];
-            var colors = ['#60a5fa','#bf5af2','#30d158','#ff9f0a','#60a5fa','#ff9f0a','#ff453a','#bf5af2'];
+            var colors = [BP_PALETTE.blue, BP_PALETTE.purple, BP_PALETTE.green, BP_PALETTE.orange, BP_PALETTE.blue, BP_PALETTE.orange, BP_PALETTE.red, BP_PALETTE.purple];
             var tick = 0;
             var maxNodes = 28;
             var addInterval = 320;
@@ -26602,8 +26710,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Normalize roles: ensure every role has id, color, and skills list
         function normalizeUserRoles() {
-            var roleColors = ['#60a5fa', '#ff9f0a', '#30d158', '#ff9f0a', '#bf5af2', '#ff453a', '#5ac8fa', '#30d158'];
-            var bannedReds = ['var(--danger)','#ff6961','var(--danger)','#d70015','#fca5a5','#fee2e2'];
+            var roleColors = [BP_PALETTE.blue, BP_PALETTE.orange, BP_PALETTE.green, BP_PALETTE.orange, BP_PALETTE.purple, BP_PALETTE.red, BP_PALETTE.cyan, BP_PALETTE.green];
+            var bannedReds = ['var(--danger)', BP_PALETTE.coral, 'var(--danger)', '#d70015', '#fca5a5', '#fee2e2'];
             (userData.roles || []).forEach(function(role, i) {
                 if (!role.id) role.id = role.name;
                 if (!role.color || bannedReds.indexOf(role.color) !== -1) role.color = roleColors[i % roleColors.length];
@@ -27485,7 +27593,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Group job skills by category into roles
             var categoryMap = {};
-            var roleColors = ['#60a5fa', '#ff9f0a', '#30d158', '#ff9f0a', '#bf5af2', '#ff453a', '#5ac8fa', '#30d158'];
+            var roleColors = [BP_PALETTE.blue, BP_PALETTE.orange, BP_PALETTE.green, BP_PALETTE.orange, BP_PALETTE.purple, BP_PALETTE.red, BP_PALETTE.cyan, BP_PALETTE.green];
             jobSkillsArr.forEach(function(s) {
                 var cat = s.category || 'General';
                 if (!categoryMap[cat]) categoryMap[cat] = [];
@@ -29028,7 +29136,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     html += '<div style="font-size:0.71em; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px;">' + escapeHtml(r.company) + (r.date ? ' \u00B7 ' + r.date : '') + '</div>';
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
                         + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(36,138,61,0.1); color:var(--success); border:1px solid rgba(36,138,61,0.2); font-weight:600;">' + r.matched + ' matched</span>'
-                        + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(215,0,21,0.08); color:#ff6961; border:1px solid rgba(215,0,21,0.18); font-weight:600;">' + r.gaps + ' gap' + (r.gaps !== 1 ? 's' : '') + '</span>'
+                        + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(215,0,21,0.08); color:var(--danger); border:1px solid rgba(215,0,21,0.18); font-weight:600;">' + r.gaps + ' gap' + (r.gaps !== 1 ? 's' : '') + '</span>'
                     html += '</div>';
                     html += '</div>';
                 });
@@ -33215,7 +33323,7 @@ body {
             if (people.length === 0) {
                 if (!_canEdit) return '';
                 return '<div style="' + card + ' text-align:center; border-color:rgba(244,114,182,0.2); margin-bottom:16px;">'
-                    + '<div style="' + ls + ' color:#ff6961; margin-bottom:10px;">People Like You</div>'
+                    + '<div style="' + ls + ' color:var(--c-purple); margin-bottom:10px;">People Like You</div>'
                     + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; max-width:400px; margin:0 auto 18px;">Discover accomplished people who started with similar backgrounds and interests as you.</div>'
                     + '<button id="peopleLikeYouBtn" onclick="explorerDiscoverPeople(this)" style="padding:12px 24px; background:var(--c-purple); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:0.9em; box-shadow:0 4px 14px rgba(244,114,182,0.2);">Discover Inspirations</button>'
                     + '</div>';
@@ -33227,8 +33335,8 @@ body {
 
             var html = '<div style="margin-bottom:16px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">'
-                + '<div style="' + ls + ' color:#ff6961;">People Like You</div>'
-                + (_canEdit ? '<button onclick="explorerDiscoverPeople(this)" style="font-size:0.7em; padding:4px 10px; border-radius:6px; border:1px solid rgba(244,114,182,0.2); background:rgba(244,114,182,0.04); color:#ff6961; cursor:pointer; font-weight:600;">Refresh</button>' : '')
+                + '<div style="' + ls + ' color:var(--c-purple);">People Like You</div>'
+                + (_canEdit ? '<button onclick="explorerDiscoverPeople(this)" style="font-size:0.7em; padding:4px 10px; border-radius:6px; border:1px solid rgba(155,89,182,0.2); background:rgba(155,89,182,0.04); color:var(--c-purple); cursor:pointer; font-weight:600;">Refresh</button>' : '')
                 + '</div>';
 
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px;">';
@@ -34419,7 +34527,7 @@ body {
                         + '</div></div>';
 
                     var smCatIcons = { skill: bpIcon('tool',11), ability: bpIcon('zap',11), workstyle: bpIcon('heart',11), unique: bpIcon('star',11) };
-                    var smCatColors = { skill: '#60a5fa', ability: '#bf5af2', workstyle: '#30d158', unique: '#ffd60a' };
+                    var smCatColors = { skill: 'var(--accent)', ability: 'var(--c-purple)', workstyle: 'var(--success)', unique: 'var(--warning)' };
                     var smCatTitles = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique Skill' };
 
                     html += '<div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">'
@@ -34427,7 +34535,7 @@ body {
                         + (s.core ? '<span title="Core Skill" style="color:var(--c-orange); font-size:0.85em; line-height:1;">&#9733;</span>' : '')
                         + (hasConfirmed ? '<span title="Verified" style="color:var(--success); font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
                         + (skillImpact ? '<span title="' + (skillImpact.label || '') + '" style="color:' + impactColor + '; font-size:0.75em; line-height:1;">' + (skillImpact.icon || '') + '</span>' : '')
-                        + '<span title="' + (smCatTitles[s.category] || 'Skill') + '" style="color:' + (smCatColors[s.category] || '#60a5fa') + '; font-size:0.75em; line-height:1;">' + (smCatIcons[s.category] || bpIcon('tool',11)) + '</span>'
+                        + '<span title="' + (smCatTitles[s.category] || 'Skill') + '" style="color:' + (smCatColors[s.category] || 'var(--accent)') + '; font-size:0.75em; line-height:1;">' + (smCatIcons[s.category] || bpIcon('tool',11)) + '</span>'
                         + (years ? '<span style="font-size:0.68em; color:var(--c-muted);">' + years + 'y</span>' : '')
                         + '</div>';
 
@@ -36726,7 +36834,7 @@ body {
             var valAlign = job ? computeValuesAlignment(userValues, job.companyValues) : { aligned: [], unique: userValues.map(function(v) { return v.name || v; }), score: 0 };
             
             // Roles
-            var roleColors = ['#60a5fa', '#bf5af2', '#30d158', '#ff9f0a', '#ff453a', '#5ac8fa', '#ff9f0a', '#38bdf8', '#30d158'];
+            var roleColors = [BP_PALETTE.blue, BP_PALETTE.purple, BP_PALETTE.green, BP_PALETTE.orange, BP_PALETTE.red, BP_PALETTE.cyan, BP_PALETTE.orange, BP_PALETTE.sky, BP_PALETTE.green];
             var activeRoleIds = new Set();
             // Normalize: handle both s.roles (array) and s.role (string) formats
             var roleNameToId = {};
@@ -38059,7 +38167,7 @@ body {
                     var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
                     d3nodes.push({
                         id: 'role-' + role.id, type: 'role', label: role.name,
-                        color: hex2rgb(role.color || '#60a5fa'), r: 60,
+                        color: hex2rgb(role.color || BP_PALETTE.blue), r: 60,
                         fx: centerX + Math.cos(angle) * hubRadius,
                         fy: centerY + Math.sin(angle) * hubRadius
                     });
@@ -38287,7 +38395,7 @@ body {
                     var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
                     d3nodes.push({
                         id: 'role-' + role.id, type: 'role', label: role.name,
-                        color: hex2rgb(role.color || '#60a5fa'), r: 60,
+                        color: hex2rgb(role.color || BP_PALETTE.blue), r: 60,
                         fx: centerX + Math.cos(angle) * hubRadius,
                         fy: centerY + Math.sin(angle) * hubRadius
                     });
@@ -49406,7 +49514,7 @@ body {
         function getAllRoles() {
             var wh = userData.workHistory || [];
             var existingRoles = (skillsData.roles || []).slice();
-            var roleColors = ['#60a5fa', '#ff9f0a', '#30d158', '#ff9f0a', '#bf5af2', '#ff453a', '#5ac8fa', '#30d158'];
+            var roleColors = [BP_PALETTE.blue, BP_PALETTE.orange, BP_PALETTE.green, BP_PALETTE.orange, BP_PALETTE.purple, BP_PALETTE.red, BP_PALETTE.cyan, BP_PALETTE.green];
             function normalize(s) { return s.replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim(); }
             function titlesMatch(a, b) {
                 if (a === b) return true;
@@ -49451,7 +49559,7 @@ body {
         function getVisibleRoles() {
             var wh = userData.workHistory || [];
             var existingRoles = (skillsData.roles || []).slice();
-            var roleColors = ['#60a5fa', '#ff9f0a', '#30d158', '#ff9f0a', '#bf5af2', '#ff453a', '#5ac8fa', '#30d158'];
+            var roleColors = [BP_PALETTE.blue, BP_PALETTE.orange, BP_PALETTE.green, BP_PALETTE.orange, BP_PALETTE.purple, BP_PALETTE.red, BP_PALETTE.cyan, BP_PALETTE.green];
             function normalize(s) { return s.replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim(); }
             function titlesMatch(a, b) {
                 if (a === b) return true;
