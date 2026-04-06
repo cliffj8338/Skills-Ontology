@@ -15777,7 +15777,7 @@
             var numNodes = 40;
             
             // Center - fixed sun
-            nodes.push({ angle: 0, dist: 0, speed: 0, r: 20, color: 'var(--accent)', alpha: 0.95, label: 'YOU', isCenter: true, isHub: false, domain: -1, x: centerX, y: centerY });
+            nodes.push({ angle: 0, dist: 0, speed: 0, r: 20, color: '#0071e3', alpha: 0.95, label: 'YOU', isCenter: true, isHub: false, domain: -1, x: centerX, y: centerY });
             
             // Domain hubs - planets in distinct orbital bands
             // Spread across 3 orbital bands so they have room
