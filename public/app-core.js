@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.39a';
+        var BP_VERSION = 'v4.47.39b';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1448,11 +1448,28 @@
                     return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
-                values: (blueprintData.values && blueprintData.values.length > 0) ? blueprintData.values
-                    : (_ud.values && _ud.values.length > 0) ? _ud.values
-                    : (window._lastKnownValues && window._lastKnownValues.length > 0) ? window._lastKnownValues
-                    : [],
-                purpose: blueprintData.purpose || _ud.purpose || window._lastKnownPurpose || '',
+                values: (function() {
+                    if (blueprintData.values && blueprintData.values.length > 0 && blueprintData.values.some(function(v) { return v.selected; })) return blueprintData.values;
+                    if (_ud.values && _ud.values.length > 0 && _ud.values.some(function(v) { return v.selected; })) return _ud.values;
+                    if (window._lastKnownValues && window._lastKnownValues.length > 0) return window._lastKnownValues;
+                    try {
+                        var _dv = safeGet('bp_values_durable');
+                        if (_dv) { var _p = JSON.parse(_dv); if (_p && _p.length > 0) return _p; }
+                    } catch(e) {}
+                    if (blueprintData.values && blueprintData.values.length > 0) return blueprintData.values;
+                    if (_ud.values && _ud.values.length > 0) return _ud.values;
+                    return [];
+                })(),
+                purpose: (function() {
+                    var p = blueprintData.purpose || _ud.purpose || window._lastKnownPurpose || '';
+                    if (!p || p.trim().length === 0) {
+                        try {
+                            var _dp = safeGet('bp_purpose_durable');
+                            if (_dp && _dp.trim().length > 0) p = _dp;
+                        } catch(e) {}
+                    }
+                    return p;
+                })(),
                 outcomes: blueprintData.outcomes || [],
                 preferences: _ud.preferences || {},
                 applications: _ud.applications || [],
@@ -1776,10 +1793,32 @@
                     
                     userData.skills = data.skills || [];
                     userData.values = data.values || [];
+                    if ((!data.values || data.values.length === 0) || (data.values.length > 0 && !data.values.some(function(v) { return v.selected; }))) {
+                        try {
+                            var _durV = safeGet('bp_values_durable');
+                            if (_durV) {
+                                var _parsedV = JSON.parse(_durV);
+                                if (_parsedV && _parsedV.length > 0 && _parsedV.some(function(v) { return v.selected; })) {
+                                    userData.values = _parsedV;
+                                    console.warn('[Values] Firestore empty/unselected — restored from durable backup (' + _parsedV.length + ' values)');
+                                }
+                            }
+                        } catch(e) {}
+                    }
                     userData.purpose = data.purpose || '';
-                    if (data.purpose) {
-                        window._lastKnownPurpose = data.purpose; // circuit breaker
+                    if (data.purpose && data.purpose.trim().length > 0) {
+                        window._lastKnownPurpose = data.purpose;
                         try { sessionStorage.setItem('bp_last_purpose', data.purpose); } catch(e) {}
+                        safeSet('bp_purpose_durable', data.purpose);
+                    } else {
+                        try {
+                            var _durP = safeGet('bp_purpose_durable');
+                            if (_durP && _durP.trim().length > 0) {
+                                userData.purpose = _durP;
+                                window._lastKnownPurpose = _durP;
+                                console.warn('[Purpose] Firestore empty — restored from durable backup');
+                            }
+                        } catch(e) {}
                     }
                     userData.roles = data.roles || [];
                     userData.preferences = data.preferences || userData.preferences;
@@ -1817,14 +1856,16 @@
                     }
                     
                     if (typeof blueprintData !== 'undefined') {
-                        blueprintData.purpose = data.purpose || '';
-                        blueprintData.values = data.values && data.values.length > 0 ? data.values : (blueprintData.values && blueprintData.values.length > 0 ? blueprintData.values : []);
+                        blueprintData.purpose = userData.purpose || '';
+                        var _fsVals = data.values && data.values.length > 0 ? data.values : userData.values;
+                        blueprintData.values = (_fsVals && _fsVals.length > 0) ? _fsVals : (blueprintData.values && blueprintData.values.length > 0 ? blueprintData.values : []);
                         blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
                         if (blueprintData.values && blueprintData.values.length > 0
                                 && blueprintData.values.some(function(v) { return v.selected; })) {
                             window._lastKnownValues = JSON.parse(JSON.stringify(blueprintData.values));
                             var valKey = 'bp_last_values' + (uid ? '_' + uid : '');
                             try { sessionStorage.setItem(valKey, JSON.stringify(blueprintData.values)); } catch(e) {}
+                            safeSet('bp_values_durable', JSON.stringify(blueprintData.values));
                         }
                     }
                     
@@ -4108,6 +4149,13 @@
                         { id: 'p6-1g', name: 'AI coaching during data entry', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.37x: Sparkle buttons on activity, job, and coursework fields. AI generates context-aware descriptions using role/duration/level context. Available in both wizard and dashboard edit modals. Three prompt types: job descriptions, activity descriptions, coursework suggestions.' },
                         { id: 'p6-1h', name: 'Explorer resume export', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.37w: Resume export with toggle options (compensation defaults OFF for students). Includes activities with level/duration, interests chips, career objective section. HTML injection fix for name/title.' },
                         { id: 'p6-1i', name: 'Skills Network fix for explorer profiles', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.37y: Explorer skills were created with empty roles[], making them invisible in the D3 skills network. Fixed: skills now assigned to target role. initNetwork fallback includes unlinked explorer skills.' },
+                        { id: 'p6-1j', name: 'Profile mode switcher in Settings', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.38e: Switch between Explorer and Standard modes from Settings. Instant re-render (no page reload) to avoid Firestore race conditions.' },
+                        { id: 'p6-1k', name: 'Dashboard Discover Career Paths CTA', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.38g: When careerPaths is empty, shows prominent CTA on explorer dashboard to run AI career analysis. Uses same wizard analysis pipeline.' },
+                        { id: 'p6-1l', name: 'Activities & Hobbies in Experience tab', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.38g: Activities section in Experience tab for both Explorer and Standard modes. Full CRUD modal, Firestore persist, JSON export support. Separate from explorerData.activities.' },
+                        { id: 'p6-1m', name: 'Professional bpIcon SVGs for Explorer', status: 'done', category: 'ui', priority: 'medium', notes: 'v4.47.38h: All emoji icons in Explorer wizard/dashboard replaced with professional bpIcon() SVGs. Education, Activities, Interests, Skills, Career Paths, Completion, error states, activity category chips.' },
+                        { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
+                        { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
+                        { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
                         { id: 'p6-2', name: 'Interest/aptitude input model', status: 'partial', category: 'feature', priority: 'critical', notes: 'Interests are collected as free-text chips (tap-to-add from suggestions + custom). NOT yet using exploration spectrum (Curious/Learning/Passionate/Talented). Current model is simpler: just interest names without intensity levels. Aspirational skills not yet distinguished from discovered skills.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
                         { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would show entry-level → 5yr → 10yr → peak compensation per recommended field using BLS percentile data. Interactive slider to shift interest levels and watch trajectories change.' },
@@ -31071,11 +31119,12 @@ body {
                 window._lastKnownValues = JSON.parse(JSON.stringify(blueprintData.values));
                 var valKey = 'bp_last_values' + (fbUser && fbUser.uid ? '_' + fbUser.uid : '');
                 try { sessionStorage.setItem(valKey, JSON.stringify(blueprintData.values)); } catch(e) {}
+                safeSet('bp_values_durable', JSON.stringify(blueprintData.values));
             }
             try {
                 safeSet('wbValues', JSON.stringify(blueprintData.values));
                 safeSet('wbPurpose', blueprintData.purpose || '');
-            } catch (e) { /* quota exceeded or private mode */ }
+            } catch (e) {}
             if (typeof fbUser !== 'undefined' && fbUser && typeof debouncedSave === 'function') {
                 debouncedSave();
             }
@@ -31225,12 +31274,13 @@ body {
                 try {
                     var ssvKey = 'bp_last_values' + (typeof fbUser !== 'undefined' && fbUser && fbUser.uid ? '_' + fbUser.uid : '');
                     var ssv = sessionStorage.getItem(ssvKey);
+                    if (!ssv) ssv = safeGet('bp_values_durable');
                     if (ssv) {
                         var parsed = JSON.parse(ssv);
                         if (parsed && parsed.length > 0 && parsed.some(function(v) { return v.selected; })) {
                             window._lastKnownValues = parsed;
                             blueprintData.values = JSON.parse(JSON.stringify(parsed));
-                            console.warn('⚡ Values circuit breaker: restored from sessionStorage');
+                            console.warn('⚡ Values circuit breaker: restored from durable backup');
                             _inferPurposeOnly();
                             return;
                         }
@@ -31293,8 +31343,6 @@ body {
 
         // Separated so the guard path in inferValues() can still run purpose logic.
         function _inferPurposeOnly() {
-            // Purpose — Firestore is authoritative for signed-in users.
-            // wbPurpose localStorage is only used when not signed in.
             var savedPurpose = null;
             try { savedPurpose = safeGet('wbPurpose'); } catch(e) {}
             var isSignedIn = typeof fbUser !== 'undefined' && fbUser;
@@ -31308,7 +31356,16 @@ body {
                 blueprintData.purpose = window._lastKnownPurpose;
                 userData.purpose = window._lastKnownPurpose;
             } else {
-                blueprintData.purpose = "";
+                try {
+                    var ss = sessionStorage.getItem('bp_last_purpose');
+                    if (!ss) ss = safeGet('bp_purpose_durable');
+                    if (ss && ss.trim().length > 0) {
+                        blueprintData.purpose = ss;
+                        userData.purpose = ss;
+                        window._lastKnownPurpose = ss;
+                        return;
+                    }
+                } catch(e) {}
             }
         }
 
@@ -34594,10 +34651,11 @@ body {
         function updatePurpose(newPurpose) {
             if (readOnlyGuard()) return;
             blueprintData.purpose = newPurpose;
-            userData.purpose = newPurpose; // keep userData in sync
-            if (newPurpose) {
-                window._lastKnownPurpose = newPurpose; // update circuit breaker
+            userData.purpose = newPurpose;
+            if (newPurpose && newPurpose.trim().length > 0) {
+                window._lastKnownPurpose = newPurpose;
                 try { sessionStorage.setItem('bp_last_purpose', newPurpose); } catch(e) {}
+                safeSet('bp_purpose_durable', newPurpose);
             }
             saveValues();
             saveToFirestore();
