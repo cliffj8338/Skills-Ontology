@@ -772,6 +772,8 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             min-height: 48px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .controls-left {

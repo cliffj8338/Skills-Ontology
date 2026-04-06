@@ -26430,7 +26430,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             ];
 
             var visibleRoles = getVisibleRoles();
-            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.32 : 0.36);
+            var roleOrbitR = Math.min(width, height) * (isMobile ? 0.28 : 0.30);
             visibleRoles.forEach((role, i) => {
                 const angle = (i / visibleRoles.length) * 2 * Math.PI - Math.PI / 2;
                 const radius = roleOrbitR;
@@ -26545,9 +26545,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
             });
 
-            var linkDist = isMobile ? [180, 90] : [240 * scaleFactor, 100 * scaleFactor];
-            var chargeStr = isMobile ? [-400, -220] : [-500 * scaleFactor, -250 * scaleFactor];
-            var collisionR = isMobile ? [55, 55, 40] : [70 * scaleFactor, 65 * scaleFactor, 50 * scaleFactor];
+            var linkDist = isMobile ? [150, 80] : [190 * scaleFactor, 90 * scaleFactor];
+            var chargeStr = isMobile ? [-350, -180] : [-400 * scaleFactor, -200 * scaleFactor];
+            var collisionR = isMobile ? [45, 45, 34] : [55 * scaleFactor, 50 * scaleFactor, 40 * scaleFactor];
             var gravityCenter = isMobile ? height * 0.44 : height * 0.45;
             
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
@@ -26566,8 +26566,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return collisionR[1];
                     return collisionR[2];
                 }).iterations(2))
-                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.08 : 0.06))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.08 : 0.07))
+                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.10 : 0.08))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.10 : 0.08))
                 .force("radial", d3.forceRadial(d => {
                     if (d.type === "role") return roleOrbitR;
                     if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.10 : 0.14) * scaleFactor;
@@ -26598,10 +26598,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             node.append("circle")
                 .attr("r", d => {
-                    if (d.type === "center") return isMobile ? 30 : Math.round(40 * scaleFactor);
-                    if (d.type === "role") return isMobile ? 24 : Math.round(30 * scaleFactor);
-                    var base = d.key ? 12 : 8;
-                    return isMobile ? (d.key ? 14 : 10) : Math.round(base * scaleFactor);
+                    if (d.type === "center") return isMobile ? 26 : Math.round(32 * scaleFactor);
+                    if (d.type === "role") return isMobile ? 20 : Math.round(24 * scaleFactor);
+                    var base = d.key ? 10 : 7;
+                    return isMobile ? (d.key ? 12 : 8) : Math.round(base * scaleFactor);
                 })
                 .attr("fill", d => {
                     if (d.type === "center") return "var(--accent)";
@@ -26641,11 +26641,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var maxC = d.type === 'center' ? 25 : d.type === 'role' ? (isMobile ? 16 : 22) : (isMobile ? 12 : 15);
                     var lines = networkLabelLines(d.name, maxC);
                     if (d.type === 'center') {
-                        var r = isMobile ? 30 : Math.round(40 * scaleFactor);
+                        var r = isMobile ? 26 : Math.round(32 * scaleFactor);
                         el.attr('text-anchor', 'end');
                         lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', -(r + 8)).attr('dy', i === 0 ? 4 : 12); });
                     } else if (d.type === 'role') {
-                        var roleBaseY = Math.round(-35 * scaleFactor);
+                        var roleBaseY = Math.round(-28 * scaleFactor);
                         el.attr('text-anchor', 'middle');
                         lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', 0).attr('dy', i === 0 ? roleBaseY - (lines.length - 1) * 5 : 11); });
                     } else {
@@ -26897,7 +26897,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
             
             var categories = Object.keys(categoryMap);
-            var jobRoleOrbitR = Math.min(width, height) * (isMobile ? 0.36 : 0.40);
+            var jobRoleOrbitR = Math.min(width, height) * (isMobile ? 0.30 : 0.32);
             categories.forEach(function(cat, i) {
                 var angle = -Math.PI * 0.5 + (i / categories.length) * 2 * Math.PI;
                 var radius = jobRoleOrbitR;
@@ -26939,18 +26939,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
             simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
-                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 180 : 220 * scaleFactor) : (isMobile ? 100 : 110 * scaleFactor); }))
-                .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -400 : -400) * scaleFactor : (isMobile ? -220 : -220) * scaleFactor; }))
-                .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 50 : 60) * scaleFactor : d.type === 'role' ? (isMobile ? 55 : 55) * scaleFactor : (isMobile ? 38 : 48) * scaleFactor; }).iterations(2))
-                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : centerX; }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.05 : 0.06); }))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.04 : 0.05))
+                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 150 : 180 * scaleFactor) : (isMobile ? 80 : 90 * scaleFactor); }))
+                .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -350 : -350) * scaleFactor : (isMobile ? -180 : -180) * scaleFactor; }))
+                .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 40 : 48) * scaleFactor : d.type === 'role' ? (isMobile ? 42 : 42) * scaleFactor : (isMobile ? 30 : 38) * scaleFactor; }).iterations(2))
+                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : centerX; }).strength(function(d) { return d.type === 'center' ? 0 : (isMobile ? 0.06 : 0.07); }))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.05 : 0.06))
                 .force("radial", d3.forceRadial(function(d) {
                     if (d.type === 'role') return jobRoleOrbitR;
-                    if (d.type === 'skill') return Math.min(width, height) * (isMobile ? 0.14 : 0.18) * scaleFactor;
+                    if (d.type === 'skill') return Math.min(width, height) * (isMobile ? 0.12 : 0.15) * scaleFactor;
                     return 0;
                 }, centerX, gravityCenter).strength(function(d) {
-                    if (d.type === 'role') return 0.7;
-                    if (d.type === 'skill') return 0.12;
+                    if (d.type === 'role') return 0.75;
+                    if (d.type === 'skill') return 0.15;
                     return 0;
                 }));
             
@@ -26970,9 +26970,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             node.append("circle")
                 .attr("r", function(d) {
-                    if (d.type === 'center') return isMobile ? 30 : Math.round(40 * scaleFactor);
-                    if (d.type === 'role') return isMobile ? 22 : Math.round(28 * scaleFactor);
-                    return d.required ? Math.round(13 * scaleFactor) : Math.round(10 * scaleFactor);
+                    if (d.type === 'center') return isMobile ? 26 : Math.round(32 * scaleFactor);
+                    if (d.type === 'role') return isMobile ? 18 : Math.round(22 * scaleFactor);
+                    return d.required ? Math.round(11 * scaleFactor) : Math.round(8 * scaleFactor);
                 })
                 .attr("fill", function(d) {
                     if (d.type === 'center') return 'var(--c-orange)';
@@ -26994,20 +26994,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var maxC = d.type === 'center' ? 25 : d.type === 'role' ? (isMobile ? 16 : 22) : (isMobile ? 12 : 15);
                     var lines = networkLabelLines(d.name, maxC);
                     if (d.type === 'center') {
-                        var r = isMobile ? 30 : Math.round(40 * scaleFactor);
+                        var r = isMobile ? 26 : Math.round(32 * scaleFactor);
                         el.attr('text-anchor', 'end');
                         lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', -(r + 8)).attr('dy', i === 0 ? 4 : 12); });
                     } else {
-                        var baseY = d.type === 'role' ? -34 : -22;
+                        var baseY = d.type === 'role' ? -26 : -20;
                         el.attr('text-anchor', 'middle');
                         lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', 0).attr('dy', i === 0 ? baseY - (lines.length - 1) * 5 : 11); });
                     }
                 })
-                .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; });
+                .style("font-size", function(d) { return d.type === 'center' ? '13px' : d.type === 'role' ? '10px' : '9px'; });
             
             if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
             
-            // Bring center and role nodes to front
             node.filter(function(d) { return d.type === 'role'; }).raise();
             node.filter(function(d) { return d.type === 'center'; }).raise();
             
@@ -27068,7 +27067,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             ];
             
             var matchVisibleRoles = getVisibleRoles();
-            var matchRoleOrbitR = Math.min(width, height) * (isMobile ? 0.28 : 0.32);
+            var matchRoleOrbitR = Math.min(width, height) * (isMobile ? 0.24 : 0.26);
             matchVisibleRoles.forEach(function(role, i) {
                 var angle = -Math.PI * 0.6 + (i / Math.max(matchVisibleRoles.length - 1, 1)) * Math.PI * 1.2;
                 var radius = matchRoleOrbitR;
@@ -27154,14 +27153,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }))
                 .force("charge", d3.forceManyBody().strength(function(d) {
                     if (d.type === 'center') return 0;
-                    if (d.type === 'role') return (isMobile ? -400 : -400) * scaleFactor;
-                    if (d.matchState === 'gap') return (isMobile ? -180 : -200) * scaleFactor;
-                    return (isMobile ? -200 : -220) * scaleFactor;
+                    if (d.type === 'role') return (isMobile ? -320 : -320) * scaleFactor;
+                    if (d.matchState === 'gap') return (isMobile ? -150 : -160) * scaleFactor;
+                    return (isMobile ? -160 : -180) * scaleFactor;
                 }))
                 .force("collision", d3.forceCollide().radius(function(d) {
-                    if (d.type === 'center') return (isMobile ? 45 : 55) * scaleFactor;
-                    if (d.type === 'role') return (isMobile ? 50 : 55) * scaleFactor;
-                    return (isMobile ? 34 : 42) * scaleFactor;
+                    if (d.type === 'center') return (isMobile ? 38 : 45) * scaleFactor;
+                    if (d.type === 'role') return (isMobile ? 40 : 42) * scaleFactor;
+                    return (isMobile ? 28 : 34) * scaleFactor;
                 }).iterations(2))
                 .force("x", d3.forceX(function(d) {
                     if (d.type === 'center') return nameX;
@@ -27202,10 +27201,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             node.append("circle")
                 .attr("r", function(d) {
-                    if (d.type === 'center') return isMobile ? 28 : Math.round(38 * scaleFactor);
-                    if (d.type === 'role') return isMobile ? 22 : Math.round(28 * scaleFactor);
-                    if (d.matchState === 'matched') return isMobile ? 12 : Math.round(14 * scaleFactor);
-                    if (d.matchState === 'gap') return isMobile ? 10 : Math.round(12 * scaleFactor);
+                    if (d.type === 'center') return isMobile ? 24 : Math.round(30 * scaleFactor);
+                    if (d.type === 'role') return isMobile ? 18 : Math.round(22 * scaleFactor);
+                    if (d.matchState === 'matched') return isMobile ? 10 : Math.round(11 * scaleFactor);
+                    if (d.matchState === 'gap') return isMobile ? 8 : Math.round(10 * scaleFactor);
                     return isMobile ? 7 : Math.round(8 * scaleFactor); // surplus
                 })
                 .attr("fill", function(d) {
@@ -27252,11 +27251,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var maxC = d.type === 'center' ? 25 : d.type === 'role' ? (isMobile ? 16 : 22) : (isMobile ? 12 : 15);
                     var lines = networkLabelLines(d.name, maxC);
                     if (d.type === 'center') {
-                        var r = isMobile ? 28 : Math.round(38 * scaleFactor);
+                        var r = isMobile ? 24 : Math.round(30 * scaleFactor);
                         el.attr('text-anchor', 'end');
                         lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', -(r + 8)).attr('dy', i === 0 ? 4 : 12); });
                     } else {
-                        var baseY = d.type === 'role' ? -34 : -22;
+                        var baseY = d.type === 'role' ? -26 : -20;
                         el.attr('text-anchor', 'middle');
                         lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', 0).attr('dy', i === 0 ? baseY - (lines.length - 1) * 5 : 11); });
                     }
@@ -27632,9 +27631,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return (isMobile ? -280 : -300) * scaleFactor;
                 }))
                 .force("collision", d3.forceCollide().radius(function(d) {
-                    if (d.type === 'hub') return (isMobile ? 48 : 60) * scaleFactor;
-                    if (d.type === 'tension-marker') return 18;
-                    return (isMobile ? 38 : 48) * scaleFactor;
+                    if (d.type === 'hub') return (isMobile ? 38 : 48) * scaleFactor;
+                    if (d.type === 'tension-marker') return 16;
+                    return (isMobile ? 30 : 38) * scaleFactor;
                 }))
                 .force("x", d3.forceX(function(d) {
                     if (d.side === 'user') return leftX;
@@ -27680,11 +27679,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             node.append("circle")
                 .attr("r", function(d) {
-                    if (d.type === 'hub') return isMobile ? 26 : Math.round(34 * scaleFactor);
+                    if (d.type === 'hub') return isMobile ? 22 : Math.round(28 * scaleFactor);
                     if (d.type === 'tension-marker') return isMobile ? 8 : 10;
-                    // Value nodes: aligned are bigger
-                    if (d.valState === 'aligned') return isMobile ? 16 : Math.round(20 * scaleFactor);
-                    return isMobile ? 12 : Math.round(15 * scaleFactor);
+                    if (d.valState === 'aligned') return isMobile ? 14 : Math.round(16 * scaleFactor);
+                    return isMobile ? 10 : Math.round(12 * scaleFactor);
                 })
                 .attr("fill", function(d) {
                     if (d.type === 'hub') return d.side === 'user' ? (isLtV ? '#4a9eff' : 'var(--accent)') : 'var(--c-orange)';
