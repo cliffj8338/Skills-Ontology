@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.39';
+        var BP_VERSION = 'v4.47.39a';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -256,23 +256,43 @@
             'wb-skill-outcome': true
         };
 
-        function _aiCacheKey(featureTag, promptText) {
-            var hash = 0;
-            var str = (featureTag || '') + ':' + (promptText || '').slice(0, 2000);
-            for (var i = 0; i < str.length; i++) {
-                hash = ((hash << 5) - hash) + str.charCodeAt(i);
-                hash |= 0;
+        var _aiCacheMaxEntries = 20;
+
+        async function _aiCacheKey(featureTag, promptText, model) {
+            var uid = (fbUser && fbUser.uid) ? fbUser.uid.slice(0, 8) : 'anon';
+            var canonical = uid + '|' + (featureTag || '') + '|' + (model || '') + '|' + (promptText || '');
+            try {
+                var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(canonical));
+                var arr = new Uint8Array(buf);
+                var hex = '';
+                for (var i = 0; i < arr.length; i++) hex += arr[i].toString(16).padStart(2, '0');
+                return 'bpAICache_' + hex.slice(0, 16);
+            } catch (e) {
+                var hash = 0;
+                for (var j = 0; j < canonical.length; j++) {
+                    hash = ((hash << 5) - hash) + canonical.charCodeAt(j);
+                    hash |= 0;
+                }
+                var h2 = 0;
+                for (var k = canonical.length - 1; k >= 0; k--) {
+                    h2 = ((h2 << 7) - h2) + canonical.charCodeAt(k);
+                    h2 |= 0;
+                }
+                return 'bpAICache_' + Math.abs(hash).toString(36) + Math.abs(h2).toString(36);
             }
-            return 'bpAICache_' + Math.abs(hash).toString(36);
         }
 
-        function _aiCacheGet(featureTag, promptText) {
+        async function _aiCacheGet(featureTag, promptText, model) {
             try {
-                var key = _aiCacheKey(featureTag, promptText);
+                var key = await _aiCacheKey(featureTag, promptText, model);
                 var raw = localStorage.getItem(key);
                 if (!raw) return null;
                 var entry = JSON.parse(raw);
                 if (Date.now() - entry.ts > _aiCacheTTL) {
+                    localStorage.removeItem(key);
+                    return null;
+                }
+                if (entry.uid && fbUser && entry.uid !== fbUser.uid) {
                     localStorage.removeItem(key);
                     return null;
                 }
@@ -281,24 +301,37 @@
             } catch (e) { return null; }
         }
 
-        function _aiCacheSet(featureTag, promptText, data) {
+        async function _aiCacheSet(featureTag, promptText, model, data) {
             try {
-                var key = _aiCacheKey(featureTag, promptText);
-                localStorage.setItem(key, JSON.stringify({ ts: Date.now(), tag: featureTag, data: data }));
+                var key = await _aiCacheKey(featureTag, promptText, model);
+                var uid = (fbUser && fbUser.uid) ? fbUser.uid : null;
+                var entry = JSON.stringify({ ts: Date.now(), tag: featureTag, uid: uid, data: data });
+                safeSet(key, entry);
             } catch (e) {
-                console.warn('[AI Cache] Storage full, clearing old entries');
-                _aiCachePurge();
+                _aiCacheEvictOldest(5);
+                try {
+                    var key2 = await _aiCacheKey(featureTag, promptText, model);
+                    var uid2 = (fbUser && fbUser.uid) ? fbUser.uid : null;
+                    safeSet(key2, JSON.stringify({ ts: Date.now(), tag: featureTag, uid: uid2, data: data }));
+                } catch (e2) {}
             }
         }
 
-        function _aiCachePurge() {
+        function _aiCacheEvictOldest(count) {
             try {
-                var keys = [];
+                var entries = [];
                 for (var i = 0; i < localStorage.length; i++) {
                     var k = localStorage.key(i);
-                    if (k && k.indexOf('bpAICache_') === 0) keys.push(k);
+                    if (k && k.indexOf('bpAICache_') === 0) {
+                        try {
+                            var parsed = JSON.parse(localStorage.getItem(k));
+                            entries.push({ key: k, ts: parsed.ts || 0 });
+                        } catch (e) { entries.push({ key: k, ts: 0 }); }
+                    }
                 }
-                keys.forEach(function(k) { localStorage.removeItem(k); });
+                entries.sort(function(a, b) { return a.ts - b.ts; });
+                var toRemove = Math.min(count || 5, entries.length);
+                for (var j = 0; j < toRemove; j++) localStorage.removeItem(entries[j].key);
             } catch (e) {}
         }
 
@@ -313,20 +346,19 @@
 
         async function callAnthropicAPI(requestBody, userApiKey, featureTag) {
             var promptText = '';
+            var modelName = (requestBody && requestBody.model) || '';
             if (requestBody && requestBody.messages && requestBody.messages.length > 0) {
                 promptText = requestBody.messages[requestBody.messages.length - 1].content || '';
             }
 
             if (featureTag && _aiCacheableFeatures[featureTag]) {
-                var cached = _aiCacheGet(featureTag, promptText);
+                var cached = await _aiCacheGet(featureTag, promptText, modelName);
                 if (cached) return cached;
             }
 
             if (_aiDailyCount() >= BP_AI_DAILY_LIMIT) {
-                throw new Error('Daily AI limit reached (' + BP_AI_DAILY_LIMIT + ' calls). Resets at midnight. Save your work and try again tomorrow.');
+                throw new Error('Daily AI limit reached (' + BP_AI_DAILY_LIMIT + ' calls). Resets at midnight UTC. Try again tomorrow.');
             }
-
-            trackAICall(featureTag);
             console.log('[BP API] callAnthropicAPI called for:', featureTag, 'model:', requestBody.model);
             var idToken = null;
             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
@@ -349,7 +381,8 @@
                         recordApiHealth('anthropic-proxy', 'ok', 'Operational');
                         var jsonData = await proxyRes.json();
                         console.log('[BP API] Proxy success, response type:', jsonData?.type);
-                        if (featureTag && _aiCacheableFeatures[featureTag]) _aiCacheSet(featureTag, promptText, jsonData);
+                        trackAICall(featureTag);
+                        if (featureTag && _aiCacheableFeatures[featureTag]) _aiCacheSet(featureTag, promptText, modelName, jsonData);
                         return jsonData;
                     }
                     if (proxyRes.status === 429) {
@@ -418,7 +451,8 @@
             }
             recordApiHealth('anthropic-direct', 'ok', 'Operational');
             var directData = await directRes.json();
-            if (featureTag && _aiCacheableFeatures[featureTag]) _aiCacheSet(featureTag, promptText, directData);
+            trackAICall(featureTag);
+            if (featureTag && _aiCacheableFeatures[featureTag]) _aiCacheSet(featureTag, promptText, modelName, directData);
             return directData;
         }
 
