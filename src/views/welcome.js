@@ -4561,7 +4561,7 @@ async function handleLinkedInMerge(input) {
     if (!file.name.endsWith('.zip')) { showToast('Please upload a LinkedIn .zip archive.', 'warning'); return; }
     
     var statusEl = document.getElementById('liMergeStatus');
-    if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = bpIcon('settings', 12) + ' Reading LinkedIn archive...'; }
+    if (statusEl) { statusEl.style.display = 'block'; statusEl.innerHTML = bpIcon('settings', 12) + ' Reading LinkedIn archive...'; }
     
     try {
         var parsed = await parseLinkedInZipContents(file);
