@@ -3724,9 +3724,9 @@
         }
         
         .skill-mgmt-tab.active {
-            color: var(--accent);
+            color: #005bb5;
             border-bottom-color: var(--accent);
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.06);
         }
         
         .skill-mgmt-content {

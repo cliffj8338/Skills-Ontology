@@ -28829,7 +28829,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
                     var tileBg = tierKey === 'rare' ? 'rgba(196,93,0,0.04)' : tierKey === 'uncommon' ? 'rgba(0,113,227,0.03)' : 'rgba(0,0,0,0.015)';
                     var tileBorder = tierKey === 'rare' ? 'rgba(196,93,0,0.12)' : tierKey === 'uncommon' ? 'rgba(0,113,227,0.10)' : 'rgba(0,0,0,0.05)';
-                    html += '<div onclick=\'openUnifiedSkillEditor("' + escapedName + '")\' style="'
+                    html += '<div role="button" tabindex="0" onclick=\'openUnifiedSkillEditor("' + escapedName + '")\' '
+                        + 'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openUnifiedSkillEditor(\'' + escapedName + '\');}" '
+                        + 'style="'
                         + 'background:' + tileBg + '; '
                         + 'border:1px solid ' + tileBorder + '; border-radius:10px; '
                         + 'padding:14px 16px; cursor:pointer; transition:all 0.15s;" '
@@ -28874,15 +28876,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + 'background:rgba(0,113,227,0.06); '
                     + 'border:1px solid rgba(0,113,227,0.15);">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                    + '<h3 style="font-size:0.92em; font-weight:700; color:var(--accent); margin:0;">'
+                    + '<h3 style="font-size:0.92em; font-weight:700; color:#005bb5; margin:0;">'
                     + bpIcon('lightbulb',16) + ' Suggested Skills for Your Roles</h3>'
                     + '<span style="font-size:0.72em; color:var(--text-muted);">Based on industry standards</span></div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 suggestions.slice(0, 20).forEach(function(s) {
-                    html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:12px; '
+                    html += '<span role="button" tabindex="0" style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:12px; '
                         + 'font-size:0.82em; cursor:pointer; transition:all 0.15s; '
-                        + 'background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2); color:var(--text-secondary);" '
+                        + 'background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.2); color:var(--text-muted);" '
                         + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\')" '
+                        + 'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\',\'' + escapeHtml(s.level) + '\',\'' + escapeHtml(s.roleId) + '\');}" '
                         + 'title="Expected for ' + escapeHtml(s.reason) + ' (' + escapeHtml(s.level) + ') — click to add">'
                         + '<span style="font-size:0.9em;">+</span> ' + escapeHtml(s.name)
                         + '<span style="font-size:0.7em; opacity:0.5;">' + escapeHtml(s.reason) + '</span></span>';
@@ -53936,7 +53939,7 @@ body {
                 + '<span style="font-size:0.82em; color:var(--text-muted);">Set ' + names.length + ' skill' + (names.length > 1 ? 's' : '') + ' to:</span>';
             levels.forEach(function(l) {
                 html += '<button onclick="executeBulkSetLevel(\'' + l + '\')" style="padding:5px 12px; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600; '
-                    + 'background:rgba(155,89,182,0.1); color:var(--c-purple); border:1px solid rgba(155,89,182,0.25);">' + l + '</button>';
+                    + 'background:rgba(155,89,182,0.06); color:#6b2d7b; border:1px solid rgba(155,89,182,0.25);">' + l + '</button>';
             });
             html += '<button onclick="document.getElementById(\'bmLevelPicker\').remove();" style="padding:5px 10px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:0.82em;">Cancel</button>';
             html += '</div>';
