@@ -26651,14 +26651,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return d.color;
                     return levelColors[d.level] || 'var(--text-muted)';
                 })
-                .style("cursor", d => d.type === "center" ? "pointer" : "grab")
+                .style("cursor", d => d.type === "center" ? "pointer" : "pointer");
+
+            node
+                .style("cursor", d => d.type === "center" ? "pointer" : "pointer")
                 .on("click", (event, d) => {
                     if (d.type === "center") {
-                        // Center node click resets layout and filters
                         resetNetworkLayout();
                         filterByRole('all');
                     } else if (d.type === "role") {
-                        // Toggle: click active role again to reset
                         if (activeRole === d.id) {
                             filterByRole('all');
                         } else {
@@ -26666,12 +26667,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         }
                     } else if (d.type === "skill") {
                         event.stopPropagation();
-                        // Look up full skill object from skillsData instead of using node data
                         const fullSkill = skillsData.skills.find(s => s.name === d.name);
                         if (fullSkill) {
                             openSkillModal(d.name, fullSkill);
-                        } else {
-                            console.error('Skill not found in skillsData:', d.name);
                         }
                     }
                 })
@@ -27011,13 +27009,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return d.required ? 'var(--c-orange)' : 'var(--c-purple)';
                 })
                 .attr("stroke", function(d) { return d.required ? '#fff' : 'none'; })
-                .attr("stroke-width", function(d) { return d.required ? 2 : 0; })
-                .style("cursor", function(d) { return d.type === 'center' ? 'pointer' : 'grab'; })
+                .attr("stroke-width", function(d) { return d.required ? 2 : 0; });
+
+            node
+                .style("cursor", "pointer")
                 .on("click", function(event, d) {
                     if (d.type === 'center') {
                         resetNetworkLayout();
                     }
-                });
+                })
+                .on("mouseover", function(event, d) { showTooltip(event, d); })
+                .on("mouseout", hideTooltip);
             
             node.append("text")
                 .each(function(d) {
@@ -27270,7 +27272,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.matchState === 'matched' || d.matchState === 'gap') return 2.5;
                     return 0;
                 })
-                .style("cursor", function(d) { return d.type === 'center' ? 'pointer' : 'grab'; })
+                .style("cursor", "pointer");
+
+            node
+                .style("cursor", "pointer")
                 .on("click", function(event, d) {
                     if (d.type === 'center') {
                         resetNetworkLayout();
@@ -27749,7 +27754,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.valState === 'theirs') return 0.6;
                     return 1;
                 })
-                .style("cursor", function(d) { return d.type === 'hub' ? 'pointer' : 'grab'; })
+                .style("cursor", "pointer");
+
+            node
+                .style("cursor", "pointer")
                 .on("click", function(event, d) {
                     if (d.type === 'hub') {
                         resetNetworkLayout();
