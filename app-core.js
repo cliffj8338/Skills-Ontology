@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.23';
+        var BP_VERSION = 'v4.48.26';
 
         var BP_PALETTE = {
             blue: '#60a5fa', purple: '#bf5af2', green: '#30d158',
@@ -14764,6 +14764,7 @@
             if (!el) return;
 
             var latest = _wcagAuditHistory.length > 0 ? _wcagAuditHistory[0] : null;
+            var prev = _wcagAuditHistory.length > 1 ? _wcagAuditHistory[1] : null;
 
             var sevColors = { critical: 'var(--danger)', warning: 'var(--c-orange)', minor: 'var(--text-muted)' };
             var sevIcons = { critical: 'x', warning: 'warning', minor: 'info' };
@@ -14771,15 +14772,17 @@
 
             var html = '<div style="padding:20px;">';
 
-            html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">'
+            html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:12px;">'
                 + '<div>'
                 + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--c-heading); margin:0 0 4px;">'
                 + bpIcon('eye', 20) + ' WCAG AA 2.1 Auditor</h2>'
-                + '<div style="font-size:0.82em; color:var(--text-secondary);">Heuristic pre-audit for common WCAG 2.1 AA issues — supplement with manual testing and screen reader validation</div>'
+                + '<div style="font-size:0.82em; color:var(--text-secondary);">Heuristic pre-audit — supplement with manual testing and screen reader validation</div>'
                 + '</div>'
-                + '<div style="display:flex; gap:8px;">'
+                + '<div style="display:flex; gap:8px; flex-wrap:wrap;">'
                 + '<button onclick="_wcagExportCSV()" style="padding:8px 14px; background:var(--c-surface-2); color:var(--text-secondary); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;"' + (latest ? '' : ' disabled') + '>'
                 + bpIcon('file-text', 12) + ' Export CSV</button>'
+                + '<button onclick="_wcagResetAll()" style="padding:8px 14px; background:var(--c-surface-2); color:var(--text-muted); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:500;">'
+                + bpIcon('refresh-cw', 12) + ' Reset Status</button>'
                 + '<button onclick="var _el=document.getElementById(\'adminTabContent\'); if(_el){_el.innerHTML=\'<div style=padding:40px;text-align:center;color:var(--text-secondary)>Running audit...</div>\';} setTimeout(function(){_wcagRunAudit(); renderAdminAccessibility(document.getElementById(\'adminTabContent\'));}, 100);" '
                 + 'style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.84em;">'
                 + bpIcon('activity', 12) + ' Run Audit</button>'
@@ -14787,42 +14790,102 @@
 
             if (latest) {
                 var scorePercent = latest.elementsChecked > 0 ? Math.max(0, 100 - Math.round((latest.critical * 10 + latest.warning * 3 + latest.minor) / Math.max(1, latest.elementsChecked) * 1000)) : 100;
-                var scoreColor = scorePercent >= 90 ? 'var(--success)' : scorePercent >= 70 ? 'var(--c-orange)' : 'var(--danger)';
+                var scoreColor = scorePercent >= 90 ? '#1e7e34' : scorePercent >= 70 ? '#b25000' : 'var(--danger)';
 
-                html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:20px;">';
+                var resolvedCount = Object.keys(_wcagResolved).length;
+                var acceptedCount = Object.keys(_wcagAccepted).length;
+
+                if (prev) {
+                    var deltaCrit = latest.critical - prev.critical;
+                    var deltaWarn = latest.warning - prev.warning;
+                    var deltaTotal = latest.total - prev.total;
+                    var prevScore = prev.elementsChecked > 0 ? Math.max(0, 100 - Math.round((prev.critical * 10 + prev.warning * 3 + prev.minor) / Math.max(1, prev.elementsChecked) * 1000)) : 100;
+                    var deltaScore = scorePercent - prevScore;
+                    var deltaBg = deltaTotal <= 0 ? 'rgba(30,126,52,0.06)' : 'rgba(215,0,21,0.06)';
+                    var deltaBorder = deltaTotal <= 0 ? 'rgba(30,126,52,0.2)' : 'rgba(215,0,21,0.2)';
+                    var deltaIcon = deltaTotal <= 0 ? 'trending-up' : 'trending-down';
+                    var deltaTextColor = deltaTotal <= 0 ? '#1e7e34' : 'var(--danger)';
+
+                    html += '<div style="display:flex; align-items:center; gap:12px; padding:12px 18px; background:' + deltaBg + '; border:1px solid ' + deltaBorder + '; border-radius:10px; margin-bottom:16px; flex-wrap:wrap;">'
+                        + '<span style="color:' + deltaTextColor + ';">' + bpIcon(deltaIcon, 18) + '</span>'
+                        + '<span style="font-weight:700; color:' + deltaTextColor + '; font-size:0.92em;">Score ' + (deltaScore >= 0 ? '+' : '') + deltaScore + ' pts</span>'
+                        + '<span style="font-size:0.82em; color:#6e6e73;">vs previous audit (' + escapeHtml(prev.date) + ')</span>'
+                        + '<span style="margin-left:auto; display:flex; gap:12px; font-size:0.82em;">'
+                        + '<span style="color:' + (deltaCrit <= 0 ? '#1e7e34' : 'var(--danger)') + '; font-weight:600;">Critical ' + (deltaCrit >= 0 ? '+' : '') + deltaCrit + '</span>'
+                        + '<span style="color:' + (deltaWarn <= 0 ? '#1e7e34' : '#b25000') + '; font-weight:600;">Warnings ' + (deltaWarn >= 0 ? '+' : '') + deltaWarn + '</span>'
+                        + '<span style="color:' + (deltaTotal <= 0 ? '#1e7e34' : 'var(--danger)') + '; font-weight:600;">Total ' + (deltaTotal >= 0 ? '+' : '') + deltaTotal + '</span>'
+                        + '</span></div>';
+                }
+
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:12px; margin-bottom:16px;">';
 
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:16px; text-align:center;">'
                     + '<div style="font-size:2em; font-weight:800; color:' + scoreColor + ';">' + scorePercent + '</div>'
-                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">A11Y SCORE</div></div>';
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">A11Y SCORE</div></div>';
 
                 html += '<div style="background:rgba(215,0,21,0.04); border:1px solid rgba(215,0,21,0.12); border-radius:10px; padding:16px; text-align:center;">'
                     + '<div style="font-size:2em; font-weight:800; color:var(--danger);">' + latest.critical + '</div>'
-                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">CRITICAL</div></div>';
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">CRITICAL</div></div>';
 
                 html += '<div style="background:rgba(196,93,0,0.04); border:1px solid rgba(196,93,0,0.12); border-radius:10px; padding:16px; text-align:center;">'
                     + '<div style="font-size:2em; font-weight:800; color:var(--c-orange);">' + latest.warning + '</div>'
-                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">WARNINGS</div></div>';
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">WARNINGS</div></div>';
 
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:16px; text-align:center;">'
                     + '<div style="font-size:2em; font-weight:800; color:var(--text-muted);">' + latest.minor + '</div>'
                     + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">MINOR</div></div>';
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">MINOR</div></div>';
 
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:16px; text-align:center;">'
-                    + '<div style="font-size:2em; font-weight:800; color:var(--text-secondary);">' + latest.elementsChecked + '</div>'
-                    + '<div style="font-size:0.72em; color:var(--text-muted); font-weight:600;">ELEMENTS</div></div>';
+                    + '<div style="font-size:2em; font-weight:800; color:#1d1d1f;">' + latest.elementsChecked + '</div>'
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">ELEMENTS</div></div>';
+
+                html += '<div style="background:rgba(30,126,52,0.04); border:1px solid rgba(30,126,52,0.12); border-radius:10px; padding:16px; text-align:center;">'
+                    + '<div style="font-size:2em; font-weight:800; color:#1e7e34;">' + resolvedCount + '</div>'
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">RESOLVED</div></div>';
+
+                html += '<div style="background:rgba(178,80,0,0.04); border:1px solid rgba(178,80,0,0.12); border-radius:10px; padding:16px; text-align:center;">'
+                    + '<div style="font-size:2em; font-weight:800; color:#b25000;">' + acceptedCount + '</div>'
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">ACCEPTED</div></div>';
 
                 html += '</div>';
 
-                html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; display:flex; align-items:center; gap:12px;">'
+                html += '<div style="font-size:0.75em; color:#6e6e73; margin-bottom:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
                     + '<span>Audited: ' + escapeHtml(latest.date) + '</span>'
                     + '<span>Page: ' + escapeHtml(latest.page) + '</span>'
-                    + (_wcagDismissed.length > 0 ? '<span>' + _wcagDismissed.length + ' dismissed</span><button onclick="_wcagResetDismissed()" style="background:none; border:none; cursor:pointer; color:var(--accent); font-size:1em; text-decoration:underline;">Reset</button>' : '')
+                    + (_wcagDismissed.length > 0 ? '<span>' + _wcagDismissed.length + ' dismissed</span>' : '')
                     + '</div>';
 
+                var filterBtnStyle = function(f) {
+                    var active = _wcagIssueFilter === f;
+                    return 'padding:6px 14px; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:' + (active ? '700' : '500') + '; '
+                        + 'background:' + (active ? 'var(--accent)' : 'var(--c-surface-2)') + '; '
+                        + 'color:' + (active ? '#fff' : '#6e6e73') + '; '
+                        + 'border:1px solid ' + (active ? 'var(--accent)' : 'var(--c-surface-5)') + ';';
+                };
+
+                html += '<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">'
+                    + '<button onclick="_wcagSetFilter(\'open\')" style="' + filterBtnStyle('open') + '">' + bpIcon('alert-circle', 12) + ' Open (' + latest.total + ')</button>'
+                    + '<button onclick="_wcagSetFilter(\'resolved\')" style="' + filterBtnStyle('resolved') + '">' + bpIcon('check', 12) + ' Resolved (' + resolvedCount + ')</button>'
+                    + '<button onclick="_wcagSetFilter(\'accepted\')" style="' + filterBtnStyle('accepted') + '">' + bpIcon('shield', 12) + ' Accepted Risk (' + acceptedCount + ')</button>'
+                    + '<button onclick="_wcagSetFilter(\'all\')" style="' + filterBtnStyle('all') + '">' + bpIcon('layers', 12) + ' All</button>'
+                    + '</div>';
+
+                var allIssues = latest.issues || [];
+                var filteredIssues = allIssues.filter(function(iss) {
+                    var isResolved = !!_wcagResolved[iss.id];
+                    var isAccepted = !!_wcagAccepted[iss.id];
+                    if (_wcagIssueFilter === 'open') return !isResolved && !isAccepted;
+                    if (_wcagIssueFilter === 'resolved') return isResolved;
+                    if (_wcagIssueFilter === 'accepted') return isAccepted;
+                    return true;
+                });
+
                 var categories = {};
-                latest.issues.forEach(function(iss) {
-                    if (!categories[iss.category]) categories[iss.category] = [];
-                    categories[iss.category].push(iss);
+                filteredIssues.forEach(function(iss) {
+                    var cat = iss.category || 'Other';
+                    if (!categories[cat]) categories[cat] = [];
+                    categories[cat].push(iss);
                 });
 
                 var catOrder = Object.keys(categories).sort(function(a, b) {
@@ -14831,11 +14894,12 @@
                     return bCrit - aCrit;
                 });
 
-                if (catOrder.length === 0) {
-                    html += '<div style="text-align:center; padding:40px; background:rgba(30,126,52,0.04); border:1px solid rgba(30,126,52,0.15); border-radius:12px;">'
-                        + '<div style="font-size:2em; margin-bottom:8px;">' + bpIcon('check', 32) + '</div>'
-                        + '<div style="font-weight:700; color:var(--success); font-size:1.1em;">All Clear</div>'
-                        + '<div style="font-size:0.84em; color:var(--text-secondary); margin-top:4px;">No accessibility issues detected. Navigate to different pages and re-run to check more views.</div>'
+                if (filteredIssues.length === 0) {
+                    var emptyMsg = _wcagIssueFilter === 'open' ? 'No open issues \u2014 all clear!' : _wcagIssueFilter === 'resolved' ? 'No resolved issues yet.' : _wcagIssueFilter === 'accepted' ? 'No accepted risks.' : 'No issues found.';
+                    var emptyIcon = _wcagIssueFilter === 'open' ? 'check' : 'info';
+                    html += '<div style="text-align:center; padding:40px 20px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:12px; margin-bottom:16px;">'
+                        + '<div style="font-size:2em; color:#1e7e34; margin-bottom:8px;">' + bpIcon(emptyIcon, 40) + '</div>'
+                        + '<div style="font-weight:600; color:var(--c-heading); font-size:1em;">' + emptyMsg + '</div>'
                         + '</div>';
                 }
 
@@ -14848,8 +14912,9 @@
                         + '<div onclick="var items=this.nextElementSibling; items.style.display=items.style.display===\'none\'?\'block\':\'none\'; this.querySelector(\'.wcag-arrow\').textContent=items.style.display===\'none\'?\'\\u25B6\':\'\\u25BC\';" '
                         + 'style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--c-surface-1); cursor:pointer; border-bottom:1px solid var(--c-surface-4);">'
                         + '<div style="display:flex; align-items:center; gap:8px;">'
-                        + '<span class="wcag-arrow" style="font-size:0.7em; color:var(--text-muted);">\u25BC</span>'
+                        + '<span class="wcag-arrow" style="font-size:0.7em; color:#6e6e73;">\u25BC</span>'
                         + '<span style="font-weight:700; font-size:0.92em; color:' + headerColor + ';">' + escapeHtml(cat) + '</span>'
+                        + '<span style="font-size:0.72em; color:#6e6e73;">(' + catIssues.length + ')</span>'
                         + '</div>'
                         + '<div style="display:flex; gap:6px;">';
 
@@ -14870,24 +14935,62 @@
 
                     catIssues.forEach(function(iss) {
                         var escapedId = iss.id.replace(/'/g, "\\'");
-                        html += '<div style="display:flex; align-items:flex-start; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); font-size:0.84em;">'
+                        var isResolved = !!_wcagResolved[iss.id];
+                        var isAccepted = !!_wcagAccepted[iss.id];
+                        var isReopened = iss._status === 'reopened';
+                        var rowBg = isResolved ? 'rgba(30,126,52,0.03)' : isAccepted ? 'rgba(178,80,0,0.03)' : isReopened ? 'rgba(215,0,21,0.03)' : 'transparent';
+
+                        html += '<div style="display:flex; align-items:flex-start; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); font-size:0.84em; background:' + rowBg + ';">'
                             + '<span style="color:' + sevColors[iss.severity] + '; flex-shrink:0; margin-top:2px;">' + bpIcon(sevIcons[iss.severity], 14) + '</span>'
                             + '<div style="flex:1; min-width:0;">'
-                            + '<div style="font-weight:600; color:var(--c-heading);">' + escapeHtml(iss.msg) + '</div>'
-                            + '<div style="font-size:0.85em; color:var(--text-muted); margin-top:2px;">'
+                            + '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
+                            + '<span style="font-weight:600; color:var(--c-heading);">' + escapeHtml(iss.msg) + '</span>';
+
+                        if (isResolved) {
+                            html += '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:rgba(30,126,52,0.1); color:#1e7e34; font-weight:700;">Resolved</span>';
+                        } else if (isAccepted) {
+                            html += '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:rgba(178,80,0,0.1); color:#b25000; font-weight:700;">Accepted Risk</span>';
+                        } else if (isReopened) {
+                            html += '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:rgba(215,0,21,0.1); color:var(--danger); font-weight:700;">Reopened</span>';
+                        }
+
+                        html += '</div>'
+                            + '<div style="font-size:0.85em; color:#6e6e73; margin-top:2px;">'
                             + '<span style="background:var(--c-surface-2); padding:1px 6px; border-radius:4px; font-family:monospace; font-size:0.9em;">WCAG ' + escapeHtml(iss.rule) + '</span> '
                             + escapeHtml(iss.wcag)
-                            + (iss.snippet ? ' — <span style="font-style:italic;">"' + escapeHtml(iss.snippet) + '"</span>' : '')
+                            + (iss.snippet ? ' \u2014 <span style="font-style:italic;">"' + escapeHtml(iss.snippet) + '"</span>' : '')
                             + '</div>'
-                            + '<div style="font-size:0.78em; color:var(--text-muted); font-family:monospace; margin-top:2px; opacity:0.7;">' + escapeHtml(iss.el) + '</div>'
-                            + '</div>'
-                            + '<button onclick="_wcagDismissIssue(\'' + escapedId + '\')" title="Dismiss" style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:4px; opacity:0.5; flex-shrink:0;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.5\'">'
-                            + bpIcon('x', 12) + '</button>'
-                            + '</div>';
+                            + '<div style="font-size:0.78em; color:#6e6e73; font-family:monospace; margin-top:2px; opacity:0.7;">' + escapeHtml(iss.el) + '</div>';
+
+                        if (isResolved && _wcagResolved[iss.id] && _wcagResolved[iss.id].note) {
+                            html += '<div style="font-size:0.78em; color:#1e7e34; margin-top:4px; font-style:italic;">' + bpIcon('check', 10) + ' ' + escapeHtml(_wcagResolved[iss.id].note) + '</div>';
+                        }
+                        if (isAccepted && _wcagAccepted[iss.id] && _wcagAccepted[iss.id].reason) {
+                            html += '<div style="font-size:0.78em; color:#b25000; margin-top:4px; font-style:italic;">' + bpIcon('shield', 10) + ' ' + escapeHtml(_wcagAccepted[iss.id].reason) + '</div>';
+                        }
+
+                        html += '</div>'
+                            + '<div style="display:flex; gap:4px; flex-shrink:0;">';
+
+                        if (isResolved) {
+                            html += '<button onclick="_wcagUnresolve(\'' + escapedId + '\')" title="Undo resolve" style="background:none; border:none; cursor:pointer; color:#1e7e34; padding:4px; font-size:0.78em;">'
+                                + bpIcon('rotate-ccw', 12) + '</button>';
+                        } else if (isAccepted) {
+                            html += '<button onclick="_wcagUnaccept(\'' + escapedId + '\')" title="Remove accepted status" style="background:none; border:none; cursor:pointer; color:#b25000; padding:4px; font-size:0.78em;">'
+                                + bpIcon('rotate-ccw', 12) + '</button>';
+                        } else {
+                            html += '<button onclick="_wcagPromptResolve(\'' + escapedId + '\')" title="Mark as resolved" style="background:none; border:none; cursor:pointer; color:#1e7e34; padding:4px; opacity:0.6;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.6\'">'
+                                + bpIcon('check', 13) + '</button>'
+                                + '<button onclick="_wcagPromptAccept(\'' + escapedId + '\')" title="Accept risk" style="background:none; border:none; cursor:pointer; color:#b25000; padding:4px; opacity:0.6;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.6\'">'
+                                + bpIcon('shield', 13) + '</button>'
+                                + '<button onclick="_wcagDismissIssue(\'' + escapedId + '\')" title="Dismiss" style="background:none; border:none; cursor:pointer; color:#6e6e73; padding:4px; opacity:0.4;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.4\'">'
+                                + bpIcon('x', 12) + '</button>';
+                        }
+
+                        html += '</div></div>';
                     });
                     html += '</div></div>';
                 });
-            } else {
                 html += '<div style="text-align:center; padding:60px 20px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:12px;">'
                     + '<div style="font-size:2.5em; color:var(--text-muted); margin-bottom:12px;">' + bpIcon('eye', 48) + '</div>'
                     + '<div style="font-weight:700; color:var(--c-heading); font-size:1.1em; margin-bottom:8px;">No Audits Yet</div>'
