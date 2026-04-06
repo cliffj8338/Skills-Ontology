@@ -72,7 +72,7 @@ Blueprint is a confidence engine. Not a job board, not a resume tool, not anothe
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.47.47. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
+Current: v4.48.1. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
 

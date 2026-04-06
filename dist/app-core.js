@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.1';
+        var BP_VERSION = 'v4.48.2';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2409,7 +2409,7 @@
             
             if (!showcaseMode) {
                 var showcaseUrl = window.location.origin + window.location.pathname + '?showcase=' + SHOWCASE_CONFIG.key;
-                html += '<div style="margin-bottom:24px; padding:14px 18px; background:linear-gradient(135deg, rgba(255,214,10,0.08), rgba(191,90,242,0.08)); border:1px solid rgba(255,214,10,0.2); border-radius:10px;">'
+                html += '<div style="margin-bottom:24px; padding:14px 18px; background:rgba(255,214,10,0.08); border:1px solid rgba(255,214,10,0.2); border-radius:10px;">'
                     + '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
                     + '<div style="font-size:0.78em; color:#ffd60a; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Investor Showcase</div>'
                     + '<code id="showcaseUrlText" style="flex:1; min-width:200px; font-size:0.82em; color:var(--text-secondary); background:var(--c-surface-2); padding:8px 12px; border-radius:6px; border:1px solid var(--c-surface-5); word-break:break-all; cursor:text; user-select:all;">' + escapeHtml(showcaseUrl) + '</code>'
@@ -2610,7 +2610,7 @@
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
             
             // AI column
-            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(6,182,212,0.06), rgba(48,209,88,0.06)); border:1px solid rgba(6,182,212,0.2); border-radius:10px;">'
+            html += '<div style="padding:16px; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.2); border-radius:10px;">'
                 + '<div style="font-size:0.78em; font-weight:700; color:#5ac8fa; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('wand',14) + ' AI Vibe-Coding</div>'
                 + devBar('Calendar Time', monthsElapsed + ' mo', Math.max(monthsElapsed, tradMonths), '#5ac8fa')
                 + devBar('Work Hours', Math.round(aiHoursTotal), Math.max(aiHoursTotal, tradDays * 8), '#30d158')
@@ -2621,7 +2621,7 @@
                 + '</div>';
             
             // Traditional column
-            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(255,69,58,0.04), rgba(249,115,22,0.04)); border:1px solid rgba(255,69,58,0.15); border-radius:10px;">'
+            html += '<div style="padding:16px; background:rgba(255,69,58,0.04); border:1px solid rgba(255,69,58,0.15); border-radius:10px;">'
                 + '<div style="font-size:0.78em; font-weight:700; color:#ff453a; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('users',14) + ' Traditional Solo Dev</div>'
                 + devBar('Calendar Time', tradMonths + ' mo', Math.max(monthsElapsed, tradMonths), '#ff453a')
                 + devBar('Work Hours', (tradDays * 8).toLocaleString(), Math.max(aiHoursTotal, tradDays * 8), '#ff9f0a')
@@ -2641,7 +2641,7 @@
                 { label: 'Efficiency', value: Math.round(devStats.lineCount / Math.max(1, aiHoursTotal)) + ' LOC/hr', sub: 'AI-assisted output', color: '#bf5af2' }
             ].forEach(function(s) {
                 html += '<div style="text-align:center; padding:14px; background:var(--c-surface-4b); border-radius:8px; border:1px solid var(--c-border-faint);">'
-                    + '<div style="font-size:1.4em; font-weight:800; color:' + s.color + ';">' + s.value + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:' + s.color + ';">' + s.value + '</div>'
                     + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">' + s.label + ': ' + s.sub + '</div></div>';
             });
             html += '</div>';
@@ -2675,7 +2675,7 @@
                 + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
                 + '<button onclick="switchView(\'blueprint\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('blueprint',14) + ' My Blueprint</button>'
                 + '<button onclick="switchAdminTab(\'users\')" style="padding:10px 20px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('users',14) + ' Manage Users</button>'
-                + '<button onclick="switchAdminTab(\'samples\')" style="padding:10px 20px; background:linear-gradient(135deg,#ff9f0a,#c78400); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('skills',14) + ' Edit Samples</button>'
+                + '<button onclick="switchAdminTab(\'samples\')" style="padding:10px 20px; background:#ff9f0a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('skills',14) + ' Edit Samples</button>'
                 + '<button onclick="switchView(\'welcome\')" style="padding:10px 20px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">' + bpIcon('home',14) + ' View Welcome Page</button>'
                 + '</div></div>';
             
@@ -2762,16 +2762,16 @@
                 
                 el.innerHTML = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:18px;">'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                    + '<div style="font-size:1.4em; font-weight:800; color:var(--accent);">' + (m.totalJobs || 0).toLocaleString() + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:var(--accent);">' + (m.totalJobs || 0).toLocaleString() + '</div>'
                     + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Total Jobs</div></div>'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                    + '<div style="font-size:1.4em; font-weight:800; color:#30d158;">' + (m.jobsSynced || 0).toLocaleString() + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:#30d158;">' + (m.jobsSynced || 0).toLocaleString() + '</div>'
                     + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Last Sync</div></div>'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                    + '<div style="font-size:1.4em; font-weight:800; color:var(--text-primary);">' + ago + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:var(--text-primary);">' + ago + '</div>'
                     + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Synced</div></div>'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                    + '<div style="font-size:1.4em; font-weight:800; color:var(--text-muted);">' + ((m.duration || 0) / 1000).toFixed(1) + 's</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:var(--text-muted);">' + ((m.duration || 0) / 1000).toFixed(1) + 's</div>'
                     + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Duration</div></div>'
                     + '</div>'
                     + '<div style="font-size:0.72em; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Sources</div>'
@@ -2855,7 +2855,7 @@
             function fmt(sec) { if (sec < 60) return sec + 's'; if (sec < 3600) return Math.floor(sec/60) + 'm ' + (sec%60) + 's'; return Math.floor(sec/3600) + 'h ' + Math.floor((sec%3600)/60) + 'm'; }
             function tile(label, value, color, sub) {
                 return '<div style="padding:14px; background:linear-gradient(135deg, ' + color + '11, ' + color + '08); border:1px solid ' + color + '33; border-radius:10px; text-align:center;">'
-                    + '<div style="font-size:1.8em; font-weight:800; color:' + color + ';">' + value + '</div>'
+                    + '<div style="font-size:1.8em; font-weight:700; color:' + color + ';">' + value + '</div>'
                     + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">' + label + '</div>'
                     + (sub ? '<div style="font-size:0.65em; color:var(--text-muted); margin-top:2px;">' + sub + '</div>' : '') + '</div>';
             }
@@ -3031,7 +3031,7 @@
                 wbTiles.forEach(function(t) {
                     var cnt = s.featureCounts[t.k] || 0;
                     if (cnt > 0) html += '<div style="text-align:center; padding:8px; background:' + t.c + '11; border-radius:8px;">'
-                        + '<div style="font-size:1.4em; font-weight:800; color:' + t.c + ';">' + cnt + '</div>'
+                        + '<div style="font-size:1.4em; font-weight:700; color:' + t.c + ';">' + cnt + '</div>'
                         + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase;">' + t.l + '</div></div>';
                 });
                 html += '</div></div>';
@@ -3708,7 +3708,7 @@
                     + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
                     + '<button disabled style="padding:10px 20px; background:#bf5af2; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
                     + bpIcon('upload',14) + ' Bulk Import Skills</button>'
-                    + '<button disabled style="padding:10px 20px; background:linear-gradient(135deg,#ff453a,#ff453a); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
+                    + '<button disabled style="padding:10px 20px; background:#ff453a; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
                     + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
                     + '</div></div>';
                 
@@ -3797,7 +3797,7 @@
                 + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
                 + '<button onclick="openBulkImport();" style="padding:10px 20px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('upload',14) + ' Bulk Import Skills</button>'
-                + '<button onclick="openBulkManager();" style="padding:10px 20px; background:linear-gradient(135deg,#ff453a,#ff453a); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + '<button onclick="openBulkManager();" style="padding:10px 20px; background:#ff453a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
                 + '</div></div>';
             
@@ -4197,12 +4197,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.48.1: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.48.2: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.48.1: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
-                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.48.1: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.48.2: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.48.2: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.48.1: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.48.2: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -4526,23 +4526,23 @@
             
             // Header stats
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">'
-                + '<div style="padding:16px; background:linear-gradient(135deg, rgba(48,209,88,0.1), rgba(48,209,88,0.05)); border:1px solid rgba(48,209,88,0.2); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:800; color:#30d158;">' + pct + '%</div>'
+                + '<div style="padding:16px; background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:700; color:#30d158;">' + pct + '%</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Complete</div></div>'
                 + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:800; color:#30d158;">' + done + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:#30d158;">' + done + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Done</div></div>'
                 + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:800; color:#60a5fa;">' + inProgress + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:#60a5fa;">' + inProgress + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">In Progress</div></div>'
                 + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:800; color:#a1a1a6;">' + planned + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:#a1a1a6;">' + planned + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Planned</div></div>'
                 + '</div>';
             
             // Progress bar
             html += '<div style="height:6px; background:var(--c-surface-5); border-radius:6px; margin-bottom:24px; overflow:hidden;">'
-                + '<div style="height:100%; width:' + pct + '%; background:linear-gradient(90deg, #30d158, #60a5fa); border-radius:6px; transition:width 0.3s;"></div></div>';
+                + '<div style="height:100%; width:' + pct + '%; background:#30d158; border-radius:6px; transition:width 0.3s;"></div></div>';
             
             // Filter bar
             html += '<div style="display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;">';
@@ -8814,7 +8814,7 @@
             if (showComp) {
                 html += '<tr style="border-top:2px solid ' + borderColor + '; background:rgba(48,209,88,0.06);">'
                     + '<td colspan="4" style="padding:10px; font-weight:700; text-align:right; color:' + headingColor + ';">Total Skill Premiums</td>'
-                    + '<td style="padding:10px; text-align:right; font-weight:800; color:#30d158; font-size:1.05em;">+$' + totalComp.toLocaleString() + '</td></tr>';
+                    + '<td style="padding:10px; text-align:right; font-weight:700; color:#30d158; font-size:1.05em;">+$' + totalComp.toLocaleString() + '</td></tr>';
             }
             html += '</tbody></table></div></div>';
 
@@ -8926,18 +8926,18 @@
 
                 html += '<div style="padding:14px 16px; background:rgba(48,209,88,0.07); border:1px solid rgba(48,209,88,0.2); border-radius:10px;">'
                     + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#30d158; font-weight:700; margin-bottom:4px;">Minimum Market Value</div>'
-                    + '<div style="font-size:1.3em; font-weight:800; color:#30d158;">$' + Math.round((bls.pct25 || 0) * geo).toLocaleString() + '</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:#30d158;">$' + Math.round((bls.pct25 || 0) * geo).toLocaleString() + '</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">25th pct \u00B7 BLS floor' + (geo !== 1.0 ? ' \u00B7 ' + geoLabel : '') + '</div></div>';
 
                 html += '<div style="padding:14px 16px; background:rgba(96,165,250,0.07); border:1px solid rgba(96,165,250,0.2); border-radius:10px;">'
                     + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#60a5fa; font-weight:700; margin-bottom:4px;">Seniority Target</div>'
-                    + '<div style="font-size:1.3em; font-weight:800; color:#60a5fa;">$' + blsBase.toLocaleString() + '</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:#60a5fa;">$' + blsBase.toLocaleString() + '</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">' + seniorityLabel + ' pct \u00B7 ' + (data.seniority ? data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) : 'Mid') + ' level</div></div>';
 
                 if (showComp) {
                     html += '<div style="padding:14px 16px; background:rgba(255,214,10,0.07); border:1px solid rgba(255,214,10,0.25); border-radius:10px;">'
                         + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:#ffd60a; font-weight:700; margin-bottom:4px;">Justified Value</div>'
-                        + '<div style="font-size:1.3em; font-weight:800; color:#ffd60a;">$' + totalJustified.toLocaleString() + '</div>'
+                        + '<div style="font-size:1.3em; font-weight:700; color:#ffd60a;">$' + totalJustified.toLocaleString() + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">75th pct \u00B7 BLS base + skill premiums</div>'
                         + '<div style="font-size:0.68em; color:var(--c-faint); margin-top:5px; padding-top:5px; border-top:1px solid rgba(255,214,10,0.12);">Max justifiable: <span style="color:rgba(255,214,10,0.6); font-weight:600;">$' + justifiedMax.toLocaleString() + '</span></div></div>';
                 }
@@ -10387,8 +10387,8 @@
                     + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#4a9eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' Word</button>'
                     + '<button onclick="wbRepoEditModal(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('edit',14) + ' Edit</button>'
                     + '<button onclick="wbRepoClone(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--accent, #60a5fa); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('copy',14) + ' Clone</button>'
-                    + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:linear-gradient(135deg, #30d158, #60a5fa); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(48,209,88,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
-                    + '<button onclick="generateScoutingReportFromWB(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:#60a5fa; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(191,90,242,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('file-text',14) + ' Scouting Report</button>'
+                    + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:#30d158; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(48,209,88,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
+                    + '<button onclick="generateScoutingReportFromWB(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:#60a5fa; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:none; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('file-text',14) + ' Scouting Report</button>'
                     + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:#ff453a; border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, _jdcCompMode === 'with');
@@ -12366,8 +12366,8 @@
                 + ' &nbsp;\u00B7&nbsp; <strong>Candidate:</strong> ' + escapeHtml(((candidate || {}).profile || {}).name || _wbCompWizData.candidateId)
                 + '</div>'
                 + '<div style="display:flex; gap:8px;">'
-                + '<button onclick="_wbCompSaveCurrent()" style="padding:6px 14px; background:linear-gradient(135deg, #30d158, #60a5fa); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('save',12) + ' Save</button>'
-                + '<button onclick="_wbCompShareCurrent()" style="padding:6px 14px; background:linear-gradient(135deg, #bf5af2, #bf5af2); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
+                + '<button onclick="_wbCompSaveCurrent()" style="padding:6px 14px; background:#30d158; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('save',12) + ' Save</button>'
+                + '<button onclick="_wbCompShareCurrent()" style="padding:6px 14px; background:#bf5af2; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
                 + '<button onclick="_wbCompExportPDF()" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('file-text',12) + ' PDF</button>'
                 + '<button onclick="_wbCompWizStep=1; _wbCompWizData={wb:null,rawJD:\'\',candidateId:\'\',candidate:null}; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('refresh',12) + ' New Comparison</button>'
                 + '<button onclick="_wbCompWizStep=1; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:#ff453a; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
@@ -12612,7 +12612,7 @@
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:#f5f5f7;">'
                     + bpIcon('trending-up', 16) + ' Saved Comparison \u2014 ' + escapeHtml(entry.candidateName) + '</div>'
                     + '<div style="display:flex; gap:8px;">'
-                    + '<button onclick="_wbCompShareSaved(\'' + id + '\')" style="padding:8px 16px; background:linear-gradient(135deg,#bf5af2,#bf5af2); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
+                    + '<button onclick="_wbCompShareSaved(\'' + id + '\')" style="padding:8px 16px; background:#bf5af2; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
                     + '<button onclick="_wbCompExportPDFFromSaved(\'' + id + '\')" style="padding:8px 16px; background:rgba(51,65,85,0.8); color:#d1d1d6; border:1px solid rgba(71,85,105,0.5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:500;">' + bpIcon('file-text',12) + ' Export PDF</button>'
                     + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:#ff453a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
                     + '</div></div>';
@@ -14430,23 +14430,23 @@
             // Header stats row
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">';
             
-            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(96,165,250,0.1), rgba(96,165,250,0.05)); border:1px solid rgba(96,165,250,0.2); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:800; color:#60a5fa;">' + totalCalls + '</div>'
+            html += '<div style="padding:16px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:700; color:#60a5fa;">' + totalCalls + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">API Calls</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Last ' + costsTimeRange + ' days</div></div>';
             
-            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(48,209,88,0.1), rgba(48,209,88,0.05)); border:1px solid rgba(48,209,88,0.2); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:800; color:#30d158;">' + fmt(totalEstCost) + '</div>'
+            html += '<div style="padding:16px; background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:700; color:#30d158;">' + fmt(totalEstCost) + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Est. Cost</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Last ' + costsTimeRange + ' days</div></div>';
             
-            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(255,159,10,0.1), rgba(255,159,10,0.05)); border:1px solid rgba(255,159,10,0.2); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:800; color:#ff9f0a;">' + fmt(projectedMonthlyCost) + '</div>'
+            html += '<div style="padding:16px; background:rgba(255,159,10,0.1); border:1px solid rgba(255,159,10,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:700; color:#ff9f0a;">' + fmt(projectedMonthlyCost) + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Projected</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Monthly at current pace</div></div>';
             
             html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:2em; font-weight:800; color:var(--text-primary);">' + avgCallsPerDay.toFixed(1) + '</div>'
+                + '<div style="font-size:2em; font-weight:700; color:var(--text-primary);">' + avgCallsPerDay.toFixed(1) + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Avg/Day</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">API calls</div></div>';
             
@@ -14502,7 +14502,7 @@
             html += '</div>';
             
             // Projection calculator
-            html += '<div style="padding:20px; background:linear-gradient(135deg, rgba(96,165,250,0.05), rgba(191,90,242,0.05)); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:20px;">'
+            html += '<div style="padding:20px; background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:20px;">'
                 + '<div style="font-size:0.85em; font-weight:700; color:#60a5fa; margin-bottom:14px;">Scale Projection Calculator</div>'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">'
                 + '<label style="font-size:0.82em; color:var(--text-secondary); white-space:nowrap;">Active users/month:</label>'
@@ -14534,7 +14534,7 @@
             
             html += '<div style="text-align:center; padding:14px; background:var(--c-surface-2); border-radius:10px; border:1px solid var(--border);">'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Projected Monthly Total</div>'
-                + '<div style="font-size:2.2em; font-weight:800; color:' + (projTotal < 1 ? '#30d158' : projTotal < 10 ? '#60a5fa' : projTotal < 50 ? '#ff9f0a' : '#ff453a') + ';">' + fmt(projTotal) + '</div>'
+                + '<div style="font-size:2.2em; font-weight:700; color:' + (projTotal < 1 ? '#30d158' : projTotal < 10 ? '#60a5fa' : projTotal < 50 ? '#ff9f0a' : '#ff453a') + ';">' + fmt(projTotal) + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted);">for ' + costsProjectionUsers.toLocaleString() + ' active users at Sonnet 4 pricing</div></div>';
             
             html += '</div>';
@@ -14629,10 +14629,10 @@
             // Totals
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-top:14px; margin-top:14px; border-top:1px solid var(--border);">'
                 + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                + '<div style="font-size:1.3em; font-weight:800; color:#60a5fa;">$' + monthlyFixedCost.toFixed(2) + '</div>'
+                + '<div style="font-size:1.3em; font-weight:700; color:#60a5fa;">$' + monthlyFixedCost.toFixed(2) + '</div>'
                 + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase;">Monthly subscriptions</div></div>'
                 + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                + '<div style="font-size:1.3em; font-weight:800; color:' + (apiTotalCost > 0 ? '#ff9f0a' : '#30d158') + ';">$' + apiTotalCost.toFixed(2) + '</div>'
+                + '<div style="font-size:1.3em; font-weight:700; color:' + (apiTotalCost > 0 ? '#ff9f0a' : '#30d158') + ';">$' + apiTotalCost.toFixed(2) + '</div>'
                 + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase;">Usage cost (last ' + costsTimeRange + 'd)</div></div></div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:10px;">'
                 + '<a href="#" onclick="if(confirm(\'Clear API usage log?\')){localStorage.removeItem(\'bpAPIUsageLog\');renderAdminCosts(document.getElementById(\'adminTabContent\'));showToast(\'API log cleared.\',\'info\');} return false;" style="color:var(--accent);">Clear API log</a></div></div>';
@@ -14757,12 +14757,12 @@
             if (totalApiUsageCost > 0) costBreakdown.push({ label: 'API Usage', amount: totalApiUsageCost, color: '#ff453a' });
             costBreakdown.sort(function(a, b) { return b.amount - a.amount; });
             
-            html += '<div style="padding:20px; background:linear-gradient(135deg, var(--c-surface-2), var(--c-surface-4b)); border:2px solid var(--accent); border-radius:12px; margin-bottom:20px;">'
+            html += '<div style="padding:20px; background:var(--c-surface-2); border:2px solid var(--accent); border-radius:12px; margin-bottom:20px;">'
                 + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">' + bpIcon('dollar', 14) + ' Monthly Cost Snapshot</div>';
             
             // Big total
             html += '<div style="text-align:center; margin-bottom:20px;">'
-                + '<div style="font-size:2.6em; font-weight:900; background:linear-gradient(135deg, var(--accent), #bf5af2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1;">$' + totalMonthly.toFixed(2) + '</div>'
+                + '<div style="font-size:2.6em; font-weight:900; color:#60a5fa; line-height:1;">$' + totalMonthly.toFixed(2) + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:4px;">estimated monthly total</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">$' + (totalMonthly * 12).toFixed(0) + '/year</div></div>';
             
@@ -14791,7 +14791,7 @@
             
             summaryTiles.forEach(function(tile) {
                 html += '<div style="padding:12px 8px; background:var(--c-surface-2); border-radius:8px; text-align:center;">'
-                    + '<div style="font-size:1.2em; font-weight:800; color:' + tile.color + ';">$' + tile.amount.toFixed(2) + '</div>'
+                    + '<div style="font-size:1.2em; font-weight:700; color:' + tile.color + ';">$' + tile.amount.toFixed(2) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">' + tile.label + '</div>'
                     + '<div style="font-size:0.6em; color:var(--text-muted);">' + tile.sub + '</div></div>';
             });
@@ -14977,7 +14977,7 @@
                 isReadOnlyProfile = true;
                 document.body.classList.add('readonly-mode');
                 var sBanner = document.getElementById('showcaseBanner');
-                if (sBanner) sBanner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; background:linear-gradient(135deg, rgba(255,214,10,0.12), rgba(191,90,242,0.12)); border-bottom:1px solid rgba(255,214,10,0.25); color:var(--text-secondary);';
+                if (sBanner) sBanner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; background:rgba(255,214,10,0.12); border-bottom:1px solid rgba(255,214,10,0.25); color:var(--text-secondary);';
                 return;
             }
             var templateId = userData.templateId || '';
@@ -17602,7 +17602,7 @@
                 var banner = document.createElement('div');
                 banner.id = 'showcaseBanner';
                 banner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; '
-                    + 'background:linear-gradient(135deg, rgba(255,214,10,0.12), rgba(191,90,242,0.12)); '
+                    + 'background:rgba(255,214,10,0.12); '
                     + 'border-bottom:1px solid rgba(255,214,10,0.25); color:var(--text-secondary);';
                 banner.innerHTML = '<span style="color:#ffd60a; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
                     + ' &mdash; ' + SHOWCASE_CONFIG.bannerText
@@ -19440,19 +19440,19 @@
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">'
                 + '<div style="padding:16px; background:var(--c-surface-1); border:1px solid var(--c-border-subtle); border-radius:12px; text-align:center;">'
                 + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:6px;">Current Value</div>'
-                + '<div style="font-size:1.8em; font-weight:800; color:var(--c-heading);">' + formatCompValue(baseValue) + '</div>'
+                + '<div style="font-size:1.8em; font-weight:700; color:var(--c-heading);">' + formatCompValue(baseValue) + '</div>'
                 + '<div style="font-size:0.75em; color:var(--c-faint);">' + escapeHtml(fnLabel) + '</div>'
                 + '</div>'
-                + '<div style="padding:16px; background:linear-gradient(135deg,rgba(48,209,88,0.1),rgba(48,209,88,0.03)); border:2px solid rgba(48,209,88,0.25); border-radius:12px; text-align:center;">'
+                + '<div style="padding:16px; background:rgba(48,209,88,0.1); border:2px solid rgba(48,209,88,0.25); border-radius:12px; text-align:center;">'
                 + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(48,209,88,0.7); margin-bottom:6px;">Potential Value</div>'
-                + '<div style="font-size:1.8em; font-weight:800; color:#30d158;">' + formatCompValue(maxPotential) + '</div>'
+                + '<div style="font-size:1.8em; font-weight:700; color:#30d158;">' + formatCompValue(maxPotential) + '</div>'
                 + '<div style="font-size:0.75em; color:#30d158; font-weight:600;">+' + formatCompValue(totalUplift) + ' growth opportunity</div>'
                 + '</div></div>';
 
             if (topUpgrades.length > 0) {
                 html += '<div style="margin-bottom:24px;">';
                 html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
-                    + '<div style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.05)); display:flex; align-items:center; justify-content:center;">' + bpIcon('trending-up',16) + '</div>'
+                    + '<div style="width:28px; height:28px; border-radius:8px; background:rgba(96,165,250,0.13); display:flex; align-items:center; justify-content:center;">' + bpIcon('trending-up',16) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Level Up Existing Skills</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Build evidence, get verified, then upgrade your proficiency</div></div>'
                     + (topUpgradeDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:#30d158;">+' + formatCompValue(topUpgradeDelta) + '</div>' : '')
@@ -19504,10 +19504,10 @@
                         + '</div>'
                         + '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0;">'
                         + '<div style="text-align:right; white-space:nowrap;">'
-                        + '<div style="font-weight:800; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
+                        + '<div style="font-weight:700; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div></div>';
                     if (canEdit) {
-                        html += '<button onclick="closeExportModal(); setTimeout(function(){ var sk=(skillsData.skills||[]).find(function(s){return s.name===\'' + safeName + '\';}); if(sk && typeof openSkillModal===\'function\') openSkillModal(\'' + safeName + '\',sk); },150);" style="font-size:0.72em; padding:4px 10px; background:linear-gradient(135deg,rgba(96,165,250,0.2),rgba(96,165,250,0.1)); border:1px solid rgba(96,165,250,0.3); color:#60a5fa; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Build Case</button>';
+                        html += '<button onclick="closeExportModal(); setTimeout(function(){ var sk=(skillsData.skills||[]).find(function(s){return s.name===\'' + safeName + '\';}); if(sk && typeof openSkillModal===\'function\') openSkillModal(\'' + safeName + '\',sk); },150);" style="font-size:0.72em; padding:4px 10px; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); color:#60a5fa; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Build Case</button>';
                     }
                     html += '</div></div>';
                 });
@@ -19522,7 +19522,7 @@
             if (topAdjacent.length > 0) {
                 html += '<div style="margin-bottom:24px;">';
                 html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
-                    + '<div style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,rgba(48,209,88,0.2),rgba(48,209,88,0.05)); display:flex; align-items:center; justify-content:center;">' + bpIcon('plus',16) + '</div>'
+                    + '<div style="width:28px; height:28px; border-radius:8px; background:rgba(48,209,88,0.13); display:flex; align-items:center; justify-content:center;">' + bpIcon('plus',16) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Add Adjacent Skills</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">New skills that complement your profile and increase market value</div></div>'
                     + (topAdjacentDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:#30d158;">+' + formatCompValue(topAdjacentDelta) + '</div>' : '')
@@ -19539,7 +19539,7 @@
                         + '<div style="font-size:0.78em; color:var(--c-muted); margin-top:3px; line-height:1.4;">' + escapeHtml(rec.rationale) + '</div>'
                         + '</div>'
                         + '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">'
-                        + '<div style="text-align:right;"><div style="font-weight:800; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
+                        + '<div style="text-align:right;"><div style="font-weight:700; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div></div>';
                     if (canAdd) {
                         html += '<button onclick="growthAdvisorAddSkill(\'' + escapeHtml(rec.name).replace(/'/g, "\\'") + '\')" style="font-size:0.72em; padding:4px 10px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">' + bpIcon('plus',10) + ' Add Skill</button>';
@@ -20749,7 +20749,7 @@
                 <!-- Progress bar -->
                 <div style="height:3px; background:var(--border); flex-shrink:0;">
                     <div style="height:100%; width:${progressPct}%;
-                                background:linear-gradient(90deg,var(--accent),#bf5af2);
+                                background:var(--accent);
                                 transition:width 0.4s ease;"></div>
                 </div>
 
@@ -21487,7 +21487,7 @@
                     'Most people undersell themselves when applying for work \u2014 not because they lack ability, but because they\u2019ve never had the right tool to articulate it. This changes that.')}
 
                 ${hasExistingProfile ? `
-                <div style="padding:14px 18px; margin-bottom:20px; background:linear-gradient(135deg, rgba(10,102,194,0.08), rgba(10,102,194,0.02));
+                <div style="padding:14px 18px; margin-bottom:20px; background:rgba(10,102,194,0.08);
                     border:2px solid rgba(10,102,194,0.25); border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
                     <div style="display:flex; align-items:center; gap:12px;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
@@ -21559,7 +21559,7 @@
                 </div>
 
                 <div onclick="wizardChooseExplorer()" id="card-explorer"
-                     style="background:linear-gradient(135deg, rgba(191,90,242,0.06), rgba(96,165,250,0.06));
+                     style="background:rgba(191,90,242,0.06);
                             border:2px solid rgba(191,90,242,0.25); border-radius:12px; padding:20px 24px;
                             cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:16px;
                             margin-bottom:24px;"
@@ -22572,7 +22572,7 @@
                 var totalAdd = 0;
                 stl.forEach(function(s) { totalAdd += (Number(s.valueAdd) || 0); });
                 return '<div onclick="explorerSelectCareer(' + i + ')" style="padding:16px; border-radius:12px; cursor:pointer; transition:all 0.15s; '
-                    + 'background:' + (isSelected ? 'linear-gradient(135deg, rgba(191,90,242,0.08), rgba(96,165,250,0.08))' : 'var(--bg-elevated)') + '; '
+                    + 'background:' + (isSelected ? 'rgba(96,165,250,0.08)' : 'var(--bg-elevated)') + '; '
                     + 'border:2px solid ' + (isSelected ? '#bf5af2' : 'var(--border)') + ';">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-weight:700; color:var(--text-primary); font-size:1em;">' + escapeHtml(p.title) + '</div>'
@@ -23749,7 +23749,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     </div>
                     <div style="width:300px; height:4px; background:var(--border); border-radius:6px; overflow:hidden;">
                         <div id="wizardParseProgress" style="height:100%; width:0%;
-                                    background:linear-gradient(90deg,var(--accent),#bf5af2);
+                                    background:var(--accent);
                                     border-radius:6px; transition:width 0.5s ease;"></div>
                     </div>
                     <div id="wizardDiscoveryFeed" style="width:100%; max-width:440px; min-height:200px;
@@ -24664,7 +24664,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         ? 'We matched your roles to O*NET occupations and found skills you may want to add.'
                         : 'No role titles could be matched. Continue to review your skills.')}
 
-                ${hasMultipleRoles ? '<div style="background:linear-gradient(135deg, rgba(255,214,10,0.08), rgba(255,159,10,0.04)); border:1px solid rgba(255,159,10,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
+                ${hasMultipleRoles ? '<div style="background:rgba(255,214,10,0.08); border:1px solid rgba(255,159,10,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
                     + '<div style="font-weight:700; color:#ff9f0a; font-size:0.82em; margin-bottom:6px;">\uD83D\uDCA1 Pro Tip: Less is More</div>'
                     + '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.5;">'
                     + 'Listing more than your past 3 roles isn\'t necessary. You can <strong>hide a role but keep the skills</strong>. '
@@ -24793,17 +24793,17 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
                     <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
                                 border-radius:10px; padding:14px; text-align:center;">
-                        <div style="font-size:1.5em; font-weight:800; color:var(--accent);">${gapResult.matchPercent}%</div>
+                        <div style="font-size:1.5em; font-weight:700; color:var(--accent);">${gapResult.matchPercent}%</div>
                         <div style="font-size:0.78em; color:var(--text-muted);">Profile Match</div>
                     </div>
                     <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
                                 border-radius:10px; padding:14px; text-align:center;">
-                        <div style="font-size:1.5em; font-weight:800; color:#30d158;">${gapResult.matched.length}</div>
+                        <div style="font-size:1.5em; font-weight:700; color:#30d158;">${gapResult.matched.length}</div>
                         <div style="font-size:0.78em; color:var(--text-muted);">Skills Matched</div>
                     </div>
                     <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
                                 border-radius:10px; padding:14px; text-align:center;">
-                        <div style="font-size:1.5em; font-weight:800; color:#ff9f0a;">${gapSkills.length}</div>
+                        <div style="font-size:1.5em; font-weight:700; color:#ff9f0a;">${gapSkills.length}</div>
                         <div style="font-size:0.78em; color:var(--text-muted);">Gaps Found</div>
                     </div>
                 </div>
@@ -25400,7 +25400,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                     isFromResume ? 'Market intelligence applied. Adjust proficiency levels and review recommendations below.'
                                  : 'Add your key skills. You can build this out further after setup.')}
 
-                ${intel ? wizardRenderMarketIntel(intel) : (isFromResume ? '<div id="marketIntelLoading" style="background:linear-gradient(135deg, rgba(96,165,250,0.08), rgba(168,85,247,0.06)); border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px; display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:1.1em;">&#9889;</span><div style="font-size:0.8em; color:var(--text-secondary);">Analyzing market value of your skills...</div><span style="font-size:0.8em; color:var(--accent);">\u21BB</span></div>' : '')}
+                ${intel ? wizardRenderMarketIntel(intel) : (isFromResume ? '<div id="marketIntelLoading" style="background:rgba(96,165,250,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px; display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:1.1em;">&#9889;</span><div style="font-size:0.8em; color:var(--text-secondary);">Analyzing market value of your skills...</div><span style="font-size:0.8em; color:var(--accent);">\u21BB</span></div>' : '')}
 
                 ${isFromResume ? wizardRenderOutcomePanel() : ''}
 
@@ -25802,7 +25802,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         <div style="background:var(--bg-elevated); border:1px solid var(--border);
                                     border-radius:12px; padding:20px; text-align:center;">
                             <div style="font-size:1.8em; margin-bottom:6px;">${icon}</div>
-                            <div style="font-size:1.8em; font-weight:800; color:var(--accent); line-height:1;">${n}</div>
+                            <div style="font-size:1.8em; font-weight:700; color:var(--accent); line-height:1;">${n}</div>
                             <div style="font-size:0.82em; color:var(--text-secondary); margin-top:4px;">${label}</div>
                         </div>
                     `).join('')}
@@ -27980,14 +27980,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 rare: {
                     label: 'Rare', desc: 'Your market differentiators',
                     icon: bpIcon('flame', 20),
-                    bg: 'linear-gradient(135deg, rgba(255,159,10,0.08), rgba(255,214,10,0.04))',
+                    bg: 'rgba(255,159,10,0.08),
                     border: 'rgba(255,159,10,0.3)', accent: '#ff9f0a',
                     pillBg: 'rgba(255,159,10,0.2)', pillColor: '#ff9f0a', skills: []
                 },
                 uncommon: {
                     label: 'Uncommon', desc: 'Strong competitive advantages',
                     icon: bpIcon('diamond', 20),
-                    bg: 'linear-gradient(135deg, rgba(96,165,250,0.06), rgba(191,90,242,0.04))',
+                    bg: 'rgba(96,165,250,0.06),
                     border: 'rgba(96,165,250,0.25)', accent: '#60a5fa',
                     pillBg: 'rgba(96,165,250,0.2)', pillColor: '#60a5fa', skills: []
                 },
@@ -28142,7 +28142,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var suggestions = getRoleSuggestions();
             if (suggestions.length > 0) {
                 html += '<div style="margin-top:20px; padding:20px; border-radius:12px; '
-                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.06), rgba(191,90,242,0.04)); '
+                    + 'background:rgba(96,165,250,0.06); '
                     + 'border:1px solid rgba(96,165,250,0.15);">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                     + '<h3 style="font-size:0.92em; font-weight:700; color:var(--accent); margin:0;">'
@@ -28306,7 +28306,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var html = '<div class="blueprint-container">';
                 
                 // Sign-up CTA banner
-                html += '<div style="padding:16px 20px; background:linear-gradient(135deg, rgba(96,165,250,0.12), rgba(167,139,250,0.08)); border:1px solid rgba(96,165,250,0.25); border-radius:12px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
+                html += '<div style="padding:16px 20px; background:rgba(96,165,250,0.12); border:1px solid rgba(96,165,250,0.25); border-radius:12px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
                     + '<div>'
                     + '<div style="font-weight:700; font-size:0.95em; margin-bottom:2px;">Generate reports with your real career data</div>'
                     + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4;">Sign up free to build your profile, match to jobs, and create targeted scouting reports.</div>'
@@ -28352,7 +28352,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<div style="font-size:0.82em; color:var(--text-secondary);">' + escapeHtml(p.role) + '</div>'
                         + '<div style="font-size:0.78em; color:var(--text-muted);">' + escapeHtml(p.company) + '</div></div>'
                         + '<div style="text-align:center; min-width:48px;">'
-                        + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor(p.match) + ';">' + p.match + '%</div>'
+                        + '<div style="font-size:1.3em; font-weight:700; color:' + scoreColor(p.match) + ';">' + p.match + '%</div>'
                         + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div></div>'
                         + '</div>';
                 });
@@ -28402,7 +28402,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + 'onmouseout="this.style.borderColor=\'var(--c-border-subtle)\';this.style.background=\'var(--c-surface-5,rgba(255,255,255,0.03))\'">'
                     html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">'
                         + '<div style="font-size:0.82em; font-weight:600; color:var(--c-text); line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">' + escapeHtml(r.title) + '</div>'
-                        + '<div style="font-size:1.15em; font-weight:800; color:' + col + '; white-space:nowrap; margin-left:8px; flex-shrink:0; line-height:1;">' + r.match + '%</div>'
+                        + '<div style="font-size:1.15em; font-weight:700; color:' + col + '; white-space:nowrap; margin-left:8px; flex-shrink:0; line-height:1;">' + r.match + '%</div>'
                     html += '</div>';
                     html += '<div style="font-size:0.71em; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px;">' + escapeHtml(r.company) + (r.date ? ' \u00B7 ' + r.date : '') + '</div>';
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
@@ -28514,7 +28514,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + '<div style="font-size:0.82em; color:var(--text-secondary);">' + escapeHtml(p.role) + '</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted);">' + escapeHtml(p.company) + '</div></div>'
                     + '<div style="text-align:center; min-width:48px;">'
-                    + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor(p.match) + ';">' + p.match + '%</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:' + scoreColor(p.match) + ';">' + p.match + '%</div>'
                     + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div></div>'
                     + '</div>';
             });
@@ -31890,15 +31890,15 @@ body {
             if (entryVal > 0) {
                 html += '<div style="display:flex; align-items:center; justify-content:center; gap:0; margin-top:28px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06);">';
                 html += '<div style="text-align:center; padding:0 20px;">'
-                    + '<div style="font-size:1.4em; font-weight:800; color:#30d158;">' + _expFmt(entryVal) + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:#30d158;">' + _expFmt(entryVal) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Entry</div></div>';
                 html += '<div style="color:var(--text-muted); font-size:1.2em; opacity:0.3;">\u2192</div>';
                 html += '<div style="text-align:center; padding:0 20px;">'
-                    + '<div style="font-size:1.4em; font-weight:800; color:#60a5fa;">' + _expFmt(midVal) + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:#60a5fa;">' + _expFmt(midVal) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Mid-Career</div></div>';
                 html += '<div style="color:var(--text-muted); font-size:1.2em; opacity:0.3;">\u2192</div>';
                 html += '<div style="text-align:center; padding:0 20px;">'
-                    + '<div style="font-size:1.4em; font-weight:800; color:#bf5af2;">' + _expFmt(seniorVal) + '</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:#bf5af2;">' + _expFmt(seniorVal) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Senior</div></div>';
                 html += '</div>';
             }
@@ -31906,11 +31906,11 @@ body {
 
             // ZONE 2: YOUR DIRECTION
             if (careerPaths.length === 0 && canEdit) {
-                html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(191,90,242,0.2); background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(191,90,242,0.03));">'
+                html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(191,90,242,0.2); background:rgba(255,255,255,0.02);">'
                     + '<div style="font-size:3em; margin-bottom:16px; opacity:0.25;">\uD83D\uDEE4\uFE0F</div>'
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); font-size:1.15em; margin-bottom:8px;">Discover Your Career Paths</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); max-width:400px; margin:0 auto 20px; line-height:1.6;">AI will analyze your skills, education, and interests to suggest career directions with salary data and growth roadmaps.</div>'
-                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:14px 32px; background:#60a5fa; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1em; box-shadow:0 4px 14px rgba(191,90,242,0.25);">\u26A1 Discover Career Paths</button>'
+                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:14px 32px; background:#60a5fa; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1em; box-shadow:none;">\u26A1 Discover Career Paths</button>'
                     + '</div>';
             }
 
@@ -32481,7 +32481,7 @@ body {
                 html += '<div style="text-align:center; padding:16px 10px;">'
                     + '<div style="font-size:2em; margin-bottom:8px; opacity:0.3;">\uD83C\uDFAF</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); margin-bottom:12px;">What matters most to you in a career? Pick your top values so we can find paths that actually fit you.</div>'
-                    + '<button onclick="explorerDashEditValues()" style="padding:10px 22px; background:linear-gradient(135deg,#ff9f0a,#ff9f0a); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Choose Your Values</button>'
+                    + '<button onclick="explorerDashEditValues()" style="padding:10px 22px; background:#ff9f0a; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em;">Choose Your Values</button>'
                     + '</div>';
                 } else {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No values selected yet.</div>';
@@ -32492,7 +32492,7 @@ body {
                     var vDef = _explorerWorkValues.find(function(v) { return v.id === wv.id; });
                     if (!vDef) return;
                     html += '<div style="display:flex; align-items:center; gap:6px; background:' + vDef.color + '12; border:1px solid ' + vDef.color + '40; border-radius:10px; padding:8px 14px;">'
-                        + '<span style="font-size:0.72em; font-weight:800; color:' + vDef.color + '; background:' + vDef.color + '20; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;">' + (idx + 1) + '</span>'
+                        + '<span style="font-size:0.72em; font-weight:700; color:' + vDef.color + '; background:' + vDef.color + '20; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;">' + (idx + 1) + '</span>'
                         + '<span style="font-size:1.1em;">' + vDef.icon + '</span>'
                         + '<span style="font-size:0.85em; font-weight:600; color:var(--text-primary);">' + escapeHtml(vDef.name) + '</span>'
                         + '</div>';
@@ -32530,7 +32530,7 @@ body {
             html += '</div>'
                 + '<div style="display:flex; gap:10px; margin-top:20px; justify-content:center;">'
                 + '<button onclick="closeModal()" style="padding:10px 24px; background:var(--bg-elevated); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.06); border-radius:10px; cursor:pointer; font-weight:600;">Cancel</button>'
-                + '<button onclick="explorerDashSaveValues()" style="padding:10px 28px; background:linear-gradient(135deg,#ff9f0a,#ff9f0a); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700;">Save Values</button>'
+                + '<button onclick="explorerDashSaveValues()" style="padding:10px 28px; background:#ff9f0a; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700;">Save Values</button>'
                 + '</div></div>';
 
             window._explorerSelectedValues = currentValues.slice();
@@ -32592,7 +32592,7 @@ body {
                 return '<div style="' + card + ' text-align:center; border-color:rgba(244,114,182,0.2); margin-bottom:16px;">'
                     + '<div style="' + ls + ' color:#ff6961; margin-bottom:10px;">People Like You</div>'
                     + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; max-width:400px; margin:0 auto 18px;">Discover accomplished people who started with similar backgrounds and interests as you.</div>'
-                    + '<button id="peopleLikeYouBtn" onclick="explorerDiscoverPeople(this)" style="padding:12px 24px; background:linear-gradient(135deg,#ff6961,#bf5af2); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:0.9em; box-shadow:0 4px 14px rgba(244,114,182,0.2);">Discover Inspirations</button>'
+                    + '<button id="peopleLikeYouBtn" onclick="explorerDiscoverPeople(this)" style="padding:12px 24px; background:#bf5af2; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:0.9em; box-shadow:0 4px 14px rgba(244,114,182,0.2);">Discover Inspirations</button>'
                     + '</div>';
             }
 
@@ -32617,7 +32617,7 @@ body {
                 html += '<div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,' + bgColor + ',' + bgColor + '80);"></div>';
 
                 html += '<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">';
-                html += '<div style="flex-shrink:0; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,' + bgColor + ',' + bgColor + 'cc); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:1.05em; letter-spacing:0.02em; box-shadow:0 2px 8px ' + bgColor + '40;">' + initials + '</div>';
+                html += '<div style="flex-shrink:0; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,' + bgColor + ',' + bgColor + 'cc); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:1.05em; letter-spacing:0.02em; box-shadow:0 2px 8px ' + bgColor + '40;">' + initials + '</div>';
                 html += '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:700; color:var(--text-primary); font-size:0.95em; line-height:1.2;">' + escapeHtml(person.name || '') + '</div>'
                     + '<div style="font-size:0.76em; color:' + bgColor + '; font-weight:600; margin-top:3px; line-height:1.3;">' + escapeHtml(person.role || '') + '</div>'
@@ -33290,7 +33290,7 @@ body {
             if (fbUser && !isReadOnlyProfile && skills.length > 0) {
                 var lastMerge = (userData.importStats || {}).lastMerge;
                 var mergeStr  = lastMerge ? 'Last updated ' + new Date(lastMerge).toLocaleDateString() : 'Keep your Blueprint current';
-                html += '<div style="padding:11px 16px; margin-bottom:16px; background:linear-gradient(135deg,rgba(10,102,194,0.07),rgba(10,102,194,0.02)); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
+                html += '<div style="padding:11px 16px; margin-bottom:16px; background:rgba(10,102,194,0.07); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
                     + '<div style="display:flex; align-items:center; gap:10px;">'
                     + '<svg width="18" height="18" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
                     + '<div><div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">Update from LinkedIn</div>'
@@ -33321,17 +33321,17 @@ body {
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:16px;">';
 
                 // Box 1 — Market Value (BLS baseline)
-                html += '<div style="background:linear-gradient(135deg,rgba(48,209,88,0.12),rgba(48,209,88,0.03)); border:2px solid rgba(48,209,88,0.28); border-radius:12px; padding:18px 20px;">'
+                html += '<div style="background:rgba(48,209,88,0.12); border:2px solid rgba(48,209,88,0.28); border-radius:12px; padding:18px 20px;">'
                     + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(48,209,88,0.7); margin-bottom:8px;">' + bpIcon('money',11) + ' Minimum Market Value</div>'
-                    + '<div style="font-size:2.3em; font-weight:800; color:#30d158; line-height:1; margin-bottom:8px;">' + formatCompValue(worthValue) + '</div>'
+                    + '<div style="font-size:2.3em; font-weight:700; color:#30d158; line-height:1; margin-bottom:8px;">' + formatCompValue(worthValue) + '</div>'
                     + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">' + escapeHtml(fnLabel) + (isOverride ? ' <span style="color:#ffd60a;">(manual)</span>' : '') + ' \u00B7 ' + escapeHtml(totalValue.roleLevel) + '</div>'
                     + '<div style="font-size:0.69em; color:rgba(48,209,88,0.65); margin-top:4px;">' + (totalValue.compaRatio || '') + '% of BLS median</div>'
                     + '</div>';
 
                 // Box 2 — Evidence Value (skill-premium adjusted)
-                html += '<div style="background:linear-gradient(135deg,rgba(96,165,250,0.1),rgba(96,165,250,0.02)); border:2px solid rgba(96,165,250,0.25); border-radius:12px; padding:18px 20px;">'
+                html += '<div style="background:rgba(96,165,250,0.1); border:2px solid rgba(96,165,250,0.25); border-radius:12px; padding:18px 20px;">'
                     + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(96,165,250,0.7); margin-bottom:8px;">' + bpIcon('flame',11) + ' Justified Value</div>'
-                    + '<div style="font-size:2.3em; font-weight:800; color:#60a5fa; line-height:1; margin-bottom:8px;">' + formatCompValue(evComp) + '</div>'
+                    + '<div style="font-size:2.3em; font-weight:700; color:#60a5fa; line-height:1; margin-bottom:8px;">' + formatCompValue(evComp) + '</div>'
                     + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Skill-premium adjusted</div>'
                     + '<div style="font-size:0.69em; color:rgba(96,165,250,0.65); margin-top:4px;">'
                     + (evDelta !== 0 ? evDeltaSign + formatCompValue(Math.abs(evDelta)) + ' vs market' : 'At market median')
@@ -33351,27 +33351,27 @@ body {
                     var pillHtml = '';
                     if (aboveJust) {
                         pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:8px;">'
-                            + '<div style="font-size:1.0em; font-weight:800; color:#30d158;">Ahead of market</div>'
+                            + '<div style="font-size:1.0em; font-weight:700; color:#30d158;">Ahead of market</div>'
                             + '</div>';
                     } else if (midZone) {
                         var midGapPct = reportedComp > 0 ? Math.round((evGap / reportedComp) * 100) : 0;
                         pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.18); border-radius:8px;">'
                             + '<div style="font-size:0.67em; color:var(--c-muted);">Underpaid by</div>'
-                            + '<div style="font-size:1.1em; font-weight:800; color:#ff9f0a;">' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + midGapPct + '%)</span></div>'
+                            + '<div style="font-size:1.1em; font-weight:700; color:#ff9f0a;">' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + midGapPct + '%)</span></div>'
                             + '</div>';
                     } else {
                         pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.18); border-radius:8px;">'
                             + '<div style="font-size:0.67em; color:var(--c-muted);">Underpaid by</div>'
                             + (showRange
-                                ? '<div style="font-size:1.1em; font-weight:800; color:#ff9f0a;">' + formatCompValue(Math.abs(delta)) + ' – ' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '–' + evGapPct + '%)</span></div>'
-                                : '<div style="font-size:1.1em; font-weight:800; color:#ff9f0a;">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '%)</span></div>'
+                                ? '<div style="font-size:1.1em; font-weight:700; color:#ff9f0a;">' + formatCompValue(Math.abs(delta)) + ' – ' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '–' + evGapPct + '%)</span></div>'
+                                : '<div style="font-size:1.1em; font-weight:700; color:#ff9f0a;">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '%)</span></div>'
                             )
                             + '</div>';
                     }
 
                     html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px;">'
                         + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:8px;">Current Pay</div>'
-                        + '<div style="font-size:2.3em; font-weight:800; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
+                        + '<div style="font-size:2.3em; font-weight:700; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
                         + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Reported annual comp</div>'
                         + pillHtml
                         + (belowJust ? '<button onclick="showCompReviewGuide()" style="margin-top:10px; width:100%; padding:7px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.08); color:#60a5fa; font-size:0.74em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">' + bpIcon('target',12) + ' Review Prep</button>' : '')
@@ -33387,7 +33387,7 @@ body {
                 html += '</div>'; // end 3-box hero
 
                 html += '<div onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; background:rgba(48,209,88,0.06); border:1px solid rgba(48,209,88,0.2); border-radius:10px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'rgba(48,209,88,0.4)\'" onmouseout="this.style.borderColor=\'rgba(48,209,88,0.2)\'">'
-                    + '<div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,rgba(48,209,88,0.2),rgba(48,209,88,0.05)); display:flex; align-items:center; justify-content:center; flex-shrink:0;">' + bpIcon('trending-up',18) + '</div>'
+                    + '<div style="width:32px; height:32px; border-radius:8px; background:rgba(48,209,88,0.13); display:flex; align-items:center; justify-content:center; flex-shrink:0;">' + bpIcon('trending-up',18) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:0.88em; color:var(--c-heading);">Skill Growth Advisor</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted); line-height:1.4;">See which skills to upgrade or add for the highest market value impact</div></div>'
                     + '<div style="color:var(--c-faint); font-size:1.1em;">\u203A</div></div>';
@@ -33403,19 +33403,19 @@ body {
 
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; cursor:pointer;" onclick="switchView(\'skills\')">'
                 + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Skills</div>'
-                + '<div style="font-size:1.9em; font-weight:800; color:#60a5fa; line-height:1;">' + skills.length + '</div>'
+                + '<div style="font-size:1.9em; font-weight:700; color:#60a5fa; line-height:1;">' + skills.length + '</div>'
                 + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:5px;">' + visRoles.length + ' domains \u00B7 ' + (masteryCount + expertCount) + ' expert+</div>'
                 + '</div>';
 
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; cursor:pointer;" onclick="switchBlueprintTab(\'outcomes\')">'
                 + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Outcomes</div>'
-                + '<div style="font-size:1.9em; font-weight:800; color:#ff9f0a; line-height:1;">' + outcomes.length + '</div>'
+                + '<div style="font-size:1.9em; font-weight:700; color:#ff9f0a; line-height:1;">' + outcomes.length + '</div>'
                 + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:5px;">' + sharedOutcomes + ' shared \u00B7 ' + (outcomes.length - sharedOutcomes) + ' private</div>'
                 + '</div>';
 
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; cursor:pointer;" onclick="switchBlueprintTab(\'values\')">'
                 + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Values</div>'
-                + '<div style="font-size:1.9em; font-weight:800; color:#bf5af2; line-height:1;">' + values.length + '</div>'
+                + '<div style="font-size:1.9em; font-weight:700; color:#bf5af2; line-height:1;">' + values.length + '</div>'
                 + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:5px;">' + (values.length >= 3 ? '\u2713 Selected' : 'Pick 3\u201310') + '</div>'
                 + '</div>';
 
@@ -33423,7 +33423,7 @@ body {
                 var tmColor = topMatchScore >= 70 ? '#30d158' : topMatchScore >= 50 ? '#ff9f0a' : '#ff453a';
                 html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; padding:14px 16px; cursor:pointer;" onclick="switchView(\'jobs\')">'
                     + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Best Match</div>'
-                    + '<div style="font-size:1.9em; font-weight:800; color:' + tmColor + '; line-height:1;">' + topMatchScore + '%</div>'
+                    + '<div style="font-size:1.9em; font-weight:700; color:' + tmColor + '; line-height:1;">' + topMatchScore + '%</div>'
                     + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + (topMatch.title || '') + '</div>'
                     + '</div>';
             } else {
@@ -33513,7 +33513,7 @@ body {
                     html += '<div style="display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--c-surface-2); border-radius:8px; border-left:3px solid ' + t.color + ';">'
                         + '<div style="flex:1;"><div style="font-size:0.82em; font-weight:600; color:' + t.color + ';">' + t.label + '</div>'
                         + '<div style="font-size:0.7em; color:var(--c-faint);">' + t.sub + '</div></div>'
-                        + '<div style="font-size:1.05em; font-weight:800; color:var(--c-heading);">' + (offerVal ? formatCompValue(offerVal) : '\u2014') + '</div>'
+                        + '<div style="font-size:1.05em; font-weight:700; color:var(--c-heading);">' + (offerVal ? formatCompValue(offerVal) : '\u2014') + '</div>'
                         + '</div>';
                 });
 
@@ -33524,7 +33524,7 @@ body {
                         + '</div>';
                 }
 
-                html += '<button onclick="showNegotiationGuideV2()" style="margin-top:10px; width:100%; padding:8px 12px; background:linear-gradient(135deg,rgba(255,214,10,0.15),rgba(255,159,10,0.08)); border:1px solid rgba(255,214,10,0.3); border-radius:8px; color:#ffd60a; font-size:0.78em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">'
+                html += '<button onclick="showNegotiationGuideV2()" style="margin-top:10px; width:100%; padding:8px 12px; background:rgba(255,214,10,0.15); border:1px solid rgba(255,214,10,0.3); border-radius:8px; color:#ffd60a; font-size:0.78em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">'
                     + bpIcon('target',13) + ' Build My Negotiation Guide</button>';
 
                 html += '</div></div>'; // end right col
@@ -33633,12 +33633,12 @@ body {
             // Action bar
             html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
             if (!isReadOnlyProfile) {
-            html += '<button onclick="showAddSkillsEmpty()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:linear-gradient(135deg, rgba(96,165,250,0.15), rgba(96,165,250,0.08)); border:1px solid var(--c-accent-border-4b); border-radius:8px; color:#60a5fa; cursor:pointer; font-weight:600; font-size:0.88em;">'
+            html += '<button onclick="showAddSkillsEmpty()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(96,165,250,0.15); border:1px solid var(--c-accent-border-4b); border-radius:8px; color:#60a5fa; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('plus',14) + ' Add Skill</button>';
             html += '<button onclick="openBulkImport()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('upload',14) + ' Bulk Import</button>';
             }
-            html += '<button onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:linear-gradient(135deg,rgba(48,209,88,0.15),rgba(48,209,88,0.08)); border:1px solid rgba(48,209,88,0.25); border-radius:8px; color:#30d158; cursor:pointer; font-weight:600; font-size:0.88em;">'
+            html += '<button onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(48,209,88,0.15); border:1px solid rgba(48,209,88,0.25); border-radius:8px; color:#30d158; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('trending-up',14) + ' Growth Advisor</button>';
             html += '<button onclick="switchView(\'skills\')" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em; margin-left:auto;">'
                 + bpIcon('skills',14) + ' Network View</button>';
@@ -33687,8 +33687,8 @@ body {
             // Group skills by impact-based rarity
             var impactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
             var tierMeta = {
-                rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'linear-gradient(135deg, rgba(255,159,10,0.08), rgba(255,214,10,0.04))', border: 'rgba(255,159,10,0.3)', accent: '#ff9f0a', pillBg: 'rgba(255,159,10,0.2)' },
-                uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'linear-gradient(135deg, rgba(96,165,250,0.06), rgba(191,90,242,0.04))', border: 'rgba(96,165,250,0.25)', accent: '#60a5fa', pillBg: 'rgba(96,165,250,0.2)' },
+                rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'rgba(255,159,10,0.08), border: 'rgba(255,159,10,0.3)', accent: '#ff9f0a', pillBg: 'rgba(255,159,10,0.2)' },
+                uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'rgba(96,165,250,0.06), border: 'rgba(96,165,250,0.25)', accent: '#60a5fa', pillBg: 'rgba(96,165,250,0.2)' },
                 common: { label: 'Common', desc: 'Foundational capabilities', icon: 'check', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)', accent: '#636366', pillBg: 'rgba(99,99,102,0.2)' }
             };
             var tierSkills = { rare: [], uncommon: [], common: [] };
@@ -34395,7 +34395,7 @@ body {
                 if (Object.keys(cv).length === 0) activeItems = totalItems;
                 
                 html += '<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; padding:12px 14px; '
-                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.05), rgba(191,90,242,0.05)); border:1px solid var(--border); border-radius:8px;">';
+                    + 'background:rgba(96,165,250,0.05); border:1px solid var(--border); border-radius:8px;">';
                 
                 var statPills = [
                     { label: 'Last Import', value: new Date(stats.lastMerge).toLocaleDateString(), color: 'var(--accent)' },
@@ -34405,7 +34405,7 @@ body {
                 ];
                 statPills.forEach(function(p) {
                     html += '<div style="text-align:center; min-width:80px;">'
-                        + '<div style="font-size:1.1em; font-weight:800; color:' + p.color + ';">' + p.value + '</div>'
+                        + '<div style="font-size:1.1em; font-weight:700; color:' + p.color + ';">' + p.value + '</div>'
                         + '<div style="font-size:0.65em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.05em;">' + p.label + '</div></div>';
                 });
                 html += '</div>';
@@ -34694,7 +34694,7 @@ body {
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">';
 
             // Professional Resume hero tile
-            var _resumeHero = '<div style="background:linear-gradient(135deg, rgba(48,209,88,0.15), rgba(48,209,88,0.06)); border:2px solid rgba(48,209,88,0.3); border-radius:12px; padding:24px;'
+            var _resumeHero = '<div style="background:rgba(48,209,88,0.15); border:2px solid rgba(48,209,88,0.3); border-radius:12px; padding:24px;'
                 + (_isExplorer ? ' order:-1;' : '') + '">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
                 + '<span style="color:#30d158;">' + bpIcon('file-text',28) + '</span>'
@@ -34712,7 +34712,7 @@ body {
                 + '</div></div>';
 
             // Executive Blueprint hero tile
-            var _bpHero = '<div style="background:linear-gradient(135deg, rgba(96,165,250,0.15), rgba(96,165,250,0.1)); border:2px solid var(--c-accent-border-5); border-radius:12px; padding:24px;'
+            var _bpHero = '<div style="background:rgba(96,165,250,0.15); border:2px solid var(--c-accent-border-5); border-radius:12px; padding:24px;'
                 + (_isExplorer ? '' : '') + '">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
                 + '<span style="color:var(--accent);">' + bpIcon('compass',28) + '</span>'
@@ -34779,7 +34779,7 @@ body {
             html += exportCard({
                 icon: 'send', iconColor: '#30d158', title: 'Cover Letter',
                 titleColor: '#30d158',
-                bg: 'linear-gradient(135deg, rgba(48,209,88,0.12), rgba(48,209,88,0.04))',
+                bg: 'rgba(48,209,88,0.12),
                 border: 'rgba(48,209,88,0.25)',
                 desc: 'Cover letter tailored to a saved job. Uses your matched skills, outcomes, and values.',
                 action: 'generateCoverLetter()'
@@ -34788,7 +34788,7 @@ body {
             html += exportCard({
                 icon: 'interview', iconColor: '#ffd60a', title: 'Interview Prep',
                 titleColor: '#ffd60a',
-                bg: 'linear-gradient(135deg, rgba(255,214,10,0.12), rgba(255,214,10,0.04))',
+                bg: 'rgba(255,214,10,0.12),
                 border: 'rgba(255,214,10,0.25)',
                 desc: 'STAR stories for matched skills, bridging language for gaps, and talking points for your strengths.',
                 action: 'generateInterviewPrep()'
@@ -34803,7 +34803,7 @@ body {
             html += exportCard({
                 icon: 'linkedin', iconColor: '#0a66c2', title: 'LinkedIn Profile',
                 titleColor: '#0a66c2',
-                bg: 'linear-gradient(135deg, rgba(10,102,194,0.12), rgba(10,102,194,0.04))',
+                bg: 'rgba(10,102,194,0.12),
                 border: 'rgba(10,102,194,0.25)',
                 desc: 'Optimized headline, About section, and skills list formatted for LinkedIn. Copy and paste directly.',
                 action: 'generateLinkedInProfile()'
@@ -34886,7 +34886,7 @@ body {
             if (!isReadOnlyProfile) {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
                 if (unverifiedSkills.length > 0) {
-                    html += '<button onclick="verifyTabRequestNew()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:linear-gradient(135deg, rgba(48,209,88,0.15), rgba(48,209,88,0.08)); border:1px solid rgba(48,209,88,0.3); border-radius:8px; color:#30d158; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                    html += '<button onclick="verifyTabRequestNew()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(48,209,88,0.15); border:1px solid rgba(48,209,88,0.3); border-radius:8px; color:#30d158; cursor:pointer; font-weight:600; font-size:0.88em;">'
                         + bpIcon('plus',14) + ' Request Verification (' + unverifiedSkills.length + ' unverified)</button>';
                 }
                 if (expired.length > 0) {
@@ -34900,8 +34900,8 @@ body {
             if (confirmed.length > 0) {
                 var vImpactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
                 var vTierMeta = {
-                    rare: { label: 'Rare', icon: 'flame', accent: '#ff9f0a', bg: 'linear-gradient(135deg, rgba(255,159,10,0.08), rgba(255,214,10,0.04))', border: 'rgba(255,159,10,0.3)' },
-                    uncommon: { label: 'Uncommon', icon: 'diamond', accent: '#60a5fa', bg: 'linear-gradient(135deg, rgba(96,165,250,0.06), rgba(191,90,242,0.04))', border: 'rgba(96,165,250,0.25)' },
+                    rare: { label: 'Rare', icon: 'flame', accent: '#ff9f0a', bg: 'rgba(255,159,10,0.08), border: 'rgba(255,159,10,0.3)' },
+                    uncommon: { label: 'Uncommon', icon: 'diamond', accent: '#60a5fa', bg: 'rgba(96,165,250,0.06), border: 'rgba(96,165,250,0.25)' },
                     common: { label: 'Common', icon: 'check', accent: '#636366', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)' }
                 };
                 var vTierGroups = { rare: [], uncommon: [], common: [] };
@@ -35869,7 +35869,7 @@ body {
                     + ' \u00B7 ' + matchedCount + ' matched \u00B7 ' + gapCount + ' gap' + (gapCount !== 1 ? 's' : '') + '</div>'
                     + '</div>'
                     + '<div style="text-align:center; min-width:56px; margin-left:12px;">'
-                    + '<div style="font-size:1.5em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div>'
+                    + '<div style="font-size:1.5em; font-weight:700; color:' + scoreColor + ';">' + score + '%</div>'
                     + '<div style="font-size:0.65em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div>'
                     + '</div>'
                     + '</div>';
@@ -35922,7 +35922,7 @@ body {
                     + (job ? '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
                     + '<div><div style="font-weight:600;">' + escapeHtml(job.title || 'Untitled') + '</div>'
                     + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(job.company || 'Unknown company') + '</div></div>'
-                    + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div></div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:' + scoreColor + ';">' + score + '%</div></div>'
                     : '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px;">'
                     + '<div style="font-weight:600;">General Career Report</div>'
                     + '<div style="font-size:0.82em; color:var(--c-muted);">Not targeted to a specific job</div></div>')
@@ -36008,7 +36008,7 @@ body {
                 : '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
                 + '<div><div style="font-weight:600;">' + escapeHtml((job && job.title) || 'Untitled') + '</div>'
                 + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml((job && job.company) || 'Unknown company') + '</div></div>'
-                + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div></div>')
+                + '<div style="font-size:1.3em; font-weight:700; color:' + scoreColor + ';">' + score + '%</div></div>')
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px;">Choose a format for your scouting report:</div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 // HTML option
@@ -36795,11 +36795,11 @@ body {
                             + '<div style="display:flex; align-items:center; gap:12px;">'
                             + '<div style="text-align:center;">'
                             + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Views</div>'
-                            + '<div style="font-size:1.2em; font-weight:800; color:var(--accent);">' + (r.viewCount || 0) + '</div>'
+                            + '<div style="font-size:1.2em; font-weight:700; color:var(--accent);">' + (r.viewCount || 0) + '</div>'
                             + '</div>'
                             + (r.matchScore ? '<div style="text-align:center;">'
                             + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div>'
-                            + '<div style="font-size:1.2em; font-weight:800; color:' + scoreColor + ';">' + r.matchScore + '%</div>'
+                            + '<div style="font-size:1.2em; font-weight:700; color:' + scoreColor + ';">' + r.matchScore + '%</div>'
                             + '</div>' : '')
                             + '</div></div>';
                         
@@ -41722,7 +41722,7 @@ body {
 
                         // Score ring
                         html += '<div style="flex-shrink:0; width:54px; height:54px; border-radius:50%; border:3px solid ' + scoreColor + '; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--c-surface-2);">'
-                            + '<span style="font-size:1em; font-weight:800; color:' + scoreColor + '; line-height:1;">' + (matchScore || '–') + '</span>'
+                            + '<span style="font-size:1em; font-weight:700; color:' + scoreColor + '; line-height:1;">' + (matchScore || '–') + '</span>'
                             + '<span style="font-size:0.55em; color:var(--text-muted); line-height:1; margin-top:1px;">%</span>'
                             + '</div>';
 
@@ -41990,11 +41990,11 @@ body {
                 // Scouting Report CTA
                 html += '<div onclick="event.stopPropagation(); launchScoutingReport()" style="'
                     + 'margin-top:10px; padding:8px 14px; border-radius:8px; '
-                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.08), rgba(99,102,241,0.05)); '
+                    + 'background:rgba(96,165,250,0.08); '
                     + 'border:1px solid rgba(96,165,250,0.15); cursor:pointer; display:flex; align-items:center; '
                     + 'gap:8px; font-size:0.8em; font-weight:600; color:var(--accent); transition:all 0.2s;" '
                     + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\';this.style.background=\'rgba(96,165,250,0.12)\'" '
-                    + 'onmouseout="this.style.borderColor=\'rgba(96,165,250,0.15)\';this.style.background=\'linear-gradient(135deg, rgba(96,165,250,0.08), rgba(99,102,241,0.05))\'">'
+                    + 'onmouseout="this.style.borderColor=\'rgba(96,165,250,0.15)\';this.style.background=\'rgba(96,165,250,0.06)\'">'
                     + bpIcon('file-text',14) + ' Create Scouting Report'
                     + '</div>';
                 
@@ -46378,7 +46378,7 @@ body {
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('values',16) + ' Values Fit</button>'
                 + '<button onclick="launchScoutingReport()" style="'
-                + 'background:linear-gradient(135deg, rgba(96,165,250,0.15), rgba(99,102,241,0.1)); color:var(--accent); border:1px solid rgba(96,165,250,0.3); padding:10px 20px; border-radius:8px; '
+                + 'background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('file-text',16) + ' Scouting Report</button>'
                 + '</div>'
@@ -46580,7 +46580,7 @@ body {
             
             if (roleGapOverlap.length > 0 || roleOther.length > 0) {
                 html += '<div style="margin-bottom:20px; padding:16px; border-radius:10px; '
-                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.06), rgba(191,90,242,0.04)); '
+                    + 'background:rgba(96,165,250,0.06); '
                     + 'border:1px solid rgba(96,165,250,0.15);">'
                     + '<h3 style="font-size:0.95em; font-weight:700; color:var(--accent); margin-bottom:4px;">'
                     + '\uD83D\uDCA1 Suggested for Your Roles</h3>'
@@ -47261,8 +47261,8 @@ body {
             if (!el) return;
             var count = jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length;
             if (count < 1) { el.innerHTML = ''; return; }
-            el.innerHTML = '<div title="' + escapeAttr(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #bf5af2); border-radius:10px; min-width:120px; cursor:help;">'
-                + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + count.toLocaleString() + '</div>'
+            el.innerHTML = '<div title="' + escapeAttr(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:var(--accent); border-radius:10px; min-width:120px; cursor:help;">'
+                + '<div style="font-size:1.6em; font-weight:700; color:#fff; line-height:1;">' + count.toLocaleString() + '</div>'
                 + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs in database</div></div>';
         }
         
@@ -48344,7 +48344,7 @@ body {
             // LinkedIn Banner
             var lastMerge    = (userData.importStats || {}).lastMerge;
             var lastMergeStr = lastMerge ? new Date(lastMerge).toLocaleDateString() : null;
-            html += '<div style="padding:11px 16px; margin-bottom:20px; background:linear-gradient(135deg,rgba(10,102,194,0.07),rgba(10,102,194,0.02)); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
+            html += '<div style="padding:11px 16px; margin-bottom:20px; background:rgba(10,102,194,0.07); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
                 + '<div style="display:flex; align-items:center; gap:10px;">'
                 + '<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
                 + '<div><div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">Update from LinkedIn</div>'
@@ -51445,14 +51445,14 @@ body {
             var html = '<div class="modal-header">'                + '<div class="modal-header-left">'                + '<h2 class="modal-title">' + bpIcon('target',18) + ' Review Prep</h2>'                + '<p style="color:var(--c-muted); margin-top:5px; font-size:0.85em;">Compensation intelligence for your next review conversation</p>'                + '</div>'                + '<button class="modal-close" aria-label="Close" onclick="closeExportModal()">×</button>'                + '</div>'                + '<div class="modal-body" style="padding:24px 28px; max-height:72vh; overflow-y:auto;">';
             
             // Section 1: Your Position
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:12px;">Your Position</div>'                + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Current Pay</div><div style="font-size:1.5em; font-weight:800; color:var(--c-heading);">' + formatCompValue(currentComp) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Market Floor (BLS)</div><div style="font-size:1.5em; font-weight:800; color:#30d158;">' + formatCompValue(marketFloor) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Justified Value</div><div style="font-size:1.5em; font-weight:800; color:#60a5fa;">' + formatCompValue(justifiedVal) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Gap to Justified</div><div style="font-size:1.5em; font-weight:800; color:#ff9f0a;">' + (gap > 0 ? '+' + formatCompValue(gap) : formatCompValue(Math.abs(gap))) + '</div></div>'                + '</div></div>';
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:12px;">Your Position</div>'                + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Current Pay</div><div style="font-size:1.5em; font-weight:700; color:var(--c-heading);">' + formatCompValue(currentComp) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Market Floor (BLS)</div><div style="font-size:1.5em; font-weight:700; color:#30d158;">' + formatCompValue(marketFloor) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Justified Value</div><div style="font-size:1.5em; font-weight:700; color:#60a5fa;">' + formatCompValue(justifiedVal) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Gap to Justified</div><div style="font-size:1.5em; font-weight:700; color:#ff9f0a;">' + (gap > 0 ? '+' + formatCompValue(gap) : formatCompValue(Math.abs(gap))) + '</div></div>'                + '</div></div>';
             
             // Section 2: Compa-Ratio
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Compa-Ratio</div>'                + '<div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">'                + '<div style="font-size:2.4em; font-weight:800; color:' + compaColor + ';">' + compaRatio + '%</div>'                + '<div><div style="font-size:0.82em; color:var(--c-text); font-weight:600; line-height:1.4;">' + escapeHtml(compaStatus) + '</div>'                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Your pay vs BLS market midpoint</div></div></div>'                + '<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.7em; text-align:center;">'                + '<div style="padding:5px; background:rgba(255,69,58,0.08); border-radius:8px; color:#ff453a;"><div style="font-weight:700;">&lt;80%</div><div style="color:var(--c-faint);">Underpaid</div></div>'                + '<div style="padding:5px; background:rgba(255,159,10,0.08); border-radius:8px; color:#ff9f0a;"><div style="font-weight:700;">80–100%</div><div style="color:var(--c-faint);">Below mid</div></div>'                + '<div style="padding:5px; background:rgba(48,209,88,0.08); border-radius:8px; color:#30d158;"><div style="font-weight:700;">100–120%</div><div style="color:var(--c-faint);">At/above mid</div></div>'                + '<div style="padding:5px; background:rgba(156,163,175,0.08); border-radius:8px; color:#a1a1a6;"><div style="font-weight:700;">&gt;120%</div><div style="color:var(--c-faint);">At ceiling</div></div>'                + '</div></div>';
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Compa-Ratio</div>'                + '<div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">'                + '<div style="font-size:2.4em; font-weight:700; color:' + compaColor + ';">' + compaRatio + '%</div>'                + '<div><div style="font-size:0.82em; color:var(--c-text); font-weight:600; line-height:1.4;">' + escapeHtml(compaStatus) + '</div>'                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Your pay vs BLS market midpoint</div></div></div>'                + '<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.7em; text-align:center;">'                + '<div style="padding:5px; background:rgba(255,69,58,0.08); border-radius:8px; color:#ff453a;"><div style="font-weight:700;">&lt;80%</div><div style="color:var(--c-faint);">Underpaid</div></div>'                + '<div style="padding:5px; background:rgba(255,159,10,0.08); border-radius:8px; color:#ff9f0a;"><div style="font-weight:700;">80–100%</div><div style="color:var(--c-faint);">Below mid</div></div>'                + '<div style="padding:5px; background:rgba(48,209,88,0.08); border-radius:8px; color:#30d158;"><div style="font-weight:700;">100–120%</div><div style="color:var(--c-faint);">At/above mid</div></div>'                + '<div style="padding:5px; background:rgba(156,163,175,0.08); border-radius:8px; color:#a1a1a6;"><div style="font-weight:700;">&gt;120%</div><div style="color:var(--c-faint);">At ceiling</div></div>'                + '</div></div>';
             
             // Section 3: Your Ask
             if (gap > 0) {
-                html += '<div style="background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(96,165,250,0.02)); border:1.5px solid rgba(96,165,250,0.3); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                    + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#60a5fa; margin-bottom:10px;">' + bpIcon('target',12) + ' Your Ask</div>'                    + '<div style="font-size:0.88em; color:var(--c-text); line-height:1.6; margin-bottom:12px;">'                    + 'A realistic internal raise target is the midpoint between where you are and where your skills justify. '                    + 'This is achievable in a single review cycle and fully supportable by BLS data and your evidence record.'                    + '</div>'                    + '<div style="display:flex; align-items:center; gap:20px; padding:12px 16px; background:rgba(96,165,250,0.06); border-radius:8px;">'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">Suggested ask</div><div style="font-size:2em; font-weight:800; color:#60a5fa;">' + formatCompValue(internalAsk) + '</div></div>'                    + '<div style="color:var(--c-surface-5); font-size:1.5em;">→</div>'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">That’s a</div><div style="font-size:1.4em; font-weight:800; color:#ff9f0a;">+' + internalAskPct + '%</div><div style="font-size:0.68em; color:var(--c-faint);">increase</div></div>'                    + '<div style="flex:1; font-size:0.78em; color:var(--c-faint); line-height:1.5;">Justified value is <strong style="color:#60a5fa;">' + formatCompValue(justifiedVal) + '</strong>. Starting at midpoint leaves room to negotiate and signals data-literacy.</div>'                    + '</div></div>';
+                html += '<div style="background:rgba(96,165,250,0.08); border:1.5px solid rgba(96,165,250,0.3); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                    + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#60a5fa; margin-bottom:10px;">' + bpIcon('target',12) + ' Your Ask</div>'                    + '<div style="font-size:0.88em; color:var(--c-text); line-height:1.6; margin-bottom:12px;">'                    + 'A realistic internal raise target is the midpoint between where you are and where your skills justify. '                    + 'This is achievable in a single review cycle and fully supportable by BLS data and your evidence record.'                    + '</div>'                    + '<div style="display:flex; align-items:center; gap:20px; padding:12px 16px; background:rgba(96,165,250,0.06); border-radius:8px;">'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">Suggested ask</div><div style="font-size:2em; font-weight:700; color:#60a5fa;">' + formatCompValue(internalAsk) + '</div></div>'                    + '<div style="color:var(--c-surface-5); font-size:1.5em;">→</div>'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">That’s a</div><div style="font-size:1.4em; font-weight:700; color:#ff9f0a;">+' + internalAskPct + '%</div><div style="font-size:0.68em; color:var(--c-faint);">increase</div></div>'                    + '<div style="flex:1; font-size:0.78em; color:var(--c-faint); line-height:1.5;">Justified value is <strong style="color:#60a5fa;">' + formatCompValue(justifiedVal) + '</strong>. Starting at midpoint leaves room to negotiate and signals data-literacy.</div>'                    + '</div></div>';
             }
             
             // Section 4: Your Evidence
@@ -51908,7 +51908,7 @@ body {
             compRows.forEach(function(r) {
                 compHtml += '<div style="text-align:center; padding:10px 8px; background:var(--c-surface-2); border-radius:8px; border-top:2px solid ' + r.color + ';">'
                     + '<div style="font-size:0.68em; color:' + r.color + '; font-weight:700; margin-bottom:4px;">' + r.label + '</div>'
-                    + '<div style="font-size:0.95em; font-weight:800; color:var(--c-heading);">$' + Math.round(r.val / 1000) + 'K</div>'
+                    + '<div style="font-size:0.95em; font-weight:700; color:var(--c-heading);">$' + Math.round(r.val / 1000) + 'K</div>'
                     + '</div>';
             });
             compHtml += '</div>';
@@ -54180,7 +54180,7 @@ body {
                                         </div>
                                     </div>
                                     ${!isAdded ? `
-                                        <button style="padding: 6px 12px; background: linear-gradient(135deg, #60a5fa 0%, #60a5fa 100%); border: none; border-radius: 6px; color: white; font-size: 0.85em; font-weight: 600; cursor: pointer;"
+                                        <button style="padding: 6px 12px; background:#60a5fa; border: none; border-radius: 6px; color: white; font-size: 0.85em; font-weight: 600; cursor: pointer;"
                                                 onclick="event.stopPropagation(); addSkillFromLibrary('${escapeHtml(skill.id)}')">
                                             + Add
                                         </button>
@@ -54253,7 +54253,7 @@ body {
                         +'<div style="display:flex;justify-content:space-between;align-items:start;">'
                         +'<div style="flex:1;"><div style="color:#f5f5f7;font-weight:600;margin-bottom:4px;">'+escapeHtml(skill.n)+(isAdded?' <span style="color:#30d158;font-size:0.85em;">✓ Added</span>':'')+'</div>'
                         +'<span style="color:'+color+';font-size:0.75em;padding:2px 6px;background:rgba(255,255,255,0.1);border-radius:6px;">'+escapeHtml(skill.c)+'</span></div>'
-                        +(!isAdded?'<button style="padding:6px 12px;background:linear-gradient(135deg,#60a5fa,#60a5fa);border:none;border-radius:6px;color:white;font-size:0.85em;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')">+ Add</button>':'')
+                        +(!isAdded?'<button style="padding:6px 12px;background:#60a5fa;border:none;border-radius:6px;color:white;font-size:0.85em;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')">+ Add</button>':'')
                         +'</div></div>';
                 }).join('');
                 var statusEl = document.getElementById('skillManagementStatus');
@@ -54439,7 +54439,7 @@ body {
                     ? "closeExportModal(); showToast('You are #" + (waitlistPosition || '?') + " on the waitlist!', 'info');"
                     : 'closeExportModal(); showWaitlist();';
                 var ctaText = appMode === 'waitlisted' ? 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist \u2714' : 'Join the Waitlist \u2192';
-                demoBanner = '<div style="background:linear-gradient(135deg, rgba(96,165,250,0.12), rgba(99,102,241,0.08)); border:1px solid rgba(96,165,250,0.25); border-radius:12px; padding:20px; margin-bottom:24px;">'
+                demoBanner = '<div style="background:rgba(96,165,250,0.12); border:1px solid rgba(96,165,250,0.25); border-radius:12px; padding:20px; margin-bottom:24px;">'
                     + '<div style="font-weight:700; color:#60a5fa; margin-bottom:8px; font-size:0.95em;">\uD83D\uDD0D You\u2019re exploring a sample profile</div>'
                     + '<div style="color:var(--c-muted, #a1a1a6); font-size:0.88em; line-height:1.6; margin-bottom:12px;">'
                     + 'Everything you see is fully interactive \u2014 browse skills, explore job matches, compare values. '
@@ -54540,7 +54540,7 @@ body {
                 + '<div><strong style="color:#ff9f0a;">From Match Overlay</strong> \u2014 after comparing skills, create the report right from the match legend</div>'
                 + '<div><strong style="color:#ff9f0a;">From Blueprint Tab</strong> \u2014 Export \u2192 Scouting Report card</div>'
                 + '</div></div>'
-                + '<button onclick="closeExportModal(); openSampleScoutingReport()" style="margin-top:12px; padding:10px 20px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:linear-gradient(135deg, rgba(96,165,250,0.1), rgba(99,102,241,0.06)); color:#60a5fa; font-weight:600; font-size:0.88em; cursor:pointer; display:flex; align-items:center; gap:8px;">'
+                + '<button onclick="closeExportModal(); openSampleScoutingReport()" style="margin-top:12px; padding:10px 20px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600; font-size:0.88em; cursor:pointer; display:flex; align-items:center; gap:8px;">'
                 + bpIcon("file-text",16) + ' View Sample Scouting Report</button>'
                 + '</div></div>'
                 // Settings (hidden for demos)
