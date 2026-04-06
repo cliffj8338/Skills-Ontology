@@ -31876,27 +31876,28 @@ body {
                 if (sv > maxVal) maxVal = sv;
             });
             if (maxVal === 0) return '';
+            maxVal = Math.ceil(maxVal / 10000) * 10000;
 
-            var svgW = 480, svgH = 220, padL = 55, padR = 20, padT = 20, padB = 35;
+            var svgW = 700, svgH = 340, padL = 70, padR = 30, padT = 35, padB = 50;
             var chartW = svgW - padL - padR, chartH = svgH - padT - padB;
-            var stages = ['Entry', '3-5 yr', '8-10 yr'];
+            var stages = ['Entry Level', 'Mid-Career (3-5 yr)', 'Senior (8-10 yr)'];
 
             var gridLines = '';
-            var gridSteps = 4;
+            var gridSteps = 5;
             for (var g = 0; g <= gridSteps; g++) {
                 var gy = padT + (chartH * g / gridSteps);
                 var gVal = maxVal - (maxVal * g / gridSteps);
-                gridLines += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="var(--border-color)" stroke-width="0.5" />';
-                gridLines += '<text x="' + (padL - 6) + '" y="' + (gy + 4) + '" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="Outfit,sans-serif">$' + Math.round(gVal / 1000) + 'k</text>';
+                gridLines += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="var(--border-color)" stroke-width="0.5" stroke-dasharray="4,4" />';
+                gridLines += '<text x="' + (padL - 10) + '" y="' + (gy + 5) + '" text-anchor="end" fill="var(--text-muted)" font-size="12" font-family="Outfit,sans-serif">$' + Math.round(gVal / 1000) + 'k</text>';
             }
             stages.forEach(function(label, si) {
                 var sx = padL + (chartW * si / 2);
-                gridLines += '<text x="' + sx + '" y="' + (svgH - 8) + '" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="Outfit,sans-serif">' + label + '</text>';
+                gridLines += '<text x="' + sx + '" y="' + (svgH - 12) + '" text-anchor="middle" fill="var(--text-secondary)" font-size="13" font-weight="600" font-family="Outfit,sans-serif">' + label + '</text>';
             });
 
-            var paths = '';
-            var dots = '';
-            var legend = '';
+            var pathsSvg = '';
+            var dotsSvg = '';
+            var legendHtml = '';
             careerPaths.forEach(function(p, pi) {
                 var c = pathColors[pi % pathColors.length];
                 var ev = Number(p.entryValue) || 0, mv = Number(p.midValue) || 0, sv = Number(p.seniorValue) || 0;
@@ -31906,28 +31907,37 @@ body {
                 var y1 = padT + chartH - (mv / maxVal * chartH);
                 var y2 = padT + chartH - (sv / maxVal * chartH);
                 var isSel = pi === selectedIdx;
-                var opacity = isSel ? '1' : '0.4';
-                var sw = isSel ? '3' : '1.5';
-                var cpx1 = (x0 + x1) / 2, cpx2 = (x1 + x2) / 2;
-                paths += '<path d="M' + x0 + ',' + y0 + ' C' + cpx1 + ',' + y0 + ' ' + cpx1 + ',' + y1 + ' ' + x1 + ',' + y1 + ' C' + cpx2 + ',' + y1 + ' ' + cpx2 + ',' + y2 + ' ' + x2 + ',' + y2 + '" fill="none" stroke="' + c + '" stroke-width="' + sw + '" opacity="' + opacity + '" />';
+                var opacity = isSel ? '1' : '0.35';
+                var sw = isSel ? '3.5' : '2';
+
+                var areaPath = 'M' + x0 + ',' + y0
+                    + ' C' + ((x0+x1)/2) + ',' + y0 + ' ' + ((x0+x1)/2) + ',' + y1 + ' ' + x1 + ',' + y1
+                    + ' C' + ((x1+x2)/2) + ',' + y1 + ' ' + ((x1+x2)/2) + ',' + y2 + ' ' + x2 + ',' + y2;
                 if (isSel) {
-                    [[x0,y0,ev],[x1,y1,mv],[x2,y2,sv]].forEach(function(pt) {
-                        dots += '<circle cx="' + pt[0] + '" cy="' + pt[1] + '" r="5" fill="' + c + '" stroke="var(--card-bg)" stroke-width="2" />';
-                        dots += '<text x="' + pt[0] + '" y="' + (pt[1] - 10) + '" text-anchor="middle" fill="' + c + '" font-size="10" font-weight="700" font-family="Outfit,sans-serif">$' + Math.round(pt[2] / 1000) + 'k</text>';
-                    });
+                    pathsSvg += '<path d="' + areaPath + ' L' + x2 + ',' + (padT + chartH) + ' L' + x0 + ',' + (padT + chartH) + ' Z" fill="' + c + '" opacity="0.06" />';
                 }
-                legend += '<span style="display:inline-flex; align-items:center; gap:4px; font-size:0.72em; color:' + (isSel ? c : 'var(--text-muted)') + '; font-weight:' + (isSel ? '700' : '400') + ';' + (isSel ? '' : ' opacity:0.7;') + '">'
-                    + '<span style="width:10px; height:3px; background:' + c + '; border-radius:2px; display:inline-block;"></span>'
-                    + escapeHtml(p.title) + '</span>';
+                pathsSvg += '<path d="' + areaPath + '" fill="none" stroke="' + c + '" stroke-width="' + sw + '" opacity="' + opacity + '" stroke-linecap="round" />';
+
+                [[x0,y0,ev],[x1,y1,mv],[x2,y2,sv]].forEach(function(pt) {
+                    var dotR = isSel ? 7 : 4;
+                    dotsSvg += '<circle cx="' + pt[0] + '" cy="' + pt[1] + '" r="' + dotR + '" fill="' + c + '" stroke="var(--card-bg)" stroke-width="' + (isSel ? '3' : '2') + '" opacity="' + opacity + '" />';
+                    if (isSel) {
+                        dotsSvg += '<text x="' + pt[0] + '" y="' + (pt[1] - 14) + '" text-anchor="middle" fill="' + c + '" font-size="13" font-weight="700" font-family="Outfit,sans-serif">$' + Math.round(pt[2] / 1000) + 'k</text>';
+                    }
+                });
+
+                legendHtml += '<div onclick="explorerDashSelectPath(' + pi + ')" style="display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:8px; cursor:pointer; font-size:0.82em; border:1px solid ' + (isSel ? c : 'var(--border-color)') + '; background:' + (isSel ? c + '12' : 'transparent') + '; color:' + (isSel ? c : 'var(--text-muted)') + '; font-weight:' + (isSel ? '700' : '500') + '; transition:all 0.15s;">'
+                    + '<span style="width:12px; height:4px; background:' + c + '; border-radius:2px; flex-shrink:0;"></span>'
+                    + escapeHtml(p.title) + '</div>';
             });
 
             return '<div style="' + cs + '">'
                 + '<div style="' + ls + ' color:#10b981;">Compensation Trajectory</div>'
-                + '<div style="font-size:0.82em; color:var(--text-secondary); margin-bottom:14px;">How your earning potential grows over time across career paths</div>'
-                + '<div style="overflow-x:auto;"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%; max-width:' + svgW + 'px; height:auto;" xmlns="http://www.w3.org/2000/svg">'
-                + gridLines + paths + dots
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px;">How your earning potential grows over time — tap a path to focus</div>'
+                + '<div style="overflow-x:auto;"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%; height:auto; min-height:280px;" xmlns="http://www.w3.org/2000/svg">'
+                + gridLines + pathsSvg + dotsSvg
                 + '</svg></div>'
-                + '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; justify-content:center;">' + legend + '</div>'
+                + '<div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; justify-content:center;">' + legendHtml + '</div>'
                 + '</div>';
         }
 
@@ -31948,7 +31958,6 @@ body {
                 nodes.push(nodeMap[nid]);
             });
 
-            var skillNames = {};
             skills.forEach(function(sk) {
                 var name = String(sk.name || '');
                 if (!name) return;
@@ -31956,7 +31965,6 @@ body {
                 if (!nodeMap[nid]) {
                     nodeMap[nid] = { id: nid, label: name, type: 'skill' };
                     nodes.push(nodeMap[nid]);
-                    skillNames[name] = true;
                 }
                 var reason = String(sk.reason || '').toLowerCase();
                 if (reason) {
@@ -31971,7 +31979,6 @@ body {
                 }
             });
 
-            var careerNodes = [];
             careerPaths.forEach(function(cp) {
                 var title = String(cp.title || '');
                 if (!title) return;
@@ -31979,7 +31986,6 @@ body {
                 if (!nodeMap[nid]) {
                     nodeMap[nid] = { id: nid, label: title, type: 'career' };
                     nodes.push(nodeMap[nid]);
-                    careerNodes.push(nid);
                 }
                 (cp.skillsYouHave || []).forEach(function(skName) {
                     var skId = 'sk_' + String(skName || '');
@@ -31991,72 +31997,220 @@ body {
 
             if (nodes.length < 3) return '';
 
-            var svgW = 500, svgH = 360;
-            var cx = svgW / 2, cy = svgH / 2;
-
-            var interestNodes = nodes.filter(function(n) { return n.type === 'interest'; });
-            var skillNodes = nodes.filter(function(n) { return n.type === 'skill'; });
-            var cpNodes = nodes.filter(function(n) { return n.type === 'career'; });
-
-            var maxInterests = Math.min(interestNodes.length, 10);
-            var maxSkills = Math.min(skillNodes.length, 12);
-            var maxCareers = Math.min(cpNodes.length, 5);
-
-            interestNodes = interestNodes.slice(0, maxInterests);
-            skillNodes = skillNodes.slice(0, maxSkills);
-            cpNodes = cpNodes.slice(0, maxCareers);
-            var allNodes = interestNodes.concat(skillNodes).concat(cpNodes);
-
-            var positions = {};
-            interestNodes.forEach(function(n, i) {
-                var angle = (2 * Math.PI * i / maxInterests) - Math.PI / 2;
-                positions[n.id] = { x: cx + Math.cos(angle) * 60, y: cy + Math.sin(angle) * 60 };
-            });
-            skillNodes.forEach(function(n, i) {
-                var angle = (2 * Math.PI * i / maxSkills) - Math.PI / 2;
-                positions[n.id] = { x: cx + Math.cos(angle) * 140, y: cy + Math.sin(angle) * 130 };
-            });
-            cpNodes.forEach(function(n, i) {
-                var angle = (2 * Math.PI * i / maxCareers) - Math.PI / 2 + Math.PI / maxCareers;
-                positions[n.id] = { x: cx + Math.cos(angle) * 210, y: cy + Math.sin(angle) * 160 };
-            });
-
-            var edgeSvg = '';
-            edges.forEach(function(e) {
-                var fp = positions[e.from], tp = positions[e.to];
-                if (!fp || !tp) return;
-                var isCareerEdge = e.to.indexOf('cp_') === 0;
-                edgeSvg += '<line x1="' + fp.x + '" y1="' + fp.y + '" x2="' + tp.x + '" y2="' + tp.y + '" stroke="' + (isCareerEdge ? 'rgba(16,185,129,0.25)' : 'rgba(139,92,246,0.2)') + '" stroke-width="1" />';
-            });
-
-            var nodeSvg = '';
-            allNodes.forEach(function(n) {
-                var p = positions[n.id];
-                if (!p) return;
-                var color = n.type === 'interest' ? '#8b5cf6' : n.type === 'skill' ? '#60a5fa' : '#10b981';
-                var r = n.type === 'career' ? 22 : n.type === 'interest' ? 18 : 14;
-                if (n.intensity) {
-                    var ilvl = _interestIntensityLevels.find(function(l) { return l.id === n.intensity; });
-                    if (ilvl) color = ilvl.color;
-                }
-                nodeSvg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + r + '" fill="' + color + '20" stroke="' + color + '" stroke-width="1.5" />';
-                var maxChars = n.type === 'career' ? 14 : 10;
-                var lbl = n.label.length > maxChars ? n.label.substring(0, maxChars - 1) + '\u2026' : n.label;
-                nodeSvg += '<text x="' + p.x + '" y="' + (p.y + 3) + '" text-anchor="middle" fill="' + color + '" font-size="' + (n.type === 'career' ? '8' : '7') + '" font-weight="600" font-family="Outfit,sans-serif">' + escapeHtml(lbl) + '</text>';
-            });
+            var containerId = 'adjMap_' + Date.now();
+            var nodesJson = JSON.stringify(nodes);
+            var edgesJson = JSON.stringify(edges);
 
             return '<div style="' + cs + '">'
                 + '<div style="' + ls + ' color:#8b5cf6;">Skill Adjacency Map</div>'
-                + '<div style="font-size:0.82em; color:var(--text-secondary); margin-bottom:14px;">How your interests connect to skills and career paths</div>'
-                + '<div style="overflow-x:auto;"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%; max-width:' + svgW + 'px; height:auto;" xmlns="http://www.w3.org/2000/svg">'
-                + edgeSvg + nodeSvg
-                + '</svg></div>'
-                + '<div style="display:flex; gap:14px; margin-top:10px; justify-content:center; flex-wrap:wrap;">'
-                + '<span style="font-size:0.72em; display:flex; align-items:center; gap:4px; color:#8b5cf6;"><span style="width:10px; height:10px; border-radius:50%; background:#8b5cf620; border:1.5px solid #8b5cf6; display:inline-block;"></span> Interests</span>'
-                + '<span style="font-size:0.72em; display:flex; align-items:center; gap:4px; color:#60a5fa;"><span style="width:10px; height:10px; border-radius:50%; background:#60a5fa20; border:1.5px solid #60a5fa; display:inline-block;"></span> Skills</span>'
-                + '<span style="font-size:0.72em; display:flex; align-items:center; gap:4px; color:#10b981;"><span style="width:10px; height:10px; border-radius:50%; background:#10b98120; border:1.5px solid #10b981; display:inline-block;"></span> Careers</span>'
-                + '</div></div>';
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:6px;">How your interests connect to skills and career paths</div>'
+                + '<div id="' + containerId + '" style="width:100%; height:520px; position:relative; overflow:hidden; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-elevated);"></div>'
+                + '<div style="display:flex; gap:16px; margin-top:12px; justify-content:center; flex-wrap:wrap;">'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:#8b5cf6; font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#8b5cf620; border:2px solid #8b5cf6; display:inline-block;"></span> Interests</span>'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:#60a5fa; font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#60a5fa20; border:2px solid #60a5fa; display:inline-block;"></span> Skills</span>'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:#10b981; font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#10b98120; border:2px solid #10b981; display:inline-block;"></span> Careers</span>'
+                + '</div></div>'
+                + '<script>setTimeout(function(){_initAdjacencyForce("' + containerId + '",' + nodesJson + ',' + edgesJson + ')},50)<\/script>';
         }
+
+        function _initAdjacencyForce(containerId, nodes, edges) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+            var W = container.clientWidth || 600;
+            var H = container.clientHeight || 520;
+
+            var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', W);
+            svg.setAttribute('height', H);
+            svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+            svg.style.display = 'block';
+            container.appendChild(svg);
+
+            var nodeById = {};
+            nodes.forEach(function(n) {
+                n.x = W / 2 + (Math.random() - 0.5) * W * 0.6;
+                n.y = H / 2 + (Math.random() - 0.5) * H * 0.6;
+                n.vx = 0;
+                n.vy = 0;
+                nodeById[n.id] = n;
+            });
+
+            var validEdges = edges.filter(function(e) { return nodeById[e.from] && nodeById[e.to]; });
+
+            var edgeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            var nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            var labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            svg.appendChild(edgeGroup);
+            svg.appendChild(nodeGroup);
+            svg.appendChild(labelGroup);
+
+            var edgeEls = validEdges.map(function(e) {
+                var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                var isCareer = e.to.indexOf('cp_') === 0 || e.from.indexOf('cp_') === 0;
+                line.setAttribute('stroke', isCareer ? 'rgba(16,185,129,0.3)' : 'rgba(139,92,246,0.25)');
+                line.setAttribute('stroke-width', isCareer ? '1.5' : '1');
+                edgeGroup.appendChild(line);
+                return { el: line, from: e.from, to: e.to };
+            });
+
+            var typeConfig = {
+                interest: { r: 28, fontSize: 11, color: '#8b5cf6' },
+                skill: { r: 22, fontSize: 10, color: '#60a5fa' },
+                career: { r: 36, fontSize: 11, color: '#10b981' }
+            };
+
+            var nodeEls = nodes.map(function(n) {
+                var cfg = typeConfig[n.type] || typeConfig.skill;
+                var color = cfg.color;
+                if (n.intensity && n.type === 'interest') {
+                    var ilvl = _interestIntensityLevels.find(function(l) { return l.id === n.intensity; });
+                    if (ilvl) color = ilvl.color;
+                }
+
+                var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.style.cursor = 'default';
+
+                var glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                glow.setAttribute('r', cfg.r + 4);
+                glow.setAttribute('fill', color);
+                glow.setAttribute('opacity', '0');
+                g.appendChild(glow);
+
+                var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', cfg.r);
+                circle.setAttribute('fill', color + '18');
+                circle.setAttribute('stroke', color);
+                circle.setAttribute('stroke-width', n.type === 'career' ? '2.5' : '2');
+                g.appendChild(circle);
+
+                var label = n.label;
+                var maxW = cfg.r * 2 - 8;
+                var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', color);
+                text.setAttribute('font-size', cfg.fontSize);
+                text.setAttribute('font-weight', '600');
+                text.setAttribute('font-family', 'Outfit, sans-serif');
+                text.setAttribute('pointer-events', 'none');
+
+                var words = label.split(/[\s\/]+/);
+                if (words.length <= 2 && label.length <= cfg.r * 2 / (cfg.fontSize * 0.55)) {
+                    text.setAttribute('dy', '0.35em');
+                    text.textContent = label;
+                } else {
+                    var lines = [];
+                    var current = '';
+                    var charLimit = Math.floor(cfg.r * 2 / (cfg.fontSize * 0.52));
+                    words.forEach(function(w) {
+                        if (current && (current + ' ' + w).length > charLimit) {
+                            lines.push(current);
+                            current = w;
+                        } else {
+                            current = current ? current + ' ' + w : w;
+                        }
+                    });
+                    if (current) lines.push(current);
+                    lines = lines.slice(0, 3);
+                    var lineH = cfg.fontSize + 2;
+                    var startY = -(lines.length - 1) * lineH / 2;
+                    lines.forEach(function(line, li) {
+                        var tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+                        tspan.setAttribute('x', '0');
+                        tspan.setAttribute('dy', li === 0 ? (startY + 'px') : (lineH + 'px'));
+                        tspan.textContent = line;
+                        text.appendChild(tspan);
+                    });
+                }
+                g.appendChild(text);
+                nodeGroup.appendChild(g);
+
+                g.addEventListener('mouseenter', function() {
+                    glow.setAttribute('opacity', '0.15');
+                    circle.setAttribute('stroke-width', n.type === 'career' ? '3.5' : '3');
+                    edgeEls.forEach(function(ee) {
+                        if (ee.from === n.id || ee.to === n.id) {
+                            ee.el.setAttribute('stroke-width', '3');
+                            ee.el.setAttribute('stroke', ee.to.indexOf('cp_') === 0 || ee.from.indexOf('cp_') === 0 ? 'rgba(16,185,129,0.7)' : 'rgba(139,92,246,0.6)');
+                        }
+                    });
+                });
+                g.addEventListener('mouseleave', function() {
+                    glow.setAttribute('opacity', '0');
+                    circle.setAttribute('stroke-width', n.type === 'career' ? '2.5' : '2');
+                    edgeEls.forEach(function(ee) {
+                        if (ee.from === n.id || ee.to === n.id) {
+                            var isC = ee.to.indexOf('cp_') === 0 || ee.from.indexOf('cp_') === 0;
+                            ee.el.setAttribute('stroke-width', isC ? '1.5' : '1');
+                            ee.el.setAttribute('stroke', isC ? 'rgba(16,185,129,0.3)' : 'rgba(139,92,246,0.25)');
+                        }
+                    });
+                });
+
+                return { el: g, node: n, r: cfg.r, color: color, glow: glow, circle: circle };
+            });
+
+            var springLen = 120;
+            var repulsion = 3000;
+            var damping = 0.85;
+            var iterations = 200;
+
+            for (var iter = 0; iter < iterations; iter++) {
+                nodes.forEach(function(a) {
+                    nodes.forEach(function(b) {
+                        if (a === b) return;
+                        var dx = b.x - a.x, dy = b.y - a.y;
+                        var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        var minDist = (typeConfig[a.type].r + typeConfig[b.type].r) + 20;
+                        var force = -repulsion / (dist * dist);
+                        if (dist < minDist) force -= (minDist - dist) * 2;
+                        a.vx += (dx / dist) * force;
+                        a.vy += (dy / dist) * force;
+                    });
+                });
+
+                validEdges.forEach(function(e) {
+                    var a = nodeById[e.from], b = nodeById[e.to];
+                    if (!a || !b) return;
+                    var dx = b.x - a.x, dy = b.y - a.y;
+                    var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    var force = (dist - springLen) * 0.04;
+                    var fx = (dx / dist) * force, fy = (dy / dist) * force;
+                    a.vx += fx; a.vy += fy;
+                    b.vx -= fx; b.vy -= fy;
+                });
+
+                var cx = W / 2, cy = H / 2;
+                nodes.forEach(function(n) {
+                    var dx = cx - n.x, dy = cy - n.y;
+                    n.vx += dx * 0.002;
+                    n.vy += dy * 0.002;
+                });
+
+                nodes.forEach(function(n) {
+                    n.vx *= damping;
+                    n.vy *= damping;
+                    n.x += n.vx;
+                    n.y += n.vy;
+                    var r = typeConfig[n.type].r + 10;
+                    n.x = Math.max(r, Math.min(W - r, n.x));
+                    n.y = Math.max(r, Math.min(H - r, n.y));
+                });
+            }
+
+            edgeEls.forEach(function(ee) {
+                var a = nodeById[ee.from], b = nodeById[ee.to];
+                if (!a || !b) return;
+                ee.el.setAttribute('x1', a.x);
+                ee.el.setAttribute('y1', a.y);
+                ee.el.setAttribute('x2', b.x);
+                ee.el.setAttribute('y2', b.y);
+            });
+
+            nodeEls.forEach(function(ne) {
+                ne.el.setAttribute('transform', 'translate(' + ne.node.x + ',' + ne.node.y + ')');
+            });
+        }
+        window._initAdjacencyForce = _initAdjacencyForce;
 
         function _renderPeopleLikeYou(ed, skills) {
             var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
