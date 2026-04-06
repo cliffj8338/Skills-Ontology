@@ -281,12 +281,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous"></script>
 
     <!-- App styles — extracted from monolith v4.46.23, current build v4.47.10 -->
-  <script type="module" crossorigin src="/assets/bp.main.By5WoOqw.js"></script>
+  <script type="module" crossorigin src="/assets/bp.main.DLdnQaNM.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/bp.core.DQ_EOh_f.js">
   <link rel="modulepreload" crossorigin href="/assets/bp.firebase.Bs-aaf4o.js">
   <link rel="modulepreload" crossorigin href="/assets/bp.engines.CbOJpg6V.js">
   <link rel="modulepreload" crossorigin href="/assets/bp.views.BvGVf1V4.js">
-  <link rel="stylesheet" crossorigin href="/assets/bp.main.CNKbIee4.css">
+  <link rel="stylesheet" crossorigin href="/assets/bp.main.DHprMdFk.css">
 </head>
 <body>
     <a href="#mainContentArea" class="skip-nav" aria-label="Skip to main content">Skip to main content</a>
@@ -606,11 +606,11 @@
                 <h3>&#9672; Get Early Access</h3>
                 <p class="wl-subtitle">The system wasn&rsquo;t built to show your full value. Blueprint maps every skill you&rsquo;ve earned, shows you what you&rsquo;re actually worth, and helps you find work that connects to who you are.</p>
                 <label>Name</label>
-                <input type="text" id="wlName" placeholder="Your name" autocomplete="name">
+                <input type="text" id="wlName" placeholder="Your name" autocomplete="name" aria-label="Your name">
                 <label>Email</label>
-                <input type="email" id="wlEmail" placeholder="you@company.com" autocomplete="email">
+                <input type="email" id="wlEmail" placeholder="you@company.com" autocomplete="email" aria-label="Email address">
                 <label>What describes you best?</label>
-                <select id="wlType">
+                <select id="wlType" aria-label="Account type">
                     <option value="">Select one...</option>
                     <option value="individual">Individual professional</option>
                     <option value="leader">Talent / People leader</option>
@@ -658,7 +658,7 @@
                 <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()" aria-label="Close dialog">×</button>
             </div>
             <div class="modal-body">
-                <p style="color: #9ca3af; margin-bottom: 20px;">All export options are available in the Blueprint tab.</p>
+                <p style="color: #6b7280; margin-bottom: 20px;">All export options are available in the Blueprint tab.</p>
                 <button onclick="closeExportModal(); switchView('blueprint'); setTimeout(function(){ switchBlueprintTab('export'); }, 100);" style="
                     background:var(--accent); color:#fff; border:none; padding:12px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.95em;
                 ">Go to Export Options</button>
@@ -696,14 +696,14 @@
                         </button>
                     </div>
                     <input type="text" id="onetSearchInput" placeholder="Search O*NET library..." 
-                           class="settings-input" oninput="filterONETLibrary()" style="width: 100%; margin-bottom: 15px;">
+                           class="settings-input" oninput="filterONETLibrary()" style="width: 100%; margin-bottom: 15px;" aria-label="Search O*NET skill library">
                 </div>
                 <div id="onetLibraryContent" style="max-height: 400px; overflow-y: auto;">
                     <!-- Populated by JavaScript -->
                 </div>
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span id="onetSelectedCount" style="color: #9ca3af;"></span>
+                        <span id="onetSelectedCount" style="color: #6b7280;"></span>
                         <div style="display: flex; gap: 10px;">
                             <button onclick="closeONETPicker()" style="padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; cursor: pointer;">
                                 Cancel
@@ -731,7 +731,7 @@
             <div class="modal-body">
                 <div class="settings-group">
                     <label class="settings-label">Skill Name *</label>
-                    <input type="text" id="customSkillName" class="settings-input" placeholder="e.g., Quantum Computing Strategy">
+                    <input type="text" id="customSkillName" class="settings-input" placeholder="e.g., Quantum Computing Strategy" aria-label="Custom skill name">
                 </div>
                 
                 <div class="settings-group">
@@ -816,7 +816,7 @@
                         <label class="settings-label">Paste skills (one per line, or comma-separated)</label>
                         <textarea id="bulkSkillsText" class="settings-input" rows="10" 
                             placeholder="Strategic Planning, Expert&#10;Data Analysis, Proficient&#10;Stakeholder Management&#10;Python&#10;&#10;Format: Skill Name, Level (optional)&#10;Levels: Novice, Competent, Proficient, Advanced, Expert, Mastery&#10;If no level given, defaults to Proficient"
-                            style="width:100%; font-family:monospace; font-size:0.88em; resize:vertical;"></textarea>
+                            style="width:100%; font-family:monospace; font-size:0.88em; resize:vertical;" aria-label="Bulk skills text input"></textarea>
                     </div>
                     
                     <div id="bulkCsvInput" style="display:none; margin-bottom:16px;">
@@ -828,7 +828,7 @@
                             <code style="background:var(--bg-card); padding:2px 6px; border-radius:3px;">core</code>.
                             Column order flexible. First row treated as header.
                         </p>
-                        <input type="file" id="bulkCsvFile" accept=".csv,.tsv,.txt" 
+                        <input type="file" id="bulkCsvFile" accept=".csv,.tsv,.txt" aria-label="Upload CSV file"
                             onchange="handleBulkCsvFile(this)"
                             style="font-size:0.9em;">
                         <div id="bulkCsvPreview" style="margin-top:12px; font-size:0.82em; color:var(--text-muted);"></div>
@@ -853,7 +853,7 @@
                         <div style="display:flex; gap:20px; margin-bottom:16px; flex-wrap:wrap;">
                             <div>
                                 <label class="settings-label">Default proficiency</label>
-                                <select id="bulkDefaultLevel" style="padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">
+                                <select id="bulkDefaultLevel" aria-label="Default skill level" style="padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">
                                     <option value="Novice">Novice</option>
                                     <option value="Competent">Competent</option>
                                     <option value="Proficient" selected>Proficient</option>
@@ -864,7 +864,7 @@
                             </div>
                             <div>
                                 <label class="settings-label">On duplicate</label>
-                                <select id="bulkMergeStrategy" style="padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">
+                                <select id="bulkMergeStrategy" aria-label="Merge strategy for duplicates" style="padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">
                                     <option value="skip">Skip (keep existing)</option>
                                     <option value="higher">Keep higher proficiency</option>
                                     <option value="overwrite">Overwrite with import</option>
@@ -913,7 +913,7 @@
             <div class="modal-body" style="overflow-y: auto; padding: 20px;">
                 <div style="display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
                     <input type="text" id="bulkManagerSearch" placeholder="Filter skills..." oninput="filterBulkManager()"
-                        class="settings-input" style="flex:1; min-width:180px; padding:8px 12px;">
+                        class="settings-input" style="flex:1; min-width:180px; padding:8px 12px;" aria-label="Filter skills">
                     <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.85em; color:var(--text-muted); white-space:nowrap;">
                         <input type="checkbox" id="bulkManagerSelectAll" onchange="toggleBulkManagerAll(this.checked)">
                         Select all
@@ -923,10 +923,10 @@
                 
                 <div id="bulkManagerActions" style="display:none; padding:12px 16px; margin-bottom:14px; border-radius:8px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); flex-wrap:wrap; gap:10px; align-items:center;">
                     <span id="bulkManagerSelected" style="font-size:0.88em; font-weight:600; color:var(--accent); margin-right:8px;"></span>
-                    <button onclick="bulkManagerSetLevel()" style="padding:6px 14px; background:rgba(139,92,246,0.15); color:#a78bfa; border:1px solid rgba(139,92,246,0.3); border-radius:6px; cursor:pointer; font-size:0.85em;">
+                    <button onclick="bulkManagerSetLevel()" style="padding:6px 14px; background:rgba(139,92,246,0.08); color:#6b2d7b; border:1px solid rgba(139,92,246,0.3); border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:600;">
                         Set Level
                     </button>
-                    <button onclick="bulkManagerRemove()" style="padding:6px 14px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:6px; cursor:pointer; font-size:0.85em;">
+                    <button onclick="bulkManagerRemove()" style="padding:6px 14px; background:rgba(239,68,68,0.06); color:#b91c1c; border:1px solid rgba(239,68,68,0.3); border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:600;">
                         Remove Selected
                     </button>
                 </div>
@@ -949,7 +949,7 @@
             <div class="modal-body">
                 <div class="settings-group">
                     <label class="settings-label">Skill Name</label>
-                    <input type="text" id="editSkillName" class="settings-input" readonly style="background: rgba(255,255,255,0.05);">
+                    <input type="text" id="editSkillName" class="settings-input" readonly style="background: rgba(255,255,255,0.05);" aria-label="Skill name">
                 </div>
                 
                 <div class="settings-group">
@@ -1024,7 +1024,7 @@
             <div class="modal-body">
                 <div class="coaching-tip" style="margin-bottom: 25px;">
                     <div class="coaching-tip-title">
-                        <span style="color:#f59e0b; font-weight:700;">&#x1F4A1; WHY ASSESS THIS SKILL?</span>
+                        <span style="color:var(--warning); font-weight:700;">&#x1F4A1; WHY ASSESS THIS SKILL?</span>
                     </div>
                     <div class="coaching-tip-content">
                         This skill doesn't have a direct O*NET match. Answer a few questions so we can accurately rate its market impact.
@@ -1036,7 +1036,7 @@
                 <div class="settings-group">
                     <label class="settings-label">How many years of experience do you have with this skill? *</label>
                     <input type="number" id="assessYears" class="settings-input" min="0" max="50" value="5" 
-                           style="width: 120px;">
+                           style="width: 120px;" aria-label="Years of experience">
                     <div class="settings-help">More experience generally indicates higher impact</div>
                 </div>
                 
@@ -1047,21 +1047,21 @@
                             <input type="radio" name="assessImpact" value="minor">
                             <div>
                                 <div style="font-weight: 600;">Minor Impact</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">Supports work but doesn't directly drive major outcomes</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">Supports work but doesn't directly drive major outcomes</div>
                             </div>
                         </label>
                         <label style="cursor: pointer; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 10px;">
                             <input type="radio" name="assessImpact" value="significant" checked>
                             <div>
                                 <div style="font-weight: 600;">Significant Impact</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">Directly contributes to key business results</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">Directly contributes to key business results</div>
                             </div>
                         </label>
                         <label style="cursor: pointer; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 10px;">
                             <input type="radio" name="assessImpact" value="major">
                             <div>
                                 <div style="font-weight: 600;">Major Impact</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">Critical differentiator, drives strategic outcomes</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">Critical differentiator, drives strategic outcomes</div>
                             </div>
                         </label>
                     </div>
@@ -1074,21 +1074,21 @@
                             <input type="radio" name="assessRarity" value="common">
                             <div>
                                 <div style="font-weight: 600;">Common</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">Many professionals have this skill</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">Many professionals have this skill</div>
                             </div>
                         </label>
                         <label style="cursor: pointer; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 10px;">
                             <input type="radio" name="assessRarity" value="uncommon" checked>
                             <div>
                                 <div style="font-weight: 600;">Uncommon</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">Specialized, not widely held</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">Specialized, not widely held</div>
                             </div>
                         </label>
                         <label style="cursor: pointer; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 10px;">
                             <input type="radio" name="assessRarity" value="rare">
                             <div>
                                 <div style="font-weight: 600;">Rare</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">Very few people have this expertise</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">Very few people have this expertise</div>
                             </div>
                         </label>
                     </div>
@@ -1101,28 +1101,28 @@
                             <input type="radio" name="assessSalary" value="<$150k">
                             <div>
                                 <div style="font-weight: 600;">Under $150k</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">Mid-level to senior roles</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">Mid-level to senior roles</div>
                             </div>
                         </label>
                         <label style="cursor: pointer; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 10px;">
                             <input type="radio" name="assessSalary" value="$150-250k" checked>
                             <div>
                                 <div style="font-weight: 600;">$150k - $250k</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">Director to VP level</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">Director to VP level</div>
                             </div>
                         </label>
                         <label style="cursor: pointer; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 10px;">
                             <input type="radio" name="assessSalary" value=">$250k">
                             <div>
                                 <div style="font-weight: 600;">Over $250k</div>
-                                <div style="font-size: 0.9em; color: #9ca3af;">VP to C-Suite level</div>
+                                <div style="font-size: 0.9em; color: #6b7280;">VP to C-Suite level</div>
                             </div>
                         </label>
                     </div>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <div id="assessmentPreview" style="color: #9ca3af; font-size: 0.9em;"></div>
+                    <div id="assessmentPreview" style="color: #6b7280; font-size: 0.9em;"></div>
                     <div style="display: flex; gap: 10px;">
                         <button onclick="closeAssessSkillModal()" 
                                 style="padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; cursor: pointer;">
@@ -1145,7 +1145,7 @@
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Manage Skills</h2>
-                    <p style="color: #9ca3af; margin-top: 5px; font-size: 0.9em;">
+                    <p style="color: #6b7280; margin-top: 5px; font-size: 0.9em;">
                         <span id="skillManagementCount">Loading...</span>
                     </p>
                 </div>
@@ -1172,20 +1172,20 @@
                             id="yourSkillsSearchInput" 
                             class="settings-input" 
                             placeholder="Search your skills..."
-                            style="width: 100%; padding-right: 40px;"
+                            style="width: 100%; padding-right: 40px;" aria-label="Search your skills"
                             oninput="filterYourSkills()">
-                        <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.2em;">
+                        <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 1.2em;">
                             ${bpIcon("search",14)}
                         </span>
                     </div>
                     
                     <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <select id="yourSkillsCategoryFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                        <select id="yourSkillsCategoryFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;" aria-label="Filter by category">
                             <option value="all">All Categories</option>
                             <!-- populated dynamically by populateCategoryFilter() -->
                         </select>
                         
-                        <select id="yourSkillsLevelFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                        <select id="yourSkillsLevelFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;" aria-label="Filter by level">
                             <option value="all">All Levels</option>
                             <option value="Mastery">Mastery</option>
                             <option value="Expert">Expert</option>
@@ -1208,16 +1208,16 @@
                             id="addSkillsSearchInput" 
                             class="settings-input" 
                             placeholder="Search 13,960+ skills... (e.g., 'python', 'marketing', 'leadership')"
-                            style="width: 100%; padding-right: 40px; font-size: 1.1em;"
+                            style="width: 100%; padding-right: 40px; font-size: 1.1em;" aria-label="Search skills to add"
                             oninput="handleAddSkillsSearch()"
                             autofocus>
-                        <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.2em;">
+                        <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 1.2em;">
                             ${bpIcon("search",14)}
                         </span>
                     </div>
                     
                     <div id="addSkillsResults" style="min-height: 200px;">
-                        <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+                        <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
                             <div style="margin-bottom: 10px;">' + bpIcon('search',48) + '</div>
                             <div style="font-size: 1.1em;">Start typing to search skills</div>
                             <div style="font-size: 0.9em; margin-top: 10px;">Try: "python", "marketing", "leadership"</div>
@@ -1225,36 +1225,36 @@
                     </div>
                     
                     <div id="addSkillsCategories" style="margin-top: 25px;">
-                        <div style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px; font-weight: 600;">
+                        <div style="color: #6b7280; font-size: 0.9em; margin-bottom: 15px; font-weight: 600;">
                             BROWSE BY CATEGORY:
                         </div>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                             <button onclick="searchAddSkillsByCategory('Technology')" 
-                                    style="padding: 8px 16px; background: rgba(0,113,227,0.1); border: 1px solid rgba(0,113,227,0.25); color: var(--accent); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(0,113,227,0.06); border: 1px solid rgba(0,113,227,0.25); color: #004a8c; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight:600;">
                                 <span data-icon="tool" class="nav-icon"></span> Technology
                             </button>
                             <button onclick="searchAddSkillsByCategory('Business')" 
-                                    style="padding: 8px 16px; background: rgba(155,89,182,0.1); border: 1px solid rgba(155,89,182,0.25); color: var(--c-purple); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(155,89,182,0.06); border: 1px solid rgba(155,89,182,0.25); color: #6b2d7b; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight:600;">
                                 <span data-icon="briefcase" class="nav-icon"></span> Business
                             </button>
                             <button onclick="searchAddSkillsByCategory('Finance')" 
-                                    style="padding: 8px 16px; background: rgba(30,126,52,0.1); border: 1px solid rgba(30,126,52,0.25); color: var(--success); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(30,126,52,0.06); border: 1px solid rgba(30,126,52,0.25); color: var(--success); border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight:600;">
                                 <span data-icon="money" class="nav-icon"></span> Finance
                             </button>
                             <button onclick="searchAddSkillsByCategory('Marketing')" 
-                                    style="padding: 8px 16px; background: rgba(178, 80, 0, 0.1); border: 1px solid rgba(178, 80, 0, 0.25); color: var(--warning); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(178, 80, 0, 0.06); border: 1px solid rgba(178, 80, 0, 0.25); color: var(--warning); border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight:600;">
                                 <span data-icon="send" class="nav-icon"></span> Marketing
                             </button>
                             <button onclick="searchAddSkillsByCategory('Creative')" 
-                                    style="padding: 8px 16px; background: rgba(173,80,0,0.1); border: 1px solid rgba(173,80,0,0.25); color: var(--c-orange); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(173,80,0,0.06); border: 1px solid rgba(173,80,0,0.25); color: #7a3800; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight:600;">
                                 <span data-icon="compass" class="nav-icon"></span> Creative
                             </button>
                             <button onclick="searchAddSkillsByCategory('Leadership')" 
-                                    style="padding: 8px 16px; background: rgba(117,117,120,0.1); border: 1px solid rgba(117,117,120,0.25); color: var(--c-faint); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(117,117,120,0.06); border: 1px solid rgba(117,117,120,0.25); color: var(--text-muted); border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight:600;">
                                 <span data-icon="star" class="nav-icon"></span> Leadership
                             </button>
                             <button onclick="searchAddSkillsByCategory('Trades')" 
-                                    style="padding: 8px 16px; background: rgba(173,80,0,0.1); border: 1px solid rgba(173,80,0,0.25); color: var(--c-orange); border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                    style="padding: 8px 16px; background: rgba(173,80,0,0.06); border: 1px solid rgba(173,80,0,0.25); color: #7a3800; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight:600;">
                                 <span data-icon="tool" class="nav-icon"></span> Trades
                             </button>
                         </div>
@@ -1265,7 +1265,7 @@
             
             <div style="padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="color: #9ca3af; font-size: 0.85em;">
+                    <div style="color: #6b7280; font-size: 0.85em;">
                         <span id="skillManagementStatus"></span>
                     </div>
                     <button onclick="closeSkillManagement()" 
