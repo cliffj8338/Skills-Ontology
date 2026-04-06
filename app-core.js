@@ -14371,8 +14371,8 @@
             el.innerHTML = html;
         }
 
-        var _wcagAuditHistory = JSON.parse(localStorage.getItem('bp_wcag_audit_history') || '[]');
-        var _wcagDismissed = JSON.parse(localStorage.getItem('bp_wcag_dismissed') || '[]');
+        var _wcagAuditHistory = (function() { try { return JSON.parse(localStorage.getItem('bp_wcag_audit_history') || '[]'); } catch(e) { return []; } })();
+        var _wcagDismissed = (function() { try { return JSON.parse(localStorage.getItem('bp_wcag_dismissed') || '[]'); } catch(e) { return []; } })();
 
         function _wcagLuminance(r, g, b) {
             var sR = r / 255, sG = g / 255, sB = b / 255;
@@ -14644,7 +14644,7 @@
                 + '<div>'
                 + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--c-heading); margin:0 0 4px;">'
                 + bpIcon('eye', 20) + ' WCAG AA 2.1 Auditor</h2>'
-                + '<div style="font-size:0.82em; color:var(--text-secondary);">Automated accessibility audit for WCAG 2.1 Level AA compliance</div>'
+                + '<div style="font-size:0.82em; color:var(--text-secondary);">Heuristic pre-audit for common WCAG 2.1 AA issues — supplement with manual testing and screen reader validation</div>'
                 + '</div>'
                 + '<div style="display:flex; gap:8px;">'
                 + '<button onclick="_wcagExportCSV()" style="padding:8px 14px; background:var(--c-surface-2); color:var(--text-secondary); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;"' + (latest ? '' : ' disabled') + '>'
@@ -14744,7 +14744,7 @@
                             + '<div style="flex:1; min-width:0;">'
                             + '<div style="font-weight:600; color:var(--c-heading);">' + escapeHtml(iss.msg) + '</div>'
                             + '<div style="font-size:0.85em; color:var(--text-muted); margin-top:2px;">'
-                            + '<span style="background:var(--c-surface-2); padding:1px 6px; border-radius:4px; font-family:monospace; font-size:0.9em;">WCAG ' + iss.rule + '</span> '
+                            + '<span style="background:var(--c-surface-2); padding:1px 6px; border-radius:4px; font-family:monospace; font-size:0.9em;">WCAG ' + escapeHtml(iss.rule) + '</span> '
                             + escapeHtml(iss.wcag)
                             + (iss.snippet ? ' — <span style="font-style:italic;">"' + escapeHtml(iss.snippet) + '"</span>' : '')
                             + '</div>'
