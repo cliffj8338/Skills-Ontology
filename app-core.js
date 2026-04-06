@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.47.42';
+        var BP_VERSION = 'v4.47.43';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -4195,12 +4195,12 @@
                         { id: 'p6-1n', name: 'Explorer security hardening', status: 'done', category: 'security', priority: 'critical', notes: 'v4.47.38i: XSS fix in activity modal (escapeAttr for attribute context), activities added to sanitizeImport allowlist with shape validation and 100-item cap, input length caps on all activity fields.' },
                         { id: 'p6-1o', name: 'Scale optimizations (1K users)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.47.39a: Firestore offline persistence (enablePersistence + synchronizeTabs), AI response caching (SHA-256 keyed, 24h TTL, LRU eviction), daily AI rate limit (30 calls/day, success-only counting).' },
                         { id: 'p6-1p', name: 'Purpose & values persistence fix (v5)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.47.39b: Durable localStorage circuit breakers (survive tab close unlike sessionStorage). _buildFirestoreData reads durable backup before allowing empty write. Firestore load auto-restores from durable backup when server data is empty. Breaks the death-spiral where once-erased data stays erased forever.' },
-                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.42: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
+                        { id: 'p6-2', name: 'Interest intensity levels', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.43: Four intensity levels (Curious/Learning/Passionate/Talented) with color-coded chips, tap-to-cycle. Backward-compat migration from string[] to {name,intensity}. Intensity fed into AI prompts for smarter skill/career recommendations. Works in wizard step 4 and dashboard.' },
                         { id: 'p6-3', name: 'Field recommendation engine', status: 'partial', category: 'feature', priority: 'critical', notes: 'AI suggests 3-5 career paths based on skill/interest clusters. NOT yet using BLS occupational field mapping or interest-intensity weighting. Current implementation is AI-generated suggestions, not structured BLS data matching. Values layer not yet integrated into recommendations.' },
-                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.42: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
-                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.42: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.43: SVG line chart comparing all career paths\u2019 entry/mid/senior salary. Selected path is bold with data labels, others are faded. Legend below. Shows when 2+ career paths exist.' },
+                        { id: 'p6-4b', name: 'People Like You', status: 'done', category: 'feature', priority: 'high', notes: 'v4.47.43: AI-generated inspirational people with similar backgrounds. Card layout with name, role, similarity statement, career arc, and real quote. Results cached in explorerData.peopleInspirations. Uses explorer-people cache tag.' },
                         { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Not yet built. Would use life-preference framing instead of work-preference framing for values discovery. Currently explorer profiles can use the standard values engine but it is not tuned for pre-career users.' },
-                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.42: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
+                        { id: 'p6-6', name: 'Skill adjacency map', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.47.43: SVG network graph showing interests (inner ring) \u2192 skills (middle ring) \u2192 career paths (outer ring). Color-coded by type, interest intensity affects node color. Edges inferred from skill.reason text matching and skillsYouHave arrays. Shows when interests + skills + careers all exist.' },
                         { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not yet built. When explorer gains work experience, upgrade to Builder mode. Interests map to skill claims, aspirational skills become gap targets, values carry forward.' },
                         { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Not yet built. B2B licensing for schools/universities. Counselor dashboard showing aggregate patterns across student cohort.' }
                     ]
@@ -31574,8 +31574,8 @@ body {
             var skillCount = skills.length;
             var driveStatement = ed.driveStatement || '';
 
-            var cs = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px; margin-bottom:16px;';
-            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
+            var card = 'background:var(--card-bg); border:1px solid var(--border-color); border-radius:16px; padding:24px;';
+            var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;';
 
             var entryVal = selectedPath && selectedPath.entryValue ? selectedPath.entryValue : 0;
             var midVal = selectedPath && selectedPath.midValue ? selectedPath.midValue : 0;
@@ -31584,86 +31584,87 @@ body {
             var totalSkillValue = 0;
             skillsToLearn.forEach(function(s) { totalSkillValue += (s.valueAdd || 0); });
             var potentialVal = entryVal + totalSkillValue;
+            var interests = _normalizeInterests(ed.interests || []);
 
             var html = '';
 
-            html += '<div style="background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(96,165,250,0.08)); border:1px solid rgba(139,92,246,0.2); border-radius:16px; padding:24px; margin-bottom:20px; text-align:center;">'
-                + '<div style="display:inline-block; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:4px 12px; border-radius:20px; margin-bottom:12px;">Explorer Mode</div>'
-                + '<div style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Your Career Value Map</div>'
-                + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; max-width:520px; margin:0 auto;">See what you can build, what it\u2019s worth, and exactly which skills unlock the most value for the direction you choose.</div>'
-                + '</div>';
-
+            // ZONE 1: HERO
+            html += '<div style="background:linear-gradient(160deg,rgba(139,92,246,0.12) 0%,rgba(96,165,250,0.08) 50%,rgba(16,185,129,0.06) 100%); border:1px solid rgba(139,92,246,0.15); border-radius:20px; padding:32px 28px; margin-bottom:28px; text-align:center; position:relative; overflow:hidden;">';
+            html += '<div style="position:absolute; top:-40px; right:-40px; width:120px; height:120px; background:radial-gradient(circle,rgba(139,92,246,0.08) 0%,transparent 70%); border-radius:50%;"></div>';
+            html += '<div style="position:absolute; bottom:-30px; left:-30px; width:100px; height:100px; background:radial-gradient(circle,rgba(96,165,250,0.06) 0%,transparent 70%); border-radius:50%;"></div>';
+            html += '<div style="display:inline-block; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:5px 16px; border-radius:20px; margin-bottom:16px;">Explorer Mode</div>';
+            html += '<div style="font-family:Outfit,sans-serif; font-size:1.5em; font-weight:800; color:var(--text-primary); margin-bottom:8px; letter-spacing:-0.01em;">Your Career Value Map</div>';
+            if (driveStatement) {
+                html += '<div style="font-size:0.92em; color:var(--text-secondary); line-height:1.7; max-width:540px; margin:0 auto; font-style:italic; position:relative; padding:0 20px;">'
+                    + '<span style="position:absolute; left:0; top:-4px; font-size:1.6em; color:rgba(139,92,246,0.3); font-family:Georgia,serif;">\u201C</span>'
+                    + escapeHtml(driveStatement)
+                    + '<span style="font-size:1.6em; color:rgba(139,92,246,0.3); font-family:Georgia,serif; line-height:0;">\u201D</span>'
+                    + '</div>';
+                html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:rgba(139,92,246,0.5); font-size:0.72em; margin-top:6px;">\u270E edit</button>';
+            } else {
+                html += '<div style="font-size:0.88em; color:var(--text-muted); max-width:420px; margin:0 auto 12px;">What kind of work excites you? What problems do you want to solve?</div>';
+                html += '<button onclick="explorerDashEditDrive()" style="padding:8px 20px; background:rgba(139,92,246,0.1); color:#8b5cf6; border:1px solid rgba(139,92,246,0.25); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em;">Add your motivation</button>';
+            }
             if (entryVal > 0) {
-                html += '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:20px;">';
-                html += '<div style="' + cs + ' text-align:center; padding:16px; border-color:rgba(16,185,129,0.3);">'
-                    + '<div style="font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#10b981; margin-bottom:6px;">Entry-Level Value</div>'
-                    + '<div style="font-size:1.5em; font-weight:700; color:#10b981;">' + _expFmt(entryVal) + '</div>'
-                    + '<div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">Starting salary</div></div>';
-                html += '<div style="' + cs + ' text-align:center; padding:16px; border-color:rgba(96,165,250,0.3);">'
-                    + '<div style="font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; margin-bottom:6px;">Mid-Career Value</div>'
-                    + '<div style="font-size:1.5em; font-weight:700; color:#60a5fa;">' + _expFmt(midVal) + '</div>'
-                    + '<div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">3\u20135 years</div></div>';
-                html += '<div style="' + cs + ' text-align:center; padding:16px; border-color:rgba(139,92,246,0.3);">'
-                    + '<div style="font-size:0.62em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#8b5cf6; margin-bottom:6px;">Senior Value</div>'
-                    + '<div style="font-size:1.5em; font-weight:700; color:#8b5cf6;">' + _expFmt(seniorVal) + '</div>'
-                    + '<div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">8\u201310+ years</div></div>';
+                html += '<div style="display:flex; align-items:center; justify-content:center; gap:0; margin-top:20px; padding-top:18px; border-top:1px solid rgba(139,92,246,0.1);">';
+                html += '<div style="text-align:center; padding:0 20px;">'
+                    + '<div style="font-size:1.4em; font-weight:800; color:#10b981;">' + _expFmt(entryVal) + '</div>'
+                    + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Entry</div></div>';
+                html += '<div style="color:var(--text-muted); font-size:1.2em; opacity:0.3;">\u2192</div>';
+                html += '<div style="text-align:center; padding:0 20px;">'
+                    + '<div style="font-size:1.4em; font-weight:800; color:#60a5fa;">' + _expFmt(midVal) + '</div>'
+                    + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Mid-Career</div></div>';
+                html += '<div style="color:var(--text-muted); font-size:1.2em; opacity:0.3;">\u2192</div>';
+                html += '<div style="text-align:center; padding:0 20px;">'
+                    + '<div style="font-size:1.4em; font-weight:800; color:#8b5cf6;">' + _expFmt(seniorVal) + '</div>'
+                    + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Senior</div></div>';
                 html += '</div>';
             }
-
-            html += '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">';
-            html += '<div style="' + cs + ' text-align:center; padding:14px;">'
-                + '<div style="font-size:1.6em; font-weight:700; color:#60a5fa;">' + skillCount + '</div>'
-                + '<div style="font-size:0.72em; color:var(--text-muted);">Skills Discovered</div></div>';
-            html += '<div style="' + cs + ' text-align:center; padding:14px;">'
-                + '<div style="font-size:1.6em; font-weight:700; color:#8b5cf6;">' + careerPaths.length + '</div>'
-                + '<div style="font-size:0.72em; color:var(--text-muted);">Career Paths</div></div>';
-            html += '<div style="' + cs + ' text-align:center; padding:14px;">'
-                + '<div style="font-size:1.6em; font-weight:700; color:#10b981;">' + (totalSkillValue > 0 ? '+' + _expFmt(totalSkillValue) : '\u2014') + '</div>'
-                + '<div style="font-size:0.72em; color:var(--text-muted);">Skill Growth Potential</div></div>';
             html += '</div>';
 
+            // ZONE 2: YOUR DIRECTION
             if (careerPaths.length === 0) {
-                html += '<div style="' + cs + ' text-align:center; padding:30px 20px;">'
-                    + '<div style="font-size:2.5em; margin-bottom:12px; opacity:0.3;">\uD83D\uDEE4\uFE0F</div>'
-                    + '<div style="font-weight:700; color:var(--text-primary); font-size:1.05em; margin-bottom:8px;">Discover Your Career Paths</div>'
-                    + '<div style="font-size:0.85em; color:var(--text-muted); max-width:400px; margin:0 auto 18px; line-height:1.6;">AI will analyze your skills, education, and interests to suggest career directions with salary data and growth roadmaps.</div>'
-                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:12px 28px; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.95em;">\u26A1 Discover Career Paths</button>'
+                html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(139,92,246,0.2); background:linear-gradient(135deg,var(--card-bg),rgba(139,92,246,0.03));">'
+                    + '<div style="font-size:3em; margin-bottom:16px; opacity:0.25;">\uD83D\uDEE4\uFE0F</div>'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); font-size:1.15em; margin-bottom:8px;">Discover Your Career Paths</div>'
+                    + '<div style="font-size:0.88em; color:var(--text-muted); max-width:400px; margin:0 auto 20px; line-height:1.6;">AI will analyze your skills, education, and interests to suggest career directions with salary data and growth roadmaps.</div>'
+                    + '<button onclick="explorerDashDiscoverCareers(this)" style="padding:14px 32px; background:linear-gradient(135deg,#8b5cf6,#60a5fa); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:700; font-size:1em; box-shadow:0 4px 14px rgba(139,92,246,0.25);">\u26A1 Discover Career Paths</button>'
                     + '</div>';
             }
 
             if (careerPaths.length > 1) {
-                html += '<div style="' + cs + ' padding:16px;">'
-                    + '<div style="' + ls + ' color:#60a5fa;">Choose Your Direction</div>'
-                    + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">';
+                html += '<div style="' + card + ' padding:20px; margin-bottom:12px;">'
+                    + '<div style="' + ls + ' color:#60a5fa; margin-bottom:12px;">Choose Your Direction</div>'
+                    + '<div style="display:grid; grid-template-columns:' + (careerPaths.length <= 3 ? 'repeat(' + careerPaths.length + ',1fr)' : 'repeat(2,1fr)') + '; gap:10px;">';
                 careerPaths.forEach(function(path, idx) {
                     var isSel = idx === selectedIdx;
                     var pEntry = path.entryValue || 0;
                     var pSenior = path.seniorValue || 0;
-                    html += '<div style="padding:12px; border:' + (isSel ? '2px solid #8b5cf6' : '1px solid var(--border-color)') + '; border-radius:10px; cursor:pointer; background:' + (isSel ? 'rgba(139,92,246,0.06)' : 'transparent') + '; transition:all 0.15s;" onclick="explorerDashSelectPath(' + idx + ')">'
-                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.85em; margin-bottom:4px;">' + escapeHtml(path.title) + '</div>'
-                        + (pEntry > 0 ? '<div style="font-size:0.78em; color:#10b981; font-weight:600;">' + _expFmt(pEntry) + ' \u2192 ' + _expFmt(pSenior) + '</div>' : '')
-                        + (path.growth ? '<div style="font-size:0.7em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(path.growth) + '</div>' : '')
-                        + (isSel ? '<div style="font-size:0.65em; color:#8b5cf6; font-weight:700; text-transform:uppercase; margin-top:4px;">Selected</div>' : '')
+                    html += '<div style="padding:14px; border:' + (isSel ? '2px solid #8b5cf6' : '1px solid var(--border-color)') + '; border-radius:12px; cursor:pointer; background:' + (isSel ? 'rgba(139,92,246,0.06)' : 'transparent') + '; transition:all 0.2s;" onclick="explorerDashSelectPath(' + idx + ')">'
+                        + '<div style="font-weight:700; color:' + (isSel ? '#8b5cf6' : 'var(--text-primary)') + '; font-size:0.88em; margin-bottom:4px;">' + escapeHtml(path.title) + '</div>'
+                        + (pEntry > 0 ? '<div style="font-size:0.76em; color:#10b981; font-weight:600;">' + _expFmt(pEntry) + ' \u2192 ' + _expFmt(pSenior) + '</div>' : '')
+                        + (path.growth ? '<div style="font-size:0.7em; color:var(--text-muted); margin-top:3px; line-height:1.3;">' + escapeHtml(path.growth) + '</div>' : '')
                         + '</div>';
                 });
                 html += '</div></div>';
             }
 
             if (selectedPath) {
-                html += '<div style="' + cs + ' border-color:rgba(139,92,246,0.3);">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">'
-                    + '<div style="' + ls + ' color:#8b5cf6; margin-bottom:0;">Focused Path</div>'
-                    + (selectedPath.salary ? '<div style="font-size:0.82em; font-weight:700; color:#10b981;">' + escapeHtml(selectedPath.salary) + '</div>' : '')
-                    + '</div>'
-                    + '<div style="font-weight:700; font-size:1.1em; color:var(--text-primary); margin-bottom:6px;">' + escapeHtml(selectedPath.title) + '</div>'
-                    + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6; margin-bottom:14px;">' + escapeHtml(selectedPath.whyFit || '') + '</div>';
+                html += '<div style="' + card + ' margin-bottom:28px; border-color:rgba(139,92,246,0.2); position:relative;">';
+                html += '<div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#8b5cf6,#60a5fa,#10b981); border-radius:16px 16px 0 0;"></div>';
+                html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; padding-top:4px;">'
+                    + '<div style="' + ls + ' color:#8b5cf6;">Focused Path</div>'
+                    + (selectedPath.salary ? '<div style="font-size:0.82em; font-weight:700; color:#10b981; background:rgba(16,185,129,0.08); padding:3px 10px; border-radius:8px;">' + escapeHtml(selectedPath.salary) + '</div>' : '')
+                    + '</div>';
+                html += '<div style="font-weight:800; font-size:1.15em; color:var(--text-primary); margin-bottom:8px; letter-spacing:-0.01em;">' + escapeHtml(selectedPath.title) + '</div>';
+                html += '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.7; margin-bottom:16px;">' + escapeHtml(selectedPath.whyFit || '') + '</div>';
 
                 var skillsHave = selectedPath.skillsYouHave || [];
                 if (skillsHave.length > 0) {
-                    html += '<div style="' + ls + ' color:#10b981; margin-top:4px;">Skills You Already Have</div>'
-                        + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;">';
+                    html += '<div style="' + ls + ' color:#10b981; margin-bottom:8px;">Skills You Already Have</div>'
+                        + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px;">';
                     skillsHave.forEach(function(sk) {
-                        html += '<span style="display:inline-block; background:rgba(16,185,129,0.1); color:#10b981; font-size:0.78em; font-weight:600; padding:4px 10px; border-radius:8px; border:1px solid rgba(16,185,129,0.2);">' + escapeHtml(sk) + '</span>';
+                        html += '<span style="display:inline-block; background:rgba(16,185,129,0.08); color:#10b981; font-size:0.78em; font-weight:600; padding:5px 12px; border-radius:8px; border:1px solid rgba(16,185,129,0.15);">' + escapeHtml(sk) + '</span>';
                     });
                     html += '</div>';
                 }
@@ -31671,203 +31672,144 @@ body {
                 if (skillsToLearn.length > 0) {
                     var barColors = ['#f59e0b', '#f97316', '#ef4444', '#ec4899'];
                     var maxVal = potentialVal || (entryVal + totalSkillValue) || 1;
-
-                    html += '<div style="' + ls + ' color:#f59e0b; margin-bottom:12px;">Your Skill Growth Path</div>';
-
+                    html += '<div style="' + ls + ' color:#f59e0b; margin-bottom:14px;">Your Growth Path</div>';
                     html += '<div style="position:relative; margin-bottom:24px;">';
-
-                    html += '<div style="display:flex; align-items:center; height:48px; border-radius:12px; overflow:hidden; background:var(--bg-elevated); border:1px solid var(--border-color);">';
+                    html += '<div style="display:flex; align-items:center; height:44px; border-radius:12px; overflow:hidden; background:var(--bg-elevated); border:1px solid var(--border-color);">';
                     var basePct = Math.max(((entryVal / maxVal) * 100), 15);
-                    html += '<div style="width:' + basePct + '%; height:100%; background:linear-gradient(135deg,#10b981,#059669); display:flex; align-items:center; justify-content:center; position:relative;">'
-                        + '<span style="font-size:0.72em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3);">You Now</span>'
-                        + '</div>';
+                    html += '<div style="width:' + basePct + '%; height:100%; background:linear-gradient(135deg,#10b981,#059669); display:flex; align-items:center; justify-content:center;">'
+                        + '<span style="font-size:0.72em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3);">You Now</span></div>';
                     var runningPct = basePct;
                     skillsToLearn.forEach(function(sk, si) {
                         var skVal = Number(sk.valueAdd) || 0;
                         var skPct = Math.max(((skVal / maxVal) * 100), 5);
                         if (runningPct + skPct > 100) skPct = 100 - runningPct;
                         var bc = barColors[si % barColors.length];
-                        html += '<div style="width:' + skPct + '%; height:100%; background:' + bc + '; display:flex; align-items:center; justify-content:center; position:relative; border-left:2px solid rgba(255,255,255,0.3);">'
-                            + '<span style="font-size:0.62em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3); overflow:hidden; text-overflow:ellipsis; padding:0 2px;">+' + _expFmt(skVal) + '</span>'
-                            + '</div>';
+                        html += '<div style="width:' + skPct + '%; height:100%; background:' + bc + '; display:flex; align-items:center; justify-content:center; border-left:2px solid rgba(255,255,255,0.3);">'
+                            + '<span style="font-size:0.62em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3); overflow:hidden; text-overflow:ellipsis; padding:0 2px;">+' + _expFmt(skVal) + '</span></div>';
                         runningPct += skPct;
                     });
                     html += '</div>';
-
                     html += '<div style="display:flex; justify-content:space-between; margin-top:6px;">'
                         + '<span style="font-size:0.72em; font-weight:600; color:#10b981;">' + _expFmt(entryVal) + '</span>'
-                        + '<span style="font-size:0.72em; font-weight:700; color:#8b5cf6;">' + _expFmt(potentialVal) + '/yr potential</span>'
-                        + '</div>';
-
+                        + '<span style="font-size:0.72em; font-weight:700; color:#8b5cf6;">' + _expFmt(potentialVal) + '/yr potential</span></div>';
                     html += '</div>';
 
                     html += '<div style="position:relative; padding-left:28px;">';
-                    html += '<div style="position:absolute; left:12px; top:0; bottom:0; width:3px; background:linear-gradient(180deg,#10b981,#f59e0b,#ef4444,#8b5cf6); border-radius:3px;"></div>';
-
-                    html += '<div style="position:relative; margin-bottom:20px; padding-left:12px;">'
-                        + '<div style="position:absolute; left:-22px; top:4px; width:14px; height:14px; border-radius:50%; background:#10b981; border:3px solid var(--card-bg); box-shadow:0 0 0 2px #10b981;"></div>'
-                        + '<div style="font-size:0.72em; font-weight:700; color:#10b981; text-transform:uppercase; letter-spacing:0.05em;">Today &mdash; ' + _expFmt(entryVal) + '/yr</div>'
-                        + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:2px;">' + skillCount + ' skills you already have</div>'
-                        + '</div>';
-
                     skillsToLearn.forEach(function(sk, si) {
                         var bc = barColors[si % barColors.length];
-                        var skVal = Number(sk.valueAdd) || 0;
-                        html += '<div style="position:relative; margin-bottom:16px; padding-left:12px;">'
-                            + '<div style="position:absolute; left:-22px; top:4px; width:14px; height:14px; border-radius:50%; background:' + bc + '; border:3px solid var(--card-bg); box-shadow:0 0 0 2px ' + bc + ';"></div>'
-                            + '<div style="padding:12px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-elevated);">'
-                            + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
-                            + '<span style="font-weight:700; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(sk.name) + '</span>'
-                            + '<span style="font-weight:700; color:' + bc + '; font-size:0.88em;">+' + _expFmt(skVal) + '/yr</span>'
-                            + '</div>'
-                            + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(sk.how || '') + '</div>'
-                            + '<div style="display:flex; gap:12px; margin-top:6px; font-size:0.7em; color:var(--text-muted);">'
-                            + '<span>\u23F1 ' + escapeHtml(sk.timeToLearn || '') + '</span>'
-                            + '</div>'
-                            + '</div></div>';
+                        html += '<div style="position:relative; padding:10px 0 14px 0;' + (si < skillsToLearn.length - 1 ? ' border-left:2px solid var(--border-color); margin-left:-14px; padding-left:26px;' : ' margin-left:-14px; padding-left:26px;') + '">'
+                            + '<div style="position:absolute; left:-21px; top:12px; width:14px; height:14px; border-radius:50%; background:' + bc + '; border:3px solid var(--card-bg);"></div>'
+                            + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:4px;">'
+                            + '<div style="font-weight:700; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(sk.name) + '</div>'
+                            + '<div style="font-weight:700; color:' + bc + '; font-size:0.82em;">+' + _expFmt(sk.valueAdd || 0) + '/yr</div></div>'
+                            + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(sk.timeToLearn || '') + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--text-secondary); margin-top:2px; line-height:1.4;">' + escapeHtml(sk.how || '') + '</div></div>';
                     });
-
-                    html += '<div style="position:relative; padding-left:12px;">'
-                        + '<div style="position:absolute; left:-22px; top:4px; width:14px; height:14px; border-radius:50%; background:#8b5cf6; border:3px solid var(--card-bg); box-shadow:0 0 0 2px #8b5cf6;"></div>'
-                        + '<div style="font-size:0.78em; font-weight:700; color:#8b5cf6; text-transform:uppercase; letter-spacing:0.05em;">Goal &mdash; ' + _expFmt(potentialVal) + '/yr</div>'
-                        + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">+' + _expFmt(totalSkillValue) + ' added market value</div>'
-                        + '</div>';
-
                     html += '</div>';
                 }
-
-                if (selectedPath.nextSteps && selectedPath.nextSteps.length) {
-                    html += '<div style="' + ls + ' color:#60a5fa; margin-top:16px;">Action Steps</div>';
-                    selectedPath.nextSteps.forEach(function(step, i) {
-                        html += '<div style="display:flex; align-items:flex-start; gap:8px; margin-bottom:8px;">'
-                            + '<span style="flex-shrink:0; width:20px; height:20px; border-radius:50%; background:rgba(96,165,250,0.15); color:#60a5fa; font-size:0.7em; font-weight:700; display:flex; align-items:center; justify-content:center;">' + (i+1) + '</span>'
-                            + '<span style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(step) + '</span>'
-                            + '</div>';
-                    });
-                }
-
                 html += '</div>';
             }
 
+            // ZONE 3: WHO YOU ARE — 2-column
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:28px;">';
+
+            // LEFT: Education + Activities
+            html += '<div style="display:flex; flex-direction:column; gap:16px;">';
             var allSchools = ed.schools || (education.school ? [education] : []);
+            html += '<div style="' + card + '">';
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                + '<div style="' + ls + ' color:#f59e0b;">\uD83C\uDF93 Education</div>'
+                + '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.2); background:rgba(245,158,11,0.04); color:#f59e0b; cursor:pointer; font-weight:600;">+ Add</button></div>';
             if (allSchools.length > 0) {
-                html += '<div style="' + cs + '">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                    + '<div style="' + ls + ' color:#f59e0b; margin-bottom:0;">Education</div>'
-                    + '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); background:rgba(245,158,11,0.06); color:#f59e0b; cursor:pointer; font-weight:600;">+ Add School</button>'
-                    + '</div>';
                 allSchools.forEach(function(s, i) {
                     var typeEmoji = s.schoolType === 'highschool' ? '\uD83C\uDFEB' : s.schoolType === 'trade' ? '\uD83D\uDD27' : s.schoolType === 'community' ? '\uD83D\uDCDA' : s.schoolType === 'bootcamp' ? '\uD83D\uDCBB' : '\uD83C\uDF93';
-                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
                         + '<div>'
-                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.92em;">' + typeEmoji + ' ' + escapeHtml(s.school || '') + '</div>'
-                        + '<div style="font-size:0.82em; color:var(--text-secondary);">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + typeEmoji + ' ' + escapeHtml(s.school || '') + '</div>'
+                        + '<div style="font-size:0.78em; color:var(--text-secondary);">'
                         + (s.degree ? escapeHtml(s.degree) : '') + (s.major ? ' in ' + escapeHtml(s.major) : '')
                         + (s.gradYear ? ' \u00B7 ' + escapeHtml(s.gradYear) : '')
                         + (s.currentYear ? ' \u00B7 ' + escapeHtml(s.currentYear) : '')
                         + '</div></div>'
                         + '<div style="display:flex; gap:4px; flex-shrink:0;">'
-                        + '<button onclick="explorerDashEditSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">\u270E</button>'
-                        + (allSchools.length > 1 ? '<button onclick="explorerDashRemoveSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.85em;">\u00D7</button>' : '')
+                        + '<button onclick="explorerDashEditSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.78em;">\u270E</button>'
+                        + (allSchools.length > 1 ? '<button onclick="explorerDashRemoveSchool(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.82em;">\u00D7</button>' : '')
                         + '</div></div>';
                 });
-                html += '</div>';
             } else {
-                html += '<div style="' + cs + ' text-align:center;">'
-                    + '<div style="' + ls + ' color:#f59e0b;">Education</div>'
-                    + '<div style="font-size:0.85em; color:var(--text-muted); margin-bottom:10px;">No schools added yet.</div>'
-                    + '<button onclick="explorerDashAddSchool()" style="padding:8px 16px; background:rgba(245,158,11,0.1); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">+ Add a School</button>'
-                    + '</div>';
+                html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No schools added yet.</div>';
             }
+            html += '</div>';
 
             var activities = ed.activities || [];
-            html += '<div style="' + cs + '">'
-                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                + '<div style="' + ls + ' color:#8b5cf6; margin-bottom:0;">Activities & Experience</div>'
-                + '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(139,92,246,0.3); background:rgba(139,92,246,0.06); color:#8b5cf6; cursor:pointer; font-weight:600;">+ Add</button>'
-                + '</div>';
+            html += '<div style="' + card + '">';
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                + '<div style="' + ls + ' color:#8b5cf6;">\u26A1 Activities</div>'
+                + '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(139,92,246,0.2); background:rgba(139,92,246,0.04); color:#8b5cf6; cursor:pointer; font-weight:600;">+ Add</button></div>';
             if (activities.length === 0) {
-                html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:10px 0;">No activities added yet. Tap + Add to start!</div>';
+                html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No activities added yet.</div>';
             } else {
                 activities.forEach(function(a, i) {
                     var catObj = _explorerActCategories.find(function(c) { return c.id === a.category; }) || { label: a.category, icon: bpIcon('compass',14) };
-                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
-                        + '<div style="flex:1;">'
-                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + catObj.icon + ' ' + escapeHtml(catObj.label) + (a.role ? ' \u2014 ' + escapeHtml(a.role) : '') + '</div>'
-                    var levelLabels = {rec:'Recreational',  'school-hs':'HS Team/Club', neighborhood:'Community League', 'school-college':'College Team/Club', varsity:'Varsity', travel:'Travel/Select', leadership:'Leadership', professional:'Semi-pro/Professional'};
-                    html += '<div style="font-size:0.75em; color:var(--text-muted); display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">'
-                        + (a.level ? '<span>' + escapeHtml(levelLabels[a.level] || a.level) + '</span>' : '')
-                        + (a.duration ? '<span>' + escapeHtml(a.duration) + '</span>' : '')
-                        + '</div>'
-                        + (a.description ? '<div style="font-size:0.78em; color:var(--text-secondary); margin-top:4px; line-height:1.4;">' + escapeHtml(a.description) + '</div>' : '')
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:7px 0;' + (i > 0 ? ' border-top:1px solid var(--border-color);' : '') + '">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">' + catObj.icon + ' ' + escapeHtml(catObj.label) + (a.role ? ' \u2014 ' + escapeHtml(a.role) : '') + '</div>';
+                    html += (a.description ? '<div style="font-size:0.75em; color:var(--text-secondary); margin-top:3px; line-height:1.4;">' + escapeHtml(a.description) + '</div>' : '')
                         + '</div>'
                         + '<div style="display:flex; gap:4px; flex-shrink:0;">'
-                        + '<button onclick="explorerDashEditActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">\u270E</button>'
-                        + '<button onclick="explorerDashRemoveActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.85em;">\u00D7</button>'
+                        + '<button onclick="explorerDashEditActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.78em;">\u270E</button>'
+                        + '<button onclick="explorerDashRemoveActivity(' + i + ')" style="background:none; border:none; cursor:pointer; color:var(--c-danger); font-size:0.82em;">\u00D7</button>'
                         + '</div></div>';
                 });
             }
             html += '</div>';
+            html += '</div>';
 
-            var interests = _normalizeInterests(ed.interests || []);
-            html += '<div style="' + cs + '">'
-                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
-                + '<div style="' + ls + ' color:#60a5fa; margin-bottom:0;">Interests</div>'
-                + '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.06); color:#60a5fa; cursor:pointer; font-weight:600;">\u270E Edit</button>'
-                + '</div>';
+            // RIGHT: Interests + Values
+            html += '<div style="display:flex; flex-direction:column; gap:16px;">';
+            html += '<div style="' + card + '">';
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                + '<div style="' + ls + ' color:#60a5fa;">\u2728 Interests</div>'
+                + '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.2); background:rgba(96,165,250,0.04); color:#60a5fa; cursor:pointer; font-weight:600;">\u270E Edit</button></div>';
             if (interests.length === 0) {
-                html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:6px 0;">No interests added yet.</div>';
+                html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No interests added yet.</div>';
             } else {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 interests.forEach(function(int) {
                     var lvl = _interestIntensityLevels.find(function(l) { return l.id === int.intensity; }) || _interestIntensityLevels[0];
-                    html += '<span onclick="explorerDashCycleIntensity(\'' + escapeAttr(int.name).replace(/'/g, "\\'") + '\')" style="display:inline-flex; align-items:center; gap:4px; cursor:pointer; background:' + lvl.color + '15; color:' + lvl.color + '; font-size:0.78em; font-weight:600; padding:5px 11px; border-radius:10px; border:1px solid ' + lvl.color + '40; transition:all 0.15s;">'
-                        + lvl.icon + ' ' + escapeHtml(int.name)
-                        + '</span>';
+                    html += '<span onclick="explorerDashCycleIntensity(\'' + escapeAttr(int.name).replace(/'/g, "\\'") + '\')" style="display:inline-flex; align-items:center; gap:4px; cursor:pointer; background:' + lvl.color + '12; color:' + lvl.color + '; font-size:0.76em; font-weight:600; padding:5px 11px; border-radius:10px; border:1px solid ' + lvl.color + '30; transition:all 0.15s;">'
+                        + lvl.icon + ' ' + escapeHtml(int.name) + '</span>';
                 });
                 html += '</div>';
             }
             html += '</div>';
-
-            html += '<div style="' + cs + '">'
-                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
-                + '<div style="' + ls + ' color:#ec4899; margin-bottom:0;">What Drives You</div>'
-                + '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--c-accent); font-size:0.82em;">\u270E</button>'
-                + '</div>'
-                + (driveStatement
-                    ? '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6; font-style:italic;">&ldquo;' + escapeHtml(driveStatement) + '&rdquo;</div>'
-                    : '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:6px 0;">Tap \u270E to tell us what motivates you!</div>')
-                + '</div>';
-
             html += _renderExplorerValues(ed);
+            html += '</div>';
 
-            html += '<div style="' + cs + ' border-color:rgba(96,165,250,0.2);">'
-                + '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
-                + '<div>'
-                + '<div style="font-size:0.88em; font-weight:700; color:var(--text-primary); margin-bottom:4px;">' + bpIcon('layers',16) + ' Import / Restore Profile</div>'
-                + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.5;">Have a previously exported Blueprint JSON? Load it to restore your profile.</div>'
-                + '</div>'
-                + '<label style="padding:8px 18px; background:var(--accent); color:#fff; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; white-space:nowrap;">'
-                + 'Select JSON File'
-                + '<input type="file" accept=".json" onchange="explorerImportJSON(this)" style="display:none;">'
-                + '</label>'
-                + '</div></div>';
+            html += '</div>';
 
-            html += '<div style="' + cs + ' text-align:center; border-color:rgba(16,185,129,0.3);">'
-                + '<div style="font-size:0.92em; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Ready for Your First Role?</div>'
-                + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6; margin-bottom:14px;">When you land your first job, convert to a full Blueprint to unlock real-time salary insights, market valuation, negotiation tools, and advanced evidence tracking.</div>'
-                + '<button onclick="explorerConvertToFull()" style="padding:12px 24px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert to Full Blueprint</button>'
-                + '</div>';
-
+            // ZONE 4: INTELLIGENCE
             if (careerPaths.length >= 2) {
                 html += _renderCompensationTrajectory(careerPaths, selectedIdx);
             }
-
             if (skills.length > 0 && careerPaths.length > 0 && interests.length > 0) {
                 html += _renderSkillAdjacencyMap(interests, skills, careerPaths, selectedPath);
             }
-
             html += _renderPeopleLikeYou(ed, skills);
+
+            // ZONE 5: UTILITY
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; opacity:0.85;">';
+            html += '<div style="' + card + ' padding:16px; display:flex; align-items:center; justify-content:space-between; gap:12px;">'
+                + '<div style="min-width:0;">'
+                + '<div style="font-size:0.8em; font-weight:600; color:var(--text-primary);">' + bpIcon('layers',14) + ' Import Profile</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">Restore from exported JSON</div></div>'
+                + '<label style="padding:6px 14px; background:var(--accent); color:#fff; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.76em; white-space:nowrap; flex-shrink:0;">'
+                + 'Select File<input type="file" accept=".json" onchange="explorerImportJSON(this)" style="display:none;"></label></div>';
+            html += '<div style="' + card + ' padding:16px; text-align:center;">'
+                + '<div style="font-size:0.8em; font-weight:600; color:var(--text-primary); margin-bottom:4px;">Ready for Your First Role?</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-bottom:8px;">Convert to unlock salary insights & negotiation tools</div>'
+                + '<button onclick="explorerConvertToFull()" style="padding:8px 18px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.78em;">Convert to Full Blueprint</button></div>';
+            html += '</div>';
 
             return html;
         }
