@@ -72,7 +72,7 @@ Blueprint is a confidence engine. Not a job board, not a resume tool, not anothe
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.47.09. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
+Current: v4.47.39a. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also in `public/app-core.js` (`BP_VERSION` var). Also update `package.json` version field.
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `public/app-core.js` comment + var, `legacy.js` comment + var, and `index.html` version comment.
 
@@ -92,7 +92,10 @@ Current: v4.47.09. Single source of truth: `src/core/constants.js` (`BP_VERSION`
 - **Firestore retry**: `saveToFirestore` retries 3x with exponential backoff.
 - **localStorage wrapper**: `safeGet()`/`safeSet()`/`safeRemove()` handle quota exceeded + private browsing.
 
-## Performance (v4.46.90)
+## Performance & Scale (v4.47.39a)
+- **Firestore offline persistence**: `enablePersistence({ synchronizeTabs: true })` — cached reads eliminate repeat Firestore calls, works offline, syncs across tabs.
+- **AI response caching**: SHA-256 keyed by user+feature+model+prompt, 24h TTL, LRU eviction (oldest-first) on localStorage quota pressure. Cacheable features: explorer-skills, explorer-careers, wb-value-desc, wb-skill-outcome.
+- **AI daily rate limit**: 30 calls/day per user (client-side, localStorage). Only successful API calls count against quota. Resets at midnight UTC.
 - **Console banner**: Only shown in localhost dev mode, suppressed in production.
 - **Verbose debug logs**: Removed from comparison engine hot paths.
 - **52 event listeners / 9 removeEventListeners**: Potential leak area for future cleanup.
