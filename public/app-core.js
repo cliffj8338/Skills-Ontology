@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.10';
+        var BP_VERSION = 'v4.48.11';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -258,10 +258,10 @@
         };
 
         var _interestIntensityLevels = [
-            { id: 'curious', label: 'Curious', icon: bpIcon('search',14), color: '#60a5fa', desc: 'Just getting started' },
-            { id: 'learning', label: 'Learning', icon: bpIcon('book',14), color: '#ff9f0a', desc: 'Actively building knowledge' },
-            { id: 'passionate', label: 'Passionate', icon: bpIcon('flame',14), color: '#ff453a', desc: 'Deeply invested' },
-            { id: 'talented', label: 'Talented', icon: bpIcon('star',14), color: '#bf5af2', desc: 'Strong skill & experience' }
+            { id: 'curious', label: 'Curious', icon: bpIcon('search',14), color: 'var(--accent)', desc: 'Just getting started' },
+            { id: 'learning', label: 'Learning', icon: bpIcon('book',14), color: 'var(--c-orange)', desc: 'Actively building knowledge' },
+            { id: 'passionate', label: 'Passionate', icon: bpIcon('flame',14), color: 'var(--danger)', desc: 'Deeply invested' },
+            { id: 'talented', label: 'Talented', icon: bpIcon('star',14), color: 'var(--c-purple)', desc: 'Strong skill & experience' }
         ];
 
         function _normalizeInterests(arr) {
@@ -829,11 +829,11 @@
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c   Build: 20260314-security-hardening                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-            console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+            console.log('%c==============================================', 'color: #0071e3; font-weight: bold; font-size: 14px;');
+            console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #0071e3; font-weight: bold; font-size: 14px;');
+            console.log('%c   Build: 20260314-security-hardening                 ', 'color: #0071e3; font-weight: bold; font-size: 14px;');
+            console.log('%c   Everyone Has Premium Value!              ', 'color: #0071e3; font-weight: bold; font-size: 14px;');
+            console.log('%c==============================================', 'color: #0071e3; font-weight: bold; font-size: 14px;');
         }
 
 
@@ -1624,7 +1624,7 @@
                         _clearSaveBackup();
                         window._lastSavedAt = new Date();
                         var si = document.getElementById('saveIndicator');
-                        if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#30d158'; setTimeout(function() { updateLastSavedDisplay(); }, 2500); }
+                        if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = 'var(--success)'; setTimeout(function() { updateLastSavedDisplay(); }, 2500); }
                         return true;
                     })
                     .catch(function(err) {
@@ -1639,7 +1639,7 @@
                         recordApiHealth('firebase-db', 'down', 'Save failed: ' + err.message);
                         logIncident('critical', 'firestore-save', 'Firestore save failed after ' + maxRetries + ' attempts: ' + err.message, { rawError: err.message });
                         var si = document.getElementById('saveIndicator');
-                        if (si) { si.innerHTML = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = '#ff453a'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
+                        if (si) { si.innerHTML = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = 'var(--danger)'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
                         showToast('Your changes could not be saved. They are backed up locally and will sync when connection restores.', 'error', 6000);
                         return false;
                     });
@@ -2395,11 +2395,11 @@
             // ===== SYSTEM STATUS =====
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:24px;">';
             [
-                { label: 'App Version', value: BP_VERSION, color: '#60a5fa' },
-                { label: 'App Mode', value: appMode || 'unknown', color: '#ffd60a' },
-                { label: 'Sample Profiles', value: sampleCount, color: '#bf5af2' },
-                { label: 'Firebase', value: showcaseMode ? 'Showcase (static)' : (fbDb ? 'Connected' : 'Offline'), color: showcaseMode ? '#ffd60a' : (fbDb ? '#30d158' : '#ff453a') },
-                { label: 'Admin UID', value: showcaseMode ? 'Showcase' : (fbUser ? fbUser.uid.substring(0,8) + '...' : 'N/A'), color: '#636366' }
+                { label: 'App Version', value: BP_VERSION, color: 'var(--accent)' },
+                { label: 'App Mode', value: appMode || 'unknown', color: 'var(--warning)' },
+                { label: 'Sample Profiles', value: sampleCount, color: 'var(--c-purple)' },
+                { label: 'Firebase', value: showcaseMode ? 'Showcase (static)' : (fbDb ? 'Connected' : 'Offline'), color: showcaseMode ? 'var(--warning)' : (fbDb ? 'var(--success)' : 'var(--danger)') },
+                { label: 'Admin UID', value: showcaseMode ? 'Showcase' : (fbUser ? fbUser.uid.substring(0,8) + '...' : 'N/A'), color: 'var(--text-muted)' }
             ].forEach(function(c) {
                 html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
                     + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:4px;">' + c.label + '</div>'
@@ -2409,11 +2409,11 @@
             
             if (!showcaseMode) {
                 var showcaseUrl = window.location.origin + window.location.pathname + '?showcase=' + SHOWCASE_CONFIG.key;
-                html += '<div style="margin-bottom:24px; padding:14px 18px; background:rgba(255,214,10,0.08); border:1px solid rgba(255,214,10,0.2); border-radius:10px;">'
+                html += '<div style="margin-bottom:24px; padding:14px 18px; background:rgba(178,80,0,0.08); border:1px solid rgba(178,80,0,0.2); border-radius:10px;">'
                     + '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
                     + '<div style="font-size:0.78em; color:var(--warning); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Investor Showcase</div>'
                     + '<code id="showcaseUrlText" style="flex:1; min-width:200px; font-size:0.82em; color:var(--text-secondary); background:var(--c-surface-2); padding:8px 12px; border-radius:6px; border:1px solid var(--c-surface-5); word-break:break-all; cursor:text; user-select:all;">' + escapeHtml(showcaseUrl) + '</code>'
-                    + '<button onclick="navigator.clipboard.writeText(document.getElementById(\'showcaseUrlText\').textContent); this.textContent=\'Copied!\'; this.style.background=\'#30d158\'; setTimeout(function(){document.querySelector(\'[data-showcase-copy]\').textContent=\'Copy\'; document.querySelector(\'[data-showcase-copy]\').style.background=\'rgba(255,214,10,0.15)\';}, 1500);" data-showcase-copy style="padding:6px 16px; background:rgba(255,214,10,0.15); color:var(--warning); border:1px solid rgba(255,214,10,0.3); border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Copy</button>'
+                    + '<button onclick="navigator.clipboard.writeText(document.getElementById(\'showcaseUrlText\').textContent); this.textContent=\'Copied!\'; this.style.background=\'var(--success)\'; setTimeout(function(){document.querySelector(\'[data-showcase-copy]\').textContent=\'Copy\'; document.querySelector(\'[data-showcase-copy]\').style.background=\'rgba(178,80,0,0.15)\';}, 1500);" data-showcase-copy style="padding:6px 16px; background:rgba(178,80,0,0.15); color:var(--warning); border:1px solid rgba(178,80,0,0.3); border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Copy</button>'
                     + '</div>'
                     + '<div style="margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">'
                     + '<button onclick="exportShowcaseProfile()" style="padding:6px 14px; background:var(--c-surface-5); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('upload', 12) + ' Update Showcase Profile</button>'
@@ -2454,29 +2454,29 @@
             var synonymMappingCount = (typeof _synonymLookup === 'object') ? Object.keys(_synonymLookup).length : 0;
 
             var tiles = [
-                { name: 'Skills Library', count: escoCount, source: 'ESCO \u00B7 Lightcast \u00B7 O*NET', color: '#bf5af2', loaded: escoCount > 0 },
+                { name: 'Skills Library', count: escoCount, source: 'ESCO \u00B7 Lightcast \u00B7 O*NET', color: 'var(--c-purple)', loaded: escoCount > 0 },
                 { name: 'Certifications', count: certLibCount, source: 'Base + Lightcast', color: '#c084fc', loaded: certLibCount > 0 },
-                { name: 'Synonyms', count: synonymMappingCount, source: 'Bidirectional mappings', color: '#bf5af2', loaded: synonymMappingCount > 0 },
-                { name: 'Abilities', count: abilitiesCount, source: 'O*NET', color: '#60a5fa', loaded: abilitiesCount > 0 },
-                { name: 'Work Styles', count: wsCount, source: 'O*NET', color: '#60a5fa', loaded: wsCount > 0 },
-                { name: 'Knowledge', count: knowledgeCount, source: 'O*NET', color: '#60a5fa', loaded: knowledgeCount > 0 },
-                { name: 'Work Activities', count: activitiesCount, source: 'O*NET', color: '#60a5fa', loaded: activitiesCount > 0 },
+                { name: 'Synonyms', count: synonymMappingCount, source: 'Bidirectional mappings', color: 'var(--c-purple)', loaded: synonymMappingCount > 0 },
+                { name: 'Abilities', count: abilitiesCount, source: 'O*NET', color: 'var(--accent)', loaded: abilitiesCount > 0 },
+                { name: 'Work Styles', count: wsCount, source: 'O*NET', color: 'var(--accent)', loaded: wsCount > 0 },
+                { name: 'Knowledge', count: knowledgeCount, source: 'O*NET', color: 'var(--accent)', loaded: knowledgeCount > 0 },
+                { name: 'Work Activities', count: activitiesCount, source: 'O*NET', color: 'var(--accent)', loaded: activitiesCount > 0 },
                 { name: 'O*NET Crosswalk', count: cwOccCount, source: cwAliasCount.toLocaleString() + ' title aliases', color: '#38bdf8', loaded: cwOccCount > 0 },
-                { name: 'Trades & Creative', count: tradesCount, source: 'Custom', color: '#ff9f0a', loaded: tradesCount > 0 },
-                { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#30d158', loaded: valuesCount > 0 },
-                { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#ff9f0a', loaded: blsWageCount > 0 },
-                { name: 'BLS Aliases', count: blsAliasCount ? blsAliasCount.toLocaleString() : 0, source: 'Title \u2192 SOC salary mappings', color: '#ff9f0a', loaded: blsAliasCount > 0 },
-                { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#ffd60a', loaded: true },
-                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 7 sources, A/B sync every 6h', color: '#ff453a', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0), id: 'adminJobsTile' }
+                { name: 'Trades & Creative', count: tradesCount, source: 'Custom', color: 'var(--c-orange)', loaded: tradesCount > 0 },
+                { name: 'Values', count: valuesCount, source: 'Blueprint', color: 'var(--success)', loaded: valuesCount > 0 },
+                { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: 'var(--c-orange)', loaded: blsWageCount > 0 },
+                { name: 'BLS Aliases', count: blsAliasCount ? blsAliasCount.toLocaleString() : 0, source: 'Title \u2192 SOC salary mappings', color: 'var(--c-orange)', loaded: blsAliasCount > 0 },
+                { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: 'var(--warning)', loaded: true },
+                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 7 sources, A/B sync every 6h', color: 'var(--danger)', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0), id: 'adminJobsTile' }
             ];
             
             var totalLoaded = tiles.filter(function(t) { return t.loaded; }).length;
             
             tiles.forEach(function(t) {
                 html += '<div ' + (t.id ? 'id="' + t.id + '" ' : '') + 'style="padding:14px; background:var(--c-surface-4b); '
-                    + 'border:1px solid ' + (t.loaded ? 'var(--c-border-faint)' : 'rgba(255,69,58,0.3)') + '; '
+                    + 'border:1px solid ' + (t.loaded ? 'var(--c-border-faint)' : 'rgba(215,0,21,0.3)') + '; '
                     + 'border-radius:10px; text-align:center; position:relative;">'
-                    + '<div style="position:absolute; top:8px; right:10px; font-size:0.65em; color:' + (t.loaded ? '#30d158' : '#ff453a') + ';">' + (t.loaded ? '\u25CF' : '\u25CB') + '</div>'
+                    + '<div style="position:absolute; top:8px; right:10px; font-size:0.65em; color:' + (t.loaded ? 'var(--success)' : 'var(--danger)') + ';">' + (t.loaded ? '\u25CF' : '\u25CB') + '</div>'
                     + '<div style="font-size:1.5em; font-weight:700; color:' + t.color + '; margin-bottom:2px;">' + (typeof t.count === 'number' ? t.count.toLocaleString() : t.count) + '</div>'
                     + '<div style="font-size:0.82em; font-weight:600; color:var(--text-primary); margin-bottom:2px;">' + t.name + '</div>'
                     + '<div style="font-size:0.68em; color:var(--text-muted);">' + t.source + '</div>'
@@ -2492,8 +2492,8 @@
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('tool', 16) + ' Jobs Sync</h3>'
                 + '<div style="display:flex; align-items:center; gap:10px;">'
-                + '<span style="font-size:0.68em; padding:3px 8px; border-radius:6px; background:rgba(96,165,250,0.1); color:var(--accent); font-weight:600; letter-spacing:0.03em;">CRON · 6h</span>'
-                + '<button onclick="purgeJobDuplicates()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(255,159,10,0.3); background:rgba(255,159,10,0.08); color:var(--c-orange); cursor:pointer; font-weight:600;">Purge Dupes</button></div></div>'
+                + '<span style="font-size:0.68em; padding:3px 8px; border-radius:6px; background:rgba(0,113,227,0.1); color:var(--accent); font-weight:600; letter-spacing:0.03em;">CRON · 6h</span>'
+                + '<button onclick="purgeJobDuplicates()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(196,93,0,0.3); background:rgba(196,93,0,0.08); color:var(--c-orange); cursor:pointer; font-weight:600;">Purge Dupes</button></div></div>'
                 + '<div id="adminJobsSyncContent" style="color:var(--text-muted); font-size:0.85em;">Loading sync status...</div></div>';
             
             // ===== SITE TRAFFIC & ANALYTICS =====
@@ -2586,18 +2586,18 @@
             html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('trending-up',16) + ' Dev Velocity</h3>'
-                + '<span style="font-size:0.68em; padding:3px 10px; border-radius:8px; background:rgba(48,209,88,0.1); color:var(--success); font-weight:700;">' + speedMultiplier + 'x FASTER</span>'
+                + '<span style="font-size:0.68em; padding:3px 10px; border-radius:8px; background:rgba(36,138,61,0.1); color:var(--success); font-weight:700;">' + speedMultiplier + 'x FASTER</span>'
                 + '</div>';
             
             // Top stats grid
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:20px;">';
             var devTiles = [
-                { label: 'Lines of Code', value: devStats.lineCount.toLocaleString(), color: '#60a5fa', icon: 'file-text' },
-                { label: 'Features Shipped', value: doneFeatures, color: '#30d158', icon: 'check' },
-                { label: 'Deploys', value: totalDeploys + '+', color: '#bf5af2', icon: 'layers' },
-                { label: 'AI Sessions', value: devStats.sessionsAI, color: '#ff9f0a', icon: 'wand' },
-                { label: 'AI Hours', value: Math.round(aiHoursTotal), color: '#5ac8fa', icon: 'clock' },
-                { label: 'Project Start', value: (function() { var d = new Date(devStats.firstCommit + 'T00:00:00'); var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); })(), color: '#636366', icon: 'clock' }
+                { label: 'Lines of Code', value: devStats.lineCount.toLocaleString(), color: 'var(--accent)', icon: 'file-text' },
+                { label: 'Features Shipped', value: doneFeatures, color: 'var(--success)', icon: 'check' },
+                { label: 'Deploys', value: totalDeploys + '+', color: 'var(--c-purple)', icon: 'layers' },
+                { label: 'AI Sessions', value: devStats.sessionsAI, color: 'var(--c-orange)', icon: 'wand' },
+                { label: 'AI Hours', value: Math.round(aiHoursTotal), color: 'var(--c-cyan)', icon: 'clock' },
+                { label: 'Project Start', value: (function() { var d = new Date(devStats.firstCommit + 'T00:00:00'); var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); })(), color: 'var(--text-muted)', icon: 'clock' }
             ];
             devTiles.forEach(function(t) {
                 html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid var(--c-border-faint); border-radius:8px; text-align:center;">'
@@ -2621,13 +2621,13 @@
                 + '</div>';
             
             // Traditional column
-            html += '<div style="padding:16px; background:rgba(255,69,58,0.04); border:1px solid rgba(255,69,58,0.15); border-radius:10px;">'
+            html += '<div style="padding:16px; background:rgba(215,0,21,0.04); border:1px solid rgba(215,0,21,0.15); border-radius:10px;">'
                 + '<div style="font-size:0.78em; font-weight:700; color:var(--danger); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('users',14) + ' Traditional Solo Dev</div>'
                 + devBar('Calendar Time', tradMonths + ' mo', Math.max(monthsElapsed, tradMonths), '#ff453a')
                 + devBar('Work Hours', (tradDays * 8).toLocaleString(), Math.max(aiHoursTotal, tradDays * 8), '#ff9f0a')
                 + devBar('Work Days', tradDays, Math.max(aiDays, tradDays), '#ff453a')
                 + devBar('Total Cost', '$' + tradTotalCost.toLocaleString(), Math.max(aiTotalCost, tradTotalCost), '#ff453a')
-                + '<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,69,58,0.1); font-size:0.72em; color:var(--text-muted);">'
+                + '<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(215,0,21,0.1); font-size:0.72em; color:var(--text-muted);">'
                 + 'Sr. Full-Stack: ~$175K/yr loaded &middot; ' + tradLocPerDay + ' LOC/day</div>'
                 + '</div>';
             
@@ -2636,9 +2636,9 @@
             // Bottom summary bar
             html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">';
             [
-                { label: 'Speed', value: speedMultiplier + 'x', sub: 'faster delivery', color: '#30d158' },
-                { label: 'Cost', value: costMultiplier + 'x', sub: 'less expensive', color: '#5ac8fa' },
-                { label: 'Efficiency', value: Math.round(devStats.lineCount / Math.max(1, aiHoursTotal)) + ' LOC/hr', sub: 'AI-assisted output', color: '#bf5af2' }
+                { label: 'Speed', value: speedMultiplier + 'x', sub: 'faster delivery', color: 'var(--success)' },
+                { label: 'Cost', value: costMultiplier + 'x', sub: 'less expensive', color: 'var(--c-cyan)' },
+                { label: 'Efficiency', value: Math.round(devStats.lineCount / Math.max(1, aiHoursTotal)) + ' LOC/hr', sub: 'AI-assisted output', color: 'var(--c-purple)' }
             ].forEach(function(s) {
                 html += '<div style="text-align:center; padding:14px; background:var(--c-surface-4b); border-radius:8px; border:1px solid var(--c-border-faint);">'
                     + '<div style="font-size:1.4em; font-weight:700; color:' + s.color + ';">' + s.value + '</div>'
@@ -2665,7 +2665,7 @@
             html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('tool',16) + ' Maintenance</h3>'
                 + '<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">'
-                + '<button onclick="cleanOrphanRoles()" style="padding:10px 20px; background:' + (orphanRoleCount > 0 ? 'rgba(255,159,10,0.15)' : 'var(--c-surface-4b)') + '; color:' + (orphanRoleCount > 0 ? '#ff9f0a' : 'var(--text-muted)') + '; border:1px solid ' + (orphanRoleCount > 0 ? 'rgba(255,159,10,0.3)' : 'var(--c-surface-5)') + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('trash',14) + ' Clean Orphan Roles (' + orphanRoleCount + ')</button>'
+                + '<button onclick="cleanOrphanRoles()" style="padding:10px 20px; background:' + (orphanRoleCount > 0 ? 'rgba(196,93,0,0.15)' : 'var(--c-surface-4b)') + '; color:' + (orphanRoleCount > 0 ? 'var(--c-orange)' : 'var(--text-muted)') + '; border:1px solid ' + (orphanRoleCount > 0 ? 'rgba(196,93,0,0.3)' : 'var(--c-surface-5)') + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('trash',14) + ' Clean Orphan Roles (' + orphanRoleCount + ')</button>'
                 + '<span style="font-size:0.78em; color:var(--text-muted);">Removes roles from skillsData that have no matching work history entry</span>'
                 + '</div></div>';
 
@@ -2705,7 +2705,7 @@
                         var jtVal = jt.querySelector('div[style*="font-size:1.5em"]');
                         var jtDot = jt.querySelector('div[style*="top:8px"]');
                         if (jtVal) jtVal.textContent = m.totalJobs.toLocaleString();
-                        if (jtDot) { jtDot.textContent = '\u25CF'; jtDot.style.color = '#30d158'; }
+                        if (jtDot) { jtDot.textContent = '\u25CF'; jtDot.style.color = 'var(--success)'; }
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
                         if (lc) lc.textContent = '14/14 libraries loaded';
@@ -2757,8 +2757,8 @@
                     + '<summary style="font-size:0.75em; color:var(--text-muted); cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
                     + '<span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--danger);"></span> '
                     + errCount + ' error' + (errCount > 1 ? 's' : '') + '</summary>'
-                    + '<div style="font-size:0.72em; color:var(--danger); margin-top:8px; padding:8px; background:rgba(255,69,58,0.06); border-radius:6px; max-height:120px; overflow-y:auto; font-family:monospace;">'
-                    + m.errors.map(function(e) { return '<div style="padding:2px 0; border-bottom:1px solid rgba(255,69,58,0.1);">' + escapeHtml(e) + '</div>'; }).join('') + '</div></details>' : '';
+                    + '<div style="font-size:0.72em; color:var(--danger); margin-top:8px; padding:8px; background:rgba(215,0,21,0.06); border-radius:6px; max-height:120px; overflow-y:auto; font-family:monospace;">'
+                    + m.errors.map(function(e) { return '<div style="padding:2px 0; border-bottom:1px solid rgba(215,0,21,0.1);">' + escapeHtml(e) + '</div>'; }).join('') + '</div></details>' : '';
                 
                 el.innerHTML = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:18px;">'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
@@ -2862,12 +2862,12 @@
             
             // ===== ROW 1: Core Traffic Metrics =====
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:16px;">';
-            html += tile('Sessions', s.sessions, '#60a5fa', 'Last ' + days + ' days');
-            html += tile('Page Views', s.pageViews, '#bf5af2', s.viewsPerSession + ' per session');
-            html += tile('Bounce Rate', s.bounceRate + '%', s.bounceRate > 60 ? '#ff453a' : s.bounceRate > 40 ? '#ff9f0a' : '#30d158', 'Single-view sessions');
-            html += tile('Avg Session', fmt(s.avgDuration), '#30d158', 'Time on site');
-            html += tile('New Visitors', s.newVisitors, '#ffd60a', s.returning + ' returning');
-            html += tile('Total Time', fmt(s.totalDuration), '#ff453a', 'All sessions combined');
+            html += tile('Sessions', s.sessions, 'var(--accent)', 'Last ' + days + ' days');
+            html += tile('Page Views', s.pageViews, 'var(--c-purple)', s.viewsPerSession + ' per session');
+            html += tile('Bounce Rate', s.bounceRate + '%', s.bounceRate > 60 ? 'var(--danger)' : s.bounceRate > 40 ? 'var(--c-orange)' : 'var(--success)', 'Single-view sessions');
+            html += tile('Avg Session', fmt(s.avgDuration), 'var(--success)', 'Time on site');
+            html += tile('New Visitors', s.newVisitors, 'var(--warning)', s.returning + ' returning');
+            html += tile('Total Time', fmt(s.totalDuration), 'var(--danger)', 'All sessions combined');
             html += '</div>';
             
             // ===== ROW 2: Sparklines (Sessions + Page Views) =====
@@ -2880,7 +2880,7 @@
                 + '<div style="display:flex; align-items:flex-end; gap:2px; height:50px;">';
             s.dailySessions.slice(-Math.min(days, 30)).forEach(function(d) {
                 var h = Math.max((d.count / sMax) * 100, 3);
-                html += '<div title="' + escapeAttr(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(96,165,250,0.5); border-radius:6px 2px 0 0; min-width:4px;"></div>';
+                html += '<div title="' + escapeAttr(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(0,113,227,0.5); border-radius:6px 2px 0 0; min-width:4px;"></div>';
             });
             html += '</div></div>';
             
@@ -2891,7 +2891,7 @@
                 + '<div style="display:flex; align-items:flex-end; gap:2px; height:50px;">';
             s.dailyPV.slice(-Math.min(days, 30)).forEach(function(d) {
                 var h = Math.max((d.count / pvMax) * 100, 3);
-                html += '<div title="' + escapeAttr(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(191,90,242,0.5); border-radius:6px 2px 0 0; min-width:4px;"></div>';
+                html += '<div title="' + escapeAttr(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(155,89,182,0.5); border-radius:6px 2px 0 0; min-width:4px;"></div>';
             });
             html += '</div></div>';
             html += '</div>';
@@ -2960,8 +2960,8 @@
                     + '<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78em; margin-bottom:3px;">'
                     + '<span style="color:var(--text-secondary);">' + (featLabels[feat] || feat) + '</span>'
                     + '<span style="font-weight:700; color:var(--accent); min-width:24px; text-align:right;">' + count + '</span></div>'
-                    + '<div style="height:10px; border-radius:8px; background:rgba(255,255,255,0.04); overflow:hidden; border:1px solid rgba(255,255,255,0.03);">'
-                    + '<div style="width:' + pct + '%; height:100%; border-radius:8px; background:linear-gradient(90deg, rgba(96,165,250,0.5), rgba(96,165,250,0.85));"></div>'
+                    + '<div style="height:10px; border-radius:8px; background:rgba(0,0,0,0.03); overflow:hidden; border:1px solid rgba(0,0,0,0.02);">'
+                    + '<div style="width:' + pct + '%; height:100%; border-radius:8px; background:linear-gradient(90deg, rgba(0,113,227,0.5), rgba(0,113,227,0.85));"></div>'
                     + '</div></div>';
             });
             html += '</div>';
@@ -3039,12 +3039,12 @@
 
             // ===== ROW 5: Conversion Funnel =====
             var funnelSteps = [
-                { key: 'visit', label: 'Visited', icon: 'eye', color: '#60a5fa' },
-                { key: 'signup', label: 'Signed Up', icon: 'lock', color: '#bf5af2' },
-                { key: 'profile_created', label: 'Profile Created', icon: 'edit', color: '#bf5af2' },
-                { key: 'skills_added', label: 'Skills Added', icon: 'skills', color: '#30d158' },
-                { key: 'first_job', label: 'First Job Added', icon: 'target', color: '#ff9f0a' },
-                { key: 'report_generated', label: 'Report Generated', icon: 'bar-chart', color: '#ff453a' }
+                { key: 'visit', label: 'Visited', icon: 'eye', color: 'var(--accent)' },
+                { key: 'signup', label: 'Signed Up', icon: 'lock', color: 'var(--c-purple)' },
+                { key: 'profile_created', label: 'Profile Created', icon: 'edit', color: 'var(--c-purple)' },
+                { key: 'skills_added', label: 'Skills Added', icon: 'skills', color: 'var(--success)' },
+                { key: 'first_job', label: 'First Job Added', icon: 'target', color: 'var(--c-orange)' },
+                { key: 'report_generated', label: 'Report Generated', icon: 'bar-chart', color: 'var(--danger)' }
             ];
             var funnelMax = Math.max.apply(null, funnelSteps.map(function(f) { return s.funnel[f.key] || 0; })) || 1;
             
@@ -3113,10 +3113,10 @@
                 // Stat tiles
                 var html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:10px; margin-bottom:16px;">';
                 [
-                    { label: 'All-Time Hits', value: (data.total || 0).toLocaleString(),  color: '#30d158' },
+                    { label: 'All-Time Hits', value: (data.total || 0).toLocaleString(),  color: 'var(--success)' },
                     { label: 'Avg Time',      value: avgStr,                               color: '#38bdf8' },
-                    { label: 'Exports',       value: (data.exports || 0).toLocaleString(), color: '#ff9f0a' },
-                    { label: 'Last Seen',     value: lastSeenStr,                          color: '#a1a1a6', small: true }
+                    { label: 'Exports',       value: (data.exports || 0).toLocaleString(), color: 'var(--c-orange)' },
+                    { label: 'Last Seen',     value: lastSeenStr,                          color: 'var(--text-secondary)', small: true }
                 ].forEach(function(c) {
                     html += '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
                         + '<div style="font-size:' + (c.small ? '0.88' : '1.5') + 'em; font-weight:700; color:' + c.color + '; line-height:1.2;">' + c.value + '</div>'
@@ -3207,11 +3207,11 @@
                 // User metrics row
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">';
                 [
-                    { label: 'Total Users', value: totalUsers, color: '#60a5fa' },
-                    { label: 'Active (7d)', value: activeWeek, color: '#30d158' },
-                    { label: 'Active (30d)', value: activeMonth, color: '#30d158' },
-                    { label: 'New This Week', value: newWeek, color: '#ffd60a' },
-                    { label: 'With Skills', value: usersWithSkills, color: '#bf5af2' }
+                    { label: 'Total Users', value: totalUsers, color: 'var(--accent)' },
+                    { label: 'Active (7d)', value: activeWeek, color: 'var(--success)' },
+                    { label: 'Active (30d)', value: activeMonth, color: 'var(--success)' },
+                    { label: 'New This Week', value: newWeek, color: 'var(--warning)' },
+                    { label: 'With Skills', value: usersWithSkills, color: 'var(--c-purple)' }
                 ].forEach(function(c) {
                     html += '<div style="padding:14px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
                         + '<div style="font-size:1.6em; font-weight:700; color:' + c.color + ';">' + c.value + '</div>'
@@ -3366,8 +3366,8 @@
                             + '<div style="flex:1; min-width:200px;">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
                             + '<strong style="color:var(--text-primary); font-size:1.05em;">' + escapeHtml(d.displayName || d.email || doc.id) + '</strong>'
-                            + (isAdmin ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(255,214,10,0.15); color:var(--warning); font-weight:700;">ADMIN</span>' : '')
-                            + (isCurrentUser ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(96,165,250,0.15); color:var(--accent); font-weight:600;">YOU</span>' : '')
+                            + (isAdmin ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(178,80,0,0.15); color:var(--warning); font-weight:700;">ADMIN</span>' : '')
+                            + (isCurrentUser ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(0,113,227,0.15); color:var(--accent); font-weight:600;">YOU</span>' : '')
                             + '</div>'
                             + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + escapeHtml(d.email || '') + '</div>'
                             + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px;">Joined ' + created + '</div>'
@@ -3378,7 +3378,7 @@
                             + '<div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary); font-size:1.2em;">' + jobCount + '</div>jobs</div>'
                             + '<div style="text-align:center;"><div style="font-size:0.82em;">Last login</div><div style="font-weight:600; color:var(--text-secondary);">' + lastLogin + '</div></div>'
                             + (!isCurrentUser && !isAdmin ? '<button onclick="adminResetUser(\'' + doc.id + '\', \'' + escapeHtml(d.displayName || d.email || 'this user') + '\')" '
-                                + 'style="padding:6px 14px; background:rgba(255,69,58,0.1); color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600; white-space:nowrap;">'
+                                + 'style="padding:6px 14px; background:rgba(215,0,21,0.1); color:var(--danger); border:1px solid rgba(215,0,21,0.3); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600; white-space:nowrap;">'
                                 + '\u21BB Reset</button>' : '')
                             + '</div>'
                             + '</div></div>';
@@ -3432,8 +3432,8 @@
                     + (showcaseMode ? '' : '<button onclick="editSampleProfile(\'' + p.id + '\');" style="padding:6px 14px; background:var(--c-surface-5); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">Edit</button>')
                     + '<button onclick="switchProfile(\'' + p.id + '\'); switchView(\'blueprint\');" style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">View</button>'
                     + '<span style="padding:6px 12px; border-radius:6px; font-size:0.78em; font-weight:600; '
-                    + 'background:' + (p.enabled ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)') + '; '
-                    + 'color:' + (p.enabled ? '#30d158' : '#ff453a') + ';">' + (p.enabled ? 'Enabled' : 'Disabled') + '</span>'
+                    + 'background:' + (p.enabled ? 'rgba(36,138,61,0.15)' : 'rgba(215,0,21,0.15)') + '; '
+                    + 'color:' + (p.enabled ? 'var(--success)' : 'var(--danger)') + ';">' + (p.enabled ? 'Enabled' : 'Disabled') + '</span>'
                     + '</div>'
                     + '</div></div>'
                     + '</div>';
@@ -3808,7 +3808,7 @@
             function _maskKey(k) { return k.length > 6 ? k.slice(0,3) + '\u2022\u2022\u2022' + k.slice(-3) : k ? '\u2022\u2022\u2022\u2022\u2022' : ''; }
             function _keyBadge(hasKey, label) {
                 return '<span style="display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:0.75em; font-weight:600; '
-                    + (hasKey ? 'background:rgba(48,209,88,0.15); color:var(--success);' : 'background:rgba(255,69,58,0.12); color:var(--danger);') + '">'
+                    + (hasKey ? 'background:rgba(36,138,61,0.15); color:var(--success);' : 'background:rgba(215,0,21,0.12); color:var(--danger);') + '">'
                     + (hasKey ? '\u2713 ' : '\u2717 ') + label + '</span>';
             }
             
@@ -3825,7 +3825,7 @@
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna App ID'
                 + (_adzId ? ' <span style="color:var(--success); font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzId)) + ')</span>' : '') + '</label>'
                 + '<input type="text" id="cfgAdzunaAppId" value="' + escapeAttr(_adzId) + '" placeholder="Register at developer.adzuna.com" '
-                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzId ? '#30d158' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
+                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzId ? 'var(--success)' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://developer.adzuna.com/" target="_blank" rel="noopener" style="color:var(--accent);">Get free Adzuna credentials \u2192</a></div>'
                 + '</div>'
                 
@@ -3833,7 +3833,7 @@
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna API Key'
                 + (_adzKey ? ' <span style="color:var(--success); font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzKey)) + ')</span>' : '') + '</label>'
                 + '<input type="password" id="cfgAdzunaAppKey" value="' + escapeAttr(_adzKey) + '" placeholder="Your Adzuna app_key" '
-                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzKey ? '#30d158' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
+                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzKey ? 'var(--success)' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '</div>'
                 
                 // The Muse
@@ -3841,7 +3841,7 @@
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">The Muse API Key <span style="color:var(--text-muted); font-weight:400;">(optional)</span>'
                 + (_musKey ? ' <span style="color:var(--success); font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_musKey)) + ')</span>' : '') + '</label>'
                 + '<input type="text" id="cfgMuseApiKey" value="' + escapeAttr(_musKey) + '" placeholder="Works without key (lower rate limit)" '
-                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_musKey ? '#30d158' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
+                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_musKey ? 'var(--success)' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://www.themuse.com/developers/api/v2" target="_blank" rel="noopener" style="color:var(--accent);">Register for higher rate limit \u2192</a> (3600/hr vs 500/hr)</div>'
                 + '</div>'
                 
@@ -3980,7 +3980,7 @@
                 {
                     id: 'security',
                     name: 'Security & Stability',
-                    color: '#30d158',
+                    color: 'var(--success)',
                     icon: 'shield',
                     items: [
                         { id: 's1', name: 'Content Security Policy (CSP)', status: 'done', category: 'security', priority: 'critical', notes: 'Added via vercel.json. Blocks unauthorized script loading and data exfiltration.' },
@@ -4000,7 +4000,7 @@
                 {
                     id: 'phase1',
                     name: 'Phase 1: Foundation',
-                    color: '#60a5fa',
+                    color: 'var(--accent)',
                     icon: 'blueprint',
                     items: [
                         { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Client-side helper callAnthropicAPI(). Serverless function at /api/ai.js. Firebase token validation, rate limiting, cost tracking. Deployed.' },
@@ -4129,7 +4129,7 @@
                 {
                     id: 'phase2',
                     name: 'Phase 2: Enterprise MVP',
-                    color: '#bf5af2',
+                    color: 'var(--c-purple)',
                     icon: 'users',
                     items: [
                         { id: 'p2-1', name: 'Scouting Report API', status: 'planned', category: 'monetization', priority: 'critical', notes: 'Batch report generation, filtering, ranking, export. Enterprise integration point.' },
@@ -4141,7 +4141,7 @@
                 {
                     id: 'phase3',
                     name: 'Phase 3: Integration',
-                    color: '#ff9f0a',
+                    color: 'var(--c-orange)',
                     icon: 'external',
                     items: [
                         { id: 'p3-1', name: 'ATS connector (Greenhouse/Lever)', status: 'planned', category: 'integration', priority: 'high', notes: 'ATS sends requisition → Blueprint returns matched candidates with scouting reports.' },
@@ -4153,7 +4153,7 @@
                 {
                     id: 'phase4',
                     name: 'Phase 4: Intelligence',
-                    color: '#ff453a',
+                    color: 'var(--danger)',
                     icon: 'skills',
                     items: [
                         { id: 'p4-1', name: 'Market Skill Benchmarking', status: 'planned', category: 'monetization', priority: 'high', notes: 'Anonymized skill profile comparison against industry verticals and geography.' },
@@ -4165,7 +4165,7 @@
                 {
                     id: 'phase5',
                     name: 'Phase 5: Platform Ecosystem',
-                    color: '#5ac8fa',
+                    color: 'var(--c-cyan)',
                     icon: 'check',
                     items: [
                         { id: 'p5-1', name: 'Verified Skills Credential', status: 'planned', category: 'feature', priority: 'medium', notes: 'Badge system for LinkedIn/applications. Enterprise pays for verification infrastructure.' },
@@ -4178,7 +4178,7 @@
                 {
                     id: 'p6',
                     name: 'Phase 6: Explorer Mode (Early Career Outlook)',
-                    color: '#bf5af2',
+                    color: 'var(--c-purple)',
                     icon: 'lightbulb',
                     items: [
                         { id: 'p6-1', name: 'Explorer Mode architecture', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.47.37u+: Full explorer wizard flow — multi-step guided experience for students/early-career. profileType=explorer flag, explorerData persistence, separate dashboard with edit modals. Shares core skill ontology and values engine with standard Blueprint. Not a separate app mode (same SPA) but distinct wizard path and dashboard rendering.' },
@@ -4210,7 +4210,7 @@
                 {
                     id: 'ex1',
                     name: 'Phase 7: Employee Experience (EX)',
-                    color: '#ff9f0a',
+                    color: 'var(--c-orange)',
                     icon: 'users',
                     items: [
                         { id: 'ex1-1', name: 'EX mode architecture', status: 'planned', category: 'feature', priority: 'critical', notes: 'Distinct application mode for employees at companies that license Blueprint. Entry point: company-provisioned invite or SSO. Profile data is owned by the employee (portable), but employer gets aggregate/anonymized views. Core tension resolved: employee keeps their Blueprint forever, employer gets skill intelligence only while relationship is active. Shares all core infrastructure: skill ontology, BLS, matching engine, scouting reports.' },
@@ -4232,7 +4232,7 @@
                 {
                     id: 'ent1',
                     name: 'Enterprise: Foundation (E1)',
-                    color: '#ff453a',
+                    color: 'var(--danger)',
                     icon: 'target',
                     items: [
                         { id: 'e1-1', name: 'Analytics aggregation engine', status: 'planned', category: 'infrastructure', priority: 'critical', notes: 'Track aggregated skills trends, intent signals, match patterns across all users. Time-series storage for supply/demand indices. Foundation for all enterprise intelligence.' },
@@ -4487,9 +4487,9 @@
             
             var statusColors = {
                 'planned': { bg: 'rgba(99,99,102,0.15)', text: '#a1a1a6', label: 'Planned' },
-                'in-progress': { bg: 'rgba(96,165,250,0.15)', text: '#60a5fa', label: 'In Progress' },
-                'done': { bg: 'rgba(48,209,88,0.15)', text: '#30d158', label: 'Done' },
-                'deferred': { bg: 'rgba(255,159,10,0.15)', text: '#ff9f0a', label: 'Deferred' }
+                'in-progress': { bg: 'rgba(0,113,227,0.15)', text: '#60a5fa', label: 'In Progress' },
+                'done': { bg: 'rgba(36,138,61,0.15)', text: '#30d158', label: 'Done' },
+                'deferred': { bg: 'rgba(196,93,0,0.15)', text: '#ff9f0a', label: 'Deferred' }
             };
             
             var categoryIcons = {
@@ -4526,7 +4526,7 @@
             
             // Header stats
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">'
-                + '<div style="padding:16px; background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="padding:16px; background:rgba(36,138,61,0.1); border:1px solid rgba(36,138,61,0.2); border-radius:12px; text-align:center;">'
                 + '<div style="font-size:2em; font-weight:700; color:var(--success);">' + pct + '%</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Complete</div></div>'
                 + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
@@ -4700,7 +4700,7 @@
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">'
                         + escapeHtml(svc.name)
-                        + (svc.critical ? ' <span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:#ff453a20; color:var(--danger); font-weight:700;">CRITICAL</span>' : '')
+                        + (svc.critical ? ' <span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:#d7001520; color:var(--danger); font-weight:700;">CRITICAL</span>' : '')
                         + '</div>'
                         + '<div style="font-size:0.78em; color:var(--text-muted);">'
                         + escapeHtml(svc.message || statusLabels[svc.status] || 'Unknown')
@@ -4769,10 +4769,10 @@
                         + '<span style="font-weight:600; color:var(--text-primary); font-size:0.84em;">'
                         + escapeHtml(inc.feature) + '</span>'
                         + '<span style="font-size:0.7em; padding:1px 6px; border-radius:6px;'
-                        + ' background:' + (sevColors[inc.severity] || '#636366') + '20;'
-                        + ' color:' + (sevColors[inc.severity] || '#636366') + '; font-weight:700;">'
+                        + ' background:' + (sevColors[inc.severity] || 'var(--text-muted)') + '20;'
+                        + ' color:' + (sevColors[inc.severity] || 'var(--text-muted)') + '; font-weight:700;">'
                         + inc.severity.toUpperCase() + '</span>'
-                        + (resolved ? '<span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:#30d15820; color:var(--success); font-weight:700;">RESOLVED</span>' : '')
+                        + (resolved ? '<span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:#248a3d20; color:var(--success); font-weight:700;">RESOLVED</span>' : '')
                         + '</div>'
                         + '<div style="font-size:0.78em; color:var(--text-secondary); margin-top:2px;">'
                         + escapeHtml(inc.message) + '</div>';
@@ -4978,55 +4978,55 @@
             return [
                 // ── LAYER 1: FRONTEND VIEWS ──
                 { id: 'welcome', name: 'Welcome Landing', layer: 'frontend', col: 0,
-                  color: '#bf5af2', icon: 'star',
+                  color: 'var(--c-purple)', icon: 'star',
                   detail: { desc: 'Public landing page. Animated skill network canvas. Three CTAs: See It In Action, Build My Blueprint, Why Blueprint. Body copy positions Blueprint as leverage, not a profile.',
                     functions: ['renderWelcomePage()', 'initHeroNetwork()'], lines: '~7181-7270', route: '#welcome',
                     inputs: ['URL hash', 'appMode'], outputs: ['View selection', 'Demo trigger', 'Waitlist modal'],
                     deps: ['Firebase Auth', 'appMode state'], debt: 'Hero canvas animation could lazy-load' }},
                 { id: 'wizard', name: 'Onboarding Wizard', layer: 'frontend', col: 1,
-                  color: '#bf5af2', icon: 'compass',
+                  color: 'var(--c-purple)', icon: 'compass',
                   detail: { desc: '9-step guided profile builder. Resume upload, LinkedIn zip (18 CSV file types + HTML articles), manual entry. Skill enrichment via O*NET crosswalk. Career progression grouping for multi-position companies. Endorsement-boosted skill levels.',
                     functions: ['renderWizardStep1-9()', 'wizardApplyAndLaunch()', 'wizardBuildUserData()', 'inferSkillsDeterministic()', 'normalizeCompanyName()'], lines: '~8200-10500', route: '#blueprint (modal)',
                     inputs: ['Resume file', 'LinkedIn .zip (18 CSVs + Articles/ HTML)', 'Manual input'], outputs: ['userData object', 'linkedinContent repository', 'companyTenures[]', 'Firestore save', 'JSON backup'],
                     deps: ['Anthropic API (resume parse)', 'O*NET Crosswalk', 'Firebase Auth', 'Firestore', 'JSZip', 'PapaParse'], debt: 'Values UI CSS conflict persists on some browsers. Article text capped at 2000 chars.' }},
                 { id: 'network', name: 'Skills Network', layer: 'frontend', col: 2,
-                  color: '#bf5af2', icon: 'skills',
+                  color: 'var(--c-purple)', icon: 'skills',
                   detail: { desc: 'D3 force-directed graph. Role clusters, skill nodes sized by level. Job match overlay with gap/surplus colors.',
                     functions: ['initNetwork()', 'initJobNetwork()', 'initMatchNetwork()', 'initValuesNetwork()'], lines: '~10700-12100', route: '#network',
                     inputs: ['skillsData', 'savedJobs[].matchData'], outputs: ['Skill modal triggers', 'Job overlay display'],
                     deps: ['D3.js', 'skillsData', 'userData.roles'], debt: 'Label overlap on dense graphs. Mobile caps at 30 nodes.' }},
                 { id: 'cardview', name: 'Card View', layer: 'frontend', col: 3,
-                  color: '#bf5af2', icon: 'layers',
+                  color: 'var(--c-purple)', icon: 'layers',
                   detail: { desc: 'Alternative skill display. Filterable cards with proficiency bars, evidence panels, role badges.',
                     functions: ['initCardView()', 'renderCardView()'], lines: '~12100-12500', route: '#network (Card toggle)',
                     inputs: ['skillsData'], outputs: ['Skill modal triggers'],
                     deps: ['skillsData', 'userData.roles'], debt: 'None significant' }},
                 { id: 'jobs', name: 'Jobs Hub', layer: 'frontend', col: 4,
-                  color: '#bf5af2', icon: 'target',
+                  color: 'var(--c-purple)', icon: 'target',
                   detail: { desc: 'Pipeline (saved jobs + match analysis), Tracker (application stages), Find Jobs (multi-API search with quickScore).',
                     functions: ['initOpportunities()', 'renderPipelineTab()', 'renderFindJobs()', 'quickScoreJob()', 'matchJobToProfile()'], lines: '~22000-24000', route: '#opportunities',
                     inputs: ['Job search APIs', 'skillsData', 'savedJobs'], outputs: ['Saved jobs', 'Match scores', 'Scouting reports'],
                     deps: ['Jobs proxy API', 'skillsData', 'Match engine'], debt: 'quickScore vs pipeline % gap still visible.' }},
                 { id: 'blueprint', name: 'Blueprint View', layer: 'frontend', col: 5,
-                  color: '#bf5af2', icon: 'blueprint',
+                  color: 'var(--c-purple)', icon: 'blueprint',
                   detail: { desc: 'Career dashboard. 8 tabs: Dashboard, Experience (with LinkedIn merge import), Skills Management, Outcomes, Verify, Values, Content & Evidence (LinkedIn-extracted content with per-item toggle switches), Export.',
                     functions: ['renderBlueprintDashboard()', 'renderSkillsManagementTab()', 'renderContentEvidenceTab()', 'switchBlueprintTab()'], lines: '~14800-16700 + 26350-26650', route: '#blueprint',
                     inputs: ['userData', 'skillsData', 'blueprintData', 'BLS wages', 'linkedinContent', 'contentVisibility'], outputs: ['Skill edits', 'Evidence', 'Content curation', 'Export HTML/PDF'],
                     deps: ['Valuation engine', 'BLS wage data', 'blueprintData', 'linkedinContent'], debt: 'Outcomes section needs more guidance. Content tab toggles not yet wired to scouting reports.' }},
                 { id: 'reports', name: 'Reports Engine', layer: 'frontend', col: 6,
-                  color: '#bf5af2', icon: 'clipboard',
+                  color: 'var(--c-purple)', icon: 'clipboard',
                   detail: { desc: 'Scouting report generator. Match rings, skill breakdown, compensation intelligence. PDF via jsPDF + HTML export. Share via 128-bit tokens with Firestore access control (blocks enumeration).',
                     functions: ['generateScoutingReport()', 'renderScoutingReportPDF()', 'generateShareToken()'], lines: '~13500-17300 + 19605-19690',
                     inputs: ['userData', 'savedJob.matchData', 'BLS wages'], outputs: ['PDF file', 'HTML report', 'Shareable URL with token'],
                     deps: ['jsPDF', 'Match engine', 'BLS wages', 'Firestore (reports collection)'], debt: 'PDF layout breaks on very long skill lists. Share URL requires manual copy.' }},
                 { id: 'admin', name: 'Admin Panel', layer: 'frontend', col: 7,
-                  color: '#bf5af2', icon: 'settings',
+                  color: 'var(--c-purple)', icon: 'settings',
                   detail: { desc: 'Overview, users, samples, waitlist, config, roadmap, costs, status, architecture. Admin-only access via isAdmin flag. 109 roadmap items with visible IDs.',
                     functions: ['renderAdminTabContent()', 'switchAdminTab()'], lines: '~2550-5990',
                     inputs: ['Firebase admin check', 'localStorage analytics'], outputs: ['Config changes', 'User management'],
                     deps: ['Firebase Auth (admin flag)', 'Firestore (user docs)'], debt: 'Architecture map maintenance tracked via p2-3q.' }},
                 { id: 'showcase', name: 'Showcase Mode', layer: 'frontend', col: 8,
-                  color: '#bf5af2', icon: 'users',
+                  color: 'var(--c-purple)', icon: 'users',
                   detail: { desc: 'Read-only public profile viewer. Exports full Blueprint as self-contained HTML with embedded data. Disables editing, API calls, admin access, and all mutation paths.',
                     functions: ['toggleShowcaseMode()', 'exportShowcaseProfile()', 'showcaseMode flag'], lines: '~2450-2550',
                     inputs: ['userData snapshot', 'skillsData snapshot'], outputs: ['Self-contained HTML file', 'Read-only locked view'],
@@ -5034,73 +5034,73 @@
 
                 // ── LAYER 2: RUNTIME STATE & ENGINES ──
                 { id: 'userdata', name: 'userData', layer: 'runtime', col: 0,
-                  color: '#5ac8fa', icon: 'users',
+                  color: 'var(--c-cyan)', icon: 'users',
                   detail: { desc: 'Primary in-memory state object. Profile, skills, roles, values, work history, saved jobs, preferences, education, certs, companyTenures, linkedinContent (endorsements, recommendations, articles, posts, learning, volunteering, honors, causes, organizations, networkSize).',
                     functions: ['userData (global var)', 'saveUserData()', 'loadUserData()'], lines: 'Global ~1200',
                     inputs: ['Firestore load', 'Wizard build', 'Profile import'], outputs: ['All views read from this', 'Firestore save'],
                     deps: ['None (root state)'], debt: 'userData vs skillsData vs blueprintData split causes sync bugs. Unification planned.' }},
                 { id: 'skillsdata', name: 'skillsData', layer: 'runtime', col: 1,
-                  color: '#5ac8fa', icon: 'skills',
+                  color: 'var(--c-cyan)', icon: 'skills',
                   detail: { desc: 'Active skill/role arrays for rendering. Network, card view, matching all read from here. Must stay synced with userData.',
                     functions: ['skillsData.skills[]', 'skillsData.roles[]', 'skillsData.skillDetails{}'], lines: 'Global ~1210',
                     inputs: ['userData sync', 'Skill edits'], outputs: ['All skill displays', 'Match scoring'],
                     deps: ['userData'], debt: 'Dual-write with userData causes drift. Single source of truth needed.' }},
                 { id: 'blueprintdata', name: 'blueprintData', layer: 'runtime', col: 2,
-                  color: '#5ac8fa', icon: 'blueprint',
+                  color: 'var(--c-cyan)', icon: 'blueprint',
                   detail: { desc: 'Values array, purpose statement, outcomes array. Blueprint view and scouting reports read from here.',
                     functions: ['blueprintData.values[]', 'blueprintData.purpose', 'blueprintData.outcomes[]'], lines: 'Global ~1220',
                     inputs: ['userData sync', 'Values/purpose edits'], outputs: ['Blueprint view', 'Scouting reports'],
                     deps: ['userData'], debt: 'Same dual-write issue as skillsData' }},
                 { id: 'skill-engine', name: 'Deterministic Skill Engine', layer: 'runtime', col: 3,
-                  color: '#ff9f0a', icon: 'compass',
+                  color: 'var(--c-orange)', icon: 'compass',
                   detail: { desc: 'Replaces AI skill inference. Title→SOC→skills pool→fuzzy match→level adjust by seniority+years. Endorsement boost pass: 10+ endorsements = +1 level, 25+ = +2 (capped at Mastery). Zero API cost.',
                     functions: ['inferSkillsDeterministic()', 'detectSeniority()', 'adjustLevel()', 'endorsement boost loop'], lines: '~8000-8200',
                     inputs: ['LinkedIn skills[]', 'Work history[]', 'Parsed roles[]', 'Endorsement counts{}'], outputs: ['Enriched skills with levels, evidence, categories, endorsement flags'],
                     deps: ['O*NET crosswalk', 'Skill libraries', 'LinkedIn endorsements'], debt: 'Fuzzy matching could use Levenshtein distance' }},
                 { id: 'jd-converter', name: 'JD → Blueprint Converter', layer: 'runtime', col: 3,
-                  color: '#ff9f0a', icon: 'blueprint',
+                  color: 'var(--c-orange)', icon: 'blueprint',
                   detail: { desc: 'Converts raw job descriptions into structured Work Blueprints. Two-path extraction: convertJDToBlueprintAsync() uses Claude Sonnet (parseJobWithAPI, Job Schema v2.0) for signed-in users — targets 15–35 skills across 10 categories with tier/section/proficiency/source. Falls back to convertJDToBlueprint() local regex parser. Merges with O*NET SOC crosswalk skills and applies _wbSkillQualityFilter(). Detects: title, company, seniority, location, schedule (hybrid+days), travel, industry, compensation range, qualifications, responsibilities. Comp context applied at render time.',
                     functions: ['convertJDToBlueprintAsync()', 'convertJDToBlueprint()', 'parseJobWithAPI()', '_jdcExtractSkillsFromText()', '_jdcDetectCompContext()', '_jdcExtractSchedule()', '_jdcExtractTextFromHTML()'], lines: '~6560–7400',
                     inputs: ['Raw JD text (paste, URL fetch, bulk)', 'Firebase auth state (AI path decision)'], outputs: ['Work Blueprint object with skills[], bls, compContext, schedule, seniority'],
                     deps: ['Claude Sonnet (AI path)', 'O*NET crosswalk', 'BLS wages', '_wbSkillQualityFilter'], debt: 'Bulk and file-upload paths still use local parser only. URL fetch HTML stripping may miss site-specific job containers.' }},
                 { id: 'match-engine', name: 'Match Scoring', layer: 'runtime', col: 4,
-                  color: '#ff9f0a', icon: 'target',
+                  color: 'var(--c-orange)', icon: 'target',
                   detail: { desc: 'Two tiers: quickScoreJob (Find Jobs, uses parseJobLocally pipeline for gap detection, capped 90%) and matchJobToProfile (Pipeline, 6-pass ontology matching). Find Jobs uses live API search by default.',
                     functions: ['quickScoreJob()', 'matchJobToProfile()', 'rescoreAllJobs()'], lines: '~22400-23700',
                     inputs: ['skillsData', 'Job description text or parsed skills'], outputs: ['Match %', 'Matched/gap/surplus arrays', 'BLS salary'],
                     deps: ['skillsData', 'BLS wage data', 'O*NET crosswalk'], debt: 'quickScore and pipeline scores diverge. Ideal: single engine.' }},
                 { id: 'valuation', name: 'Valuation Engine', layer: 'runtime', col: 5,
-                  color: '#ff9f0a', icon: 'money',
+                  color: 'var(--c-orange)', icon: 'money',
                   detail: { desc: 'Two-surface comp model. (1) Profile valuation: evidence-based and potential compensation from skill levels, O*NET importance, BLS wage data, and peer verification scores. (2) Work Blueprint comp: BLS percentile band adjusted by seniority, geo modifier, and _jdcDetectCompContext() industry+company-tier multiplier. Tech industry +22%, Financial Services +18%, Consulting +14%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture) +8%. Unknown companies use posted salary range as signal. Skill premium pool = 15% of adjusted median, distributed by O*NET importance × proficiency multiplier (Advanced 0.6×, Expert 0.9×, Mastery 1.2×).',
                     functions: ['calculateTotalValue()', 'getEvidenceSummary()', '_jdcDetectCompContext()', 'calculateUniqueSkillImpact()'], lines: '~6500-6900 + ~34400',
                     inputs: ['skillsData with levels', 'BLS wage crosswalk', 'Evidence scores', 'company/industry/jdText for context'], outputs: ['Evidence value', 'Potential value', 'Market-adjusted comp band', 'Skill premiums'],
                     deps: ['BLS wages', 'O*NET importance scores', 'Verification system'], debt: 'Comp context multipliers are general approximations — tech industry is wide (startup vs enterprise). Geo modifier is BLS metro-level, not company-level. Skill premium pool cap (15%) may undervalue niche high-demand skills.' }},
                 { id: 'gap-analysis', name: 'Gap Analysis', layer: 'runtime', col: 6,
-                  color: '#ff9f0a', icon: 'shield',
+                  color: 'var(--c-orange)', icon: 'shield',
                   detail: { desc: 'Classifies skills as matched/gap/surplus against job requirements. Powers scouting reports and network overlays.',
                     functions: ['matchJobToProfile() internals', 'renderMatchOverlay()'], lines: '~22400-22800',
                     inputs: ['User skills', 'Job parsed skills'], outputs: ['Matched[]', 'Gaps[]', 'Surplus[]', 'Level warnings'],
                     deps: ['skillsData', 'Parsed job data'], debt: 'None significant' }},
                 { id: 'pdf-gen', name: 'PDF Generator', layer: 'runtime', col: 7,
-                  color: '#ff9f0a', icon: 'clipboard',
+                  color: 'var(--c-orange)', icon: 'clipboard',
                   detail: { desc: 'jsPDF-based scouting report. Match rings, skill breakdown, compensation, blind spots. Print-ready.',
                     functions: ['renderScoutingReportPDF()', 'jsPDF'], lines: '~17000-17400',
                     inputs: ['Match data', 'User profile', 'BLS wages'], outputs: ['PDF blob download'],
                     deps: ['jsPDF library', 'Match engine output'], debt: 'Layout breaks on 40+ skills. Needs pagination.' }},
                 { id: 'verification', name: 'Verification System', layer: 'runtime', col: 8,
-                  color: '#ff9f0a', icon: 'shield',
+                  color: 'var(--c-orange)', icon: 'shield',
                   detail: { desc: 'Peer verification engine. Evidence collection with credibility-weighted scoring and verifier level suggestions. Self/peer/manager/exec tiers. Suggested-level bonuses/penalties (+/-1.5 × weight).',
                     functions: ['calculateEvidencePoints()', 'confirmVerification()', 'getEvidenceSummary()', 'renderVerifyTab()'], lines: '~8168-8830',
                     inputs: ['Verification requests', 'Peer endorsements', 'Level confirmations'], outputs: ['Evidence scores', 'Credibility weights', 'Level suggestion badges'],
                     deps: ['skillsData', 'Firestore (verifications array)'], debt: 'Verifier email notifications not implemented. No spam protection on requests.' }},
                 { id: 'security', name: 'XSS Security Layer', layer: 'runtime', col: 9,
-                  color: '#ff9f0a', icon: 'lock',
+                  color: 'var(--c-orange)', icon: 'lock',
                   detail: { desc: '249 escapeHtml() call sites across all views. Covers innerHTML injection, textarea breakout, and input attribute escaping. Defense-in-depth for user input, O*NET data, and API responses.',
                     functions: ['escapeHtml()', 'textarea value escaping', 'input attribute sanitization'], lines: 'Distributed (~1300, 14500, 25400, 31200+)',
                     inputs: ['All dynamic string content'], outputs: ['Sanitized HTML-safe strings'],
                     deps: ['None (pure utility function)'], debt: 'No CSP header yet. SVG diagram export uses innerHTML.' }},
                 { id: 'a11y', name: 'Accessibility Layer', layer: 'runtime', col: 10,
-                  color: '#ff9f0a', icon: 'eye',
+                  color: 'var(--c-orange)', icon: 'eye',
                   detail: { desc: 'Cross-cutting a11y infrastructure. ARIA landmarks (banner, navigation, main, contentinfo), skip-to-content link, aria-live regions for toasts and view changes, keyboard shortcuts (1-5 nav, ? help). bpIcon SVGs marked aria-hidden. 9 modals with role=dialog + aria-modal. 40 close buttons labeled.',
                     functions: ['updateLastSavedDisplay()', 'srAnnounce (live region)', 'keyboard listener', 'bpIcon() aria-hidden injection'], lines: 'Distributed (shell HTML ~604-830, shortcuts ~2750, announcer ~15155)',
                     inputs: ['View switches', 'Keyboard events', 'Save events'], outputs: ['Screen reader announcements', 'Focus management', 'Keyboard navigation'],
@@ -5108,49 +5108,49 @@
 
                 // ── LAYER 3: BACKEND SERVICES & PERSISTENCE ──
                 { id: 'firestore', name: 'Firestore Database', layer: 'backend', col: 0,
-                  color: '#30d158', icon: 'save',
+                  color: 'var(--success)', icon: 'save',
                   detail: { desc: 'Primary persistence (Blaze plan, $25/mo budget). Collections: users/{uid}, reports/{reportId}. User docs now include linkedinContent (endorsements, recommendations, articles, posts, learning, volunteering, honors, causes, organizations), companyTenures[], and importStats. Server-side rules enforce 30 field-size limits, hasOnly field whitelisting, 1-write/sec rate limiting, and read/list split for report enumeration prevention. Share tokens (128-bit) gate report access.',
                     functions: ['saveToFirestore()', 'loadFromFirestore()', 'fbDb.collection("users")', 'fbDb.collection("reports")'], lines: '~2215-2350 + firestore.rules',
                     inputs: ['userData on save', 'Firebase Auth uid', 'Report data with shareToken'], outputs: ['Full user profile on load', 'Shared reports via token'],
                     deps: ['Firebase SDK', 'Firebase Auth', 'firestore.rules (deployed separately)'], debt: 'Rules must deploy via Firebase Console, not Vercel. No offline sync. linkedinContent may push document size toward 1MB limit for power users. Field whitelist in rules needs updating for new fields.' }},
                 { id: 'firebase-auth', name: 'Firebase Auth', layer: 'backend', col: 1,
-                  color: '#30d158', icon: 'lock',
+                  color: 'var(--success)', icon: 'lock',
                   detail: { desc: 'Google sign-in provider. Token-based auth for API proxy. Provides uid, displayName, photoURL, email.',
                     functions: ['firebase.auth().signInWithPopup()', 'onAuthStateChanged()', 'fbUser'], lines: '~2100-2200',
                     inputs: ['Google OAuth'], outputs: ['fbUser object', 'Auth token for API proxy'],
                     deps: ['Firebase SDK', 'Google Cloud project'], debt: 'No email/password or other providers yet' }},
                 { id: 'localstorage', name: 'localStorage Cache', layer: 'backend', col: 2,
-                  color: '#30d158', icon: 'save',
+                  color: 'var(--success)', icon: 'save',
                   detail: { desc: '~15 keys: preferences, theme, API health, incident log, cost tracking, analytics, job seen IDs, roadmap state.',
                     functions: ['safeSet()', 'safeGet()', 'localStorage keys: bp*'], lines: '~1250-1280',
                     inputs: ['Various subsystem writes'], outputs: ['Persistent preferences', 'Analytics data'],
                     deps: ['Browser localStorage API'], debt: 'No size monitoring. Could exceed 5MB on heavy usage.' }},
                 { id: 'ai-proxy', name: 'AI Proxy /api/ai.js', layer: 'backend', col: 3,
-                  color: '#ff453a', icon: 'external',
+                  color: 'var(--danger)', icon: 'external',
                   detail: { desc: 'Vercel serverless function. Validates Firebase token, proxies to Anthropic Claude. Rate limiting, cost tracking per feature.',
                     functions: ['callAnthropicAPI()', '/api/ai.js (serverless)'], lines: 'Serverless + ~7000-7100',
                     inputs: ['Feature tag', 'Prompt', 'Firebase token'], outputs: ['Claude response JSON'],
                     deps: ['Vercel', 'Anthropic API key', 'Firebase Admin SDK'], debt: 'Rate limit is per-user but not enforced server-side. $0.07/resume parse.' }},
                 { id: 'job-proxy', name: 'Jobs Proxy /api/jobs', layer: 'backend', col: 4,
-                  color: '#ff453a', icon: 'external',
+                  color: 'var(--danger)', icon: 'external',
                   detail: { desc: 'Vercel serverless aggregator. Merges JSearch, Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse. Location + remote filters. Firestore cache.',
                     functions: ['/api/jobs.js (serverless)', 'fetchCachedJobs()', 'loadJobsFromFirestore()'], lines: 'Serverless + ~22000-22300',
                     inputs: ['Search keywords', 'Category', 'Location'], outputs: ['Normalized job listings[]'],
                     deps: ['Vercel', 'JSearch API key', 'USAJobs email', 'Firestore job cache', 'Adzuna keys'], debt: 'JSearch costs ~$30/mo at Pro. Free APIs have limited coverage. Adzuna dramatically increases volume.' }},
                 { id: 'health-monitor', name: 'Health Monitor', layer: 'backend', col: 5,
-                  color: '#bf5af2', icon: 'shield',
+                  color: 'var(--c-purple)', icon: 'shield',
                   detail: { desc: 'Passive tracking from all API calls via recordApiHealth(). Active health check button. Per-service TTL staleness.',
                     functions: ['recordApiHealth()', 'renderAdminStatus()', 'activeHealthCheck()'], lines: '~3900-4150',
                     inputs: ['API call results (success/fail)'], outputs: ['Status dashboard', 'Staleness indicators'],
                     deps: ['localStorage (bpApiHealth)'], debt: 'No alerting. No uptime history beyond current session.' }},
                 { id: 'incident-log', name: 'Incident Log', layer: 'backend', col: 6,
-                  color: '#bf5af2', icon: 'shield',
+                  color: 'var(--c-purple)', icon: 'shield',
                   detail: { desc: 'Operational failure tracking. Severity levels: critical/warning/info. 9 instrumented failure points. Cap at 50 entries.',
                     functions: ['logIncident()', 'resolveIncidents()', 'clearIncidentLog()', 'getIncidentLog()'], lines: '~4050-4150',
                     inputs: ['Error events from API calls, parse failures'], outputs: ['Incident cards in admin Status tab'],
                     deps: ['localStorage (bpIncidentLog)'], debt: 'No persistence beyond localStorage. No email/Slack alerts.' }},
                 { id: 'cost-tracker', name: 'Cost Tracker', layer: 'backend', col: 7,
-                  color: '#bf5af2', icon: 'money',
+                  color: 'var(--c-purple)', icon: 'money',
                   detail: { desc: 'Token-level AI usage logging. Infrastructure cost registry ($49.67/mo total). Projection engine for scaling estimates.',
                     functions: ['renderAdminCosts()', 'AI_FEATURES cost registry', 'INFRASTRUCTURE_COSTS[]'], lines: '~4480-4700',
                     inputs: ['AI API call logs from localStorage'], outputs: ['Cost dashboard', 'Scaling projections'],
@@ -5158,43 +5158,43 @@
 
                 // ── LAYER 4: EXTERNAL APIs & DATA ASSETS ──
                 { id: 'anthropic', name: 'Anthropic Claude Sonnet', layer: 'external', col: 0,
-                  color: '#ff453a', icon: 'external',
+                  color: 'var(--danger)', icon: 'external',
                   detail: { desc: 'Claude Sonnet 4. Features: resume parse, purpose gen, JD analysis, cover letter, interview prep. $3 input / $15 output per M tokens.',
                     functions: ['callAnthropicAPI() → /api/ai.js → api.anthropic.com'], lines: 'External',
                     inputs: ['Prompt + feature tag'], outputs: ['Structured JSON response'],
                     deps: ['Anthropic API key ($30 prepaid)', 'AI proxy'], debt: '$0.07/resume parse. Credits deplete without warning.' }},
                 { id: 'onet', name: 'O*NET Crosswalk', layer: 'external', col: 1,
-                  color: '#30d158', icon: 'compass',
+                  color: 'var(--success)', icon: 'compass',
                   detail: { desc: '1,016 occupations, 53,391 title aliases. Skills, abilities, knowledge per SOC code. 6-strategy title resolution chain.',
                     functions: ['ONET_OCCUPATIONS[]', 'ONET_CROSSWALK{}', 'resolveOccupation()'], lines: '~7300-8000 (data tables)',
                     inputs: ['Job title string'], outputs: ['SOC code', 'Skills pool with importance/level'],
                     deps: ['Embedded data (no API call)'], debt: 'Data is from O*NET 28.1. Should update annually.' }},
                 { id: 'bls-wages', name: 'BLS Wage Data', layer: 'external', col: 2,
-                  color: '#30d158', icon: 'money',
+                  color: 'var(--success)', icon: 'money',
                   detail: { desc: '831 occupations with salary percentiles (10th/25th/50th/75th/90th). Mapped via SOC codes. BLS May 2024.',
                     functions: ['BLS_WAGES{}', 'getBLSWage()'], lines: '~6300-6500 (data table)',
                     inputs: ['SOC code from O*NET match'], outputs: ['Salary range object'],
                     deps: ['Embedded data (no API call)'], debt: 'Data is BLS May 2024. Should refresh annually.' }},
                 { id: 'skill-libs', name: 'Skill Libraries', layer: 'external', col: 3,
-                  color: '#30d158', icon: 'layers',
+                  color: 'var(--success)', icon: 'layers',
                   detail: { desc: 'O*NET abilities (52), work styles (21), knowledge (33), activities (41), trades (64). Values library (30). Total ~14,000+ skills.',
                     functions: ['SKILL_CATEGORIES{}', 'VALUES_LIBRARY[]', 'ESCO crosswalk data'], lines: '~5000-6300',
                     inputs: ['Skill name queries'], outputs: ['Category, description, related skills'],
                     deps: ['Embedded data'], debt: 'ESCO mapping incomplete for some specialties' }},
                 { id: 'company-values', name: 'Company Values DB', layer: 'external', col: 4,
-                  color: '#30d158', icon: 'users',
+                  color: 'var(--success)', icon: 'users',
                   detail: { desc: '58 companies with mapped values (primary + secondary). Powers values network overlay for culture matching.',
                     functions: ['COMPANY_VALUES{}'], lines: '~11700-11900',
                     inputs: ['Company name'], outputs: ['Primary values[]', 'Secondary values[]'],
                     deps: ['Embedded data'], debt: 'Only 58 companies. Needs expansion. Values are subjective.' }},
                 { id: 'jsearch', name: 'JSearch (RapidAPI)', layer: 'external', col: 5,
-                  color: '#ff453a', icon: 'external',
+                  color: 'var(--danger)', icon: 'external',
                   detail: { desc: 'Primary job source. Aggregates LinkedIn, Indeed, Glassdoor. Pro plan: 10K calls/mo ($30/mo). A/B query rotation.',
                     functions: ['fetchJSearchJobs()', '/api/jobs.js proxy'], lines: 'Serverless',
                     inputs: ['Keywords', 'Location', 'Page'], outputs: ['Job listings with title, company, description, salary'],
                     deps: ['RapidAPI key', 'Jobs proxy'], debt: 'Rate limit causes 429 errors during bulk fetch. A/B rotation helps.' }},
                 { id: 'free-apis', name: 'Free Job APIs', layer: 'external', col: 6,
-                  color: '#ff453a', icon: 'external',
+                  color: 'var(--danger)', icon: 'external',
                   detail: { desc: 'Remotive (remote tech), USAJobs (federal), Himalayas (remote global), Jobicy (remote-first). No API keys needed (except USAJobs email).',
                     functions: ['fetchRemotiveJobs2()', 'fetchHimalayasJobs()', 'fetchJobicyJobs()'], lines: '~23700-24200',
                     inputs: ['Keywords', 'Category'], outputs: ['Job listings (varied formats, normalized)'],
@@ -5206,13 +5206,13 @@
                     inputs: ['Keywords', 'Location', 'Category', 'Page'], outputs: ['Job listings (normalized)'],
                     deps: ['Adzuna app_id + app_key', 'Muse API key (optional)'], debt: 'Keys required for Adzuna. The Muse inventory smaller than others.' }},
                 { id: 'firebase-sdk', name: 'Firebase SDK', layer: 'external', col: 7,
-                  color: '#30d158', icon: 'external',
+                  color: 'var(--success)', icon: 'external',
                   detail: { desc: 'Firebase JS SDK v9 compat. Auth, Firestore, Analytics. CDN-loaded. Project: blueprint-career.',
                     functions: ['firebase.initializeApp()', 'firebase.auth()', 'firebase.firestore()'], lines: 'CDN + ~2050-2100',
                     inputs: ['Firebase config object'], outputs: ['Auth state', 'Firestore client', 'Analytics'],
                     deps: ['Google Cloud project', 'CDN availability'], debt: 'Using compat layer. Should migrate to modular SDK for tree-shaking.' }},
                 { id: 'replit', name: 'Replit (AI Dev)', layer: 'external', col: 8,
-                  color: '#ff9f0a', icon: 'software',
+                  color: 'var(--c-orange)', icon: 'software',
                   detail: { desc: 'AI-powered cloud IDE and coding agent. Pro plan ($100/mo). Agent 3 for autonomous code generation, debugging, and deployment. Browser-based development with 50+ language support.',
                     functions: ['Replit Agent 3', 'Cloud IDE', 'App Hosting', 'Real-time Collaboration'], lines: 'External',
                     inputs: ['Natural language prompts', 'PRDs', 'Code repos'], outputs: ['Generated code', 'Deployed apps', 'Database provisioning'],
@@ -5262,10 +5262,10 @@
         }
         
         var archLayerMeta = {
-            frontend: { label: 'Frontend Views', color: '#bf5af2', bg: 'rgba(191,90,242,0.06)', border: 'rgba(191,90,242,0.2)' },
-            runtime:  { label: 'Runtime State & Engines', color: '#5ac8fa', bg: 'rgba(6,182,212,0.06)', border: 'rgba(6,182,212,0.2)' },
-            backend:  { label: 'Backend Services & Persistence', color: '#30d158', bg: 'rgba(48,209,88,0.06)', border: 'rgba(48,209,88,0.2)' },
-            external: { label: 'External APIs & Data Assets', color: '#ff9f0a', bg: 'rgba(255,159,10,0.06)', border: 'rgba(255,159,10,0.2)' }
+            frontend: { label: 'Frontend Views', color: 'var(--c-purple)', bg: 'rgba(155,89,182,0.06)', border: 'rgba(155,89,182,0.2)' },
+            runtime:  { label: 'Runtime State & Engines', color: 'var(--c-cyan)', bg: 'rgba(6,182,212,0.06)', border: 'rgba(6,182,212,0.2)' },
+            backend:  { label: 'Backend Services & Persistence', color: 'var(--success)', bg: 'rgba(36,138,61,0.06)', border: 'rgba(36,138,61,0.2)' },
+            external: { label: 'External APIs & Data Assets', color: 'var(--c-orange)', bg: 'rgba(196,93,0,0.06)', border: 'rgba(196,93,0,0.2)' }
         };
         
         function renderAdminArchitecture(el) {
@@ -5582,9 +5582,9 @@
             // === FLOW COLORS & STYLES ===
             var flowStyles = {
                 data: { color: '#0891b2', opacity: 0.55, width: 1.5, dash: 'none', label: 'Data Flow' },
-                api:  { color: '#ff453a', opacity: 0.50, width: 1.5, dash: '5,3', label: 'API Call' },
+                api:  { color: 'var(--danger)', opacity: 0.50, width: 1.5, dash: '5,3', label: 'API Call' },
                 sync: { color: '#c78400', opacity: 0.50, width: 1.3, dash: '3,3', label: 'Sync' },
-                read: { color: '#a1a1a6', opacity: 0.40, width: 1.0, dash: '2,3', label: 'Read' }
+                read: { color: 'var(--text-secondary)', opacity: 0.40, width: 1.0, dash: '2,3', label: 'Read' }
             };
             
             // === Edge point calculation (exit/enter from shape boundary) ===
@@ -5702,15 +5702,15 @@
             legendDiv.style.cssText = 'position:absolute; top:8px; right:12px; background:rgba(255,255,255,0.95); backdrop-filter:blur(8px); border:1px solid var(--c-label); border-radius:8px; padding:10px 14px; font-size:0.68em; display:flex; gap:18px; box-shadow:0 2px 8px rgba(0,0,0,0.06); z-index:2;';
             legendDiv.innerHTML = '<div><div style="font-weight:700; color:var(--text-muted); margin-bottom:5px; letter-spacing:0.5px; font-size:0.9em;">FLOWS</div>'
                 + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#0891b2" stroke-width="1.5"/></svg><span style="color:var(--text-muted);">Data</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#ff453a" stroke-width="1.5" stroke-dasharray="5,3"/></svg><span style="color:var(--text-muted);">API</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="5,3"/></svg><span style="color:var(--text-muted);">API</span></div>'
                 + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#c78400" stroke-width="1.5" stroke-dasharray="3,3"/></svg><span style="color:var(--text-muted);">Sync</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="#a1a1a6" stroke-width="1.2" stroke-dasharray="2,3"/></svg><span style="color:var(--text-muted);">Read</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;"><svg width="24" height="6"><line x1="0" y1="3" x2="24" y2="3" stroke="var(--text-secondary)" stroke-width="1.2" stroke-dasharray="2,3"/></svg><span style="color:var(--text-muted);">Read</span></div>'
                 + '</div>'
                 + '<div><div style="font-weight:700; color:var(--text-muted); margin-bottom:5px; letter-spacing:0.5px; font-size:0.9em;">SHAPES</div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="10"><rect x="0" y="0" width="16" height="10" rx="2" fill="none" stroke="#bf5af2" stroke-width="1"/></svg><span style="color:var(--text-muted);">View</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="14"><polygon points="8,0 15,4 15,10 8,14 1,10 1,4" fill="none" stroke="#ff9f0a" stroke-width="1"/></svg><span style="color:var(--text-muted);">Engine</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="12"><ellipse cx="8" cy="3" rx="8" ry="3" fill="none" stroke="#30d158" stroke-width="1"/><line x1="0" y1="3" x2="0" y2="9" stroke="#30d158" stroke-width="1"/><line x1="16" y1="3" x2="16" y2="9" stroke="#30d158" stroke-width="1"/><ellipse cx="8" cy="9" rx="8" ry="3" fill="none" stroke="#30d158" stroke-width="1"/></svg><span style="color:var(--text-muted);">Database</span></div>'
-                + '<div style="display:flex;align-items:center;gap:5px;"><svg width="16" height="10"><rect x="0" y="0" width="16" height="10" rx="5" fill="none" stroke="#ff453a" stroke-width="1"/></svg><span style="color:var(--text-muted);">API / Cloud</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="10"><rect x="0" y="0" width="16" height="10" rx="2" fill="none" stroke="var(--c-purple)" stroke-width="1"/></svg><span style="color:var(--text-muted);">View</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="14"><polygon points="8,0 15,4 15,10 8,14 1,10 1,4" fill="none" stroke="var(--c-orange)" stroke-width="1"/></svg><span style="color:var(--text-muted);">Engine</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;"><svg width="16" height="12"><ellipse cx="8" cy="3" rx="8" ry="3" fill="none" stroke="var(--success)" stroke-width="1"/><line x1="0" y1="3" x2="0" y2="9" stroke="var(--success)" stroke-width="1"/><line x1="16" y1="3" x2="16" y2="9" stroke="var(--success)" stroke-width="1"/><ellipse cx="8" cy="9" rx="8" ry="3" fill="none" stroke="var(--success)" stroke-width="1"/></svg><span style="color:var(--text-muted);">Database</span></div>'
+                + '<div style="display:flex;align-items:center;gap:5px;"><svg width="16" height="10"><rect x="0" y="0" width="16" height="10" rx="5" fill="none" stroke="var(--danger)" stroke-width="1"/></svg><span style="color:var(--text-muted);">API / Cloud</span></div>'
                 + '</div>';
             container.parentElement.style.position = 'relative';
             container.parentElement.appendChild(legendDiv);
@@ -5850,11 +5850,11 @@
                     + '<div style="font-weight:700; color:var(--accent); margin-bottom:6px; font-size:0.9em;">Data Flows</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 incoming.forEach(function(f) {
-                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:var(--success); border:1px solid rgba(48,209,88,0.2);">'
+                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(36,138,61,0.1); color:var(--success); border:1px solid rgba(36,138,61,0.2);">'
                         + f[0] + ' \u2192 <strong>' + f[2] + '</strong></span>';
                 });
                 outgoing.forEach(function(f) {
-                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(255,159,10,0.1); color:var(--c-orange); border:1px solid rgba(255,159,10,0.2);">'
+                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(196,93,0,0.1); color:var(--c-orange); border:1px solid rgba(196,93,0,0.2);">'
                         + '<strong>' + f[2] + '</strong> \u2192 ' + f[1] + '</span>';
                 });
                 html += '</div></div>';
@@ -7149,7 +7149,7 @@
                     + '<div style="display:grid; gap:8px;">';
                 _jdcBulkResults.forEach(function(bp, idx) {
                     var isActive = _jdcBulkViewIdx === idx;
-                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 14px; background:' + (isActive ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-2)') + '; border:1px solid ' + (isActive ? 'var(--accent)' : 'transparent') + '; border-radius:8px; cursor:pointer;" onclick="_jdcBulkViewIdx=' + idx + '; _jdcResult=_jdcBulkResults[' + idx + ']; _jdcCompMode=\'without\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));">'
+                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 14px; background:' + (isActive ? 'rgba(0,113,227,0.1)' : 'var(--c-surface-2)') + '; border:1px solid ' + (isActive ? 'var(--accent)' : 'transparent') + '; border-radius:8px; cursor:pointer;" onclick="_jdcBulkViewIdx=' + idx + '; _jdcResult=_jdcBulkResults[' + idx + ']; _jdcCompMode=\'without\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));">'
                         + '<span style="font-size:0.82em; font-weight:700; color:var(--accent); min-width:24px; text-align:center;">' + (idx + 1) + '</span>'
                         + '<div style="flex:1; min-width:0;"><div style="font-weight:600; font-size:0.9em; color:var(--c-heading-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(bp.title) + '</div>'
                         + '<div style="font-size:0.78em; color:var(--c-muted);">' + escapeHtml(bp.company || 'Unknown company') + ' \u00B7 ' + bp.skills.length + ' skills' + (bp.bls ? ' \u00B7 $' + (bp.bls.median || 0).toLocaleString() : '') + '</div></div></div>';
@@ -8604,7 +8604,7 @@
 
             // Close button — rightmost, with unsaved warning
             h += '<div style="margin-left:auto;">'
-                + '<button onclick="jdcCloseBlueprint()" style="padding:7px 14px; background:var(--c-surface-3); color:' + (isSaved ? 'var(--c-muted)' : '#ff453a') + '; border:1px solid ' + (isSaved ? borderColor : 'rgba(255,69,58,0.35)') + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;" title="' + (isSaved ? 'Close blueprint' : 'Unsaved changes') + '">'
+                + '<button onclick="jdcCloseBlueprint()" style="padding:7px 14px; background:var(--c-surface-3); color:' + (isSaved ? 'var(--c-muted)' : 'var(--danger)') + '; border:1px solid ' + (isSaved ? borderColor : 'rgba(215,0,21,0.35)') + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;" title="' + (isSaved ? 'Close blueprint' : 'Unsaved changes') + '">'
                 + bpIcon('x',13) + ' Close</button>'
                 + '</div>';
 
@@ -8634,7 +8634,7 @@
             var borderColor = 'var(--c-surface-5)';
             var headingColor = 'var(--c-heading-bold)';
             var mutedColor = 'var(--c-muted)';
-            var accentColor = '#60a5fa';
+            var accentColor = 'var(--accent)';
 
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="font-size:0.78em; text-transform:uppercase; letter-spacing:1.5px; color:' + accentColor + '; margin-bottom:6px; font-weight:600;">Work Blueprint' + (showComp ? ' (With Skills Comp Model)' : '') + '</div>'
@@ -8671,7 +8671,7 @@
 
             // ── Extraction Quality Warning ────────────────────────────
             if (data._extractQuality && !data._extractQuality.ok && data._extractQuality.warnings.length) {
-                html += '<div style="margin-bottom:14px; padding:12px 14px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.35); border-radius:8px;">'
+                html += '<div style="margin-bottom:14px; padding:12px 14px; background:rgba(196,93,0,0.08); border:1px solid rgba(196,93,0,0.35); border-radius:8px;">'
                     + '<div style="display:flex; align-items:flex-start; gap:8px;">'
                     + '<div style="flex-shrink:0; margin-top:1px;">' + bpIcon('warning', 14) + '</div>'
                     + '<div>'
@@ -8703,7 +8703,7 @@
                 var activeRange = data.activeCompRange || jdRange || bpSuggestedRange || '';
                 var wbDataId = data._wbId || '';
 
-                html += '<div style="margin-top:16px; padding:14px 16px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.18); border-radius:10px;">';
+                html += '<div style="margin-top:16px; padding:14px 16px; background:rgba(0,113,227,0.06); border:1px solid rgba(0,113,227,0.18); border-radius:10px;">';
                 html += '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:10px;">' + bpIcon('money',11) + ' Compensation Range</div>';
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">';
 
@@ -8722,7 +8722,7 @@
                 html += '</div>';
 
                 // Blueprint Calculated Range
-                html += '<div style="padding:10px 12px; background:rgba(48,209,88,0.05); border-radius:8px; border:1px solid rgba(48,209,88,0.2);">';
+                html += '<div style="padding:10px 12px; background:rgba(36,138,61,0.05); border-radius:8px; border:1px solid rgba(36,138,61,0.2);">';
                 html += '<div style="font-size:0.68em; color:var(--success); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Blueprint Calculated</div>';
                 if (bpSuggestedRange) {
                     html += '<div style="font-size:1.05em; font-weight:700; color:var(--success);">' + escapeHtml(bpSuggestedRange) + '</div>';
@@ -8743,8 +8743,8 @@
                 html += '<input id="wbActiveCompRange" type="text" value="' + escapeAttr(activeRange) + '" placeholder="e.g. $180,000 \u2013 $220,000" style="flex:1; min-width:180px; padding:6px 10px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-text); font-size:0.82em; font-family:inherit;" oninput="wbUpdateActiveCompRange(this.value)">';
                 if (jdRange || bpSuggestedRange) {
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
-                    if (jdRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(jdRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:8px; background:transparent; color:var(--accent); cursor:pointer; font-weight:600;">Use JD Range</button>';
-                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(bpSuggestedRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(48,209,88,0.3); border-radius:8px; background:transparent; color:var(--success); cursor:pointer; font-weight:600;">Use Blueprint</button>';
+                    if (jdRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(jdRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(0,113,227,0.3); border-radius:8px; background:transparent; color:var(--accent); cursor:pointer; font-weight:600;">Use JD Range</button>';
+                    if (bpSuggestedRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(bpSuggestedRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(36,138,61,0.3); border-radius:8px; background:transparent; color:var(--success); cursor:pointer; font-weight:600;">Use Blueprint</button>';
                     html += '</div>';
                 }
                 html += '</div>'; // end active range row
@@ -8812,7 +8812,7 @@
                     + '</tr>';
             });
             if (showComp) {
-                html += '<tr style="border-top:2px solid ' + borderColor + '; background:rgba(48,209,88,0.06);">'
+                html += '<tr style="border-top:2px solid ' + borderColor + '; background:rgba(36,138,61,0.06);">'
                     + '<td colspan="4" style="padding:10px; font-weight:700; text-align:right; color:' + headingColor + ';">Total Skill Premiums</td>'
                     + '<td style="padding:10px; text-align:right; font-weight:700; color:var(--success); font-size:1.05em;">+$' + totalComp.toLocaleString() + '</td></tr>';
             }
@@ -8842,7 +8842,7 @@
                         html += '<div style="display:flex; gap:8px; align-items:center; padding:6px 10px; background:var(--c-surface-2); border-radius:6px; margin-bottom:4px;">'
                             + '<span style="font-weight:600; color:' + headingColor + '; font-size:0.88em;">' + escapeHtml(ed.level) + '</span>'
                             + (ed.field ? '<span style="font-size:0.85em; color:var(--text-secondary);">in ' + escapeHtml(ed.field) + '</span>' : '')
-                            + (ed.preferred ? '<span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:#ff9f0a22; color:var(--c-orange); font-weight:600;">Preferred</span>' : '')
+                            + (ed.preferred ? '<span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:#c45d0022; color:var(--c-orange); font-weight:600;">Preferred</span>' : '')
                             + '</div>';
                     });
                     html += '</div>';
@@ -8916,7 +8916,7 @@
 
                 // Comp context badge
                 if (compCtx && compCtx.active) {
-                    html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.2); border-radius:8px; font-size:0.75em; color:var(--c-muted); display:flex; align-items:center; gap:8px;">'
+                    html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(178,80,0,0.06); border:1px solid rgba(178,80,0,0.2); border-radius:8px; font-size:0.75em; color:var(--c-muted); display:flex; align-items:center; gap:8px;">'
                         + bpIcon('trending-up', 12)
                         + ' <span><strong style="color:var(--warning);">Market Adjustment: ' + Math.round((compCtx.multiplier - 1) * 100) + '% above BLS baseline</strong>'
                         + (compCtx.label ? ' &nbsp;&middot;&nbsp; ' + escapeHtml(compCtx.label) : '')
@@ -8924,22 +8924,22 @@
                 }
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr' + (showComp ? ' 1fr' : '') + '; gap:10px; margin-bottom:20px;">';
 
-                html += '<div style="padding:14px 16px; background:rgba(48,209,88,0.07); border:1px solid rgba(48,209,88,0.2); border-radius:10px;">'
+                html += '<div style="padding:14px 16px; background:rgba(36,138,61,0.07); border:1px solid rgba(36,138,61,0.2); border-radius:10px;">'
                     + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:var(--success); font-weight:700; margin-bottom:4px;">Minimum Market Value</div>'
                     + '<div style="font-size:1.3em; font-weight:700; color:var(--success);">$' + Math.round((bls.pct25 || 0) * geo).toLocaleString() + '</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">25th pct \u00B7 BLS floor' + (geo !== 1.0 ? ' \u00B7 ' + geoLabel : '') + '</div></div>';
 
-                html += '<div style="padding:14px 16px; background:rgba(96,165,250,0.07); border:1px solid rgba(96,165,250,0.2); border-radius:10px;">'
+                html += '<div style="padding:14px 16px; background:rgba(0,113,227,0.07); border:1px solid rgba(0,113,227,0.2); border-radius:10px;">'
                     + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-weight:700; margin-bottom:4px;">Seniority Target</div>'
                     + '<div style="font-size:1.3em; font-weight:700; color:var(--accent);">$' + blsBase.toLocaleString() + '</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">' + seniorityLabel + ' pct \u00B7 ' + (data.seniority ? data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) : 'Mid') + ' level</div></div>';
 
                 if (showComp) {
-                    html += '<div style="padding:14px 16px; background:rgba(255,214,10,0.07); border:1px solid rgba(255,214,10,0.25); border-radius:10px;">'
+                    html += '<div style="padding:14px 16px; background:rgba(178,80,0,0.07); border:1px solid rgba(178,80,0,0.25); border-radius:10px;">'
                         + '<div style="font-size:0.7em; text-transform:uppercase; letter-spacing:1px; color:var(--warning); font-weight:700; margin-bottom:4px;">Justified Value</div>'
                         + '<div style="font-size:1.3em; font-weight:700; color:var(--warning);">$' + totalJustified.toLocaleString() + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:3px;">75th pct \u00B7 BLS base + skill premiums</div>'
-                        + '<div style="font-size:0.68em; color:var(--c-faint); margin-top:5px; padding-top:5px; border-top:1px solid rgba(255,214,10,0.12);">Max justifiable: <span style="color:rgba(255,214,10,0.6); font-weight:600;">$' + justifiedMax.toLocaleString() + '</span></div></div>';
+                        + '<div style="font-size:0.68em; color:var(--c-faint); margin-top:5px; padding-top:5px; border-top:1px solid rgba(178,80,0,0.12);">Max justifiable: <span style="color:rgba(178,80,0,0.6); font-weight:600;">$' + justifiedMax.toLocaleString() + '</span></div></div>';
                 }
                 html += '</div>';
 
@@ -8961,15 +8961,15 @@
                 html += '<div style="margin-bottom:20px;">'
                     + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">' + bandLabel + '</div>'
                     + '<div style="position:relative; height:10px; border-radius:8px; background:linear-gradient(to right, #1e3a2f, #30d158 50%, #ffd60a); margin-bottom:6px;">'
-                    + '<div style="position:absolute; top:-4px; left:' + markerPct + '%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:var(--accent); border:2px solid var(--c-surface-1); box-shadow:0 0 0 2px #60a5fa44;" title="' + seniorityLabel + ' target"></div>'
+                    + '<div style="position:absolute; top:-4px; left:' + markerPct + '%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:var(--accent); border:2px solid var(--c-surface-1); box-shadow:0 0 0 2px var(--accent)44;" title="' + seniorityLabel + ' target"></div>'
                     + '</div>'
                     + '<div style="display:flex; justify-content:space-between;">';
                 pctBandData.forEach(function(p) {
                     var v = Math.round((p.val || 0) * geo * ctxMult);
                     var isTarget = p.key === seniorityPctKey;
                     html += '<div style="text-align:center; flex:1;">'
-                        + '<div style="font-size:0.68em; color:' + (isTarget ? '#60a5fa' : 'var(--c-faint)') + '; font-weight:' + (isTarget ? '700' : '500') + ';">' + p.label + '</div>'
-                        + '<div style="font-size:0.72em; color:' + (isTarget ? '#60a5fa' : 'var(--c-muted)') + '; font-weight:' + (isTarget ? '700' : '500') + ';">$' + Math.round(v / 1000) + 'K</div>'
+                        + '<div style="font-size:0.68em; color:' + (isTarget ? 'var(--accent)' : 'var(--c-faint)') + '; font-weight:' + (isTarget ? '700' : '500') + ';">' + p.label + '</div>'
+                        + '<div style="font-size:0.72em; color:' + (isTarget ? 'var(--accent)' : 'var(--c-muted)') + '; font-weight:' + (isTarget ? '700' : '500') + ';">$' + Math.round(v / 1000) + 'K</div>'
                         + '</div>';
                 });
                 html += '</div>'
@@ -9005,7 +9005,7 @@
                         + '<td style="padding:8px 10px; color:' + headingColor + ';">'
                         + (isTarget ? '<span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent); margin-right:6px; vertical-align:middle;"></span>' : '<span style="display:inline-block; width:6px; margin-right:6px;"></span>')
                         + p.label + '</td>'
-                        + '<td style="padding:8px 10px; text-align:right; color:' + (isTarget ? '#60a5fa' : '#30d158') + '; font-weight:600;">' + (isHidden ? '<s style="opacity:0.5;">$' + displayVal.toLocaleString() + '</s>' : '$' + displayVal.toLocaleString()) + '</td>'
+                        + '<td style="padding:8px 10px; text-align:right; color:' + (isTarget ? 'var(--accent)' : 'var(--success)') + '; font-weight:600;">' + (isHidden ? '<s style="opacity:0.5;">$' + displayVal.toLocaleString() + '</s>' : '$' + displayVal.toLocaleString()) + '</td>'
                         + '<td style="padding:8px 10px; color:' + mutedColor + '; font-size:0.9em;">' + p.note + (isTarget ? ' <span style="color:var(--accent); font-weight:600;">\u2190 target</span>' : '') + '</td>'
                         + (showBlindCol ? '<td style="text-align:center; padding:8px 4px;"><button onclick="toggleCompBlinding(\'' + p.key + '\')" title="' + (isHidden ? 'Hidden on export' : 'Visible on export') + '" style="background:none; border:1px solid ' + toggleColor + '44; border-radius:6px; padding:4px 8px; cursor:pointer; color:' + toggleColor + '; font-size:0.8em;">' + eyeIcon + '</button></td>' : '')
                         + '</tr>';
@@ -9054,7 +9054,7 @@
                     + '<span style="font-size:0.85em; color:var(--text-secondary); line-height:1.6;">' + escapeHtml(e) + '</span></div>';
             });
             html += '</div>'
-                + '<div style="margin-top:14px; padding:10px 14px; background:rgba(191,90,242,0.06); border:1px solid rgba(191,90,242,0.15); border-radius:8px; font-size:0.82em; color:' + mutedColor + '; line-height:1.5;">'
+                + '<div style="margin-top:14px; padding:10px 14px; background:rgba(155,89,182,0.06); border:1px solid rgba(155,89,182,0.15); border-radius:8px; font-size:0.82em; color:' + mutedColor + '; line-height:1.5;">'
                 + '<strong style="color:var(--c-purple);">Artifacts:</strong> ' + escapeHtml(data.demonstrated.artifacts) + '</div></div>';
 
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
@@ -9395,7 +9395,7 @@
             function _esc(s) { return escapeHtml(s || ''); }
             var h = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
                 + 'body{font-family:Calibri,Arial,sans-serif;color:var(--c-bg-solid-alt);max-width:780px;margin:0 auto;padding:20px 30px;font-size:11pt;line-height:1.5;}'
-                + '.header{background:#0a0a0f;padding:18px 24px;margin:-20px -30px 20px;}'
+                + '.header{background:#fbfbfd;padding:18px 24px;margin:-20px -30px 20px;}'
                 + '.header .label{color:var(--accent);font-size:8pt;text-transform:uppercase;letter-spacing:3px;font-weight:bold;margin-bottom:6px;}'
                 + '.header h1{color:white;font-size:18pt;margin:0 0 6px;}'
                 + '.header .sub{color:#b4bedd;font-size:10pt;margin:0;}'
@@ -9473,7 +9473,7 @@
                     h += '<h2>Compensation Overview</h2><table style="border:none;"><thead><tr>';
                     compRows.forEach(function(p) {
                         var isMed = p.key === 'median';
-                        h += '<th style="text-align:center; font-size:8pt; font-weight:normal; color:' + (isMed ? 'white' : '#636366') + '; background:' + (isMed ? '#28a745' : '#f0fdf4') + '; border:1px solid ' + (isMed ? '#28a745' : '#bbf7d0') + ';">' + p.label + '</th>';
+                        h += '<th style="text-align:center; font-size:8pt; font-weight:normal; color:' + (isMed ? 'white' : 'var(--text-muted)') + '; background:' + (isMed ? '#28a745' : '#f0fdf4') + '; border:1px solid ' + (isMed ? '#28a745' : '#bbf7d0') + ';">' + p.label + '</th>';
                     });
                     h += '</tr></thead><tbody><tr>';
                     compRows.forEach(function(p) {
@@ -10021,7 +10021,7 @@
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 [{ key: 'pct10', label: '10th' }, { key: 'pct25', label: '25th' }, { key: 'median', label: '50th' }, { key: 'pct75', label: '75th' }, { key: 'pct90', label: '90th' }].forEach(function(p) {
                     var isHidden = editHiddenPcts.indexOf(p.key) !== -1;
-                    html += '<button onclick="toggleCompBlinding(\'' + p.key + '\')" style="display:flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:0.78em; font-weight:600; border:1px solid ' + (isHidden ? 'rgba(255,69,58,0.3)' : 'rgba(48,209,88,0.3)') + '; background:' + (isHidden ? 'rgba(255,69,58,0.08)' : 'rgba(48,209,88,0.08)') + '; color:' + (isHidden ? '#ff453a' : '#30d158') + ';">'
+                    html += '<button onclick="toggleCompBlinding(\'' + p.key + '\')" style="display:flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:0.78em; font-weight:600; border:1px solid ' + (isHidden ? 'rgba(215,0,21,0.3)' : 'rgba(36,138,61,0.3)') + '; background:' + (isHidden ? 'rgba(215,0,21,0.08)' : 'rgba(36,138,61,0.08)') + '; color:' + (isHidden ? 'var(--danger)' : 'var(--success)') + ';">'
                         + bpIcon(isHidden ? 'eye-off' : 'eye', 12) + ' ' + p.label + (isHidden ? ' (hidden)' : '') + '</button>';
                 });
                 html += '</div><div style="font-size:0.68em; color:var(--text-muted); margin-top:4px;">Toggle which percentile rows appear on PDF/Word exports</div>';
@@ -10103,7 +10103,7 @@
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold);">' + bpIcon('skills',18) + ' Skills / Outcomes / Proficiency</span>'
-                + '<button onclick="jdcAIFillSkillOutcomes()" style="padding:4px 12px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to fill in missing skill outcomes">' + bpIcon('wand',12) + ' AI Fill Outcomes</button>'
+                + '<button onclick="jdcAIFillSkillOutcomes()" style="padding:4px 12px; background:rgba(0,113,227,0.15); color:var(--accent); border:1px solid rgba(0,113,227,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to fill in missing skill outcomes">' + bpIcon('wand',12) + ' AI Fill Outcomes</button>'
                 + '</div>';
             html += '<div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse; font-size:0.85em;">'
                 + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
@@ -10139,7 +10139,7 @@
                 { name: 'AI-Assisted Decision Making', outcome: 'Leverage AI-generated insights to inform strategic and operational decisions' }
             ].filter(function(s) { return !existingSkillNames.some(function(n) { return n === s.name.toLowerCase() || n.indexOf(s.name.toLowerCase()) !== -1; }); });
             if (aiSuggestions.length > 0) {
-                html += '<div style="background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.25); border-radius:10px; padding:14px 18px; margin-bottom:20px;">'
+                html += '<div style="background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.25); border-radius:10px; padding:14px 18px; margin-bottom:20px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">'
                     + '<span style="font-size:1.1em;">' + bpIcon('wand',16) + '</span>'
                     + '<span style="font-weight:600; font-size:0.88em; color:var(--accent);">Consider adding AI skills</span>'
@@ -10147,8 +10147,8 @@
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 aiSuggestions.forEach(function(s) {
                     html += '<button onclick="_jdcSyncFormToState();_jdcResult.skills.push({name:\'' + s.name.replace(/'/g, "\\'") + '\',outcome:\'' + s.outcome.replace(/'/g, "\\'") + '\',blueprintLevel:\'Proficient\',source:\'suggested\'});' + refreshEsc + ';" '
-                        + 'style="padding:5px 12px; background:var(--c-surface-2); color:var(--c-heading); border:1px solid rgba(96,165,250,0.3); border-radius:12px; cursor:pointer; font-size:0.8em; font-weight:500; transition:background 0.15s;" '
-                        + 'onmouseover="this.style.background=\'rgba(96,165,250,0.15)\'" onmouseout="this.style.background=\'var(--c-surface-2)\'">'
+                        + 'style="padding:5px 12px; background:var(--c-surface-2); color:var(--c-heading); border:1px solid rgba(0,113,227,0.3); border-radius:12px; cursor:pointer; font-size:0.8em; font-weight:500; transition:background 0.15s;" '
+                        + 'onmouseover="this.style.background=\'rgba(0,113,227,0.15)\'" onmouseout="this.style.background=\'var(--c-surface-2)\'">'
                         + bpIcon('plus',10) + ' ' + escapeHtml(s.name) + '</button>';
                 });
                 html += '</div></div>';
@@ -10157,7 +10157,7 @@
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold);">' + bpIcon('star',18) + ' Values</span>'
-                + '<button onclick="jdcAIFillValueDescs()" style="padding:4px 12px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to fill in missing value descriptions">' + bpIcon('wand',12) + ' AI Fill Descriptions</button>'
+                + '<button onclick="jdcAIFillValueDescs()" style="padding:4px 12px; background:rgba(0,113,227,0.15); color:var(--accent); border:1px solid rgba(0,113,227,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to fill in missing value descriptions">' + bpIcon('wand',12) + ' AI Fill Descriptions</button>'
                 + '</div>';
             (data.values || []).forEach(function(v, vi) {
                 var valName = typeof v === 'string' ? v : (v.name || '');
@@ -10183,13 +10183,13 @@
                 { name: 'Precision', description: 'Executes with attention to detail and quality standards' }
             ].filter(function(v) { return existingValNames.indexOf(v.name.toLowerCase()) === -1; });
             if (suggestedValues.length > 0) {
-                html += '<div style="background:rgba(191,90,242,0.08); border:1px solid rgba(191,90,242,0.2); border-radius:10px; padding:12px 16px; margin-bottom:20px;">'
+                html += '<div style="background:rgba(155,89,182,0.08); border:1px solid rgba(155,89,182,0.2); border-radius:10px; padding:12px 16px; margin-bottom:20px;">'
                     + '<div style="font-weight:600; font-size:0.82em; color:var(--c-purple); margin-bottom:8px;">' + bpIcon('star',12) + ' Suggested Values</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 suggestedValues.forEach(function(v) {
                     html += '<button onclick="_jdcSyncFormToState();_jdcResult.values.push({name:\'' + v.name.replace(/'/g, "\\'") + '\',description:\'' + v.description.replace(/'/g, "\\'") + '\'});' + refreshEsc + ';" '
-                        + 'style="padding:4px 11px; background:var(--c-surface-2); color:var(--c-heading); border:1px solid rgba(191,90,242,0.25); border-radius:12px; cursor:pointer; font-size:0.78em; font-weight:500; transition:background 0.15s;" '
-                        + 'onmouseover="this.style.background=\'rgba(191,90,242,0.12)\'" onmouseout="this.style.background=\'var(--c-surface-2)\'">'
+                        + 'style="padding:4px 11px; background:var(--c-surface-2); color:var(--c-heading); border:1px solid rgba(155,89,182,0.25); border-radius:12px; cursor:pointer; font-size:0.78em; font-weight:500; transition:background 0.15s;" '
+                        + 'onmouseover="this.style.background=\'rgba(155,89,182,0.12)\'" onmouseout="this.style.background=\'var(--c-surface-2)\'">'
                         + bpIcon('plus',10) + ' ' + escapeHtml(v.name) + '</button>';
                 });
                 html += '</div></div>';
@@ -10199,7 +10199,7 @@
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold);">' + bpIcon('check',18) + ' Demonstrated Experience</span>'
-                + '<button onclick="jdcAIFillDemonstrated()" style="padding:4px 12px; background:rgba(48,209,88,0.15); color:var(--success); border:1px solid rgba(48,209,88,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to generate demonstrated experience evidence tailored to this role">' + bpIcon('wand',12) + ' AI Generate</button>'
+                + '<button onclick="jdcAIFillDemonstrated()" style="padding:4px 12px; background:rgba(36,138,61,0.15); color:var(--success); border:1px solid rgba(36,138,61,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to generate demonstrated experience evidence tailored to this role">' + bpIcon('wand',12) + ' AI Generate</button>'
                 + '</div>';
             (demoData.evidence || []).forEach(function(ev, ei) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
@@ -10369,12 +10369,12 @@
             _wbRepoCache.forEach(function(bp, idx) {
                 var isActive = _wbRepoViewIdx === idx;
                 var savedDate = bp.savedAt && bp.savedAt.toDate ? bp.savedAt.toDate().toLocaleDateString() : (bp.createdAt ? new Date(bp.createdAt).toLocaleDateString() : '');
-                html += '<div style="display:flex; align-items:center; gap:14px; padding:14px 16px; background:' + (isActive ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-1)') + '; border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--c-surface-5)') + '; border-radius:10px; cursor:pointer; transition:border-color 0.15s;" onclick="wbRepoView(' + idx + ')">'
+                html += '<div style="display:flex; align-items:center; gap:14px; padding:14px 16px; background:' + (isActive ? 'rgba(0,113,227,0.1)' : 'var(--c-surface-1)') + '; border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--c-surface-5)') + '; border-radius:10px; cursor:pointer; transition:border-color 0.15s;" onclick="wbRepoView(' + idx + ')">'
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:600; font-size:0.95em; color:var(--c-heading-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(bp.title || 'Untitled') + '</div>'
                     + '<div style="font-size:0.8em; color:var(--c-muted); margin-top:3px;">' + escapeHtml(bp.company || '') + (bp.location ? ' \u00B7 ' + escapeHtml(bp.location) : '') + ' \u00B7 ' + (bp.skills ? bp.skills.length : 0) + ' skills' + (savedDate ? ' \u00B7 ' + savedDate : '') + '</div></div>'
-                    + '<button onclick="event.stopPropagation(); wbRepoClone(' + idx + ')" style="background:none; border:none; color:var(--accent, #60a5fa); cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(96,165,250,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Clone">' + bpIcon('copy',16) + '</button>'
-                    + '<button onclick="event.stopPropagation(); wbRepoDelete(\'' + (bp.id || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(255,69,58,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Delete">' + bpIcon('trash',16) + '</button>'
+                    + '<button onclick="event.stopPropagation(); wbRepoClone(' + idx + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(0,113,227,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Clone">' + bpIcon('copy',16) + '</button>'
+                    + '<button onclick="event.stopPropagation(); wbRepoDelete(\'' + (bp.id || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(215,0,21,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Delete">' + bpIcon('trash',16) + '</button>'
                     + '</div>';
             });
             html += '</div>';
@@ -10386,10 +10386,10 @@
                     + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:var(--c-purple); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' PDF</button>'
                     + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#4a9eff; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('download',14) + ' Word</button>'
                     + '<button onclick="wbRepoEditModal(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('edit',14) + ' Edit</button>'
-                    + '<button onclick="wbRepoClone(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--accent, #60a5fa); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('copy',14) + ' Clone</button>'
-                    + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(48,209,88,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
+                    + '<button onclick="wbRepoClone(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--accent); border:1px solid rgba(0,113,227,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('copy',14) + ' Clone</button>'
+                    + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--success); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(36,138,61,0.3); display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trending-up',14) + ' Compare</button>'
                     + '<button onclick="generateScoutingReportFromWB(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:none; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('file-text',14) + ' Scouting Report</button>'
-                    + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trash',14) + ' Delete</button>'
+                    + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:var(--danger); border:1px solid rgba(215,0,21,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, _jdcCompMode === 'with');
                 html += '<div id="wbCompareContainer"></div>';
@@ -11122,7 +11122,7 @@
             // Primary values as prominent pills
             html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;">';
             (compVals.primary || []).forEach(function(v) {
-                html += '<span style="font-size:0.82em; padding:4px 12px; border-radius:12px; font-weight:600; background:rgba(48,209,88,0.12); color:var(--success); border:1px solid rgba(48,209,88,0.2);">'
+                html += '<span style="font-size:0.82em; padding:4px 12px; border-radius:12px; font-weight:600; background:rgba(36,138,61,0.12); color:var(--success); border:1px solid rgba(36,138,61,0.2);">'
                     + escapeHtml(v) + '</span>';
             });
             html += '</div>';
@@ -11204,7 +11204,7 @@
                     Object.keys(alignedByCompany).forEach(function(companyVal) {
                         var matches = alignedByCompany[companyVal];
                         var isPrimary = (compVals.primary || []).some(function(p) { return p === companyVal; });
-                        html += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(48,209,88,0.04); border-radius:8px; border-left:3px solid ' + (isPrimary ? '#30d158' : 'var(--c-surface-5)') + ';">'
+                        html += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(36,138,61,0.04); border-radius:8px; border-left:3px solid ' + (isPrimary ? 'var(--success)' : 'var(--c-surface-5)') + ';">'
                             + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                             + '<div>'
                             + '<span style="font-size:0.82em; font-weight:700; color:var(--c-heading);">' + escapeHtml(companyVal) + '</span>'
@@ -11217,7 +11217,7 @@
                             var quality = Math.round((m.score || 0.5) * 100);
                             var matchType = quality >= 95 ? 'exact' : quality >= 85 ? 'synonym' : quality >= 70 ? 'semantic' : 'related';
                             var typeColor = quality >= 95 ? '#30d158' : quality >= 85 ? '#30d158' : quality >= 70 ? '#ff9f0a' : '#60a5fa';
-                            html += '<span style="font-size:0.73em; padding:2px 8px; border-radius:10px; background:rgba(48,209,88,0.08); color:var(--c-body);">'
+                            html += '<span style="font-size:0.73em; padding:2px 8px; border-radius:10px; background:rgba(36,138,61,0.08); color:var(--c-body);">'
                                 + escapeHtml(m.name.charAt(0).toUpperCase() + m.name.slice(1))
                                 + ' <span style="color:' + typeColor + '; font-size:0.88em; font-weight:500;">(' + matchType + ')</span>'
                                 + '</span>';
@@ -11234,9 +11234,9 @@
                         + '\u2717 Unmatched Company Values (' + theirPriority.length + ')</div>';
                     theirPriority.forEach(function(v) {
                         var isPrimary = v.strength === 'primary';
-                        html += '<div style="padding:6px 12px; margin-bottom:3px; background:rgba(255,214,10,0.04); border-radius:6px; border-left:3px solid ' + (isPrimary ? '#ffd60a' : '#ff9f0a') + '; display:flex; justify-content:space-between; align-items:center;">'
+                        html += '<div style="padding:6px 12px; margin-bottom:3px; background:rgba(178,80,0,0.04); border-radius:6px; border-left:3px solid ' + (isPrimary ? 'var(--warning)' : 'var(--c-orange)') + '; display:flex; justify-content:space-between; align-items:center;">'
                             + '<span style="font-size:0.82em; color:var(--c-heading);">' + escapeHtml(v.name.charAt(0).toUpperCase() + v.name.slice(1)) + '</span>'
-                            + '<span style="font-size:0.7em; color:' + (isPrimary ? '#ffd60a' : '#ff9f0a') + ';">' + (isPrimary ? 'core value \u2014 gap' : 'secondary \u2014 gap') + '</span>'
+                            + '<span style="font-size:0.7em; color:' + (isPrimary ? 'var(--warning)' : 'var(--c-orange)') + ';">' + (isPrimary ? 'core value \u2014 gap' : 'secondary \u2014 gap') + '</span>'
                             + '</div>';
                     });
                     html += '</div>';
@@ -11250,7 +11250,7 @@
                         + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:6px;">Values this candidate prioritizes beyond company requirements. These represent independent character, not misalignment.</div>'
                         + '<div style="display:flex; flex-wrap:wrap; gap:4px;">';
                     yourPriority.forEach(function(v) {
-                        html += '<span style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.08); color:var(--accent); border:1px solid rgba(96,165,250,0.15);">'
+                        html += '<span style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(0,113,227,0.08); color:var(--accent); border:1px solid rgba(0,113,227,0.15);">'
                             + escapeHtml(v.name.charAt(0).toUpperCase() + v.name.slice(1)) + '</span>';
                     });
                     html += '</div></div>';
@@ -11351,35 +11351,35 @@
                     + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">';
 
                 // WB-only tile
-                html += '<div style="padding:14px; background:rgba(48,209,88,0.04); border:1px solid rgba(48,209,88,0.15); border-radius:10px;">'
+                html += '<div style="padding:14px; background:rgba(36,138,61,0.04); border:1px solid rgba(36,138,61,0.15); border-radius:10px;">'
                     + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--success); font-weight:700; margin-bottom:8px;">'
                     + '\u2728 Discovered by Blueprint Only (' + wbOnly.length + ')</div>';
                 if (wbOnly.length > 0) {
                     wbOnly.forEach(function(m) {
                         var quality = Math.round(m.nameMatch * m.profMatch * 100);
-                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(48,209,88,0.06); border-radius:6px; border-left:2px solid var(--success);">'
+                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(36,138,61,0.06); border-radius:6px; border-left:2px solid var(--success);">'
                             + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
                             + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + (m.userLevel ? ' (' + m.userLevel + ')' : '') + ' <span style="color:var(--success);">' + quality + '%</span></div>'
                             + '</div>';
                     });
-                    html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:6px; padding:4px 0; border-top:1px solid rgba(48,209,88,0.1); line-height:1.4;">Invisible to ATS keyword scanning. Requires synonym and ontology-aware matching.</div>';
+                    html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:6px; padding:4px 0; border-top:1px solid rgba(36,138,61,0.1); line-height:1.4;">Invisible to ATS keyword scanning. Requires synonym and ontology-aware matching.</div>';
                 } else {
                     html += '<div style="font-size:0.78em; color:var(--c-muted); padding:8px 0;">No additional matches beyond JD.</div>';
                 }
                 html += '</div>';
 
                 // JD-only tile
-                html += '<div style="padding:14px; background:rgba(255,159,10,0.04); border:1px solid rgba(255,159,10,0.12); border-radius:10px;">'
+                html += '<div style="padding:14px; background:rgba(196,93,0,0.04); border:1px solid rgba(196,93,0,0.12); border-radius:10px;">'
                     + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--c-orange); font-weight:700; margin-bottom:8px;">'
                     + '' + bpIcon('file-text',14) + ' Discovered by JD Parsing Only (' + jdOnly.length + ')</div>';
                 if (jdOnly.length > 0) {
                     jdOnly.forEach(function(m) {
-                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(255,159,10,0.04); border-radius:6px; border-left:2px solid var(--c-orange);">'
+                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(196,93,0,0.04); border-radius:6px; border-left:2px solid var(--c-orange);">'
                             + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
                             + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + ' <span style="color:var(--c-orange);">keyword match</span></div>'
                             + '</div>';
                     });
-                    html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:6px; padding:4px 0; border-top:1px solid rgba(255,159,10,0.1); line-height:1.4;">Keyword-based extraction. No proficiency validation or evidence.</div>';
+                    html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:6px; padding:4px 0; border-top:1px solid rgba(196,93,0,0.1); line-height:1.4;">Keyword-based extraction. No proficiency validation or evidence.</div>';
                 } else {
                     html += '<div style="font-size:0.78em; color:var(--c-muted); padding:8px 0;">No matches the Blueprint missed.</div>';
                 }
@@ -11398,7 +11398,7 @@
                     html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--warning); font-weight:600; margin-bottom:6px;">Required Skills \u2014 Not Currently Matched</div>';
                     criticalGaps.forEach(function(g) {
                         var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
-                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(255,214,10,0.04); border-radius:8px; border-left:3px solid var(--warning);">'
+                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(178,80,0,0.04); border-radius:8px; border-left:3px solid var(--warning);">'
                             + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                             + '<span style="font-size:0.85em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
                             + '<span style="font-size:0.7em; color:var(--warning); font-weight:500;">' + (g.proficiency || 'Proficient') + ' required</span>'
@@ -11412,7 +11412,7 @@
                     html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--c-orange); font-weight:600; margin:10px 0 6px;">Preferred Skills \u2014 Growth Opportunities</div>';
                     developmentGaps.forEach(function(g) {
                         var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
-                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(255,159,10,0.04); border-radius:8px; border-left:3px solid var(--c-orange);">'
+                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(196,93,0,0.04); border-radius:8px; border-left:3px solid var(--c-orange);">'
                             + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                             + '<span style="font-size:0.85em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
                             + '<span style="font-size:0.7em; color:var(--c-orange); font-weight:500;">' + (g.proficiency || 'Proficient') + ' preferred</span>'
@@ -11425,7 +11425,7 @@
                 if (devAreas.length > 0) {
                     html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:600; margin:10px 0 6px;">Adjacent Skills \u2014 Strengthen Existing Capabilities</div>';
                     devAreas.forEach(function(d) {
-                        html += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(96,165,250,0.04); border-radius:8px; border-left:3px solid var(--accent);">'
+                        html += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(0,113,227,0.04); border-radius:8px; border-left:3px solid var(--accent);">'
                             + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(d.skill) + '</div>'
                             + '<div style="font-size:0.75em; color:var(--c-body); margin-top:2px;">'
                             + (d.type === 'proficiency' ? 'Current: ' + d.has + ' \u2192 Needed: ' + d.needs : 'Related skill present. Direct experience recommended.')
@@ -11449,7 +11449,7 @@
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Skills where this candidate\'s profile data closely aligns with role requirements.</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 candidateStrengths.forEach(function(s) {
-                    html += '<span style="font-size:0.78em; background:rgba(48,209,88,0.08); color:var(--success); padding:5px 12px; border-radius:12px; font-weight:500; border:1px solid rgba(48,209,88,0.15);">' + escapeHtml(s) + '</span>';
+                    html += '<span style="font-size:0.78em; background:rgba(36,138,61,0.08); color:var(--success); padding:5px 12px; border-radius:12px; font-weight:500; border:1px solid rgba(36,138,61,0.15);">' + escapeHtml(s) + '</span>';
                 });
                 html += '</div></div>';
             }
@@ -11497,7 +11497,7 @@
             var radius = 54, stroke = 10, circ = 2 * Math.PI * radius;
             var pct = Math.max(0, Math.min(100, score));
             var offset = circ - (pct / 100) * circ;
-            var bgColor = 'rgba(255,255,255,0.08)';
+            var bgColor = 'rgba(0,0,0,0.06)';
             var html = '<div style="text-align:center;">'
                 + '<svg width="130" height="130" viewBox="0 0 130 130">'
                 + '<circle cx="65" cy="65" r="' + radius + '" fill="none" stroke="' + bgColor + '" stroke-width="' + stroke + '" />'
@@ -11574,7 +11574,7 @@
             var profPct = profTotal > 0 ? Math.round((profMeets / profTotal) * 100) : 0;
             var evidencePoints = structResult.evidencePoints || 0;
 
-            html += '<div style="background:rgba(48,209,88,0.06); border:1px solid rgba(48,209,88,0.25); border-radius:12px; padding:20px;">'
+            html += '<div style="background:rgba(36,138,61,0.06); border:1px solid rgba(36,138,61,0.25); border-radius:12px; padding:20px;">'
                 + '<div style="text-align:center; font-family:Outfit,sans-serif; font-weight:700; font-size:0.95em; color:' + afterColor + '; margin-bottom:14px; text-transform:uppercase; letter-spacing:1px;">'
                 + bpIcon('blueprint',14) + ' Work Blueprint\u2122</div>'
                 + _wbCompareGauge(structResult.score, 'Intelligence Score', afterColor, structResult.skillsUsed + ' structured skills')
@@ -11592,7 +11592,7 @@
                 + '<div style="font-size:1.2em; font-weight:700; color:' + afterColor + ';">' + evidencePoints + '</div>'
                 + '<div style="font-size:0.7em; color:var(--c-muted);">Evidence</div></div>'
                 + '</div>'
-                + '<div style="margin-top:10px; font-size:0.75em; color:var(--c-muted); line-height:1.4; padding:8px; background:rgba(48,209,88,0.04); border-radius:6px;">'
+                + '<div style="margin-top:10px; font-size:0.75em; color:var(--c-muted); line-height:1.4; padding:8px; background:rgba(36,138,61,0.04); border-radius:6px;">'
                 + structResult.skillsUsed + ' structured skills with proficiency levels. ' + (structResult.valuesTotal || 0) + ' values mapped. '
                 + 'Synonym + ontology matching. ' + evidencePoints + ' supporting data points.'
                 + '</div>'
@@ -11600,7 +11600,7 @@
 
             html += '</div>';
 
-            html += '<div style="background:rgba(48,209,88,0.06); border:1px solid rgba(48,209,88,0.2); border-radius:12px; padding:20px; margin-bottom:20px;">'
+            html += '<div style="background:rgba(36,138,61,0.06); border:1px solid rgba(36,138,61,0.2); border-radius:12px; padding:20px; margin-bottom:20px;">'
                 + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:16px;">'
                 + bpIcon('trending-up',18) + ' Intelligence Comparison</div>';
 
@@ -11618,7 +11618,7 @@
                     + '<div style="font-weight:700; color:var(--c-heading);">' + item.label + '</div>'
                     + '<div style="color:' + beforeColor + '; padding:5px 8px; background:rgba(99,99,102,0.06); border-radius:6px;">'
                     + '<span style="opacity:0.6;">\u2717</span> ' + item.ats + '</div>'
-                    + '<div style="color:' + afterColor + '; padding:5px 8px; background:rgba(48,209,88,0.06); border-radius:6px;">'
+                    + '<div style="color:' + afterColor + '; padding:5px 8px; background:rgba(36,138,61,0.06); border-radius:6px;">'
                     + '<span>\u2713</span> ' + item.wb + '</div></div>';
             });
 
@@ -11647,7 +11647,7 @@
                     html += '</div>';
                 });
                 rawResult.gaps.slice(0, 5).forEach(function(g) {
-                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(255,69,58,0.04); border-radius:6px; border-left:3px solid rgba(255,69,58,0.3);">'
+                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(215,0,21,0.04); border-radius:6px; border-left:3px solid rgba(215,0,21,0.3);">'
                         + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                         + '<span style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(g.name) + '</span>'
                         + '<span style="font-size:0.7em; color:var(--danger);">\u2717 no match</span>'
@@ -11661,7 +11661,7 @@
             var wbMatched = structResult.matched || [];
             var wbGaps = structResult.gaps || [];
             var wbTotal = structResult.skillsUsed || (wbMatched.length + wbGaps.length);
-            html += '<div style="padding:16px; background:rgba(48,209,88,0.04); border:1px solid rgba(48,209,88,0.15); border-radius:10px;">'
+            html += '<div style="padding:16px; background:rgba(36,138,61,0.04); border:1px solid rgba(36,138,61,0.15); border-radius:10px;">'
                 + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:' + afterColor + '; margin-bottom:4px;">'
                 + bpIcon('blueprint', 14) + ' Blueprint Structured Matching</div>'
                 + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:10px;">'
@@ -11678,7 +11678,7 @@
                     var candidateLevel = m.userLevel || '';
                     var requiredLevel = m.jobProficiency || '';
                     var profOk = !m.profGap;
-                    html += '<div style="padding:10px 12px; margin-bottom:5px; background:rgba(48,209,88,0.05); border-radius:8px; border-left:3px solid ' + qualityColor + ';">'
+                    html += '<div style="padding:10px 12px; margin-bottom:5px; background:rgba(36,138,61,0.05); border-radius:8px; border-left:3px solid ' + qualityColor + ';">'
                         // Row 1: Job skill name + similarity score
                         + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                         + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
@@ -11691,14 +11691,14 @@
                     if (candidateLevel && requiredLevel) {
                         html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(99,102,241,0.1); color:var(--c-purple); font-weight:500;">Required: ' + requiredLevel + '</span>'
                             + '<span style="color:var(--c-muted);">\u2192</span>'
-                            + '<span style="padding:2px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:var(--success); font-weight:500;">Has: ' + candidateLevel + '</span>';
+                            + '<span style="padding:2px 8px; border-radius:6px; background:rgba(36,138,61,0.1); color:var(--success); font-weight:500;">Has: ' + candidateLevel + '</span>';
                         if (profOk) {
                             html += '<span style="color:var(--success); font-weight:600;">\u2713 Met</span>';
                         } else {
-                            html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(255,159,10,0.1); color:var(--c-orange); font-weight:500;">\u26A0 Below required</span>';
+                            html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(196,93,0,0.1); color:var(--c-orange); font-weight:500;">\u26A0 Below required</span>';
                         }
                     } else if (candidateLevel) {
-                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(48,209,88,0.1); color:var(--success); font-weight:500;">Candidate: ' + candidateLevel + '</span>';
+                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(36,138,61,0.1); color:var(--success); font-weight:500;">Candidate: ' + candidateLevel + '</span>';
                     }
                     html += '</div></div>';
                 });
@@ -11706,12 +11706,12 @@
             
             // Gap skills as cards
             if (wbGaps.length > 0) {
-                html += '<div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,159,10,0.3);">';
+                html += '<div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(196,93,0,0.3);">';
                 wbGaps.slice(0, 10).forEach(function(g) {
-                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(255,159,10,0.04); border-radius:6px; border-left:3px solid var(--c-orange);">'
+                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(196,93,0,0.04); border-radius:6px; border-left:3px solid var(--c-orange);">'
                         + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                         + '<span style="font-size:0.82em; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
-                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,159,10,0.1); color:var(--c-orange); font-weight:500;">' + (g.requirement || 'Required') + ' \u00B7 ' + (g.proficiency || 'Proficient') + '</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(196,93,0,0.1); color:var(--c-orange); font-weight:500;">' + (g.requirement || 'Required') + ' \u00B7 ' + (g.proficiency || 'Proficient') + '</span>'
                         + '</div>'
                         + '<div style="font-size:0.7em; color:var(--c-muted); margin-top:2px;">Not found in candidate profile</div>'
                         + '</div>';
@@ -11719,7 +11719,7 @@
                 html += '</div>';
             }
             
-            html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:8px; padding:4px 0; border-top:1px solid rgba(48,209,88,0.1);">Synonym + ontology matching with proficiency validation and evidence tracking.</div>';
+            html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:8px; padding:4px 0; border-top:1px solid rgba(36,138,61,0.1);">Synonym + ontology matching with proficiency validation and evidence tracking.</div>';
             html += '</div>';
             html += '</div>';
 
@@ -12048,10 +12048,10 @@
                 var n = i + 1;
                 var active = n === _wbCompWizStep;
                 var done = n < _wbCompWizStep;
-                var bg = active ? 'var(--accent)' : done ? 'rgba(48,209,88,0.2)' : 'var(--c-surface-3)';
+                var bg = active ? 'var(--accent)' : done ? 'rgba(36,138,61,0.2)' : 'var(--c-surface-3)';
                 var col = active ? '#fff' : done ? '#30d158' : 'var(--c-muted)';
                 html += '<div style="flex:1; text-align:center; padding:10px 6px; background:' + bg + '; border-radius:8px; font-size:0.78em; font-weight:' + (active ? '700' : '500') + '; color:' + col + ';">'
-                    + '<span style="display:inline-block; width:18px; height:18px; line-height:18px; border-radius:50%; background:' + (active ? '#fff' : done ? '#30d158' : 'var(--c-surface-5)') + '; color:' + (active ? 'var(--accent)' : done ? '#fff' : 'var(--c-muted)') + '; font-size:0.8em; font-weight:700; margin-right:4px;">' + (done ? '\u2713' : n) + '</span>'
+                    + '<span style="display:inline-block; width:18px; height:18px; line-height:18px; border-radius:50%; background:' + (active ? '#fff' : done ? 'var(--success)' : 'var(--c-surface-5)') + '; color:' + (active ? 'var(--accent)' : done ? '#fff' : 'var(--c-muted)') + '; font-size:0.8em; font-weight:700; margin-right:4px;">' + (done ? '\u2713' : n) + '</span>'
                     + s + '</div>';
             });
             html += '</div>';
@@ -12137,7 +12137,7 @@
             _wbRepoCache.forEach(function(bp, idx) {
                 var selected = _wbCompWizData.wb && _wbCompWizData.wb._idx === idx;
                 var border = selected ? '2px solid var(--accent)' : '1px solid var(--c-surface-5)';
-                var bg = selected ? 'rgba(48,209,88,0.08)' : 'var(--c-surface-1)';
+                var bg = selected ? 'rgba(36,138,61,0.08)' : 'var(--c-surface-1)';
                 html += '<div onclick="_wbCompWizSelectWB(' + idx + ')" style="background:' + bg + '; border:' + border + '; border-radius:10px; padding:12px 16px; cursor:pointer; transition:border-color 0.15s;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                     + '<div>'
@@ -12175,7 +12175,7 @@
                 + '<div style="font-size:0.84em; color:var(--c-muted); margin-bottom:16px;">This raw JD text will be matched using keyword scanning \u2014 the way most ATS systems work today.</div>';
 
             if (_wbCompWizData.rawJD) {
-                html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(48,209,88,0.08); border-radius:8px; font-size:0.82em; color:var(--success);">'
+                html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(36,138,61,0.08); border-radius:8px; font-size:0.82em; color:var(--success);">'
                     + bpIcon('check',14) + ' JD text loaded (' + _wbCompWizData.rawJD.split(/\s+/).length + ' words). You can edit below or replace.</div>';
             }
 
@@ -12255,7 +12255,7 @@
             allProfiles.forEach(function(p) {
                 var selected = _wbCompWizData.candidateId === p.id;
                 var border = selected ? '2px solid var(--accent)' : '1px solid var(--c-surface-5)';
-                var bg = selected ? 'rgba(48,209,88,0.08)' : 'var(--c-surface-1)';
+                var bg = selected ? 'rgba(36,138,61,0.08)' : 'var(--c-surface-1)';
                 html += '<div onclick="_wbCompWizSelectCandidate(\'' + escapeHtml(p.id) + '\', \'' + escapeHtml(p.path) + '\')" style="background:' + bg + '; border:' + border + '; border-radius:10px; padding:12px 16px; cursor:pointer; transition:border-color 0.15s;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                     + '<div>'
@@ -12546,7 +12546,7 @@
                         + bpIcon('archive', 24) + '<div style="margin-top:8px;">No saved comparisons yet. Run a comparison and click Save.</div></div>';
                     return;
                 }
-                var syncBadge = fbUser ? '<span style="font-size:0.68em; color:var(--success); margin-left:8px; padding:2px 7px; background:rgba(48,209,88,0.1); border-radius:10px;">' + bpIcon('check',10) + ' Synced</span>' : '';
+                var syncBadge = fbUser ? '<span style="font-size:0.68em; color:var(--success); margin-left:8px; padding:2px 7px; background:rgba(36,138,61,0.1); border-radius:10px;">' + bpIcon('check',10) + ' Synced</span>' : '';
                 var html = '<div style="margin-bottom:10px; display:flex; align-items:center;">'
                     + '<span style="font-size:0.75em; color:var(--c-muted);">' + saved.length + ' saved comparison' + (saved.length !== 1 ? 's' : '') + syncBadge + '</span>'
                     + '</div>';
@@ -12556,7 +12556,7 @@
                     var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                     var delta = s.wbScore - s.jdScore;
                     var deltaColor = delta > 0 ? '#30d158' : delta < 0 ? '#ff453a' : 'var(--c-muted)';
-                    html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-3); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#30d158\'" onmouseout="this.style.borderColor=\'var(--c-surface-3)\'" onclick="_wbCompOpenModal(\'' + s.id + '\')">'
+                    html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-3); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'var(--success)\'" onmouseout="this.style.borderColor=\'var(--c-surface-3)\'" onclick="_wbCompOpenModal(\'' + s.id + '\')">'
                         + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">'
                         + '<div>'
                         + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading);">' + escapeHtml(s.candidateName) + '</div>'
@@ -12607,7 +12607,7 @@
                 if (existing) existing.remove();
                 var overlay = document.createElement('div');
                 overlay.id = 'wbCompModal';
-                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#0a0a0f; overflow-y:auto; padding:20px 20px 60px;';
+                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#fbfbfd; overflow-y:auto; padding:20px 20px 60px;';
                 var closeBar = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 16px; background:rgba(30,41,59,0.95); border-radius:10px; border:1px solid rgba(51,65,85,0.5); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);">'
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary);">'
                     + bpIcon('trending-up', 16) + ' Saved Comparison \u2014 ' + escapeHtml(entry.candidateName) + '</div>'
@@ -12759,7 +12759,7 @@
                     if (existing) existing.remove();
                     var overlay = document.createElement('div');
                     overlay.id = 'wbCompModal';
-                    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#0a0a0f; overflow-y:auto; padding:20px 20px 60px;';
+                    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#fbfbfd; overflow-y:auto; padding:20px 20px 60px;';
                     var sharedAt = data.sharedAt ? new Date(data.sharedAt).toLocaleDateString() : '';
                     var closeBar = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 16px; background:rgba(30,41,59,0.95); border-radius:10px; border:1px solid rgba(51,65,85,0.5); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);">'
                         + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary);">'
@@ -12826,7 +12826,7 @@
                 + '<div style="font-size:0.78em; color:var(--text-secondary); margin-bottom:16px;">Choose a theme for your export.</div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
                 // Light option
-                + '<div id="pdfThemeLight" style="cursor:pointer; border-radius:10px; border:2px solid #48484a; padding:14px; text-align:center; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#30d158\'" onmouseout="this.style.borderColor=\'#48484a\'">'
+                + '<div id="pdfThemeLight" style="cursor:pointer; border-radius:10px; border:2px solid #48484a; padding:14px; text-align:center; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'var(--success)\'" onmouseout="this.style.borderColor=\'#48484a\'">'
                 + '<div style="width:100%; height:48px; background:#f8fafc; border-radius:6px; margin-bottom:8px; display:flex; align-items:center; justify-content:center;">'
                 + '<div style="width:30px; height:6px; background:var(--success); border-radius:6px; margin:2px;"></div>'
                 + '<div style="width:20px; height:6px; background:var(--text-secondary); border-radius:6px; margin:2px;"></div>'
@@ -12835,8 +12835,8 @@
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Best for print & email</div>'
                 + '</div>'
                 // Dark option
-                + '<div id="pdfThemeDark" style="cursor:pointer; border-radius:10px; border:2px solid #48484a; padding:14px; text-align:center; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#30d158\'" onmouseout="this.style.borderColor=\'#48484a\'">'
-                + '<div style="width:100%; height:48px; background:#0a0a0f; border-radius:6px; margin-bottom:8px; border:1px solid var(--c-bg-solid-alt); display:flex; align-items:center; justify-content:center;">'
+                + '<div id="pdfThemeDark" style="cursor:pointer; border-radius:10px; border:2px solid #48484a; padding:14px; text-align:center; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'var(--success)\'" onmouseout="this.style.borderColor=\'#48484a\'">'
+                + '<div style="width:100%; height:48px; background:#fbfbfd; border-radius:6px; margin-bottom:8px; border:1px solid var(--c-bg-solid-alt); display:flex; align-items:center; justify-content:center;">'
                 + '<div style="width:30px; height:6px; background:var(--success); border-radius:6px; margin:2px;"></div>'
                 + '<div style="width:20px; height:6px; background:var(--text-muted); border-radius:6px; margin:2px;"></div>'
                 + '</div>'
@@ -12926,13 +12926,13 @@
             var compHtml = _wbRenderComparison(wb, rawResult, structResult, candidate);
             
             // Add a branded header
-            var headerHtml = '<div style="text-align:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid ' + (isLight ? '#d1d1d6' : 'rgba(255,255,255,0.1)') + ';">'
+            var headerHtml = '<div style="text-align:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid ' + (isLight ? 'var(--c-muted)' : 'rgba(0,0,0,0.07)') + ';">'
                 + '<div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.3em; color:' + headingBold + '; letter-spacing:0.04em;">BLUEPRINT ADVANTAGE\u2122 COMPARISON</div>'
                 + '<div style="font-size:0.82em; color:' + muted + '; margin-top:4px;">Generated ' + new Date().toLocaleDateString() + ' \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.</div>'
                 + '</div>';
             
             // Add a footer
-            var footerHtml = '<div style="text-align:center; margin-top:20px; padding-top:12px; border-top:1px solid ' + (isLight ? '#d1d1d6' : 'rgba(255,255,255,0.1)') + '; font-size:0.72em; color:' + muted + ';">'
+            var footerHtml = '<div style="text-align:center; margin-top:20px; padding-top:12px; border-top:1px solid ' + (isLight ? 'var(--c-muted)' : 'rgba(0,0,0,0.07)') + '; font-size:0.72em; color:' + muted + ';">'
                 + 'Blueprint\u2122 v' + (window.BP_VERSION || '4.45.22') + ' \u00B7 Powered by structured intelligence'
                 + '</div>';
             
@@ -13425,7 +13425,7 @@
             );
 
             // ── Layer 5: Skill Premium Pool ─────────────────────────────────────
-            html += section('Layer 5 — Skill Premium Pool', '#ff9f0a',
+            html += section('Layer 5 — Skill Premium Pool', 'var(--c-orange)',
                 prose('A premium pool equal to ' + constants.premiumPoolPct + '% of the adjusted BLS median is distributed across blueprint skills. Each skill earns a share based on its O*NET importance score weighted by declared proficiency.')
                 + tableWrap(
                     row('Premium pool', constants.premiumPoolPct + '% of adjusted median', 'Applied after Layers 1–4')
@@ -13438,7 +13438,7 @@
             );
 
             // ── What Blueprint IS / IS NOT ───────────────────────────────────────
-            html += section('What This Model IS — and IS NOT', '#a1a1a6',
+            html += section('What This Model IS — and IS NOT', 'var(--text-secondary)',
                 '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 + '<div>'
                 + '<div style="font-size:0.72em; font-weight:700; color:' + accentGreen + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">&#10003; What it IS</div>'
@@ -13464,7 +13464,7 @@
             );
 
             // ── Data Sources & Refresh ───────────────────────────────────────────
-            html += section('Data Sources & Refresh Schedule', '#636366',
+            html += section('Data Sources & Refresh Schedule', 'var(--text-muted)',
                 tableWrap(
                     row('BLS OEWS', 'Annual (May release)', 'National and metro occupational wages')
                     + row('O*NET', '28.3 (current)', 'SOC crosswalk, skill importance scores, 53K+ aliases')
@@ -13648,14 +13648,14 @@
 
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-bottom:24px;">';
             [
-                { label: 'Jobs Parsed', value: totalJobs, color: '#60a5fa' },
-                { label: 'Avg Skills/Job', value: avgSkillsPerJob, color: '#30d158' },
-                { label: 'Total Extracted', value: totalSkillsExtracted, color: '#bf5af2' },
-                { label: 'Total Matched', value: totalMatched, color: '#30d158' },
-                { label: 'Total Gaps', value: totalGaps, color: '#ff9f0a' },
-                { label: 'Avg Coverage', value: avgCoverage + '%', color: avgCoverage >= 70 ? '#30d158' : '#ff9f0a' },
-                { label: 'Avg Match Score', value: avgMatch + '%', color: avgMatch >= 50 ? '#30d158' : '#ff9f0a' },
-                { label: 'Missed Terms', value: totalMissed, color: '#ffd60a' }
+                { label: 'Jobs Parsed', value: totalJobs, color: 'var(--accent)' },
+                { label: 'Avg Skills/Job', value: avgSkillsPerJob, color: 'var(--success)' },
+                { label: 'Total Extracted', value: totalSkillsExtracted, color: 'var(--c-purple)' },
+                { label: 'Total Matched', value: totalMatched, color: 'var(--success)' },
+                { label: 'Total Gaps', value: totalGaps, color: 'var(--c-orange)' },
+                { label: 'Avg Coverage', value: avgCoverage + '%', color: avgCoverage >= 70 ? 'var(--success)' : 'var(--c-orange)' },
+                { label: 'Avg Match Score', value: avgMatch + '%', color: avgMatch >= 50 ? 'var(--success)' : 'var(--c-orange)' },
+                { label: 'Missed Terms', value: totalMissed, color: 'var(--warning)' }
             ].forEach(function(s) {
                 html += '<div style="padding:12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; text-align:center;">'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px;">' + s.label + '</div>'
@@ -13692,12 +13692,12 @@
                     var isApproved = isSkillApproved(t);
                     var statusLabel = isBlocked ? '<span style="color:var(--text-muted); font-size:0.8em; font-style:italic;">blocked</span>'
                         : isApproved ? '<span style="color:var(--success); font-size:0.8em; font-style:italic;">approved</span>' : '';
-                    html += '<div style="display:flex; align-items:center; padding:4px 8px; margin-bottom:2px; background:rgba(255,69,58,0.04); border-radius:6px; font-size:0.82em; gap:6px;">'
+                    html += '<div style="display:flex; align-items:center; padding:4px 8px; margin-bottom:2px; background:rgba(215,0,21,0.04); border-radius:6px; font-size:0.82em; gap:6px;">'
                         + '<span style="flex:1; color:var(--c-heading);">' + escapeHtml(t) + '</span>'
                         + statusLabel
                         + '<span style="color:var(--danger); font-weight:600; margin-right:4px;">' + globalMissed[t] + 'x</span>'
-                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(48,209,88,0.12); border:none; color:var(--success); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
-                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(255,69,58,0.12); border:none; color:var(--danger); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
+                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(36,138,61,0.12); border:none; color:var(--success); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
+                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(215,0,21,0.12); border:none; color:var(--danger); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
                         + '</div>';
                 });
                 html += '</div>';
@@ -13711,12 +13711,12 @@
                     var isBlocked = isSkillBlocklisted(t);
                     var statusLabel = isApproved ? '<span style="color:var(--success); font-size:0.8em; font-style:italic;">approved</span>'
                         : isBlocked ? '<span style="color:var(--text-muted); font-size:0.8em; font-style:italic;">blocked</span>' : '';
-                    html += '<div style="display:flex; align-items:center; padding:4px 8px; margin-bottom:2px; background:rgba(48,209,88,0.04); border-radius:6px; font-size:0.82em; gap:6px;">'
+                    html += '<div style="display:flex; align-items:center; padding:4px 8px; margin-bottom:2px; background:rgba(36,138,61,0.04); border-radius:6px; font-size:0.82em; gap:6px;">'
                         + '<span style="flex:1; color:var(--c-heading);">' + escapeHtml(t) + '</span>'
                         + statusLabel
                         + '<span style="color:var(--success); font-weight:600; margin-right:4px;">' + globalRecommended[t] + 'x</span>'
-                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(48,209,88,0.12); border:none; color:var(--success); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
-                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(255,69,58,0.12); border:none; color:var(--danger); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
+                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(36,138,61,0.12); border:none; color:var(--success); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
+                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(215,0,21,0.12); border:none; color:var(--danger); cursor:pointer; padding:2px 6px; border-radius:6px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
                         + '</div>';
                 });
                 html += '</div>';
@@ -13769,7 +13769,7 @@
                             + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
                         (a.parsed.skills || []).forEach(function(s) {
                             var isMatched = (a.matchResult.matched || []).some(function(m) { return m.jobSkill === s.name; });
-                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:' + (isMatched ? 'rgba(48,209,88,0.1)' : 'rgba(99,99,102,0.1)') + '; color:' + (isMatched ? '#30d158' : 'var(--c-muted)') + '; border:1px solid ' + (isMatched ? 'rgba(48,209,88,0.2)' : 'var(--c-surface-5)') + ';">'
+                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:' + (isMatched ? 'rgba(36,138,61,0.1)' : 'rgba(99,99,102,0.1)') + '; color:' + (isMatched ? 'var(--success)' : 'var(--c-muted)') + '; border:1px solid ' + (isMatched ? 'rgba(36,138,61,0.2)' : 'var(--c-surface-5)') + ';">'
                                 + escapeHtml(s.name) + ' <span style="font-size:0.85em; opacity:0.7;">(' + (s.requirement || 'R') + '/' + (s.proficiency || '?') + ')</span></span>';
                         });
                         html += '</div>';
@@ -13782,8 +13782,8 @@
                             var mBlocked = isSkillBlocklisted(m);
                             var mApproved = isSkillApproved(m);
                             var tagStyle = mBlocked ? 'background:rgba(99,99,102,0.08); color:var(--text-muted); border:1px solid rgba(99,99,102,0.15); text-decoration:line-through;'
-                                : mApproved ? 'background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15);'
-                                : 'background:rgba(255,69,58,0.06); color:var(--danger); border:1px solid rgba(255,69,58,0.12);';
+                                : mApproved ? 'background:rgba(36,138,61,0.08); color:var(--success); border:1px solid rgba(36,138,61,0.15);'
+                                : 'background:rgba(215,0,21,0.06); color:var(--danger); border:1px solid rgba(215,0,21,0.12);';
                             html += '<span style="padding:2px 4px 2px 8px; border-radius:8px; font-size:0.75em; display:inline-flex; align-items:center; gap:3px; ' + tagStyle + '">'
                                 + escapeHtml(m)
                                 + '<button data-audit-action="approve" data-skill="' + escapeHtml(m) + '" title="Approve" style="background:none; border:none; color:var(--success); cursor:pointer; padding:0 2px; font-size:1.1em; font-weight:700; line-height:1;">+</button>'
@@ -13799,9 +13799,9 @@
                         a.recommendedSkills.forEach(function(r) {
                             var rApproved = isSkillApproved(r);
                             var rBlocked = isSkillBlocklisted(r);
-                            var rStyle = rApproved ? 'background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15);'
+                            var rStyle = rApproved ? 'background:rgba(36,138,61,0.08); color:var(--success); border:1px solid rgba(36,138,61,0.15);'
                                 : rBlocked ? 'background:rgba(99,99,102,0.08); color:var(--text-muted); border:1px solid rgba(99,99,102,0.15); text-decoration:line-through;'
-                                : 'background:rgba(96,165,250,0.06); color:var(--accent); border:1px solid rgba(96,165,250,0.12);';
+                                : 'background:rgba(0,113,227,0.06); color:var(--accent); border:1px solid rgba(0,113,227,0.12);';
                             html += '<span style="padding:2px 4px 2px 8px; border-radius:8px; font-size:0.75em; display:inline-flex; align-items:center; gap:3px; ' + rStyle + '">'
                                 + escapeHtml(r)
                                 + '<button data-audit-action="approve" data-skill="' + escapeHtml(r) + '" title="Approve" style="background:none; border:none; color:var(--success); cursor:pointer; padding:0 2px; font-size:1.1em; font-weight:700; line-height:1;">+</button>'
@@ -13815,7 +13815,7 @@
                         html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--c-orange); font-weight:600; margin-bottom:4px;">Profile Gaps (' + a.gaps.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
                         a.gaps.forEach(function(g) {
-                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(255,159,10,0.06); color:var(--c-orange); border:1px solid rgba(255,159,10,0.12);">' + escapeHtml(g.name) + '</span>';
+                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(196,93,0,0.06); color:var(--c-orange); border:1px solid rgba(196,93,0,0.12);">' + escapeHtml(g.name) + '</span>';
                         });
                         html += '</div>';
                     }
@@ -14015,7 +14015,7 @@
 
         async function renderAdminVersions(el) {
             if (!el) return;
-            var cs = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:20px; margin-bottom:16px;';
+            var cs = 'background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:20px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-bottom:12px;';
 
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
@@ -14026,7 +14026,7 @@
                 + (showcaseMode ? '' : '<button onclick="adminSaveVersion()" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.88em; white-space:nowrap;">' + bpIcon('layers', 14) + ' Save Current Version</button>')
                 + '</div>';
 
-            html += '<div style="' + cs + ' border-color:rgba(96,165,250,0.2); background:rgba(96,165,250,0.04);">'
+            html += '<div style="' + cs + ' border-color:rgba(0,113,227,0.2); background:rgba(0,113,227,0.04);">'
                 + '<div style="display:flex; align-items:center; gap:12px;">'
                 + '<div style="width:10px; height:10px; border-radius:50%; background:var(--success); flex-shrink:0;"></div>'
                 + '<div style="flex:1;">'
@@ -14089,8 +14089,8 @@
                     html += '<div style="flex:1; min-width:0;">';
                     html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">';
                     html += '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">' + escapeHtml(v.version || '?') + '</span>';
-                    if (idx === 0) html += '<span style="font-size:0.65em; font-weight:700; background:rgba(191,90,242,0.1); color:var(--c-purple); padding:2px 8px; border-radius:6px; text-transform:uppercase;">Latest</span>';
-                    if (isRemoteOnly) html += '<span style="font-size:0.65em; font-weight:600; background:rgba(255,159,10,0.1); color:var(--c-orange); padding:2px 8px; border-radius:6px;">Remote Only</span>';
+                    if (idx === 0) html += '<span style="font-size:0.65em; font-weight:700; background:rgba(155,89,182,0.1); color:var(--c-purple); padding:2px 8px; border-radius:6px; text-transform:uppercase;">Latest</span>';
+                    if (isRemoteOnly) html += '<span style="font-size:0.65em; font-weight:600; background:rgba(196,93,0,0.1); color:var(--c-orange); padding:2px 8px; border-radius:6px;">Remote Only</span>';
                     html += '</div>';
                     html += '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.5; margin-bottom:4px;">' + escapeHtml(v.comment || '') + '</div>';
                     html += '<div style="font-size:0.72em; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:12px;">'
@@ -14105,17 +14105,17 @@
                     if (!showcaseMode) {
                         html += '<div style="display:flex; gap:6px; flex-shrink:0;">';
                         if (!isRemoteOnly) {
-                            html += '<button onclick="adminDownloadVersion(\'' + v.id + '\')" title="Download" style="padding:6px 10px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:6px; cursor:pointer; color:var(--accent); font-size:0.78em; font-weight:600;">' + bpIcon('layers',12) + ' DL</button>';
-                            html += '<button onclick="adminRestoreVersion(\'' + v.id + '\')" title="Restore" style="padding:6px 10px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:6px; cursor:pointer; color:var(--success); font-size:0.78em; font-weight:600;">' + bpIcon('check',12) + ' Restore</button>';
+                            html += '<button onclick="adminDownloadVersion(\'' + v.id + '\')" title="Download" style="padding:6px 10px; background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2); border-radius:6px; cursor:pointer; color:var(--accent); font-size:0.78em; font-weight:600;">' + bpIcon('layers',12) + ' DL</button>';
+                            html += '<button onclick="adminRestoreVersion(\'' + v.id + '\')" title="Restore" style="padding:6px 10px; background:rgba(36,138,61,0.08); border:1px solid rgba(36,138,61,0.2); border-radius:6px; cursor:pointer; color:var(--success); font-size:0.78em; font-weight:600;">' + bpIcon('check',12) + ' Restore</button>';
                         }
-                        html += '<button onclick="adminDeleteVersion(\'' + v.id + '\')" title="Delete" style="padding:6px 10px; background:rgba(255,69,58,0.06); border:1px solid rgba(255,69,58,0.15); border-radius:6px; cursor:pointer; color:var(--danger); font-size:0.78em; font-weight:600;">&times;</button>';
+                        html += '<button onclick="adminDeleteVersion(\'' + v.id + '\')" title="Delete" style="padding:6px 10px; background:rgba(215,0,21,0.06); border:1px solid rgba(215,0,21,0.15); border-radius:6px; cursor:pointer; color:var(--danger); font-size:0.78em; font-weight:600;">&times;</button>';
                         html += '</div>';
                     }
                     html += '</div></div>';
                 });
             }
 
-            html += '<div style="margin-top:20px; padding:16px; background:rgba(255,159,10,0.04); border:1px solid rgba(255,159,10,0.15); border-radius:10px;">'
+            html += '<div style="margin-top:20px; padding:16px; background:rgba(196,93,0,0.04); border:1px solid rgba(196,93,0,0.15); border-radius:10px;">'
                 + '<div style="font-size:0.82em; font-weight:700; color:var(--c-orange); margin-bottom:6px;">How Version Restore Works</div>'
                 + '<div style="font-size:0.78em; color:var(--text-secondary); line-height:1.6;">'
                 + '1. Saved versions are stored locally in your browser (IndexedDB) with metadata synced to Firebase.<br>'
@@ -14331,7 +14331,7 @@
                         html += '<div style="display:flex; align-items:center; gap:4px;">';
                         html += '<button onclick="window._ufSelectedStep=' + si + '; switchAdminTab(\'userflows\');" '
                             + 'style="padding:10px 14px; border-radius:8px; cursor:pointer; min-width:110px; text-align:center; '
-                            + 'background:' + (isStepActive ? 'rgba(96,165,250,0.15)' : 'var(--c-surface-2)') + '; '
+                            + 'background:' + (isStepActive ? 'rgba(0,113,227,0.15)' : 'var(--c-surface-2)') + '; '
                             + 'border:1px solid ' + (isStepActive ? 'var(--accent)' : 'var(--c-surface-5b)') + '; '
                             + 'color:var(--text-primary); transition:all 0.15s; position:relative;" '
                             + 'onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'' + (isStepActive ? 'var(--accent)' : 'var(--c-surface-5b)') + '\'">'
@@ -14348,12 +14348,12 @@
                     // Step detail panel
                     if (selectedStep !== null && flow.steps[selectedStep]) {
                         var s = flow.steps[selectedStep];
-                        html += '<div style="margin-top:16px; padding:14px 16px; background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:8px;">'
+                        html += '<div style="margin-top:16px; padding:14px 16px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.15); border-radius:8px;">'
                             + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
                             + '<span style="background:var(--accent); color:#fff; font-size:0.65em; font-weight:700; padding:2px 7px; border-radius:6px;">STEP ' + (selectedStep + 1) + '</span>'
                             + '<span style="font-weight:700; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(s.label) + '</span></div>'
                             + '<div style="margin-bottom:6px;"><code style="font-size:0.82em; padding:3px 8px; border-radius:6px; '
-                            + 'background:rgba(255,159,10,0.08); color:var(--c-orange); font-family:\'SF Mono\',monospace;">' + escapeHtml(s.fn) + '</code></div>'
+                            + 'background:rgba(196,93,0,0.08); color:var(--c-orange); font-family:\'SF Mono\',monospace;">' + escapeHtml(s.fn) + '</code></div>'
                             + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(s.desc) + '</div>';
                         // Show downstream connections
                         if (selectedStep < flow.steps.length - 1) {
@@ -14430,17 +14430,17 @@
             // Header stats row
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">';
             
-            html += '<div style="padding:16px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); border-radius:12px; text-align:center;">'
+            html += '<div style="padding:16px; background:rgba(0,113,227,0.1); border:1px solid rgba(0,113,227,0.2); border-radius:12px; text-align:center;">'
                 + '<div style="font-size:2em; font-weight:700; color:var(--accent);">' + totalCalls + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">API Calls</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Last ' + costsTimeRange + ' days</div></div>';
             
-            html += '<div style="padding:16px; background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.2); border-radius:12px; text-align:center;">'
+            html += '<div style="padding:16px; background:rgba(36,138,61,0.1); border:1px solid rgba(36,138,61,0.2); border-radius:12px; text-align:center;">'
                 + '<div style="font-size:2em; font-weight:700; color:var(--success);">' + fmt(totalEstCost) + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Est. Cost</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Last ' + costsTimeRange + ' days</div></div>';
             
-            html += '<div style="padding:16px; background:rgba(255,159,10,0.1); border:1px solid rgba(255,159,10,0.2); border-radius:12px; text-align:center;">'
+            html += '<div style="padding:16px; background:rgba(196,93,0,0.1); border:1px solid rgba(196,93,0,0.2); border-radius:12px; text-align:center;">'
                 + '<div style="font-size:2em; font-weight:700; color:var(--c-orange);">' + fmt(projectedMonthlyCost) + '</div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Projected</div>'
                 + '<div style="font-size:0.68em; color:var(--text-muted);">Monthly at current pace</div></div>';
@@ -14458,7 +14458,7 @@
                 var isActive = costsTimeRange === d;
                 html += '<button onclick="setCostsTimeRange(' + d + ')" style="padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + '; background:' + (isActive ? 'var(--accent)' : 'transparent') + '; color:' + (isActive ? '#fff' : 'var(--text-secondary)') + ';">' + d + 'd</button>';
             });
-            html += '<button onclick="clearAIUsageLog()" style="margin-left:auto; padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid rgba(255,69,58,0.3); background:transparent; color:var(--danger);">Clear Log</button>';
+            html += '<button onclick="clearAIUsageLog()" style="margin-left:auto; padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid rgba(215,0,21,0.3); background:transparent; color:var(--danger);">Clear Log</button>';
             html += '</div>';
             
             // Sparkline
@@ -14469,7 +14469,7 @@
                 var count = dailyTotals[date] || 0;
                 var h = Math.max((count / sparkMax) * 100, 2);
                 var isToday = date === today.toISOString().slice(0, 10);
-                html += '<div title="' + escapeAttr(date) + ': ' + count + ' calls" style="flex:1; height:' + h + '%; background:' + (isToday ? '#60a5fa' : 'rgba(96,165,250,0.4)') + '; border-radius:6px 3px 0 0; min-width:8px; transition:height 0.3s;"></div>';
+                html += '<div title="' + escapeAttr(date) + ': ' + count + ' calls" style="flex:1; height:' + h + '%; background:' + (isToday ? 'var(--accent)' : 'rgba(0,113,227,0.4)') + '; border-radius:6px 3px 0 0; min-width:8px; transition:height 0.3s;"></div>';
             });
             html += '</div>'
                 + '<div style="display:flex; justify-content:space-between; font-size:0.65em; color:var(--text-muted); margin-top:4px;">'
@@ -14502,7 +14502,7 @@
             html += '</div>';
             
             // Projection calculator
-            html += '<div style="padding:20px; background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:20px;">'
+            html += '<div style="padding:20px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.2); border-radius:10px; margin-bottom:20px;">'
                 + '<div style="font-size:0.85em; font-weight:700; color:var(--accent); margin-bottom:14px;">Scale Projection Calculator</div>'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">'
                 + '<label style="font-size:0.82em; color:var(--text-secondary); white-space:nowrap;">Active users/month:</label>'
@@ -14534,7 +14534,7 @@
             
             html += '<div style="text-align:center; padding:14px; background:var(--c-surface-2); border-radius:10px; border:1px solid var(--border);">'
                 + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Projected Monthly Total</div>'
-                + '<div style="font-size:2.2em; font-weight:700; color:' + (projTotal < 1 ? '#30d158' : projTotal < 10 ? '#60a5fa' : projTotal < 50 ? '#ff9f0a' : '#ff453a') + ';">' + fmt(projTotal) + '</div>'
+                + '<div style="font-size:2.2em; font-weight:700; color:' + (projTotal < 1 ? 'var(--success)' : projTotal < 10 ? 'var(--accent)' : projTotal < 50 ? 'var(--c-orange)' : 'var(--danger)') + ';">' + fmt(projTotal) + '</div>'
                 + '<div style="font-size:0.75em; color:var(--text-muted);">for ' + costsProjectionUsers.toLocaleString() + ' active users at Sonnet 4 pricing</div></div>';
             
             html += '</div>';
@@ -14567,18 +14567,18 @@
                 var usageColor = usagePct > 90 ? '#ff453a' : usagePct > 70 ? '#ff9f0a' : '#30d158';
                 monthlyFixedCost += spec.monthlyCost;
                 
-                html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid ' + (isPaid ? 'rgba(96,165,250,0.3)' : 'var(--c-border-faint)') + '; border-radius:10px;">'
+                html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid ' + (isPaid ? 'rgba(0,113,227,0.3)' : 'var(--c-border-faint)') + '; border-radius:10px;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">'
                     + '<span style="font-weight:700; font-size:0.82em; color:var(--text-primary);">' + escapeHtml(spec.name) + '</span>'
                     + '<span style="font-size:0.65em; padding:2px 8px; border-radius:10px; font-weight:600; '
-                    + 'background:' + (isPaid ? 'rgba(96,165,250,0.15)' : 'rgba(48,209,88,0.15)') + '; '
-                    + 'color:' + (isPaid ? '#60a5fa' : '#30d158') + ';">' + spec.plan + '</span></div>'
+                    + 'background:' + (isPaid ? 'rgba(0,113,227,0.15)' : 'rgba(36,138,61,0.15)') + '; '
+                    + 'color:' + (isPaid ? 'var(--accent)' : 'var(--success)') + ';">' + spec.plan + '</span></div>'
                     + '<div style="font-size:0.72em; color:var(--text-muted); margin-bottom:8px;">' + spec.desc + '</div>';
                 
                 // Cost line
                 html += '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:4px;">'
                     + '<span style="color:var(--text-secondary);">Monthly cost</span>'
-                    + '<span style="font-weight:700; color:' + (isPaid ? '#60a5fa' : '#30d158') + ';">' + (isPaid ? '$' + spec.monthlyCost.toFixed(2) : 'Free') + '</span></div>';
+                    + '<span style="font-weight:700; color:' + (isPaid ? 'var(--accent)' : 'var(--success)') + ';">' + (isPaid ? '$' + spec.monthlyCost.toFixed(2) : 'Free') + '</span></div>';
                 
                 // Usage this month
                 html += '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:4px;">'
@@ -14632,7 +14632,7 @@
                 + '<div style="font-size:1.3em; font-weight:700; color:var(--accent);">$' + monthlyFixedCost.toFixed(2) + '</div>'
                 + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase;">Monthly subscriptions</div></div>'
                 + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
-                + '<div style="font-size:1.3em; font-weight:700; color:' + (apiTotalCost > 0 ? '#ff9f0a' : '#30d158') + ';">$' + apiTotalCost.toFixed(2) + '</div>'
+                + '<div style="font-size:1.3em; font-weight:700; color:' + (apiTotalCost > 0 ? 'var(--c-orange)' : 'var(--success)') + ';">$' + apiTotalCost.toFixed(2) + '</div>'
                 + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase;">Usage cost (last ' + costsTimeRange + 'd)</div></div></div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:10px;">'
                 + '<a href="#" onclick="if(confirm(\'Clear API usage log?\')){localStorage.removeItem(\'bpAPIUsageLog\');renderAdminCosts(document.getElementById(\'adminTabContent\'));showToast(\'API log cleared.\',\'info\');} return false;" style="color:var(--accent);">Clear API log</a></div></div>';
@@ -14693,7 +14693,7 @@
                   + '<span style="font-size:0.85em; font-weight:700; color:var(--text-primary);">' + bpIcon('settings', 14) + ' Infrastructure</span>'
                   + '<div style="display:flex; gap:6px; align-items:center;">'
                   + '<span style="font-size:0.65em; color:var(--text-muted);">Click ' + bpIcon('edit', 10) + ' to enter actual costs</span>'
-                  + '<button onclick="costActualClearAll()" style="padding:3px 10px; font-size:0.68em; background:transparent; color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:6px; cursor:pointer;">Reset</button>'
+                  + '<button onclick="costActualClearAll()" style="padding:3px 10px; font-size:0.68em; background:transparent; color:var(--danger); border:1px solid rgba(215,0,21,0.3); border-radius:6px; cursor:pointer;">Reset</button>'
                   + '</div></div>';
               
               categoryOrder.filter(function(c){ return infraByCategory[c]; }).forEach(function(cat) {
@@ -14703,13 +14703,13 @@
                   html += '<div style="margin-bottom:16px;">'
                       + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid var(--c-border-faint);">'
                       + '<span style="font-size:0.78em; font-weight:600; color:var(--text-secondary);">' + bpIcon(categoryIcons[cat] || 'target', 13) + ' ' + (categoryLabels[cat] || cat) + '</span>'
-                      + '<span style="font-size:0.75em; font-weight:700; color:' + (catTotal > 0 ? '#60a5fa' : '#30d158') + ';">' + (catTotal > 0 ? '$' + catTotal.toFixed(2) + '/mo' : 'Free') + '</span></div>';
+                      + '<span style="font-size:0.75em; font-weight:700; color:' + (catTotal > 0 ? 'var(--accent)' : 'var(--success)') + ';">' + (catTotal > 0 ? '$' + catTotal.toFixed(2) + '/mo' : 'Free') + '</span></div>';
                   
                   items.forEach(function(item) {
                       var costDisplay = item._isPrepaid ? '$' + (item._hasActual ? actuals[item.key].amount : item.cost).toFixed(2) + ' prepaid'
                           : item._monthly > 0 ? '$' + item._monthly.toFixed(2) : (item.editable ? '$0.00' : 'Free');
                       var costColor = item._isPrepaid ? '#ff9f0a' : item._monthly > 0 ? 'var(--text-primary)' : '#30d158';
-                      var actualBadge = item._hasActual ? '<span style="font-size:0.55em; padding:1px 4px; border-radius:6px; background:rgba(48,209,88,0.15); color:var(--success); vertical-align:middle;">actual</span>' : '';
+                      var actualBadge = item._hasActual ? '<span style="font-size:0.55em; padding:1px 4px; border-radius:6px; background:rgba(36,138,61,0.15); color:var(--success); vertical-align:middle;">actual</span>' : '';
                       var editBtn = '<a href="#" onclick="costActualEdit(\'' + item.key + '\',\'' + escapeHtml(item.name).replace(/'/g, "\\'") + '\'); return false;" style="color:var(--text-muted); text-decoration:none; opacity:0.6;" title="Edit actual cost">' + bpIcon('edit', 10) + '</a>';
                       html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0 5px 12px; font-size:0.8em;">'
                           + '<div style="flex:1; min-width:0;">'
@@ -14750,11 +14750,11 @@
             INFRASTRUCTURE.forEach(function(item) {
                 if (item._monthly > 0) {
                     var colors = { platform: '#ff9f0a', ai: '#bf5af2', api: '#60a5fa', hosting: '#000', domain: '#ff9f0a', database: '#5ac8fa', devops: '#636366' };
-                    costBreakdown.push({ label: item.name + (item._hasActual ? ' *' : ''), amount: item._monthly, color: colors[item.category] || '#a1a1a6' });
+                    costBreakdown.push({ label: item.name + (item._hasActual ? ' *' : ''), amount: item._monthly, color: colors[item.category] || 'var(--text-secondary)' });
                 }
             });
-            if (totalAiUsageCost > 0) costBreakdown.push({ label: 'AI Token Usage', amount: totalAiUsageCost, color: '#30d158' });
-            if (totalApiUsageCost > 0) costBreakdown.push({ label: 'API Usage', amount: totalApiUsageCost, color: '#ff453a' });
+            if (totalAiUsageCost > 0) costBreakdown.push({ label: 'AI Token Usage', amount: totalAiUsageCost, color: 'var(--success)' });
+            if (totalApiUsageCost > 0) costBreakdown.push({ label: 'API Usage', amount: totalApiUsageCost, color: 'var(--danger)' });
             costBreakdown.sort(function(a, b) { return b.amount - a.amount; });
             
             html += '<div style="padding:20px; background:var(--c-surface-2); border:2px solid var(--accent); border-radius:12px; margin-bottom:20px;">'
@@ -14784,9 +14784,9 @@
             html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">';
             
             var summaryTiles = [
-                { label: 'Infrastructure', amount: totalMonthlyInfra, color: '#bf5af2', sub: 'subs + actuals' },
-                { label: 'AI Usage', amount: totalAiUsageCost, color: '#30d158', sub: 'token costs' },
-                { label: 'API Usage', amount: totalApiUsageCost, color: '#60a5fa', sub: 'job search' }
+                { label: 'Infrastructure', amount: totalMonthlyInfra, color: 'var(--c-purple)', sub: 'subs + actuals' },
+                { label: 'AI Usage', amount: totalAiUsageCost, color: 'var(--success)', sub: 'token costs' },
+                { label: 'API Usage', amount: totalApiUsageCost, color: 'var(--accent)', sub: 'job search' }
             ];
             
             summaryTiles.forEach(function(tile) {
@@ -14977,7 +14977,7 @@
                 isReadOnlyProfile = true;
                 document.body.classList.add('readonly-mode');
                 var sBanner = document.getElementById('showcaseBanner');
-                if (sBanner) sBanner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; background:rgba(255,214,10,0.12); border-bottom:1px solid rgba(255,214,10,0.25); color:var(--text-secondary);';
+                if (sBanner) sBanner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; background:rgba(178,80,0,0.12); border-bottom:1px solid rgba(178,80,0,0.25); color:var(--text-secondary);';
                 return;
             }
             var templateId = userData.templateId || '';
@@ -15579,7 +15579,7 @@
                     
                     // Welcome badge
                     + '<div style="display:inline-block; padding:6px 16px; border-radius:20px; '
-                    + 'background:rgba(48,209,88,0.12); border:1px solid rgba(48,209,88,0.25); '
+                    + 'background:rgba(36,138,61,0.12); border:1px solid rgba(36,138,61,0.25); '
                     + 'font-size:0.82em; font-weight:600; color:var(--success); letter-spacing:0.5px; margin-bottom:24px;">'
                     + bpIcon('check',14) + ' You\u2019re In</div>'
                     
@@ -15712,7 +15712,7 @@
                 + '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; margin-bottom:48px;" class="welcome-steps-grid">'
                 
                 + '<div style="text-align:center; padding:20px 16px;">'
-                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(96,165,250,0.12); '
+                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(0,113,227,0.12); '
                 + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:var(--accent); font-weight:700;">1</div>'
                 + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">Map Your Architecture</div>'
                 + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
@@ -15720,7 +15720,7 @@
                 + '</div>'
                 
                 + '<div style="text-align:center; padding:20px 16px;">'
-                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(48,209,88,0.12); '
+                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(36,138,61,0.12); '
                 + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:var(--success); font-weight:700;">2</div>'
                 + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">Know Your Market Value</div>'
                 + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
@@ -15728,7 +15728,7 @@
                 + '</div>'
                 
                 + '<div style="text-align:center; padding:20px 16px;">'
-                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(255,214,10,0.12); '
+                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(178,80,0,0.12); '
                 + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:var(--warning); font-weight:700;">3</div>'
                 + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">Own Every Conversation</div>'
                 + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
@@ -15777,7 +15777,7 @@
             var numNodes = 40;
             
             // Center - fixed sun
-            nodes.push({ angle: 0, dist: 0, speed: 0, r: 20, color: '#60a5fa', alpha: 0.95, label: 'YOU', isCenter: true, isHub: false, domain: -1, x: centerX, y: centerY });
+            nodes.push({ angle: 0, dist: 0, speed: 0, r: 20, color: 'var(--accent)', alpha: 0.95, label: 'YOU', isCenter: true, isHub: false, domain: -1, x: centerX, y: centerY });
             
             // Domain hubs - planets in distinct orbital bands
             // Spread across 3 orbital bands so they have room
@@ -15977,7 +15977,7 @@
                     if (dist > 180) continue;
                     var alpha = l.strength * (1 - dist / 180) * 0.6;
                     ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(e.x, e.y);
-                    ctx.strokeStyle = isDark ? 'rgba(96,165,250,1)' : 'rgba(96,165,250,1)';
+                    ctx.strokeStyle = isDark ? 'rgba(0,113,227,1)' : 'rgba(0,113,227,1)';
                     ctx.globalAlpha = alpha * 0.35; ctx.lineWidth = 1;
                     ctx.stroke(); ctx.globalAlpha = 1;
                 }
@@ -15998,7 +15998,7 @@
                     ctx.fill(); ctx.globalAlpha = 1;
                     if (n.label && (r > 6 || n.isCenter)) {
                         ctx.font = (n.isCenter ? 'bold 10px' : '8.5px') + ' "Outfit", -apple-system, system-ui, sans-serif';
-                        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
+                        ctx.fillStyle = isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.6)';
                         ctx.textAlign = 'center';
                         ctx.fillText(n.label, n.x, n.y + r + 13);
                     }
@@ -16076,7 +16076,7 @@
                 {
                     id: 'stranger-things',
                     show: 'Stranger Things',
-                    color: '#ff453a',
+                    color: 'var(--danger)',
                     tagline: 'Small-town heroes with world-class skills',
                     description: 'The residents of Hawkins, Indiana demonstrate that extraordinary capability exists in the most ordinary settings.',
                     characters: [
@@ -16718,7 +16718,7 @@
                 + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:30px;">'
-                + '<div style="margin-bottom:20px; padding:16px; background:rgba(96,165,250,0.1); border-radius:8px;">'
+                + '<div style="margin-bottom:20px; padding:16px; background:rgba(0,113,227,0.1); border-radius:8px;">'
                 + '<div style="font-size:0.82em; color:var(--text-secondary); margin-bottom:4px;">Auto-detected from your title, roles, and skills:</div>'
                 + '<div style="font-weight:600; color:var(--c-text);">' + BLS_FUNCTION_LABELS[auto] + '</div>'
                 + (isOverride ? '<div style="font-size:0.78em; color:var(--warning); margin-top:4px;">Currently overridden to: ' + BLS_FUNCTION_LABELS[current] + '</div>' : '')
@@ -16729,7 +16729,7 @@
                 + '<div style="font-size:0.78em; color:var(--c-muted); margin-top:6px;">BLS categories determine the salary bands used for your market benchmark. Pick the one closest to your actual role.</div>'
                 + '</div>'
                 + '<div style="display:flex; gap:10px; justify-content:flex-end;">'
-                + (isOverride ? '<button onclick="clearBlsCategoryOverride()" style="padding:8px 16px; background:transparent; border:1px solid rgba(255,69,58,0.4); color:var(--danger); border-radius:6px; cursor:pointer; font-size:0.85em;">Reset to Auto</button>' : '')
+                + (isOverride ? '<button onclick="clearBlsCategoryOverride()" style="padding:8px 16px; background:transparent; border:1px solid rgba(215,0,21,0.4); color:var(--danger); border-radius:6px; cursor:pointer; font-size:0.85em;">Reset to Auto</button>' : '')
                 + '<button onclick="saveBlsCategoryOverride()" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">Save Category</button>'
                 + '</div>'
                 + '</div>';
@@ -17428,10 +17428,10 @@
         // Get credibility weight label for display
         function getCredibilityLabel(relationship) {
             var weight = evidenceConfig.credibilityWeights[relationship] || 1.2;
-            if (weight >= 2.0) return { label: 'Highest', color: '#30d158', weight: weight };
-            if (weight >= 1.8) return { label: 'High', color: '#60a5fa', weight: weight };
-            if (weight >= 1.5) return { label: 'Standard', color: '#bf5af2', weight: weight };
-            return { label: 'Basic', color: '#a1a1a6', weight: weight };
+            if (weight >= 2.0) return { label: 'Highest', color: 'var(--success)', weight: weight };
+            if (weight >= 1.8) return { label: 'High', color: 'var(--accent)', weight: weight };
+            if (weight >= 1.5) return { label: 'Standard', color: 'var(--c-purple)', weight: weight };
+            return { label: 'Basic', color: 'var(--text-secondary)', weight: weight };
         }
         window.getCredibilityLabel = getCredibilityLabel;
         window.expireStalePendingVerifications = expireStalePendingVerifications;
@@ -17602,8 +17602,8 @@
                 var banner = document.createElement('div');
                 banner.id = 'showcaseBanner';
                 banner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; '
-                    + 'background:rgba(255,214,10,0.12); '
-                    + 'border-bottom:1px solid rgba(255,214,10,0.25); color:var(--text-secondary);';
+                    + 'background:rgba(178,80,0,0.12); '
+                    + 'border-bottom:1px solid rgba(178,80,0,0.25); color:var(--text-secondary);';
                 banner.innerHTML = '<span style="color:var(--warning); font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
                     + ' &mdash; ' + SHOWCASE_CONFIG.bannerText
                     + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--accent); text-decoration:underline;">Exit showcase</a>';
@@ -17705,13 +17705,13 @@
             // Create standalone verification container
             var container = document.createElement('div');
             container.id = 'verifierLanding';
-            container.style.cssText = 'min-height:100vh; background:var(--bg, #0a0a0f); color:var(--c-label); display:flex; align-items:center; justify-content:center; padding:20px; font-family:Inter,system-ui,sans-serif;';
+            container.style.cssText = 'min-height:100vh; background:var(--bg); color:var(--c-label); display:flex; align-items:center; justify-content:center; padding:20px; font-family:Inter,system-ui,sans-serif;';
             container.innerHTML = '<div style="max-width:640px; width:100%; text-align:center;">'
                 + '<div style="margin-bottom:32px;">'
                 + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; letter-spacing:0.12em; color:var(--accent);">BLUEPRINT\u2122</div>'
                 + '<div style="font-size:0.85em; color:var(--text-secondary); margin-top:4px;">Skill Verification</div>'
                 + '</div>'
-                + '<div id="verifyLandingContent" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:32px;">'
+                + '<div id="verifyLandingContent" style="background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.06); border-radius:12px; padding:32px;">'
                 + '<div style="color:var(--text-secondary);">Loading verification request\u2026</div>'
                 + '</div>'
                 + '<div style="margin-top:24px; font-size:0.75em; color:var(--text-muted);">Powered by Blueprint\u2122 Career Intelligence \u00B7 myblueprint.work</div>'
@@ -17772,7 +17772,7 @@
             var skillCards = records.map(function(rec, idx) {
                 var outcomesHTML = '';
                 if (rec.outcomes && rec.outcomes.length > 0) {
-                    outcomesHTML = '<div style="margin:10px 0 12px; padding:10px 12px; background:rgba(96,165,250,0.06); border-left:3px solid rgba(96,165,250,0.3); border-radius:0 8px 8px 0;">'
+                    outcomesHTML = '<div style="margin:10px 0 12px; padding:10px 12px; background:rgba(0,113,227,0.06); border-left:3px solid rgba(0,113,227,0.3); border-radius:0 8px 8px 0;">'
                         + '<div style="font-size:0.75em; color:var(--accent); font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Outcomes & Evidence</div>'
                         + rec.outcomes.map(function(o) {
                             return '<div style="font-size:0.82em; color:#cbd5e1; padding:3px 0; line-height:1.4;">\u2022 ' + escapeHtml(o) + '</div>';
@@ -17782,15 +17782,15 @@
                     outcomesHTML = '<div style="font-size:0.82em; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;">' + escapeHtml(rec.evidenceSummary).substring(0, 300) + '</div>';
                 }
                 
-                return '<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:20px; margin-bottom:12px; text-align:left;">'
+                return '<div style="background:rgba(0,0,0,0.03); border:1px solid rgba(0,0,0,0.07); border-radius:12px; padding:20px; margin-bottom:12px; text-align:left;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-weight:700; font-size:1.05em; color:var(--c-label);">' + escapeHtml(rec.skillName) + '</div>'
-                    + '<div style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.15); color:var(--accent);">Claimed: ' + escapeHtml(rec.claimedLevel) + '</div>'
+                    + '<div style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(0,113,227,0.15); color:var(--accent);">Claimed: ' + escapeHtml(rec.claimedLevel) + '</div>'
                     + '</div>'
                     + outcomesHTML
                     + '<div style="margin-bottom:8px;">'
                     + '<label style="font-size:0.82em; color:var(--text-secondary); display:block; margin-bottom:4px;">Your assessment:</label>'
-                    + '<select id="verifyLevel_' + idx + '" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--c-label); font-size:0.9em;">'
+                    + '<select id="verifyLevel_' + idx + '" style="width:100%; padding:10px; background:rgba(0,0,0,0.05); border:1px solid rgba(0,0,0,0.1); border-radius:8px; color:var(--c-label); font-size:0.9em;">'
                     + '<option value="confirm">\u2713 Confirm ' + escapeHtml(rec.claimedLevel) + ' level</option>'
                     + '<option value="Mastery">\u2191 Suggest: Mastery</option>'
                     + '<option value="Expert">\u2191 Suggest: Expert</option>'
@@ -17814,13 +17814,13 @@
                 
                 + '<div style="margin-bottom:16px;">'
                 + '<label style="font-size:0.82em; color:var(--text-secondary); display:block; margin-bottom:4px;">Your note (optional \u2014 required if commenting):</label>'
-                + '<textarea id="verifyResponseNote" rows="3" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--c-label); font-size:0.88em; resize:vertical; box-sizing:border-box;" '
+                + '<textarea id="verifyResponseNote" rows="3" style="width:100%; padding:10px; background:rgba(0,0,0,0.05); border:1px solid rgba(0,0,0,0.1); border-radius:8px; color:var(--c-label); font-size:0.88em; resize:vertical; box-sizing:border-box;" '
                 + 'placeholder="Share context about your professional experience with this person\u2019s skills\u2026"></textarea></div>'
                 
                 + '<div style="margin-bottom:16px;">'
                 + '<label style="font-size:0.82em; color:var(--text-secondary); display:block; margin-bottom:4px;">Your name (for attribution):</label>'
                 + '<input type="text" id="verifyResponseName" value="' + escapeAttr(records[0].verifierName || '') + '" '
-                + 'style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:var(--c-label); font-size:0.9em; box-sizing:border-box;"></div>'
+                + 'style="width:100%; padding:10px; background:rgba(0,0,0,0.05); border:1px solid rgba(0,0,0,0.1); border-radius:8px; color:var(--c-label); font-size:0.9em; box-sizing:border-box;"></div>'
                 
                 + '<button onclick="submitVerifierResponse(\'' + escapeHtml(token).replace(/'/g,"\\'") + '\',\'' + escapeHtml(uid).replace(/'/g,"\\'") + '\',' + records.length + ')" '
                 + 'style="width:100%; padding:14px; background:var(--accent); color:#fff; border:none; border-radius:10px; font-weight:700; font-size:1em; cursor:pointer; transition:opacity 0.2s;" '
@@ -17840,7 +17840,7 @@
             var hasComment = responses.some(function(r) { return r === 'comment'; });
             if (hasComment && !note.trim()) {
                 var noteEl = document.getElementById('verifyResponseNote');
-                if (noteEl) { noteEl.style.borderColor = '#ff453a'; noteEl.focus(); }
+                if (noteEl) { noteEl.style.borderColor = 'var(--danger)'; noteEl.focus(); }
                 return;
             }
             
@@ -17870,7 +17870,7 @@
                     + '<div style="font-size:1.3em; font-weight:700; color:var(--success); margin-bottom:12px;">Verification Submitted</div>'
                     + '<div style="color:var(--text-secondary); line-height:1.6;">Thank you for verifying ' + escapeHtml(data.profileName || 'this professional') + '\'s skills. '
                     + 'Your assessment has been recorded and will strengthen their Blueprint profile.</div>'
-                    + '<div style="margin-top:24px; padding:16px; background:rgba(48,209,88,0.1); border-radius:10px; font-size:0.85em; color:var(--text-secondary);">'
+                    + '<div style="margin-top:24px; padding:16px; background:rgba(36,138,61,0.1); border-radius:10px; font-size:0.85em; color:var(--text-secondary);">'
                     + 'Verification weight: <strong style="color:var(--success);">' + (data.credibilityLabel || 'Standard') + '</strong></div>'
                     + '</div>';
             })
@@ -17880,7 +17880,7 @@
                     + '<div style="font-size:3em; margin-bottom:16px;">\u26A0\uFE0F</div>'
                     + '<div style="font-size:1.1em; font-weight:600; color:var(--c-orange); margin-bottom:12px;">Submission Issue</div>'
                     + '<div style="color:var(--text-secondary);">The verification API may not be deployed yet. Your response was:</div>'
-                    + '<pre style="text-align:left; background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; margin-top:12px; font-size:0.8em; color:var(--text-secondary); overflow-x:auto;">' + JSON.stringify(payload, null, 2) + '</pre>'
+                    + '<pre style="text-align:left; background:rgba(0,0,0,0.04); padding:12px; border-radius:8px; margin-top:12px; font-size:0.8em; color:var(--text-secondary); overflow-x:auto;">' + JSON.stringify(payload, null, 2) + '</pre>'
                     + '<div style="margin-top:12px; font-size:0.82em; color:var(--text-muted);">Please share this response with the profile owner.</div>'
                     + '</div>';
             });
@@ -18171,15 +18171,15 @@
         // Data structure
         const skillsData = {
             roles: [
-                { id: "strategy", name: "VP Global Strategy", icon: "target", color: "#ff9f0a" },
-                { id: "futurist", name: "Futurist & Evangelist", icon: "zap", color: "#ff9f0a" },
-                { id: "pilot", name: "IFR Pilot", icon: "compass", color: "#60a5fa" },
-                { id: "musician", name: "Musician", icon: "heart", color: "#bf5af2" },
-                { id: "advocate", name: "Recovery Advocate", icon: "heart", color: "#30d158" },
-                { id: "tech", name: "Technology Strategist", icon: "settings", color: "#5ac8fa" },
-                { id: "creative", name: "Creative Director", icon: "creative", color: "#ff453a" },
-                { id: "operations", name: "Operations Leader", icon: "layers", color: "#ff9f0a" },
-                { id: "entrepreneur", name: "Entrepreneur", icon: "trending-up", color: "#bf5af2" }
+                { id: "strategy", name: "VP Global Strategy", icon: "target", color: "var(--c-orange)" },
+                { id: "futurist", name: "Futurist & Evangelist", icon: "zap", color: "var(--c-orange)" },
+                { id: "pilot", name: "IFR Pilot", icon: "compass", color: "var(--accent)" },
+                { id: "musician", name: "Musician", icon: "heart", color: "var(--c-purple)" },
+                { id: "advocate", name: "Recovery Advocate", icon: "heart", color: "var(--success)" },
+                { id: "tech", name: "Technology Strategist", icon: "settings", color: "var(--c-cyan)" },
+                { id: "creative", name: "Creative Director", icon: "creative", color: "var(--danger)" },
+                { id: "operations", name: "Operations Leader", icon: "layers", color: "var(--c-orange)" },
+                { id: "entrepreneur", name: "Entrepreneur", icon: "trending-up", color: "var(--c-purple)" }
             ],
             
             skills: [
@@ -18965,7 +18965,7 @@
                     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin-bottom:4px;border-radius:8px;background:var(--elev-1);border:1px solid var(--border);">'
                         + '<span style="font-size:0.88em;color:var(--text-primary);">' + escapeHtml(name) + '</span>'
                         + '<button onclick="adminUnblockSkill(\'' + escapeHtml(name).replace(/'/g, "\\'") + '\');this.parentElement.style.opacity=0.3;this.disabled=true;showToast(\'Unblocked: ' + escapeHtml(name).replace(/'/g, "\\'") + '. Re-analyze to update.\',\'success\')" '
-                        + 'style="background:none;border:1px solid rgba(48,209,88,0.3);color:var(--success);padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.78em;">Unblock</button></div>';
+                        + 'style="background:none;border:1px solid rgba(36,138,61,0.3);color:var(--success);padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.78em;">Unblock</button></div>';
                 }).join('')
                 + '<div style="margin-top:16px;text-align:right;">'
                 + '<button onclick="this.closest(\'div[style*=fixed]\').remove();reanalyzeJob(' + jobIdx + ')" style="padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.88em;">Unblock & Re-analyze</button></div>';
@@ -18995,7 +18995,7 @@
             } else {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 sorted.forEach(function(skill) {
-                    html += '<span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.3); border-radius:8px; font-size:0.82em; color:var(--danger);">'
+                    html += '<span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(215,0,21,0.1); border:1px solid rgba(215,0,21,0.3); border-radius:8px; font-size:0.82em; color:var(--danger);">'
                         + escapeHtml(skill)
                         + '<span onclick="adminUnblockSkill(\'' + escapeHtml(skill).replace(/'/g, "\\'") + '\'); renderAdminBlocklistPanel();" style="cursor:pointer; opacity:0.6; font-size:1.1em;" title="Unblock">\u00D7</span>'
                         + '</span>';
@@ -19163,7 +19163,7 @@
                 + '<div style="font-size:0.82em; color:var(--text-muted);">Must remove ' + excess + ' to continue</div>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:20px; max-height:70vh; overflow-y:auto;">'
-                + '<div style="padding:12px 16px; background:rgba(255,69,58,0.08); border:1px solid rgba(255,69,58,0.25); border-radius:10px; margin-bottom:16px;">'
+                + '<div style="padding:12px 16px; background:rgba(215,0,21,0.08); border:1px solid rgba(215,0,21,0.25); border-radius:10px; margin-bottom:16px;">'
                 + '<div style="font-weight:700; color:var(--danger); margin-bottom:4px;">Profile has ' + skills.length + ' skills (cap: ' + PROFILE_SKILL_CAP + ')</div>'
                 + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.5;">Select at least ' + excess + ' skill' + (excess !== 1 ? 's' : '') + ' to remove. '
                 + 'Skills with low proficiency and no evidence are pre-selected. Verified and key skills are preserved.</div>'
@@ -19178,17 +19178,17 @@
                 var checked = toRemove.has(item.idx);
                 var levelColors = { 'Mastery': '#30d158', 'Expert': '#ff9f0a', 'Advanced': '#bf5af2', 'Proficient': '#60a5fa', 'Novice': '#a1a1a6' };
                 var badges = '';
-                if (s.verified) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(48,209,88,0.15); color:var(--success);">\u2713 Verified</span> ';
-                if (s.key) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(255,159,10,0.15); color:var(--c-orange);">\u2605 Key</span> ';
-                if ((s.evidence || []).length > 0) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(96,165,250,0.15); color:var(--accent);">' + s.evidence.length + ' evidence</span>';
+                if (s.verified) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(36,138,61,0.15); color:var(--success);">\u2713 Verified</span> ';
+                if (s.key) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(196,93,0,0.15); color:var(--c-orange);">\u2605 Key</span> ';
+                if ((s.evidence || []).length > 0) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(0,113,227,0.15); color:var(--accent);">' + s.evidence.length + ' evidence</span>';
                 
-                html += '<label style="display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; transition:background 0.15s; border:1px solid ' + (checked ? 'rgba(255,69,58,0.3)' : 'transparent') + '; background:' + (checked ? 'rgba(255,69,58,0.05)' : 'transparent') + ';"'
-                    + ' onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'' + (checked ? 'rgba(255,69,58,0.05)' : 'transparent') + '\'">'
+                html += '<label style="display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; transition:background 0.15s; border:1px solid ' + (checked ? 'rgba(215,0,21,0.3)' : 'transparent') + '; background:' + (checked ? 'rgba(215,0,21,0.05)' : 'transparent') + ';"'
+                    + ' onmouseover="this.style.background=\'rgba(0,0,0,0.02)\'" onmouseout="this.style.background=\'' + (checked ? 'rgba(215,0,21,0.05)' : 'transparent') + '\'">'
                     + '<input type="checkbox" data-triage-idx="' + item.idx + '" ' + (checked ? 'checked' : '') + ' onchange="updateTriageCount()" style="accent-color:var(--danger); flex-shrink:0;">'
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
                     + '<span style="font-weight:600; font-size:0.88em; color:var(--text-primary);">' + escapeHtml(s.name) + '</span>'
-                    + '<span style="font-size:0.72em; padding:1px 8px; border-radius:8px; background:' + (levelColors[s.level] || '#636366') + '22; color:' + (levelColors[s.level] || '#636366') + '; font-weight:600;">' + (s.level || 'Proficient') + '</span>'
+                    + '<span style="font-size:0.72em; padding:1px 8px; border-radius:8px; background:' + (levelColors[s.level] || 'var(--text-muted)') + '22; color:' + (levelColors[s.level] || 'var(--text-muted)') + '; font-weight:600;">' + (s.level || 'Proficient') + '</span>'
                     + badges
                     + '</div></div></label>';
             });
@@ -19443,8 +19443,8 @@
                 + '<div style="font-size:1.8em; font-weight:700; color:var(--c-heading);">' + formatCompValue(baseValue) + '</div>'
                 + '<div style="font-size:0.75em; color:var(--c-faint);">' + escapeHtml(fnLabel) + '</div>'
                 + '</div>'
-                + '<div style="padding:16px; background:rgba(48,209,88,0.1); border:2px solid rgba(48,209,88,0.25); border-radius:12px; text-align:center;">'
-                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(48,209,88,0.7); margin-bottom:6px;">Potential Value</div>'
+                + '<div style="padding:16px; background:rgba(36,138,61,0.1); border:2px solid rgba(36,138,61,0.25); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(36,138,61,0.7); margin-bottom:6px;">Potential Value</div>'
                 + '<div style="font-size:1.8em; font-weight:700; color:var(--success);">' + formatCompValue(maxPotential) + '</div>'
                 + '<div style="font-size:0.75em; color:var(--success); font-weight:600;">+' + formatCompValue(totalUplift) + ' growth opportunity</div>'
                 + '</div></div>';
@@ -19452,7 +19452,7 @@
             if (topUpgrades.length > 0) {
                 html += '<div style="margin-bottom:24px;">';
                 html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
-                    + '<div style="width:28px; height:28px; border-radius:8px; background:rgba(96,165,250,0.13); display:flex; align-items:center; justify-content:center;">' + bpIcon('trending-up',16) + '</div>'
+                    + '<div style="width:28px; height:28px; border-radius:8px; background:rgba(0,113,227,0.13); display:flex; align-items:center; justify-content:center;">' + bpIcon('trending-up',16) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Level Up Existing Skills</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Build evidence, get verified, then upgrade your proficiency</div></div>'
                     + (topUpgradeDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:var(--success);">+' + formatCompValue(topUpgradeDelta) + '</div>' : '')
@@ -19478,10 +19478,10 @@
 
                     var stepsHtml = '<div style="display:flex; gap:4px; margin-top:6px;">';
                     stepsHtml += '<span title="Add evidence/outcomes" style="font-size:0.68em; padding:2px 7px; border-radius:6px; cursor:help; '
-                        + (hasEvidence ? 'background:rgba(48,209,88,0.15); color:var(--success);' : 'background:rgba(96,165,250,0.1); color:var(--accent); border:1px dashed rgba(96,165,250,0.3);')
+                        + (hasEvidence ? 'background:rgba(36,138,61,0.15); color:var(--success);' : 'background:rgba(0,113,227,0.1); color:var(--accent); border:1px dashed rgba(0,113,227,0.3);')
                         + ' font-weight:600;">' + (hasEvidence ? '\u2713 ' : '') + 'Evidence</span>';
                     stepsHtml += '<span title="Certificate, degree, course, or peer verification" style="font-size:0.68em; padding:2px 7px; border-radius:6px; cursor:help; '
-                        + (hasCert || hasVerify ? 'background:rgba(48,209,88,0.15); color:var(--success);' : 'background:rgba(255,159,10,0.1); color:var(--c-orange); border:1px dashed rgba(255,159,10,0.3);')
+                        + (hasCert || hasVerify ? 'background:rgba(36,138,61,0.15); color:var(--success);' : 'background:rgba(196,93,0,0.1); color:var(--c-orange); border:1px dashed rgba(196,93,0,0.3);')
                         + ' font-weight:600;">' + (hasCert || hasVerify ? '\u2713 ' : '') + 'Verified</span>';
                     stepsHtml += '<span title="Upgrade proficiency level" style="font-size:0.68em; padding:2px 7px; border-radius:6px; cursor:help; '
                         + 'background:rgba(148,163,184,0.1); color:var(--text-secondary); border:1px dashed rgba(148,163,184,0.3);'
@@ -19492,12 +19492,12 @@
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; font-size:0.92em; color:var(--c-heading); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
                         + escapeHtml(rec.name)
-                        + (rec.hasGap ? ' <span style="font-size:0.7em; padding:1px 6px; background:rgba(255,69,58,0.1); color:var(--danger); border-radius:6px; font-weight:600;">EVIDENCE GAP</span>' : '')
+                        + (rec.hasGap ? ' <span style="font-size:0.7em; padding:1px 6px; background:rgba(215,0,21,0.1); color:var(--danger); border-radius:6px; font-weight:600;">EVIDENCE GAP</span>' : '')
                         + '</div>'
                         + '<div style="display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap;">'
-                        + '<span style="font-size:0.78em; padding:2px 8px; border-radius:6px; background:' + (levelColors[rec.currentLevel] || '#a1a1a6') + '22; color:' + (levelColors[rec.currentLevel] || '#a1a1a6') + '; font-weight:600;">' + rec.currentLevel + '</span>'
+                        + '<span style="font-size:0.78em; padding:2px 8px; border-radius:6px; background:' + (levelColors[rec.currentLevel] || 'var(--text-secondary)') + '22; color:' + (levelColors[rec.currentLevel] || 'var(--text-secondary)') + '; font-weight:600;">' + rec.currentLevel + '</span>'
                         + '<span style="font-size:0.8em; color:var(--c-faint);">\u2192</span>'
-                        + '<span style="font-size:0.78em; padding:2px 8px; border-radius:6px; background:' + (levelColors[rec.nextLevel] || '#60a5fa') + '22; color:' + (levelColors[rec.nextLevel] || '#60a5fa') + '; font-weight:600;">' + rec.nextLevel + '</span>'
+                        + '<span style="font-size:0.78em; padding:2px 8px; border-radius:6px; background:' + (levelColors[rec.nextLevel] || 'var(--accent)') + '22; color:' + (levelColors[rec.nextLevel] || 'var(--accent)') + '; font-weight:600;">' + rec.nextLevel + '</span>'
                         + '<span style="font-size:0.72em; padding:2px 6px; border-radius:6px; border:1px solid ' + impactClr + '33; color:' + impactClr + '; font-weight:500;">' + rec.impact.label + '</span>'
                         + '</div>'
                         + stepsHtml
@@ -19507,7 +19507,7 @@
                         + '<div style="font-weight:700; font-size:1.05em; color:' + deltaColor + ';">' + deltaStr + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint);">market value</div></div>';
                     if (canEdit) {
-                        html += '<button onclick="closeExportModal(); setTimeout(function(){ var sk=(skillsData.skills||[]).find(function(s){return s.name===\'' + safeName + '\';}); if(sk && typeof openSkillModal===\'function\') openSkillModal(\'' + safeName + '\',sk); },150);" style="font-size:0.72em; padding:4px 10px; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); color:var(--accent); border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Build Case</button>';
+                        html += '<button onclick="closeExportModal(); setTimeout(function(){ var sk=(skillsData.skills||[]).find(function(s){return s.name===\'' + safeName + '\';}); if(sk && typeof openSkillModal===\'function\') openSkillModal(\'' + safeName + '\',sk); },150);" style="font-size:0.72em; padding:4px 10px; background:rgba(0,113,227,0.15); border:1px solid rgba(0,113,227,0.3); color:var(--accent); border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">Build Case</button>';
                     }
                     html += '</div></div>';
                 });
@@ -19522,7 +19522,7 @@
             if (topAdjacent.length > 0) {
                 html += '<div style="margin-bottom:24px;">';
                 html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
-                    + '<div style="width:28px; height:28px; border-radius:8px; background:rgba(48,209,88,0.13); display:flex; align-items:center; justify-content:center;">' + bpIcon('plus',16) + '</div>'
+                    + '<div style="width:28px; height:28px; border-radius:8px; background:rgba(36,138,61,0.13); display:flex; align-items:center; justify-content:center;">' + bpIcon('plus',16) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:1.05em; color:var(--c-heading);">Add Adjacent Skills</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">New skills that complement your profile and increase market value</div></div>'
                     + (topAdjacentDelta > 0 ? '<div style="font-weight:700; font-size:0.88em; color:var(--success);">+' + formatCompValue(topAdjacentDelta) + '</div>' : '')
@@ -19549,7 +19549,7 @@
                 html += '</div>';
             }
 
-            html += '<div style="padding:14px 16px; background:rgba(48,209,88,0.06); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
+            html += '<div style="padding:14px 16px; background:rgba(36,138,61,0.06); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:8px;">'
                 + '<div style="font-size:0.82em; color:var(--c-muted); line-height:1.6;">'
                 + '<strong style="color:var(--c-heading);">How to grow your value:</strong> '
                 + 'Each skill shows a 3-step path: <strong style="color:var(--accent);">Evidence</strong> (add outcomes that demonstrate the skill), '
@@ -19578,9 +19578,9 @@
             if (btn) {
                 btn.disabled = true;
                 btn.textContent = '\u2713 ' + newLevel;
-                btn.style.background = 'rgba(48,209,88,0.15)';
-                btn.style.color = '#30d158';
-                btn.style.borderColor = 'rgba(48,209,88,0.3)';
+                btn.style.background = 'rgba(36,138,61,0.15)';
+                btn.style.color = 'var(--success)';
+                btn.style.borderColor = 'rgba(36,138,61,0.3)';
             }
         }
         window.growthAdvisorLevelUp = growthAdvisorLevelUp;
@@ -19609,8 +19609,8 @@
             if (btn) {
                 btn.disabled = true;
                 btn.textContent = '\u2713 Added';
-                btn.style.background = 'rgba(48,209,88,0.15)';
-                btn.style.color = '#30d158';
+                btn.style.background = 'rgba(36,138,61,0.15)';
+                btn.style.color = 'var(--success)';
             }
         }
         window.growthAdvisorAddSkill = growthAdvisorAddSkill;
@@ -20726,7 +20726,7 @@
                             background:var(--nav-bg); backdrop-filter:blur(20px); flex-shrink:0;">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div style="width:28px; height:28px; display:flex; align-items:center; justify-content:center;">
-                            <svg width="24" height="24" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" stroke="#60a5fa" stroke-width="1.5" opacity="0.25"/><line x1="26" y1="26" x2="12" y2="10" stroke="#60a5fa" stroke-width="1.5" opacity="0.5"/><line x1="26" y1="26" x2="42" y2="12" stroke="#60a5fa" stroke-width="1.5" opacity="0.5"/><line x1="26" y1="26" x2="40" y2="40" stroke="#60a5fa" stroke-width="1.5" opacity="0.5"/><line x1="26" y1="26" x2="10" y2="40" stroke="#60a5fa" stroke-width="1.5" opacity="0.5"/><circle cx="26" cy="26" r="5" fill="#60a5fa"/><circle cx="12" cy="10" r="3.5" fill="#93bbfc"/><circle cx="42" cy="12" r="3" fill="#bf5af2"/><circle cx="40" cy="40" r="3.5" fill="#93bbfc"/><circle cx="10" cy="40" r="3" fill="#bf5af2"/></svg></div>
+                            <svg width="24" height="24" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="24" stroke="var(--accent)" stroke-width="1.5" opacity="0.25"/><line x1="26" y1="26" x2="12" y2="10" stroke="var(--accent)" stroke-width="1.5" opacity="0.5"/><line x1="26" y1="26" x2="42" y2="12" stroke="var(--accent)" stroke-width="1.5" opacity="0.5"/><line x1="26" y1="26" x2="40" y2="40" stroke="var(--accent)" stroke-width="1.5" opacity="0.5"/><line x1="26" y1="26" x2="10" y2="40" stroke="var(--accent)" stroke-width="1.5" opacity="0.5"/><circle cx="26" cy="26" r="5" fill="var(--accent)"/><circle cx="12" cy="10" r="3.5" fill="#93bbfc"/><circle cx="42" cy="12" r="3" fill="var(--c-purple)"/><circle cx="40" cy="40" r="3.5" fill="#93bbfc"/><circle cx="10" cy="40" r="3" fill="var(--c-purple)"/></svg></div>
                         <span style="font-family:'Outfit',sans-serif; font-weight:500; color:var(--accent); font-size:0.82em; letter-spacing:0.22em; text-transform:uppercase;">
                             Blueprint
                         </span>
@@ -21167,7 +21167,7 @@
                     + '<div style="display:flex; align-items:center; gap:8px;">'
                     + '<span style="font-size:1em;">' + icon + '</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">' + title + '</span>'
-                    + (newCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:700;">+' + newCount + ' new</span>' : '')
+                    + (newCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(36,138,61,0.12); color:var(--success); font-weight:700;">+' + newCount + ' new</span>' : '')
                     + (existCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600;">' + existCount + ' existing</span>' : '')
                     + '</div>';
                 
@@ -21187,13 +21187,13 @@
                             + (item.sub ? '<div style="font-size:0.72em; color:var(--c-faint);">' + escapeHtml(item.sub) + ' \u2014 already in profile</div>' : '')
                             + '</div></div>';
                     } else {
-                        s += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(48,209,88,0.04); border:1px solid rgba(48,209,88,0.12); border-radius:6px; display:flex; align-items:center; gap:10px;">'
+                        s += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(36,138,61,0.04); border:1px solid rgba(36,138,61,0.12); border-radius:6px; display:flex; align-items:center; gap:10px;">'
                             + '<input type="checkbox" id="' + cbId + '" data-merge-section="' + sectionKey + '" checked style="accent-color:var(--success); flex-shrink:0; width:16px; height:16px; cursor:pointer;">'
                             + '<div style="flex:1; min-width:0;">'
                             + '<div style="font-size:0.85em; font-weight:600; color:var(--c-text-alt);">' + escapeHtml(item.label) + '</div>'
                             + (item.sub ? '<div style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(item.sub) + '</div>' : '')
                             + '</div>'
-                            + '<span style="font-size:0.68em; padding:2px 6px; border-radius:6px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:700; flex-shrink:0;">NEW</span>'
+                            + '<span style="font-size:0.68em; padding:2px 6px; border-radius:6px; background:rgba(36,138,61,0.12); color:var(--success); font-weight:700; flex-shrink:0;">NEW</span>'
                             + '</div>';
                     }
                 });
@@ -21215,7 +21215,7 @@
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
                     + '<span style="font-size:1em;">\u2B50</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Skills</span>'
-                    + (newSkillItems.length > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:700;">+' + newSkillItems.length + ' new</span>' : '')
+                    + (newSkillItems.length > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(36,138,61,0.12); color:var(--success); font-weight:700;">+' + newSkillItems.length + ' new</span>' : '')
                     + (existSkillItems.length > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600;">' + existSkillItems.length + ' existing</span>' : '')
                     + '</div>';
                 
@@ -21226,7 +21226,7 @@
                         var cbId = 'merge-skill-' + idx;
                         html += '<label for="' + cbId + '" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; '
                             + 'border-radius:12px; font-size:0.78em; font-weight:600; cursor:pointer; '
-                            + 'background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15);">'
+                            + 'background:rgba(36,138,61,0.08); color:var(--success); border:1px solid rgba(36,138,61,0.15);">'
                             + '<input type="checkbox" id="' + cbId + '" data-merge-section="skill" checked style="accent-color:var(--success); width:12px; height:12px;">'
                             + escapeHtml(item.label) + '</label>';
                     });
@@ -21244,11 +21244,11 @@
             
             // ── Endorsements (always applied, informational) ──
             if (totalEndorsements > 0) {
-                html += '<div style="margin-bottom:20px; padding:12px; background:rgba(255,159,10,0.05); border:1px solid rgba(255,159,10,0.15); border-radius:8px;">'
+                html += '<div style="margin-bottom:20px; padding:12px; background:rgba(196,93,0,0.05); border:1px solid rgba(196,93,0,0.15); border-radius:8px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
                     + '<span style="font-size:1em;">' + bpIcon('check',14) + '</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Endorsements</span>'
-                    + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(255,159,10,0.12); color:var(--c-orange); font-weight:700;">' + totalEndorsements + ' across ' + endorseKeys.length + ' skills</span>'
+                    + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(196,93,0,0.12); color:var(--c-orange); font-weight:700;">' + totalEndorsements + ' across ' + endorseKeys.length + ' skills</span>'
                     + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Endorsement counts will be applied to matching skills. Skills with 10+ endorsements get +1 level boost, 25+ get +2.</div>'
                     + '</div>';
@@ -21265,7 +21265,7 @@
             if (contentCounts.network > 0) autoApplied.push(contentCounts.network.toLocaleString() + ' connections');
             
             if (hasOptional || autoApplied.length > 0) {
-                html += '<div style="margin-bottom:20px; padding:12px; background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:8px;">'
+                html += '<div style="margin-bottom:20px; padding:12px; background:rgba(0,113,227,0.05); border:1px solid rgba(0,113,227,0.15); border-radius:8px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
                     + '<span style="font-size:1em;">' + bpIcon('clipboard',14) + '</span>'
                     + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Content & Evidence</span>'
@@ -21559,12 +21559,12 @@
                 </div>
 
                 <div onclick="wizardChooseExplorer()" id="card-explorer"
-                     style="background:rgba(191,90,242,0.06);
-                            border:2px solid rgba(191,90,242,0.25); border-radius:12px; padding:20px 24px;
+                     style="background:rgba(155,89,182,0.06);
+                            border:2px solid rgba(155,89,182,0.25); border-radius:12px; padding:20px 24px;
                             cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:16px;
                             margin-bottom:24px;"
-                     onmouseover="this.style.borderColor='#bf5af2'"
-                     onmouseout="this.style.borderColor='rgba(191,90,242,0.25)'">
+                     onmouseover="this.style.borderColor='var(--c-purple)'"
+                     onmouseout="this.style.borderColor='rgba(155,89,182,0.25)'">
                     <div style="width:48px; height:48px; border-radius:12px; background:var(--accent);
                                 display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                         ${bpIcon('compass',24)}
@@ -21643,7 +21643,7 @@
                         </div>
                     </div>
                     
-                    <div style="padding:16px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">
+                    <div style="padding:16px; background:rgba(0,113,227,0.06); border:1px solid rgba(0,113,227,0.2); border-radius:10px; margin-bottom:16px;">
                         <div style="font-weight:700; color:var(--text-primary); font-size:0.9em; margin-bottom:6px;">
                             ${bpIcon('export', 16)} Back up your profile first
                         </div>
@@ -21674,7 +21674,7 @@
                             \u2190 Go Back
                         </button>
                         <button id="wizardOverwriteConfirmBtn" onclick="window._wizardOverwriteProceed && window._wizardOverwriteProceed()" 
-                            style="padding:8px 18px; background:transparent; border:1px solid rgba(255,69,58,0.3); color:var(--danger); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">
+                            style="padding:8px 18px; background:transparent; border:1px solid rgba(215,0,21,0.3); color:var(--danger); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">
                             I understand, start fresh
                         </button>
                     </div>
@@ -21721,8 +21721,8 @@
             // Visually confirm the export happened
             var btn = document.getElementById('wizardOverwriteConfirmBtn');
             if (btn) {
-                btn.style.background = 'rgba(255,69,58,0.08)';
-                btn.style.borderColor = '#ff453a';
+                btn.style.background = 'rgba(215,0,21,0.08)';
+                btn.style.borderColor = 'var(--danger)';
             }
         }
         // wizardQuickExport exposed by ES module
@@ -21771,7 +21771,7 @@
         var explorerLabelStyle = 'display:block; font-size:0.82em; font-weight:600; color:var(--text-secondary); margin-bottom:5px;';
         var explorerCardStyle = 'background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px;';
         var explorerChipStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-secondary);';
-        var explorerChipActiveStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--c-purple); background:rgba(191,90,242,0.15); color:var(--c-purple); font-weight:600;';
+        var explorerChipActiveStyle = 'display:inline-flex; align-items:center; gap:4px; padding:6px 14px; border-radius:20px; font-size:0.82em; cursor:pointer; transition:all 0.15s; border:1px solid var(--c-purple); background:rgba(155,89,182,0.15); color:var(--c-purple); font-weight:600;';
 
         function _explorerSchoolCard(s, idx, total) {
             var isHS = s.schoolType === 'highschool';
@@ -22071,7 +22071,7 @@
                 var text = (response && response.content && response.content[0] && response.content[0].text || '').trim();
                 if (!text) { showToast('AI returned an empty response. Try again.', 'error'); if (btn) { btn.disabled = false; btn.textContent = originalLabel || '\u2728 Help me describe this'; } return; }
                 textarea.value = text;
-                textarea.style.borderColor = '#bf5af2';
+                textarea.style.borderColor = 'var(--c-purple)';
                 setTimeout(function() { textarea.style.borderColor = ''; }, 2000);
                 if (context.onUpdate) context.onUpdate(text);
             } catch (err) {
@@ -22081,7 +22081,7 @@
         }
         window._explorerAIExpand = _explorerAIExpand;
 
-        var _aiExpandBtnStyle = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:12px; font-size:0.72em; cursor:pointer; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.06); color:var(--c-purple); font-weight:600; margin-top:4px;';
+        var _aiExpandBtnStyle = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:12px; font-size:0.72em; cursor:pointer; border:1px solid rgba(155,89,182,0.3); background:rgba(155,89,182,0.06); color:var(--c-purple); font-weight:600; margin-top:4px;';
 
         function explorerAIActivityHelp(idx, btnEl) {
             var a = wizardState.explorerData.activities[idx];
@@ -22199,7 +22199,7 @@
                 var intensity = _interestGetIntensity(interests, int);
                 var lvl = intensity ? _interestIntensityLevels.find(function(l) { return l.id === intensity; }) : null;
                 var chipStyle = isActive
-                    ? 'display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600; transition:all 0.15s; border:2px solid ' + (lvl ? lvl.color : '#bf5af2') + '; background:' + (lvl ? lvl.color : '#bf5af2') + '18; color:' + (lvl ? lvl.color : '#bf5af2') + ';'
+                    ? 'display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:20px; cursor:pointer; font-size:0.85em; font-weight:600; transition:all 0.15s; border:2px solid ' + (lvl ? lvl.color : 'var(--c-purple)') + '; background:' + (lvl ? lvl.color : 'var(--c-purple)') + '18; color:' + (lvl ? lvl.color : 'var(--c-purple)') + ';'
                     : explorerChipStyle;
                 var label = isActive ? (lvl ? lvl.icon + ' ' : '') + int : int;
                 return '<span onclick="explorerToggleInterest(\'' + escapeAttr(int).replace(/'/g, "\\'") + '\')" style="' + chipStyle + '">' + label + '</span>';
@@ -22207,7 +22207,7 @@
 
             var selectedHtml = '';
             if (interests.length > 0) {
-                selectedHtml = '<div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">'
+                selectedHtml = '<div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(0,0,0,0.05);">'
                     + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:8px; font-size:0.85em;">Your Interests \u2014 tap to change intensity level:</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
                 interests.forEach(function(int) {
@@ -22572,8 +22572,8 @@
                 var totalAdd = 0;
                 stl.forEach(function(s) { totalAdd += (Number(s.valueAdd) || 0); });
                 return '<div onclick="explorerSelectCareer(' + i + ')" style="padding:16px; border-radius:12px; cursor:pointer; transition:all 0.15s; '
-                    + 'background:' + (isSelected ? 'rgba(96,165,250,0.08)' : 'var(--bg-elevated)') + '; '
-                    + 'border:2px solid ' + (isSelected ? '#bf5af2' : 'var(--border)') + ';">'
+                    + 'background:' + (isSelected ? 'rgba(0,113,227,0.08)' : 'var(--bg-elevated)') + '; '
+                    + 'border:2px solid ' + (isSelected ? 'var(--c-purple)' : 'var(--border)') + ';">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-weight:700; color:var(--text-primary); font-size:1em;">' + escapeHtml(p.title) + '</div>'
                     + (isSelected ? '<span style="color:var(--c-purple); font-weight:700;">\u2713 Selected</span>' : '')
@@ -22643,11 +22643,11 @@
 
                 <div style="${explorerCardStyle}">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; text-align:center;">
-                        <div style="padding:14px; background:rgba(96,165,250,0.08); border-radius:10px;">
+                        <div style="padding:14px; background:rgba(0,113,227,0.08); border-radius:10px;">
                             <div style="font-size:1.8em; font-weight:700; color:var(--accent);">${skillCount}</div>
                             <div style="font-size:0.78em; color:var(--text-muted);">Skills Discovered</div>
                         </div>
-                        <div style="padding:14px; background:rgba(191,90,242,0.08); border-radius:10px;">
+                        <div style="padding:14px; background:rgba(155,89,182,0.08); border-radius:10px;">
                             <div style="font-size:1.8em; font-weight:700; color:var(--c-purple);">${pathCount}</div>
                             <div style="font-size:0.78em; color:var(--text-muted);">Career Paths</div>
                         </div>
@@ -22655,7 +22655,7 @@
                 </div>
 
                 ${selectedPath ? `
-                <div style="${explorerCardStyle} border-color:#bf5af240;">
+                <div style="${explorerCardStyle} border-color:#9b59b640;">
                     <div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--c-purple); margin-bottom:6px;">Focused Career Path</div>
                     <div style="font-weight:700; color:var(--text-primary); font-size:1.05em; margin-bottom:4px;">${escapeHtml(selectedPath.title)}</div>
                     <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.5;">${escapeHtml(selectedPath.whyFit)}</div>
@@ -22667,7 +22667,7 @@
                     <div style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">This will appear on your Blueprint profile.</div>
                 </div>
 
-                <div style="padding:14px 18px; background:rgba(191,90,242,0.06); border:1px solid rgba(191,90,242,0.2); border-radius:10px; margin-bottom:16px;">
+                <div style="padding:14px 18px; background:rgba(155,89,182,0.06); border:1px solid rgba(155,89,182,0.2); border-radius:10px; margin-bottom:16px;">
                     <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.6;">
                         <strong style="color:var(--c-purple);">Explorer Mode</strong> \u2014 Your Blueprint focuses on potential and transferable skills.
                         Once you land your first role, you can convert to a full Blueprint with salary data, market valuation, and advanced evidence tracking.
@@ -22708,7 +22708,7 @@
                 skills: (wizardState.skills || []).map(function(s) {
                     return Object.assign({}, s, { roles: s.roles || [], key: false });
                 }),
-                roles: selectedPath ? [{ id: 'target1', name: selectedPath.title, company: 'Target Role', years: '', color: '#bf5af2' }] : [],
+                roles: selectedPath ? [{ id: 'target1', name: selectedPath.title, company: 'Target Role', years: '', color: 'var(--c-purple)' }] : [],
                 values: wizardState.values || [],
                 purpose: wizardState.purpose || '',
                 workHistory: (ed.partTimeJobs || []).filter(function(j) { return j.title; }).map(function(j) {
@@ -23840,7 +23840,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     var a = nodes[edge.a], b = nodes[edge.b];
                     ctx.beginPath();
                     ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-                    ctx.strokeStyle = 'rgba(96,165,250,' + (edge.alpha * Math.min(a.alpha,b.alpha)) + ')';
+                    ctx.strokeStyle = 'rgba(0,113,227,' + (edge.alpha * Math.min(a.alpha,b.alpha)) + ')';
                     ctx.lineWidth = 1;
                     ctx.stroke();
                 }
@@ -24318,9 +24318,9 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             btns.forEach(function(btn) {
                 var row = btn.closest('[style*="padding:10px 0"]');
                 if (row) row.style.opacity = isHidden ? '0.5' : '1';
-                btn.style.background = isHidden ? 'rgba(255,159,10,0.15)' : 'none';
-                btn.style.borderColor = isHidden ? '#ff9f0a' : 'var(--border)';
-                btn.style.color = isHidden ? '#ff9f0a' : 'var(--text-muted)';
+                btn.style.background = isHidden ? 'rgba(196,93,0,0.15)' : 'none';
+                btn.style.borderColor = isHidden ? 'var(--c-orange)' : 'var(--border)';
+                btn.style.color = isHidden ? 'var(--c-orange)' : 'var(--text-muted)';
                 btn.innerHTML = isHidden ? '' + bpIcon('eye-off',12) + ' Hidden — skills kept' : '' + bpIcon('eye',12) + ' Hide role';
                 btn.title = isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills';
             });
@@ -24664,7 +24664,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         ? 'We matched your roles to O*NET occupations and found skills you may want to add.'
                         : 'No role titles could be matched. Continue to review your skills.')}
 
-                ${hasMultipleRoles ? '<div style="background:rgba(255,214,10,0.08); border:1px solid rgba(255,159,10,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
+                ${hasMultipleRoles ? '<div style="background:rgba(178,80,0,0.08); border:1px solid rgba(196,93,0,0.25); border-radius:10px; padding:14px 16px; margin-bottom:14px;">'
                     + '<div style="font-weight:700; color:var(--c-orange); font-size:0.82em; margin-bottom:6px;">' + bpIcon('lightbulb',14) + ' Pro Tip: Less is More</div>'
                     + '<div style="font-size:0.8em; color:var(--text-secondary); line-height:1.5;">'
                     + 'Listing more than your past 3 roles isn\'t necessary. You can <strong>hide a role but keep the skills</strong>. '
@@ -24713,8 +24713,8 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                                 + (g.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(g.company) + '</span>' : '')
                                 + '</div>'
                                 + (whIdx >= 0 ? '<button onclick="wizardToggleRoleHidden(' + whIdx + ')" title="' + (isHidden ? 'Show role in Blueprint' : 'Hide role, keep skills') + '"'
-                                    + ' style="background:' + (isHidden ? 'rgba(255,159,10,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#ff9f0a' : 'var(--border)') + ';'
-                                    + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#ff9f0a' : 'var(--text-muted)') + ';'
+                                    + ' style="background:' + (isHidden ? 'rgba(196,93,0,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? 'var(--c-orange)' : 'var(--border)') + ';'
+                                    + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? 'var(--c-orange)' : 'var(--text-muted)') + ';'
                                     + ' white-space:nowrap; transition:all 0.15s;">'
                                     + (isHidden ? '' + bpIcon('eye-off',12) + ' Hidden \u2014 skills kept' : '' + bpIcon('eye',12) + ' Hide role') + '</button>' : '')
                                 + '</div>'
@@ -24752,8 +24752,8 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                                 + (wh.company ? ' <span style="color:var(--text-muted);">at ' + escapeHtml(wh.company) + '</span>' : '')
                                 + '</div>'
                                 + '<button onclick="wizardToggleRoleHidden(' + origIdx + ')" title="' + (isHidden ? 'Show role' : 'Hide role, keep skills') + '"'
-                                + ' style="background:' + (isHidden ? 'rgba(255,159,10,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? '#ff9f0a' : 'var(--border)') + ';'
-                                + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? '#ff9f0a' : 'var(--text-muted)') + ';'
+                                + ' style="background:' + (isHidden ? 'rgba(196,93,0,0.15)' : 'none') + '; border:1px solid ' + (isHidden ? 'var(--c-orange)' : 'var(--border)') + ';'
+                                + ' border-radius:6px; padding:3px 10px; cursor:pointer; font-size:0.72em; color:' + (isHidden ? 'var(--c-orange)' : 'var(--text-muted)') + ';'
                                 + ' white-space:nowrap;">'
                                 + (isHidden ? '' + bpIcon('eye-off',12) + ' Hidden' : '' + bpIcon('eye',12) + ' Hide') + '</button>'
                                 + '</div>';
@@ -24991,7 +24991,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             var html = '<div id="marketIntelPanel" style="margin-bottom:16px;">';
 
             if (intel.keepSkills.length > 0) {
-                html += '<div style="background:rgba(48,209,88,0.06); border:1px solid rgba(48,209,88,0.25);'
+                html += '<div style="background:rgba(36,138,61,0.06); border:1px solid rgba(36,138,61,0.25);'
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
                     + '<div style="font-weight:700; font-size:0.82em; color:var(--success); margin-bottom:8px;">'
                     + '' + bpIcon('trending-up',14) + ' Keep & Highlight \u2014 Your Strongest Market Assets</div>';
@@ -25006,7 +25006,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         + escapeHtml(k.rationale) + '</span></div>'
                         + (k._dismissed ? '' : '<button onclick="wizardAcceptKeep(' + ki + ')" id="keep-btn-' + ki + '"'
                         + (accepted ? ' disabled' : '')
-                        + ' style="background:' + (accepted ? 'rgba(48,209,88,0.15)' : 'rgba(48,209,88,0.1)') + '; border:1px solid rgba(48,209,88,0.3);'
+                        + ' style="background:' + (accepted ? 'rgba(36,138,61,0.15)' : 'rgba(36,138,61,0.1)') + '; border:1px solid rgba(36,138,61,0.3);'
                         + ' color:var(--success); border-radius:6px; padding:2px 10px; cursor:pointer;'
                         + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
                         + (accepted ? ' opacity:0.7;' : '') + '">' + (accepted ? '\u2713 Key Skill' : 'Mark Key') + '</button>')
@@ -25020,7 +25020,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             }
 
             if (intel.dropSkills.length > 0) {
-                html += '<div style="background:rgba(255,69,58,0.05); border:1px solid rgba(255,69,58,0.2);'
+                html += '<div style="background:rgba(215,0,21,0.05); border:1px solid rgba(215,0,21,0.2);'
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
                     + '<div style="font-weight:700; font-size:0.82em; color:var(--danger); margin-bottom:8px;">'
                     + '\u2702 Consider Removing \u2014 Low Market Signal</div>';
@@ -25034,7 +25034,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         + escapeHtml(d.rationale) + '</span></div>'
                         + (d._dismissed ? '' : '<button onclick="wizardAcceptDrop(' + di + ')" id="drop-btn-' + di + '"'
                         + (d._accepted ? ' disabled' : '')
-                        + ' style="background:rgba(255,69,58,0.1); border:1px solid rgba(255,69,58,0.3);'
+                        + ' style="background:rgba(215,0,21,0.1); border:1px solid rgba(215,0,21,0.3);'
                         + ' color:var(--danger); border-radius:6px; padding:2px 10px; cursor:pointer;'
                         + ' font-size:0.72em; font-weight:600; white-space:nowrap;'
                         + (d._accepted ? ' opacity:0.5;' : '') + '">' + (d._accepted ? 'Removed' : 'Remove') + '</button>')
@@ -25048,7 +25048,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             }
 
             if (intel.growthSkills.length > 0) {
-                html += '<div style="background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.25);'
+                html += '<div style="background:rgba(0,113,227,0.06); border:1px solid rgba(0,113,227,0.25);'
                     + ' border-radius:10px; padding:12px 14px; margin-bottom:10px;">'
                     + '<div style="font-weight:700; font-size:0.82em; color:var(--accent); margin-bottom:8px;">'
                     + '' + bpIcon('trending-up',14) + ' Growth Opportunities \u2014 Add These to Increase Market Value</div>';
@@ -25066,8 +25066,8 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         + escapeHtml(g.rationale) + '</div></div>'
                         + (g._dismissed ? '' : '<button onclick="wizardAddGrowthSkill(' + gi + ')" id="growth-btn-' + gi + '"'
                         + (g._added ? ' disabled' : '')
-                        + ' style="background:' + (g._added ? 'rgba(48,209,88,0.1)' : 'rgba(96,165,250,0.1)') + '; border:1px solid ' + (g._added ? 'rgba(48,209,88,0.3)' : 'rgba(96,165,250,0.3)') + ';'
-                        + ' color:' + (g._added ? '#30d158' : '#60a5fa') + '; border-radius:6px; padding:2px 10px; cursor:pointer;'
+                        + ' style="background:' + (g._added ? 'rgba(36,138,61,0.1)' : 'rgba(0,113,227,0.1)') + '; border:1px solid ' + (g._added ? 'rgba(36,138,61,0.3)' : 'rgba(0,113,227,0.3)') + ';'
+                        + ' color:' + (g._added ? 'var(--success)' : 'var(--accent)') + '; border-radius:6px; padding:2px 10px; cursor:pointer;'
                         + ' font-size:0.72em; font-weight:600; white-space:nowrap;">' + (g._added ? '\u2713 Added' : '+ Add') + '</button>')
                         + (g._dismissed || g._added ? '' : '<button onclick="wizardDismissRec(\'growth\',' + gi + ')"'
                         + ' style="background:none; border:1px solid var(--border); color:var(--text-muted);'
@@ -25143,7 +25143,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             });
             g._added = true;
             var btn = document.getElementById('growth-btn-' + growthIdx);
-            if (btn) { btn.textContent = '\u2713 Added'; btn.disabled = true; btn.style.background = 'rgba(48,209,88,0.1)'; btn.style.borderColor = 'rgba(48,209,88,0.3)'; btn.style.color = '#30d158'; }
+            if (btn) { btn.textContent = '\u2713 Added'; btn.disabled = true; btn.style.background = 'rgba(36,138,61,0.1)'; btn.style.borderColor = 'rgba(36,138,61,0.3)'; btn.style.color = 'var(--success)'; }
             showToast('"' + g.name + '" added to your Growth Plan.', 'success', 2500);
         }
         window.wizardAddGrowthSkill = wizardAddGrowthSkill;
@@ -25268,8 +25268,8 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
             outcomes.forEach(function(o, i) {
                 var selected = o._selected;
                 html += '<div style="display:flex; align-items:start; gap:10px; padding:8px 10px;'
-                    + ' border:1px solid ' + (selected ? 'rgba(48,209,88,0.4)' : 'var(--border)') + ';'
-                    + ' background:' + (selected ? 'rgba(48,209,88,0.06)' : 'var(--bg-surface)') + ';'
+                    + ' border:1px solid ' + (selected ? 'rgba(36,138,61,0.4)' : 'var(--border)') + ';'
+                    + ' background:' + (selected ? 'rgba(36,138,61,0.06)' : 'var(--bg-surface)') + ';'
                     + ' border-radius:8px; margin-bottom:6px; transition:all 0.15s;'
                     + ' box-sizing:border-box; max-width:100%; overflow:hidden;">';
 
@@ -25400,7 +25400,7 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                     isFromResume ? 'Market intelligence applied. Adjust proficiency levels and review recommendations below.'
                                  : 'Add your key skills. You can build this out further after setup.')}
 
-                ${intel ? wizardRenderMarketIntel(intel) : (isFromResume ? '<div id="marketIntelLoading" style="background:rgba(96,165,250,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px; display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:1.1em;">&#9889;</span><div style="font-size:0.8em; color:var(--text-secondary);">Analyzing market value of your skills...</div><span style="font-size:0.8em; color:var(--accent);">\u21BB</span></div>' : '')}
+                ${intel ? wizardRenderMarketIntel(intel) : (isFromResume ? '<div id="marketIntelLoading" style="background:rgba(0,113,227,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:10px; padding:14px; display:flex; align-items:center; gap:10px; margin-bottom:12px;"><span style="font-size:1.1em;">&#9889;</span><div style="font-size:0.8em; color:var(--text-secondary);">Analyzing market value of your skills...</div><span style="font-size:0.8em; color:var(--accent);">\u21BB</span></div>' : '')}
 
                 ${isFromResume ? wizardRenderOutcomePanel() : ''}
 
@@ -25526,23 +25526,23 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                         var sel = v.selected;
                         return '<div onclick="wizardToggleValue(' + i + ')" id="val-card-' + i + '"'
                             + ' data-selected="' + (sel ? '1' : '0') + '"'
-                            + ' style="background:' + (sel ? 'rgba(96,165,250,0.08)' : 'var(--bg-elevated, #1c1c22)') + ';'
-                            + ' border:2px solid ' + (sel ? 'var(--accent, #60a5fa)' : 'var(--border, #48484a)') + ';'
+                            + ' style="background:' + (sel ? 'rgba(0,113,227,0.08)' : 'var(--bg-elevated)') + ';'
+                            + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border, #48484a)') + ';'
                             + ' border-radius:10px; padding:12px; cursor:pointer; transition:border-color 0.18s, background 0.18s;'
                             + ' position:relative; overflow:hidden;">'
                             + '<div style="display:flex; align-items:start; gap:10px; position:relative; z-index:1;">'
                             + '<div style="width:18px; height:18px; border-radius:6px; flex-shrink:0; margin-top:2px;'
-                            + ' background:' + (sel ? 'var(--accent, #60a5fa)' : 'var(--input-bg, #0a0a0f)') + ';'
-                            + ' border:2px solid ' + (sel ? 'var(--accent, #60a5fa)' : 'var(--border, #48484a)') + ';'
+                            + ' background:' + (sel ? 'var(--accent)' : 'var(--input-bg)') + ';'
+                            + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border, #48484a)') + ';'
                             + ' display:flex; align-items:center; justify-content:center;'
                             + ' color:#fff; font-size:11px; line-height:1;">'
                             + (sel ? '\u2713' : '')
                             + '</div>'
                             + '<div style="flex:1; min-width:0;">'
-                            + '<div style="font-weight:700; color:var(--text-primary, #d1d1d6); font-size:0.86em; margin-bottom:3px;">'
+                            + '<div style="font-weight:700; color:var(--text-primary); font-size:0.86em; margin-bottom:3px;">'
                             + escapeHtml(v.name) + '</div>'
                             + '<div onclick="event.stopPropagation(); wizardEditValueDesc(' + i + ', this)" '
-                            + 'style="font-size:0.76em; color:var(--text-secondary, #a1a1a6); line-height:1.4; cursor:text;" '
+                            + 'style="font-size:0.76em; color:var(--text-secondary); line-height:1.4; cursor:text;" '
                             + 'title="Click to edit">'
                             + escapeHtml(v.description || '') + '</div>'
                             + '</div></div></div>';
@@ -25599,22 +25599,22 @@ Extract ALL positions. ALL certifications from sidebar AND body. Values: 4-7 spe
                 grid.innerHTML = vals.map(function(v, idx) {
                     var sel = v.selected;
                     return '<div onclick="wizardToggleValue(' + idx + ')" id="val-card-' + idx + '"'
-                        + ' style="background:' + (sel ? 'rgba(96,165,250,0.08)' : 'var(--bg-elevated, #1c1c22)') + ';'
-                        + ' border:2px solid ' + (sel ? 'var(--accent, #60a5fa)' : 'var(--border, #48484a)') + ';'
+                        + ' style="background:' + (sel ? 'rgba(0,113,227,0.08)' : 'var(--bg-elevated)') + ';'
+                        + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border, #48484a)') + ';'
                         + ' border-radius:10px; padding:12px; cursor:pointer;">'
                         + '<div style="display:flex; align-items:start; gap:10px;">'
                         + '<div style="width:18px; height:18px; border-radius:6px; flex-shrink:0; margin-top:2px;'
-                        + ' background:' + (sel ? 'var(--accent, #60a5fa)' : 'var(--input-bg, #0a0a0f)') + ';'
-                        + ' border:2px solid ' + (sel ? 'var(--accent, #60a5fa)' : 'var(--border, #48484a)') + ';'
+                        + ' background:' + (sel ? 'var(--accent)' : 'var(--input-bg)') + ';'
+                        + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border, #48484a)') + ';'
                         + ' display:flex; align-items:center; justify-content:center;'
                         + ' color:#fff; font-size:11px; line-height:1;">'
                         + (sel ? '\u2713' : '')
                         + '</div>'
                         + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-weight:700; color:var(--text-primary, #d1d1d6); font-size:0.86em; margin-bottom:3px;">'
+                        + '<div style="font-weight:700; color:var(--text-primary); font-size:0.86em; margin-bottom:3px;">'
                         + escapeHtml(v.name) + '</div>'
                         + '<div onclick="event.stopPropagation(); wizardEditValueDesc(' + idx + ', this)" '
-                        + 'style="font-size:0.76em; color:var(--text-secondary, #a1a1a6); line-height:1.4; cursor:text;" '
+                        + 'style="font-size:0.76em; color:var(--text-secondary); line-height:1.4; cursor:text;" '
                         + 'title="Click to edit">'
                         + escapeHtml(v.description || '') + '</div>'
                         + '</div></div></div>';
@@ -25864,7 +25864,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 years: r.years || '',
                 progression: r.progression || null,
                 totalYears: r.totalYears || null,
-                color: ['#ff9f0a','#ff9f0a','#bf5af2','#30d158','#60a5fa','#bf5af2','#ff453a'][i % 7]
+                color: ['var(--c-orange)','var(--c-orange)','var(--c-purple)','var(--success)','var(--accent)','var(--c-purple)','var(--danger)'][i % 7]
             }));
             var validRoleIds = new Set();
             builtRoles.forEach(function(r) { validRoleIds.add(r.id); validRoleIds.add(r.name); });
@@ -26081,11 +26081,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     cmdBtn.id = 'cmdKBtn';
                     cmdBtn.setAttribute('aria-label', 'Search (Cmd+K)');
                     cmdBtn.onclick = function() { if (typeof openCommandPalette === 'function') openCommandPalette(); };
-                    cmdBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--c-surface-2,rgba(255,255,255,0.06));border:1px solid var(--c-border-subtle,rgba(255,255,255,0.1));border-radius:8px;color:var(--c-muted,#a1a1a6);font-size:0.75em;cursor:pointer;transition:all 0.15s;white-space:nowrap;';
+                    cmdBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--c-surface-2,rgba(0,0,0,0.05));border:1px solid var(--c-border-subtle,rgba(0,0,0,0.07));border-radius:8px;color:var(--c-muted);font-size:0.75em;cursor:pointer;transition:all 0.15s;white-space:nowrap;';
                     cmdBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
-                        + '<span style="color:var(--c-faint,#636366);font-size:0.9em;">⌘K</span>';
-                    cmdBtn.onmouseover = function() { this.style.borderColor='rgba(96,165,250,0.4)'; this.style.color='var(--c-text,#d1d1d6)'; };
-                    cmdBtn.onmouseout  = function() { this.style.borderColor='var(--c-border-subtle,rgba(255,255,255,0.1))'; this.style.color='var(--c-muted,#a1a1a6)'; };
+                        + '<span style="color:var(--c-faint);font-size:0.9em;">⌘K</span>';
+                    cmdBtn.onmouseover = function() { this.style.borderColor='rgba(0,113,227,0.4)'; this.style.color='var(--c-text)'; };
+                    cmdBtn.onmouseout  = function() { this.style.borderColor='var(--c-border-subtle,rgba(0,0,0,0.07))'; this.style.color='var(--c-muted)'; };
                     saveInd.parentNode.insertBefore(cmdBtn, saveInd);
                 }
             }
@@ -26216,7 +26216,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var sColor = score >= 70 ? '#30d158' : score >= 45 ? '#ff9f0a' : '#636366';
                     html += '<div class="jsel-row" data-act="pick" data-idx="' + idx + '" style="'
                         + 'display:flex; align-items:center; gap:10px; padding:9px 14px; cursor:pointer; '
-                        + 'background:' + (isSel ? 'rgba(96,165,250,0.12)' : 'transparent') + ';">'
+                        + 'background:' + (isSel ? 'rgba(0,113,227,0.12)' : 'transparent') + ';">'
                         + '<span style="width:7px; height:7px; border-radius:50%; background:' + (isSel ? 'var(--accent)' : sColor) + '; flex-shrink:0;"></span>'
                         + '<div style="min-width:0; flex:1;">'
                         + '<div style="font-size:0.8em; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title || '') + '</div>'
@@ -26242,7 +26242,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     row.addEventListener('mouseleave', function() {
                         var idx = this.dataset.idx;
                         var isSel = idx && activeJobForNetwork && activeJobForNetwork.id === ((userData.savedJobs || [])[idx] || {}).id;
-                        this.style.background = isSel ? 'rgba(96,165,250,0.12)' : 'transparent';
+                        this.style.background = isSel ? 'rgba(0,113,227,0.12)' : 'transparent';
                     });
                     row.addEventListener('click', function(e) {
                         e.stopPropagation();
@@ -26703,7 +26703,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var badge = document.createElement('div');
                     badge.id = 'mobileNetworkBadge';
                     badge.style.cssText = 'position:absolute; bottom:12px; left:50%; transform:translateX(-50%); '
-                        + 'background:rgba(96,165,250,0.8); color:var(--text-primary); font-size:0.72em; padding:5px 14px; '
+                        + 'background:rgba(0,113,227,0.8); color:var(--text-primary); font-size:0.72em; padding:5px 14px; '
                         + 'border-radius:20px; backdrop-filter:blur(8px); pointer-events:none; z-index:10;';
                     badge.textContent = 'Showing top ' + skillsToShow.length + ' of ' + skillsData.skills.length + ' skills';
                     var container = document.getElementById('networkView').parentElement;
@@ -27081,7 +27081,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Add a "job requirements" pseudo-role — pinned to RIGHT side
             nodes.push({
-                id: 'role-job-req', name: ((job.title || 'Job').length > (isMobile ? 18 : 25) ? (job.title || 'Job').substring(0, isMobile ? 16 : 23) + '\u2026' : (job.title || 'Job')) + ' Needs', type: 'role', color: '#ffd60a', matchState: 'role',
+                id: 'role-job-req', name: ((job.title || 'Job').length > (isMobile ? 18 : 25) ? (job.title || 'Job').substring(0, isMobile ? 16 : 23) + '\u2026' : (job.title || 'Job')) + ' Needs', type: 'role', color: 'var(--warning)', matchState: 'role',
                 x: jobX, y: jobY, fx: jobX, fy: jobY, homeX: jobX, homeY: jobY
             });
             
@@ -27446,7 +27446,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '</div>'
                 
                 // Proficiency gaps if any
-                + (profGapCount > 0 ? '<div style="padding:6px 16px; font-size:0.78em; color:var(--c-orange); background:rgba(255,159,10,0.06);">' + bpIcon('warning',12) + ' ' + profGapCount + ' skill' + (profGapCount > 1 ? 's' : '') + ' matched at a lower proficiency</div>' : '')
+                + (profGapCount > 0 ? '<div style="padding:6px 16px; font-size:0.78em; color:var(--c-orange); background:rgba(196,93,0,0.06);">' + bpIcon('warning',12) + ' ' + profGapCount + ' skill' + (profGapCount > 1 ? 's' : '') + ' matched at a lower proficiency</div>' : '')
                 
                 // Legend dots
                 + '<div class="ml-legend-row">'
@@ -27458,7 +27458,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // Action buttons
                 + '<div class="ml-actions">'
                 + '<button class="ml-action-btn" onclick="clearJobOverlay()">✕ Close</button>'
-                + '<button class="ml-action-btn" style="color:var(--accent); border-color:rgba(96,165,250,0.3);" '
+                + '<button class="ml-action-btn" style="color:var(--accent); border-color:rgba(0,113,227,0.3);" '
                 + 'onclick="var idx=findJobIdx(); clearJobOverlay(); switchView(\'opportunities\'); setTimeout(function(){showJobDetail(idx);},200);">View Details</button>'
                 + '</div>'
                 + '<button class="ml-scout-btn" onclick="launchScoutingReport()">'
@@ -27692,7 +27692,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return valColors[d.valState] || '#636366';
                 })
                 .attr("stroke", function(d) {
-                    if (d.type === 'hub') return isLtV ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.3)';
+                    if (d.type === 'hub') return isLtV ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.18)';
                     if (d.valState === 'aligned') return isLtV ? '#d1fae5' : '#fff';
                     if (d.valState === 'tension') return '#fde68a';
                     return 'none';
@@ -27980,22 +27980,22 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 rare: {
                     label: 'Rare', desc: 'Your market differentiators',
                     icon: bpIcon('flame', 20),
-                    bg: 'rgba(255,159,10,0.08)',
-                    border: 'rgba(255,159,10,0.3)', accent: '#ff9f0a',
-                    pillBg: 'rgba(255,159,10,0.2)', pillColor: '#ff9f0a', skills: []
+                    bg: 'rgba(196,93,0,0.08)',
+                    border: 'rgba(196,93,0,0.3)', accent: 'var(--c-orange)',
+                    pillBg: 'rgba(196,93,0,0.2)', pillColor: '#ff9f0a', skills: []
                 },
                 uncommon: {
                     label: 'Uncommon', desc: 'Strong competitive advantages',
                     icon: bpIcon('diamond', 20),
-                    bg: 'rgba(96,165,250,0.06)',
-                    border: 'rgba(96,165,250,0.25)', accent: '#60a5fa',
-                    pillBg: 'rgba(96,165,250,0.2)', pillColor: '#60a5fa', skills: []
+                    bg: 'rgba(0,113,227,0.06)',
+                    border: 'rgba(0,113,227,0.25)', accent: 'var(--accent)',
+                    pillBg: 'rgba(0,113,227,0.2)', pillColor: '#60a5fa', skills: []
                 },
                 common: {
                     label: 'Common', desc: 'Foundational capabilities',
                     icon: bpIcon('check', 20),
-                    bg: 'var(--c-surface-2a, rgba(255,255,255,0.03))',
-                    border: 'var(--border, rgba(255,255,255,0.08))', accent: '#636366',
+                    bg: 'var(--c-surface-2a, rgba(0,0,0,0.02))',
+                    border: 'var(--border, rgba(0,0,0,0.06))', accent: 'var(--text-muted)',
                     pillBg: 'rgba(99,99,102,0.2)', pillColor: '#a1a1a6', skills: []
                 }
             };
@@ -28054,7 +28054,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var levelOrder = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Novice'];
                 var levelStatsHtml = levelOrder
                     .filter(function(lv) { return levelCounts[lv]; })
-                    .map(function(lv) { return '<span style="color:' + (levelColors[lv] || '#636366') + ';">' + levelCounts[lv] + ' ' + lv + '</span>'; })
+                    .map(function(lv) { return '<span style="color:' + (levelColors[lv] || 'var(--text-muted)') + ';">' + levelCounts[lv] + ' ' + lv + '</span>'; })
                     .join(' <span style="opacity:0.3;">\u00B7</span> ');
                 var evidenceHtml = evidenceBacked > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:var(--success);">' + evidenceBacked + '/' + tier.skills.length + ' evidence-backed</span>' : '';
                 var verifiedHtml = verifiedTotal > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:var(--success);">' + verifiedTotal + ' verified</span>' : '';
@@ -28068,7 +28068,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + '<div style="font-size:0.75em; color:var(--c-muted, var(--text-muted)); margin-top:2px;">' + tier.desc + '</div>'
                     + '</div></div>'
                     + '</div>'
-                    + '<div style="font-size:0.73em; padding:8px 18px; color:var(--c-muted, var(--text-muted)); border-bottom:1px solid rgba(255,255,255,0.04);">'
+                    + '<div style="font-size:0.73em; padding:8px 18px; color:var(--c-muted, var(--text-muted)); border-bottom:1px solid rgba(0,0,0,0.03);">'
                     + levelStatsHtml + evidenceHtml + verifiedHtml
                     + '</div>';
 
@@ -28101,11 +28101,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var catTitles = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique Skill' };
 
                     html += '<div onclick=\'openUnifiedSkillEditor("' + escapedName + '")\' style="'
-                        + 'background:var(--c-surface-1, var(--card-bg, rgba(255,255,255,0.03))); '
-                        + 'border:1px solid var(--c-surface-4, rgba(255,255,255,0.06)); border-radius:10px; '
+                        + 'background:var(--c-surface-1, var(--card-bg, rgba(0,0,0,0.02))); '
+                        + 'border:1px solid var(--c-surface-4, rgba(0,0,0,0.05)); border-radius:10px; '
                         + 'padding:14px 16px; cursor:pointer; transition:all 0.15s;" '
                         + 'onmouseover="this.style.borderColor=\'' + tier.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.3)\'" '
-                        + 'onmouseout="this.style.borderColor=\'var(--c-surface-4, rgba(255,255,255,0.06))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
+                        + 'onmouseout="this.style.borderColor=\'var(--c-surface-4, rgba(0,0,0,0.05))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
 
                     html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
                         + '<div style="width:10px; height:10px; border-radius:6px; background:' + lc + '; flex-shrink:0;"></div>'
@@ -28123,7 +28123,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<span title="' + skillImpact.label + '" style="font-size:0.75em; color:' + impactColor + ';">' + skillImpact.icon + '</span>'
                         + '<span style="font-size:0.62em; padding:1px 7px; border-radius:8px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;">' + tier.label + '</span>'
                         + (years ? '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + 'y</span>' : '')
-                        + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(191,90,242,0.15); color:var(--c-purple); font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
+                        + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(155,89,182,0.15); color:var(--c-purple); font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
                         + '</div>';
 
                     if (roleNames.length > 0) {
@@ -28142,8 +28142,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var suggestions = getRoleSuggestions();
             if (suggestions.length > 0) {
                 html += '<div style="margin-top:20px; padding:20px; border-radius:12px; '
-                    + 'background:rgba(96,165,250,0.06); '
-                    + 'border:1px solid rgba(96,165,250,0.15);">'
+                    + 'background:rgba(0,113,227,0.06); '
+                    + 'border:1px solid rgba(0,113,227,0.15);">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                     + '<h3 style="font-size:0.92em; font-weight:700; color:var(--accent); margin:0;">'
                     + bpIcon('lightbulb',16) + ' Suggested Skills for Your Roles</h3>'
@@ -28152,7 +28152,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 suggestions.slice(0, 20).forEach(function(s) {
                     html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:12px; '
                         + 'font-size:0.82em; cursor:pointer; transition:all 0.15s; '
-                        + 'background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); color:var(--text-secondary);" '
+                        + 'background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2); color:var(--text-secondary);" '
                         + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\')" '
                         + 'title="Expected for ' + escapeHtml(s.reason) + ' (' + escapeHtml(s.level) + ') — click to add">'
                         + '<span style="font-size:0.9em;">+</span> ' + escapeHtml(s.name)
@@ -28287,7 +28287,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 { name: 'Kendall Roy', show: 'Succession', role: 'Chief Executive Officer', company: 'Waystar Royco', match: 71, file: 'reports/demos/kendall-roy.html', emoji: bpIcon('briefcase',14), date: 'Feb 22, 2026' }
             ];
             
-            var scoreColor = function(s) { return s >= 70 ? 'var(--c-success, #30d158)' : s >= 50 ? 'var(--c-warning, #ff9f0a)' : 'var(--c-danger, #ff453a)'; };
+            var scoreColor = function(s) { return s >= 70 ? 'var(--c-success)' : s >= 50 ? 'var(--c-warning)' : 'var(--c-danger)'; };
             
             // ══════════════════════════════════════════════════════
             // DEMO / READ-ONLY: Show sample experience
@@ -28306,7 +28306,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var html = '<div class="blueprint-container">';
                 
                 // Sign-up CTA banner
-                html += '<div style="padding:16px 20px; background:rgba(96,165,250,0.12); border:1px solid rgba(96,165,250,0.25); border-radius:12px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
+                html += '<div style="padding:16px 20px; background:rgba(0,113,227,0.12); border:1px solid rgba(0,113,227,0.25); border-radius:12px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
                     + '<div>'
                     + '<div style="font-weight:700; font-size:0.95em; margin-bottom:2px;">Generate reports with your real career data</div>'
                     + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4;">Sign up free to build your profile, match to jobs, and create targeted scouting reports.</div>'
@@ -28316,22 +28316,22 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 
                 // Analytics (sample)
                 html += '<div style="position:relative;">'
-                    + '<div style="position:absolute; top:8px; right:12px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(255,159,10,0.15); color:var(--c-orange); border:1px solid rgba(255,159,10,0.3); font-weight:600;">SAMPLE DATA</div>'
+                    + '<div style="position:absolute; top:8px; right:12px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(196,93,0,0.15); color:var(--c-orange); border:1px solid rgba(196,93,0,0.3); font-weight:600;">SAMPLE DATA</div>'
                     + '<div class="rpt-metrics">'
                     + '<div class="rpt-metric-card"><div class="rpt-metric-n">' + mockAnalytics.totalViews.toLocaleString() + '</div><div class="rpt-metric-l">' + bpIcon('eye', 14) + ' Total Views</div><div class="rpt-metric-sub">' + mockAnalytics.uniqueViewers + ' unique viewers</div></div>'
-                    + '<div class="rpt-metric-card"><div class="rpt-metric-n" style="color:var(--c-success, #30d158);">' + mockAnalytics.shortlisted + '</div><div class="rpt-metric-l">' + bpIcon('star', 14) + ' Shortlisted</div><div class="rpt-metric-sub">by recruiters</div></div>'
+                    + '<div class="rpt-metric-card"><div class="rpt-metric-n" style="color:var(--c-success);">' + mockAnalytics.shortlisted + '</div><div class="rpt-metric-l">' + bpIcon('star', 14) + ' Shortlisted</div><div class="rpt-metric-sub">by recruiters</div></div>'
                     + '<div class="rpt-metric-card"><div class="rpt-metric-n" style="color:var(--accent);">' + mockAnalytics.notesReceived + '</div><div class="rpt-metric-l">' + bpIcon('message', 14) + ' Notes Received</div><div class="rpt-metric-sub">from hiring teams</div></div>'
                     + '<div class="rpt-metric-card"><div class="rpt-metric-n">' + mockAnalytics.avgTimeOnPage + '</div><div class="rpt-metric-l">' + bpIcon('clock', 14) + ' Avg. Time on Page</div><div class="rpt-metric-sub">across all reports</div></div>'
                     + '</div>';
                 
                 // Heatmap (sample)
                 html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
-                    + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(255,159,10,0.15); color:var(--c-orange); border:1px solid rgba(255,159,10,0.3); font-weight:600;">SAMPLE DATA</div>'
+                    + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(196,93,0,0.15); color:var(--c-orange); border:1px solid rgba(196,93,0,0.3); font-weight:600;">SAMPLE DATA</div>'
                     + '<div class="rpt-card-h">' + bpIcon('bar-chart', 16) + ' Section Engagement Heatmap</div>'
                     + '<div class="rpt-card-sub">Which sections recruiters spend the most time on</div>'
                     + '<div style="margin-top:16px;">';
                 mockAnalytics.sectionHeatmap.forEach(function(s) {
-                    var hue = s.pct > 80 ? 'var(--c-success, #30d158)' : s.pct > 60 ? 'var(--accent, #60a5fa)' : 'var(--text-muted, #636366)';
+                    var hue = s.pct > 80 ? 'var(--c-success)' : s.pct > 60 ? 'var(--accent)' : 'var(--text-muted)';
                     html += '<div class="rpt-heatmap-row"><div class="rpt-heatmap-label">' + s.name + '</div>'
                         + '<div class="rpt-heatmap-track"><div class="rpt-heatmap-fill" style="width:' + s.pct + '%; background:' + hue + ';"></div></div>'
                         + '<div class="rpt-heatmap-val">' + s.pct + '%</div></div>';
@@ -28397,17 +28397,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 pipelineJobs.forEach(function(r) {
                     var col = scoreColor(r.match);
                     html += '<div onclick="showReportFormatPicker(' + r.idx + ')" '
-                        + 'style="padding:10px 12px; background:var(--c-surface-5,rgba(255,255,255,0.03)); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; transition:all 0.15s; position:relative; overflow:hidden;" '
-                        + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.45)\';this.style.background=\'rgba(96,165,250,0.05)\'" '
-                        + 'onmouseout="this.style.borderColor=\'var(--c-border-subtle)\';this.style.background=\'var(--c-surface-5,rgba(255,255,255,0.03))\'">'
+                        + 'style="padding:10px 12px; background:var(--c-surface-5,rgba(0,0,0,0.02)); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; transition:all 0.15s; position:relative; overflow:hidden;" '
+                        + 'onmouseover="this.style.borderColor=\'rgba(0,113,227,0.45)\';this.style.background=\'rgba(0,113,227,0.05)\'" '
+                        + 'onmouseout="this.style.borderColor=\'var(--c-border-subtle)\';this.style.background=\'var(--c-surface-5,rgba(0,0,0,0.02))\'">'
                     html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">'
                         + '<div style="font-size:0.82em; font-weight:600; color:var(--c-text); line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">' + escapeHtml(r.title) + '</div>'
                         + '<div style="font-size:1.15em; font-weight:700; color:' + col + '; white-space:nowrap; margin-left:8px; flex-shrink:0; line-height:1;">' + r.match + '%</div>'
                     html += '</div>';
                     html += '<div style="font-size:0.71em; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px;">' + escapeHtml(r.company) + (r.date ? ' \u00B7 ' + r.date : '') + '</div>';
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
-                        + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(48,209,88,0.1); color:var(--success); border:1px solid rgba(48,209,88,0.2); font-weight:600;">' + r.matched + ' matched</span>'
-                        + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(255,69,58,0.08); color:#ff6961; border:1px solid rgba(255,69,58,0.18); font-weight:600;">' + r.gaps + ' gap' + (r.gaps !== 1 ? 's' : '') + '</span>'
+                        + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(36,138,61,0.1); color:var(--success); border:1px solid rgba(36,138,61,0.2); font-weight:600;">' + r.matched + ' matched</span>'
+                        + '<span style="font-size:0.68em; padding:1px 7px; border-radius:10px; background:rgba(215,0,21,0.08); color:#ff6961; border:1px solid rgba(215,0,21,0.18); font-weight:600;">' + r.gaps + ' gap' + (r.gaps !== 1 ? 's' : '') + '</span>'
                     html += '</div>';
                     html += '</div>';
                 });
@@ -28456,7 +28456,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<div class="rpt-card-h">' + bpIcon('target', 16) + ' Report Readiness</div>'
                 + '<div class="rpt-card-sub">Stronger profiles produce more compelling scouting reports. Fill gaps to maximize recruiter impact.</div>'
                 + '<div style="margin-top:14px; display:flex; align-items:center; gap:16px;">'
-                + '<div style="width:64px; height:64px; border-radius:50%; border:4px solid ' + (totalPct >= 80 ? 'var(--c-success, #30d158)' : totalPct >= 40 ? 'var(--accent)' : 'var(--text-muted)') + '; display:flex; align-items:center; justify-content:center; font-size:1.2em; font-weight:800; flex-shrink:0;">' + totalPct + '%</div>'
+                + '<div style="width:64px; height:64px; border-radius:50%; border:4px solid ' + (totalPct >= 80 ? 'var(--c-success)' : totalPct >= 40 ? 'var(--accent)' : 'var(--text-muted)') + '; display:flex; align-items:center; justify-content:center; font-size:1.2em; font-weight:800; flex-shrink:0;">' + totalPct + '%</div>'
                 + '<div style="flex:1;">';
             var readinessSections = [
                 { name: 'Skills (5+)', pct: completeness.skills, fix: 'blueprint' },
@@ -28467,11 +28467,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 { name: 'Credentials', pct: completeness.credentials, fix: 'blueprint' }
             ];
             readinessSections.forEach(function(s) {
-                var col = s.pct === 100 ? 'var(--c-success, #30d158)' : s.pct > 0 ? 'var(--c-warning, #ff9f0a)' : 'var(--text-muted)';
+                var col = s.pct === 100 ? 'var(--c-success)' : s.pct > 0 ? 'var(--c-warning)' : 'var(--text-muted)';
                 var icon = s.pct === 100 ? '✓' : s.pct > 0 ? '◐' : '—';
                 html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
                     + '<div style="font-size:0.82em; width:120px; color:' + (s.pct === 100 ? 'var(--text-primary)' : 'var(--text-muted)') + ';">' + s.name + '</div>'
-                    + '<div style="flex:1; height:4px; background:var(--c-surface-5, rgba(255,255,255,0.06)); border-radius:6px; overflow:hidden;">'
+                    + '<div style="flex:1; height:4px; background:var(--c-surface-5, rgba(0,0,0,0.05)); border-radius:6px; overflow:hidden;">'
                     + '<div style="height:100%; width:' + s.pct + '%; background:' + col + '; border-radius:6px;"></div></div>'
                     + '<div style="font-size:0.72em; color:' + col + '; min-width:28px; text-align:right;">' + icon + '</div></div>';
             });
@@ -28704,14 +28704,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // Detect light vs dark mode to style palette correctly
                 var isLight = false;
                 var palBg = isLight ? '#ffffff' : '#1a1f2e';
-                var palBorder = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(96,165,250,0.25)';
+                var palBorder = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(0,113,227,0.25)';
                 var palText = isLight ? '#0a0a0f' : '#d1d1d6';
                 var palMuted = isLight ? '#636366' : '#a1a1a6';
                 var palFaint = isLight ? '#a1a1a6' : '#636366';
                 var palDivider = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.07)';
-                var palHover = isLight ? 'rgba(96,165,250,0.12)' : 'rgba(96,165,250,0.1)';
-                var palKbdBg = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
-                var palKbdBorder = isLight ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.1)';
+                var palHover = isLight ? 'rgba(0,113,227,0.12)' : 'rgba(0,113,227,0.1)';
+                var palKbdBg = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.06)';
+                var palKbdBorder = isLight ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.07)';
                 var palShadow = isLight ? '0 8px 40px rgba(0,0,0,0.18)' : '0 24px 64px rgba(0,0,0,0.6)';
                 var palOverlay = isLight ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.55)';
                 style.textContent = [
@@ -28827,7 +28827,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var header = document.createElement('div');
             header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
-            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">' + escapeHtml(name || 'Scouting Report') + '</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(255,159,10,0.1);color:var(--c-orange);font-weight:600;">DEMO</span></div>'
+            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">' + escapeHtml(name || 'Scouting Report') + '</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(196,93,0,0.1);color:var(--c-orange);font-weight:600;">DEMO</span></div>'
                 + '<button onclick="document.getElementById(\'scoutReportOverlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">✕</button>';
             
             // Context banner for mismatched or generic demo viewing
@@ -28837,18 +28837,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var showMismatch = isMismatch || (currentProfileName && reportCharName && currentProfileName !== reportCharName);
             
             if (showMismatch) {
-                contextBanner.style.cssText = 'padding:10px 20px;background:rgba(255,159,10,0.06);border-bottom:1px solid rgba(255,159,10,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
+                contextBanner.style.cssText = 'padding:10px 20px;background:rgba(196,93,0,0.06);border-bottom:1px solid rgba(196,93,0,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
                 contextBanner.innerHTML = '<div style="font-size:0.8em;color:#d4a017;line-height:1.5;">'
                     + '<strong>Sample Report:</strong> You\u2019re viewing ' + reportCharName + '\u2019s scouting report. '
                     + 'During the preview, sample reports are available for select characters. When you build your own Blueprint, reports are generated from your actual skills and job matches.'
                     + '</div>'
-                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(255,159,10,0.2);background:rgba(255,159,10,0.08);color:var(--warning);font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
+                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(196,93,0,0.2);background:rgba(196,93,0,0.08);color:var(--warning);font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
             } else {
-                contextBanner.style.cssText = 'padding:10px 20px;background:rgba(96,165,250,0.05);border-bottom:1px solid rgba(96,165,250,0.12);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
+                contextBanner.style.cssText = 'padding:10px 20px;background:rgba(0,113,227,0.05);border-bottom:1px solid rgba(0,113,227,0.12);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
                 contextBanner.innerHTML = '<div style="font-size:0.8em;color:var(--text-muted);line-height:1.5;">'
                     + 'This is a sample Scouting Report showing how Blueprint builds targeted career intelligence for a specific job. When you build your own Blueprint, these are generated from your actual data.'
                     + '</div>'
-                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(96,165,250,0.2);background:rgba(96,165,250,0.06);color:var(--accent);font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
+                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(0,113,227,0.2);background:rgba(0,113,227,0.06);color:var(--accent);font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
             }
             
             var iframe = document.createElement('iframe');
@@ -29448,9 +29448,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         window._hideRoleTarget = roleName;
                         riActions.innerHTML = '<button onclick="hideRoleFromNetwork(window._hideRoleTarget)" '
                             + 'style="padding:5px 12px; border-radius:6px; font-size:0.78em; font-weight:600; cursor:pointer; '
-                            + 'background:rgba(255,159,10,0.1); color:var(--c-orange); border:1px solid rgba(255,159,10,0.2); '
+                            + 'background:rgba(196,93,0,0.1); color:var(--c-orange); border:1px solid rgba(196,93,0,0.2); '
                             + 'display:flex; align-items:center; gap:4px; transition:all 0.15s;"'
-                            + ' onmouseover="this.style.background=\'rgba(255,159,10,0.2)\'" onmouseout="this.style.background=\'rgba(255,159,10,0.1)\'">'
+                            + ' onmouseover="this.style.background=\'rgba(196,93,0,0.2)\'" onmouseout="this.style.background=\'rgba(196,93,0,0.1)\'">'
                             + bpIcon('eye',12) + ' Hide Role</button>';
                     } else if (riActions) {
                         riActions.style.display = 'none';
@@ -29549,7 +29549,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var stateLabels = { aligned: '\u2705 Shared value', yours: '● Your priority', theirs: '◆ Their priority', tension: '\u26A0 Friction risk' };
                 var stateColors = { aligned: '#30d158', yours: '#ff9f0a', theirs: '#bf5af2', tension: '#ff453a' };
                 if (d.valState) {
-                    html += `<div style="font-size:0.78em; color:${stateColors[d.valState] || '#a1a1a6'}; margin-top:5px; font-weight:600;">${stateLabels[d.valState] || ''}</div>`;
+                    html += `<div style="font-size:0.78em; color:${stateColors[d.valState] || 'var(--text-secondary)'}; margin-top:5px; font-weight:600;">${stateLabels[d.valState] || ''}</div>`;
                 }
                 if (d.tier) html += `<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">${d.tier === 'primary' ? 'Core company value' : 'Secondary value'}</div>`;
             } else if (d.type === 'role') {
@@ -29581,7 +29581,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     });
                     html += `</div>`;
                 }
-                html += `<div style="font-size:0.72em; color:var(--text-muted); margin-top:6px; border-top:1px solid rgba(255,255,255,0.08); padding-top:5px;">Click for full detail</div>`;
+                html += `<div style="font-size:0.72em; color:var(--text-muted); margin-top:6px; border-top:1px solid rgba(0,0,0,0.06); padding-top:5px;">Click for full detail</div>`;
             }
 
             tooltip
@@ -29871,9 +29871,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var subtitleInferred = '';
             var _evSumSub = getEvidenceSummary(skillData);
             if (_evSumSub.inferredActive) {
-                subtitleInferred = '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(191,90,242,0.15); color:var(--c-purple); font-weight:600;">\u2728 Inferred ' + _evSumSub.inferredLevel + '</span>';
+                subtitleInferred = '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(155,89,182,0.15); color:var(--c-purple); font-weight:600;">\u2728 Inferred ' + _evSumSub.inferredLevel + '</span>';
             }
-            var subtitleVerified = (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; var vrel = conf[0].relationship || 'Peer'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(48,209,88,0.15); color:var(--success); font-weight:600;">\u2713 Verified</span>'; } return ''; })();
+            var subtitleVerified = (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; var vrel = conf[0].relationship || 'Peer'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(36,138,61,0.15); color:var(--success); font-weight:600;">\u2713 Verified</span>'; } return ''; })();
             subtitle.innerHTML = `
                 <span class="modal-level-badge ${levelClass}">${skillData.level || 'Proficient'}</span>
                 <span class="modal-years">${years} years experience</span>
@@ -29917,11 +29917,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var maxPts = evidenceConfig.thresholds['Mastery'];
             var pctFill = Math.min((evSummary.points / maxPts) * 100, 100);
             bodyHTML += '<div style="' + vRowStyle + '">'
-                + '<div style="' + vIconBox + ' background:rgba(96,165,250,0.15); color:var(--accent);">' + bpIcon('check',16) + '</div>'
+                + '<div style="' + vIconBox + ' background:rgba(0,113,227,0.15); color:var(--accent);">' + bpIcon('check',16) + '</div>'
                 + '<div style="flex:1; min-width:0;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                 + '<span style="' + vLabelStyle + ' color:var(--accent);">Evidence-Based</span>'
-                + '<span style="' + vLevelStyle + ' color:' + (evActive ? '#60a5fa' : 'var(--c-muted)') + ';">' + evLevel + '</span></div>'
+                + '<span style="' + vLevelStyle + ' color:' + (evActive ? 'var(--accent)' : 'var(--c-muted)') + ';">' + evLevel + '</span></div>'
                 + '<div style="' + vDescStyle + '">' + evSummary.points + ' evidence points from ' + evSummary.evidenceCount + ' outcome' + (evSummary.evidenceCount !== 1 ? 's' : '') + '</div>'
                 + '<div style="height:4px; background:var(--c-surface-5); border-radius:6px; margin-top:4px; overflow:hidden;">'
                 + '<div style="height:100%; width:' + pctFill + '%; background:var(--accent); border-radius:6px;"></div></div>';
@@ -29937,8 +29937,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var eiYears = evSummary.experienceYears || 0;
             var eiLevel = evSummary.inferredLevel;
             var eiActive = evSummary.inferredActive;
-            bodyHTML += '<div style="' + vRowStyle + (eiActive ? ' border-color:rgba(191,90,242,0.3);' : '') + '">'
-                + '<div style="' + vIconBox + ' background:rgba(191,90,242,0.15); color:var(--c-purple);">' + bpIcon('clock',16) + '</div>'
+            bodyHTML += '<div style="' + vRowStyle + (eiActive ? ' border-color:rgba(155,89,182,0.3);' : '') + '">'
+                + '<div style="' + vIconBox + ' background:rgba(155,89,182,0.15); color:var(--c-purple);">' + bpIcon('clock',16) + '</div>'
                 + '<div style="flex:1; min-width:0;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                 + '<span style="' + vLabelStyle + ' color:var(--c-purple);">Experience-Inferred</span>';
@@ -29962,8 +29962,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var vRecs = (userData.verifications || []).filter(function(v) { return v.skillName === skillName && v.status === 'confirmed'; });
             var pRecs = (userData.verifications || []).filter(function(v) { return v.skillName === skillName && v.status === 'pending'; });
             var pvActive = vRecs.length > 0;
-            bodyHTML += '<div style="' + vRowStyle + (pvActive ? ' border-color:rgba(48,209,88,0.3);' : '') + '">'
-                + '<div style="' + vIconBox + ' background:rgba(48,209,88,0.15); color:var(--success);">' + bpIcon('shield',16) + '</div>'
+            bodyHTML += '<div style="' + vRowStyle + (pvActive ? ' border-color:rgba(36,138,61,0.3);' : '') + '">'
+                + '<div style="' + vIconBox + ' background:rgba(36,138,61,0.15); color:var(--success);">' + bpIcon('shield',16) + '</div>'
                 + '<div style="flex:1; min-width:0;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                 + '<span style="' + vLabelStyle + ' color:var(--success);">Peer-Verified</span>';
@@ -29981,7 +29981,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         var sugVal = proficiencyValue(vr.confirmedLevel);
                         var claimedVal = proficiencyValue(evSummary.claimedLevel);
                         var sugIcon = sugVal > claimedVal ? '\u2191' : '\u2193';
-                        bodyHTML += ' <span style="color:' + (sugVal > claimedVal ? '#30d158' : '#ff9f0a') + ';">' + sugIcon + ' suggests ' + escapeHtml(vr.confirmedLevel) + '</span>';
+                        bodyHTML += ' <span style="color:' + (sugVal > claimedVal ? 'var(--success)' : 'var(--c-orange)') + ';">' + sugIcon + ' suggests ' + escapeHtml(vr.confirmedLevel) + '</span>';
                     }
                 });
             } else if (pRecs.length > 0) {
@@ -30079,7 +30079,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const impactColor = getImpactColor(skillImpact.level);
             
             bodyHTML += `
-                <div class="modal-section" style="background: rgba(${impactColor === '#30d158' ? '16, 185, 129' : impactColor === '#ff9f0a' ? '251, 146, 60' : impactColor === '#bf5af2' ? '167, 139, 250' : impactColor === '#60a5fa' ? '96, 165, 250' : '148, 163, 184'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
+                <div class="modal-section" style="background: rgba(${impactColor === 'var(--success)' ? '16, 185, 129' : impactColor === 'var(--c-orange)' ? '251, 146, 60' : impactColor === 'var(--c-purple)' ? '167, 139, 250' : impactColor === 'var(--accent)' ? '96, 165, 250' : '148, 163, 184'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
                     <div class="modal-section-title">
                         <span class="modal-section-icon">${bpIcon("bar-chart",18)}</span>
                         Market Impact
@@ -30112,7 +30112,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                                 <div style="color:var(--c-label); font-size: 0.85em;">
                                     Based on your assessment of this skill's experience, impact, and market scarcity.
                                     ${!isReadOnlyProfile ? `<button onclick="closeSkillModal(); openAssessSkillModal('${escapeHtml(skillData.name).replace(/'/g, "\\'")}');" 
-                                            style="margin-left: 10px; padding: 4px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius:6px; cursor: pointer; font-size: 0.85em;">
+                                            style="margin-left: 10px; padding: 4px 12px; background: rgba(0,0,0,0.07); border: 1px solid rgba(0,0,0,0.12); border-radius:6px; cursor: pointer; font-size: 0.85em;">
                                         Edit Assessment
                                     </button>` : ''}
                                 </div>
@@ -30179,13 +30179,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + 'style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                 + `${bpIcon('edit',14)} Edit Skill</button>`
                 + '<button onclick="closeSkillModal(); openAssessSkillModal(\'' + escapedSkillName + '\');" '
-                + 'style="padding:10px 20px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + 'style="padding:10px 20px; background:rgba(0,113,227,0.15); color:var(--accent); border:1px solid rgba(0,113,227,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('clipboard',14)} Assess</button>`
                 + '<button onclick="closeSkillModal(); requestVerification([\'' + escapedSkillName + '\']);" '
-                + 'style="padding:10px 20px; background:rgba(48,209,88,0.12); color:var(--success); border:1px solid rgba(48,209,88,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + 'style="padding:10px 20px; background:rgba(36,138,61,0.12); color:var(--success); border:1px solid rgba(36,138,61,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('check',14)} Verify</button>`
                 + '<button onclick="if(confirm(\'Remove ' + escapedSkillName + ' from your profile?\')){deleteSkillFromProfile(\'' + escapedSkillName + '\'); closeSkillModal();}" '
-                + 'style="margin-left:auto; padding:10px 16px; background:none; color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + 'style="margin-left:auto; padding:10px 16px; background:none; color:var(--danger); border:1px solid rgba(215,0,21,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('trash',14)} Remove</button>`
                 + '</div>';
             } // end !isReadOnlyProfile
@@ -31859,7 +31859,7 @@ body {
             var skillCount = skills.length;
             var driveStatement = ed.driveStatement || '';
 
-            var card = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:24px;';
+            var card = 'background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:24px;';
             var ls = 'font-size:0.7em; font-weight:600; text-transform:uppercase; letter-spacing:0.1em;';
             var canEdit = !isReadOnlyProfile;
 
@@ -31885,10 +31885,10 @@ body {
                 if (canEdit) html += '<button onclick="explorerDashEditDrive()" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.72em; margin-top:10px; opacity:0.6;">' + bpIcon('edit',12) + ' edit</button>';
             } else if (canEdit) {
                 html += '<div style="font-size:0.92em; color:var(--text-muted); max-width:420px; margin:12px auto 0; line-height:1.6;">What kind of work excites you? What problems do you want to solve?</div>';
-                html += '<button onclick="explorerDashEditDrive()" style="padding:10px 24px; background:rgba(96,165,250,0.08); color:var(--accent); border:1px solid rgba(96,165,250,0.15); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em; margin-top:12px;">Add your motivation</button>';
+                html += '<button onclick="explorerDashEditDrive()" style="padding:10px 24px; background:rgba(0,113,227,0.08); color:var(--accent); border:1px solid rgba(0,113,227,0.15); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.82em; margin-top:12px;">Add your motivation</button>';
             }
             if (entryVal > 0) {
-                html += '<div style="display:flex; align-items:center; justify-content:center; gap:0; margin-top:28px; padding-top:24px; border-top:1px solid rgba(255,255,255,0.06);">';
+                html += '<div style="display:flex; align-items:center; justify-content:center; gap:0; margin-top:28px; padding-top:24px; border-top:1px solid rgba(0,0,0,0.05);">';
                 html += '<div style="text-align:center; padding:0 20px;">'
                     + '<div style="font-size:1.4em; font-weight:700; color:var(--success);">' + _expFmt(entryVal) + '</div>'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;">Entry</div></div>';
@@ -31906,7 +31906,7 @@ body {
 
             // ZONE 2: YOUR DIRECTION
             if (careerPaths.length === 0 && canEdit) {
-                html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(191,90,242,0.2); background:rgba(255,255,255,0.02);">'
+                html += '<div style="' + card + ' text-align:center; padding:40px 24px; margin-bottom:28px; border-color:rgba(155,89,182,0.2); background:rgba(0,0,0,0.02);">'
                     + '<div style="margin-bottom:16px; opacity:0.3;">' + bpIcon('compass',48) + '</div>'
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); font-size:1.15em; margin-bottom:8px;">Discover Your Career Paths</div>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); max-width:400px; margin:0 auto 20px; line-height:1.6;">AI will analyze your skills, education, and interests to suggest career directions with salary data and growth roadmaps.</div>'
@@ -31922,8 +31922,8 @@ body {
                     var isSel = idx === selectedIdx;
                     var pEntry = path.entryValue || 0;
                     var pSenior = path.seniorValue || 0;
-                    html += '<div style="padding:14px; border:' + (isSel ? '2px solid var(--c-purple)' : '1px solid rgba(255,255,255,0.06)') + '; border-radius:12px; cursor:pointer; background:' + (isSel ? 'rgba(191,90,242,0.06)' : 'transparent') + '; transition:all 0.2s;" onclick="explorerDashSelectPath(' + idx + ')">'
-                        + '<div style="font-weight:700; color:' + (isSel ? '#bf5af2' : 'var(--text-primary)') + '; font-size:0.88em; margin-bottom:4px;">' + escapeHtml(path.title) + '</div>'
+                    html += '<div style="padding:14px; border:' + (isSel ? '2px solid var(--c-purple)' : '1px solid rgba(0,0,0,0.05)') + '; border-radius:12px; cursor:pointer; background:' + (isSel ? 'rgba(155,89,182,0.06)' : 'transparent') + '; transition:all 0.2s;" onclick="explorerDashSelectPath(' + idx + ')">'
+                        + '<div style="font-weight:700; color:' + (isSel ? 'var(--c-purple)' : 'var(--text-primary)') + '; font-size:0.88em; margin-bottom:4px;">' + escapeHtml(path.title) + '</div>'
                         + (pEntry > 0 ? '<div style="font-size:0.76em; color:var(--success); font-weight:600;">' + _expFmt(pEntry) + ' \u2192 ' + _expFmt(pSenior) + '</div>' : '')
                         + (path.growth ? '<div style="font-size:0.7em; color:var(--text-muted); margin-top:3px; line-height:1.3;">' + escapeHtml(path.growth) + '</div>' : '')
                         + '</div>';
@@ -31932,11 +31932,11 @@ body {
             }
 
             if (selectedPath) {
-                html += '<div style="' + card + ' margin-bottom:28px; border-color:rgba(191,90,242,0.2); position:relative;">';
-                html += '<div style="position:absolute; top:0; left:0; right:0; height:2px; background:rgba(96,165,250,0.2); border-radius:12px 12px 0 0;"></div>';
+                html += '<div style="' + card + ' margin-bottom:28px; border-color:rgba(155,89,182,0.2); position:relative;">';
+                html += '<div style="position:absolute; top:0; left:0; right:0; height:2px; background:rgba(0,113,227,0.2); border-radius:12px 12px 0 0;"></div>';
                 html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; padding-top:4px;">'
                     + '<div style="' + ls + ' color:var(--c-purple);">Focused Path</div>'
-                    + (selectedPath.salary ? '<div style="font-size:0.82em; font-weight:700; color:var(--success); background:rgba(48,209,88,0.08); padding:3px 10px; border-radius:8px;">' + escapeHtml(selectedPath.salary) + '</div>' : '')
+                    + (selectedPath.salary ? '<div style="font-size:0.82em; font-weight:700; color:var(--success); background:rgba(36,138,61,0.08); padding:3px 10px; border-radius:8px;">' + escapeHtml(selectedPath.salary) + '</div>' : '')
                     + '</div>';
                 html += '<div style="font-weight:800; font-size:1.15em; color:var(--text-primary); margin-bottom:8px; letter-spacing:-0.01em;">' + escapeHtml(selectedPath.title) + '</div>';
                 html += '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.7; margin-bottom:16px;">' + escapeHtml(selectedPath.whyFit || '') + '</div>';
@@ -31946,7 +31946,7 @@ body {
                     html += '<div style="' + ls + ' color:var(--success); margin-bottom:8px;">Skills You Already Have</div>'
                         + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px;">';
                     skillsHave.forEach(function(sk) {
-                        html += '<span style="display:inline-block; background:rgba(48,209,88,0.08); color:var(--success); font-size:0.78em; font-weight:600; padding:5px 12px; border-radius:8px; border:1px solid rgba(48,209,88,0.15);">' + escapeHtml(sk) + '</span>';
+                        html += '<span style="display:inline-block; background:rgba(36,138,61,0.08); color:var(--success); font-size:0.78em; font-weight:600; padding:5px 12px; border-radius:8px; border:1px solid rgba(36,138,61,0.15);">' + escapeHtml(sk) + '</span>';
                     });
                     html += '</div>';
                 }
@@ -31956,7 +31956,7 @@ body {
                     var maxVal = potentialVal || (entryVal + totalSkillValue) || 1;
                     html += '<div style="' + ls + ' color:var(--c-orange); margin-bottom:14px;">Your Growth Path</div>';
                     html += '<div style="position:relative; margin-bottom:24px;">';
-                    html += '<div style="display:flex; align-items:center; height:44px; border-radius:12px; overflow:hidden; background:var(--bg-elevated); border:1px solid rgba(255,255,255,0.06);">';
+                    html += '<div style="display:flex; align-items:center; height:44px; border-radius:12px; overflow:hidden; background:var(--bg-elevated); border:1px solid rgba(0,0,0,0.05);">';
                     var basePct = Math.max(((entryVal / maxVal) * 100), 15);
                     html += '<div style="width:' + basePct + '%; height:100%; background:var(--success); display:flex; align-items:center; justify-content:center;">'
                         + '<span style="font-size:0.72em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3);">You Now</span></div>';
@@ -31966,7 +31966,7 @@ body {
                         var skPct = Math.max(((skVal / maxVal) * 100), 5);
                         if (runningPct + skPct > 100) skPct = 100 - runningPct;
                         var bc = barColors[si % barColors.length];
-                        html += '<div style="width:' + skPct + '%; height:100%; background:' + bc + '; display:flex; align-items:center; justify-content:center; border-left:2px solid rgba(255,255,255,0.3);">'
+                        html += '<div style="width:' + skPct + '%; height:100%; background:' + bc + '; display:flex; align-items:center; justify-content:center; border-left:2px solid rgba(0,0,0,0.18);">'
                             + '<span style="font-size:0.62em; font-weight:700; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,0.3); overflow:hidden; text-overflow:ellipsis; padding:0 2px;">+' + _expFmt(skVal) + '</span></div>';
                         runningPct += skPct;
                     });
@@ -31979,8 +31979,8 @@ body {
                     html += '<div style="position:relative; padding-left:28px;">';
                     skillsToLearn.forEach(function(sk, si) {
                         var bc = barColors[si % barColors.length];
-                        html += '<div style="position:relative; padding:10px 0 14px 0;' + (si < skillsToLearn.length - 1 ? ' border-left:2px solid rgba(255,255,255,0.06); margin-left:-14px; padding-left:26px;' : ' margin-left:-14px; padding-left:26px;') + '">'
-                            + '<div style="position:absolute; left:-21px; top:12px; width:14px; height:14px; border-radius:50%; background:' + bc + '; border:3px solid rgba(255,255,255,0.02);"></div>'
+                        html += '<div style="position:relative; padding:10px 0 14px 0;' + (si < skillsToLearn.length - 1 ? ' border-left:2px solid rgba(0,0,0,0.05); margin-left:-14px; padding-left:26px;' : ' margin-left:-14px; padding-left:26px;') + '">'
+                            + '<div style="position:absolute; left:-21px; top:12px; width:14px; height:14px; border-radius:50%; background:' + bc + '; border:3px solid rgba(0,0,0,0.02);"></div>'
                             + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:4px;">'
                             + '<div style="font-weight:700; color:var(--text-primary); font-size:0.88em;">' + escapeHtml(sk.name) + '</div>'
                             + '<div style="font-weight:700; color:' + bc + '; font-size:0.82em;">+' + _expFmt(sk.valueAdd || 0) + '/yr</div></div>'
@@ -32001,12 +32001,12 @@ body {
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="' + ls + ' color:var(--c-orange);">' + bpIcon('graduation',14) + ' Education</div>'
-                + (canEdit ? '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(255,159,10,0.2); background:rgba(255,159,10,0.04); color:var(--c-orange); cursor:pointer; font-weight:600;">+ Add</button>' : '')
+                + (canEdit ? '<button onclick="explorerDashAddSchool()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(196,93,0,0.2); background:rgba(196,93,0,0.04); color:var(--c-orange); cursor:pointer; font-weight:600;">+ Add</button>' : '')
                 + '</div>';
             if (allSchools.length > 0) {
                 allSchools.forEach(function(s, i) {
                     var typeEmoji = bpIcon(s.schoolType === 'highschool' ? 'home' : s.schoolType === 'trade' ? 'tool' : s.schoolType === 'community' ? 'book' : s.schoolType === 'bootcamp' ? 'skills' : 'graduation', 14);
-                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid rgba(255,255,255,0.06);' : '') + '">'
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0;' + (i > 0 ? ' border-top:1px solid rgba(0,0,0,0.05);' : '') + '">'
                         + '<div>'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">' + typeEmoji + ' ' + escapeHtml(s.school || '') + '</div>'
                         + '<div style="font-size:0.78em; color:var(--text-secondary);">'
@@ -32029,14 +32029,14 @@ body {
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="' + ls + ' color:var(--c-purple);">' + bpIcon('activity',14) + ' Activities</div>'
-                + (canEdit ? '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(191,90,242,0.2); background:rgba(191,90,242,0.04); color:var(--c-purple); cursor:pointer; font-weight:600;">+ Add</button>' : '')
+                + (canEdit ? '<button onclick="explorerDashAddActivity()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(155,89,182,0.2); background:rgba(155,89,182,0.04); color:var(--c-purple); cursor:pointer; font-weight:600;">+ Add</button>' : '')
                 + '</div>';
             if (activities.length === 0) {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No activities added yet.</div>';
             } else {
                 activities.forEach(function(a, i) {
                     var catObj = _explorerActCategories.find(function(c) { return c.id === a.category; }) || { label: a.category, icon: bpIcon('compass',14) };
-                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:7px 0;' + (i > 0 ? ' border-top:1px solid rgba(255,255,255,0.06);' : '') + '">'
+                    html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; padding:7px 0;' + (i > 0 ? ' border-top:1px solid rgba(0,0,0,0.05);' : '') + '">'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">' + catObj.icon + ' ' + escapeHtml(catObj.label) + (a.role ? ' \u2014 ' + escapeHtml(a.role) : '') + '</div>';
                     html += (a.description ? '<div style="font-size:0.75em; color:var(--text-secondary); margin-top:3px; line-height:1.4;">' + escapeHtml(a.description) + '</div>' : '')
@@ -32056,7 +32056,7 @@ body {
             html += '<div style="' + card + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
                 + '<div style="' + ls + ' color:var(--accent);">' + bpIcon('compass',14) + ' Interests</div>'
-                + (canEdit ? '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(96,165,250,0.2); background:rgba(96,165,250,0.04); color:var(--accent); cursor:pointer; font-weight:600;">' + bpIcon('edit',12) + ' Edit</button>' : '')
+                + (canEdit ? '<button onclick="explorerDashEditInterests()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(0,113,227,0.2); background:rgba(0,113,227,0.04); color:var(--accent); cursor:pointer; font-weight:600;">' + bpIcon('edit',12) + ' Edit</button>' : '')
                 + '</div>';
             if (interests.length === 0) {
                 html += '<div style="font-size:0.82em; color:var(--text-muted); text-align:center; padding:8px 0;">No interests added yet.</div>';
@@ -32104,7 +32104,7 @@ body {
         }
 
         function _renderCompensationTrajectory(careerPaths, selectedIdx) {
-            var cs = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:22px; margin-bottom:16px;';
+            var cs = 'background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
             var pathColors = ['#bf5af2', '#60a5fa', '#30d158', '#ff9f0a', '#ff453a'];
             var maxVal = 0;
@@ -32124,7 +32124,7 @@ body {
             for (var g = 0; g <= gridSteps; g++) {
                 var gy = padT + (chartH * g / gridSteps);
                 var gVal = maxVal - (maxVal * g / gridSteps);
-                gridLines += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="rgba(255,255,255,0.06)" stroke-width="0.5" stroke-dasharray="4,4" />';
+                gridLines += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (svgW - padR) + '" y2="' + gy + '" stroke="rgba(0,0,0,0.05)" stroke-width="0.5" stroke-dasharray="4,4" />';
                 gridLines += '<text x="' + (padL - 10) + '" y="' + (gy + 5) + '" text-anchor="end" fill="var(--text-muted)" font-size="12" font-family="Outfit,sans-serif">$' + Math.round(gVal / 1000) + 'k</text>';
             }
             stages.forEach(function(label, si) {
@@ -32157,13 +32157,13 @@ body {
 
                 [[x0,y0,ev],[x1,y1,mv],[x2,y2,sv]].forEach(function(pt) {
                     var dotR = isSel ? 7 : 4;
-                    dotsSvg += '<circle cx="' + pt[0] + '" cy="' + pt[1] + '" r="' + dotR + '" fill="' + c + '" stroke="rgba(255,255,255,0.02)" stroke-width="' + (isSel ? '3' : '2') + '" opacity="' + opacity + '" />';
+                    dotsSvg += '<circle cx="' + pt[0] + '" cy="' + pt[1] + '" r="' + dotR + '" fill="' + c + '" stroke="rgba(0,0,0,0.02)" stroke-width="' + (isSel ? '3' : '2') + '" opacity="' + opacity + '" />';
                     if (isSel) {
                         dotsSvg += '<text x="' + pt[0] + '" y="' + (pt[1] - 14) + '" text-anchor="middle" fill="' + c + '" font-size="13" font-weight="700" font-family="Outfit,sans-serif">$' + Math.round(pt[2] / 1000) + 'k</text>';
                     }
                 });
 
-                legendHtml += '<div onclick="explorerDashSelectPath(' + pi + ')" style="display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:8px; cursor:pointer; font-size:0.82em; border:1px solid ' + (isSel ? c : 'rgba(255,255,255,0.06)') + '; background:' + (isSel ? c + '12' : 'transparent') + '; color:' + (isSel ? c : 'var(--text-muted)') + '; font-weight:' + (isSel ? '700' : '500') + '; transition:all 0.15s;">'
+                legendHtml += '<div onclick="explorerDashSelectPath(' + pi + ')" style="display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:8px; cursor:pointer; font-size:0.82em; border:1px solid ' + (isSel ? c : 'rgba(0,0,0,0.05)') + '; background:' + (isSel ? c + '12' : 'transparent') + '; color:' + (isSel ? c : 'var(--text-muted)') + '; font-weight:' + (isSel ? '700' : '500') + '; transition:all 0.15s;">'
                     + '<span style="width:12px; height:4px; background:' + c + '; border-radius:6px; flex-shrink:0;"></span>'
                     + escapeHtml(p.title) + '</div>';
             });
@@ -32179,7 +32179,7 @@ body {
         }
 
         function _renderSkillAdjacencyMap(interests, skills, careerPaths, selectedPath) {
-            var cs = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:22px; margin-bottom:16px;';
+            var cs = 'background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
             var normalized = _normalizeInterests(interests);
 
@@ -32241,11 +32241,11 @@ body {
             var result = '<div style="' + cs + '">'
                 + '<div style="' + ls + ' color:var(--c-purple);">Skill Adjacency Map</div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:6px;">How your interests connect to skills and career paths</div>'
-                + '<div id="' + containerId + '" style="width:100%; height:520px; position:relative; overflow:hidden; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:var(--bg-elevated);"></div>'
+                + '<div id="' + containerId + '" style="width:100%; height:520px; position:relative; overflow:hidden; border-radius:10px; border:1px solid rgba(0,0,0,0.05); background:var(--bg-elevated);"></div>'
                 + '<div style="display:flex; gap:16px; margin-top:12px; justify-content:center; flex-wrap:wrap;">'
-                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--c-purple); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#bf5af220; border:2px solid var(--c-purple); display:inline-block;"></span> Interests</span>'
-                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--accent); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#60a5fa20; border:2px solid var(--accent); display:inline-block;"></span> Skills</span>'
-                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--success); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#30d15820; border:2px solid var(--success); display:inline-block;"></span> Careers</span>'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--c-purple); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#9b59b620; border:2px solid var(--c-purple); display:inline-block;"></span> Interests</span>'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--accent); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#0071e320; border:2px solid var(--accent); display:inline-block;"></span> Skills</span>'
+                + '<span style="font-size:0.82em; display:flex; align-items:center; gap:6px; color:var(--success); font-weight:600;"><span style="width:14px; height:14px; border-radius:50%; background:#248a3d20; border:2px solid var(--success); display:inline-block;"></span> Careers</span>'
                 + '</div></div>';
             var _adjCid = containerId, _adjN = nodes, _adjE = edges;
             setTimeout(function() { _initAdjacencyForce(_adjCid, _adjN, _adjE); }, 100);
@@ -32286,16 +32286,16 @@ body {
             var edgeEls = validEdges.map(function(e) {
                 var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 var isCareer = e.to.indexOf('cp_') === 0 || e.from.indexOf('cp_') === 0;
-                line.setAttribute('stroke', isCareer ? 'rgba(48,209,88,0.3)' : 'rgba(191,90,242,0.25)');
+                line.setAttribute('stroke', isCareer ? 'rgba(36,138,61,0.3)' : 'rgba(155,89,182,0.25)');
                 line.setAttribute('stroke-width', isCareer ? '1.5' : '1');
                 edgeGroup.appendChild(line);
                 return { el: line, from: e.from, to: e.to };
             });
 
             var typeConfig = {
-                interest: { r: 28, fontSize: 11, color: '#bf5af2' },
-                skill: { r: 22, fontSize: 10, color: '#60a5fa' },
-                career: { r: 36, fontSize: 11, color: '#30d158' }
+                interest: { r: 28, fontSize: 11, color: 'var(--c-purple)' },
+                skill: { r: 22, fontSize: 10, color: 'var(--accent)' },
+                career: { r: 36, fontSize: 11, color: 'var(--success)' }
             };
 
             var nodeEls = nodes.map(function(n) {
@@ -32369,7 +32369,7 @@ body {
                     edgeEls.forEach(function(ee) {
                         if (ee.from === n.id || ee.to === n.id) {
                             ee.el.setAttribute('stroke-width', '3');
-                            ee.el.setAttribute('stroke', ee.to.indexOf('cp_') === 0 || ee.from.indexOf('cp_') === 0 ? 'rgba(48,209,88,0.7)' : 'rgba(191,90,242,0.6)');
+                            ee.el.setAttribute('stroke', ee.to.indexOf('cp_') === 0 || ee.from.indexOf('cp_') === 0 ? 'rgba(36,138,61,0.7)' : 'rgba(155,89,182,0.6)');
                         }
                     });
                 });
@@ -32380,7 +32380,7 @@ body {
                         if (ee.from === n.id || ee.to === n.id) {
                             var isC = ee.to.indexOf('cp_') === 0 || ee.from.indexOf('cp_') === 0;
                             ee.el.setAttribute('stroke-width', isC ? '1.5' : '1');
-                            ee.el.setAttribute('stroke', isC ? 'rgba(48,209,88,0.3)' : 'rgba(191,90,242,0.25)');
+                            ee.el.setAttribute('stroke', isC ? 'rgba(36,138,61,0.3)' : 'rgba(155,89,182,0.25)');
                         }
                     });
                 });
@@ -32452,22 +32452,22 @@ body {
         window._initAdjacencyForce = _initAdjacencyForce;
 
         var _explorerWorkValues = [
-            { id: 'autonomy', name: 'Autonomy', icon: bpIcon('compass',16), color: '#bf5af2', desc: 'Freedom to make your own decisions and work independently' },
-            { id: 'impact', name: 'Impact', icon: bpIcon('target',16), color: '#30d158', desc: 'Making a meaningful difference in people\'s lives or the world' },
-            { id: 'stability', name: 'Stability', icon: bpIcon('shield',16), color: '#60a5fa', desc: 'Job security, predictable income, and a reliable career path' },
-            { id: 'creativity', name: 'Creativity', icon: bpIcon('sparkle',16), color: '#ff453a', desc: 'Expressing ideas, designing, inventing, or building new things' },
-            { id: 'growth', name: 'Growth', icon: bpIcon('trending-up',16), color: '#ff9f0a', desc: 'Constantly learning, leveling up, and advancing your career' },
-            { id: 'collaboration', name: 'Collaboration', icon: bpIcon('users',16), color: '#5ac8fa', desc: 'Working closely with others, being part of a great team' },
+            { id: 'autonomy', name: 'Autonomy', icon: bpIcon('compass',16), color: 'var(--c-purple)', desc: 'Freedom to make your own decisions and work independently' },
+            { id: 'impact', name: 'Impact', icon: bpIcon('target',16), color: 'var(--success)', desc: 'Making a meaningful difference in people\'s lives or the world' },
+            { id: 'stability', name: 'Stability', icon: bpIcon('shield',16), color: 'var(--accent)', desc: 'Job security, predictable income, and a reliable career path' },
+            { id: 'creativity', name: 'Creativity', icon: bpIcon('sparkle',16), color: 'var(--danger)', desc: 'Expressing ideas, designing, inventing, or building new things' },
+            { id: 'growth', name: 'Growth', icon: bpIcon('trending-up',16), color: 'var(--c-orange)', desc: 'Constantly learning, leveling up, and advancing your career' },
+            { id: 'collaboration', name: 'Collaboration', icon: bpIcon('users',16), color: 'var(--c-cyan)', desc: 'Working closely with others, being part of a great team' },
             { id: 'recognition', name: 'Recognition', icon: bpIcon('star',16), color: '#eab308', desc: 'Being acknowledged and rewarded for your contributions' },
-            { id: 'balance', name: 'Balance', icon: bpIcon('scale',16), color: '#bf5af2', desc: 'Having time for life outside work \u2014 family, hobbies, health' },
-            { id: 'challenge', name: 'Challenge', icon: bpIcon('zap',16), color: '#ff453a', desc: 'Solving hard problems and pushing yourself beyond comfort zones' },
-            { id: 'purpose', name: 'Purpose', icon: bpIcon('flame',16), color: '#ff9f0a', desc: 'Feeling your work connects to something bigger than yourself' },
+            { id: 'balance', name: 'Balance', icon: bpIcon('scale',16), color: 'var(--c-purple)', desc: 'Having time for life outside work \u2014 family, hobbies, health' },
+            { id: 'challenge', name: 'Challenge', icon: bpIcon('zap',16), color: 'var(--danger)', desc: 'Solving hard problems and pushing yourself beyond comfort zones' },
+            { id: 'purpose', name: 'Purpose', icon: bpIcon('flame',16), color: 'var(--c-orange)', desc: 'Feeling your work connects to something bigger than yourself' },
             { id: 'flexibility', name: 'Flexibility', icon: bpIcon('refresh',16), color: '#14b8a6', desc: 'Control over when, where, and how you work' },
-            { id: 'leadership', name: 'Leadership', icon: bpIcon('lightbulb',16), color: '#bf5af2', desc: 'Guiding others, making decisions, and shaping direction' }
+            { id: 'leadership', name: 'Leadership', icon: bpIcon('lightbulb',16), color: 'var(--c-purple)', desc: 'Guiding others, making decisions, and shaping direction' }
         ];
 
         function _renderExplorerValues(ed, canEdit) {
-            var cs = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:22px; margin-bottom:16px;';
+            var cs = 'background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:22px; margin-bottom:16px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;';
             if (typeof canEdit === 'undefined') canEdit = !isReadOnlyProfile;
             var workValues = ed.workValues || [];
@@ -32518,7 +32518,7 @@ body {
 
             _explorerWorkValues.forEach(function(v) {
                 var isSel = currentValues.indexOf(v.id) >= 0;
-                html += '<div id="val_' + v.id + '" onclick="explorerToggleValue(\'' + v.id + '\')" style="padding:14px; border-radius:12px; cursor:pointer; transition:all 0.15s; border:2px solid ' + (isSel ? v.color : 'rgba(255,255,255,0.06)') + '; background:' + (isSel ? v.color + '10' : 'transparent') + ';">'
+                html += '<div id="val_' + v.id + '" onclick="explorerToggleValue(\'' + v.id + '\')" style="padding:14px; border-radius:12px; cursor:pointer; transition:all 0.15s; border:2px solid ' + (isSel ? v.color : 'rgba(0,0,0,0.05)') + '; background:' + (isSel ? v.color + '10' : 'transparent') + ';">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
                     + '<span style="font-size:1.3em;">' + v.icon + '</span>'
                     + '<span style="font-weight:700; color:' + (isSel ? v.color : 'var(--text-primary)') + '; font-size:0.92em;">' + v.name + '</span>'
@@ -32529,7 +32529,7 @@ body {
 
             html += '</div>'
                 + '<div style="display:flex; gap:10px; margin-top:20px; justify-content:center;">'
-                + '<button onclick="closeModal()" style="padding:10px 24px; background:var(--bg-elevated); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.06); border-radius:10px; cursor:pointer; font-weight:600;">Cancel</button>'
+                + '<button onclick="closeModal()" style="padding:10px 24px; background:var(--bg-elevated); color:var(--text-secondary); border:1px solid rgba(0,0,0,0.05); border-radius:10px; cursor:pointer; font-weight:600;">Cancel</button>'
                 + '<button onclick="explorerDashSaveValues()" style="padding:10px 28px; background:var(--c-orange); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700;">Save Values</button>'
                 + '</div></div>';
 
@@ -32556,7 +32556,7 @@ body {
                 var el = document.getElementById('val_' + v.id);
                 if (!el) return;
                 var isSel = sel.indexOf(v.id) >= 0;
-                el.style.borderColor = isSel ? v.color : 'rgba(255,255,255,0.06)';
+                el.style.borderColor = isSel ? v.color : 'rgba(0,0,0,0.05)';
                 el.style.background = isSel ? v.color + '10' : 'transparent';
             });
             var countEl = document.getElementById('valuesCount');
@@ -32582,7 +32582,7 @@ body {
         window.explorerDashSaveValues = explorerDashSaveValues;
 
         function _renderPeopleLikeYou(ed, skills) {
-            var card = 'background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:24px;';
+            var card = 'background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:24px;';
             var ls = 'font-size:0.68em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;';
             var _canEdit = !isReadOnlyProfile;
             var people = ed.peopleInspirations || [];
@@ -32830,8 +32830,8 @@ body {
             var typeChips = ['highschool:HS:home', 'college:College:graduation', 'trade:Trade:tool', 'community:CC:book', 'bootcamp:Boot:skills'].map(function(t) {
                 var parts = t.split(':');
                 var active = s.schoolType === parts[0];
-                return '<span onclick="document.getElementById(\'edSchoolType\').value=\'' + parts[0] + '\'; document.querySelectorAll(\'[data-school-chip]\').forEach(function(c){c.style.background=\'transparent\';c.style.borderColor=\'var(--border)\';c.style.color=\'var(--text-muted)\';}); this.style.background=\'rgba(191,90,242,0.15)\';this.style.borderColor=\'#bf5af2\';this.style.color=\'#bf5af2\';" data-school-chip '
-                    + 'style="display:inline-flex;align-items:center;gap:3px;padding:5px 12px;border-radius:12px;font-size:0.78em;cursor:pointer;border:1px solid ' + (active ? '#bf5af2' : 'var(--border)') + ';background:' + (active ? 'rgba(191,90,242,0.15)' : 'transparent') + ';color:' + (active ? '#bf5af2' : 'var(--text-muted)') + ';font-weight:600;">'
+                return '<span onclick="document.getElementById(\'edSchoolType\').value=\'' + parts[0] + '\'; document.querySelectorAll(\'[data-school-chip]\').forEach(function(c){c.style.background=\'transparent\';c.style.borderColor=\'var(--border)\';c.style.color=\'var(--text-muted)\';}); this.style.background=\'rgba(155,89,182,0.15)\';this.style.borderColor=\'var(--c-purple)\';this.style.color=\'var(--c-purple)\';" data-school-chip '
+                    + 'style="display:inline-flex;align-items:center;gap:3px;padding:5px 12px;border-radius:12px;font-size:0.78em;cursor:pointer;border:1px solid ' + (active ? 'var(--c-purple)' : 'var(--border)') + ';background:' + (active ? 'rgba(155,89,182,0.15)' : 'transparent') + ';color:' + (active ? 'var(--c-purple)' : 'var(--text-muted)') + ';font-weight:600;">'
                     + bpIcon(parts[2],12) + ' ' + parts[1] + '</span>';
             }).join(' ');
 
@@ -33065,7 +33065,7 @@ body {
                 + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Convert to Full Blueprint</div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.6;">Add your work experience to unlock the complete Blueprint platform \u2014 salary insights, market valuation, negotiation tools, and scouting reports.</div>'
                 + '</div>'
-                + '<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:18px; margin-bottom:20px;">'
+                + '<div style="background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:18px; margin-bottom:20px;">'
                 + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.9em;">What You Keep</div>'
                 + '<div style="display:flex; flex-direction:column; gap:6px;">'
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--success); margin-right:6px;">&#10003;</span> All ' + (skillsData.skills || []).length + ' discovered skills</div>'
@@ -33073,7 +33073,7 @@ body {
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--success); margin-right:6px;">&#10003;</span> Your career path interests</div>'
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--success); margin-right:6px;">&#10003;</span> Your values and purpose</div>'
                 + '</div></div>'
-                + '<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:18px; margin-bottom:24px;">'
+                + '<div style="background:rgba(0,0,0,0.02); border:1px solid rgba(0,0,0,0.05); border-radius:12px; padding:18px; margin-bottom:24px;">'
                 + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.9em;">What You Unlock</div>'
                 + '<div style="display:flex; flex-direction:column; gap:6px;">'
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--accent); margin-right:6px;">&#x2B50;</span> Market valuation & salary benchmarking</div>'
@@ -33082,7 +33082,7 @@ body {
                 + '<div style="font-size:0.84em; color:var(--text-secondary);"><span style="color:var(--accent); margin-right:6px;">&#x2B50;</span> Evidence-based skill verification</div>'
                 + '</div></div>'
                 + '<div style="display:flex; gap:12px;">'
-                + '<button onclick="closeExportModal()" style="flex:1; padding:12px; background:rgba(255,255,255,0.02); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.06); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.9em;">Not Yet</button>'
+                + '<button onclick="closeExportModal()" style="flex:1; padding:12px; background:rgba(0,0,0,0.02); color:var(--text-secondary); border:1px solid rgba(0,0,0,0.05); border-radius:10px; cursor:pointer; font-weight:600; font-size:0.9em;">Not Yet</button>'
                 + '<button onclick="explorerDoConvert()" style="flex:1; padding:12px; background:var(--success); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.9em;">Convert Now</button>'
                 + '</div></div>';
             modal.style.display = 'flex';
@@ -33321,19 +33321,19 @@ body {
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:16px;">';
 
                 // Box 1 — Market Value (BLS baseline)
-                html += '<div style="background:rgba(48,209,88,0.12); border:2px solid rgba(48,209,88,0.28); border-radius:12px; padding:18px 20px;">'
-                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(48,209,88,0.7); margin-bottom:8px;">' + bpIcon('money',11) + ' Minimum Market Value</div>'
+                html += '<div style="background:rgba(36,138,61,0.12); border:2px solid rgba(36,138,61,0.28); border-radius:12px; padding:18px 20px;">'
+                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(36,138,61,0.7); margin-bottom:8px;">' + bpIcon('money',11) + ' Minimum Market Value</div>'
                     + '<div style="font-size:2.3em; font-weight:700; color:var(--success); line-height:1; margin-bottom:8px;">' + formatCompValue(worthValue) + '</div>'
                     + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">' + escapeHtml(fnLabel) + (isOverride ? ' <span style="color:var(--warning);">(manual)</span>' : '') + ' \u00B7 ' + escapeHtml(totalValue.roleLevel) + '</div>'
-                    + '<div style="font-size:0.69em; color:rgba(48,209,88,0.65); margin-top:4px;">' + (totalValue.compaRatio || '') + '% of BLS median</div>'
+                    + '<div style="font-size:0.69em; color:rgba(36,138,61,0.65); margin-top:4px;">' + (totalValue.compaRatio || '') + '% of BLS median</div>'
                     + '</div>';
 
                 // Box 2 — Evidence Value (skill-premium adjusted)
-                html += '<div style="background:rgba(96,165,250,0.1); border:2px solid rgba(96,165,250,0.25); border-radius:12px; padding:18px 20px;">'
-                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(96,165,250,0.7); margin-bottom:8px;">' + bpIcon('flame',11) + ' Justified Value</div>'
+                html += '<div style="background:rgba(0,113,227,0.1); border:2px solid rgba(0,113,227,0.25); border-radius:12px; padding:18px 20px;">'
+                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(0,113,227,0.7); margin-bottom:8px;">' + bpIcon('flame',11) + ' Justified Value</div>'
                     + '<div style="font-size:2.3em; font-weight:700; color:var(--accent); line-height:1; margin-bottom:8px;">' + formatCompValue(evComp) + '</div>'
                     + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Skill-premium adjusted</div>'
-                    + '<div style="font-size:0.69em; color:rgba(96,165,250,0.65); margin-top:4px;">'
+                    + '<div style="font-size:0.69em; color:rgba(0,113,227,0.65); margin-top:4px;">'
                     + (evDelta !== 0 ? evDeltaSign + formatCompValue(Math.abs(evDelta)) + ' vs market' : 'At market median')
                     + '</div>'
                     + '</div>';
@@ -33350,17 +33350,17 @@ body {
 
                     var pillHtml = '';
                     if (aboveJust) {
-                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:8px;">'
+                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(36,138,61,0.08); border:1px solid rgba(36,138,61,0.2); border-radius:8px;">'
                             + '<div style="font-size:1.0em; font-weight:700; color:var(--success);">Ahead of market</div>'
                             + '</div>';
                     } else if (midZone) {
                         var midGapPct = reportedComp > 0 ? Math.round((evGap / reportedComp) * 100) : 0;
-                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.18); border-radius:8px;">'
+                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(196,93,0,0.08); border:1px solid rgba(196,93,0,0.18); border-radius:8px;">'
                             + '<div style="font-size:0.67em; color:var(--c-muted);">Underpaid by</div>'
                             + '<div style="font-size:1.1em; font-weight:700; color:var(--c-orange);">' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + midGapPct + '%)</span></div>'
                             + '</div>';
                     } else {
-                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.18); border-radius:8px;">'
+                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(196,93,0,0.08); border:1px solid rgba(196,93,0,0.18); border-radius:8px;">'
                             + '<div style="font-size:0.67em; color:var(--c-muted);">Underpaid by</div>'
                             + (showRange
                                 ? '<div style="font-size:1.1em; font-weight:700; color:var(--c-orange);">' + formatCompValue(Math.abs(delta)) + ' – ' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '–' + evGapPct + '%)</span></div>'
@@ -33374,7 +33374,7 @@ body {
                         + '<div style="font-size:2.3em; font-weight:700; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
                         + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Reported annual comp</div>'
                         + pillHtml
-                        + (belowJust ? '<button onclick="showCompReviewGuide()" style="margin-top:10px; width:100%; padding:7px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.08); color:var(--accent); font-size:0.74em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">' + bpIcon('target',12) + ' Review Prep</button>' : '')
+                        + (belowJust ? '<button onclick="showCompReviewGuide()" style="margin-top:10px; width:100%; padding:7px 10px; border-radius:8px; border:1px solid rgba(0,113,227,0.3); background:rgba(0,113,227,0.08); color:var(--accent); font-size:0.74em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">' + bpIcon('target',12) + ' Review Prep</button>' : '')
                         + '</div>';
                 } else {
                     html += '<div style="background:var(--c-surface-1); border:1px dashed var(--c-surface-5); border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between;">'
@@ -33386,8 +33386,8 @@ body {
 
                 html += '</div>'; // end 3-box hero
 
-                html += '<div onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; background:rgba(48,209,88,0.06); border:1px solid rgba(48,209,88,0.2); border-radius:10px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'rgba(48,209,88,0.4)\'" onmouseout="this.style.borderColor=\'rgba(48,209,88,0.2)\'">'
-                    + '<div style="width:32px; height:32px; border-radius:8px; background:rgba(48,209,88,0.13); display:flex; align-items:center; justify-content:center; flex-shrink:0;">' + bpIcon('trending-up',18) + '</div>'
+                html += '<div onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; background:rgba(36,138,61,0.06); border:1px solid rgba(36,138,61,0.2); border-radius:10px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'rgba(36,138,61,0.4)\'" onmouseout="this.style.borderColor=\'rgba(36,138,61,0.2)\'">'
+                    + '<div style="width:32px; height:32px; border-radius:8px; background:rgba(36,138,61,0.13); display:flex; align-items:center; justify-content:center; flex-shrink:0;">' + bpIcon('trending-up',18) + '</div>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:0.88em; color:var(--c-heading);">Skill Growth Advisor</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted); line-height:1.4;">See which skills to upgrade or add for the highest market value impact</div></div>'
                     + '<div style="color:var(--c-faint); font-size:1.1em;">\u203A</div></div>';
@@ -33487,7 +33487,7 @@ body {
                     var isCrit   = skill.impact === 'Critical';
                     // green=Critical(Mastery), orange=High(Expert) — red reserved for risks
                     var dotColor = isCrit ? '#30d158' : '#ff9f0a';
-                    html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(48,209,88,0.07)' : 'rgba(251,146,60,0.07)') + '; border-radius:6px;">'
+                    html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(36,138,61,0.07)' : 'rgba(251,146,60,0.07)') + '; border-radius:6px;">'
                         + '<div style="width:6px; height:6px; border-radius:50%; background:' + dotColor + '; flex-shrink:0;"></div>'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.84em; font-weight:600; color:var(--c-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.skill) + '</div>'
@@ -33504,9 +33504,9 @@ body {
                     + '<div style="display:grid; gap:6px;">';
 
                 var tiers = [
-                    { key: 'conservative', color: '#a1a1a6', label: 'Conservative',  sub: 'Budget-constrained' },
-                    { key: 'standard',     color: '#60a5fa', label: 'Standard',       sub: 'Most common initial' },
-                    { key: 'competitive',  color: '#30d158', label: 'Competitive',    sub: 'Strong employers' }
+                    { key: 'conservative', color: 'var(--text-secondary)', label: 'Conservative',  sub: 'Budget-constrained' },
+                    { key: 'standard',     color: 'var(--accent)', label: 'Standard',       sub: 'Most common initial' },
+                    { key: 'competitive',  color: 'var(--success)', label: 'Competitive',    sub: 'Strong employers' }
                 ];
                 tiers.forEach(function(t) {
                     var offerVal = totalValue[t.key + 'Offer'] || 0;
@@ -33518,13 +33518,13 @@ body {
                 });
 
                 if (totalValue.negotiationGap && totalValue.negotiationGap > 0) {
-                    html += '<div style="margin-top:6px; padding:9px 12px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); border-radius:8px;">'
+                    html += '<div style="margin-top:6px; padding:9px 12px; background:rgba(196,93,0,0.08); border:1px solid rgba(196,93,0,0.2); border-radius:8px;">'
                         + '<div style="font-size:0.75em; font-weight:700; color:var(--warning);">\u{1F4A1} Gap: ' + formatCompValue(totalValue.negotiationGap) + '</div>'
                         + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:2px;">Start at ' + formatCompValue(totalValue.yourWorth || totalValue.marketRate) + ', target ' + formatCompValue(totalValue.competitiveOffer) + '+</div>'
                         + '</div>';
                 }
 
-                html += '<button onclick="showNegotiationGuideV2()" style="margin-top:10px; width:100%; padding:8px 12px; background:rgba(255,214,10,0.15); border:1px solid rgba(255,214,10,0.3); border-radius:8px; color:var(--warning); font-size:0.78em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">'
+                html += '<button onclick="showNegotiationGuideV2()" style="margin-top:10px; width:100%; padding:8px 12px; background:rgba(178,80,0,0.15); border:1px solid rgba(178,80,0,0.3); border-radius:8px; color:var(--warning); font-size:0.78em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">'
                     + bpIcon('target',13) + ' Build My Negotiation Guide</button>';
 
                 html += '</div></div>'; // end right col
@@ -33587,11 +33587,11 @@ body {
 
             if (skills.length > 0) {
                 var profLevels = [
-                    { key: 'Mastery',    color: '#30d158' },
-                    { key: 'Expert',     color: '#ff9f0a' },
-                    { key: 'Advanced',   color: '#bf5af2' },
-                    { key: 'Proficient', color: '#60a5fa' },
-                    { key: 'Novice',     color: '#a1a1a6' }
+                    { key: 'Mastery',    color: 'var(--success)' },
+                    { key: 'Expert',     color: 'var(--c-orange)' },
+                    { key: 'Advanced',   color: 'var(--c-purple)' },
+                    { key: 'Proficient', color: 'var(--accent)' },
+                    { key: 'Novice',     color: 'var(--text-secondary)' }
                 ];
                 var profCounts = {};
                 profLevels.forEach(function(p) { profCounts[p.key] = 0; });
@@ -33633,12 +33633,12 @@ body {
             // Action bar
             html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
             if (!isReadOnlyProfile) {
-            html += '<button onclick="showAddSkillsEmpty()" style="display:flex; align-items:center; gap:8px; padding:10px 20px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.15); border-radius:8px; color:var(--accent); cursor:pointer; font-weight:600; font-size:0.85em;">'
+            html += '<button onclick="showAddSkillsEmpty()" style="display:flex; align-items:center; gap:8px; padding:10px 20px; background:rgba(0,113,227,0.1); border:1px solid rgba(0,113,227,0.15); border-radius:8px; color:var(--accent); cursor:pointer; font-weight:600; font-size:0.85em;">'
                 + bpIcon('plus',14) + ' Add Skill</button>';
             html += '<button onclick="openBulkImport()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('upload',14) + ' Bulk Import</button>';
             }
-            html += '<button onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(48,209,88,0.15); border:1px solid rgba(48,209,88,0.25); border-radius:8px; color:var(--success); cursor:pointer; font-weight:600; font-size:0.88em;">'
+            html += '<button onclick="showGrowthAdvisor()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(36,138,61,0.15); border:1px solid rgba(36,138,61,0.25); border-radius:8px; color:var(--success); cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('trending-up',14) + ' Growth Advisor</button>';
             html += '<button onclick="switchView(\'skills\')" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em; margin-left:auto;">'
                 + bpIcon('skills',14) + ' Network View</button>';
@@ -33669,7 +33669,7 @@ body {
             // Over-cap warning
             if (skills.length > PROFILE_SKILL_CAP && !isReadOnlyProfile) {
                 var excess = skills.length - PROFILE_SKILL_CAP;
-                html += '<div style="padding:12px 16px; background:rgba(255,69,58,0.08); border:1px solid rgba(255,69,58,0.25); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
+                html += '<div style="padding:12px 16px; background:rgba(215,0,21,0.08); border:1px solid rgba(215,0,21,0.25); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
                     + '<span style="color:var(--danger); font-size:1.1em;">\u26A0</span>'
                     + '<div style="flex:1;"><div style="font-weight:700; font-size:0.88em; color:var(--danger);">Over skill cap by ' + excess + '</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Remove ' + excess + ' skill' + (excess !== 1 ? 's' : '') + ' to unlock adding new ones. System will not allow new skills until at or below ' + PROFILE_SKILL_CAP + '.</div>'
@@ -33678,7 +33678,7 @@ body {
                     + '</div>';
             } else if (skills.length >= SKILL_CAP_WARN && !isReadOnlyProfile) {
                 var remaining = PROFILE_SKILL_CAP - skills.length;
-                html += '<div style="padding:10px 16px; background:rgba(255,159,10,0.06); border:1px solid rgba(255,159,10,0.2); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
+                html += '<div style="padding:10px 16px; background:rgba(196,93,0,0.06); border:1px solid rgba(196,93,0,0.2); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
                     + '<span style="color:var(--c-orange); font-size:0.95em;">\u25CF</span>'
                     + '<div style="font-size:0.82em; color:var(--text-muted);">' + remaining + ' skill slot' + (remaining !== 1 ? 's' : '') + ' remaining (cap: ' + PROFILE_SKILL_CAP + ')</div>'
                     + '</div>';
@@ -33687,9 +33687,9 @@ body {
             // Group skills by impact-based rarity
             var impactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
             var tierMeta = {
-                rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'rgba(255,159,10,0.08)', border: 'rgba(255,159,10,0.3)', accent: '#ff9f0a', pillBg: 'rgba(255,159,10,0.2)' },
-                uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'rgba(96,165,250,0.06)', border: 'rgba(96,165,250,0.25)', accent: '#60a5fa', pillBg: 'rgba(96,165,250,0.2)' },
-                common: { label: 'Common', desc: 'Foundational capabilities', icon: 'check', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)', accent: '#636366', pillBg: 'rgba(99,99,102,0.2)' }
+                rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'rgba(196,93,0,0.08)', border: 'rgba(196,93,0,0.3)', accent: 'var(--c-orange)', pillBg: 'rgba(196,93,0,0.2)' },
+                uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'rgba(0,113,227,0.06)', border: 'rgba(0,113,227,0.25)', accent: 'var(--accent)', pillBg: 'rgba(0,113,227,0.2)' },
+                common: { label: 'Common', desc: 'Foundational capabilities', icon: 'check', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)', accent: 'var(--text-muted)', pillBg: 'rgba(99,99,102,0.2)' }
             };
             var tierSkills = { rare: [], uncommon: [], common: [] };
             var levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
@@ -33744,7 +33744,7 @@ body {
 
                 var statsItems = [];
                 ['Mastery','Expert','Advanced','Proficient','Novice'].forEach(function(lv) {
-                    if (tierLevelCounts[lv]) statsItems.push('<span style="color:' + (levelColors[lv] || '#636366') + ';">' + tierLevelCounts[lv] + ' ' + lv + '</span>');
+                    if (tierLevelCounts[lv]) statsItems.push('<span style="color:' + (levelColors[lv] || 'var(--text-muted)') + ';">' + tierLevelCounts[lv] + ' ' + lv + '</span>');
                 });
                 if (tierEvidenceCount > 0) statsItems.push('<span style="color:var(--success);">' + tierEvidenceCount + '/' + tSkills.length + ' evidence</span>');
                 if (tierVerifiedCount > 0) statsItems.push('<span style="color:var(--success);">' + tierVerifiedCount + ' verified</span>');
@@ -33786,7 +33786,7 @@ body {
                         + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(s.name) + '</span>'
                         + '</div>'
                         + '<div style="display:flex; gap:4px; flex-shrink:0;" onclick="event.stopPropagation();">'
-                        + (isReadOnlyProfile ? '' : '<button onclick="if(confirm(\'Remove ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ff453a\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>')
+                        + (isReadOnlyProfile ? '' : '<button onclick="if(confirm(\'Remove ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4;" onmouseover="this.style.opacity=\'1\';this.style.color=\'var(--danger)\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>')
                         + '</div></div>';
 
                     var smCatIcons = { skill: bpIcon('tool',11), ability: bpIcon('zap',11), workstyle: bpIcon('heart',11), unique: bpIcon('star',11) };
@@ -33965,10 +33965,10 @@ body {
                 + '<select onchange="setOutcomeFilter(\'category\', this.value)" style="padding:7px 10px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-muted); font-size:0.82em; cursor:pointer;">'
                 + catOptions + '</select>'
                 + '<button onclick="setOutcomeFilter(\'shared\', \'' + (f.shared === 'shared' ? 'all' : 'shared') + '\')" '
-                + 'style="padding:7px 12px; border-radius:8px; border:1px solid ' + (f.shared === 'shared' ? 'var(--c-accent)' : 'var(--c-border-subtle)') + '; background:' + (f.shared === 'shared' ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-2)') + '; color:' + (f.shared === 'shared' ? 'var(--c-accent)' : 'var(--c-muted)') + '; font-size:0.82em; cursor:pointer; white-space:nowrap;">'
+                + 'style="padding:7px 12px; border-radius:8px; border:1px solid ' + (f.shared === 'shared' ? 'var(--c-accent)' : 'var(--c-border-subtle)') + '; background:' + (f.shared === 'shared' ? 'rgba(0,113,227,0.1)' : 'var(--c-surface-2)') + '; color:' + (f.shared === 'shared' ? 'var(--c-accent)' : 'var(--c-muted)') + '; font-size:0.82em; cursor:pointer; white-space:nowrap;">'
                 + bpIcon('check',12) + ' Shared only</button>'
                 + (f.search || f.category !== 'all' || f.shared !== 'all' ?
-                    '<button onclick="window._outcomeFilter={search:\'\',category:\'all\',shared:\'all\'}; _renderFilteredOutcomes(); document.getElementById(\'outcomeSearchInput\').value=\'\';" style="padding:7px 10px; border-radius:8px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:var(--danger); font-size:0.82em; cursor:pointer;">Clear</button>'
+                    '<button onclick="window._outcomeFilter={search:\'\',category:\'all\',shared:\'all\'}; _renderFilteredOutcomes(); document.getElementById(\'outcomeSearchInput\').value=\'\';" style="padding:7px 10px; border-radius:8px; border:1px solid rgba(215,0,21,0.3); background:transparent; color:var(--danger); font-size:0.82em; cursor:pointer;">Clear</button>'
                     : '')
                 + '</div>'
 
@@ -34371,7 +34371,7 @@ body {
             if (!isReadOnlyProfile) {
                 html += '<div style="display:flex; gap:6px; align-items:center;">'
                     + '<button onclick="generatePurposeAI()" id="purposeAIBtn" '
-                    + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.08); color:var(--c-purple); cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
+                    + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid rgba(155,89,182,0.3); background:rgba(155,89,182,0.08); color:var(--c-purple); cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
                     + bpIcon('zap',12) + ' Generate</button>'
                     + '<button onclick="var ta=document.getElementById(\'contentPurposeEdit\'); if(ta.readOnly){ta.readOnly=false; ta.focus(); ta.style.background=\'var(--c-input-bg)\'; this.textContent=\'Save\';} else {ta.readOnly=true; ta.style.background=\'transparent\'; updatePurpose(ta.value); this.textContent=\'Edit\';}" '
                     + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid var(--c-accent-border-2); background:transparent; color:var(--accent); cursor:pointer;">'
@@ -34395,13 +34395,13 @@ body {
                 if (Object.keys(cv).length === 0) activeItems = totalItems;
                 
                 html += '<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; padding:12px 14px; '
-                    + 'background:rgba(96,165,250,0.05); border:1px solid var(--border); border-radius:8px;">';
+                    + 'background:rgba(0,113,227,0.05); border:1px solid var(--border); border-radius:8px;">';
                 
                 var statPills = [
                     { label: 'Last Import', value: new Date(stats.lastMerge).toLocaleDateString(), color: 'var(--accent)' },
-                    { label: 'Endorsements', value: (stats.endorsements || 0).toLocaleString(), color: '#ff9f0a' },
-                    { label: 'Network', value: (stats.network || 0).toLocaleString(), color: '#bf5af2' },
-                    { label: 'Courses', value: (stats.learningCompleted || 0) + '/' + (stats.learning || 0), color: '#5ac8fa' }
+                    { label: 'Endorsements', value: (stats.endorsements || 0).toLocaleString(), color: 'var(--c-orange)' },
+                    { label: 'Network', value: (stats.network || 0).toLocaleString(), color: 'var(--c-purple)' },
+                    { label: 'Courses', value: (stats.learningCompleted || 0) + '/' + (stats.learning || 0), color: 'var(--c-cyan)' }
                 ];
                 statPills.forEach(function(p) {
                     html += '<div style="text-align:center; min-width:80px;">'
@@ -34429,7 +34429,7 @@ body {
             if (recs.length > 0) {
                 html += _sectionHeader(bpIcon('users', 16), 'Recommendations', recs.length, 'Peer testimonials. High-impact evidence for scouting reports.');
                 html += '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<button onclick="contentToggleAllSection(\'rec\',' + recs.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
+                    + '<button onclick="contentToggleAllSection(\'rec\',' + recs.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(36,138,61,0.08); color:var(--success); border:1px solid rgba(36,138,61,0.15); cursor:pointer;">Select All</button>'
                     + '<button onclick="contentToggleAllSection(\'rec\',' + recs.length + ',false)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:var(--c-surface-4a); color:var(--c-muted); border:1px solid var(--border); cursor:pointer;">Deselect All</button>'
                     + '</div>';
                 html += '<div style="max-height:280px; overflow-y:auto; border:1px solid var(--c-surface-5b); border-radius:8px; padding:4px;">';
@@ -34449,7 +34449,7 @@ body {
             if (articles.length > 0) {
                 html += _sectionHeader(bpIcon('file-text', 16), 'Articles', articles.length, 'Published thought leadership. Signals expertise and communication ability.');
                 html += '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<button onclick="contentToggleAllSection(\'art\',' + articles.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
+                    + '<button onclick="contentToggleAllSection(\'art\',' + articles.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(36,138,61,0.08); color:var(--success); border:1px solid rgba(36,138,61,0.15); cursor:pointer;">Select All</button>'
                     + '<button onclick="contentToggleAllSection(\'art\',' + articles.length + ',false)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:var(--c-surface-4a); color:var(--c-muted); border:1px solid var(--border); cursor:pointer;">Deselect All</button>'
                     + '</div>';
                 html += '<div style="max-height:280px; overflow-y:auto; border:1px solid var(--c-surface-5b); border-radius:8px; padding:4px;">';
@@ -34469,7 +34469,7 @@ body {
             if (posts.length > 0) {
                 html += _sectionHeader(bpIcon('message', 16), 'Posts', posts.length, 'Substantial LinkedIn posts (100+ characters). Thought leadership evidence.');
                 html += '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<button onclick="contentToggleAllSection(\'post\',' + posts.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15); cursor:pointer;">Select All</button>'
+                    + '<button onclick="contentToggleAllSection(\'post\',' + posts.length + ',true)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:rgba(36,138,61,0.08); color:var(--success); border:1px solid rgba(36,138,61,0.15); cursor:pointer;">Select All</button>'
                     + '<button onclick="contentToggleAllSection(\'post\',' + posts.length + ',false)" style="padding:3px 10px; border-radius:6px; font-size:0.72em; font-weight:600; background:var(--c-surface-4a); color:var(--c-muted); border:1px solid var(--border); cursor:pointer;">Deselect All</button>'
                     + '</div>';
                 html += '<div style="max-height:280px; overflow-y:auto; border:1px solid var(--c-surface-5b); border-radius:8px; padding:4px;">';
@@ -34497,7 +34497,7 @@ body {
                     var count = endorsements[skill];
                     var isHigh = count >= 25;
                     var isMed = count >= 10;
-                    var bg = isHigh ? 'rgba(255,159,10,0.12)' : isMed ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-4a)';
+                    var bg = isHigh ? 'rgba(196,93,0,0.12)' : isMed ? 'rgba(0,113,227,0.1)' : 'var(--c-surface-4a)';
                     var color = isHigh ? '#ff9f0a' : isMed ? '#60a5fa' : 'var(--c-muted)';
                     var boost = isHigh ? ' (+2)' : isMed ? ' (+1)' : '';
                     html += '<span style="padding:4px 10px; border-radius:12px; font-size:0.78em; font-weight:600; '
@@ -34543,7 +34543,7 @@ body {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">';
                 causes.forEach(function(c) {
                     html += '<span style="padding:5px 12px; border-radius:12px; font-size:0.82em; font-weight:600; '
-                        + 'background:rgba(48,209,88,0.08); color:var(--success); border:1px solid rgba(48,209,88,0.15); display:inline-flex; align-items:center; gap:4px;">'
+                        + 'background:rgba(36,138,61,0.08); color:var(--success); border:1px solid rgba(36,138,61,0.15); display:inline-flex; align-items:center; gap:4px;">'
                         + bpIcon('compass', 12) + ' ' + escapeHtml(c) + '</span>';
                 });
                 html += '</div>';
@@ -34594,7 +34594,7 @@ body {
             if (netSize > 0) {
                 html += '<div style="margin-top:20px; padding:14px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; '
                     + 'display:flex; align-items:center; gap:12px;">'
-                    + '<div style="width:40px; height:40px; border-radius:10px; background:rgba(191,90,242,0.1); display:flex; align-items:center; justify-content:center;">'
+                    + '<div style="width:40px; height:40px; border-radius:10px; background:rgba(155,89,182,0.1); display:flex; align-items:center; justify-content:center;">'
                     + bpIcon('users', 20) + '</div>'
                     + '<div><div style="font-weight:700; color:var(--text-primary); font-size:1em;">' + netSize.toLocaleString() + ' connections</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted);">Professional network size. Context signal for scouting reports.</div></div></div>';
@@ -34663,14 +34663,14 @@ body {
                 html += exportCard({
                     icon: 'target', iconColor: '#60a5fa', title: '\u25C8 Scouting Report',
                     titleColor: 'var(--c-text-alt)',
-                    badge: { text: 'PDF', bg: 'rgba(96,165,250,0.2)', color: '#60a5fa' },
+                    badge: { text: 'PDF', bg: 'rgba(0,113,227,0.2)', color: 'var(--accent)' },
                     bg: 'var(--c-accent-bg-2c)',
                     border: 'var(--c-accent-border-3c)',
                     desc: 'Career intelligence report targeted to a specific job. Match analysis, gaps, talking points, and market positioning.',
                     action: 'showScoutingReportPicker()',
                     tags: [
-                        { text: 'PDF', bg: 'var(--c-accent-bg-6c)', color: '#60a5fa' },
-                        { text: 'Match Analysis', bg: 'var(--c-green-bg-5b)', color: '#30d158' }
+                        { text: 'PDF', bg: 'var(--c-accent-bg-6c)', color: 'var(--accent)' },
+                        { text: 'Match Analysis', bg: 'var(--c-green-bg-5b)', color: 'var(--success)' }
                     ]
                 });
                 html += '</div>';
@@ -34694,7 +34694,7 @@ body {
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">';
 
             // Professional Resume hero tile
-            var _resumeHero = '<div style="background:rgba(48,209,88,0.15); border:2px solid rgba(48,209,88,0.3); border-radius:12px; padding:24px;'
+            var _resumeHero = '<div style="background:rgba(36,138,61,0.15); border:2px solid rgba(36,138,61,0.3); border-radius:12px; padding:24px;'
                 + (_isExplorer ? ' order:-1;' : '') + '">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
                 + '<span style="color:var(--success);">' + bpIcon('file-text',28) + '</span>'
@@ -34708,11 +34708,11 @@ body {
                     : 'ATS-readable resume with skills, experience, achievements, and compensation context. Standard format that recruiters and hiring managers expect.')
                 + '</div>'
                 + '<div style="margin-top:14px;">'
-                + '<button onclick="generateResume()" style="font-size:0.8em; padding:8px 18px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success); border:1px solid rgba(48,209,88,0.3); cursor:pointer; font-weight:600;">Generate Resume</button>'
+                + '<button onclick="generateResume()" style="font-size:0.8em; padding:8px 18px; border-radius:20px; background:rgba(36,138,61,0.15); color:var(--success); border:1px solid rgba(36,138,61,0.3); cursor:pointer; font-weight:600;">Generate Resume</button>'
                 + '</div></div>';
 
             // Executive Blueprint hero tile
-            var _bpHero = '<div style="background:rgba(96,165,250,0.15); border:2px solid var(--c-accent-border-5); border-radius:12px; padding:24px;'
+            var _bpHero = '<div style="background:rgba(0,113,227,0.15); border:2px solid var(--c-accent-border-5); border-radius:12px; padding:24px;'
                 + (_isExplorer ? '' : '') + '">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
                 + '<span style="color:var(--accent);">' + bpIcon('compass',28) + '</span>'
@@ -34726,8 +34726,8 @@ body {
                     : 'Standalone document with editorial design. Executive summary, top competencies, strategic outcomes, values, compensation framework, and career narrative.')
                 + '</div>'
                 + '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">'
-                + '<button onclick="generateWorkBlueprint()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-green-bg-5b); color:var(--success); border:1px solid rgba(48,209,88,0.3); cursor:pointer; font-weight:600;">HTML</button>'
-                + '<button onclick="showPdfSectionPicker()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-accent-bg-6c); color:var(--accent); border:1px solid rgba(96,165,250,0.3); cursor:pointer; font-weight:600;">' + bpIcon('pdf',12) + ' Export PDF</button>'
+                + '<button onclick="generateWorkBlueprint()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-green-bg-5b); color:var(--success); border:1px solid rgba(36,138,61,0.3); cursor:pointer; font-weight:600;">HTML</button>'
+                + '<button onclick="showPdfSectionPicker()" style="font-size:0.8em; padding:6px 14px; border-radius:20px; background:var(--c-accent-bg-6c); color:var(--accent); border:1px solid rgba(0,113,227,0.3); cursor:pointer; font-weight:600;">' + bpIcon('pdf',12) + ' Export PDF</button>'
                 + '</div></div>';
 
             if (_isExplorer) {
@@ -34745,15 +34745,15 @@ body {
             html += exportCard({
                 icon: 'target', iconColor: '#60a5fa', title: '\u25C8 Scouting Report',
                 titleColor: 'var(--c-text-alt)',
-                badge: { text: 'NEW', bg: 'rgba(96,165,250,0.2)', color: '#60a5fa' },
+                badge: { text: 'NEW', bg: 'rgba(0,113,227,0.2)', color: 'var(--accent)' },
                 bg: 'var(--c-accent-bg-2c)',
                 border: 'var(--c-accent-border-3c)',
                 desc: 'Career intelligence report targeted to a specific job. Match analysis, gaps, talking points, and market positioning. Choose HTML or PDF.',
                 action: 'showScoutingReportPicker()',
                 tags: [
-                    { text: 'HTML', bg: 'var(--c-accent-bg-6c)', color: '#60a5fa' },
-                    { text: 'PDF', bg: 'var(--c-accent-bg-6c)', color: '#60a5fa' },
-                    { text: 'Match Analysis', bg: 'var(--c-green-bg-5b)', color: '#30d158' }
+                    { text: 'HTML', bg: 'var(--c-accent-bg-6c)', color: 'var(--accent)' },
+                    { text: 'PDF', bg: 'var(--c-accent-bg-6c)', color: 'var(--accent)' },
+                    { text: 'Match Analysis', bg: 'var(--c-green-bg-5b)', color: 'var(--success)' }
                 ]
             });
             
@@ -34779,8 +34779,8 @@ body {
             html += exportCard({
                 icon: 'send', iconColor: '#30d158', title: 'Cover Letter',
                 titleColor: '#30d158',
-                bg: 'rgba(48,209,88,0.12)',
-                border: 'rgba(48,209,88,0.25)',
+                bg: 'rgba(36,138,61,0.12)',
+                border: 'rgba(36,138,61,0.25)',
                 desc: 'Cover letter tailored to a saved job. Uses your matched skills, outcomes, and values.',
                 action: 'generateCoverLetter()'
             });
@@ -34788,8 +34788,8 @@ body {
             html += exportCard({
                 icon: 'interview', iconColor: '#ffd60a', title: 'Interview Prep',
                 titleColor: '#ffd60a',
-                bg: 'rgba(255,214,10,0.12)',
-                border: 'rgba(255,214,10,0.25)',
+                bg: 'rgba(178,80,0,0.12)',
+                border: 'rgba(178,80,0,0.25)',
                 desc: 'STAR stories for matched skills, bridging language for gaps, and talking points for your strengths.',
                 action: 'generateInterviewPrep()'
             });
@@ -34852,11 +34852,11 @@ body {
             
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:12px; margin-bottom:24px;">';
             var statBoxes = [
-                { label: 'Verified', count: confirmed.length, color: '#30d158', icon: 'check' },
-                { label: 'Pending', count: pending.length, color: '#ff9f0a', icon: 'clock' },
-                { label: 'Expired', count: expired.length, color: '#636366', icon: 'warning' },
-                { label: 'Declined', count: declined.length, color: '#ff453a', icon: 'warning' },
-                { label: 'Unverified', count: unverifiedSkills.length, color: '#636366', icon: 'shield' }
+                { label: 'Verified', count: confirmed.length, color: 'var(--success)', icon: 'check' },
+                { label: 'Pending', count: pending.length, color: 'var(--c-orange)', icon: 'clock' },
+                { label: 'Expired', count: expired.length, color: 'var(--text-muted)', icon: 'warning' },
+                { label: 'Declined', count: declined.length, color: 'var(--danger)', icon: 'warning' },
+                { label: 'Unverified', count: unverifiedSkills.length, color: 'var(--text-muted)', icon: 'shield' }
             ];
             statBoxes.forEach(function(sb) {
                 html += '<div style="padding:14px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; text-align:center;">'
@@ -34871,10 +34871,10 @@ body {
                 + '<div style="font-weight:600; font-size:0.85em; color:var(--c-heading); margin-bottom:10px;">' + bpIcon('scale',15) + ' Credibility Weights</div>'
                 + '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
             var weights = [
-                { rel: 'Manager / Executive', weight: '2.0x', label: 'Highest', color: '#30d158' },
-                { rel: 'Client / Board / Co-founder', weight: '1.8x', label: 'High', color: '#60a5fa' },
-                { rel: 'Peer / Industry Peer', weight: '1.5x', label: 'Standard', color: '#bf5af2' },
-                { rel: 'Direct Report', weight: '1.3x', label: 'Basic', color: '#a1a1a6' }
+                { rel: 'Manager / Executive', weight: '2.0x', label: 'Highest', color: 'var(--success)' },
+                { rel: 'Client / Board / Co-founder', weight: '1.8x', label: 'High', color: 'var(--accent)' },
+                { rel: 'Peer / Industry Peer', weight: '1.5x', label: 'Standard', color: 'var(--c-purple)' },
+                { rel: 'Direct Report', weight: '1.3x', label: 'Basic', color: 'var(--text-secondary)' }
             ];
             weights.forEach(function(w) {
                 html += '<div style="padding:4px 10px; border-radius:8px; font-size:0.75em; background:' + w.color + '15; color:' + w.color + '; border:1px solid ' + w.color + '30;">'
@@ -34886,7 +34886,7 @@ body {
             if (!isReadOnlyProfile) {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
                 if (unverifiedSkills.length > 0) {
-                    html += '<button onclick="verifyTabRequestNew()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(48,209,88,0.15); border:1px solid rgba(48,209,88,0.3); border-radius:8px; color:var(--success); cursor:pointer; font-weight:600; font-size:0.88em;">'
+                    html += '<button onclick="verifyTabRequestNew()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:rgba(36,138,61,0.15); border:1px solid rgba(36,138,61,0.3); border-radius:8px; color:var(--success); cursor:pointer; font-weight:600; font-size:0.88em;">'
                         + bpIcon('plus',14) + ' Request Verification (' + unverifiedSkills.length + ' unverified)</button>';
                 }
                 if (expired.length > 0) {
@@ -34900,9 +34900,9 @@ body {
             if (confirmed.length > 0) {
                 var vImpactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
                 var vTierMeta = {
-                    rare: { label: 'Rare', icon: 'flame', accent: '#ff9f0a', bg: 'rgba(255,159,10,0.08)', border: 'rgba(255,159,10,0.3)' },
-                    uncommon: { label: 'Uncommon', icon: 'diamond', accent: '#60a5fa', bg: 'rgba(96,165,250,0.06)', border: 'rgba(96,165,250,0.25)' },
-                    common: { label: 'Common', icon: 'check', accent: '#636366', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)' }
+                    rare: { label: 'Rare', icon: 'flame', accent: 'var(--c-orange)', bg: 'rgba(196,93,0,0.08)', border: 'rgba(196,93,0,0.3)' },
+                    uncommon: { label: 'Uncommon', icon: 'diamond', accent: 'var(--accent)', bg: 'rgba(0,113,227,0.06)', border: 'rgba(0,113,227,0.25)' },
+                    common: { label: 'Common', icon: 'check', accent: 'var(--text-muted)', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)' }
                 };
                 var vTierGroups = { rare: [], uncommon: [], common: [] };
                 
@@ -34964,7 +34964,7 @@ body {
                             + '<div style="width:10px; height:10px; border-radius:6px; background:' + lvColor + '; flex-shrink:0;"></div>'
                             + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(v.skillName) + '</span>'
                             + '</div>'
-                            + (!isReadOnlyProfile ? '<button onclick="event.stopPropagation(); verifyTabRevoke(\'' + (v.id || '').replace(/'/g, "\\'") + '\')" title="Revoke" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4; flex-shrink:0;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ff453a\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>' : '')
+                            + (!isReadOnlyProfile ? '<button onclick="event.stopPropagation(); verifyTabRevoke(\'' + (v.id || '').replace(/'/g, "\\'") + '\')" title="Revoke" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4; flex-shrink:0;" onmouseover="this.style.opacity=\'1\';this.style.color=\'var(--danger)\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>' : '')
                             + '</div>';
 
                         html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">'
@@ -34974,7 +34974,7 @@ body {
                             + '</div>';
 
                         html += '<div style="display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--c-surface-4);">'
-                            + '<div style="width:24px; height:24px; border-radius:50%; background:rgba(48,209,88,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">'
+                            + '<div style="width:24px; height:24px; border-radius:50%; background:rgba(36,138,61,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">'
                             + '<span style="font-size:0.65em; color:var(--success); font-weight:700;">' + (escapeHtml(v.verifierName || 'U').charAt(0).toUpperCase()) + '</span></div>'
                             + '<div style="flex:1; min-width:0;">'
                             + '<div style="font-size:0.8em; font-weight:600; color:var(--c-label);">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
@@ -35000,14 +35000,14 @@ body {
                     var daysPending = v.requestedAt ? Math.floor((Date.now() - new Date(v.requestedAt).getTime()) / 86400000) : 0;
                     var urgencyColor = daysPending > 21 ? '#ff453a' : daysPending > 14 ? '#ff9f0a' : '#636366';
                     
-                    html += '<div style="background:var(--c-surface-1); border:1px solid rgba(255,159,10,0.2); border-radius:10px; padding:14px;">';
+                    html += '<div style="background:var(--c-surface-1); border:1px solid rgba(196,93,0,0.2); border-radius:10px; padding:14px;">';
                     html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">'
                         + '<div style="width:10px; height:10px; border-radius:6px; background:var(--c-orange); flex-shrink:0;"></div>'
                         + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(v.skillName) + '</span>'
-                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:rgba(255,159,10,0.12); color:var(--c-orange); font-weight:600;">Pending</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:rgba(196,93,0,0.12); color:var(--c-orange); font-weight:600;">Pending</span>'
                         + '</div>';
                     html += '<div style="display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--c-surface-4);">'
-                        + '<div style="width:24px; height:24px; border-radius:50%; background:rgba(255,159,10,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">'
+                        + '<div style="width:24px; height:24px; border-radius:50%; background:rgba(196,93,0,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">'
                         + '<span style="font-size:0.65em; color:var(--c-orange); font-weight:700;">' + (escapeHtml(v.verifierName || 'U').charAt(0).toUpperCase()) + '</span></div>'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.8em; font-weight:600; color:var(--c-label);">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
@@ -35048,9 +35048,9 @@ body {
             if (unverifiedSkills.length > 0) {
                 var uvImpactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
                 var uvTierMeta = {
-                    rare: { label: 'Rare — verify these first', accent: '#ff9f0a', bg: 'rgba(255,159,10,0.06)', border: 'rgba(255,159,10,0.25)' },
-                    uncommon: { label: 'Uncommon', accent: '#60a5fa', bg: 'rgba(96,165,250,0.04)', border: 'rgba(96,165,250,0.2)' },
-                    common: { label: 'Common', accent: '#636366', bg: 'transparent', border: 'var(--c-border-subtle)' }
+                    rare: { label: 'Rare — verify these first', accent: 'var(--c-orange)', bg: 'rgba(196,93,0,0.06)', border: 'rgba(196,93,0,0.25)' },
+                    uncommon: { label: 'Uncommon', accent: 'var(--accent)', bg: 'rgba(0,113,227,0.04)', border: 'rgba(0,113,227,0.2)' },
+                    common: { label: 'Common', accent: 'var(--text-muted)', bg: 'transparent', border: 'var(--c-border-subtle)' }
                 };
                 var uvTiers = { rare: [], uncommon: [], common: [] };
                 var levelColors2 = { 'Mastery':'#30d158','Expert':'#ff9f0a','Advanced':'#bf5af2','Proficient':'#60a5fa','Novice':'#a1a1a6' };
@@ -35862,7 +35862,7 @@ body {
                 
                 return '<div onclick="showReportFormatPicker(' + realIdx + ')" style="padding:16px; background:var(--c-surface-2a); '
                     + 'border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; transition:border-color 0.2s; display:flex; justify-content:space-between; align-items:center; box-sizing:border-box; overflow:hidden;" '
-                    + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\'" onmouseout="this.style.borderColor=\'var(--c-border-subtle)\'">'
+                    + 'onmouseover="this.style.borderColor=\'rgba(0,113,227,0.4)\'" onmouseout="this.style.borderColor=\'var(--c-border-subtle)\'">'
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:600; color:var(--c-text); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title) + '</div>'
                     + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(job.company || 'Unknown company')
@@ -35930,26 +35930,26 @@ body {
                     + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                     // HTML option
                     + '<div onclick="viewDemoSampleReport(\'html\')" style="padding:20px; background:var(--c-surface-2a); border:1px solid var(--c-accent-border-3c); border-radius:12px; cursor:pointer; transition:all 0.2s; text-align:center;" '
-                    + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
+                    + 'onmouseover="this.style.borderColor=\'rgba(0,113,227,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
                     + 'onmouseout="this.style.borderColor=\'var(--c-accent-border-3c)\';this.style.background=\'var(--c-surface-2a)\'">'
                     + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('external', 28) + '</div>'
                     + '<div style="font-weight:700; margin-bottom:4px;">Interactive HTML</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Shareable web page with D3 networks, blind mode toggles, and full interactivity.</div>'
                     + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:var(--accent); font-weight:600;">HTML</span>'
-                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(48,209,88,0.15)); color:var(--success); font-weight:600;">Shareable Link</span></div>'
+                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(36,138,61,0.15)); color:var(--success); font-weight:600;">Shareable Link</span></div>'
                     + '</div>'
                     // PDF option
                     + '<div onclick="viewDemoSampleReport(\'pdf\')" style="padding:20px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:12px; cursor:pointer; transition:all 0.2s; text-align:center;" '
-                    + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
+                    + 'onmouseover="this.style.borderColor=\'rgba(0,113,227,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
                     + 'onmouseout="this.style.borderColor=\'var(--c-border-subtle)\';this.style.background=\'var(--c-surface-2a)\'">'
                     + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('pdf', 28) + '</div>'
                     + '<div style="font-weight:700; margin-bottom:4px;">PDF Document</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Downloadable PDF for email attachments, ATS uploads, and offline sharing.</div>'
                     + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:var(--accent); font-weight:600;">PDF</span>'
-                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(255,159,10,0.15)); color:var(--c-orange); font-weight:600;">Attachment</span></div>'
+                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(196,93,0,0.15)); color:var(--c-orange); font-weight:600;">Attachment</span></div>'
                     + '</div>'
                     + '</div>'
-                    + '<div style="margin-top:14px; padding:12px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); border-radius:8px; text-align:center;">'
+                    + '<div style="margin-top:14px; padding:12px; background:rgba(196,93,0,0.08); border:1px solid rgba(196,93,0,0.2); border-radius:8px; text-align:center;">'
                     + '<div style="font-size:0.82em; color:var(--c-orange); font-weight:600; margin-bottom:4px;">Demo Mode</div>'
                     + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.5;">Sample profiles include pre-built scouting reports you can preview. Sign up to generate your own with your real skills and career data.</div>'
                     + '</div>'
@@ -35975,7 +35975,7 @@ body {
                 + '<div onclick="var p=this.nextElementSibling; var c=this.querySelector(\'.bp-chev\'); if(p.style.display===\'none\'){p.style.display=\'block\';c.style.transform=\'rotate(90deg)\';}else{p.style.display=\'none\';c.style.transform=\'rotate(0deg)\';}" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;">'
                 + '<div style="display:flex; align-items:center; gap:6px;">'
                 + bpIcon('privacy', 14) + '<span style="font-size:0.85em; font-weight:600;">Privacy for this report</span>'
-                + (anyBlind ? '<span style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:600;">ON</span>' : '')
+                + (anyBlind ? '<span style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:rgba(36,138,61,0.12); color:var(--success); font-weight:600;">ON</span>' : '')
                 + '</div>'
                 + '<div class="bp-chev" style="color:var(--text-muted); transition:transform 0.2s; transform:rotate(0deg);">' + bpIcon('chevron-right', 14) + '</div>'
                 + '</div>'
@@ -35990,7 +35990,7 @@ body {
                     + '</div>';
             });
             
-            blindHTML += '<div style="margin-top:8px; padding:8px 10px; background:rgba(255,159,10,0.07); border:1px solid rgba(255,159,10,0.18); border-radius:6px;">'
+            blindHTML += '<div style="margin-top:8px; padding:8px 10px; background:rgba(196,93,0,0.07); border:1px solid rgba(196,93,0,0.18); border-radius:6px;">'
                 + '<div style="font-size:0.72em; color:var(--c-orange); line-height:1.5;">'
                 + bpIcon('warning', 10) + ' Overrides apply to this report only. Defaults are managed in <a onclick="closeExportModal(); switchView(\'settings\'); setTimeout(function(){ window.currentSettingsTab=\'privacy\'; initSettings(); },100);" style="color:var(--accent); cursor:pointer; text-decoration:underline;">Settings &gt; Privacy</a>.</div></div>'
                 + '</div></div>';
@@ -36001,7 +36001,7 @@ body {
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + (isGeneral
-                ? '<div style="padding:14px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:20px; text-align:center;">'
+                ? '<div style="padding:14px 16px; background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2); border-radius:10px; margin-bottom:20px; text-align:center;">'
                 + '<div style="font-weight:600; color:var(--c-text);">General Scouting Report</div>'
                 + '<div style="font-size:0.82em; color:var(--c-muted); margin-top:4px;">Your career intelligence — not targeted to a specific job</div>'
                 + '</div>'
@@ -36013,23 +36013,23 @@ body {
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 // HTML option
                 + '<div onclick="generateHTMLScoutingReport(' + jobIdx + ')" style="padding:20px; background:var(--c-surface-2a); border:1px solid var(--c-accent-border-3c); border-radius:12px; cursor:pointer; transition:all 0.2s; text-align:center;" '
-                + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
+                + 'onmouseover="this.style.borderColor=\'rgba(0,113,227,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
                 + 'onmouseout="this.style.borderColor=\'var(--c-accent-border-3c)\';this.style.background=\'var(--c-surface-2a)\'">'
                 + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('external', 28) + '</div>'
                 + '<div style="font-weight:700; margin-bottom:4px;">Interactive HTML</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Shareable web page with D3 networks, blind mode toggles, and full interactivity.</div>'
                 + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:var(--accent); font-weight:600;">HTML</span>'
-                + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(48,209,88,0.15)); color:var(--success); font-weight:600;">Shareable Link</span></div>'
+                + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(36,138,61,0.15)); color:var(--success); font-weight:600;">Shareable Link</span></div>'
                 + '</div>'
                 // PDF option
                 + '<div onclick="generateScoutingReport(' + jobIdx + ')" style="padding:20px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:12px; cursor:pointer; transition:all 0.2s; text-align:center;" '
-                + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
+                + 'onmouseover="this.style.borderColor=\'rgba(0,113,227,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
                 + 'onmouseout="this.style.borderColor=\'var(--c-border-subtle)\';this.style.background=\'var(--c-surface-2a)\'">'
                 + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('pdf', 28) + '</div>'
                 + '<div style="font-weight:700; margin-bottom:4px;">PDF Document</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Downloadable PDF for email attachments, ATS uploads, and offline sharing.</div>'
                 + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:var(--accent); font-weight:600;">PDF</span>'
-                + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(255,159,10,0.15)); color:var(--c-orange); font-weight:600;">Attachment</span></div>'
+                + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(196,93,0,0.15)); color:var(--c-orange); font-weight:600;">Attachment</span></div>'
                 + '</div>'
                 + '</div>'
                 + blindHTML
@@ -36371,7 +36371,7 @@ body {
                         + '    "Creative & Design":"#ff9f0a",'
                         + '    "General Professional":"#636366",'
                         + '    skill:"#60a5fa", ability:"#bf5af2",'
-                        + '    workstyle:"#30d158", unique:"#ffd60a",'
+                        + '    workstyle:"var(--success)", unique:"var(--warning)",'
                         + '    knowledge:"#5ac8fa", workactivity:"#ff453a",'
                         + '    trade:"#ff9f0a", Transversal:"#a1a1a6"'
                         + '  };'
@@ -36389,8 +36389,8 @@ body {
                         + '      var color = bpColors[cat] || bpColors[cat.toLowerCase ? cat.toLowerCase() : cat] || lvColors[lv] || null;'
                         + '      if (color) { c.setAttribute("fill", color); c.style.fill = color; }'
                         + '      if (d.isRole || d.type === "role" || d.nodeType === "role") {'
-                        + '        c.setAttribute("fill", "rgba(255,255,255,0.06)");'
-                        + '        c.setAttribute("stroke", "rgba(255,255,255,0.2)");'
+                        + '        c.setAttribute("fill", "rgba(0,0,0,0.05)");'
+                        + '        c.setAttribute("stroke", "rgba(0,0,0,0.12)");'
                         + '        c.setAttribute("stroke-width", "1.5");'
                         + '      }'
                         + '      if (d.isCenter || d.nodeType === "center" || d.id === "center") {'
@@ -36557,7 +36557,7 @@ body {
                         + '  var gapSec=document.getElementById("gaps");'
                         + '  if(gapSec) gapSec.style.display="none";'
                         + '  var snLeg=document.getElementById("snLeg");'
-                        + '  if(snLeg) snLeg.innerHTML="<div class=\\"net-leg-i\\"><div class=\\"net-leg-d\\" style=\\"background:#60a5fa\\"></div>Candidate</div><div class=\\"net-leg-i\\"><div class=\\"net-leg-d\\" style=\\"background:#bf5af2\\"></div>Role Cluster</div>";'
+                        + '  if(snLeg) snLeg.innerHTML="<div class=\\"net-leg-i\\"><div class=\\"net-leg-d\\" style=\\"background:#0071e3\\"></div>Candidate</div><div class=\\"net-leg-i\\"><div class=\\"net-leg-d\\" style=\\"background:#9b59b6\\"></div>Role Cluster</div>";'
                         + '  var navLinks=document.querySelectorAll(".nav-a");'
                         + '  navLinks.forEach(function(a){'
                         + '    var t=(a.textContent||"").toLowerCase();'
@@ -36592,7 +36592,7 @@ body {
                     var headerTitle = reportData.isGeneral
                         ? escapeHtml(candidateName) + ' — Career Intelligence Profile'
                         : escapeHtml(candidateName) + ' \u2192 ' + escapeHtml(reportData.job.title);
-                    var matchBadge = reportData.isGeneral ? '' : '<span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(48,209,88,0.1);color:var(--success);font-weight:600;">' + (reportData.match.percentage || 0) + '% MATCH</span>';
+                    var matchBadge = reportData.isGeneral ? '' : '<span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(36,138,61,0.1);color:var(--success);font-weight:600;">' + (reportData.match.percentage || 0) + '% MATCH</span>';
                     header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">'
                         + '<span style="color:var(--accent);">' + bpIcon('target',18) + '</span>'
                         + '<span style="font-weight:600;font-size:0.92em;">' + headerTitle + '</span>'
@@ -36606,7 +36606,7 @@ body {
                     
                     var iframe = document.createElement('iframe');
                     iframe.src = blobUrl;
-                    iframe.style.cssText = 'flex:1;width:100%;border:none;background:#0a0a0f;';
+                    iframe.style.cssText = 'flex:1;width:100%;border:none;background:#fbfbfd;';
                     
                     container.appendChild(header);
                     container.appendChild(iframe);
@@ -36700,7 +36700,7 @@ body {
                     // Update button to show link
                     if (btn) {
                         btn.innerHTML = bpIcon('check',14) + ' Link Copied';
-                        btn.style.background = '#30d158';
+                        btn.style.background = 'var(--success)';
                         setTimeout(function() {
                             btn.disabled = false;
                             btn.innerHTML = bpIcon('external',14) + ' Copy Link Again';
@@ -36777,15 +36777,15 @@ body {
                             else lastViewedLabel = lvDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                         }
                         
-                        html += '<div style="padding:16px; background:var(--c-surface-2a); border:1px solid ' + (isActive ? 'var(--c-border-subtle)' : 'rgba(255,69,58,0.3)') + '; border-radius:12px; ' + (!isActive ? 'opacity:0.6;' : '') + '">'
+                        html += '<div style="padding:16px; background:var(--c-surface-2a); border:1px solid ' + (isActive ? 'var(--c-border-subtle)' : 'rgba(215,0,21,0.3)') + '; border-radius:12px; ' + (!isActive ? 'opacity:0.6;' : '') + '">'
                             + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">'
                             + '<div style="flex:1; min-width:0;">'
                             + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">'
                             + '<span style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px;">' + escapeHtml(r.jobTitle || 'Untitled') + '</span>'
                             + (isActive
-                                ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(48,209,88,0.12); color:var(--success); font-weight:600;">LIVE</span>'
-                                : '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,69,58,0.12); color:var(--danger); font-weight:600;">REVOKED</span>')
-                            + (blindCount > 0 ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(255,159,10,0.12); color:var(--c-orange); font-weight:600;">' + bpIcon('privacy',10) + ' ' + blindCount + ' blind</span>' : '')
+                                ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(36,138,61,0.12); color:var(--success); font-weight:600;">LIVE</span>'
+                                : '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(215,0,21,0.12); color:var(--danger); font-weight:600;">REVOKED</span>')
+                            + (blindCount > 0 ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(196,93,0,0.12); color:var(--c-orange); font-weight:600;">' + bpIcon('privacy',10) + ' ' + blindCount + ' blind</span>' : '')
                             + '</div>'
                             + '<div style="font-size:0.82em; color:var(--text-secondary);">'
                             + escapeHtml(r.company || '') + (r.company ? ' \u00B7 ' : '') + createdDate
@@ -36809,10 +36809,10 @@ body {
                                 + '<button onclick="viewPublishedReport(\'' + escapeHtml(r._id) + '\',\'' + escapeHtml(r.shareToken || '') + '\')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('eye',11) + ' Preview</button>'
                                 + '<button onclick="editPublishedPrivacy(' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('privacy',11) + ' Privacy</button>'
                                 + '<button onclick="refreshPublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid var(--c-border-mid); background:var(--c-surface-0); color:var(--c-text); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('refresh',11) + ' Refresh</button>'
-                                + '<button onclick="revokePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:var(--danger); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Revoke</button>';
+                                + '<button onclick="revokePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(215,0,21,0.3); background:transparent; color:var(--danger); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Revoke</button>';
                         } else {
-                            html += '<button onclick="reactivatePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(48,209,88,0.3); background:transparent; color:var(--success); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('check',11) + ' Re-activate</button>'
-                                + '<button onclick="deletePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,69,58,0.3); background:transparent; color:var(--danger); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Delete</button>';
+                            html += '<button onclick="reactivatePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(36,138,61,0.3); background:transparent; color:var(--success); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('check',11) + ' Re-activate</button>'
+                                + '<button onclick="deletePublishedReport(\'' + escapeHtml(r._id) + '\',' + idx + ')" style="font-size:0.78em; padding:5px 12px; border-radius:6px; border:1px solid rgba(215,0,21,0.3); background:transparent; color:var(--danger); cursor:pointer; font-weight:500; display:flex; align-items:center; gap:4px;">' + bpIcon('x',11) + ' Delete</button>';
                         }
                         html += '</div></div>';
                     });
@@ -37506,10 +37506,10 @@ body {
                     if (lk.type === 'hub') {
                         ctx.strokeStyle = 'rgba(80,100,150,0.1)'; ctx.lineWidth = 1;
                     } else if (lk.type === 'gap') {
-                        ctx.strokeStyle = 'rgba(255,69,58,0.25)'; ctx.lineWidth = 1.2;
+                        ctx.strokeStyle = 'rgba(215,0,21,0.25)'; ctx.lineWidth = 1.2;
                         ctx.setLineDash([8, 5]);
                     } else {
-                        ctx.strokeStyle = tg.matchColor === 'matched' ? 'rgba(48,209,88,0.07)' : 'rgba(50,65,100,0.06)';
+                        ctx.strokeStyle = tg.matchColor === 'matched' ? 'rgba(36,138,61,0.07)' : 'rgba(50,65,100,0.06)';
                         ctx.lineWidth = 0.5;
                     }
                     ctx.stroke(); ctx.setLineDash([]);
@@ -37521,13 +37521,13 @@ body {
                     // Glow for matched
                     if (n.isKey) {
                         ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 8, 0, Math.PI * 2);
-                        ctx.fillStyle = 'rgba(48,209,88,0.12)'; ctx.fill();
+                        ctx.fillStyle = 'rgba(36,138,61,0.12)'; ctx.fill();
                     }
                     ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
                     ctx.fillStyle = rgb(n.color);
                     ctx.globalAlpha = n.matchColor === 'surplus' ? 0.45 : 1;
                     ctx.fill(); ctx.globalAlpha = 1;
-                    if (n.isKey) { ctx.strokeStyle = 'rgba(48,209,88,0.8)'; ctx.lineWidth = 3; ctx.stroke(); }
+                    if (n.isKey) { ctx.strokeStyle = 'rgba(36,138,61,0.8)'; ctx.lineWidth = 3; ctx.stroke(); }
                     if (n.type === 'gap') { ctx.strokeStyle = 'rgba(252,165,165,0.7)'; ctx.lineWidth = 2.5; ctx.stroke(); }
                     // Label
                     var fs = n.type === 'gap' ? 28 : (n.isKey ? 26 : 24);
@@ -37542,7 +37542,7 @@ body {
                 d3nodes.forEach(function(n) {
                     if (n.type !== 'role') return;
                     ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 3, 0, Math.PI * 2);
-                    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 3; ctx.stroke();
+                    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 3; ctx.stroke();
                     ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
                     ctx.fillStyle = rgb(n.color); ctx.fill();
                     ctx.font = 'bold 32px Helvetica, Arial, sans-serif';
@@ -37724,7 +37724,7 @@ body {
                     if (n.type === 'center' || n.type === 'role') return;
                     ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
                     ctx.fillStyle = rgb(n.color); ctx.fill();
-                    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1.5; ctx.stroke();
+                    ctx.strokeStyle = 'rgba(0,0,0,0.12)'; ctx.lineWidth = 1.5; ctx.stroke();
                     ctx.font = '24px Helvetica, Arial, sans-serif';
                     ctx.fillStyle = 'rgb(148,163,184)';
                     ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
@@ -37736,7 +37736,7 @@ body {
                 d3nodes.forEach(function(n) {
                     if (n.type !== 'role') return;
                     ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 3, 0, Math.PI * 2);
-                    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 3; ctx.stroke();
+                    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 3; ctx.stroke();
                     ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
                     ctx.fillStyle = rgb(n.color); ctx.fill();
                     ctx.font = 'bold 32px Helvetica, Arial, sans-serif';
@@ -38390,13 +38390,13 @@ body {
             var modal = document.createElement('div');
             modal.style.cssText = 'background:var(--c-surface,#fff);border-radius:12px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3);';
 
-            var headerHtml = '<div style="padding:24px 28px 16px;border-bottom:1px solid var(--c-border-subtle,#d1d1d6);">'
+            var headerHtml = '<div style="padding:24px 28px 16px;border-bottom:1px solid var(--c-border-subtle);">'
                 + '<div style="display:flex;align-items:center;justify-content:space-between;">'
                 + '<div>'
-                + '<div style="font-size:1.15em;font-weight:700;color:var(--c-text,#1c1c22);">Export Executive Blueprint</div>'
-                + '<div style="font-size:0.82em;color:var(--text-muted,#636366);margin-top:4px;">Select sections to include in your PDF</div>'
+                + '<div style="font-size:1.15em;font-weight:700;color:var(--c-text);">Export Executive Blueprint</div>'
+                + '<div style="font-size:0.82em;color:var(--text-muted);margin-top:4px;">Select sections to include in your PDF</div>'
                 + '</div>'
-                + '<button onclick="document.getElementById(\'pdfPickerOverlay\').remove()" style="background:none;border:none;font-size:1.4em;cursor:pointer;color:var(--text-muted,#636366);padding:4px 8px;">&times;</button>'
+                + '<button onclick="document.getElementById(\'pdfPickerOverlay\').remove()" style="background:none;border:none;font-size:1.4em;cursor:pointer;color:var(--text-muted);padding:4px 8px;">&times;</button>'
                 + '</div></div>';
 
             var bodyHtml = '<div style="padding:16px 28px 8px;">';
@@ -38404,12 +38404,12 @@ body {
             sections.forEach(function(s) {
                 var disabled = s.locked ? ' style="opacity:0.5;pointer-events:none;"' : '';
                 var checkedAttr = s.checked ? ' checked' : '';
-                var countBadge = s.count !== undefined ? '<span style="font-size:0.75em;padding:2px 8px;border-radius:10px;background:var(--c-accent-bg-6c,#eff6ff);color:var(--c-accent,#60a5fa);margin-left:8px;">' + s.count + '</span>' : '';
-                bodyHtml += '<label style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--c-border-subtle,#f5f5f7);cursor:pointer;">'
+                var countBadge = s.count !== undefined ? '<span style="font-size:0.75em;padding:2px 8px;border-radius:10px;background:var(--c-accent-bg-6c,#eff6ff);color:var(--c-accent);margin-left:8px;">' + s.count + '</span>' : '';
+                bodyHtml += '<label style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--c-border-subtle);cursor:pointer;">'
                     + '<input type="checkbox" id="pdf-sec-' + s.id + '" ' + checkedAttr + (s.locked ? ' disabled' : '') + ' style="margin-top:3px;accent-color:var(--accent);width:18px;height:18px;flex-shrink:0;">'
                     + '<div style="flex:1;min-width:0;">'
-                    + '<div style="font-weight:600;font-size:0.92em;color:var(--c-text,#1c1c22);">' + s.label + countBadge + '</div>'
-                    + '<div style="font-size:0.8em;color:var(--text-muted,#636366);margin-top:2px;">' + s.desc + '</div>'
+                    + '<div style="font-weight:600;font-size:0.92em;color:var(--c-text);">' + s.label + countBadge + '</div>'
+                    + '<div style="font-size:0.8em;color:var(--text-muted);margin-top:2px;">' + s.desc + '</div>'
                     + '</div></label>';
             });
 
@@ -38418,21 +38418,21 @@ body {
             var compHtml = '';
             if (comp) {
                 compHtml = '<div id="pdfCompEditor" style="padding:0 28px 16px;">'
-                    + '<div style="font-size:0.82em;font-weight:600;color:var(--c-text,#1c1c22);margin-bottom:8px;">Compensation Values (editable)</div>'
+                    + '<div style="font-size:0.82em;font-weight:600;color:var(--c-text);margin-bottom:8px;">Compensation Values (editable)</div>'
                     + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">'
-                    + '<div><label style="font-size:0.72em;color:var(--text-muted,#636366);display:block;margin-bottom:3px;">Conservative</label>'
-                    + '<input type="number" id="pdf-comp-cons" value="' + compConservative + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid,#d1d1d6);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text,#1c1c22);"></div>'
-                    + '<div><label style="font-size:0.72em;color:var(--text-muted,#636366);display:block;margin-bottom:3px;">Market Rate</label>'
-                    + '<input type="number" id="pdf-comp-market" value="' + compMarket + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid,#d1d1d6);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text,#1c1c22);"></div>'
-                    + '<div><label style="font-size:0.72em;color:var(--text-muted,#636366);display:block;margin-bottom:3px;">Competitive</label>'
-                    + '<input type="number" id="pdf-comp-comp" value="' + compCompetitive + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid,#d1d1d6);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text,#1c1c22);"></div>'
+                    + '<div><label style="font-size:0.72em;color:var(--text-muted);display:block;margin-bottom:3px;">Conservative</label>'
+                    + '<input type="number" id="pdf-comp-cons" value="' + compConservative + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text);"></div>'
+                    + '<div><label style="font-size:0.72em;color:var(--text-muted);display:block;margin-bottom:3px;">Market Rate</label>'
+                    + '<input type="number" id="pdf-comp-market" value="' + compMarket + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text);"></div>'
+                    + '<div><label style="font-size:0.72em;color:var(--text-muted);display:block;margin-bottom:3px;">Competitive</label>'
+                    + '<input type="number" id="pdf-comp-comp" value="' + compCompetitive + '" style="width:100%;padding:6px 10px;border:1px solid var(--c-border-mid);border-radius:8px;font-size:0.88em;background:var(--c-surface-2,#f9fafb);color:var(--c-text);"></div>'
                     + '</div>'
-                    + '<div style="font-size:0.7em;color:var(--text-muted,#a1a1a6);margin-top:6px;">Source: ' + compLabel + ' &middot; Adjust values before export</div>'
+                    + '<div style="font-size:0.7em;color:var(--text-muted);margin-top:6px;">Source: ' + compLabel + ' &middot; Adjust values before export</div>'
                     + '</div>';
             }
 
-            var footerHtml = '<div style="padding:16px 28px 24px;border-top:1px solid var(--c-border-subtle,#d1d1d6);display:flex;gap:12px;justify-content:flex-end;">'
-                + '<button onclick="document.getElementById(\'pdfPickerOverlay\').remove()" style="padding:10px 20px;border:1px solid var(--c-border-mid,#d1d1d6);background:transparent;border-radius:10px;cursor:pointer;font-size:0.88em;color:var(--text-muted,#636366);">Cancel</button>'
+            var footerHtml = '<div style="padding:16px 28px 24px;border-top:1px solid var(--c-border-subtle);display:flex;gap:12px;justify-content:flex-end;">'
+                + '<button onclick="document.getElementById(\'pdfPickerOverlay\').remove()" style="padding:10px 20px;border:1px solid var(--c-border-mid);background:transparent;border-radius:10px;cursor:pointer;font-size:0.88em;color:var(--text-muted);">Cancel</button>'
                 + '<button onclick="executePdfExport()" style="padding:10px 24px;background:#1e40af;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:0.88em;font-weight:600;">Generate PDF</button>'
                 + '</div>';
 
@@ -40664,7 +40664,7 @@ body {
                         + 'padding:16px; border:1px solid var(--border); border-radius:10px; cursor:pointer; '
                         + 'margin-bottom:10px; transition:all 0.15s;" '
                         + 'onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
-                        + '<div style="width:44px; height:44px; border-radius:10px; background:rgba(96,165,250,0.1); '
+                        + '<div style="width:44px; height:44px; border-radius:10px; background:rgba(0,113,227,0.1); '
                         + 'display:flex; align-items:center; justify-content:center; font-weight:700; color:' + scoreColor + '; font-size:0.85em;">'
                         + score + '%</div>'
                         + '<div style="flex:1; min-width:0;">'
@@ -40845,7 +40845,7 @@ body {
                         + 'padding:16px; border:1px solid var(--border); border-radius:10px; cursor:pointer; '
                         + 'margin-bottom:10px; transition:all 0.15s;" '
                         + 'onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
-                        + '<div style="width:44px; height:44px; border-radius:10px; background:rgba(96,165,250,0.1); '
+                        + '<div style="width:44px; height:44px; border-radius:10px; background:rgba(0,113,227,0.1); '
                         + 'display:flex; align-items:center; justify-content:center; font-weight:700; color:' + scoreColor + '; font-size:0.85em;">'
                         + score + '%</div>'
                         + '<div style="flex:1; min-width:0;">'
@@ -41359,7 +41359,7 @@ body {
                 var matched = matchResult.matched || [];
                 var gaps = matchResult.gaps || [];
 
-                html += '<div style="padding:16px 20px; border-radius:10px; border:1px solid ' + (score >= 70 ? 'rgba(48,209,88,0.3)' : 'var(--border)') + '; background:var(--c-input-bg-soft);">';
+                html += '<div style="padding:16px 20px; border-radius:10px; border:1px solid ' + (score >= 70 ? 'rgba(36,138,61,0.3)' : 'var(--border)') + '; background:var(--c-input-bg-soft);">';
 
                 html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:8px;">'
                     + '<div style="flex:1; min-width:0;">'
@@ -41369,19 +41369,19 @@ body {
                     + (job.source ? ' \u00B7 <span style="color:var(--accent);">' + escapeHtml(job.source) + '</span>' : '') + '</div></div>'
                     + '<div style="text-align:center; min-width:56px;">'
                     + '<div style="font-size:1.4em; font-weight:700; color:' + matchColor + ';">' + score + '%</div>'
-                    + '<div style="font-size:0.68em; color:' + ((job._fitMatch && job._fitMatch.lowConfidence) ? '#ff9f0a' : 'var(--text-muted)') + ';">' + ((job._fitMatch && job._fitMatch.lowConfidence) ? '\u26A0 limited' : 'match') + '</div></div></div>';
+                    + '<div style="font-size:0.68em; color:' + ((job._fitMatch && job._fitMatch.lowConfidence) ? 'var(--c-orange)' : 'var(--text-muted)') + ';">' + ((job._fitMatch && job._fitMatch.lowConfidence) ? '\u26A0 limited' : 'match') + '</div></div></div>';
 
                 html += '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">';
                 (job.matchedSkills || []).slice(0, 8).forEach(function(s) {
-                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(48,209,88,0.1); color:var(--success); border:1px solid rgba(48,209,88,0.2);">' + escapeHtml(s) + '</span>';
+                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(36,138,61,0.1); color:var(--success); border:1px solid rgba(36,138,61,0.2);">' + escapeHtml(s) + '</span>';
                 });
                 (job.gapSkills || []).slice(0, 4).forEach(function(s) {
-                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(255,69,58,0.06); color:var(--danger); border:1px solid rgba(255,69,58,0.15);">' + escapeHtml(s) + '</span>';
+                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(215,0,21,0.06); color:var(--danger); border:1px solid rgba(215,0,21,0.15);">' + escapeHtml(s) + '</span>';
                 });
                 html += '</div>';
 
                 html += '<div style="display:flex; gap:8px; align-items:center; font-size:0.8em;">'
-                    + '<span style="color:' + ((job._fitSkillsExtracted || 0) < 5 ? '#ff9f0a' : 'var(--text-muted)') + ';">' + (job._fitSkillsExtracted || 0) + ' skills parsed' + ((job._fitSkillsExtracted || 0) < 5 ? ' \u26A0' : '') + ' \u00B7 ' + matched.length + ' matched \u00B7 ' + gaps.length + ' gaps</span>'
+                    + '<span style="color:' + ((job._fitSkillsExtracted || 0) < 5 ? 'var(--c-orange)' : 'var(--text-muted)') + ';">' + (job._fitSkillsExtracted || 0) + ' skills parsed' + ((job._fitSkillsExtracted || 0) < 5 ? ' \u26A0' : '') + ' \u00B7 ' + matched.length + ' matched \u00B7 ' + gaps.length + ' gaps</span>'
                     + '<button onclick="_fitForMeExpanded[' + idx + ']=!' + (isExpanded ? 'true' : 'false') + '; renderFitForMe(document.getElementById(\'jobsSubTabContent\'));" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:2px 6px;">' + (isExpanded ? '\u25B2 Less' : '\u25BC Details') + '</button>';
                 if (!job._inPipeline) {
                     html += '<button onclick="_fitAddToPipeline(' + idx + ')" style="background:none; border:1px solid var(--accent); color:var(--accent); padding:3px 10px; border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:600;">+ Pipeline</button>';
@@ -41399,7 +41399,7 @@ body {
                         matched.forEach(function(m) {
                             var quality = Math.round((m.nameMatch || 0) * (m.profMatch || 1) * 100);
                             var qColor = quality >= 80 ? '#30d158' : quality >= 50 ? '#ff9f0a' : '#ff453a';
-                            html += '<div style="padding:6px 10px; background:rgba(48,209,88,0.04); border-radius:6px; border-left:2px solid ' + qColor + '; font-size:0.82em;">'
+                            html += '<div style="padding:6px 10px; background:rgba(36,138,61,0.04); border-radius:6px; border-left:2px solid ' + qColor + '; font-size:0.82em;">'
                                 + '<span style="font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</span>'
                                 + (m.userSkill !== m.jobSkill ? ' <span style="color:var(--text-muted);">\u2192 ' + escapeHtml(m.userSkill) + '</span>' : '')
                                 + (m.userLevel ? ' <span style="color:' + qColor + '; font-size:0.9em;">(' + m.userLevel + ')</span>' : '')
@@ -41412,7 +41412,7 @@ body {
                         html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--danger); font-weight:600; margin-bottom:6px;">Gaps (' + gaps.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:12px;">';
                         gaps.forEach(function(g) {
-                            html += '<span style="padding:3px 10px; border-radius:10px; font-size:0.78em; background:rgba(255,69,58,0.06); color:var(--danger); border:1px solid rgba(255,69,58,0.12);">'
+                            html += '<span style="padding:3px 10px; border-radius:10px; font-size:0.78em; background:rgba(215,0,21,0.06); color:var(--danger); border:1px solid rgba(215,0,21,0.12);">'
                                 + escapeHtml(g.name) + ' <span style="font-size:0.85em; color:var(--text-muted);">(' + (g.requirement || 'Required') + ')</span></span>';
                         });
                         html += '</div>';
@@ -41423,7 +41423,7 @@ body {
                         html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:600; margin-bottom:6px;">Your Additional Skills (' + surplus.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">';
                         surplus.slice(0, 10).forEach(function(s) {
-                            html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(96,165,250,0.06); color:var(--accent); border:1px solid rgba(96,165,250,0.12);">' + escapeHtml(s.name) + '</span>';
+                            html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(0,113,227,0.06); color:var(--accent); border:1px solid rgba(0,113,227,0.12);">' + escapeHtml(s.name) + '</span>';
                         });
                         if (surplus.length > 10) html += '<span style="font-size:0.73em; color:var(--text-muted);">+' + (surplus.length - 10) + ' more</span>';
                         html += '</div>';
@@ -41738,7 +41738,7 @@ body {
                         // Comp delta badge
                         if (compDelta !== null) {
                             var deltaAbs = Math.abs(Math.round(compDelta / 1000));
-                            var deltaBg = compDeltaDir === 'up' ? 'rgba(48,209,88,0.12)' : 'rgba(255,69,58,0.12)';
+                            var deltaBg = compDeltaDir === 'up' ? 'rgba(36,138,61,0.12)' : 'rgba(215,0,21,0.12)';
                             var deltaFg = compDeltaDir === 'up' ? '#30d158' : '#ff453a';
                             var deltaArrow = compDeltaDir === 'up' ? '↑' : '↓';
                             html += '<div style="margin-top:5px; display:inline-block; background:' + deltaBg + '; color:' + deltaFg + '; border-radius:8px; padding:2px 8px; font-size:0.75em; font-weight:600;">'
@@ -41980,21 +41980,21 @@ body {
                         + 'cursor:pointer; padding:4px 10px; border-radius:8px;" '
                         + 'onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">' + bpIcon('edit',12) + ' Edit</button>'
                         + '<button onclick="event.stopPropagation(); removeJob(' + idx + ')" style="'
-                        + 'background:none; border:1px solid rgba(255,69,58,0.2); color:var(--text-muted); font-size:0.75em; '
+                        + 'background:none; border:1px solid rgba(215,0,21,0.2); color:var(--text-muted); font-size:0.75em; '
                         + 'cursor:pointer; padding:4px 10px; border-radius:8px;" '
-                        + 'onmouseover="this.style.color=\'#ff453a\';this.style.borderColor=\'rgba(255,69,58,0.5)\'" '
-                        + 'onmouseout="this.style.color=\'var(--text-muted)\';this.style.borderColor=\'rgba(255,69,58,0.2)\'">\u2715 Remove</button>'
+                        + 'onmouseover="this.style.color=\'var(--danger)\';this.style.borderColor=\'rgba(215,0,21,0.5)\'" '
+                        + 'onmouseout="this.style.color=\'var(--text-muted)\';this.style.borderColor=\'rgba(215,0,21,0.2)\'">\u2715 Remove</button>'
                         + '</div>';
                 }
                 
                 // Scouting Report CTA
                 html += '<div onclick="event.stopPropagation(); launchScoutingReport()" style="'
                     + 'margin-top:10px; padding:8px 14px; border-radius:8px; '
-                    + 'background:rgba(96,165,250,0.08); '
-                    + 'border:1px solid rgba(96,165,250,0.15); cursor:pointer; display:flex; align-items:center; '
+                    + 'background:rgba(0,113,227,0.08); '
+                    + 'border:1px solid rgba(0,113,227,0.15); cursor:pointer; display:flex; align-items:center; '
                     + 'gap:8px; font-size:0.8em; font-weight:600; color:var(--accent); transition:all 0.2s;" '
-                    + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\';this.style.background=\'rgba(96,165,250,0.12)\'" '
-                    + 'onmouseout="this.style.borderColor=\'rgba(96,165,250,0.15)\';this.style.background=\'rgba(96,165,250,0.06)\'">'
+                    + 'onmouseover="this.style.borderColor=\'rgba(0,113,227,0.4)\';this.style.background=\'rgba(0,113,227,0.12)\'" '
+                    + 'onmouseout="this.style.borderColor=\'rgba(0,113,227,0.15)\';this.style.background=\'rgba(0,113,227,0.06)\'">'
                     + bpIcon('file-text',14) + ' Create Scouting Report'
                     + '</div>';
                 
@@ -46240,7 +46240,7 @@ body {
                 + '</div>'
                 + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:16px;">The skill will be added to your profile and all job matches will be rescored automatically.</p>'
                 + '<div style="display:flex; gap:10px; justify-content:flex-end;">'
-                + '<button onclick="closeExportModal()" style="padding:10px 20px; background:rgba(255,255,255,0.1); border:1px solid var(--border); border-radius:6px; cursor:pointer; color:var(--text-primary);">Cancel</button>'
+                + '<button onclick="closeExportModal()" style="padding:10px 20px; background:rgba(0,0,0,0.07); border:1px solid var(--border); border-radius:6px; cursor:pointer; color:var(--text-primary);">Cancel</button>'
                 + '<button onclick="confirmQuickAddGapSkill(\'' + escapeHtml(skillName).replace(/'/g, "\\'") + '\', ' + jobIdx + ')" style="'
                 + 'padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Add to Profile</button>'
                 + '</div></div>';
@@ -46348,7 +46348,7 @@ body {
                     + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u21BB Refresh Match</button>'
                     + '<button onclick="reanalyzeJob(' + idx + ')" style="background:none; border:1px solid var(--border); '
                     + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u21BB Re-analyze</button>'
-                    + '<button onclick="removeJob(' + idx + ')" style="background:none; border:1px solid rgba(255,69,58,0.3); '
+                    + '<button onclick="removeJob(' + idx + ')" style="background:none; border:1px solid rgba(215,0,21,0.3); '
                     + 'color:var(--danger); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u2715 Delete</button>';
             }
             html += '</div></div>';
@@ -46380,7 +46380,7 @@ body {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">';
                 metaBadges.forEach(function(b) {
                     html += '<span style="display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:10px; '
-                        + 'font-size:0.72em; background:rgba(96,165,250,0.08); color:var(--text-muted); border:1px solid rgba(96,165,250,0.12);">'
+                        + 'font-size:0.72em; background:rgba(0,113,227,0.08); color:var(--text-muted); border:1px solid rgba(0,113,227,0.12);">'
                         + b + '</span>';
                 });
                 html += '</div>';
@@ -46400,11 +46400,11 @@ body {
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('network',16) + ' Compare Skills</button>'
                 + '<button onclick="activateValuesOverlay(' + idx + ')" style="'
-                + 'background:transparent; color:var(--c-orange); border:1px solid rgba(255,159,10,0.4); padding:10px 20px; border-radius:8px; '
+                + 'background:transparent; color:var(--c-orange); border:1px solid rgba(196,93,0,0.4); padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('values',16) + ' Values Fit</button>'
                 + '<button onclick="launchScoutingReport()" style="'
-                + 'background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); padding:10px 20px; border-radius:8px; '
+                + 'background:rgba(0,113,227,0.15); color:var(--accent); border:1px solid rgba(0,113,227,0.3); padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('file-text',16) + ' Scouting Report</button>'
                 + '</div>'
@@ -46414,13 +46414,13 @@ body {
             // Summary stats
             var profGapCount = matched.filter(function(m) { return m.profGap; }).length;
             html += '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:24px;">'
-                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2);">'
+                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(36,138,61,0.08); border:1px solid rgba(36,138,61,0.2);">'
                 + '<div style="font-size:1.6em; font-weight:700; color:var(--success);">' + matched.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Skills Matched</div></div>'
-                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.15);">'
+                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(178,80,0,0.06); border:1px solid rgba(178,80,0,0.15);">'
                 + '<div style="font-size:1.6em; font-weight:700; color:var(--c-orange);">' + profGapCount + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Proficiency Gaps</div></div>'
-                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(255,69,58,0.06); border:1px solid rgba(255,69,58,0.2);">'
+                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(215,0,21,0.06); border:1px solid rgba(215,0,21,0.2);">'
                 + '<div style="font-size:1.6em; font-weight:700; color:var(--danger);">' + gaps.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Missing Skills</div></div>'
                 + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(99,99,102,0.06); border:1px solid rgba(99,99,102,0.15);">'
@@ -46438,7 +46438,7 @@ body {
                 jobSkillsArr.forEach(function(s) { if (s.section) sections[s.section] = (sections[s.section] || 0) + 1; });
                 var sectionSummary = Object.keys(sections).map(function(k) { return k + ' (' + sections[k] + ')'; }).join(', ');
                 html += '<div style="margin-bottom:12px; padding:8px 14px; border-radius:8px; '
-                    + 'background:rgba(96,165,250,0.04); border:1px solid rgba(96,165,250,0.1); '
+                    + 'background:rgba(0,113,227,0.04); border:1px solid rgba(0,113,227,0.1); '
                     + 'font-size:0.75em; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:8px; align-items:center;">'
                     + '<span>' + jobSkillsArr.length + ' skills extracted</span>'
                     + (inferredCount > 0 ? '<span>\u00B7 ' + extractedCount + ' explicit, ' + inferredCount + ' inferred</span>' : '')
@@ -46463,7 +46463,7 @@ body {
                 html += '<div style="margin-bottom:16px; display:flex; flex-direction:column; gap:6px;">';
                 diagnosticWarnings.forEach(function(w) {
                     html += '<div style="display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:8px; '
-                        + 'background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.15); font-size:0.82em; color:var(--c-orange);">'
+                        + 'background:rgba(178,80,0,0.06); border:1px solid rgba(178,80,0,0.15); font-size:0.82em; color:var(--c-orange);">'
                         + w + '</div>';
                 });
                 html += '</div>';
@@ -46473,8 +46473,8 @@ body {
             var valAlign = jobCV ? computeValuesAlignment(userVals, jobCV) : null;
             if (valAlign) {
                 var vaColor = valAlign.score >= 65 ? '#30d158' : valAlign.score >= 40 ? '#ff9f0a' : '#ff453a';
-                var vaBg = valAlign.score >= 65 ? 'rgba(48,209,88,0.06)' : valAlign.score >= 40 ? 'rgba(255,159,10,0.06)' : 'rgba(255,69,58,0.06)';
-                var vaBorder = valAlign.score >= 65 ? 'rgba(48,209,88,0.2)' : valAlign.score >= 40 ? 'rgba(255,159,10,0.15)' : 'rgba(255,69,58,0.2)';
+                var vaBg = valAlign.score >= 65 ? 'rgba(36,138,61,0.06)' : valAlign.score >= 40 ? 'rgba(196,93,0,0.06)' : 'rgba(215,0,21,0.06)';
+                var vaBorder = valAlign.score >= 65 ? 'rgba(36,138,61,0.2)' : valAlign.score >= 40 ? 'rgba(196,93,0,0.15)' : 'rgba(215,0,21,0.2)';
                 html += '<div style="display:flex; align-items:center; gap:16px; padding:14px 20px; margin-bottom:20px; '
                     + 'border-radius:10px; background:' + vaBg + '; border:1px solid ' + vaBorder + ';">'
                     + '<div style="text-align:center; min-width:60px;">'
@@ -46579,7 +46579,7 @@ body {
             var profGaps = matched.filter(function(m) { return m.profGap; });
             if (profGaps.length > 0) {
                 html += '<div style="margin-bottom:20px; padding:16px; border-radius:10px; '
-                    + 'background:rgba(255,214,10,0.06); border:1px solid rgba(255,214,10,0.15);">'
+                    + 'background:rgba(178,80,0,0.06); border:1px solid rgba(178,80,0,0.15);">'
                     + '<h3 style="font-size:0.95em; font-weight:700; color:var(--c-orange); margin-bottom:10px;">\u26A0 Proficiency Gaps (You Have It, But Need to Level Up)</h3>'
                     + '<div style="display:flex; flex-direction:column; gap:6px;">';
                 profGaps.forEach(function(m) {
@@ -46587,7 +46587,7 @@ body {
                     var jobVal = proficiencyValue(m.jobProficiency);
                     var pct = Math.round((userVal / jobVal) * 100);
                     html += '<div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; padding:8px 10px; '
-                        + 'background:rgba(255,214,10,0.04); border-radius:6px; font-size:0.85em;">'
+                        + 'background:rgba(178,80,0,0.04); border-radius:6px; font-size:0.85em;">'
                         + '<span style="font-weight:600; color:var(--text-primary); flex:1 1 120px;">' + m.userSkill + '</span>'
                         + '<span style="color:var(--c-orange);">You: ' + m.userLevel + '</span>'
                         + '<span style="color:var(--text-muted);">\u2192</span>'
@@ -46606,8 +46606,8 @@ body {
             
             if (roleGapOverlap.length > 0 || roleOther.length > 0) {
                 html += '<div style="margin-bottom:20px; padding:16px; border-radius:10px; '
-                    + 'background:rgba(96,165,250,0.06); '
-                    + 'border:1px solid rgba(96,165,250,0.15);">'
+                    + 'background:rgba(0,113,227,0.06); '
+                    + 'border:1px solid rgba(0,113,227,0.15);">'
                     + '<h3 style="font-size:0.95em; font-weight:700; color:var(--accent); margin-bottom:4px;">'
                     + '' + bpIcon('lightbulb',14) + ' Suggested for Your Roles</h3>'
                     + '<p style="font-size:0.75em; color:var(--text-muted); margin-bottom:10px;">Industry-standard skills for your roles. Click to add.</p>';
@@ -46616,7 +46616,7 @@ body {
                         + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">';
                     roleGapOverlap.forEach(function(s) {
                         html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:12px; '
-                            + 'font-size:0.82em; cursor:pointer; background:rgba(255,214,10,0.1); border:1px solid rgba(255,214,10,0.25); color:var(--text-secondary);" '
+                            + 'font-size:0.82em; cursor:pointer; background:rgba(178,80,0,0.1); border:1px solid rgba(178,80,0,0.25); color:var(--text-secondary);" '
                             + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\'); showJobDetail(' + idx + ');" '
                             + 'title="Expected for ' + escapeAttr(s.reason) + ' at ' + escapeAttr(s.level) + '">+ ' + escapeHtml(s.name) + '</span>';
                     });
@@ -46626,7 +46626,7 @@ body {
                     html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                     roleOther.slice(0, 12).forEach(function(s) {
                         html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:12px; '
-                            + 'font-size:0.82em; cursor:pointer; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); color:var(--text-secondary);" '
+                            + 'font-size:0.82em; cursor:pointer; background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2); color:var(--text-secondary);" '
                             + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\'); showJobDetail(' + idx + ');" '
                             + 'title="Expected for ' + escapeHtml(s.reason) + ' at ' + escapeHtml(s.level) + '">+ ' + escapeHtml(s.name) + '</span>';
                     });
@@ -46994,7 +46994,7 @@ body {
                 var jobUrl = (job.url && /^https?:\/\//i.test(job.url)) ? escapeHtml(job.url) : '#';
                 var salary = job.salary || '';
                 
-                html += '<div style="padding:16px 20px; border-radius:10px; border:1px solid ' + (displayScore >= 70 ? 'rgba(48,209,88,0.3)' : 'var(--border)') + '; '
+                html += '<div style="padding:16px 20px; border-radius:10px; border:1px solid ' + (displayScore >= 70 ? 'rgba(36,138,61,0.3)' : 'var(--border)') + '; '
                     + 'background:var(--c-input-bg-soft); transition:border-color 0.2s;">'
                     
                     // Header row
@@ -47014,7 +47014,7 @@ body {
                     + '<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; font-size:0.82em; color:var(--text-muted);">'
                     + (job.type ? '<span>' + bpIcon('briefcase',12) + ' ' + job.type + '</span>' : '')
                     + (salary ? '<span>' + bpIcon('dollar',12) + ' ' + salary + '</span>' : '')
-                    + '<span style="color:' + ({JSearch:'#60a5fa', Remotive:'#30d158', USAJobs:'#bf5af2', Himalayas:'#ff9f0a', Jobicy:'#ff453a', Adzuna:'#ff9f0a', 'The Muse':'#5ac8fa'}[job.source] || '#60a5fa') + ';">'
+                    + '<span style="color:' + ({JSearch:'var(--accent)', Remotive:'var(--success)', USAJobs:'var(--c-purple)', Himalayas:'var(--c-orange)', Jobicy:'var(--danger)', Adzuna:'var(--c-orange)', 'The Muse':'var(--c-cyan)'}[job.source] || 'var(--accent)') + ';">'
                     + bpIcon('external',12) + ' ' + (job.source || 'Remote') + '</span>'
                     + '</div>'
                     
@@ -47022,7 +47022,7 @@ body {
                     + (job.matchedSkills.length > 0 ? '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px;">'
                     + job.matchedSkills.slice(0, 6).map(function(s) {
                         return '<span style="padding:2px 8px; border-radius:10px; font-size:0.75em; '
-                            + 'background:rgba(48,209,88,0.1); color:var(--success); border:1px solid rgba(48,209,88,0.2);">' + s + '</span>';
+                            + 'background:rgba(36,138,61,0.1); color:var(--success); border:1px solid rgba(36,138,61,0.2);">' + s + '</span>';
                     }).join('')
                     + (job.matchedSkills.length > 6 ? '<span style="font-size:0.75em; color:var(--text-muted); padding:2px 6px;">+' + (job.matchedSkills.length - 6) + ' more</span>' : '')
                     + '</div>' : '')
@@ -47031,7 +47031,7 @@ body {
                     + (job.gapSkills && job.gapSkills.length > 0 ? '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px;">'
                     + job.gapSkills.slice(0, 4).map(function(s) {
                         return '<span style="padding:2px 8px; border-radius:10px; font-size:0.72em; '
-                            + 'background:rgba(255,69,58,0.06); color:var(--danger); border:1px solid rgba(255,69,58,0.15);">' + s + '</span>';
+                            + 'background:rgba(215,0,21,0.06); color:var(--danger); border:1px solid rgba(215,0,21,0.15);">' + s + '</span>';
                     }).join('')
                     + '</div>' : '')
                     
@@ -47143,7 +47143,7 @@ body {
                         var count = jobsSyncMeta.totalJobs || 0;
                         jt.querySelector('div[style*="font-size:1.5em"]').textContent = count.toLocaleString();
                         jt.querySelector('div[style*="top:8px"]').textContent = '\u25CF';
-                        jt.querySelector('div[style*="top:8px"]').style.color = '#30d158';
+                        jt.querySelector('div[style*="top:8px"]').style.color = 'var(--success)';
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
                         if (lc) lc.textContent = '14/14 libraries loaded';
@@ -47289,7 +47289,7 @@ body {
             if (count < 1) { el.innerHTML = ''; return; }
             el.innerHTML = '<div title="' + escapeAttr(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:var(--accent); border-radius:10px; min-width:120px; cursor:help;">'
                 + '<div style="font-size:1.6em; font-weight:700; color:#fff; line-height:1;">' + count.toLocaleString() + '</div>'
-                + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs in database</div></div>';
+                + '<div style="font-size:0.68em; color:rgba(0,0,0,0.5); text-transform:uppercase; letter-spacing:0.08em;">jobs in database</div></div>';
         }
         
         function searchOpportunities() {
@@ -48360,9 +48360,9 @@ body {
                         <div style="display:flex; gap:12px; margin-bottom:16px;">
                             <div onclick="if(userData.profileType!=='explorer'){switchToExplorerMode()}" 
                                  style="flex:1; padding:14px 16px; border-radius:10px; cursor:pointer; text-align:center;
-                                        border:2px solid ${userData.profileType === 'explorer' ? '#bf5af2' : 'var(--border)'};
-                                        background:${userData.profileType === 'explorer' ? 'rgba(191,90,242,0.1)' : 'var(--bg-elevated)'};">
-                                <div style="font-weight:700; font-size:0.9em; color:${userData.profileType === 'explorer' ? '#bf5af2' : 'var(--text-primary)'};">
+                                        border:2px solid ${userData.profileType === 'explorer' ? 'var(--c-purple)' : 'var(--border)'};
+                                        background:${userData.profileType === 'explorer' ? 'rgba(155,89,182,0.1)' : 'var(--bg-elevated)'};">
+                                <div style="font-weight:700; font-size:0.9em; color:${userData.profileType === 'explorer' ? 'var(--c-purple)' : 'var(--text-primary)'};">
                                     ${bpIcon('compass',16)} Explorer
                                 </div>
                                 <div style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">Student / early career</div>
@@ -48370,7 +48370,7 @@ body {
                             <div onclick="if(userData.profileType==='explorer'){explorerConvertToFull()}" 
                                  style="flex:1; padding:14px 16px; border-radius:10px; cursor:pointer; text-align:center;
                                         border:2px solid ${userData.profileType !== 'explorer' ? 'var(--accent)' : 'var(--border)'};
-                                        background:${userData.profileType !== 'explorer' ? 'rgba(96,165,250,0.1)' : 'var(--bg-elevated)'};">
+                                        background:${userData.profileType !== 'explorer' ? 'rgba(0,113,227,0.1)' : 'var(--bg-elevated)'};">
                                 <div style="font-weight:700; font-size:0.9em; color:${userData.profileType !== 'explorer' ? 'var(--accent)' : 'var(--text-primary)'};">
                                     ${bpIcon('blueprint',16)} Professional
                                 </div>
@@ -48443,7 +48443,7 @@ body {
                 + '<span style="color:var(--c-accent);">' + bpIcon('briefcase',16) + '</span>'
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Work History</span>'
                 + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:var(--c-surface-4); color:var(--c-muted);">' + whItems.length + '</span>'
-                + (hiddenCount > 0 ? '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(255,159,10,0.1); color:var(--c-orange);">' + hiddenCount + ' hidden</span>' : '')
+                + (hiddenCount > 0 ? '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(196,93,0,0.1); color:var(--c-orange);">' + hiddenCount + ' hidden</span>' : '')
                 + '</div>'
                 + '<button onclick="addWorkHistoryItem()" style="font-size:0.78em; padding:5px 12px; border-radius:8px; border:1px solid var(--c-accent-border-4); background:var(--c-accent-bg-5a); color:var(--c-accent-deep); cursor:pointer; font-weight:600;">+ Add Position</button>'
                 + '</div>';
@@ -48485,7 +48485,7 @@ body {
                         html += '<div style="padding:10px 14px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--c-surface-4);">'
                             + '<div style="display:flex; align-items:center; gap:8px;">'
                             + '<span style="font-weight:700; color:var(--c-accent); font-size:0.9em;">' + escapeHtml(coName) + '</span>'
-                            + '<span style="font-size:0.65em; padding:2px 7px; border-radius:6px; background:rgba(96,165,250,0.1); color:var(--accent); font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
+                            + '<span style="font-size:0.65em; padding:2px 7px; border-radius:6px; background:rgba(0,113,227,0.1); color:var(--accent); font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
                             + '</div>'
                             + '<span style="font-size:0.72em; color:var(--c-faint);">'
                             + (firstStart ? formatWorkDate(firstStart) + ' \u2013 ' + (lastEnd === 'Present' ? 'Present' : formatWorkDate(lastEnd)) : '')
@@ -48510,7 +48510,7 @@ body {
                                 + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '600') + '; color:var(--c-text-alt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title||'Untitled') + '</span>'
                                 + '</div>'
                                 + '<div style="display:flex; gap:1px; flex-shrink:0;">'
-                                + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:' + (isHidden ? '#ff9f0a' : 'var(--c-muted)') + '; line-height:1;">' + bpIcon('eye',11) + '</button>'
+                                + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:' + (isHidden ? 'var(--c-orange)' : 'var(--c-muted)') + '; line-height:1;">' + bpIcon('eye',11) + '</button>'
                                 + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-accent); font-size:0.85em;">' + bpIcon('edit',12) + '</button>'
                                 + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:2px 4px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                                 + '</div>'
@@ -48538,7 +48538,7 @@ body {
                             + '<div style="font-size:0.78em; color:var(--c-accent); font-weight:600;">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
                             + '</div>'
                             + '<div style="display:flex; gap:1px; flex-shrink:0;">'
-                            + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? '#ff9f0a' : 'var(--c-muted)') + ';">' + bpIcon('eye',12) + '</button>'
+                            + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? 'var(--c-orange)' : 'var(--c-muted)') + ';">' + bpIcon('eye',12) + '</button>'
                             + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">' + bpIcon('edit',12) + '</button>'
                             + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                             + '</div>'
@@ -48606,7 +48606,7 @@ body {
                 + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Activities & Hobbies</span>'
                 + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:var(--c-surface-4); color:var(--c-muted);">' + actItems.length + '</span>'
                 + '</div>'
-                + '<button onclick="addActivityItem()" style="font-size:0.78em; padding:5px 12px; border-radius:8px; border:1px solid rgba(191,90,242,0.3); background:rgba(191,90,242,0.06); color:var(--c-purple); cursor:pointer; font-weight:600;">+ Add Activity</button>'
+                + '<button onclick="addActivityItem()" style="font-size:0.78em; padding:5px 12px; border-radius:8px; border:1px solid rgba(155,89,182,0.3); background:rgba(155,89,182,0.06); color:var(--c-purple); cursor:pointer; font-weight:600;">+ Add Activity</button>'
                 + '</div>';
 
             if (actItems.length === 0) {
@@ -48748,7 +48748,7 @@ body {
             btns.forEach(function(btn) {
                 if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf('toggleWorkHistoryHidden(' + idx + ')') !== -1) {
                     btn.title = job.hidden ? 'Show in Blueprint' : 'Hide from Blueprint';
-                    btn.style.color = job.hidden ? '#ff9f0a' : 'var(--c-muted)';
+                    btn.style.color = job.hidden ? 'var(--c-orange)' : 'var(--c-muted)';
                     btn.innerHTML = job.hidden ? bpIcon('eye',13) + ' Hidden' : bpIcon('eye',13);
                 }
             });
@@ -49014,7 +49014,7 @@ body {
             var bs = window._buildStats;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
-            var autoNote = '<div style="grid-column:1/-1; padding:10px 14px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2); border-radius:8px; font-size:0.78em; color:var(--success); margin-bottom:4px;">'
+            var autoNote = '<div style="grid-column:1/-1; padding:10px 14px; background:rgba(36,138,61,0.08); border:1px solid rgba(36,138,61,0.2); border-radius:8px; font-size:0.78em; color:var(--success); margin-bottom:4px;">'
                 + bpIcon('check',12) + ' <strong>Auto-computed:</strong> Lines of Code (from build), Features Shipped (from roadmap), Deploys &amp; AI Sessions (from version number), Calendar Time (from start date), Speed/Cost multipliers (derived).'
                 + (bs ? '<br>Build: ' + (bs.lineCount || 0).toLocaleString() + ' lines across ' + (bs.fileCount || 0) + ' files (' + (bs.jsLines || 0).toLocaleString() + ' JS, ' + (bs.htmlLines || 0).toLocaleString() + ' HTML, ' + (bs.cssLines || 0).toLocaleString() + ' CSS)' : '')
                 + '</div>';
@@ -49566,7 +49566,7 @@ body {
             
             var html = '';
             matches.forEach(function(c) {
-                var tierBg = c.tier >= 2 ? 'rgba(255,159,10,0.1)' : 'rgba(48,209,88,0.1)';
+                var tierBg = c.tier >= 2 ? 'rgba(196,93,0,0.1)' : 'rgba(36,138,61,0.1)';
                 var tierColor = c.tier >= 2 ? '#ff9f0a' : '#30d158';
                 var tierTag = c.tier >= 2 ? 'ADV' : 'PRO';
                 
@@ -49866,7 +49866,7 @@ body {
                 return '<option value="' + c.id + '"' + (act.category === c.id ? ' selected' : '') + '>' + c.label + '</option>';
             }).join('');
             var modalHTML = '<div id="activityModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; display:flex; align-items:center; justify-content:center;" onclick="if(event.target===this)this.remove()">'
-                + '<div style="background:rgba(255,255,255,0.02); border-radius:12px; padding:24px; max-width:480px; width:90%; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">'
+                + '<div style="background:rgba(0,0,0,0.02); border-radius:12px; padding:24px; max-width:480px; width:90%; max-height:85vh; overflow-y:auto;" onclick="event.stopPropagation()">'
                 + '<div style="font-weight:700; font-size:1.05em; color:var(--text-primary); margin-bottom:16px;">' + (isNew ? 'Add Activity' : 'Edit Activity') + '</div>'
                 + '<div style="margin-bottom:12px;"><label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Activity Name</label>'
                 + '<input id="actName" value="' + escapeAttr(act.name || '') + '" placeholder="e.g. Varsity Baseball" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--bg-elevated); color:var(--text-primary); font-size:0.88em; box-sizing:border-box;"></div>'
@@ -49974,7 +49974,7 @@ body {
                                 var isActive = prefs.indexOf(arr) !== -1;
                                 return '<label style="display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:0.88em; '
                                     + 'border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + '; '
-                                    + 'background:' + (isActive ? 'rgba(96,165,250,0.08)' : 'transparent') + '; '
+                                    + 'background:' + (isActive ? 'rgba(0,113,227,0.08)' : 'transparent') + '; '
                                     + 'color:' + (isActive ? 'var(--accent)' : 'var(--text-secondary)') + ';">'
                                     + '<input type="checkbox" class="workArrangementCheck" value="' + arr + '" '
                                     + (isActive ? 'checked' : '') + ' style="accent-color:var(--accent);"> ' + arr + '</label>';
@@ -50081,7 +50081,7 @@ body {
                 + '<div class="values-grid">'
                 + Object.entries(sharePresets).map(function(entry) { return renderPresetCard(entry[0], entry[1]); }).join('')
                 + '</div>'
-                + (currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(96,165,250,0.08); border-left:3px solid var(--accent); border-radius:6px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the <a onclick="switchView(\'blueprint\');" style="color:var(--accent); cursor:pointer; text-decoration:underline;">Blueprint</a> tab. Skills are included based on your profile data.</div>' : '')
+                + (currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(0,113,227,0.08); border-left:3px solid var(--accent); border-radius:6px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the <a onclick="switchView(\'blueprint\');" style="color:var(--accent); cursor:pointer; text-decoration:underline;">Blueprint</a> tab. Skills are included based on your profile data.</div>' : '')
                 + '</div>';
             
             // --- What You're Sharing (from Consent) ---
@@ -50110,23 +50110,23 @@ body {
                 + '</div>'
                 + '</div>'
                 + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px;">'
-                + '<div style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.3); border-radius:8px; padding:20px; text-align:center;">'
+                + '<div style="background:rgba(0,113,227,0.1); border:1px solid rgba(0,113,227,0.3); border-radius:8px; padding:20px; text-align:center;">'
                 + '<div style="font-size:2em; color:var(--accent); font-weight:bold;">' + sharedSkills + '</div>'
                 + '<div style="color:' + sc + '; margin-top:5px;">Skills</div>'
                 + (sharedSkills < skillCount ? '<div style="font-size:0.72em; color:' + sc + '; margin-top:4px;">of ' + skillCount + ' total</div>' : '')
                 + '</div>'
-                + '<div style="background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.3); border-radius:8px; padding:20px; text-align:center;">'
-                + '<div style="font-size:2em; color:' + (totalOutcomes === 0 ? '#636366' : '#30d158') + '; font-weight:bold;">' + sharedOutcomes + '</div>'
+                + '<div style="background:rgba(36,138,61,0.1); border:1px solid rgba(36,138,61,0.3); border-radius:8px; padding:20px; text-align:center;">'
+                + '<div style="font-size:2em; color:' + (totalOutcomes === 0 ? 'var(--text-muted)' : 'var(--success)') + '; font-weight:bold;">' + sharedOutcomes + '</div>'
                 + '<div style="color:' + sc + '; margin-top:5px;">Outcomes</div>'
                 + sharingLabel(sharedOutcomes, totalOutcomes, 'outcomes')
                 + '</div>'
-                + '<div style="background:rgba(255,214,10,0.1); border:1px solid rgba(255,214,10,0.3); border-radius:8px; padding:20px; text-align:center;">'
-                + '<div style="font-size:2em; color:' + (totalValues === 0 ? '#636366' : '#ffd60a') + '; font-weight:bold;">' + sharedValues + '</div>'
+                + '<div style="background:rgba(178,80,0,0.1); border:1px solid rgba(178,80,0,0.3); border-radius:8px; padding:20px; text-align:center;">'
+                + '<div style="font-size:2em; color:' + (totalValues === 0 ? 'var(--text-muted)' : 'var(--warning)') + '; font-weight:bold;">' + sharedValues + '</div>'
                 + '<div style="color:' + sc + '; margin-top:5px;">Values</div>'
                 + sharingLabel(sharedValues, totalValues, 'values')
                 + '</div>'
                 + '</div>'
-                + '<div style="margin-top:16px; padding:12px 15px; background:rgba(255,214,10,0.08); border-left:3px solid var(--warning); border-radius:6px; font-size:0.9em;">'
+                + '<div style="margin-top:16px; padding:12px 15px; background:rgba(178,80,0,0.08); border-left:3px solid var(--warning); border-radius:6px; font-size:0.9em;">'
                 + '<strong style="color:var(--warning);">Note:</strong> '
                 + '<span style="color:' + tc + ';">Sensitive content (recovery, personal loss) is flagged in Blueprint. Review before sharing.</span>'
                 + '</div>'
@@ -50150,7 +50150,7 @@ body {
             var blindDefs = getBlindDefaults();
             BLIND_FIELDS.forEach(function(f) {
                 var isOn = blindDefs[f.key];
-                html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--c-border-subtle, rgba(255,255,255,0.06));">'
+                html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--c-border-subtle, rgba(0,0,0,0.05));">'
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:500; font-size:0.9em;">' + f.label + '</div>'
                     + '<div style="font-size:0.75em; color:' + sc + '; margin-top:2px;">' + f.desc + '</div>'
@@ -50198,18 +50198,18 @@ body {
                     var blindKeys = entry.blind || {};
                     Object.keys(blindKeys).forEach(function(k) {
                         if (blindKeys[k]) {
-                            blindPills += '<span style="display:inline-block; font-size:0.7em; padding:1px 5px; border-radius:6px; background:rgba(48,209,88,0.12); color:var(--success); margin:1px 2px; font-weight:600;">' + (blindKeyLabels[k] || k) + '</span>';
+                            blindPills += '<span style="display:inline-block; font-size:0.7em; padding:1px 5px; border-radius:6px; background:rgba(36,138,61,0.12); color:var(--success); margin:1px 2px; font-weight:600;">' + (blindKeyLabels[k] || k) + '</span>';
                         }
                     });
                     if (!blindPills) blindPills = '<span style="font-size:0.75em; color:' + sc + ';">None</span>';
                     
                     var presetKey = entry.preset || 'custom';
-                    var presetPill = '<span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:' + (presetColors[presetKey] || '#a1a1a6') + '1a; color:' + (presetColors[presetKey] || '#a1a1a6') + '; font-weight:600;">' + (presetLabels[presetKey] || presetKey) + '</span>';
+                    var presetPill = '<span style="font-size:0.7em; padding:1px 6px; border-radius:6px; background:' + (presetColors[presetKey] || 'var(--text-secondary)') + '1a; color:' + (presetColors[presetKey] || 'var(--text-secondary)') + '; font-weight:600;">' + (presetLabels[presetKey] || presetKey) + '</span>';
                     
-                    html += '<tr style="border-bottom:1px solid var(--c-border-subtle, rgba(255,255,255,0.04));">'
+                    html += '<tr style="border-bottom:1px solid var(--c-border-subtle, rgba(0,0,0,0.03));">'
                         + '<td style="padding:8px 6px; white-space:nowrap;">' + dateStr + '</td>'
                         + '<td style="padding:8px 6px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + escapeAttr(entry.job || '') + '">' + escapeHtml(entry.job || 'Unknown') + '</td>'
-                        + '<td style="padding:8px 6px;"><span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:' + (fmtColors[entry.type] || '#636366') + '22; color:' + (fmtColors[entry.type] || '#636366') + '; font-weight:600;">' + (fmtLabels[entry.type] || entry.type) + '</span></td>'
+                        + '<td style="padding:8px 6px;"><span style="font-size:0.72em; padding:2px 6px; border-radius:6px; background:' + (fmtColors[entry.type] || 'var(--text-muted)') + '22; color:' + (fmtColors[entry.type] || 'var(--text-muted)') + '; font-weight:600;">' + (fmtLabels[entry.type] || entry.type) + '</span></td>'
                         + '<td style="padding:8px 6px;">' + presetPill + '</td>'
                         + '<td style="padding:8px 6px;">' + blindPills + '</td>'
                         + '<td style="padding:8px 6px; text-align:center;">' + (entry.overridden ? '<span style="color:var(--c-orange);" title="Settings were overridden for this report">' + bpIcon('warning', 12) + '</span>' : '') + '</td>'
@@ -50335,10 +50335,10 @@ body {
             };
             
             const categoryLabels = {
-                skill: { name: 'O*NET Skills', color: '#60a5fa', badge: 'SKILL' },
-                ability: { name: 'O*NET Abilities', color: '#bf5af2', badge: 'ABILITY' },
-                workstyle: { name: 'O*NET Work Styles', color: '#30d158', badge: 'WORK STYLE' },
-                unique: { name: 'Unique Skills', color: '#ffd60a', badge: 'UNIQUE' }
+                skill: { name: 'O*NET Skills', color: 'var(--accent)', badge: 'SKILL' },
+                ability: { name: 'O*NET Abilities', color: 'var(--c-purple)', badge: 'ABILITY' },
+                workstyle: { name: 'O*NET Work Styles', color: 'var(--success)', badge: 'WORK STYLE' },
+                unique: { name: 'Unique Skills', color: 'var(--warning)', badge: 'UNIQUE' }
             };
             
             let html = '';
@@ -50371,7 +50371,7 @@ body {
                     };
                     
                     html += `
-                        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px;">
+                        <div style="background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
                                 <div style="flex: 1;">
                                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
@@ -50866,7 +50866,7 @@ body {
                     <div class="values-grid">
                         ${Object.entries(sharePresets).map(([key, preset]) => renderPresetCard(key, preset)).join('')}
                     </div>
-                    ${currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(96,165,250,0.08); border-left:3px solid var(--accent); border-radius:6px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab. Skills are included based on your profile data.</div>' : ''}
+                    ${currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(0,113,227,0.08); border-left:3px solid var(--accent); border-radius:6px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab. Skills are included based on your profile data.</div>' : ''}
                 </div>
             `;
         }
@@ -50937,12 +50937,12 @@ body {
                             ${skillCtx}
                         </div>
                         <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
-                            <div style="font-size: 2em; color: ${totalOutcomes === 0 ? '#636366' : '#30d158'}; font-weight: bold;">${sharedOutcomes}</div>
+                            <div style="font-size: 2em; color: ${totalOutcomes === 0 ? 'var(--text-muted)' : 'var(--success)'}; font-weight: bold;">${sharedOutcomes}</div>
                             <div style="color:var(--text-secondary); margin-top: 5px;">Outcomes</div>
                             ${outcomeCtx}
                         </div>
                         <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
-                            <div style="font-size: 2em; color: ${totalValues === 0 ? '#636366' : '#ffd60a'}; font-weight: bold;">${sharedValues}</div>
+                            <div style="font-size: 2em; color: ${totalValues === 0 ? 'var(--text-muted)' : 'var(--warning)'}; font-weight: bold;">${sharedValues}</div>
                             <div style="color:var(--text-secondary); margin-top: 5px;">Values</div>
                             ${valueCtx}
                         </div>
@@ -51388,7 +51388,7 @@ body {
                                     <div style="flex: 1;">
                                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                                             <span style="color:var(--text-primary); font-weight: 500;">${escapeHtml(skill.name)}</span>
-                                            <span style="color:var(--text-muted); font-size: 0.75em; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius:6px;">${categoryBadge}</span>
+                                            <span style="color:var(--text-muted); font-size: 0.75em; padding: 2px 6px; background: rgba(0,0,0,0.07); border-radius:6px;">${categoryBadge}</span>
                                         </div>
                                         <div style="color:var(--text-secondary); font-size: 0.85em;">
                                             ${escapeHtml(skill.level)} • ${escapeHtml(skill.impact.label)}
@@ -51405,19 +51405,19 @@ body {
                     <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                         <h3 style="color:var(--accent); margin-bottom: 15px;">Your Market Value</h3>
                         <div style="color:var(--c-label); line-height: 1.8;">
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.07);">
                                 <span>Base Market Rate (${totalValue.percentile} percentile):</span>
                                 <strong>$${totalValue.marketRate.toLocaleString()}</strong>
                             </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.07);">
                                 <span>Critical Skills Premium (${totalValue.criticalSkills.length} skills):</span>
                                 <strong style="color:var(--success);">+$${totalValue.criticalBonus.toLocaleString()}</strong>
                             </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.07);">
                                 <span>High Impact Skills (${totalValue.highSkills.length} skills):</span>
                                 <strong style="color:var(--success);">+$${totalValue.highBonus.toLocaleString()}</strong>
                             </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.07);">
                                 <span>Rare Combinations:</span>
                                 <strong style="color:var(--success);">+$${totalValue.rarityBonus.toLocaleString()}</strong>
                             </div>
@@ -51445,12 +51445,12 @@ body {
             // Offer ranges
             html += '<div style="display:grid; gap:6px; margin-bottom:14px;">';
             var offers = [
-                { label: 'Conservative (75%)', val: tv.conservativeOffer, desc: 'Budget-constrained', color: '#a1a1a6' },
-                { label: 'Standard (85%)', val: tv.standardOffer, desc: 'Most common initial', color: '#60a5fa' },
-                { label: 'Competitive (95%)', val: tv.competitiveOffer, desc: 'Strong employers', color: '#30d158' }
+                { label: 'Conservative (75%)', val: tv.conservativeOffer, desc: 'Budget-constrained', color: 'var(--text-secondary)' },
+                { label: 'Standard (85%)', val: tv.standardOffer, desc: 'Most common initial', color: 'var(--accent)' },
+                { label: 'Competitive (95%)', val: tv.competitiveOffer, desc: 'Strong employers', color: 'var(--success)' }
             ];
             offers.forEach(function(o) {
-                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:6px; border-left:3px solid ' + o.color + ';">'
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(0,0,0,0.02); border-radius:6px; border-left:3px solid ' + o.color + ';">'
                     + '<div><div style="color:' + o.color + '; font-weight:600; font-size:0.82em;">' + o.label + '</div>'
                     + '<div style="color:var(--c-muted); font-size:0.72em;">' + o.desc + '</div></div>'
                     + '<div style="font-weight:700; color:var(--c-text);">$' + o.val.toLocaleString() + '</div></div>';
@@ -51459,7 +51459,7 @@ body {
             
             // Negotiation gap
             var gap = tv.yourWorth - tv.standardOffer;
-            html += '<div style="padding:10px 12px; background:rgba(255,214,10,0.06); border-radius:8px; margin-bottom:14px;">'
+            html += '<div style="padding:10px 12px; background:rgba(178,80,0,0.06); border-radius:8px; margin-bottom:14px;">'
                 + '<div style="color:var(--warning); font-weight:600; font-size:0.82em; margin-bottom:4px;">' + bpIcon('lightbulb',12) + ' Negotiation Gap: $' + gap.toLocaleString() + '</div>'
                 + '<div style="font-size:0.78em; color:var(--c-muted); line-height:1.5;">'
                 + 'Start at $' + tv.yourWorth.toLocaleString() + ', negotiate to $' + tv.competitiveOffer.toLocaleString() + '+.</div></div>';
@@ -51484,14 +51484,14 @@ body {
                 { title: 'Market Data', text: 'Market rate: $' + tv.marketRate.toLocaleString() + '. My skills justify a ' + premPct + '% premium.' }
             ];
             points.forEach(function(p) {
-                html += '<div style="padding:8px 12px; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.82em; color:var(--c-muted); line-height:1.5;">'
+                html += '<div style="padding:8px 12px; background:rgba(0,0,0,0.02); border-radius:6px; font-size:0.82em; color:var(--c-muted); line-height:1.5;">'
                     + '<strong style="color:var(--c-text);">' + p.title + ':</strong> ' + p.text + '</div>';
             });
             html += '</div>';
             
             // Script for salary expectations
             html += '<div style="font-size:0.78em; font-weight:700; color:var(--accent); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">When Asked for Expectations</div>'
-                + '<div style="padding:10px 12px; background:rgba(255,255,255,0.02); border-radius:8px; font-size:0.82em; color:var(--c-muted); font-style:italic; line-height:1.6; margin-bottom:10px;">'
+                + '<div style="padding:10px 12px; background:rgba(0,0,0,0.02); border-radius:8px; font-size:0.82em; color:var(--c-muted); font-style:italic; line-height:1.6; margin-bottom:10px;">'
                 + '"Based on my skill profile and market analysis, I\'m targeting $' + Math.round(tv.competitiveOffer / 1000) * 1000 + '\u2013$' + Math.round(tv.yourWorth / 1000) * 1000 + '. Flexible on total package structure."</div>';
             
             // Best practices
@@ -51555,11 +51555,11 @@ body {
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:12px;">Your Position</div>'                + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Current Pay</div><div style="font-size:1.5em; font-weight:700; color:var(--c-heading);">' + formatCompValue(currentComp) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Market Floor (BLS)</div><div style="font-size:1.5em; font-weight:700; color:var(--success);">' + formatCompValue(marketFloor) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Justified Value</div><div style="font-size:1.5em; font-weight:700; color:var(--accent);">' + formatCompValue(justifiedVal) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Gap to Justified</div><div style="font-size:1.5em; font-weight:700; color:var(--c-orange);">' + (gap > 0 ? '+' + formatCompValue(gap) : formatCompValue(Math.abs(gap))) + '</div></div>'                + '</div></div>';
             
             // Section 2: Compa-Ratio
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Compa-Ratio</div>'                + '<div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">'                + '<div style="font-size:2.4em; font-weight:700; color:' + compaColor + ';">' + compaRatio + '%</div>'                + '<div><div style="font-size:0.82em; color:var(--c-text); font-weight:600; line-height:1.4;">' + escapeHtml(compaStatus) + '</div>'                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Your pay vs BLS market midpoint</div></div></div>'                + '<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.7em; text-align:center;">'                + '<div style="padding:5px; background:rgba(255,69,58,0.08); border-radius:8px; color:var(--danger);"><div style="font-weight:700;">&lt;80%</div><div style="color:var(--c-faint);">Underpaid</div></div>'                + '<div style="padding:5px; background:rgba(255,159,10,0.08); border-radius:8px; color:var(--c-orange);"><div style="font-weight:700;">80–100%</div><div style="color:var(--c-faint);">Below mid</div></div>'                + '<div style="padding:5px; background:rgba(48,209,88,0.08); border-radius:8px; color:var(--success);"><div style="font-weight:700;">100–120%</div><div style="color:var(--c-faint);">At/above mid</div></div>'                + '<div style="padding:5px; background:rgba(156,163,175,0.08); border-radius:8px; color:var(--text-secondary);"><div style="font-weight:700;">&gt;120%</div><div style="color:var(--c-faint);">At ceiling</div></div>'                + '</div></div>';
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Compa-Ratio</div>'                + '<div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">'                + '<div style="font-size:2.4em; font-weight:700; color:' + compaColor + ';">' + compaRatio + '%</div>'                + '<div><div style="font-size:0.82em; color:var(--c-text); font-weight:600; line-height:1.4;">' + escapeHtml(compaStatus) + '</div>'                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Your pay vs BLS market midpoint</div></div></div>'                + '<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.7em; text-align:center;">'                + '<div style="padding:5px; background:rgba(215,0,21,0.08); border-radius:8px; color:var(--danger);"><div style="font-weight:700;">&lt;80%</div><div style="color:var(--c-faint);">Underpaid</div></div>'                + '<div style="padding:5px; background:rgba(196,93,0,0.08); border-radius:8px; color:var(--c-orange);"><div style="font-weight:700;">80–100%</div><div style="color:var(--c-faint);">Below mid</div></div>'                + '<div style="padding:5px; background:rgba(36,138,61,0.08); border-radius:8px; color:var(--success);"><div style="font-weight:700;">100–120%</div><div style="color:var(--c-faint);">At/above mid</div></div>'                + '<div style="padding:5px; background:rgba(156,163,175,0.08); border-radius:8px; color:var(--text-secondary);"><div style="font-weight:700;">&gt;120%</div><div style="color:var(--c-faint);">At ceiling</div></div>'                + '</div></div>';
             
             // Section 3: Your Ask
             if (gap > 0) {
-                html += '<div style="background:rgba(96,165,250,0.08); border:1.5px solid rgba(96,165,250,0.3); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                    + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--accent); margin-bottom:10px;">' + bpIcon('target',12) + ' Your Ask</div>'                    + '<div style="font-size:0.88em; color:var(--c-text); line-height:1.6; margin-bottom:12px;">'                    + 'A realistic internal raise target is the midpoint between where you are and where your skills justify. '                    + 'This is achievable in a single review cycle and fully supportable by BLS data and your evidence record.'                    + '</div>'                    + '<div style="display:flex; align-items:center; gap:20px; padding:12px 16px; background:rgba(96,165,250,0.06); border-radius:8px;">'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">Suggested ask</div><div style="font-size:2em; font-weight:700; color:var(--accent);">' + formatCompValue(internalAsk) + '</div></div>'                    + '<div style="color:var(--c-surface-5); font-size:1.5em;">→</div>'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">That’s a</div><div style="font-size:1.4em; font-weight:700; color:var(--c-orange);">+' + internalAskPct + '%</div><div style="font-size:0.68em; color:var(--c-faint);">increase</div></div>'                    + '<div style="flex:1; font-size:0.78em; color:var(--c-faint); line-height:1.5;">Justified value is <strong style="color:var(--accent);">' + formatCompValue(justifiedVal) + '</strong>. Starting at midpoint leaves room to negotiate and signals data-literacy.</div>'                    + '</div></div>';
+                html += '<div style="background:rgba(0,113,227,0.08); border:1.5px solid rgba(0,113,227,0.3); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                    + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--accent); margin-bottom:10px;">' + bpIcon('target',12) + ' Your Ask</div>'                    + '<div style="font-size:0.88em; color:var(--c-text); line-height:1.6; margin-bottom:12px;">'                    + 'A realistic internal raise target is the midpoint between where you are and where your skills justify. '                    + 'This is achievable in a single review cycle and fully supportable by BLS data and your evidence record.'                    + '</div>'                    + '<div style="display:flex; align-items:center; gap:20px; padding:12px 16px; background:rgba(0,113,227,0.06); border-radius:8px;">'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">Suggested ask</div><div style="font-size:2em; font-weight:700; color:var(--accent);">' + formatCompValue(internalAsk) + '</div></div>'                    + '<div style="color:var(--c-surface-5); font-size:1.5em;">→</div>'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">That’s a</div><div style="font-size:1.4em; font-weight:700; color:var(--c-orange);">+' + internalAskPct + '%</div><div style="font-size:0.68em; color:var(--c-faint);">increase</div></div>'                    + '<div style="flex:1; font-size:0.78em; color:var(--c-faint); line-height:1.5;">Justified value is <strong style="color:var(--accent);">' + formatCompValue(justifiedVal) + '</strong>. Starting at midpoint leaves room to negotiate and signals data-literacy.</div>'                    + '</div></div>';
             }
             
             // Section 4: Your Evidence
@@ -51569,10 +51569,10 @@ body {
                 if (topSkillNames.length > 0) {
                     html += '<div style="font-size:0.78em; color:var(--c-faint); margin-bottom:6px;">Top skills by proficiency</div>'                        + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">';
                     topSkillNames.forEach(function(n) {
-                        html += '<span style="padding:3px 9px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.25); border-radius:20px; font-size:0.77em; color:var(--accent);">' + escapeHtml(n) + '</span>';
+                        html += '<span style="padding:3px 9px; background:rgba(0,113,227,0.1); border:1px solid rgba(0,113,227,0.25); border-radius:20px; font-size:0.77em; color:var(--accent);">' + escapeHtml(n) + '</span>';
                     });
                     if (premPct > 0) {
-                        html += '<span style="padding:3px 9px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); border-radius:20px; font-size:0.77em; color:var(--c-orange);">+' + premPct + '% skill premium</span>';
+                        html += '<span style="padding:3px 9px; background:rgba(196,93,0,0.08); border:1px solid rgba(196,93,0,0.2); border-radius:20px; font-size:0.77em; color:var(--c-orange);">+' + premPct + '% skill premium</span>';
                     }
                     html += '</div>';
                 }
@@ -51583,7 +51583,7 @@ body {
                         var hasMetric = /\d+%|\$\d+|[0-9,]{4,}/.test(o.text || '');
                         var oText = escapeHtml((o.text || '').substring(0, 120)) + (o.text && o.text.length > 120 ? '\u2026' : '');
                         var oCat  = o.category ? ' <span style="font-size:0.75em; color:var(--c-faint);">' + escapeHtml(o.category) + '</span>' : '';
-                        html += '<div style="padding:8px 12px; background:var(--c-surface-1); border-left:3px solid ' + (hasMetric ? '#30d158' : 'var(--c-surface-5)') + '; border-radius:0 6px 6px 0; font-size:0.81em; color:var(--c-text); line-height:1.5;">' + oText + oCat + '</div>';
+                        html += '<div style="padding:8px 12px; background:var(--c-surface-1); border-left:3px solid ' + (hasMetric ? 'var(--success)' : 'var(--c-surface-5)') + '; border-radius:0 6px 6px 0; font-size:0.81em; color:var(--c-text); line-height:1.5;">' + oText + oCat + '</div>';
                     });
                     html += '</div>';
                 } else {
@@ -51594,15 +51594,15 @@ body {
             
             // Section 5: Talking Points
             var talkingPoints = [
-                { color: '#ffd60a', title: 'Open with data, not a feeling',
+                { color: 'var(--warning)', title: 'Open with data, not a feeling',
                   text: '"I\'ve been looking at market data. My compa-ratio is ' + compaRatio + '% — the BLS midpoint for a ' + escapeHtml(tv.roleLevel || '') + ' in this function is ' + formatCompValue(marketFloor) + '. I\'d like to discuss closing that gap."' },
-                { color: '#60a5fa', title: 'Anchor to justified value',
+                { color: 'var(--accent)', title: 'Anchor to justified value',
                   text: '"Based on my documented skills and outcomes, my justified value is ' + formatCompValue(justifiedVal) + '. I\'m not asking to get there in one step — I\'m asking to move to ' + formatCompValue(internalAsk) + ' this cycle."' },
-                { color: '#30d158', title: 'Reference your evidence',
+                { color: 'var(--success)', title: 'Reference your evidence',
                   text: topOutcomes.length > 0
                     ? '"In the last cycle I ' + escapeHtml((topOutcomes[0].text || '').substring(0, 80)) + (topOutcomes[0].text && topOutcomes[0].text.length > 80 ? '…' : '') + ' That\'s the kind of impact that justifies the adjustment."'
                     : '"My skill set includes ' + (topSkillNames.slice(0,2).join(' and ') || 'several high-impact areas') + ' at Expert or Mastery level. That depth has direct market premium attached to it."' },
-                { color: '#bf5af2', title: 'Leave the door open',
+                { color: 'var(--c-purple)', title: 'Leave the door open',
                   text: '"If the full adjustment isn\'t possible this cycle, I\'d appreciate understanding the path to get there. What would need to be true for this to happen in the next review?"' }
             ];
             
@@ -51770,7 +51770,7 @@ body {
 
             var guide = _buildStaticNegGuide(job, tv);
 
-            var disclaimer = '<div style="padding:12px 16px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:16px;">'
+            var disclaimer = '<div style="padding:12px 16px; background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2); border-radius:10px; margin-bottom:16px;">'
                 + '<div style="font-size:0.8em; color:var(--c-muted);"><strong style="color:var(--accent);">\u2728 In your Blueprint</strong>, this guide is dynamically generated from your unique profile data, skills, evidence, and target role using AI-powered analysis tailored specifically to you.</div></div>';
 
             var renderFn = function(html) {
@@ -51828,9 +51828,9 @@ body {
 
             // Mode cards
             var modes = [
-                { id: 'external', icon: 'briefcase', color: '#60a5fa', label: 'External Offer', sub: 'Negotiating a new job offer', roles: pipeline, roleLabel: 'pipeline job' },
-                { id: 'internal', icon: 'compass',   color: '#bf5af2', label: 'Internal Move',  sub: 'Advocating for a role change or promotion', roles: internal, roleLabel: 'internal role' },
-                { id: 'review',   icon: 'target',    color: '#30d158', label: 'Performance Review', sub: 'Annual or mid-year comp conversation', roles: [], roleLabel: '' }
+                { id: 'external', icon: 'briefcase', color: 'var(--accent)', label: 'External Offer', sub: 'Negotiating a new job offer', roles: pipeline, roleLabel: 'pipeline job' },
+                { id: 'internal', icon: 'compass',   color: 'var(--c-purple)', label: 'Internal Move',  sub: 'Advocating for a role change or promotion', roles: internal, roleLabel: 'internal role' },
+                { id: 'review',   icon: 'target',    color: 'var(--success)', label: 'Performance Review', sub: 'Annual or mid-year comp conversation', roles: [], roleLabel: '' }
             ];
 
             pickerHtml += '<div style="display:grid; gap:10px; margin-bottom:20px;">';
@@ -52007,9 +52007,9 @@ body {
 
             // ── Comp snapshot ──
             var compRows = [
-                { label: 'Conservative', val: conservative, color: '#a1a1a6' },
-                { label: 'Standard',     val: standard,     color: '#60a5fa' },
-                { label: 'Competitive',  val: competitive,  color: '#30d158' }
+                { label: 'Conservative', val: conservative, color: 'var(--text-secondary)' },
+                { label: 'Standard',     val: standard,     color: 'var(--accent)' },
+                { label: 'Competitive',  val: competitive,  color: 'var(--success)' }
             ];
             var compHtml = '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px;">';
             compRows.forEach(function(r) {
@@ -52020,58 +52020,58 @@ body {
             });
             compHtml += '</div>';
             if (g.theAsk && g.theAsk.number) {
-                compHtml += '<div style="padding:10px 14px; background:rgba(255,214,10,0.08); border:1px solid rgba(255,214,10,0.2); border-radius:8px;">'
+                compHtml += '<div style="padding:10px 14px; background:rgba(178,80,0,0.08); border:1px solid rgba(178,80,0,0.2); border-radius:8px;">'
                     + '<div style="font-size:0.78em; font-weight:700; color:var(--warning); margin-bottom:4px;">' + bpIcon('target',12) + ' YOUR ASK: $' + Math.round(g.theAsk.number).toLocaleString() + '</div>'
                     + (g.theAsk.justification || []).map(function(j, i) {
                         return '<div style="font-size:0.76em; color:var(--c-muted); margin-top:3px;">' + (i+1) + '. ' + escapeHtml(j) + '</div>';
                     }).join('') + '</div>';
             }
-            html += section(bpIcon('dollar',12) + ' Compensation', '#ffd60a', compHtml);
+            html += section(bpIcon('dollar',12) + ' Compensation', 'var(--warning)', compHtml);
 
             // ── Opening move ──
             if (g.openingMove) {
-                html += section(bpIcon('activity',12) + ' Opening Move', '#60a5fa',
-                    '<div style="font-style:italic; font-size:0.88em; color:var(--c-text); line-height:1.6; padding:10px 14px; background:rgba(96,165,250,0.06); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;">'
+                html += section(bpIcon('activity',12) + ' Opening Move', 'var(--accent)',
+                    '<div style="font-style:italic; font-size:0.88em; color:var(--c-text); line-height:1.6; padding:10px 14px; background:rgba(0,113,227,0.06); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;">'
                     + '"' + escapeHtml(g.openingMove) + '"</div>');
             }
 
             // ── Strengths ──
             var strHtml = '<div style="display:grid; gap:8px;">';
             (g.strengths || []).forEach(function(s) {
-                strHtml += '<div style="padding:10px 14px; background:rgba(48,209,88,0.06); border-radius:8px; border-left:3px solid var(--success);">'
+                strHtml += '<div style="padding:10px 14px; background:rgba(36,138,61,0.06); border-radius:8px; border-left:3px solid var(--success);">'
                     + '<div style="font-size:0.84em; font-weight:700; color:var(--success); margin-bottom:3px;">' + escapeHtml(s.title || '') + '</div>'
                     + '<div style="font-size:0.79em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(s.evidence || '') + '</div>'
                     + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic;">"' + escapeHtml(s.hook || '') + '"</div>'
                     + '</div>';
             });
             strHtml += '</div>';
-            html += section(bpIcon('check',12) + ' Your Strengths', '#30d158', strHtml);
+            html += section(bpIcon('check',12) + ' Your Strengths', 'var(--success)', strHtml);
 
             // ── Weakness neutralizations ──
             var weakHtml = '<div style="display:grid; gap:8px;">';
             (g.weaknessNeutralizations || []).forEach(function(w) {
-                weakHtml += '<div style="padding:10px 14px; background:rgba(255,214,10,0.05); border-radius:8px; border-left:3px solid var(--warning);">'
+                weakHtml += '<div style="padding:10px 14px; background:rgba(178,80,0,0.05); border-radius:8px; border-left:3px solid var(--warning);">'
                     + '<div style="font-size:0.76em; font-weight:700; color:var(--c-muted); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Potential Concern</div>'
                     + '<div style="font-size:0.82em; color:var(--c-text); margin-bottom:5px;">' + escapeHtml(w.weakness || '') + '</div>'
                     + '<div style="font-size:0.76em; font-weight:700; color:var(--warning); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">Reframe As</div>'
                     + '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:5px;">' + escapeHtml(w.reframe || '') + '</div>'
-                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic; border-top:1px solid rgba(255,214,10,0.15); padding-top:5px; margin-top:3px;">"' + escapeHtml(w.bridgeLine || '') + '"</div>'
+                    + '<div style="font-size:0.79em; color:var(--c-text); font-style:italic; border-top:1px solid rgba(178,80,0,0.15); padding-top:5px; margin-top:3px;">"' + escapeHtml(w.bridgeLine || '') + '"</div>'
                     + '</div>';
             });
             weakHtml += '</div>';
-            html += section(bpIcon('alert',12) + ' Weaknesses → Reframed', '#ffd60a', weakHtml);
+            html += section(bpIcon('alert',12) + ' Weaknesses → Reframed', 'var(--warning)', weakHtml);
 
             // ── Blind spots ──
             var bsHtml = '<div style="display:grid; gap:8px;">';
             (g.blindSpots || []).forEach(function(b) {
-                bsHtml += '<div style="padding:10px 14px; background:rgba(255,69,58,0.06); border-radius:8px; border-left:3px solid var(--danger);">'
+                bsHtml += '<div style="padding:10px 14px; background:rgba(215,0,21,0.06); border-radius:8px; border-left:3px solid var(--danger);">'
                     + '<div style="font-size:0.84em; font-weight:700; color:var(--danger); margin-bottom:3px;">' + escapeHtml(b.risk || '') + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:4px;">' + escapeHtml(b.why || '') + '</div>'
                     + '<div style="font-size:0.78em; color:var(--c-text);">Mitigation: ' + escapeHtml(b.mitigation || '') + '</div>'
                     + '</div>';
             });
             bsHtml += '</div>';
-            html += section(bpIcon('eye',12) + ' Blind Spots', '#ff453a', bsHtml);
+            html += section(bpIcon('eye',12) + ' Blind Spots', 'var(--danger)', bsHtml);
 
             // ── Counter-offer playbook ──
             var coHtml = '<div style="display:grid; gap:8px;">';
@@ -52082,7 +52082,7 @@ body {
                     + '</div>';
             });
             coHtml += '</div>';
-            html += section(bpIcon('shield',12) + ' Counter-Offer Playbook', '#bf5af2', coHtml);
+            html += section(bpIcon('shield',12) + ' Counter-Offer Playbook', 'var(--c-purple)', coHtml);
 
             // ── Value connections + Questions ──
             var valHtml = '<div style="display:grid; gap:6px; margin-bottom:10px;">';
@@ -52098,7 +52098,7 @@ body {
                 valHtml += '<div style="font-size:0.81em; color:var(--c-text); padding:6px 12px; background:var(--c-surface-2); border-radius:8px;">' + escapeHtml(q) + '</div>';
             });
             valHtml += '</div>';
-            html += section(bpIcon('star',12) + ' Values & Questions', '#ff9f0a', valHtml);
+            html += section(bpIcon('star',12) + ' Values & Questions', 'var(--c-orange)', valHtml);
 
             html += '<button onclick="showNegotiationGuideV2()" style="width:100%; margin-top:4px; padding:10px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; color:var(--c-muted); font-size:0.82em; cursor:pointer;">← Back to Role Picker</button>';
             html += '</div>'; // end modal-body
@@ -52962,13 +52962,13 @@ body {
             var actionCount = adding.length + upgrading.length + overwriting.length;
             
             var summaryHtml = '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:16px;">'
-                + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(48,209,88,0.08); border:1px solid rgba(48,209,88,0.2);">'
+                + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(36,138,61,0.08); border:1px solid rgba(36,138,61,0.2);">'
                 + '<div style="font-size:1.4em; font-weight:700; color:var(--success);">' + adding.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">New</div></div>'
-                + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2);">'
+                + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2);">'
                 + '<div style="font-size:1.4em; font-weight:700; color:var(--accent);">' + upgrading.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Upgrading</div></div>'
-                + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(255,214,10,0.08); border:1px solid rgba(255,214,10,0.2);">'
+                + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(178,80,0,0.08); border:1px solid rgba(178,80,0,0.2);">'
                 + '<div style="font-size:1.4em; font-weight:700; color:var(--c-orange);">' + overwriting.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Overwriting</div></div>'
                 + '<div style="text-align:center; padding:12px; border-radius:8px; background:rgba(99,99,102,0.06); border:1px solid rgba(99,99,102,0.15);">'
@@ -52987,11 +52987,11 @@ body {
             _bulkParsedSkills.forEach(function(skill, idx) {
                 var bg, icon, detail;
                 if (skill.action === 'add') {
-                    bg = 'rgba(48,209,88,0.06)'; icon = bpIcon('plus',12); detail = '<span style="color:var(--success);">New at ' + skill.level + '</span>';
+                    bg = 'rgba(36,138,61,0.06)'; icon = bpIcon('plus',12); detail = '<span style="color:var(--success);">New at ' + skill.level + '</span>';
                 } else if (skill.action === 'upgrade') {
-                    bg = 'rgba(96,165,250,0.06)'; icon = '⬆'; detail = '<span style="color:var(--accent);">' + skill.conflict.level + ' → ' + skill.level + '</span>';
+                    bg = 'rgba(0,113,227,0.06)'; icon = '⬆'; detail = '<span style="color:var(--accent);">' + skill.conflict.level + ' → ' + skill.level + '</span>';
                 } else if (skill.action === 'overwrite') {
-                    bg = 'rgba(255,214,10,0.06)'; icon = '' + bpIcon('refresh',10) + ''; detail = '<span style="color:var(--c-orange);">Replace ' + skill.conflict.level + ' with ' + skill.level + '</span>';
+                    bg = 'rgba(178,80,0,0.06)'; icon = '' + bpIcon('refresh',10) + ''; detail = '<span style="color:var(--c-orange);">Replace ' + skill.conflict.level + ' with ' + skill.level + '</span>';
                 } else {
                     bg = 'rgba(99,99,102,0.04)'; icon = '⊘';
                     var reason = skill.conflict ? 'Already exists as "' + skill.conflict.name + '" (' + skill.conflict.level + ')' : 'Duplicate';
@@ -53195,7 +53195,7 @@ body {
                 + '<span style="font-size:0.82em; color:var(--text-muted);">Set ' + names.length + ' skill' + (names.length > 1 ? 's' : '') + ' to:</span>';
             levels.forEach(function(l) {
                 html += '<button onclick="executeBulkSetLevel(\'' + l + '\')" style="padding:5px 12px; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600; '
-                    + 'background:rgba(191,90,242,0.1); color:var(--c-purple); border:1px solid rgba(191,90,242,0.25);">' + l + '</button>';
+                    + 'background:rgba(155,89,182,0.1); color:var(--c-purple); border:1px solid rgba(155,89,182,0.25);">' + l + '</button>';
             });
             html += '<button onclick="document.getElementById(\'bmLevelPicker\').remove();" style="padding:5px 10px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:0.82em;">Cancel</button>';
             html += '</div>';
@@ -53293,12 +53293,12 @@ body {
                 var evColor = evs.hasGap ? 'var(--c-warn)' : 'var(--c-success)';
                 var evBg = evs.hasGap ? 'var(--c-amber-bg-2b)' : 'var(--c-green-bg-2a)';
                 var evPills = '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">';
-                evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(96,165,250,0.12); color:var(--accent); font-size:0.82em; font-weight:600;">' + bpIcon('check',11) + ' Evidence: ' + (evs.evidenceOnlyLevel || evs.effectiveLevel) + ' <span style="font-weight:400; opacity:0.7;">(' + evs.points + ' pts)</span></span>';
+                evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(0,113,227,0.12); color:var(--accent); font-size:0.82em; font-weight:600;">' + bpIcon('check',11) + ' Evidence: ' + (evs.evidenceOnlyLevel || evs.effectiveLevel) + ' <span style="font-weight:400; opacity:0.7;">(' + evs.points + ' pts)</span></span>';
                 if (evs.inferredActive) {
-                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(191,90,242,0.12); color:var(--c-purple); font-size:0.82em; font-weight:600;" title="' + evs.experienceYears + ' years experience">\u2728 Inferred: ' + evs.inferredLevel + '</span>';
+                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(155,89,182,0.12); color:var(--c-purple); font-size:0.82em; font-weight:600;" title="' + evs.experienceYears + ' years experience">\u2728 Inferred: ' + evs.inferredLevel + '</span>';
                 }
                 if (evs.verifiedCount > 0) {
-                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(48,209,88,0.12); color:var(--success); font-size:0.82em; font-weight:600;">' + bpIcon('shield',11) + ' Verified: ' + evs.verifiedCount + '</span>';
+                    evPills += '<span style="padding:2px 8px; border-radius:8px; background:rgba(36,138,61,0.12); color:var(--success); font-size:0.82em; font-weight:600;">' + bpIcon('shield',11) + ' Verified: ' + evs.verifiedCount + '</span>';
                 }
                 evPills += '</div>';
                 evStatus.innerHTML = '<div style="padding:10px 14px; background:' + evBg + '; border-radius:8px; font-size:0.82em;">'
@@ -53401,10 +53401,10 @@ body {
                 + '<div style="flex:1; min-width:0;">'
                 + '<h2 style="margin:0; font-size:1.3em; color:var(--text-primary);">' + escapeHtml(skillName) + '</h2>'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;">'
-                + '<span style="padding:3px 10px; border-radius:10px; font-size:0.75em; font-weight:600; background:' + (levelColors[skill.level] || '#636366') + '22; color:' + (levelColors[skill.level] || '#636366') + ';">' + (skill.level || 'Proficient') + '</span>'
-                + (skill.key ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(255,159,10,0.15); color:var(--c-orange); font-weight:600;">CORE</span>' : '')
-                + (isOnetSkill ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(96,165,250,0.15); color:var(--accent);">O*NET</span>' : '')
-                + (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(48,209,88,0.15); color:var(--success); font-weight:600;">\u2713 Verified by ' + escapeHtml(vn) + '</span>'; } return ''; })()
+                + '<span style="padding:3px 10px; border-radius:10px; font-size:0.75em; font-weight:600; background:' + (levelColors[skill.level] || 'var(--text-muted)') + '22; color:' + (levelColors[skill.level] || 'var(--text-muted)') + ';">' + (skill.level || 'Proficient') + '</span>'
+                + (skill.key ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(196,93,0,0.15); color:var(--c-orange); font-weight:600;">CORE</span>' : '')
+                + (isOnetSkill ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(0,113,227,0.15); color:var(--accent);">O*NET</span>' : '')
+                + (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(36,138,61,0.15); color:var(--success); font-weight:600;">\u2713 Verified by ' + escapeHtml(vn) + '</span>'; } return ''; })()
                 + '</div></div>'
                 + '<div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">'
                 + '<button onclick="saveUnifiedSkillEdit()" style="padding:6px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82em;">Save</button>'
@@ -53472,7 +53472,7 @@ body {
                 + '<div id="uniAssessBody" style="display:' + (isOnetSkill && !hasAssess ? 'none' : 'block') + '; padding:14px;">';
             
             if (!isOnetSkill) {
-                html += '<div style="padding:8px 10px; background:rgba(255,159,10,0.1); border-left:3px solid var(--c-orange); border-radius:6px; font-size:0.78em; color:var(--text-secondary); margin-bottom:12px;">'
+                html += '<div style="padding:8px 10px; background:rgba(196,93,0,0.1); border-left:3px solid var(--c-orange); border-radius:6px; font-size:0.78em; color:var(--text-secondary); margin-bottom:12px;">'
                     + '' + bpIcon('lightbulb',14) + ' This skill doesn\'t have a direct O*NET match. Assess it to improve market impact accuracy.</div>';
             }
             
@@ -53546,7 +53546,7 @@ body {
                 + '<button onclick="saveUnifiedSkillEdit()" style="flex:1; padding:12px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.92em;">Save Changes</button>'
                 + '<button onclick="closeUnifiedSkillEditor()" style="padding:12px 20px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Cancel</button>'
                 + '<button onclick="if(confirm(\'Remove ' + escapeHtml(skillName).replace(/'/g,"\\'") + '?\')) { deleteSkillFromProfile(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\'); closeUnifiedSkillEditor(true); }" '
-                + 'style="margin-left:auto; padding:10px 14px; background:none; color:var(--danger); border:1px solid rgba(255,69,58,0.3); border-radius:8px; cursor:pointer; font-size:0.82em;">'
+                + 'style="margin-left:auto; padding:10px 14px; background:none; color:var(--danger); border:1px solid rgba(215,0,21,0.3); border-radius:8px; cursor:pointer; font-size:0.82em;">'
                 + bpIcon('trash',14) + ' Remove</button>'
                 + '</div>';
             
@@ -53613,7 +53613,7 @@ body {
             var selectedVal = proficiencyValue(selectedLevel);
             var effectiveVal = proficiencyValue(evs.effectiveLevel);
             if (selectedVal > effectiveVal) {
-                warning.innerHTML = '<div style="padding:6px 10px; background:rgba(255,159,10,0.1); border:1px solid rgba(255,159,10,0.3); border-radius:6px; font-size:0.78em; color:var(--c-orange);">'
+                warning.innerHTML = '<div style="padding:6px 10px; background:rgba(196,93,0,0.1); border:1px solid rgba(196,93,0,0.3); border-radius:6px; font-size:0.78em; color:var(--c-orange);">'
                     + '\u26A0 Claiming <strong>' + selectedLevel + '</strong> but evidence supports <strong>' + evs.effectiveLevel + '</strong>. '
                     + 'Market valuation uses ' + evs.effectiveLevel + ' until more evidence is added.</div>';
             } else { warning.innerHTML = ''; }
@@ -54265,10 +54265,10 @@ body {
                         
                         return `
                             <div class="skill-search-result ${isAdded ? 'added' : ''}" 
-                                 style="padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid ${categoryColor}; cursor: ${isAdded ? 'default' : 'pointer'}; transition: all 0.2s;"
+                                 style="padding: 12px; margin-bottom: 8px; background: rgba(0,0,0,0.02); border-radius: 8px; border-left: 3px solid ${categoryColor}; cursor: ${isAdded ? 'default' : 'pointer'}; transition: all 0.2s;"
                                  ${isAdded ? '' : `onclick="addSkillFromLibrary('${escapeHtml(skill.id)}')"`}
-                                 onmouseover="if (!this.classList.contains('added')) this.style.background='rgba(255,255,255,0.06)'"
-                                 onmouseout="if (!this.classList.contains('added')) this.style.background='rgba(255,255,255,0.03)'">
+                                 onmouseover="if (!this.classList.contains('added')) this.style.background='rgba(0,0,0,0.05)'"
+                                 onmouseout="if (!this.classList.contains('added')) this.style.background='rgba(0,0,0,0.02)'">
                                 <div style="display: flex; justify-content: space-between; align-items: start;">
                                     <div style="flex: 1;">
                                         <div style="color:var(--text-primary); font-weight: 600; margin-bottom: 4px;">
@@ -54276,7 +54276,7 @@ body {
                                             ${isAdded ? '<span style="color:var(--success); font-size: 0.85em; margin-left: 8px;">✓ Already have</span>' : ''}
                                         </div>
                                         <div style="display: flex; gap: 8px; align-items: center;">
-                                            <span style="color: ${categoryColor}; font-size: 0.75em; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius:6px;">
+                                            <span style="color: ${categoryColor}; font-size: 0.75em; padding: 2px 6px; background: rgba(0,0,0,0.07); border-radius:6px;">
                                                 ${escapeHtml(skill.c)}
                                             </span>
                                             ${skill.sc ? `
@@ -54356,10 +54356,10 @@ body {
                 container.innerHTML = tradeResults.map(function(skill) {
                     var isAdded = isSkillAlreadyAdded(skill.n);
                     var color = catColors[skill.c] || '#c78400';
-                    return '<div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid '+color+';cursor:'+(isAdded?'default':'pointer')+';" '+(isAdded?'':'onclick="addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')"')+'>'
+                    return '<div style="padding:12px;margin-bottom:8px;background:rgba(0,0,0,0.02);border-radius:8px;border-left:3px solid '+color+';cursor:'+(isAdded?'default':'pointer')+';" '+(isAdded?'':'onclick="addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')"')+'>'
                         +'<div style="display:flex;justify-content:space-between;align-items:start;">'
                         +'<div style="flex:1;"><div style="color:var(--text-primary);font-weight:600;margin-bottom:4px;">'+escapeHtml(skill.n)+(isAdded?' <span style="color:var(--success);font-size:0.85em;">✓ Added</span>':'')+'</div>'
-                        +'<span style="color:'+color+';font-size:0.75em;padding:2px 6px;background:rgba(255,255,255,0.1);border-radius:6px;">'+escapeHtml(skill.c)+'</span></div>'
+                        +'<span style="color:'+color+';font-size:0.75em;padding:2px 6px;background:rgba(0,0,0,0.07);border-radius:6px;">'+escapeHtml(skill.c)+'</span></div>'
                         +(!isAdded?'<button style="padding:6px 12px;background:var(--accent);border:none;border-radius:6px;color:white;font-size:0.85em;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')">+ Add</button>':'')
                         +'</div></div>';
                 }).join('');
@@ -54546,27 +54546,27 @@ body {
                     ? "closeExportModal(); showToast('You are #" + (waitlistPosition || '?') + " on the waitlist!', 'info');"
                     : 'closeExportModal(); showWaitlist();';
                 var ctaText = appMode === 'waitlisted' ? 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist \u2714' : 'Join the Waitlist \u2192';
-                demoBanner = '<div style="background:rgba(96,165,250,0.12); border:1px solid rgba(96,165,250,0.25); border-radius:12px; padding:20px; margin-bottom:24px;">'
+                demoBanner = '<div style="background:rgba(0,113,227,0.12); border:1px solid rgba(0,113,227,0.25); border-radius:12px; padding:20px; margin-bottom:24px;">'
                     + '<div style="font-weight:700; color:var(--accent); margin-bottom:8px; font-size:0.95em;">' + bpIcon('search',14) + ' You\u2019re exploring a sample profile</div>'
-                    + '<div style="color:var(--c-muted, #a1a1a6); font-size:0.88em; line-height:1.6; margin-bottom:12px;">'
+                    + '<div style="color:var(--c-muted); font-size:0.88em; line-height:1.6; margin-bottom:12px;">'
                     + 'Everything you see is fully interactive \u2014 browse skills, explore job matches, compare values. '
                     + 'The one export available is the <strong style="color:var(--success);">Scouting Report PDF</strong>, so you can see what Blueprint delivers to hiring teams.</div>'
                     + '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px;">'
-                    + '<div style="font-size:0.78em; font-weight:600; color:var(--c-faint, #636366); min-width:100%;">AVAILABLE NOW:</div>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success);">Browse all tabs</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success);">Skill networks</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success);">Job matching</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(48,209,88,0.15); color:var(--success);">Scouting Report PDF</span>'
+                    + '<div style="font-size:0.78em; font-weight:600; color:var(--c-faint); min-width:100%;">AVAILABLE NOW:</div>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(36,138,61,0.15); color:var(--success);">Browse all tabs</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(36,138,61,0.15); color:var(--success);">Skill networks</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(36,138,61,0.15); color:var(--success);">Job matching</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(36,138,61,0.15); color:var(--success);">Scouting Report PDF</span>'
                     + '</div>'
                     + '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">'
-                    + '<div style="font-size:0.78em; font-weight:600; color:var(--c-faint, #636366); min-width:100%;">WITH YOUR OWN BLUEPRINT:</div>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Shareable HTML reports</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Executive Blueprint</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Resume &amp; cover letters</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Interview prep</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Negotiation guide</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">LinkedIn optimizer</span>'
-                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(96,165,250,0.15); color:var(--accent);">Share links</span>'
+                    + '<div style="font-size:0.78em; font-weight:600; color:var(--c-faint); min-width:100%;">WITH YOUR OWN BLUEPRINT:</div>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(0,113,227,0.15); color:var(--accent);">Shareable HTML reports</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(0,113,227,0.15); color:var(--accent);">Executive Blueprint</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(0,113,227,0.15); color:var(--accent);">Resume &amp; cover letters</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(0,113,227,0.15); color:var(--accent);">Interview prep</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(0,113,227,0.15); color:var(--accent);">Negotiation guide</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(0,113,227,0.15); color:var(--accent);">LinkedIn optimizer</span>'
+                    + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:rgba(0,113,227,0.15); color:var(--accent);">Share links</span>'
                     + '</div>'
                     + '<button onclick="' + ctaAction + '" style="padding:10px 24px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; font-size:0.88em; cursor:pointer;">' + ctaText + '</button>'
                     + '</div>';
@@ -54592,14 +54592,14 @@ body {
                 + '</div>'
                 + '<div class="modal-body" style="padding: 30px;">'
                 // Preview disclosure
-                + '<div style="background:rgba(255,159,10,0.06); border:1px solid rgba(255,159,10,0.18); border-radius:10px; padding:16px; margin-bottom:20px;">'
+                + '<div style="background:rgba(196,93,0,0.06); border:1px solid rgba(196,93,0,0.18); border-radius:10px; padding:16px; margin-bottom:20px;">'
                 + '<div style="font-size:0.85em; color:var(--warning); font-weight:700; margin-bottom:6px;">' + bpIcon('zap',14) + ' Active Preview</div>'
-                + '<div style="font-size:0.82em; color:var(--c-muted, #a1a1a6); line-height:1.6; margin-bottom:10px;">'
+                + '<div style="font-size:0.82em; color:var(--c-muted); line-height:1.6; margin-bottom:10px;">'
                 + 'Blueprint is in active development. What you\u2019re exploring is a working preview \u2014 features are shipping weekly and the platform is evolving fast. '
                 + 'Sample scouting reports are available for select characters during the preview. Your feedback directly shapes what gets built next.'
                 + '</div>'
-                + '<button onclick="closeExportModal(); sendFeedback(\'help\');" style="padding:7px 16px; border-radius:8px; border:1px solid rgba(255,159,10,0.25); background:rgba(255,159,10,0.08); color:var(--warning); font-weight:600; font-size:0.78em; cursor:pointer; transition:all 0.2s;"'
-                + ' onmouseover="this.style.background=\'rgba(255,159,10,0.15)\'" onmouseout="this.style.background=\'rgba(255,159,10,0.08)\'">'
+                + '<button onclick="closeExportModal(); sendFeedback(\'help\');" style="padding:7px 16px; border-radius:8px; border:1px solid rgba(196,93,0,0.25); background:rgba(196,93,0,0.08); color:var(--warning); font-weight:600; font-size:0.78em; cursor:pointer; transition:all 0.2s;"'
+                + ' onmouseover="this.style.background=\'rgba(196,93,0,0.15)\'" onmouseout="this.style.background=\'rgba(196,93,0,0.08)\'">'
                 + '\u2709 Give Feedback</button>'
                 + '</div>'
                 + demoBanner
@@ -54610,7 +54610,7 @@ body {
                 + '<div>'
                 + '<div style="color:var(--accent); font-weight: 600; margin-bottom: 5px;">Skills Network</div>'
                 + '<div style="color:var(--c-label); font-size: 0.95em; line-height: 1.6;">Your interactive skill constellation. Every node is a skill; every cluster is a professional domain.</div>'
-                + '<div style="margin-top:10px; padding:12px 14px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:8px;">'
+                + '<div style="margin-top:10px; padding:12px 14px; background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2); border-radius:8px;">'
                 + '<div style="font-size:0.82em; color:var(--accent); font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Network Controls</div>'
                 + '<div style="display:grid; gap:6px; font-size:0.88em; color:var(--c-label);">'
                 + '<div><strong style="color:var(--c-orange);">Drag</strong> any node to rearrange the layout \u2014 the network remembers where you put things</div>'
@@ -54639,7 +54639,7 @@ body {
                 + '<div>'
                 + '<div style="color:var(--accent); font-weight: 600; margin-bottom: 5px;">Scouting Reports</div>'
                 + '<div style="color:var(--c-label); font-size: 0.95em; line-height: 1.6;">' + scoutingDesc + '</div>'
-                + '<div style="margin-top:10px; padding:12px 14px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:8px;">'
+                + '<div style="margin-top:10px; padding:12px 14px; background:rgba(0,113,227,0.08); border:1px solid rgba(0,113,227,0.2); border-radius:8px;">'
                 + '<div style="font-size:0.82em; color:var(--accent); font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">How to Create</div>'
                 + '<div style="display:grid; gap:6px; font-size:0.88em; color:var(--c-label);">'
                 + '<div><strong style="color:var(--c-orange);">From any job card</strong> in your Pipeline \u2014 tap \u201CCreate Scouting Report\u201D</div>'
@@ -54647,7 +54647,7 @@ body {
                 + '<div><strong style="color:var(--c-orange);">From Match Overlay</strong> \u2014 after comparing skills, create the report right from the match legend</div>'
                 + '<div><strong style="color:var(--c-orange);">From Blueprint Tab</strong> \u2014 Export \u2192 Scouting Report card</div>'
                 + '</div></div>'
-                + '<button onclick="closeExportModal(); openSampleScoutingReport()" style="margin-top:12px; padding:10px 20px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.1); color:var(--accent); font-weight:600; font-size:0.88em; cursor:pointer; display:flex; align-items:center; gap:8px;">'
+                + '<button onclick="closeExportModal(); openSampleScoutingReport()" style="margin-top:12px; padding:10px 20px; border-radius:8px; border:1px solid rgba(0,113,227,0.3); background:rgba(0,113,227,0.1); color:var(--accent); font-weight:600; font-size:0.88em; cursor:pointer; display:flex; align-items:center; gap:8px;">'
                 + bpIcon("file-text",16) + ' View Sample Scouting Report</button>'
                 + '</div></div>'
                 // Settings (hidden for demos)
@@ -54780,19 +54780,19 @@ body {
                         and negotiate your true market value.
                     </p>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                        <div style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3); border-radius: 8px; padding: 15px;">
+                        <div style="background: rgba(0,113,227,0.1); border: 1px solid rgba(0,113,227,0.3); border-radius: 8px; padding: 15px;">
                             <div style="color:var(--accent); font-weight: 700; margin-bottom: 4px;">${bpIcon("compass",14)} Decode Your Expertise</div>
                             <div style="color:var(--text-secondary); font-size: 0.9em; line-height:1.6;">Surface the latent skills and differentiators that standard resumes ignore.</div>
                         </div>
-                        <div style="background: rgba(48,209,88,0.1); border: 1px solid rgba(48,209,88,0.3); border-radius: 8px; padding: 15px;">
+                        <div style="background: rgba(36,138,61,0.1); border: 1px solid rgba(36,138,61,0.3); border-radius: 8px; padding: 15px;">
                             <div style="color:var(--success); font-weight: 700; margin-bottom: 4px;">${bpIcon("dollar",14)} Negotiate with Intelligence</div>
                             <div style="color:var(--text-secondary); font-size: 0.9em; line-height:1.6;">Access real-world market ranges to know your worth before you walk into the room.</div>
                         </div>
-                        <div style="background: rgba(255,214,10,0.1); border: 1px solid rgba(255,214,10,0.3); border-radius: 8px; padding: 15px;">
+                        <div style="background: rgba(178,80,0,0.1); border: 1px solid rgba(178,80,0,0.3); border-radius: 8px; padding: 15px;">
                             <div style="color:var(--warning); font-weight: 700; margin-bottom: 4px;">${bpIcon("bar-chart",14)} Own Your Narrative</div>
                             <div style="color:var(--text-secondary); font-size: 0.9em; line-height:1.6;">A complete system for documenting outcomes, values, and purpose\u2014on your terms.</div>
                         </div>
-                        <div style="background: rgba(191,90,242,0.1); border: 1px solid rgba(191,90,242,0.3); border-radius: 8px; padding: 15px;">
+                        <div style="background: rgba(155,89,182,0.1); border: 1px solid rgba(155,89,182,0.3); border-radius: 8px; padding: 15px;">
                             <div style="color:var(--c-purple); font-weight: 700; margin-bottom: 4px;">${bpIcon("external",14)} Bridge the Gap</div>
                             <div style="color:var(--text-secondary); font-size: 0.9em; line-height:1.6;">Connect your architecture directly to the role with interactive, human-centric storytelling.</div>
                         </div>
@@ -54954,13 +54954,13 @@ body {
                 // Spotlight cutout — positioned over the target, punches a hole via overlay clip-path
                 + '.tour-spotlight {'
                 + '  position: fixed; z-index: 99998; border-radius: 10px;'
-                + '  box-shadow: 0 0 0 4px rgba(255,159,10,0.35);'
+                + '  box-shadow: 0 0 0 4px rgba(196,93,0,0.35);'
                 + '  pointer-events: none; transition: all 0.35s cubic-bezier(0.4,0,0.2,1);'
                 + '}'
                 // Tooltip
                 + '.tour-tooltip {'
                 + '  position: fixed; z-index: 99999; max-width: 380px; width: calc(100vw - 32px);'
-                + '  background: var(--bg-card, #1c1c22); border: 1px solid var(--border, #333);'
+                + '  background: var(--bg-card); border: 1px solid var(--border, #333);'
                 + '  border-radius:12px; padding: 20px 22px 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);'
                 + '  font-family: Outfit, system-ui, sans-serif; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);'
                 + '}'
@@ -54969,7 +54969,7 @@ body {
                 // Tooltip arrow
                 + '.tour-tooltip::before {'
                 + '  content: ""; position: absolute; width: 14px; height: 14px;'
-                + '  background: var(--bg-card, #1c1c22); border: 1px solid var(--border, #333);'
+                + '  background: var(--bg-card); border: 1px solid var(--border, #333);'
                 + '  transform: rotate(45deg); z-index: -1;'
                 + '}'
                 + '.tour-tooltip.arrow-top::before { top: -8px; left: 50%; margin-left: -7px; border-right: none; border-bottom: none; }'
@@ -54977,7 +54977,7 @@ body {
                 + '.tour-tooltip.arrow-none::before { display: none; }'
                 // Tooltip internals
                 + '.tour-step-badge {'
-                + '  display: inline-block; font-size: 0.7em; color: var(--accent, #ff9f0a); font-weight: 700;'
+                + '  display: inline-block; font-size: 0.7em; color: var(--accent); font-weight: 700;'
                 + '  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;'
                 + '}'
                 + '.tour-title {'
@@ -54995,13 +54995,13 @@ body {
                 + '  cursor: pointer; border: none; transition: all 0.15s;'
                 + '}'
                 + '.tour-btn-primary {'
-                + '  background: var(--accent, #ff9f0a); color: #000;'
+                + '  background: var(--accent); color: #000;'
                 + '}'
                 + '.tour-btn-primary:hover { filter: brightness(1.1); }'
                 + '.tour-btn-secondary {'
                 + '  background: transparent; color: var(--text-secondary, #a0a0b0); border: 1px solid var(--border, #333);'
                 + '}'
-                + '.tour-btn-secondary:hover { background: rgba(255,255,255,0.05); }'
+                + '.tour-btn-secondary:hover { background: rgba(0,0,0,0.04); }'
                 + '.tour-btn-skip {'
                 + '  background: transparent; color: var(--text-muted, #666); font-size: 0.8em;'
                 + '  padding: 8px 12px;'
@@ -55014,23 +55014,23 @@ body {
                 + '.tour-dot {'
                 + '  width: 6px; height: 6px; border-radius: 50%; background: var(--border, #333); transition: all 0.2s;'
                 + '}'
-                + '.tour-dot.active { background: var(--accent, #ff9f0a); width: 18px; border-radius:6px; }'
-                + '.tour-dot.done { background: var(--accent, #ff9f0a); opacity: 0.4; }'
+                + '.tour-dot.active { background: var(--accent); width: 18px; border-radius:6px; }'
+                + '.tour-dot.done { background: var(--accent); opacity: 0.4; }'
                 // Floating help button
                 + '#tourHelpBtn {'
                 + '  position: fixed; bottom: 24px; right: 24px; z-index: 9990;'
                 + '  width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--border, #333);'
-                + '  background: var(--bg-card, #1c1c22); color: var(--accent, #ff9f0a);'
+                + '  background: var(--bg-card); color: var(--accent);'
                 + '  font-size: 1.2em; font-weight: 800; cursor: pointer;'
                 + '  box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: all 0.2s;'
                 + '  display: flex; align-items: center; justify-content: center;'
                 + '  font-family: Outfit, system-ui, sans-serif;'
                 + '}'
-                + '#tourHelpBtn:hover { transform: scale(1.1); border-color: var(--accent, #ff9f0a); }'
+                + '#tourHelpBtn:hover { transform: scale(1.1); border-color: var(--accent); }'
                 // Help menu popover
                 + '#tourHelpMenu {'
                 + '  position: fixed; bottom: 78px; right: 24px; z-index: 9991;'
-                + '  background: var(--bg-card, #1c1c22); border: 1px solid var(--border, #333);'
+                + '  background: var(--bg-card); border: 1px solid var(--border, #333);'
                 + '  border-radius: 12px; padding: 8px; min-width: 200px;'
                 + '  box-shadow: 0 12px 40px rgba(0,0,0,0.4); display: none;'
                 + '  font-family: Outfit, system-ui, sans-serif;'
@@ -55040,7 +55040,7 @@ body {
                 + '  background: transparent; border: none; color: var(--text-primary, #f0f0f0);'
                 + '  font-size: 0.88em; cursor: pointer; border-radius: 8px; transition: background 0.15s;'
                 + '}'
-                + '#tourHelpMenu button:hover { background: rgba(255,255,255,0.06); }'
+                + '#tourHelpMenu button:hover { background: rgba(0,0,0,0.05); }'
                 + '#tourHelpMenu .tour-menu-label {'
                 + '  padding: 6px 14px 4px; font-size: 0.72em; color: var(--text-muted, #666);'
                 + '  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'
