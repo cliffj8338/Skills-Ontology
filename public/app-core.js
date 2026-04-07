@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.26';
+        var BP_VERSION = 'v4.48.27';
 
         var BP_PALETTE = {
             blue: '#60a5fa', purple: '#bf5af2', green: '#30d158',
@@ -3981,6 +3981,138 @@
         }
         window.saveJobSourceKeys = saveJobSourceKeys;
         
+
+        // ===== MARKET INTELLIGENCE ENGINE =====
+        var _marketPulseCache = null;
+        var _marketPulseCacheTime = 0;
+        var _MARKET_CACHE_TTL = 300000;
+
+        function _marketGatherJobs() {
+            var jobs = [];
+            var savedJobs = (userData && userData.savedJobs) || [];
+            savedJobs.forEach(function(j) {
+                var skills = getJobSkills(j);
+                if (skills && skills.length > 0) {
+                    jobs.push({ title: j.title || j.jobTitle || '', company: j.company || j.employer || '', skills: skills, source: 'pipeline' });
+                }
+            });
+            if (window._fitForMeData && Array.isArray(window._fitForMeData)) {
+                window._fitForMeData.forEach(function(j) {
+                    var skills = j.parsedSkills || j.skills || [];
+                    if (skills.length > 0) {
+                        jobs.push({ title: j.title || j.jobTitle || '', company: j.company || j.employer || '', skills: skills, source: 'fitforme' });
+                    }
+                });
+            }
+            if (window._lastSearchResults && Array.isArray(window._lastSearchResults)) {
+                window._lastSearchResults.forEach(function(j) {
+                    var skills = j.parsedSkills || j.skills || [];
+                    if (skills.length > 0) {
+                        jobs.push({ title: j.title || j.jobTitle || '', company: j.company || j.employer || '', skills: skills, source: 'search' });
+                    }
+                });
+            }
+            return jobs;
+        }
+
+        function _marketAnalyze(forceRefresh) {
+            var now = Date.now();
+            if (!forceRefresh && _marketPulseCache && (now - _marketPulseCacheTime) < _MARKET_CACHE_TTL) {
+                return _marketPulseCache;
+            }
+            var jobs = _marketGatherJobs();
+            if (jobs.length === 0) return null;
+
+            var demandMap = {};
+            var totalJobs = jobs.length;
+            jobs.forEach(function(job) {
+                var seen = {};
+                job.skills.forEach(function(sk) {
+                    var name = (typeof sk === 'string') ? sk : (sk.name || sk.skill || '');
+                    if (!name) return;
+                    var norm = name.trim().toLowerCase();
+                    if (seen[norm]) return;
+                    seen[norm] = true;
+                    var displayName = (typeof sk === 'object' && sk.name) ? sk.name : name;
+                    if (!demandMap[norm]) {
+                        demandMap[norm] = { name: displayName, count: 0, required: 0, preferred: 0 };
+                    }
+                    demandMap[norm].count++;
+                    var tier = (typeof sk === 'object') ? (sk.requirement || sk.tier || '') : '';
+                    if (tier.toLowerCase() === 'required' || tier.toLowerCase() === 'must have') {
+                        demandMap[norm].required++;
+                    } else if (tier.toLowerCase() === 'preferred' || tier.toLowerCase() === 'nice-to-have') {
+                        demandMap[norm].preferred++;
+                    }
+                });
+            });
+
+            var demandList = Object.keys(demandMap).map(function(k) {
+                var d = demandMap[k];
+                d.frequency = Math.round((d.count / totalJobs) * 100);
+                d.norm = k;
+                return d;
+            }).sort(function(a, b) { return b.count - a.count; });
+
+            var userSkills = (skillsData && skillsData.skills) || userData.skills || [];
+            var userSkillMap = {};
+            userSkills.forEach(function(s) {
+                var n = (s.name || '').trim().toLowerCase();
+                if (n) userSkillMap[n] = s;
+            });
+
+            var matched = [];
+            var gaps = [];
+            var topDemand = demandList.slice(0, 50);
+            topDemand.forEach(function(d) {
+                if (userSkillMap[d.norm]) {
+                    matched.push({ demand: d, userSkill: userSkillMap[d.norm] });
+                } else {
+                    gaps.push(d);
+                }
+            });
+
+            var coverageCount = 0;
+            demandList.forEach(function(d) {
+                if (userSkillMap[d.norm]) coverageCount++;
+            });
+            var coveragePct = demandList.length > 0 ? Math.round((coverageCount / Math.min(demandList.length, 30)) * 100) : 0;
+            if (coveragePct > 100) coveragePct = 100;
+
+            var strengthsSorted = matched.sort(function(a, b) { return b.demand.count - a.demand.count; });
+            var gapsSorted = gaps.sort(function(a, b) { return b.count - a.count; });
+
+            var result = {
+                totalJobs: totalJobs,
+                totalUniqueSkills: demandList.length,
+                coveragePct: coveragePct,
+                demandList: demandList,
+                strengths: strengthsSorted.slice(0, 12),
+                gaps: gapsSorted.slice(0, 12),
+                demandMap: demandMap,
+                timestamp: now
+            };
+
+            _marketPulseCache = result;
+            _marketPulseCacheTime = now;
+            try { localStorage.setItem('bp_market_pulse_summary', JSON.stringify({ coveragePct: coveragePct, totalJobs: totalJobs, ts: now })); } catch(e) {}
+            return result;
+        }
+
+        function _marketGetSkillDemand(skillName) {
+            if (!_marketPulseCache || !_marketPulseCache.demandMap) return null;
+            var norm = (skillName || '').trim().toLowerCase();
+            return _marketPulseCache.demandMap[norm] || null;
+        }
+
+        function _marketDemandLabel(frequency) {
+            if (frequency >= 50) return { label: 'Hot', color: '#d70015', icon: 'trending-up' };
+            if (frequency >= 30) return { label: 'High', color: '#b25000', icon: 'trending-up' };
+            if (frequency >= 15) return { label: 'Moderate', color: '#0071e3', icon: 'minus' };
+            return { label: 'Niche', color: '#6e6e73', icon: 'minus' };
+        }
+
+
         // ===== ADMIN ROADMAP TRACKER =====
         
         var ROADMAP_DATA = {
@@ -28956,7 +29088,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lc + '22; color:' + lc + '; font-weight:600;">' + escapeHtml(skill.level || 'Proficient') + '</span>'
                         + '<span title="' + skillImpact.label + '" style="font-size:0.75em; color:' + impactColor + ';">' + skillImpact.icon + '</span>'
                         + '<span style="font-size:0.62em; padding:1px 7px; border-radius:8px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;">' + tier.label + '</span>'
-                        + (years ? '<span style="font-size:0.68em; color:#6e6e73;">' + years + 'y</span>' : '')
+                        + (years ? '<span style="font-size:0.68em; color:#6e6e73;">' + years + 'y</span>' : '');
+                    var _cvDemand = _marketGetSkillDemand(skill.name);
+                    if (_cvDemand && _cvDemand.frequency >= 15) {
+                        var _cvDInfo = _marketDemandLabel(_cvDemand.frequency);
+                        html += '<span title="' + _cvDInfo.label + ' demand: ' + _cvDemand.frequency + '% of jobs" style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:' + _cvDInfo.color + '14; color:' + _cvDInfo.color + '; font-weight:600; white-space:nowrap;">' + bpIcon(_cvDInfo.icon, 9) + ' ' + _cvDInfo.label + '</span>';
+                    }
+                    html += ''
                         + (evs && evs.inferredActive ? '<span style="font-size:0.6em; padding:1px 6px; border-radius:8px; background:rgba(155,89,182,0.08); color:#6b2d7b; font-weight:600;" title="' + (evs.experienceYears||0) + ' years experience \u2192 inferred ' + evs.inferredLevel + '">Inferred</span>' : '')
                         + '</div>';
 
@@ -29265,6 +29403,99 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             html += '</div>';
             
+            // ── Market Intelligence ─────────────────────────────
+            var mktData = _marketAnalyze();
+            if (mktData && mktData.totalJobs >= 2) {
+                var mktCovColor = mktData.coveragePct >= 70 ? '#1e7e34' : mktData.coveragePct >= 45 ? '#0071e3' : '#b25000';
+                html += '<div class="rpt-card" style="margin-bottom:16px;">'
+                    + '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px;">'
+                    + '<div class="rpt-card-h" style="margin:0;">' + bpIcon('activity', 16) + ' Market Intelligence</div>'
+                    + '<button onclick="_marketPulseCache=null;initReports();" style="padding:4px 10px; border-radius:6px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-muted); font-size:0.72em; cursor:pointer;">' + bpIcon('refresh-cw', 10) + ' Refresh</button>'
+                    + '</div>'
+                    + '<div class="rpt-card-sub" style="margin-bottom:14px;">Based on ' + mktData.totalJobs + ' analyzed job postings \u2014 ' + mktData.totalUniqueSkills + ' unique skills detected.</div>';
+
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:18px;">';
+                html += '<div style="text-align:center; padding:16px 10px; background:linear-gradient(135deg,rgba(0,113,227,0.04),rgba(0,113,227,0.08)); border:1px solid rgba(0,113,227,0.12); border-radius:10px;">'
+                    + '<div style="font-size:2.2em; font-weight:800; color:' + mktCovColor + ';">' + mktData.coveragePct + '%</div>'
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">MARKET COVERAGE</div></div>';
+                html += '<div style="text-align:center; padding:16px 10px; background:rgba(30,126,52,0.04); border:1px solid rgba(30,126,52,0.12); border-radius:10px;">'
+                    + '<div style="font-size:2.2em; font-weight:800; color:#1e7e34;">' + mktData.strengths.length + '</div>'
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">YOUR STRENGTHS</div></div>';
+                html += '<div style="text-align:center; padding:16px 10px; background:rgba(215,0,21,0.04); border:1px solid rgba(215,0,21,0.12); border-radius:10px;">'
+                    + '<div style="font-size:2.2em; font-weight:800; color:#d70015;">' + mktData.gaps.length + '</div>'
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">SKILL GAPS</div></div>';
+                html += '<div style="text-align:center; padding:16px 10px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px;">'
+                    + '<div style="font-size:2.2em; font-weight:800; color:#1d1d1f;">' + mktData.totalJobs + '</div>'
+                    + '<div style="font-size:0.72em; color:#6e6e73; font-weight:600;">JOBS ANALYZED</div></div>';
+                html += '</div>';
+
+                html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">';
+
+                html += '<div style="min-width:0;">'
+                    + '<div style="font-size:0.82em; font-weight:700; color:var(--c-heading); margin-bottom:8px; display:flex; align-items:center; gap:6px;">' + bpIcon('trending-up', 14) + ' Top Demanded Skills</div>';
+                var topDemand = mktData.demandList.slice(0, 10);
+                var maxCount = topDemand.length > 0 ? topDemand[0].count : 1;
+                topDemand.forEach(function(d) {
+                    var userHas = false;
+                    var userSkills = (skillsData && skillsData.skills) || userData.skills || [];
+                    userSkills.forEach(function(s) { if ((s.name || '').trim().toLowerCase() === d.norm) userHas = true; });
+                    var barW = Math.max(8, Math.round((d.count / maxCount) * 100));
+                    var demandInfo = _marketDemandLabel(d.frequency);
+                    html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:5px; font-size:0.78em;">'
+                        + '<div style="flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:' + (userHas ? '#1d1d1f' : '#6e6e73') + '; font-weight:' + (userHas ? '600' : '400') + ';">'
+                        + (userHas ? '<span style="color:#1e7e34;" title="You have this skill">' + bpIcon('check', 10) + '</span> ' : '')
+                        + escapeHtml(d.name) + '</div>'
+                        + '<div style="width:' + barW + 'px; height:6px; border-radius:3px; background:' + demandInfo.color + '; opacity:0.7; flex-shrink:0;"></div>'
+                        + '<div style="width:32px; text-align:right; font-weight:600; color:' + demandInfo.color + '; flex-shrink:0; font-size:0.9em;">' + d.frequency + '%</div>'
+                        + '</div>';
+                });
+                html += '</div>';
+
+                html += '<div style="min-width:0;">';
+                if (mktData.gaps.length > 0) {
+                    html += '<div style="font-size:0.82em; font-weight:700; color:#d70015; margin-bottom:8px; display:flex; align-items:center; gap:6px;">' + bpIcon('alert-circle', 14) + ' Gap Alerts</div>';
+                    mktData.gaps.slice(0, 8).forEach(function(g) {
+                        var demandInfo = _marketDemandLabel(g.frequency);
+                        html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:5px; font-size:0.78em;">'
+                            + '<span style="color:#d70015; flex-shrink:0;">' + bpIcon('x', 10) + '</span>'
+                            + '<div style="flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#1d1d1f;">' + escapeHtml(g.name) + '</div>'
+                            + '<span style="font-size:0.85em; padding:1px 6px; border-radius:6px; background:' + demandInfo.color + '12; color:' + demandInfo.color + '; font-weight:600; white-space:nowrap; flex-shrink:0;">' + g.frequency + '% of jobs</span>'
+                            + '</div>';
+                    });
+                    if (mktData.gaps.length > 8) {
+                        html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:4px;">+ ' + (mktData.gaps.length - 8) + ' more gaps</div>';
+                    }
+                } else {
+                    html += '<div style="font-size:0.82em; font-weight:700; color:#1e7e34; margin-bottom:8px; display:flex; align-items:center; gap:6px;">' + bpIcon('check', 14) + ' Full Coverage</div>'
+                        + '<div style="font-size:0.78em; color:#6e6e73;">You have all top demanded skills. Strong market position.</div>';
+                }
+
+                if (mktData.strengths.length > 0) {
+                    html += '<div style="font-size:0.82em; font-weight:700; color:#1e7e34; margin-top:14px; margin-bottom:8px; display:flex; align-items:center; gap:6px;">' + bpIcon('star', 14) + ' Your Strengths</div>';
+                    mktData.strengths.slice(0, 6).forEach(function(s) {
+                        var levelBadge = s.userSkill.level || s.userSkill.proficiency || '';
+                        html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:0.78em;">'
+                            + '<span style="color:#1e7e34; flex-shrink:0;">' + bpIcon('check', 10) + '</span>'
+                            + '<div style="flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#1d1d1f; font-weight:500;">' + escapeHtml(s.demand.name) + '</div>'
+                            + (levelBadge ? '<span style="font-size:0.82em; padding:1px 6px; border-radius:6px; background:rgba(30,126,52,0.08); color:#1e7e34; font-weight:600; white-space:nowrap; flex-shrink:0;">' + escapeHtml(levelBadge) + '</span>' : '')
+                            + '</div>';
+                    });
+                }
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+            } else {
+                html += '<div class="rpt-card" style="margin-bottom:16px;">'
+                    + '<div class="rpt-card-h" style="margin-bottom:4px;">' + bpIcon('activity', 16) + ' Market Intelligence</div>'
+                    + '<div style="padding:30px 20px; text-align:center; color:var(--text-muted);">'
+                    + '<div style="font-size:1.5em; margin-bottom:8px;">' + bpIcon('trending-up', 32) + '</div>'
+                    + '<div style="font-weight:600; color:var(--c-heading); margin-bottom:6px;">Not enough data yet</div>'
+                    + '<div style="font-size:0.85em; max-width:380px; margin:0 auto 16px; line-height:1.5;">Save 2+ jobs to your pipeline or search for jobs to unlock market intelligence. Blueprint analyzes job postings to show you which skills are in demand and where you stand.</div>'
+                    + '<button onclick="switchView(\'jobs\')" style="padding:8px 18px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:0.85em;">' + bpIcon('search', 13) + ' Find Jobs</button>'
+                    + '</div></div>';
+            }
+
+
             // ── Profile Completeness ────────────────────────────
             // Ensure blueprintData is populated regardless of tab visit order
             if (typeof inferValues === 'function') inferValues();
@@ -34642,7 +34873,15 @@ body {
                         + (hasConfirmed ? '<span title="Verified" style="color:var(--success); font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
                         + (skillImpact ? '<span title="' + (skillImpact.label || '') + '" style="color:' + impactColor + '; font-size:0.75em; line-height:1;">' + (skillImpact.icon || '') + '</span>' : '')
                         + '<span title="' + (smCatTitles[s.category] || 'Skill') + '" style="color:' + (smCatColors[s.category] || 'var(--accent)') + '; font-size:0.75em; line-height:1;">' + (smCatIcons[s.category] || bpIcon('tool',11)) + '</span>'
-                        + (years ? '<span style="font-size:0.68em; color:var(--c-muted);">' + years + 'y</span>' : '')
+                        + (years ? '<span style="font-size:0.68em; color:var(--c-muted);">' + years + 'y</span>' : '');
+                    var _skDemand = _marketGetSkillDemand(s.name);
+                    if (_skDemand) {
+                        var _skDInfo = _marketDemandLabel(_skDemand.frequency);
+                        if (_skDemand.frequency >= 15) {
+                            html += '<span title="' + _skDInfo.label + ' demand: ' + _skDemand.frequency + '% of jobs" style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:' + _skDInfo.color + '14; color:' + _skDInfo.color + '; font-weight:600; white-space:nowrap;">' + bpIcon(_skDInfo.icon, 9) + ' ' + _skDInfo.label + '</span>';
+                        }
+                    }
+                    html += ''
                         + '</div>';
 
                     if (roleNames.length > 0) {
