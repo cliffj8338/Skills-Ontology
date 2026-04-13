@@ -1548,7 +1548,7 @@
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            if (_ud.profileType) data.profileType = _ud.profileType;
+            data.profileType = _ud.profileType || (_ud.explorerData ? 'explorer' : 'standard');
             if (_ud.explorerData) data.explorerData = _ud.explorerData;
             if (_ud.activities && _ud.activities.length > 0) data.activities = _ud.activities;
             if (_ud.linkedinContent) data.linkedinContent = _ud.linkedinContent;
@@ -1688,7 +1688,7 @@
             d.certifications = userData.certifications ? JSON.parse(JSON.stringify(userData.certifications)) : [];
             d.verifications = userData.verifications ? JSON.parse(JSON.stringify(userData.verifications)) : [];
             d.templateId = userData.templateId || '';
-            d.profileType = userData.profileType || 'standard';
+            d.profileType = userData.profileType || (userData.explorerData ? 'explorer' : 'standard');
             if (userData.explorerData) d.explorerData = JSON.parse(JSON.stringify(userData.explorerData));
             if (userData.activities && userData.activities.length > 0) d.activities = JSON.parse(JSON.stringify(userData.activities));
             if (userData.outcomes) d.outcomes = JSON.parse(JSON.stringify(userData.outcomes));
@@ -1896,7 +1896,12 @@
                     userData.companyTenures = data.companyTenures || [];
                     userData.importStats = data.importStats || {};
                     userData.blindDefaults = data.blindDefaults || {};
-                    if (data.profileType) userData.profileType = data.profileType;
+                    userData.profileType = data.profileType || (data.explorerData ? 'explorer' : null) || userData.profileType || 'standard';
+                    if (data.explorerData && userData.profileType !== 'explorer') {
+                        console.warn('[ProfileType] REPAIR: explorerData present but profileType was "' + (data.profileType || 'missing') + '" — correcting to explorer');
+                        userData.profileType = 'explorer';
+                        setTimeout(function() { if (fbUser && fbDb) saveToFirestore(); }, 3000);
+                    }
                     if (data.explorerData) userData.explorerData = data.explorerData;
                     if (data.activities) userData.activities = data.activities;
                     userData.growthSkills = data.growthSkills || [];
@@ -2046,6 +2051,8 @@
                         userData.workHistory = d.workHistory || [];
                         userData.education = d.education || [];
                         userData.certifications = d.certifications || [];
+                        userData.profileType = d.profileType || (d.explorerData ? 'explorer' : userData.profileType || 'standard');
+                        if (d.explorerData) userData.explorerData = d.explorerData;
                         userData.templateId = fbUser ? 'firestore-' + fbUser.uid : userData.templateId;
                         if (typeof skillsData !== 'undefined') {
                             skillsData.skills = d.skills || [];
