@@ -412,64 +412,82 @@
             console.log('[BP API] idToken:', idToken ? 'obtained' : 'none', 'proxyAvailable:', AI_PROXY_AVAILABLE, 'directKey:', !!userApiKey);
             if (idToken && AI_PROXY_AVAILABLE !== false) {
                 var proxyApiError = null;
-                try {
-                    console.log('[BP API] Fetching proxy:', AI_PROXY_URL);
-                    var proxyRes = await fetch(AI_PROXY_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
-                        body: JSON.stringify(requestBody),
-                        signal: AbortSignal.timeout(90000)
-                    });
-                    console.log('[BP API] Proxy response:', proxyRes.status, proxyRes.statusText);
-                    if (proxyRes.ok) {
-                        AI_PROXY_AVAILABLE = true;
-                        recordApiHealth('anthropic-proxy', 'ok', 'Operational');
-                        var jsonData = await proxyRes.json();
-                        console.log('[BP API] Proxy success, response type:', jsonData?.type);
-                        trackAICall(featureTag);
-                        if (featureTag && _aiCacheableFeatures[featureTag]) _aiCacheSet(featureTag, promptText, modelName, jsonData);
-                        return jsonData;
+                var _retryableStatuses = { 429: true, 502: true, 503: true, 529: true };
+                var _maxRetries = 2;
+                for (var _attempt = 0; _attempt <= _maxRetries; _attempt++) {
+                    proxyApiError = null;
+                    if (_attempt > 0) {
+                        var _delay = _attempt * 2000 + Math.floor(Math.random() * 1000);
+                        console.log('[BP API] Retry attempt ' + _attempt + '/' + _maxRetries + ' after ' + _delay + 'ms...');
+                        await new Promise(function(r) { setTimeout(r, _delay); });
                     }
-                    if (proxyRes.status === 429) {
-                        AI_PROXY_AVAILABLE = true;
-                        recordApiHealth('anthropic-proxy', 'degraded', 'Rate limited', { status: 429 });
-                        throw new Error('Rate limit exceeded. Please wait a moment.');
-                    }
-                    // Capture actual error from proxy/Anthropic for 4xx errors
-                    if (proxyRes.status >= 400 && proxyRes.status < 500) {
-                        AI_PROXY_AVAILABLE = true;
-                        var errBody = {}; try { errBody = await proxyRes.json(); } catch(e) {}
-                        var errMsg = (errBody.error && typeof errBody.error === 'object' ? errBody.error.message : errBody.error) || 'AI request failed (status ' + proxyRes.status + ')';
-                        console.error('AI Proxy ' + proxyRes.status + ':', errMsg, errBody);
-                        var healthStatus = errMsg.includes('credit balance') ? 'down' : 'degraded';
-                        var healthMsg = errMsg.includes('credit balance') ? 'Credits depleted' : 'Error: ' + errMsg;
-                        recordApiHealth('anthropic-proxy', healthStatus, healthMsg, { status: proxyRes.status, error: errMsg });
-                        if (errMsg.includes('credit balance')) {
-                            logIncident('critical', 'anthropic-credits', 'API credits depleted. All AI features disabled until top-up.', { manageUrl: 'https://console.anthropic.com/settings/billing' });
+                    try {
+                        console.log('[BP API] Fetching proxy:', AI_PROXY_URL, _attempt > 0 ? '(retry ' + _attempt + ')' : '');
+                        var proxyRes = await fetch(AI_PROXY_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+                            body: JSON.stringify(requestBody),
+                            signal: AbortSignal.timeout(90000)
+                        });
+                        console.log('[BP API] Proxy response:', proxyRes.status, proxyRes.statusText);
+                        if (proxyRes.ok) {
+                            AI_PROXY_AVAILABLE = true;
+                            recordApiHealth('anthropic-proxy', 'ok', 'Operational');
+                            var jsonData = await proxyRes.json();
+                            console.log('[BP API] Proxy success, response type:', jsonData?.type);
+                            trackAICall(featureTag);
+                            if (featureTag && _aiCacheableFeatures[featureTag]) _aiCacheSet(featureTag, promptText, modelName, jsonData);
+                            return jsonData;
                         }
-                        proxyApiError = new Error(errMsg);
+                        if (_retryableStatuses[proxyRes.status] && _attempt < _maxRetries) {
+                            console.warn('[BP API] Transient error ' + proxyRes.status + ', will retry...');
+                            if (proxyRes.status === 429) {
+                                recordApiHealth('anthropic-proxy', 'degraded', 'Rate limited (retrying)', { status: 429 });
+                            }
+                            continue;
+                        }
+                        if (proxyRes.status === 429) {
+                            AI_PROXY_AVAILABLE = true;
+                            recordApiHealth('anthropic-proxy', 'degraded', 'Rate limited', { status: 429 });
+                            throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+                        }
+                        if (proxyRes.status >= 400 && proxyRes.status < 500) {
+                            AI_PROXY_AVAILABLE = true;
+                            var errBody = {}; try { errBody = await proxyRes.json(); } catch(e) {}
+                            var errMsg = (errBody.error && typeof errBody.error === 'object' ? errBody.error.message : errBody.error) || 'AI request failed (status ' + proxyRes.status + ')';
+                            console.error('AI Proxy ' + proxyRes.status + ':', errMsg, errBody);
+                            var healthStatus = errMsg.includes('credit balance') ? 'down' : 'degraded';
+                            var healthMsg = errMsg.includes('credit balance') ? 'Credits depleted' : 'Error: ' + errMsg;
+                            recordApiHealth('anthropic-proxy', healthStatus, healthMsg, { status: proxyRes.status, error: errMsg });
+                            if (errMsg.includes('credit balance')) {
+                                logIncident('critical', 'anthropic-credits', 'API credits depleted. All AI features disabled until top-up.', { manageUrl: 'https://console.anthropic.com/settings/billing' });
+                            }
+                            proxyApiError = new Error(errMsg);
+                            break;
+                        }
+                        if (proxyRes.status === 504) {
+                            recordApiHealth('anthropic-proxy', 'degraded', 'Gateway timeout', { status: 504 });
+                            throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
+                        }
+                        if (proxyRes.status >= 500) {
+                            AI_PROXY_AVAILABLE = false;
+                            recordApiHealth('anthropic-proxy', 'down', 'Server error', { status: proxyRes.status });
+                            logIncident('critical', 'anthropic-proxy', 'AI proxy server error (HTTP ' + proxyRes.status + ')', { status: proxyRes.status });
+                        }
+                    } catch (e) {
+                        console.error('[BP API] Proxy fetch error:', e.name, e.message);
+                        if (e.message.includes('Rate limit')) throw e;
+                        if (e.name === 'TimeoutError' || e.message.includes('timed out') || e.message.includes('aborted')) {
+                            recordApiHealth('anthropic-proxy', 'degraded', 'Request timed out', { error: e.message });
+                            throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
+                        }
+                        if (AI_PROXY_AVAILABLE === null) {
+                            AI_PROXY_AVAILABLE = false;
+                            recordApiHealth('anthropic-proxy', 'down', 'Unreachable', { error: e.message });
+                        }
+                        console.log('[BP API] Proxy failed, falling through to direct...');
+                        break;
                     }
-                    if (proxyRes.status === 504) {
-                        recordApiHealth('anthropic-proxy', 'degraded', 'Gateway timeout', { status: 504 });
-                        throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
-                    }
-                    if (proxyRes.status >= 500) {
-                        AI_PROXY_AVAILABLE = false;
-                        recordApiHealth('anthropic-proxy', 'down', 'Server error', { status: proxyRes.status });
-                        logIncident('critical', 'anthropic-proxy', 'AI proxy server error (HTTP ' + proxyRes.status + ')', { status: proxyRes.status });
-                    }
-                } catch (e) {
-                    console.error('[BP API] Proxy fetch error:', e.name, e.message);
-                    if (e.message.includes('Rate limit')) throw e;
-                    if (e.name === 'TimeoutError' || e.message.includes('timed out') || e.message.includes('aborted')) {
-                        recordApiHealth('anthropic-proxy', 'degraded', 'Request timed out', { error: e.message });
-                        throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
-                    }
-                    if (AI_PROXY_AVAILABLE === null) {
-                        AI_PROXY_AVAILABLE = false;
-                        recordApiHealth('anthropic-proxy', 'down', 'Unreachable', { error: e.message });
-                    }
-                    console.log('[BP API] Proxy failed, falling through to direct...');
                 }
                 if (proxyApiError) throw proxyApiError;
             }
