@@ -41,6 +41,7 @@
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
         var AI_PROXY_AVAILABLE = null;
+        var _aiProxyCooldownUntil = 0;
         
         // ===== API HEALTH MONITORING =====
         // Passive monitoring: records status from actual API calls
@@ -410,7 +411,7 @@
                 try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) { console.warn('Failed to get Firebase ID token:', e.message); }
             }
             console.log('[BP API] idToken:', idToken ? 'obtained' : 'none', 'proxyAvailable:', AI_PROXY_AVAILABLE, 'directKey:', !!userApiKey);
-            if (idToken && AI_PROXY_AVAILABLE !== false) {
+            if (idToken && AI_PROXY_AVAILABLE !== false && Date.now() > _aiProxyCooldownUntil) {
                 var proxyApiError = null;
                 var _retryableStatuses = { 429: true, 502: true, 503: true, 529: true };
                 var _maxRetries = 2;
@@ -470,13 +471,16 @@
                             throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
                         }
                         if (proxyRes.status >= 500) {
-                            AI_PROXY_AVAILABLE = false;
-                            recordApiHealth('anthropic-proxy', 'down', 'Server error', { status: proxyRes.status });
+                            _aiProxyCooldownUntil = Date.now() + 60000;
+                            recordApiHealth('anthropic-proxy', 'down', 'Server error (cooldown 60s)', { status: proxyRes.status });
                             logIncident('critical', 'anthropic-proxy', 'AI proxy server error (HTTP ' + proxyRes.status + ')', { status: proxyRes.status });
+                            if (!userApiKey) {
+                                throw new Error('AI service is temporarily overloaded. Please try again in a minute.');
+                            }
                         }
                     } catch (e) {
                         console.error('[BP API] Proxy fetch error:', e.name, e.message);
-                        if (e.message.includes('Rate limit')) throw e;
+                        if (e.message.includes('Rate limit') || e.message.includes('temporarily overloaded')) throw e;
                         if (e.name === 'TimeoutError' || e.message.includes('timed out') || e.message.includes('aborted')) {
                             recordApiHealth('anthropic-proxy', 'degraded', 'Request timed out', { error: e.message });
                             throw new Error('AI request timed out. The document may be too large — try pasting resume text instead.');
@@ -484,6 +488,9 @@
                         if (AI_PROXY_AVAILABLE === null) {
                             AI_PROXY_AVAILABLE = false;
                             recordApiHealth('anthropic-proxy', 'down', 'Unreachable', { error: e.message });
+                        }
+                        if (!userApiKey) {
+                            throw new Error('AI service is temporarily unavailable. Please try again in a moment.');
                         }
                         console.log('[BP API] Proxy failed, falling through to direct...');
                         break;
