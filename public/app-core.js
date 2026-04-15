@@ -53082,22 +53082,37 @@ body {
                 }, null, 'negotiation_guide');
                 var raw = (data.content || []).map(function(b) { return b.text || ''; }).join('');
                 raw = raw.replace(/```json|```/g, '').trim();
+                var jsonStart = raw.indexOf('{');
+                var jsonEnd = raw.lastIndexOf('}');
+                if (jsonStart >= 0 && jsonEnd > jsonStart) raw = raw.substring(jsonStart, jsonEnd + 1);
                 var guide = JSON.parse(raw);
                 _renderNegGuide(guide, tv, currentComp, mode, renderFn);
             } catch(e) {
                 console.warn('[NegGuide] AI call failed:', e);
-                _renderNegGuideError(renderFn);
+                _renderNegGuideError(renderFn, e.message, mode, role, tv);
             }
         }
         window._buildNegGuideWithAI = _buildNegGuideWithAI;
 
-        function _renderNegGuideError(renderFn) {
+        function _renderNegGuideError(renderFn, errMsg, lastMode, lastRole, lastTv) {
+            var isTransient = errMsg && (errMsg.indexOf('overloaded') > -1 || errMsg.indexOf('temporarily') > -1 || errMsg.indexOf('timed out') > -1 || errMsg.indexOf('Rate limit') > -1);
+            var userMsg = isTransient
+                ? 'The AI service is temporarily busy. This usually resolves within a minute.'
+                : 'Could not generate your guide. Please check your connection and try again.';
+            var retryBtn = (lastMode && lastRole && typeof _buildNegGuideWithAI === 'function')
+                ? '<button onclick="_buildNegGuideWithAI(\'' + (lastMode || 'external') + '\', window._negGuideLastRole, window._negGuideLastTv, function(h){var mc=document.querySelector(\'#exportModal .modal-content\');if(mc)mc.innerHTML=h;})" style="margin-top:12px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;">' + bpIcon('refresh-cw',14) + ' Try Again</button>'
+                : '';
+            if (lastRole) window._negGuideLastRole = lastRole;
+            if (lastTv) window._negGuideLastTv = lastTv;
             renderFn('<div class="modal-header"><div class="modal-header-left"><h2 class="modal-title">' + bpIcon('alert',18) + ' Guide Unavailable</h2></div>'
                 + '<button class="modal-close" onclick="closeExportModal()">×</button></div>'
                 + '<div class="modal-body" style="padding:32px 28px; text-align:center;">'
-                + '<p style="color:var(--c-muted);">Could not generate your guide — please check your connection and try again.</p>'
-                + '<button onclick="closeExportModal()" style="margin-top:20px; padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Close</button>'
-                + '</div>');
+                + '<p style="color:var(--text-secondary);">' + userMsg + '</p>'
+                + (errMsg ? '<p style="font-size:0.75em; color:var(--c-muted); margin-top:8px;">' + escapeHtml(errMsg) + '</p>' : '')
+                + '<div style="display:flex; gap:12px; justify-content:center; margin-top:20px;">'
+                + retryBtn
+                + '<button onclick="closeExportModal()" style="padding:10px 24px; background:var(--c-surface-2); color:var(--text-secondary); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-weight:600;">Close</button>'
+                + '</div></div>');
         }
 
         function _renderNegGuide(g, tv, currentComp, mode, renderFn) {
