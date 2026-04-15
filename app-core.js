@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.28';
+        var BP_VERSION = 'v4.48.29';
 
         var BP_PALETTE = {
             blue: '#60a5fa', purple: '#bf5af2', green: '#30d158',
@@ -1620,18 +1620,35 @@
             } catch(e) { return null; }
         }
 
-        function saveToFirestore() {
+        var _saveFailCount = 0;
+        var _saveCircuitOpen = false;
+        var _saveCircuitOpenedAt = 0;
+        var _SAVE_CIRCUIT_THRESHOLD = 2;
+        var _SAVE_CIRCUIT_COOLDOWN = 120000;
+
+        function saveToFirestore(opts) {
+            opts = opts || {};
             if (showcaseMode) return Promise.resolve(false);
             if (!fbDb || !fbUser) return Promise.resolve(false);
             
             if (appContext.mode === 'demo') return Promise.resolve(false);
+            
+            if (_saveCircuitOpen && !opts.force) {
+                var elapsed = Date.now() - _saveCircuitOpenedAt;
+                if (elapsed < _SAVE_CIRCUIT_COOLDOWN) {
+                    console.warn('[Save] Circuit breaker OPEN — skipping auto-save (' + Math.round((_SAVE_CIRCUIT_COOLDOWN - elapsed)/1000) + 's remaining). Use saveToFirestore({force:true}) to override.');
+                    return Promise.resolve(false);
+                }
+                console.log('[Save] Circuit breaker cooldown expired — resetting');
+                _saveCircuitOpen = false;
+                _saveFailCount = 0;
+            }
             
             var tid = userData.templateId || '';
             if (tid && tid.indexOf('firestore-') !== 0 && tid !== 'wizard-built') {
                 return Promise.resolve(false);
             }
             
-            // GUARD: Never save before Firestore data has loaded — early saves overwrite good data with empty
             if (!userData.initialized) {
                 console.warn('saveToFirestore blocked: userData not yet initialized (Firestore load in progress)');
                 return Promise.resolve(false);
@@ -1660,6 +1677,8 @@
                 return fbDb.collection('users').doc(uid).set(data, { merge: true })
                     .then(function() {
                         console.log('☁ Saved to Firestore' + (attempt > 1 ? ' (retry ' + (attempt - 1) + ')' : ''));
+                        _saveFailCount = 0;
+                        _saveCircuitOpen = false;
                         recordApiHealth('firebase-db', 'ok', 'Operational');
                         _clearSaveBackup();
                         window._lastSavedAt = new Date();
@@ -1676,11 +1695,20 @@
                             });
                         }
                         console.error('Firestore save error (all retries exhausted):', err);
+                        console.error('[Save] Error code:', err.code, '| Message:', err.message);
+                        _saveFailCount++;
+                        if (_saveFailCount >= _SAVE_CIRCUIT_THRESHOLD) {
+                            _saveCircuitOpen = true;
+                            _saveCircuitOpenedAt = Date.now();
+                            console.warn('[Save] Circuit breaker OPENED after ' + _saveFailCount + ' consecutive failures. Auto-saves paused for ' + (_SAVE_CIRCUIT_COOLDOWN/1000) + 's.');
+                        }
                         recordApiHealth('firebase-db', 'down', 'Save failed: ' + err.message);
                         logIncident('critical', 'firestore-save', 'Firestore save failed after ' + maxRetries + ' attempts: ' + err.message, { rawError: err.message });
                         var si = document.getElementById('saveIndicator');
                         if (si) { si.innerHTML = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = 'var(--danger)'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
-                        showToast('Your changes could not be saved. They are backed up locally and will sync when connection restores.', 'error', 6000);
+                        if (_saveFailCount <= 1) {
+                            showToast('Your changes could not be saved. They are backed up locally and will sync when connection restores.', 'error', 6000);
+                        }
                         return false;
                     });
             }
