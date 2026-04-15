@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.47.09 - BUILD 20260315-domain-inject-at-parse-time
-        var BP_VERSION = 'v4.48.27';
+        var BP_VERSION = 'v4.48.28';
 
         var BP_PALETTE = {
             blue: '#60a5fa', purple: '#bf5af2', green: '#30d158',
@@ -4133,8 +4133,12 @@
             return result;
         }
 
+        var _marketAnalyzeAttempted = false;
         function _marketGetSkillDemand(skillName) {
-            if (!_marketPulseCache) _marketAnalyze();
+            if (!_marketPulseCache && !_marketAnalyzeAttempted) {
+                _marketAnalyzeAttempted = true;
+                _marketAnalyze();
+            }
             if (!_marketPulseCache || !_marketPulseCache.demandMap) return null;
             var norm = (skillName || '').trim().toLowerCase();
             return _marketPulseCache.demandMap[norm] || null;
