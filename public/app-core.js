@@ -1061,20 +1061,29 @@
             bannerText: 'Interactive Demo — Explore all features. Data is view-only.'
         };
         
+        var _safeMode = window.location.search.indexOf('safe=1') > -1;
+        if (_safeMode) console.warn('[SAFE MODE] Firestore persistence disabled for diagnostics');
+
         try {
             fbApp = firebase.initializeApp(firebaseConfig);
             fbAuth = firebase.auth();
             fbDb = firebase.firestore();
             fbReady = true;
-            fbDb.enablePersistence({ synchronizeTabs: true }).then(function() {
-                console.log('✓ Firestore offline persistence enabled');
-            }).catch(function(err) {
-                if (err.code === 'failed-precondition') {
-                    console.warn('Firestore persistence unavailable: multiple tabs open');
-                } else if (err.code === 'unimplemented') {
-                    console.warn('Firestore persistence not supported in this browser');
-                }
-            });
+            if (!_safeMode) {
+                fbDb.enablePersistence({ synchronizeTabs: true }).then(function() {
+                    console.log('✓ Firestore offline persistence enabled');
+                }).catch(function(err) {
+                    if (err.code === 'failed-precondition') {
+                        console.warn('Firestore persistence unavailable: multiple tabs open');
+                    } else if (err.code === 'unimplemented') {
+                        console.warn('Firestore persistence not supported in this browser');
+                    } else {
+                        console.error('Firestore persistence error:', err.code, err.message);
+                    }
+                });
+            } else {
+                console.log('✓ Firestore initialized WITHOUT persistence (safe mode)');
+            }
             console.log('✓ Firebase initialized (project: ' + firebaseConfig.projectId + ', auth domain: ' + firebaseConfig.authDomain + ')');
             console.log('ℹ️ Ensure ' + window.location.hostname + ' is in Firebase Console → Authentication → Settings → Authorized domains');
         } catch(e) {
