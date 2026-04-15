@@ -42345,14 +42345,17 @@ body {
                 console.warn('[FIT] Fetch all failed:', e.message);
             }
 
-            console.log('[FIT] Fetched ' + allJobs.length + ' unique jobs from ' + terms.length + ' queries');
+            if (allJobs.length > 150) {
+                console.log('[FIT] Capping ' + allJobs.length + ' jobs to 150 for memory safety');
+                allJobs = allJobs.slice(0, 150);
+            }
+            console.log('[FIT] Scoring ' + allJobs.length + ' unique jobs from ' + terms.length + ' queries');
 
             allJobs.forEach(function(job) {
                 var jdText = (job.title || '') + '\n' + (job.description || '') + '\n' + (job.tags || []).join(' ');
                 try {
                     var parsed = parseJobLocally(jdText);
                     var matchResult = matchJobToProfile(parsed);
-                    job._fitParsed = parsed;
                     job._fitMatch = matchResult;
                     job.matchScore = matchResult.score;
                     job.matchedSkills = (matchResult.matched || []).map(function(m) { return m.userSkill || m.jobSkill; });
@@ -42360,6 +42363,7 @@ body {
                     job._fitSkillsExtracted = (parsed.skills || []).length;
                     job._fitParsedTitle = parsed.title;
                     job._fitSeniority = parsed.seniority;
+                    job.parsedSkills = parsed.skills;
                 } catch(e) {
                     job.matchScore = 0;
                     job.matchedSkills = [];
