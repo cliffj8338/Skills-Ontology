@@ -1664,7 +1664,8 @@
             var uid = fbUser.uid;
             var data = _buildFirestoreData();
 
-            console.log('[Save] role:', data.role, 'keys:', Object.keys(data).length,
+            console.log('[Save] role:', data.role, 'profileType:', data.profileType,
+                'keys:', Object.keys(data).length,
                 'skills:', (data.skills || []).length,
                 'savedJobs:', (data.savedJobs || []).length,
                 'values:', (data.values || []).length,
@@ -1927,6 +1928,7 @@
                             }
                         } catch(e) {}
                     }
+                    userData.role = data.role || 'user';
                     userData.roles = data.roles || [];
                     userData.preferences = data.preferences || userData.preferences;
                     userData.applications = data.applications || [];
