@@ -4134,9 +4134,11 @@
         }
 
         var _marketAnalyzeAttempted = false;
+        var _marketAnalyzeAttemptedTime = 0;
         function _marketGetSkillDemand(skillName) {
-            if (!_marketPulseCache && !_marketAnalyzeAttempted) {
+            if (!_marketPulseCache && (!_marketAnalyzeAttempted || (Date.now() - _marketAnalyzeAttemptedTime) > _MARKET_CACHE_TTL)) {
                 _marketAnalyzeAttempted = true;
+                _marketAnalyzeAttemptedTime = Date.now();
                 _marketAnalyze();
             }
             if (!_marketPulseCache || !_marketPulseCache.demandMap) return null;
@@ -29449,7 +29451,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 html += '<div class="rpt-card" style="margin-bottom:16px;">'
                     + '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px;">'
                     + '<div class="rpt-card-h" style="margin:0;">' + bpIcon('activity', 16) + ' Market Intelligence</div>'
-                    + '<button onclick="_marketPulseCache=null;initReports();" style="padding:4px 10px; border-radius:6px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-muted); font-size:0.72em; cursor:pointer;">' + bpIcon('refresh-cw', 10) + ' Refresh</button>'
+                    + '<button onclick="_marketPulseCache=null;_marketAnalyzeAttempted=false;initReports();" style="padding:4px 10px; border-radius:6px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-muted); font-size:0.72em; cursor:pointer;">' + bpIcon('refresh-cw', 10) + ' Refresh</button>'
                     + '</div>'
                     + '<div class="rpt-card-sub" style="margin-bottom:14px;">Based on ' + mktData.totalJobs + ' analyzed job postings \u2014 ' + mktData.totalUniqueSkills + ' unique skills detected.</div>';
 
