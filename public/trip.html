@@ -87,6 +87,18 @@
   .day-card:hover { transform: translate(-2px, -2px); box-shadow: 12px 12px 0 var(--ink); }
   .day-card.feature { background: linear-gradient(135deg, var(--paper) 0%, var(--paper-dark) 100%); }
   .day-header { display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; padding: 24px 30px; border-bottom: 2px solid var(--ink); background: var(--ink); color: var(--paper); }
+
+  .photo-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; border-bottom: 2px solid var(--ink); background: var(--ink); }
+  .photo-tile { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--paper-dark); border-right: 2px solid var(--ink); }
+  .photo-tile:last-child { border-right: none; }
+  .photo-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+  .photo-tile:hover img { transform: scale(1.05); }
+  .photo-tile .caption { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(26,20,16,0.95) 0%, rgba(26,20,16,0.7) 60%, transparent 100%); color: var(--paper); padding: 24px 12px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.3; }
+  .photo-tile .caption strong { font-family: 'Bungee', sans-serif; font-size: 12px; letter-spacing: 0.02em; text-transform: none; display: block; margin-bottom: 2px; color: var(--gold); }
+  .photo-tile.no-image { background: var(--rust-deep); }
+  .photo-tile .placeholder-content { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+  .photo-tile .placeholder-content .ph-name { font-family: 'Bungee', sans-serif; font-size: 16px; line-height: 1.1; color: var(--paper); margin-bottom: 8px; }
+  .photo-tile .placeholder-content .ph-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: var(--gold); line-height: 1.3; }
   .day-num { font-family: 'Bungee', sans-serif; font-size: 36px; color: var(--gold); line-height: 1; }
   .day-num small { display: block; font-size: 11px; letter-spacing: 0.15em; color: var(--paper); margin-top: 4px; }
   .day-title { font-family: 'Bungee', sans-serif; font-size: clamp(20px, 3vw, 32px); line-height: 1; }
@@ -196,6 +208,9 @@
     .day-cost-strip { padding: 12px 20px; flex-direction: column; gap: 6px; align-items: flex-start; }
     .stamp-row { flex-direction: column; gap: 8px; }
     .stamp.right { transform: rotate(-1deg); }
+    .photo-gallery { grid-template-columns: repeat(2, 1fr); }
+    .photo-tile { border-right: none; border-bottom: 2px solid var(--ink); }
+    .photo-tile:nth-child(2n) { border-right: none; }
   }
 </style>
 </head>
@@ -907,6 +922,138 @@
   }).catch(function(err) {
     console.error('Map load failed:', err);
     container.innerHTML = '<div style="padding:60px 20px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map could not load. The full route is detailed in the table above.</div>';
+  });
+})();
+</script>
+
+<script>
+(function() {
+  var galleries = {
+    1: [
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZP8LFGZhWM7A42woHZLBR0Q_pAfyRWf4zrevCmBCdtVm-kXLTO9q5DgtcyRWM6AGjdIPCgFBujM8guJcxel0rMprnifA26wuvwXYTmhFmFGFLYwPCuStcfVym2kqooxiPl5C3d8EBWYTYuMtEs=s4800-w800-h600', name: 'Flight 93 Memorial', tag: 'Stop · Shanksville' },
+      { tag: 'Dinner · Cleveland', name: 'West Side Market', sub: 'Pierogi & Polish boys' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqGpGEX3AuqjdP4Wg7IoS48QBTZL1oijWvTOAABQcdP_9ByEVHbtFlz2aoeXK5Oe7CwsS5zdvh9g_YSRn-zs3qoOuGPFVpQiLrE=s4800-w800-h466', name: 'Hampton Inn Westlake', tag: 'Sleep · Night 1' }
+    ],
+    2: [
+      { tag: 'Stop · Elkhart, IN', name: 'RV/MH Hall of Fame', sub: 'Memory lane' },
+      { tag: 'Dessert · Madison', name: 'Babcock Dairy', sub: 'UW campus ice cream' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqHY-Yh3m44I7Kzp-BhHwXiOBWJSmLbIpkYdmPBt78TlAA8dHLRbDY1YOG_ltnqXyMllXCQbSEvoCRpR5_DvIP9_u_2nIm-EH4Q=s4800-w800-h576', name: 'Best Western Madison', tag: 'Sleep · Night 2' }
+    ],
+    3: [
+      { tag: '★ Mitchell, SD', name: 'Corn Palace', sub: 'Walls covered in corn' },
+      { tag: 'Dinner · Mitchell', name: 'Cattleman\'s Club', sub: '24oz bone-in ribeye' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqGT8_iSkpYVjobptUNx7Z4ctjPeAdUs4v4BQ7FVf910p88CBx9tSn3EtjFXTWgb6Ryi3ijt9W2FdaqUjMbu7cIgKQxjdaQ3nwo=s4800-w800-h600', name: 'AmericInn Mitchell', tag: 'Sleep · Night 3' }
+    ],
+    4: [
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZNmDdYAGkENrIdxZL1jE8bM1bGXfWmXQdusEUE3e3VOptqzcljM9xCdAgmskU3hK3BcHNTNI0iZB6zz80TXwy9-Yl7NS4EidTueazYENcHX_IXOSQ24lS2RpXYdD26ISiGYCwsrj1oWpc4-rGQ=s4800-w800-h600', name: 'Wall Drug Store', tag: '★ since 1931' },
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZMBqWQpZ48bjyb1vZX0qR_PC4u3Ss-q0mwZUML7M6_8bhuw9MAI8iLRjuTezVzInGMb1ibo448l7TaPqy0PGORhdnL0V_VaYsRhRaUWO-u-Ri7HPL0TWuQTmWLwbqKp_0Zu80MFrU17dqwSwc_HfLJ4ug=s4800-w800-h600', name: 'Badlands National Park', tag: '★ 31-mile loop' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqFoMlBhBxfo_gHxvjncdgz8a64OfSO3WDlDtxftqkJWXZCnGMrikFri-tAyRK7WsA-BnsjA1eCX8gMlXYmN-1pDZo1SqYKz18c=s4800-w800-h600', name: 'Best Western Plains, Wall', tag: 'Sleep · Night 4' }
+    ],
+    5: [
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZP8LFGZhWM7A42woHZLBR0Q_pAfyRWf4zrevCmBCdtVm-kXLTO9q5DgtcyRWM6AGjdIPCgFBujM8guJcxel0rMprnifA26wuvwXYTmhFmFGFLYwPCuStcfVym2kqooxiPl5C3d8EBWYTYuMtEs=s4800-w800-h600', name: 'Mount Rushmore', tag: '★ Day 5 icon' },
+      { tag: '★ Black Hills', name: 'Crazy Horse Memorial', sub: 'In progress since 1948' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqE8W9l2DBup6ZCaevDKZHB_BeFoCYlic_GLGRjNbT2KY9BQb3MI1BwiduXxlop2Vb0Ada-jL88LbB-iT7QcRlaCRn-8RjPbqO0=s4800-w800-h600', name: 'Roosevelt Inn, Keystone', tag: 'Sleep · Night 5' }
+    ],
+    6: [
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZPGzHCCcWBkmGSj8P15h7fA9ECbvg17Zv3WSJX6pcicPKyMz1WB1E-LhPyk8MLedpfzOeflbk-kWsBxNvb6JciInT13FoG4P_OdEkHqj3_1dJb2Dc1EdUtoo4P_JPrxDAOVhYhd9POqPz74MIbGNbapzw=s4800-w800-h600', name: 'Devils Tower (WY)', tag: '★ first nat\'l monument' },
+      { tag: 'Stop · ND', name: 'Enchanted Highway', sub: 'Giant scrap-metal sculptures' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqE_5fu-3gScMF7hsQ9B6wNWIVtlbxibRaRu5U4Mynezxw-UucJdXIEqLBI0CpJsKSZsngv1-p92g92djKluTKgRAC9rhkdaaRQ=s4800-w800-h600', name: 'Badlands Motel, Medora', tag: 'Sleep · Nights 6 & 7' }
+    ],
+    7: [
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZMC-TdM7FNfw65viQFXZc1L34CcCv-XIY7nUgIvLoflsCXYtALZ1klg5GHSRiIWk4H3aTrSv_zwVrBsluQA-YOeEOnKxh9y_6DiRzSSvATXlBj4Dq_kz9pDu7AvjGMjiBw4CzszJ6JMrAP-nmE=s4800-w800-h600', name: 'Theodore Roosevelt NP', tag: '★ wild horses & bison' },
+      { tag: '★ SPLURGE', name: 'Pitchfork Steak Fondue', sub: 'Steaks fried on pitchforks' },
+      { tag: '★ outdoor amphitheater', name: 'Medora Musical', sub: 'Western variety show' }
+    ],
+    8: [
+      { tag: 'Stop · MT', name: 'Pompeys Pillar', sub: 'Lewis & Clark signature' },
+      { tag: 'Stop · Crow Agency', name: 'Little Bighorn', sub: '1876 battlefield' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqGcARzJj4FltlaQh1LoZZw6rTzUsolVUAXHeeqK_l0W27bC_nCyxlbyDC3-7HnjOiwTOW4rDrQlqXOxmC4pNOzMW0sxuy9Qmaw=s4800-w800-h600', name: 'Holiday Inn Bozeman', tag: 'Sleep · Night 8' }
+    ],
+    9: [
+      { tag: '★ Bozeman', name: 'Museum of the Rockies', sub: 'Largest T. rex skull on Earth' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqGgnFQmLEvYnriLUQIRdfDHvbA81ClE3vi8eWeqGvqSKoNPlUrAAHC5W9HT8V7otw5DaqIsuuwhRz8Uw-_xWvAsktbT0ZO7VhQ=s4800-w550-h413', name: 'Kelly Inn West Yellowstone', tag: 'Sleep · Nights 9 & 10' },
+      { tag: 'Dinner · West Yellowstone', name: 'Wild West Pizzeria', sub: 'Saloon vibes' }
+    ],
+    10: [
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZOfJhfFA1lRj8pj5oUIM5V-83ADmIkxO2kOpRYtFonWZNq7Q2Rd9cezTTbmpIVf9dW9nr_8-sgpb_yAAk-1Q2LsZlWDqBQ0HXaKUachefQ8feVv6gG7fMXcMD6mdj-igc73A9ZysfHVCcwNdQ=s4800-w800-h600', name: 'Old Faithful', tag: '★ Day 10 icon' },
+      { tag: '★ Fairy Falls trail', name: 'Grand Prismatic', sub: 'Hike for the aerial view' },
+      { tag: '★ evening wildlife', name: 'Hayden Valley', sub: 'Bison herds at dusk' }
+    ],
+    11: [
+      { tag: '★ Idaho', name: 'Upper Mesa Falls', sub: 'Boardwalks to the brink' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqESRvuCiR7X54WbNv6pPPi2xAGm3j7hrFKGf9Z__yzOCHPh0AYeGHugLEPwUJWi9_xjkaNOe5lAae5Sz_9Dg947D-n6xYfB0PQ=s4800-w800-h600', name: 'Hampton Inn Idaho Falls', tag: 'Sleep · Nights 11 & 12' },
+      { tag: 'Dinner · Idaho Falls', name: 'Big Jud\'s', sub: '1-pound burger challenge' }
+    ],
+    12: [
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZPW57xnFq4DKthDFMmrYFQtuEcVTky2UyADy6LP83g-Auokj22IldZ98GekPsv3NjhwOCbW9NPFd7fLXde3ftF21yP5kfjIbM8e6JsoH7fkneBPu8QeZgWFo9C_mUZu9_VAzcxAHk69-vasLyg=s4800-w800-h600', name: 'Craters of the Moon', tag: '★ Apollo training site' },
+      { tag: '★ short steep climb', name: 'Inferno Cone', sub: 'Black volcanic summit' },
+      { tag: '★ Arco, ID', name: 'EBR-1 Atomic Museum', sub: 'First nuclear power plant' }
+    ],
+    13: [
+      { tag: 'Transit · WY', name: 'Sylvan Pass', sub: 'Yellowstone east exit' },
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZPzvbmWGan48MMA_1x6VAf0o7iGtsDh0CnWrwjjS1KmsNXtroB6EjiRYs0-Z8GWCQnN5MW5pFdt3uqUIWp3UdH2qfIkKjqoi-Z53oQe-BNM8Y9S741Znw_SAlArO5liYrT0oHevnJ5GjScTlg=s4800-w800-h600', name: 'Cody Cowboy Village', tag: 'Sleep · Night 13' },
+      { tag: '★ SPLURGE · 8pm', name: 'Cody Nite Rodeo', sub: 'Bull riding under lights' }
+    ],
+    14: [
+      { tag: 'Quick stop · Cody', name: 'Buffalo Bill Center', sub: '5 museums in 1' },
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqGT8_iSkpYVjobptUNx7Z4ctjPeAdUs4v4BQ7FVf910p88CBx9tSn3EtjFXTWgb6Ryi3ijt9W2FdaqUjMbu7cIgKQxjdaQ3nwo=s4800-w800-h600', name: 'AmericInn Mitchell', tag: 'Sleep · Night 14' },
+      { tag: 'Dinner · Sun-Tue', name: 'Pizza Ranch', sub: 'Kids eat free' }
+    ],
+    15: [
+      { url: 'https://lh3.googleusercontent.com/places/ANXAkqEopXTaXz-eayuMtd8my8uNFOBej00kArChR3p8mxN1dK5Kwr3_M6ptdE2ihpBMaevFovlWVzsCQQj4obYuRBcqYAkJ-zh__2E=s4800-w800-h600', name: 'Hampton Inn Toledo-West', tag: 'Sleep · Night 15' },
+      { tag: 'Dinner · Toledo', name: 'Tony Packo\'s', sub: 'M*A*S*H famous · since 1932' }
+    ],
+    16: [
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZMphE5aKKxGtHqNNz3sJL56qQwQEqiB_rp4Z75LdgA2YoniTEVfHLr41QEsSTLkwKSZ3YuurVF_vbwcSYHWgzVWyhPB7sRL-LI8qH-o0yKAJ4Ln2NjUHqOSe73AOX8m3zeI45jwIaMofvXbDA=s4800-w800-h600', name: 'Pottstown, PA', tag: '🏁 Mission complete · State #43' }
+    ]
+  };
+
+  var dayCards = document.querySelectorAll('.day-card');
+  dayCards.forEach(function(card, idx) {
+    var dayNum = idx + 1;
+    var photos = galleries[dayNum];
+    if (!photos || !photos.length) return;
+
+    var header = card.querySelector('.day-header');
+    if (!header) return;
+
+    var gallery = document.createElement('div');
+    gallery.className = 'photo-gallery';
+
+    photos.forEach(function(p) {
+      var tile = document.createElement('div');
+      tile.className = 'photo-tile' + (p.url ? '' : ' no-image');
+
+      if (p.url) {
+        var img = document.createElement('img');
+        img.loading = 'lazy';
+        img.alt = p.name;
+        img.src = p.url;
+        img.onerror = function() {
+          tile.classList.add('no-image');
+          tile.removeChild(img);
+          var pl = document.createElement('div');
+          pl.className = 'placeholder-content';
+          pl.innerHTML = '<div class="ph-name">' + p.name + '</div>';
+          tile.insertBefore(pl, tile.firstChild);
+        };
+        tile.appendChild(img);
+      } else {
+        var pl = document.createElement('div');
+        pl.className = 'placeholder-content';
+        pl.innerHTML = '<div class="ph-name">' + p.name + '</div>' + (p.sub ? '<div class="ph-sub">' + p.sub + '</div>' : '');
+        tile.appendChild(pl);
+      }
+
+      var cap = document.createElement('div');
+      cap.className = 'caption';
+      cap.innerHTML = '<strong>' + p.name + '</strong>' + p.tag;
+
+      tile.appendChild(cap);
+      gallery.appendChild(tile);
+    });
+
+    header.parentNode.insertBefore(gallery, header.nextSibling);
   });
 })();
 </script>
