@@ -4,7 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
-<title>The Great 5-State Run · June 13–28, 2026</title>
+<meta property="og:title" content="The Great Seven-State Run · June 13–28, 2026" />
+<meta property="og:description" content="A 16-day, 4,400-mile family loop from Pottstown to Yellowstone and back. States 39 → 45 for two boys on a mission." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="The Great Seven-State Run" />
+<meta name="twitter:description" content="A 16-day, 4,400-mile family loop. States 39 → 45." />
+<title>The Great 7-State Run · June 13–28, 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -191,6 +197,71 @@
   .map-tooltip-title { font-family: 'Bungee', sans-serif; font-size: 12px; line-height: 1.1; margin-bottom: 4px; }
   .map-tooltip-note { font-style: italic; line-height: 1.3; }
   .map-tooltip-spend { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--rust-deep); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: var(--rust-deep); }
+
+  footer .attribution { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; opacity: 0.6; margin-top: 24px; text-transform: uppercase; line-height: 1.5; }
+
+  /* CHEAT SHEET */
+  .cheatsheet-section { background: var(--paper-dark); padding: 60px 24px; border-bottom: 2px solid var(--ink); }
+  .cheatsheet-inner { max-width: 1100px; margin: 0 auto; }
+  .cheatsheet-section h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); text-align: center; margin-bottom: 8px; }
+  .cheatsheet-section .sub { text-align: center; font-style: italic; margin-bottom: 36px; color: var(--rust-deep); font-size: 18px; }
+  .cs-table-wrap { overflow-x: auto; }
+  .cheatsheet-table { width: 100%; border-collapse: collapse; background: var(--paper); border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); min-width: 720px; }
+  .cheatsheet-table th { background: var(--ink); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; padding: 14px 12px; text-align: left; border-right: 1px solid var(--rust-deep); }
+  .cheatsheet-table th:last-child { border-right: none; }
+  .cheatsheet-table td { padding: 14px 12px; border-bottom: 1px solid #d4c19a; vertical-align: top; font-size: 14px; line-height: 1.4; }
+  .cheatsheet-table tr:last-child td { border-bottom: none; }
+  .cs-night { font-family: 'Bungee', sans-serif; font-size: 17px; color: var(--rust-deep); white-space: nowrap; }
+  .cs-name { font-weight: 600; color: var(--ink); display: block; margin-bottom: 2px; font-size: 14px; }
+  .cs-addr { font-style: italic; color: var(--rust-deep); font-size: 13px; line-height: 1.3; }
+  .cs-phone { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink); white-space: nowrap; }
+
+  /* PRE-TRIP CHECKLIST */
+  .pretrip-section { background: var(--paper); padding: 60px 24px; border-bottom: 2px solid var(--ink); }
+  .pretrip-inner { max-width: 1100px; margin: 0 auto; }
+  .pretrip-section h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); text-align: center; margin-bottom: 8px; }
+  .pretrip-section .sub { text-align: center; font-style: italic; margin-bottom: 36px; color: var(--rust-deep); font-size: 18px; }
+  .pretrip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .pretrip-col { background: var(--paper-dark); border: 2px solid var(--ink); padding: 24px; box-shadow: 6px 6px 0 var(--ink); }
+  .pretrip-col h3 { font-family: 'Bungee', sans-serif; font-size: 16px; margin-bottom: 14px; color: var(--rust-deep); line-height: 1.2; }
+  .pretrip-col h3 .when { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--ink); display: block; margin-bottom: 6px; }
+  .pretrip-col ul { list-style: none; padding: 0; margin: 0; }
+  .pretrip-col li { padding: 9px 0 9px 30px; position: relative; border-bottom: 1px dashed #c9b890; font-size: 14px; line-height: 1.4; }
+  .pretrip-col li:last-child { border-bottom: none; }
+  .pretrip-col li::before { content: "☐"; position: absolute; left: 0; top: 8px; font-size: 18px; color: var(--rust-deep); }
+
+  /* YELLOWSTONE BLOCK */
+  .yellowstone-block { background: linear-gradient(135deg, var(--ink) 0%, #2a1a14 100%); color: var(--paper); padding: 36px 30px; margin: 50px auto; max-width: 1100px; border: 2px solid var(--ink); box-shadow: 12px 12px 0 var(--rust-deep); }
+  .yellowstone-block h3 { font-family: 'Bungee', sans-serif; font-size: clamp(20px, 3.5vw, 30px); color: var(--gold); margin-bottom: 8px; line-height: 1.1; }
+  .yellowstone-block .yb-sub { font-style: italic; font-size: 16px; margin-bottom: 24px; opacity: 0.85; line-height: 1.4; }
+  .yb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; }
+  .yb-cell { border-left: 2px solid var(--gold); padding-left: 14px; }
+  .yb-cell h4 { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .yb-cell p { font-size: 14px; line-height: 1.5; margin: 0; }
+
+  /* JUNIOR RANGER */
+  .ranger-section { background: var(--paper); padding: 60px 24px; border-bottom: 2px solid var(--ink); }
+  .ranger-inner { max-width: 1100px; margin: 0 auto; }
+  .ranger-section h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); text-align: center; margin-bottom: 8px; }
+  .ranger-section .sub { text-align: center; font-style: italic; margin-bottom: 36px; color: var(--rust-deep); font-size: 18px; }
+  .ranger-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .ranger-badge { background: var(--paper-dark); border: 2px solid var(--ink); padding: 18px 16px; padding-right: 44px; position: relative; box-shadow: 4px 4px 0 var(--ink); }
+  .ranger-badge .day { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--rust-deep); margin-bottom: 4px; }
+  .ranger-badge .park { font-family: 'Bungee', sans-serif; font-size: 14px; line-height: 1.15; color: var(--ink); margin-bottom: 8px; }
+  .ranger-badge .pgm { font-style: italic; font-size: 13px; color: var(--rust-deep); line-height: 1.3; }
+  .ranger-badge .checkbox { position: absolute; top: 14px; right: 12px; width: 22px; height: 22px; border: 2px solid var(--ink); }
+  .ranger-badge.special { background: linear-gradient(135deg, var(--paper-dark) 0%, #efd9aa 100%); }
+  .ranger-tally { text-align: center; margin-top: 24px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; color: var(--rust-deep); }
+  .ranger-tally strong { font-family: 'Bungee', sans-serif; font-style: normal; color: var(--ink); }
+
+  /* BREAKDOWN / CONTINGENCY */
+  .breakdown-callout { background: var(--rust-deep); color: var(--paper); padding: 28px; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+  .breakdown-callout h3 { font-family: 'Bungee', sans-serif; font-size: 16px; color: var(--gold); margin-bottom: 14px; line-height: 1.2; }
+  .breakdown-callout ul { list-style: none; padding: 0; margin: 0; }
+  .breakdown-callout li { padding: 8px 0; font-size: 13px; line-height: 1.4; border-bottom: 1px dashed rgba(232,221,201,0.25); }
+  .breakdown-callout li:last-child { border-bottom: none; }
+  .breakdown-callout li strong { color: var(--gold); display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+  .breakdown-callout .phone { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .hero-title, .hero-sub, .meta-grid { animation: fadeUp 0.8s ease backwards; }
@@ -516,6 +587,45 @@
     <div class="day-cost-strip"><span>Day 9 Total</span><span class="total">$455</span></div>
   </div>
 
+  <div class="yellowstone-block">
+    <h3>Yellowstone Survival Guide</h3>
+    <p class="yb-sub">The next two days are the hardest logistical days of the trip. Read this in the parking lot before Day 10 starts.</p>
+    <div class="yb-grid">
+      <div class="yb-cell">
+        <h4>Gate Hours</h4>
+        <p>West Entrance is open 24/7 in summer, but the visitor center opens at 8am. Be on the road by 6:30 to beat the 9am rush at Old Faithful.</p>
+      </div>
+      <div class="yb-cell">
+        <h4>Cell Service</h4>
+        <p>Effectively zero in most of the park. Solid coverage at Old Faithful, Canyon Village, and Mammoth. Download offline maps before entering.</p>
+      </div>
+      <div class="yb-cell">
+        <h4>Fuel Inside the Park</h4>
+        <p>Stations at Old Faithful, Canyon, Fishing Bridge, Tower, Mammoth. ~30% pricier than West Yellowstone — fill up there first.</p>
+      </div>
+      <div class="yb-cell">
+        <h4>Food &amp; Groceries</h4>
+        <p>In-park dining is mediocre and overpriced. Stock the cooler at the Market Place in West Yellowstone (1 block from Kelly Inn). Pack lunches every day.</p>
+      </div>
+      <div class="yb-cell">
+        <h4>Bear Safety</h4>
+        <p>Rent bear spray in West Yellowstone (~$10/day vs $50 to buy). Required for any off-boardwalk hiking. Stay 100 yards from bears, 25 from bison.</p>
+      </div>
+      <div class="yb-cell">
+        <h4>If a Road Closes</h4>
+        <p>Sections close suddenly — wildlife jams, construction, weather. Check <strong>nps.gov/yell</strong> at breakfast. The Lower Loop has multiple workarounds; the East Entrance (Sylvan Pass) is the most fragile.</p>
+      </div>
+      <div class="yb-cell">
+        <h4>The Bison Jam Reality</h4>
+        <p>You will sit in traffic behind a bison. Possibly for an hour. This is the price. Don't honk. Don't get out. Take pictures.</p>
+      </div>
+      <div class="yb-cell">
+        <h4>Day 13 Re-Entry</h4>
+        <p>You go BACK through Yellowstone east-to-west on Day 13 via Sylvan Pass to reach Cody. If Sylvan is closed (snow even in June possible), reroute via Beartooth Hwy through Red Lodge — adds 2 hours but is genuinely the most beautiful drive in America.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="day-card feature">
     <div class="day-header">
       <div class="day-num">10<br><small>OF 16</small></div>
@@ -661,6 +771,135 @@
 
 </section>
 
+<section class="ranger-section">
+  <div class="ranger-inner">
+    <h2>The Junior Ranger Mission</h2>
+    <p class="sub">8 free badges along the route. Ask at every visitor center.</p>
+    <div class="ranger-grid">
+      <div class="ranger-badge"><div class="day">DAY 4</div><div class="park">Badlands NP</div><div class="pgm">Activity book at Ben Reifel VC. ~1 hour, then swearing-in.</div><div class="checkbox"></div></div>
+      <div class="ranger-badge"><div class="day">DAY 4</div><div class="park">Minuteman Missile NHS</div><div class="pgm">Cold War Junior Ranger. Quick book, sobering content.</div><div class="checkbox"></div></div>
+      <div class="ranger-badge"><div class="day">DAY 5</div><div class="park">Mt. Rushmore</div><div class="pgm">"Junior Ranger" + a separate "Geo-Ranger" badge.</div><div class="checkbox"></div></div>
+      <div class="ranger-badge"><div class="day">DAY 6</div><div class="park">Devils Tower</div><div class="pgm">First-national-monument badge. Boys love this one.</div><div class="checkbox"></div></div>
+      <div class="ranger-badge"><div class="day">DAY 7</div><div class="park">Theodore Roosevelt NP</div><div class="pgm">"Roosevelt's Ranch" book at Painted Canyon VC.</div><div class="checkbox"></div></div>
+      <div class="ranger-badge"><div class="day">DAY 8</div><div class="park">Little Bighorn NM</div><div class="pgm">Battlefield Junior Ranger. Heavy but well-done.</div><div class="checkbox"></div></div>
+      <div class="ranger-badge special"><div class="day">DAY 10</div><div class="park">Yellowstone NP</div><div class="pgm">★ The big one. Multiple sections — can take 2 days. Pick up at any VC.</div><div class="checkbox"></div></div>
+      <div class="ranger-badge"><div class="day">DAY 12</div><div class="park">Craters of the Moon</div><div class="pgm">"Lunar Ranger" — most unique badge of the trip.</div><div class="checkbox"></div></div>
+    </div>
+    <p class="ranger-tally">Target: <strong>8 badges in 16 days.</strong> Save them in a small folder — they're collectible for life.</p>
+  </div>
+</section>
+
+<section class="cheatsheet-section">
+  <div class="cheatsheet-inner">
+    <h2>Glove-Box Cheat Sheet</h2>
+    <p class="sub">Print this. Tape it to the dashboard. Every hotel, address, phone.</p>
+    <div class="cs-table-wrap">
+    <table class="cheatsheet-table">
+      <thead>
+        <tr>
+          <th>Night</th>
+          <th>Hotel &amp; Address</th>
+          <th>Phone</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="cs-night">Sat 6/13</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 1</span></td><td><span class="cs-name">Hampton Inn Cleveland-Westlake</span><span class="cs-addr">29690 Detroit Rd, Westlake, OH 44145</span></td><td><span class="cs-phone">440-892-0333</span></td><td>~$170 · Pool, breakfast included</td></tr>
+        <tr><td><span class="cs-night">Sun 6/14</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 2</span></td><td><span class="cs-name">Best Western Plus InnTowner Madison</span><span class="cs-addr">2424 University Ave, Madison, WI 53726</span></td><td><span class="cs-phone">608-233-8778</span></td><td>~$170 · Near campus &amp; Babcock Hall</td></tr>
+        <tr><td><span class="cs-night">Mon 6/15</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 3</span></td><td><span class="cs-name">AmericInn by Wyndham Mitchell</span><span class="cs-addr">1421 S Burr St, Mitchell, SD 57301</span></td><td><span class="cs-phone">605-996-9700</span></td><td>~$155 · Indoor pool</td></tr>
+        <tr><td><span class="cs-night">Tue 6/16</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 4</span></td><td><span class="cs-name">Best Western Plains Motel, Wall</span><span class="cs-addr">712 Glenn St, Wall, SD 57790</span></td><td><span class="cs-phone">605-279-2145</span></td><td>~$185 · Walk to Wall Drug · BOOKS UP</td></tr>
+        <tr><td><span class="cs-night">Wed 6/17</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 5</span></td><td><span class="cs-name">Roosevelt Inn, Keystone</span><span class="cs-addr">206 Cemetery Rd, Keystone, SD 57751</span></td><td><span class="cs-phone">605-666-4599</span></td><td>~$215 · Kids stay free, pool</td></tr>
+        <tr><td><span class="cs-night">Thu–Fri 6/18–19</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHTS 6 &amp; 7</span></td><td><span class="cs-name">Badlands Motel, Medora</span><span class="cs-addr">501 Pacific Ave, Medora, ND 58645</span></td><td><span class="cs-phone">701-623-4444</span></td><td>~$420 (2 nts) · Walk to everything · BOOKS UP</td></tr>
+        <tr><td><span class="cs-night">Sat 6/20</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 8</span></td><td><span class="cs-name">Holiday Inn Express &amp; Suites Bozeman West</span><span class="cs-addr">2305 Catron St, Bozeman, MT 59718</span></td><td><span class="cs-phone">406-582-4995</span></td><td>~$195 · Pool, hot tub, breakfast</td></tr>
+        <tr><td><span class="cs-night">Sun–Mon 6/21–22</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHTS 9 &amp; 10</span></td><td><span class="cs-name">Kelly Inn West Yellowstone</span><span class="cs-addr">104 S Canyon St, West Yellowstone, MT 59758</span></td><td><span class="cs-phone">406-646-4544</span></td><td>~$580 (2 nts) · 3 blocks from west gate · BOOK FIRST</td></tr>
+        <tr><td><span class="cs-night">Tue–Wed 6/23–24</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHTS 11 &amp; 12</span></td><td><span class="cs-name">Hampton Inn Idaho Falls/Airport</span><span class="cs-addr">645 Lindsay Blvd, Idaho Falls, ID 83402</span></td><td><span class="cs-phone">208-523-1400</span></td><td>~$340 (2 nts) · On the river</td></tr>
+        <tr><td><span class="cs-night">Thu 6/25</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 13</span></td><td><span class="cs-name">Cody Cowboy Village</span><span class="cs-addr">203 W Yellowstone Ave, Cody, WY 82414</span></td><td><span class="cs-phone">307-587-7555</span></td><td>~$295 · Log cabins, walk to rodeo</td></tr>
+        <tr><td><span class="cs-night">Fri 6/26</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 14</span></td><td><span class="cs-name">AmericInn Mitchell (return)</span><span class="cs-addr">1421 S Burr St, Mitchell, SD 57301</span></td><td><span class="cs-phone">605-996-9700</span></td><td>~$155 · Familiar territory</td></tr>
+        <tr><td><span class="cs-night">Sat 6/27</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 15</span></td><td><span class="cs-name">Hampton Inn &amp; Suites Toledo/Westgate</span><span class="cs-addr">3434 Secor Rd, Toledo, OH 43606</span></td><td><span class="cs-phone">419-214-5555</span></td><td>~$170 · Pool · 740-mile day</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section class="pretrip-section">
+  <div class="pretrip-inner">
+    <h2>Before We Roll</h2>
+    <p class="sub">A pre-trip checklist so May doesn't become chaos.</p>
+    <div class="pretrip-grid">
+
+      <div class="pretrip-col">
+        <h3><span class="when">FEB-MARCH 2026</span>Lock in the unmovables</h3>
+        <ul>
+          <li>Book Kelly Inn West Yellowstone (June fills 6+ months out)</li>
+          <li>Book Badlands Motel Medora</li>
+          <li>Book Best Western Plains, Wall</li>
+          <li>Pitchfork Fondue + Medora Musical bundle (medora.com)</li>
+          <li>Cody Nite Rodeo tickets</li>
+        </ul>
+      </div>
+
+      <div class="pretrip-col">
+        <h3><span class="when">APRIL 2026</span>Book the rest</h3>
+        <ul>
+          <li>All other hotels (Hampton, AmericInn, Holiday Inn — easier inventory)</li>
+          <li>America the Beautiful Annual Pass — order online, ~10 days to ship ($80)</li>
+          <li>Save reservation confirmation emails to a single trip folder</li>
+          <li>Flag Sat 6/13 + Sat 6/27 as travel days on family calendar</li>
+        </ul>
+      </div>
+
+      <div class="pretrip-col">
+        <h3><span class="when">EARLY MAY</span>Truck readiness</h3>
+        <ul>
+          <li>Oil change &amp; tire rotation at Ford dealer</li>
+          <li>Check tire tread + pressure (incl. spare) — Beartooth &amp; mountain passes are no joke</li>
+          <li>Top off washer fluid, coolant, brake fluid</li>
+          <li>Confirm AAA card is current (or buy Premium for the trip — towing range matters)</li>
+          <li>Inspect cooler, road box, jumper cables, first aid kit</li>
+        </ul>
+      </div>
+
+      <div class="pretrip-col">
+        <h3><span class="when">LATE MAY / WEEK BEFORE</span>Tech &amp; supplies</h3>
+        <ul>
+          <li>Download offline maps in Google Maps for: Yellowstone, TRNP, Badlands NP, Black Hills</li>
+          <li>Download AllTrails maps for hikes you might do</li>
+          <li>Spotify/Apple Music: download playlists &amp; an audiobook for the long drives</li>
+          <li>Pack the cooler box: snacks, breakfast bars, electrolyte packets</li>
+          <li>Buy bear spray (or rent in West Yellowstone)</li>
+          <li>Print the Glove-Box Cheat Sheet above</li>
+        </ul>
+      </div>
+
+      <div class="pretrip-col">
+        <h3><span class="when">48 HOURS BEFORE</span>Final confirmations</h3>
+        <ul>
+          <li>Re-confirm hotels — call any booked &gt;3 months out</li>
+          <li>Check Yellowstone road status (nps.gov/yell)</li>
+          <li>Set mail/package hold</li>
+          <li>Verify pet/house arrangements</li>
+          <li>Charge: portable battery, dash cam, kids' tablets</li>
+          <li>Pack the Junior Ranger badge folder</li>
+        </ul>
+      </div>
+
+      <div class="pretrip-col">
+        <h3><span class="when">FRI 6/12 NIGHT</span>The night before</h3>
+        <ul>
+          <li>Truck loaded except cooler items</li>
+          <li>Cooler packed with ice in the morning</li>
+          <li>Phones charged + paper backup of cheat sheet in glove box</li>
+          <li>America the Beautiful pass in the truck</li>
+          <li>Boys' clothes laid out for an early Saturday departure</li>
+          <li>Coffee timer set</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <section class="budget-detail">
   <div class="budget-detail-inner">
     <h2>Where the Money Goes</h2>
@@ -794,6 +1033,18 @@
         <li><strong>Skip:</strong> Helicopter tours over Yellowstone ($400+/family) &mdash; the boardwalks are better</li>
       </ul>
     </div>
+    <div class="breakdown-callout">
+      <h3>If the Truck Acts Up</h3>
+      <ul>
+        <li><strong>AAA Roadside</strong><span class="phone">1-800-AAA-HELP</span><br>Confirm Premium membership (200-mi tow range) before leaving — basic only covers 5 miles.</li>
+        <li><strong>Ford · Rapid City SD</strong><br>McKie Ford · 2010 E Mall Dr · <span class="phone">605-231-5915</span></li>
+        <li><strong>Ford · Bozeman MT</strong><br>Kendall Ford · 2900 N 19th Ave · <span class="phone">406-344-7783</span></li>
+        <li><strong>Ford · Idaho Falls ID</strong><br>Lithia Ford · 980 W Broadway · <span class="phone">208-413-9578</span></li>
+        <li><strong>Ford · Cody WY</strong><br>Fremont Ford · 3127 Big Horn Ave · <span class="phone">307-587-6206</span></li>
+        <li><strong>Cell-dead zones</strong><br>Yellowstone interior, TRNP, eastern WY, much of central MT — keep a paper map and know your last-known mile marker.</li>
+        <li><strong>Spare in the bed</strong><br>Confirm pressure + lug wrench before departure. Beartooth and Sylvan Pass are not where you want to discover a bad spare.</li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -801,6 +1052,7 @@
   Seven states. Two boys. One big loop.<br>
   Let&rsquo;s go.
   <div class="small">An itinerary subject to spontaneous detours, bison-related delays, and ice cream stops.</div>
+  <div class="attribution">Photos via Google Places · Map data © OpenStreetMap contributors · This page made for our family, not for you</div>
 </footer>
 
 <script>
