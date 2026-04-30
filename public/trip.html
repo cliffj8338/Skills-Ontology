@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin=""/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin=""></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <style>
   :root {
     --paper: #f1e9d8;
@@ -164,13 +164,19 @@
   .legend-hotel { background: var(--rust); }
   .legend-attraction { background: var(--gold); }
   .legend-start { background: var(--green); }
-  #trip-map { width: 100%; height: 600px; border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); background: #f0e6d0; }
-  .leaflet-popup-content-wrapper { border-radius: 0; border: 2px solid var(--ink); background: var(--paper); }
-  .leaflet-popup-content { font-family: 'Cormorant Garamond', serif; margin: 14px 16px; line-height: 1.4; }
-  .leaflet-popup-content .popup-day { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--rust-deep); margin-bottom: 4px; }
-  .leaflet-popup-content .popup-title { font-family: 'Bungee', sans-serif; font-size: 14px; line-height: 1.1; margin-bottom: 6px; color: var(--ink); }
-  .leaflet-popup-content .popup-note { font-size: 14px; font-style: italic; color: var(--ink); }
-  .leaflet-popup-tip { background: var(--paper); border: 2px solid var(--ink); }
+  #trip-map { width: 100%; border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); background: var(--paper); padding: 20px 0; }
+  #trip-map svg { display: block; width: 100%; height: auto; }
+  .state-shape { fill: var(--paper-dark); stroke: var(--ink); stroke-width: 0.5; }
+  .state-shape.visited { fill: #e8d4b8; }
+  .state-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: var(--ink); opacity: 0.6; text-anchor: middle; pointer-events: none; }
+  .route-line { fill: none; stroke: var(--rust-deep); stroke-width: 2.5; stroke-dasharray: 8,6; opacity: 0.8; }
+  .route-pin { stroke: var(--ink); stroke-width: 2; cursor: pointer; }
+  .route-pin:hover { stroke-width: 3; }
+  .route-pin-label { font-family: 'Bungee', sans-serif; font-size: 11px; fill: var(--ink); text-anchor: middle; pointer-events: none; dominant-baseline: central; }
+  .map-tooltip { position: absolute; background: var(--paper); border: 2px solid var(--ink); padding: 8px 12px; font-family: 'Cormorant Garamond', serif; font-size: 14px; pointer-events: none; box-shadow: 4px 4px 0 var(--ink); max-width: 240px; z-index: 1000; }
+  .map-tooltip-day { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--rust-deep); margin-bottom: 4px; }
+  .map-tooltip-title { font-family: 'Bungee', sans-serif; font-size: 12px; line-height: 1.1; margin-bottom: 4px; }
+  .map-tooltip-note { font-style: italic; line-height: 1.3; }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .hero-title, .hero-sub, .meta-grid { animation: fadeUp 0.8s ease backwards; }
@@ -282,7 +288,7 @@
 <section class="map-section">
   <div class="map-inner">
     <h2>The Route, on a Map</h2>
-    <p class="sub">Tap any pin for details. The dashed line follows our 16-day clockwise loop.</p>
+    <p class="sub">Hover any pin for details. The dashed line follows our 16-day clockwise loop.</p>
     <div class="map-legend">
       <div class="map-legend-item"><div class="map-legend-dot legend-start"></div>Start &amp; Finish</div>
       <div class="map-legend-item"><div class="map-legend-dot legend-hotel"></div>Hotel / Overnight</div>
@@ -775,92 +781,133 @@
 
 <script>
 (function() {
-  // Bail safely if Leaflet failed to load (offline, blocked CDN, etc.)
-  if (typeof L === 'undefined') {
+  if (typeof d3 === 'undefined' || typeof topojson === 'undefined') {
     var mapEl = document.getElementById('trip-map');
     if (mapEl) {
-      mapEl.innerHTML = '<div style="padding:40px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map requires an internet connection to load.</div>';
+      mapEl.innerHTML = '<div style="padding:60px 20px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map requires an internet connection to load.</div>';
     }
     return;
   }
 
-  try {
-    // Initialize map centered on the western portion of the trip
-    const map = L.map('trip-map', { scrollWheelZoom: false }).setView([44.5, -100.5], 5);
-
-  // Use a clean, paper-like tile layer that matches the page aesthetic
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    maxZoom: 18
-  }).addTo(map);
-
-  // Custom markers (colored circles with day numbers)
-  function makeIcon(color, label) {
-    return L.divIcon({
-      className: 'custom-pin',
-      html: `<div style="background:${color};width:30px;height:30px;border-radius:50%;border:2px solid #1a1410;display:flex;align-items:center;justify-content:center;color:#1a1410;font-family:'Bungee',sans-serif;font-size:12px;box-shadow:2px 2px 0 #1a1410;">${label}</div>`,
-      iconSize: [34, 34],
-      iconAnchor: [17, 17],
-      popupAnchor: [0, -17]
-    });
-  }
-
-  // All stops in chronological order
-  const stops = [
-    { lat: 40.2454, lng: -75.6496, day: 'DAY 1 START', title: 'Pottstown, PA', note: 'Home base. On the road by 7am.', color: '#3d6b3d', label: 'S' },
-    { lat: 41.4653, lng: -81.9491, day: 'NIGHT 1', title: 'Hampton Inn Cleveland-Westlake', note: 'Free hot breakfast, indoor pool. Dinner at West Side Market.', color: '#b54820', label: '1' },
-    { lat: 43.0724, lng: -89.4277, day: 'NIGHT 2', title: 'Best Western Madison', note: 'Stop at the RV Hall of Fame en route. Babcock Hall ice cream.', color: '#b54820', label: '2' },
-    { lat: 43.7149, lng: -98.0252, day: 'DAY 3 STOP', title: '★ Corn Palace, Mitchell', note: 'Free. Insane. Walls of corn cobs, redecorated yearly.', color: '#c8932a', label: '★' },
-    { lat: 43.6958, lng: -98.0176, day: 'NIGHT 3', title: 'AmericInn Mitchell', note: 'Indoor pool. Chef Louie\'s Steak House for dinner.', color: '#b54820', label: '3' },
-    { lat: 43.9929, lng: -102.2415, day: 'DAY 4 STOP', title: '★ Wall Drug Store', note: '5¢ coffee, giant T-Rex, jackalope photos. Roadside legend since 1931.', color: '#c8932a', label: '★' },
-    { lat: 43.7491, lng: -101.9417, day: 'DAY 4 PARK', title: '★ Badlands National Park', note: 'First Junior Ranger badges! Drive the 31-mi loop.', color: '#c8932a', label: '★' },
-    { lat: 43.9895, lng: -102.2386, day: 'NIGHT 4', title: 'Best Western Plains, Wall', note: 'Walking distance to Wall Drug. Pool. Books up — reserve now.', color: '#b54820', label: '4' },
-    { lat: 43.8803, lng: -103.4538, day: 'DAY 5 ICON', title: '★ Mount Rushmore', note: 'Free entry, $10 parking. Try Jefferson\'s ice cream at Carver\'s Café.', color: '#c8932a', label: '★' },
-    { lat: 43.8876, lng: -103.4253, day: 'NIGHT 5', title: 'Roosevelt Inn, Keystone', note: 'Kids stay free. Indoor pool, full breakfast.', color: '#b54820', label: '5' },
-    { lat: 44.5902, lng: -104.7146, day: 'DAY 6 STOP', title: '★ Devils Tower', note: 'America\'s first national monument. 1.3-mi loop trail at the base.', color: '#c8932a', label: '★' },
-    { lat: 46.9124, lng: -103.5208, day: 'NIGHTS 6 & 7', title: 'Badlands Motel, Medora', note: 'Walk to everything in this 155-person town. 2-night stay.', color: '#b54820', label: '6' },
-    { lat: 46.9164, lng: -103.5258, day: 'DAY 7 PARK', title: '★ Theodore Roosevelt NP', note: 'Wild horses, bison, almost no crowds. + Pitchfork Fondue & Musical at night!', color: '#c8932a', label: '★' },
-    { lat: 45.7129, lng: -111.0686, day: 'NIGHT 8', title: 'Holiday Inn Express Bozeman', note: 'Stop at Pompeys Pillar (Lewis & Clark) along I-94.', color: '#b54820', label: '8' },
-    { lat: 45.6607, lng: -111.0482, day: 'DAY 9 STOP', title: '★ Museum of the Rockies', note: 'World\'s largest T. rex skull. The boys won\'t want to leave.', color: '#c8932a', label: '★' },
-    { lat: 44.6574, lng: -111.1015, day: 'NIGHTS 9 & 10', title: 'Kelly Inn West Yellowstone', note: '3 blocks from west gate. Indoor pool, breakfast included. 2-night stay.', color: '#b54820', label: '9' },
-    { lat: 44.4605, lng: -110.8281, day: 'DAY 10 ICON', title: '★ Old Faithful & Geyser Basin', note: 'Out the door by 7am to beat crowds. Time the eruption (~94 min).', color: '#c8932a', label: '★' },
-    { lat: 44.5251, lng: -110.8383, day: 'DAY 10', title: '★ Grand Prismatic Spring', note: 'Hike Fairy Falls trail to the OVERLOOK for the famous aerial view.', color: '#c8932a', label: '★' },
-    { lat: 44.1873, lng: -111.3261, day: 'DAY 11 STOP', title: '★ Upper Mesa Falls', note: 'Last major undisturbed waterfall in the Columbia River system.', color: '#c8932a', label: '★' },
-    { lat: 43.4980, lng: -112.0471, day: 'NIGHTS 11 & 12', title: 'Hampton Inn Idaho Falls', note: 'On the river, pool. Big Jud\'s for the famous 1-pound burger. 2-night stay.', color: '#b54820', label: '11' },
-    { lat: 43.1718, lng: -113.4821, day: 'DAY 12 PARK', title: '★ Craters of the Moon', note: 'Apollo astronauts trained here. Lava tubes, Inferno Cone, Lunar Ranger badge.', color: '#c8932a', label: '★' },
-    { lat: 44.5148, lng: -109.1015, day: 'NIGHT 13', title: 'Cody Cowboy Village', note: 'Log cabins, walk to rodeo grounds. Proud Cut Saloon for steak.', color: '#b54820', label: '13' },
-    { lat: 44.5135, lng: -109.0883, day: 'DAY 13 NIGHT', title: '★ Cody Nite Rodeo', note: 'Bull riding, barrel racing under the lights. The boys will talk about this for years.', color: '#c8932a', label: '★' },
-    { lat: 43.6958, lng: -98.0176, day: 'NIGHT 14', title: 'AmericInn Mitchell (return)', note: 'Familiar. Pizza Ranch — kids eat free Sun-Tue.', color: '#b54820', label: '14' },
-    { lat: 41.6830, lng: -83.6203, day: 'NIGHT 15', title: 'Hampton Inn Toledo-West', note: '740-mile day. Pool, collapse. Tony Packo\'s for Hungarian hot dogs.', color: '#b54820', label: '15' },
-    { lat: 40.2454, lng: -75.6496, day: 'DAY 16 HOME', title: 'Pottstown, PA 🏁', note: 'Mission complete. State count: 43. To go: 7.', color: '#3d6b3d', label: 'F' }
+  var stops = [
+    { lat: 40.2454, lng: -75.6496, day: 'DAY 1 START', title: 'Pottstown, PA', note: 'Home base. On the road by 7am.', kind: 'start', label: 'S' },
+    { lat: 41.4653, lng: -81.9491, day: 'NIGHT 1', title: 'Hampton Inn Cleveland-Westlake', note: 'Free hot breakfast, indoor pool. Dinner at West Side Market.', kind: 'hotel', label: '1' },
+    { lat: 43.0724, lng: -89.4277, day: 'NIGHT 2', title: 'Best Western Madison', note: 'Stop at the RV Hall of Fame en route. Babcock Hall ice cream.', kind: 'hotel', label: '2' },
+    { lat: 43.7149, lng: -98.0252, day: 'DAY 3 STOP', title: 'Corn Palace, Mitchell', note: 'Free. Insane. Walls of corn cobs, redecorated yearly.', kind: 'attraction', label: '★' },
+    { lat: 43.6958, lng: -98.0176, day: 'NIGHT 3', title: 'AmericInn Mitchell', note: 'Indoor pool. Chef Louie\u2019s Steak House for dinner.', kind: 'hotel', label: '3' },
+    { lat: 43.9929, lng: -102.2415, day: 'DAY 4 STOP', title: 'Wall Drug Store', note: '5\u00a2 coffee, giant T-Rex, jackalope photos. Roadside legend since 1931.', kind: 'attraction', label: '★' },
+    { lat: 43.7491, lng: -101.9417, day: 'DAY 4 PARK', title: 'Badlands National Park', note: 'First Junior Ranger badges! Drive the 31-mi loop.', kind: 'attraction', label: '★' },
+    { lat: 43.9895, lng: -102.2386, day: 'NIGHT 4', title: 'Best Western Plains, Wall', note: 'Walking distance to Wall Drug. Pool. Books up \u2014 reserve now.', kind: 'hotel', label: '4' },
+    { lat: 43.8803, lng: -103.4538, day: 'DAY 5 ICON', title: 'Mount Rushmore', note: 'Free entry, $10 parking. Try Jefferson\u2019s ice cream at Carver\u2019s Caf\u00e9.', kind: 'attraction', label: '★' },
+    { lat: 43.8876, lng: -103.4253, day: 'NIGHT 5', title: 'Roosevelt Inn, Keystone', note: 'Kids stay free. Indoor pool, full breakfast.', kind: 'hotel', label: '5' },
+    { lat: 44.5902, lng: -104.7146, day: 'DAY 6 STOP', title: 'Devils Tower', note: 'America\u2019s first national monument. 1.3-mi loop trail at the base.', kind: 'attraction', label: '★' },
+    { lat: 46.9124, lng: -103.5208, day: 'NIGHTS 6 & 7', title: 'Badlands Motel, Medora', note: 'Walk to everything in this 155-person town. 2-night stay.', kind: 'hotel', label: '6' },
+    { lat: 45.7129, lng: -111.0686, day: 'NIGHT 8', title: 'Holiday Inn Express Bozeman', note: 'Stop at Pompeys Pillar (Lewis & Clark) along I-94.', kind: 'hotel', label: '8' },
+    { lat: 45.6607, lng: -111.0482, day: 'DAY 9 STOP', title: 'Museum of the Rockies', note: 'World\u2019s largest T. rex skull. The boys won\u2019t want to leave.', kind: 'attraction', label: '★' },
+    { lat: 44.6574, lng: -111.1015, day: 'NIGHTS 9 & 10', title: 'Kelly Inn West Yellowstone', note: '3 blocks from west gate. Indoor pool, breakfast included.', kind: 'hotel', label: '9' },
+    { lat: 44.4605, lng: -110.8281, day: 'DAY 10 ICON', title: 'Old Faithful', note: 'Out the door by 7am to beat crowds. Time the eruption.', kind: 'attraction', label: '★' },
+    { lat: 43.4980, lng: -112.0471, day: 'NIGHTS 11 & 12', title: 'Hampton Inn Idaho Falls', note: 'On the river, pool. Big Jud\u2019s for the famous 1-pound burger.', kind: 'hotel', label: '11' },
+    { lat: 43.1718, lng: -113.4821, day: 'DAY 12 PARK', title: 'Craters of the Moon', note: 'Apollo astronauts trained here. Lava tubes, Inferno Cone.', kind: 'attraction', label: '★' },
+    { lat: 44.5148, lng: -109.1015, day: 'NIGHT 13', title: 'Cody Cowboy Village', note: 'Log cabins, walk to rodeo grounds. Cody Nite Rodeo at 8pm.', kind: 'hotel', label: '13' },
+    { lat: 41.6830, lng: -83.6203, day: 'NIGHT 15', title: 'Hampton Inn Toledo-West', note: '740-mile day. Tony Packo\u2019s for Hungarian hot dogs.', kind: 'hotel', label: '15' },
+    { lat: 40.2454, lng: -75.6496, day: 'DAY 16 HOME', title: 'Pottstown, PA', note: 'Mission complete. State count: 43. To go: 7.', kind: 'start', label: 'F' }
   ];
 
-  // Add all markers with popups
-  stops.forEach(s => {
-    L.marker([s.lat, s.lng], { icon: makeIcon(s.color, s.label) })
-      .addTo(map)
-      .bindPopup(`<div class="popup-day">${s.day}</div><div class="popup-title">${s.title}</div><div class="popup-note">${s.note}</div>`);
+  var visitedStates = ['Pennsylvania','Ohio','Indiana','Illinois','Wisconsin','Minnesota','South Dakota','North Dakota','Montana','Wyoming','Idaho'];
+
+  var colorMap = { hotel: '#b54820', attraction: '#c8932a', start: '#3d6b3d' };
+
+  var container = document.getElementById('trip-map');
+  if (!container) return;
+
+  container.style.position = 'relative';
+
+  var width = 1100;
+  var height = 620;
+
+  var svg = d3.select(container).append('svg')
+    .attr('viewBox', '0 0 ' + width + ' ' + height)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  var tooltip = d3.select(container).append('div')
+    .attr('class', 'map-tooltip')
+    .style('opacity', 0)
+    .style('display', 'none');
+
+  var projection = d3.geoAlbersUsa().scale(1400).translate([width / 2, height / 2]);
+  var pathGen = d3.geoPath(projection);
+
+  d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json').then(function(us) {
+    var statesFeature = topojson.feature(us, us.objects.states);
+
+    svg.append('g').selectAll('path')
+      .data(statesFeature.features)
+      .join('path')
+        .attr('d', pathGen)
+        .attr('class', function(d) {
+          return visitedStates.indexOf(d.properties.name) >= 0 ? 'state-shape visited' : 'state-shape';
+        });
+
+    var stateLabels = {
+      'Pennsylvania': 'PA', 'Ohio': 'OH', 'Indiana': 'IN', 'Illinois': 'IL',
+      'Wisconsin': 'WI', 'Minnesota': 'MN', 'Iowa': 'IA',
+      'South Dakota': 'SD', 'North Dakota': 'ND',
+      'Montana': 'MT', 'Wyoming': 'WY', 'Idaho': 'ID',
+      'Nebraska': 'NE', 'Michigan': 'MI', 'New York': 'NY'
+    };
+
+    svg.append('g').selectAll('text')
+      .data(statesFeature.features.filter(function(d) { return stateLabels[d.properties.name]; }))
+      .join('text')
+        .attr('class', 'state-label')
+        .attr('transform', function(d) { return 'translate(' + pathGen.centroid(d) + ')'; })
+        .text(function(d) { return stateLabels[d.properties.name]; });
+
+    var projected = stops.map(function(s) {
+      var p = projection([s.lng, s.lat]);
+      return p ? { x: p[0], y: p[1], data: s } : null;
+    }).filter(Boolean);
+
+    var lineGen = d3.line().x(function(d) { return d.x; }).y(function(d) { return d.y; }).curve(d3.curveCatmullRom.alpha(0.5));
+
+    svg.append('path')
+      .attr('class', 'route-line')
+      .attr('d', lineGen(projected));
+
+    var pinGroup = svg.append('g').selectAll('g')
+      .data(projected)
+      .join('g')
+        .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+
+    pinGroup.append('circle')
+      .attr('class', 'route-pin')
+      .attr('r', 13)
+      .attr('fill', function(d) { return colorMap[d.data.kind]; })
+      .on('mouseenter', function(event, d) {
+        tooltip.style('display', 'block')
+          .style('opacity', 1)
+          .html('<div class="map-tooltip-day">' + d.data.day + '</div>' +
+                '<div class="map-tooltip-title">' + d.data.title + '</div>' +
+                '<div class="map-tooltip-note">' + d.data.note + '</div>');
+      })
+      .on('mousemove', function(event) {
+        var rect = container.getBoundingClientRect();
+        var x = event.clientX - rect.left + 14;
+        var y = event.clientY - rect.top + 14;
+        tooltip.style('left', x + 'px').style('top', y + 'px');
+      })
+      .on('mouseleave', function() {
+        tooltip.style('opacity', 0).style('display', 'none');
+      });
+
+    pinGroup.append('text')
+      .attr('class', 'route-pin-label')
+      .text(function(d) { return d.data.label; });
+
+  }).catch(function(err) {
+    console.error('Map load failed:', err);
+    container.innerHTML = '<div style="padding:60px 20px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map could not load. The full route is detailed in the table above.</div>';
   });
-
-  // Draw the route line connecting all stops in order
-  const routeLine = stops.map(s => [s.lat, s.lng]);
-  L.polyline(routeLine, {
-    color: '#7a2d10',
-    weight: 3,
-    opacity: 0.7,
-    dashArray: '8, 8'
-  }).addTo(map);
-
-  // Fit map to show all points with padding
-  const group = L.featureGroup(stops.map(s => L.marker([s.lat, s.lng])));
-  map.fitBounds(group.getBounds(), { padding: [40, 40] });
-  } catch (err) {
-    console.error('Map init failed:', err);
-    var mapEl = document.getElementById('trip-map');
-    if (mapEl) {
-      mapEl.innerHTML = '<div style="padding:40px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map could not load. The full route is detailed in the table above.</div>';
-    }
-  }
 })();
 </script>
 
