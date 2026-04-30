@@ -176,6 +176,7 @@
   .legend-hotel { background: var(--rust); }
   .legend-attraction { background: var(--gold); }
   .legend-start { background: var(--green); }
+  .legend-cemetery { background: #5b3a52; }
   #trip-map { width: 100%; border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); background: var(--paper); padding: 20px 0; }
   #trip-map svg { display: block; width: 100%; height: auto; }
   .state-shape { fill: var(--paper-dark); stroke: var(--ink); stroke-width: 0.5; }
@@ -189,6 +190,7 @@
   .map-tooltip-day { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--rust-deep); margin-bottom: 4px; }
   .map-tooltip-title { font-family: 'Bungee', sans-serif; font-size: 12px; line-height: 1.1; margin-bottom: 4px; }
   .map-tooltip-note { font-style: italic; line-height: 1.3; }
+  .map-tooltip-spend { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--rust-deep); font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: var(--rust-deep); }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .hero-title, .hero-sub, .meta-grid { animation: fadeUp 0.8s ease backwards; }
@@ -305,11 +307,12 @@
 <section class="map-section">
   <div class="map-inner">
     <h2>The Route, on a Map</h2>
-    <p class="sub">Hover any pin for details. The dashed line follows our 16-day clockwise loop.</p>
+    <p class="sub">Hover any pin for details, day, and budget. Cemetery stops in plum.</p>
     <div class="map-legend">
       <div class="map-legend-item"><div class="map-legend-dot legend-start"></div>Start &amp; Finish</div>
       <div class="map-legend-item"><div class="map-legend-dot legend-hotel"></div>Hotel / Overnight</div>
       <div class="map-legend-item"><div class="map-legend-dot legend-attraction"></div>Major Attraction</div>
+      <div class="map-legend-item"><div class="map-legend-dot legend-cemetery"></div>Notable Cemetery</div>
     </div>
     <div id="trip-map"></div>
   </div>
@@ -348,6 +351,7 @@
       <p>Long day across Indiana and Illinois. Skirt Chicago on I-80 and aim for Madison. Sleeping in Wisconsin tonight makes it <strong>state #39</strong> for the boys.</p>
       <ul class="stops">
         <li class="quirky"><span class="label">LEG STRETCH</span><strong>RV/MH Hall of Fame &mdash; Elkhart, IN</strong><div class="desc">Right off I-80. Weirdly fascinating. The boys will be debating which one to live in for 200 miles. ~$10/adult, kids free.</div></li>
+        <li><span class="label">☩ EVENING</span><strong>Forest Hill Cemetery &mdash; Madison</strong><div class="desc">Historic 19th-century garden cemetery on the west side of campus. Civil War markers, beautiful old trees, peaceful walk after dinner. Free, open dawn to dusk.</div></li>
       </ul>
     </div>
     <div class="logistics-grid">
@@ -416,6 +420,7 @@
         <li><span class="label">DRIVE</span><strong>Iron Mountain Road &amp; Needles Highway</strong><div class="desc">Pigtail bridges, one-lane tunnels framed around Rushmore. The boys will lose it. $20/vehicle Custer SP entry.</div></li>
         <li><span class="label">WILDLIFE</span><strong>Custer State Park &mdash; Wildlife Loop</strong><div class="desc">18 mi of bison, prairie dogs, &ldquo;begging burros,&rdquo; pronghorn. Late afternoon = best wildlife.</div></li>
         <li class="quirky"><span class="label">★ EXTRA</span><strong>Crazy Horse Memorial</strong><div class="desc">Massive in-progress carving that dwarfs Rushmore. $30/carload.</div></li>
+        <li><span class="label">☩ DETOUR</span><strong>Mt. Moriah Cemetery &mdash; Deadwood</strong><div class="desc">Wild Bill Hickok and Calamity Jane buried side by side. Beautifully preserved hillside cemetery with sweeping Black Hills views, separate Jewish &amp; Chinese sections, self-guided walking map. ~50 min from Keystone &mdash; do it on the way back from Crazy Horse if energy holds, or skip if the boys are toast. $2 cash entry.</div></li>
       </ul>
     </div>
     <div class="logistics-grid">
@@ -479,7 +484,7 @@
       <p>I-94 west into <strong>state #43 &mdash; Montana.</strong> Longest stretch of pure sky on the trip. Endless. Stop often.</p>
       <ul class="stops">
         <li><span class="label">HISTORY</span><strong>Pompeys Pillar NM &mdash; near Billings</strong><div class="desc">A 150-ft sandstone outcrop where William Clark carved his signature in 1806. Only physical evidence of the Lewis &amp; Clark expedition still in place. Free.</div></li>
-        <li class="quirky"><span class="label">★ DETOUR</span><strong>Little Bighorn Battlefield</strong><div class="desc">If energy permits. Custer&rsquo;s Last Stand. Heavy but the markers showing where each soldier fell make it real for kids. $25/vehicle (or pass).</div></li>
+        <li class="quirky"><span class="label">☩ DETOUR</span><strong>Little Bighorn Battlefield + Custer National Cemetery</strong><div class="desc">If energy permits. Custer&rsquo;s Last Stand &mdash; Native warrior and 7th Cavalry markers scattered across the rolling battlefield where each man fell, plus the national cemetery for soldiers from later wars. Heavy but real. $25/vehicle (or pass). Note: closed Mon-Thu — Saturday works.</div></li>
       </ul>
     </div>
     <div class="logistics-grid">
@@ -589,6 +594,7 @@
         <li><span class="label">PARK</span><strong>Yellowstone Lake &amp; Fishing Bridge</strong><div class="desc">Largest high-elevation lake in North America. Calm morning water. Skip rocks.</div></li>
         <li><span class="label">DRIVE</span><strong>Buffalo Bill Cody Scenic Byway</strong><div class="desc">Teddy Roosevelt called it &ldquo;the 50 most beautiful miles in America.&rdquo; Massive cliffs, the Wapiti Valley.</div></li>
         <li class="quirky"><span class="label">★ NIGHT OUT</span><strong>Cody Nite Rodeo</strong><div class="desc">Every night June&ndash;August. Bull riding, barrel racing, bronc-busting under the lights. ~$25/adult, $15/kid. The boys will talk about this for years.</div></li>
+        <li><span class="label">☩ EVE STROLL</span><strong>Riverside Cemetery, Cody</strong><div class="desc">Small, beautifully kept old Cody graveyard right by your hotel — pre-rodeo walk, look for early Cody pioneers and ranchers. Free, walkable.</div></li>
       </ul>
     </div>
     <div class="logistics-grid">
@@ -808,33 +814,38 @@
   }
 
   var stops = [
-    { lat: 40.2454, lng: -75.6496, day: 'DAY 1 START', title: 'Pottstown, PA', note: 'Home base. On the road by 7am.', kind: 'start', label: 'S' },
-    { lat: 41.4653, lng: -81.9491, day: 'NIGHT 1', title: 'Hampton Inn Cleveland-Westlake', note: 'Free hot breakfast, indoor pool. Dinner at West Side Market.', kind: 'hotel', label: '1' },
-    { lat: 43.0724, lng: -89.4277, day: 'NIGHT 2', title: 'Best Western Madison', note: 'Stop at the RV Hall of Fame en route. Babcock Hall ice cream. State #39 — WI!', kind: 'hotel', label: '2' },
-    { lat: 43.6486, lng: -93.3628, day: 'DAY 3 LUNCH', title: 'Albert Lea, MN', note: 'Lunch at Main Street Family Restaurant. State #40 earned over a real plate of food.', kind: 'attraction', label: '★' },
+    { lat: 40.2454, lng: -75.6496, day: 'DAY 1 START · Sat Jun 13', title: 'Pottstown, PA', note: '420 mi to Cleveland. On the road by 7am.', kind: 'start', label: 'S', spend: '~$310' },
+    { lat: 41.4653, lng: -81.9491, day: 'NIGHT 1', title: 'Hampton Inn Cleveland-Westlake', note: 'Free hot breakfast, indoor pool. Dinner at West Side Market.', kind: 'hotel', label: '1', spend: 'Day 1: ~$310' },
+    { lat: 43.0625, lng: -89.4321, day: 'DAY 2 EVE · Sun Jun 14', title: 'Forest Hill Cemetery, Madison', note: 'Historic 19th-century garden cemetery. Walkable post-dinner. Civil War markers, beautiful old trees.', kind: 'cemetery', label: '☩' },
+    { lat: 43.0724, lng: -89.4277, day: 'NIGHT 2', title: 'Best Western Madison', note: 'RV Hall of Fame stop en route. Babcock Hall ice cream. State #39 — WI!', kind: 'hotel', label: '2', spend: 'Day 2: ~$320' },
+    { lat: 43.6486, lng: -93.3628, day: 'DAY 3 LUNCH · Mon Jun 15', title: 'Albert Lea, MN', note: 'Lunch at Main Street Family Restaurant. State #40 earned over a real plate of food.', kind: 'attraction', label: '★' },
     { lat: 43.7149, lng: -98.0252, day: 'DAY 3 STOP', title: 'Corn Palace, Mitchell', note: 'Free. Insane. Walls of corn cobs, redecorated yearly.', kind: 'attraction', label: '★' },
-    { lat: 43.6958, lng: -98.0176, day: 'NIGHT 3', title: 'AmericInn Mitchell', note: 'Indoor pool. Chef Louie\u2019s Steak House for dinner.', kind: 'hotel', label: '3' },
-    { lat: 43.9929, lng: -102.2415, day: 'DAY 4 STOP', title: 'Wall Drug Store', note: '5\u00a2 coffee, giant T-Rex, jackalope photos. Roadside legend since 1931.', kind: 'attraction', label: '★' },
+    { lat: 43.6958, lng: -98.0176, day: 'NIGHT 3', title: 'AmericInn Mitchell', note: 'Indoor pool. Cattleman\u2019s Club steakhouse for dinner.', kind: 'hotel', label: '3', spend: 'Day 3: ~$310' },
+    { lat: 43.9929, lng: -102.2415, day: 'DAY 4 STOP · Tue Jun 16', title: 'Wall Drug Store', note: '5\u00a2 coffee, giant T-Rex, jackalope photos. Roadside legend since 1931.', kind: 'attraction', label: '★' },
     { lat: 43.7491, lng: -101.9417, day: 'DAY 4 PARK', title: 'Badlands National Park', note: 'First Junior Ranger badges! Drive the 31-mi loop.', kind: 'attraction', label: '★' },
-    { lat: 43.9895, lng: -102.2386, day: 'NIGHT 4', title: 'Best Western Plains, Wall', note: 'Walking distance to Wall Drug. Pool. Books up \u2014 reserve now.', kind: 'hotel', label: '4' },
-    { lat: 43.8803, lng: -103.4538, day: 'DAY 5 ICON', title: 'Mount Rushmore', note: 'Free entry, $10 parking. Try Jefferson\u2019s ice cream at Carver\u2019s Caf\u00e9.', kind: 'attraction', label: '★' },
-    { lat: 43.8876, lng: -103.4253, day: 'NIGHT 5', title: 'Roosevelt Inn, Keystone', note: 'Kids stay free. Indoor pool, full breakfast.', kind: 'hotel', label: '5' },
-    { lat: 44.5902, lng: -104.7146, day: 'DAY 6 STOP', title: 'Devils Tower', note: 'America\u2019s first national monument. 1.3-mi loop trail at the base.', kind: 'attraction', label: '★' },
-    { lat: 46.9124, lng: -103.5208, day: 'NIGHTS 6 & 7', title: 'Badlands Motel, Medora', note: 'Walk to everything in this 155-person town. 2-night stay.', kind: 'hotel', label: '6' },
-    { lat: 45.7129, lng: -111.0686, day: 'NIGHT 8', title: 'Holiday Inn Express Bozeman', note: 'Stop at Pompeys Pillar (Lewis & Clark) along I-94.', kind: 'hotel', label: '8' },
-    { lat: 45.6607, lng: -111.0482, day: 'DAY 9 STOP', title: 'Museum of the Rockies', note: 'World\u2019s largest T. rex skull. The boys won\u2019t want to leave.', kind: 'attraction', label: '★' },
-    { lat: 44.6574, lng: -111.1015, day: 'NIGHTS 9 & 10', title: 'Kelly Inn West Yellowstone', note: '3 blocks from west gate. Indoor pool, breakfast included.', kind: 'hotel', label: '9' },
-    { lat: 44.4605, lng: -110.8281, day: 'DAY 10 ICON', title: 'Old Faithful', note: 'Out the door by 7am to beat crowds. Time the eruption.', kind: 'attraction', label: '★' },
-    { lat: 43.4980, lng: -112.0471, day: 'NIGHTS 11 & 12', title: 'Hampton Inn Idaho Falls', note: 'On the river, pool. Big Jud\u2019s for the famous 1-pound burger.', kind: 'hotel', label: '11' },
-    { lat: 43.1718, lng: -113.4821, day: 'DAY 12 PARK', title: 'Craters of the Moon', note: 'Apollo astronauts trained here. Lava tubes, Inferno Cone.', kind: 'attraction', label: '★' },
-    { lat: 44.5148, lng: -109.1015, day: 'NIGHT 13', title: 'Cody Cowboy Village', note: 'Log cabins, walk to rodeo grounds. Cody Nite Rodeo at 8pm.', kind: 'hotel', label: '13' },
-    { lat: 41.6830, lng: -83.6203, day: 'NIGHT 15', title: 'Hampton Inn Toledo-West', note: '740-mile day. Tony Packo\u2019s for Hungarian hot dogs.', kind: 'hotel', label: '15' },
-    { lat: 40.2454, lng: -75.6496, day: 'DAY 16 HOME', title: 'Pottstown, PA', note: 'Mission complete. State count: 45. To go: 5.', kind: 'start', label: 'F' }
+    { lat: 43.9895, lng: -102.2386, day: 'NIGHT 4', title: 'Best Western Plains, Wall', note: 'Walking distance to Wall Drug. Pool. Books up \u2014 reserve now.', kind: 'hotel', label: '4', spend: 'Day 4: ~$340' },
+    { lat: 43.8803, lng: -103.4538, day: 'DAY 5 ICON · Wed Jun 17', title: 'Mount Rushmore', note: 'Free entry, $10 parking. Carver\u2019s Caf\u00e9 Jefferson ice cream.', kind: 'attraction', label: '★' },
+    { lat: 44.3752, lng: -103.7239, day: 'DAY 5 DETOUR', title: 'Mt. Moriah Cemetery, Deadwood', note: 'Wild Bill Hickok & Calamity Jane. $2 cash entry. Self-guided walking tour with map. ~50 min from Keystone.', kind: 'cemetery', label: '☩' },
+    { lat: 43.8876, lng: -103.4253, day: 'NIGHT 5', title: 'Roosevelt Inn, Keystone', note: 'Kids stay free. Indoor pool, full breakfast.', kind: 'hotel', label: '5', spend: 'Day 5: ~$370' },
+    { lat: 44.5902, lng: -104.7146, day: 'DAY 6 STOP · Thu Jun 18', title: 'Devils Tower (WY)', note: 'America\u2019s first national monument. 1.3-mi loop trail at the base.', kind: 'attraction', label: '★' },
+    { lat: 46.9124, lng: -103.5208, day: 'NIGHTS 6 & 7', title: 'Badlands Motel, Medora', note: 'Walk to everything in this 155-person town. Theodore Roosevelt NP & Pitchfork Fondue.', kind: 'hotel', label: '6', spend: 'Days 6+7: ~$970' },
+    { lat: 45.5658, lng: -107.4274, day: 'DAY 8 STOP · Sat Jun 20', title: 'Little Bighorn Battlefield', note: '1876 battle site + Custer National Cemetery. Drive the 4.5-mi loop.', kind: 'cemetery', label: '☩' },
+    { lat: 45.7129, lng: -111.0686, day: 'NIGHT 8', title: 'Holiday Inn Express Bozeman', note: 'Pompeys Pillar (Lewis & Clark) en route. State #43 — Montana.', kind: 'hotel', label: '8', spend: 'Day 8: ~$370' },
+    { lat: 45.6607, lng: -111.0482, day: 'DAY 9 STOP · Sun Jun 21', title: 'Museum of the Rockies', note: 'World\u2019s largest T. rex skull. The boys won\u2019t want to leave.', kind: 'attraction', label: '★' },
+    { lat: 44.6574, lng: -111.1015, day: 'NIGHTS 9 & 10', title: 'Kelly Inn West Yellowstone', note: '3 blocks from west gate. Indoor pool, breakfast included.', kind: 'hotel', label: '9', spend: 'Days 9+10: ~$875' },
+    { lat: 44.4605, lng: -110.8281, day: 'DAY 10 ICON · Mon Jun 22', title: 'Old Faithful', note: 'Out the door by 7am to beat crowds. Time the eruption.', kind: 'attraction', label: '★' },
+    { lat: 43.4980, lng: -112.0471, day: 'NIGHTS 11 & 12', title: 'Hampton Inn Idaho Falls', note: 'On the river, pool. Big Jud\u2019s 1lb burger. State #44 — Idaho.', kind: 'hotel', label: '11', spend: 'Days 11+12: ~$670' },
+    { lat: 43.1718, lng: -113.4821, day: 'DAY 12 PARK · Wed Jun 24', title: 'Craters of the Moon', note: 'Apollo astronauts trained here. Lava tubes, Inferno Cone.', kind: 'attraction', label: '★' },
+    { lat: 44.5189, lng: -109.0850, day: 'DAY 13 EVE', title: 'Riverside Cemetery, Cody', note: 'Small, beautifully kept old Cody graveyard. Walk from your hotel.', kind: 'cemetery', label: '☩' },
+    { lat: 44.5148, lng: -109.1015, day: 'NIGHT 13 · Thu Jun 25', title: 'Cody Cowboy Village', note: 'Log cabins, walk to rodeo grounds. Cody Nite Rodeo at 8pm. State #45 — WY proper.', kind: 'hotel', label: '13', spend: 'Day 13: ~$520' },
+    { lat: 41.6830, lng: -83.6203, day: 'NIGHT 15 · Sat Jun 27', title: 'Hampton Inn Toledo-West', note: '740-mile day. Tony Packo\u2019s for Hungarian hot dogs.', kind: 'hotel', label: '15', spend: 'Day 15: ~$340' },
+    { lat: 40.2454, lng: -75.6496, day: 'DAY 16 HOME · Sun Jun 28', title: 'Pottstown, PA', note: 'Mission complete. State count: 45. To go: 5.', kind: 'start', label: 'F' }
   ];
 
   var visitedStates = ['Pennsylvania','Ohio','Indiana','Illinois','Wisconsin','Minnesota','South Dakota','North Dakota','Montana','Wyoming','Idaho'];
+  var routeStates = ['Pennsylvania','Ohio','Indiana','Illinois','Wisconsin','Minnesota','Iowa','South Dakota','North Dakota','Montana','Wyoming','Idaho','Nebraska','Michigan','New York','New Jersey','Maryland','West Virginia','Kentucky','Missouri'];
 
-  var colorMap = { hotel: '#b54820', attraction: '#c8932a', start: '#3d6b3d' };
+  var colorMap = { hotel: '#b54820', attraction: '#c8932a', start: '#3d6b3d', cemetery: '#5b3a52' };
 
   var container = document.getElementById('trip-map');
   if (!container) return;
@@ -853,14 +864,26 @@
     .style('opacity', 0)
     .style('display', 'none');
 
-  var projection = d3.geoAlbersUsa().scale(1400).translate([width / 2, height / 2]);
-  var pathGen = d3.geoPath(projection);
-
   d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json').then(function(us) {
     var statesFeature = topojson.feature(us, us.objects.states);
 
+    // Filter to just the states we drive through (plus context neighbors)
+    var contextStates = {
+      type: 'FeatureCollection',
+      features: statesFeature.features.filter(function(d) {
+        return routeStates.indexOf(d.properties.name) >= 0;
+      })
+    };
+
+    // Auto-fit projection to ONLY the route states — fills the frame
+    var projection = d3.geoAlbersUsa().fitSize([width - 40, height - 40], contextStates);
+    // Re-translate to center vertically with padding
+    var t = projection.translate();
+    projection.translate([t[0] + 20, t[1] + 20]);
+    var pathGen = d3.geoPath(projection);
+
     svg.append('g').selectAll('path')
-      .data(statesFeature.features)
+      .data(contextStates.features)
       .join('path')
         .attr('d', pathGen)
         .attr('class', function(d) {
@@ -872,11 +895,13 @@
       'Wisconsin': 'WI', 'Minnesota': 'MN', 'Iowa': 'IA',
       'South Dakota': 'SD', 'North Dakota': 'ND',
       'Montana': 'MT', 'Wyoming': 'WY', 'Idaho': 'ID',
-      'Nebraska': 'NE', 'Michigan': 'MI', 'New York': 'NY'
+      'Nebraska': 'NE', 'Michigan': 'MI', 'New York': 'NY',
+      'New Jersey': 'NJ', 'Maryland': 'MD', 'West Virginia': 'WV',
+      'Kentucky': 'KY', 'Missouri': 'MO'
     };
 
     svg.append('g').selectAll('text')
-      .data(statesFeature.features.filter(function(d) { return stateLabels[d.properties.name]; }))
+      .data(contextStates.features.filter(function(d) { return stateLabels[d.properties.name]; }))
       .join('text')
         .attr('class', 'state-label')
         .attr('transform', function(d) { return 'translate(' + pathGen.centroid(d) + ')'; })
@@ -887,11 +912,13 @@
       return p ? { x: p[0], y: p[1], data: s } : null;
     }).filter(Boolean);
 
+    // Route line uses only non-cemetery, non-detour stops to keep the loop clean
+    var routePoints = projected.filter(function(p) { return p.data.kind !== 'cemetery'; });
     var lineGen = d3.line().x(function(d) { return d.x; }).y(function(d) { return d.y; }).curve(d3.curveCatmullRom.alpha(0.5));
 
     svg.append('path')
       .attr('class', 'route-line')
-      .attr('d', lineGen(projected));
+      .attr('d', lineGen(routePoints));
 
     var pinGroup = svg.append('g').selectAll('g')
       .data(projected)
@@ -900,14 +927,16 @@
 
     pinGroup.append('circle')
       .attr('class', 'route-pin')
-      .attr('r', 13)
+      .attr('r', 16)
       .attr('fill', function(d) { return colorMap[d.data.kind]; })
       .on('mouseenter', function(event, d) {
+        var spendHtml = d.data.spend ? '<div class="map-tooltip-spend">' + d.data.spend + '</div>' : '';
         tooltip.style('display', 'block')
           .style('opacity', 1)
           .html('<div class="map-tooltip-day">' + d.data.day + '</div>' +
                 '<div class="map-tooltip-title">' + d.data.title + '</div>' +
-                '<div class="map-tooltip-note">' + d.data.note + '</div>');
+                '<div class="map-tooltip-note">' + d.data.note + '</div>' +
+                spendHtml);
       })
       .on('mousemove', function(event) {
         var rect = container.getBoundingClientRect();
@@ -934,13 +963,14 @@
 (function() {
   var galleries = {
     1: [
-      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZP8LFGZhWM7A42woHZLBR0Q_pAfyRWf4zrevCmBCdtVm-kXLTO9q5DgtcyRWM6AGjdIPCgFBujM8guJcxel0rMprnifA26wuvwXYTmhFmFGFLYwPCuStcfVym2kqooxiPl5C3d8EBWYTYuMtEs=s4800-w800-h600', name: 'Flight 93 Memorial', tag: 'Stop · Shanksville' },
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZOQ7V9ATg6QpSbvMt7TUaMbfqnTEhenOMSVyITOi7Sj40WhxFWbRUSaK6V2g6Oh7i9v5LEcOnJ9UGePVPrmLCLfTDxirJjCWbkTaK8TiviDDbnn4eP80TmbX1NvYA3lZBDiLotHXbYMIQxWM7A=s4800-w800-h600', name: 'Flight 93 Memorial', tag: 'Stop · Shanksville' },
       { url: 'https://lh3.googleusercontent.com/places/ANXAkqGNNxAyLo1eX-OaLIBk8djWbQo9gBWxUP66PK1okFuL9ujF_QM6x7kHf4DQ9XYJnYn_eMnf-2IG16bCkZf1P9bXlrkzeayBK1Y=s4800-w800-h600', name: 'West Side Market', tag: 'Dinner · Cleveland' },
       { url: 'https://lh3.googleusercontent.com/places/ANXAkqGpGEX3AuqjdP4Wg7IoS48QBTZL1oijWvTOAABQcdP_9ByEVHbtFlz2aoeXK5Oe7CwsS5zdvh9g_YSRn-zs3qoOuGPFVpQiLrE=s4800-w800-h466', name: 'Hampton Inn Westlake', tag: 'Sleep · Night 1' }
     ],
     2: [
       { url: 'https://lh3.googleusercontent.com/places/ANXAkqELUwwZO5yYswBi_QQXORPwa8kOR2TTJ3KUHi2LfVUB0wcA9sJFq-8h326t-QBTkGuS5-DpAZi1DWHYv7niLkUFxZrLimuELRA=s4800-w800-h533', name: 'RV/MH Hall of Fame', tag: 'Stop · Elkhart, IN' },
       { url: 'https://lh3.googleusercontent.com/places/ANXAkqGsbXuIgC2oWSWubZViFDJSoVbrVKJ_FzlteGW0A9C3tCsuJ3fZcMzD_rg05lmqnUlQj4tC9Ga0AXYoyHNbLJdgHZpF4pGkpQY=s4800-w800-h600', name: 'Babcock Dairy', tag: 'Dessert · Madison' },
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZPazrDo8HGOQcFoVBxOW4IbOQ0Mlt4xs4uH-v0xrnRvsLGL4FWCe9_8HyLHEWtbXAWnYzSmjVAiXv_2bIq_c9i40Wm1UDkZvVRWBaxKpLc7gJ4BqbmYR0_m6ILrGRGGkmju1cq4ZhNrfuZx=s4800-w800-h600', name: 'Forest Hill Cemetery', tag: '☩ Madison evening walk' },
       { url: 'https://lh3.googleusercontent.com/places/ANXAkqHY-Yh3m44I7Kzp-BhHwXiOBWJSmLbIpkYdmPBt78TlAA8dHLRbDY1YOG_ltnqXyMllXCQbSEvoCRpR5_DvIP9_u_2nIm-EH4Q=s4800-w800-h576', name: 'Best Western Madison', tag: 'Sleep · Night 2' }
     ],
     3: [
@@ -958,6 +988,7 @@
     5: [
       { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZP8LFGZhWM7A42woHZLBR0Q_pAfyRWf4zrevCmBCdtVm-kXLTO9q5DgtcyRWM6AGjdIPCgFBujM8guJcxel0rMprnifA26wuvwXYTmhFmFGFLYwPCuStcfVym2kqooxiPl5C3d8EBWYTYuMtEs=s4800-w800-h600', name: 'Mount Rushmore', tag: '★ Day 5 icon' },
       { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZN5Ci9qregl9EQS-7cvu_KU1GLdqryosAaB7wzXvlZb0yT2mkqFqYFiElLy8vLGRbUiLPGO--kdVPfYlOpTWGmaINQO9iSS7AkYL2_0tuqW9uUqiZtQXfzONg69SVMPcdeUIdVrRY-7cNi0pKw=s4800-w800-h600', name: 'Crazy Horse Memorial', tag: '★ Black Hills' },
+      { url: 'https://lh3.googleusercontent.com/place-photos/AJRVUZMXFh0n7COF6HDCTYX2YgiiDNkxmRwbnMnmKS48L92A02PchAb9LqjEaJUeOPXosNUvhO4RxAU9YoK12Udm-T2ppHv5xEMjyKm4Thtsxtgx8IIFrWKK47ElaPvEv35Lh4QZ3TQRJ2xdgMUtC05JtLAs=s4800-w800-h600', name: 'Mt. Moriah Cemetery', tag: '☩ Wild Bill & Calamity Jane' },
       { url: 'https://lh3.googleusercontent.com/places/ANXAkqE8W9l2DBup6ZCaevDKZHB_BeFoCYlic_GLGRjNbT2KY9BQb3MI1BwiduXxlop2Vb0Ada-jL88LbB-iT7QcRlaCRn-8RjPbqO0=s4800-w800-h600', name: 'Roosevelt Inn, Keystone', tag: 'Sleep · Night 5' }
     ],
     6: [
