@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <style>
   :root {
     --paper: #f1e9d8;
@@ -779,159 +781,133 @@
 
 <script>
 (function() {
+  if (typeof d3 === 'undefined' || typeof topojson === 'undefined') {
+    var mapEl = document.getElementById('trip-map');
+    if (mapEl) {
+      mapEl.innerHTML = '<div style="padding:60px 20px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map requires an internet connection to load.</div>';
+    }
+    return;
+  }
+
   var stops = [
-    { x: 880, y: 285, day: 'DAY 1 START', title: 'Pottstown, PA', note: 'Home base. On the road by 7am.', kind: 'start', label: 'S' },
-    { x: 770, y: 270, day: 'NIGHT 1', title: 'Hampton Inn Cleveland-Westlake', note: 'Free hot breakfast, indoor pool. Dinner at West Side Market.', kind: 'hotel', label: '1' },
-    { x: 600, y: 250, day: 'NIGHT 2', title: 'Best Western Madison', note: 'Stop at the RV Hall of Fame en route. Babcock Hall ice cream.', kind: 'hotel', label: '2' },
-    { x: 470, y: 240, day: 'DAY 3', title: 'Corn Palace + AmericInn Mitchell', note: 'Free attraction. Insane corn-cob walls. Indoor pool. Chef Louie\u2019s steaks.', kind: 'hotel', label: '3' },
-    { x: 380, y: 245, day: 'DAY 4', title: 'Wall Drug + Badlands NP', note: '5\u00a2 coffee, jackalope photos. Then 31-mile Badlands loop. Junior Ranger badges.', kind: 'attraction', label: '★' },
-    { x: 360, y: 250, day: 'NIGHT 4', title: 'Best Western Plains, Wall', note: 'Walking distance to Wall Drug. Pool. Books up \u2014 reserve now.', kind: 'hotel', label: '4' },
-    { x: 335, y: 250, day: 'DAY 5', title: 'Mount Rushmore + Roosevelt Inn', note: 'Free entry, $10 parking. Carver\u2019s Caf\u00e9 ice cream. Kids stay free at Roosevelt.', kind: 'attraction', label: '★' },
-    { x: 310, y: 230, day: 'DAY 6', title: 'Devils Tower (WY)', note: 'America\u2019s first national monument. 1.3-mi paved loop trail at the base.', kind: 'attraction', label: '★' },
-    { x: 380, y: 145, day: 'NIGHTS 6 & 7', title: 'Badlands Motel, Medora', note: 'Walk to everything in this 155-person town. Theodore Roosevelt NP.', kind: 'hotel', label: '6' },
-    { x: 200, y: 175, day: 'NIGHT 8', title: 'Holiday Inn Express Bozeman', note: 'Stop at Pompeys Pillar (Lewis & Clark) along I-94.', kind: 'hotel', label: '8' },
-    { x: 215, y: 215, day: 'NIGHTS 9 & 10', title: 'Kelly Inn West Yellowstone', note: '3 blocks from west gate. Old Faithful + Grand Prismatic. 2-night stay.', kind: 'attraction', label: '★' },
-    { x: 175, y: 250, day: 'NIGHTS 11 & 12', title: 'Hampton Inn Idaho Falls', note: 'On the river. Big Jud\u2019s burger. Day trip to Craters of the Moon.', kind: 'hotel', label: '11' },
-    { x: 285, y: 230, day: 'NIGHT 13', title: 'Cody Cowboy Village', note: 'Log cabins, walk to rodeo grounds. Cody Nite Rodeo at 8pm.', kind: 'attraction', label: '★' },
-    { x: 470, y: 240, day: 'NIGHT 14', title: 'AmericInn Mitchell (return)', note: 'Familiar. Pizza Ranch \u2014 kids eat free Sun-Tue.', kind: 'hotel', label: '14' },
-    { x: 750, y: 280, day: 'NIGHT 15', title: 'Hampton Inn Toledo-West', note: '740-mile day. Tony Packo\u2019s for Hungarian hot dogs.', kind: 'hotel', label: '15' },
-    { x: 880, y: 285, day: 'DAY 16 HOME', title: 'Pottstown, PA', note: 'Mission complete. State count: 43. To go: 7.', kind: 'start', label: 'F' }
+    { lat: 40.2454, lng: -75.6496, day: 'DAY 1 START', title: 'Pottstown, PA', note: 'Home base. On the road by 7am.', kind: 'start', label: 'S' },
+    { lat: 41.4653, lng: -81.9491, day: 'NIGHT 1', title: 'Hampton Inn Cleveland-Westlake', note: 'Free hot breakfast, indoor pool. Dinner at West Side Market.', kind: 'hotel', label: '1' },
+    { lat: 43.0724, lng: -89.4277, day: 'NIGHT 2', title: 'Best Western Madison', note: 'Stop at the RV Hall of Fame en route. Babcock Hall ice cream.', kind: 'hotel', label: '2' },
+    { lat: 43.7149, lng: -98.0252, day: 'DAY 3 STOP', title: 'Corn Palace, Mitchell', note: 'Free. Insane. Walls of corn cobs, redecorated yearly.', kind: 'attraction', label: '★' },
+    { lat: 43.6958, lng: -98.0176, day: 'NIGHT 3', title: 'AmericInn Mitchell', note: 'Indoor pool. Chef Louie\u2019s Steak House for dinner.', kind: 'hotel', label: '3' },
+    { lat: 43.9929, lng: -102.2415, day: 'DAY 4 STOP', title: 'Wall Drug Store', note: '5\u00a2 coffee, giant T-Rex, jackalope photos. Roadside legend since 1931.', kind: 'attraction', label: '★' },
+    { lat: 43.7491, lng: -101.9417, day: 'DAY 4 PARK', title: 'Badlands National Park', note: 'First Junior Ranger badges! Drive the 31-mi loop.', kind: 'attraction', label: '★' },
+    { lat: 43.9895, lng: -102.2386, day: 'NIGHT 4', title: 'Best Western Plains, Wall', note: 'Walking distance to Wall Drug. Pool. Books up \u2014 reserve now.', kind: 'hotel', label: '4' },
+    { lat: 43.8803, lng: -103.4538, day: 'DAY 5 ICON', title: 'Mount Rushmore', note: 'Free entry, $10 parking. Try Jefferson\u2019s ice cream at Carver\u2019s Caf\u00e9.', kind: 'attraction', label: '★' },
+    { lat: 43.8876, lng: -103.4253, day: 'NIGHT 5', title: 'Roosevelt Inn, Keystone', note: 'Kids stay free. Indoor pool, full breakfast.', kind: 'hotel', label: '5' },
+    { lat: 44.5902, lng: -104.7146, day: 'DAY 6 STOP', title: 'Devils Tower', note: 'America\u2019s first national monument. 1.3-mi loop trail at the base.', kind: 'attraction', label: '★' },
+    { lat: 46.9124, lng: -103.5208, day: 'NIGHTS 6 & 7', title: 'Badlands Motel, Medora', note: 'Walk to everything in this 155-person town. 2-night stay.', kind: 'hotel', label: '6' },
+    { lat: 45.7129, lng: -111.0686, day: 'NIGHT 8', title: 'Holiday Inn Express Bozeman', note: 'Stop at Pompeys Pillar (Lewis & Clark) along I-94.', kind: 'hotel', label: '8' },
+    { lat: 45.6607, lng: -111.0482, day: 'DAY 9 STOP', title: 'Museum of the Rockies', note: 'World\u2019s largest T. rex skull. The boys won\u2019t want to leave.', kind: 'attraction', label: '★' },
+    { lat: 44.6574, lng: -111.1015, day: 'NIGHTS 9 & 10', title: 'Kelly Inn West Yellowstone', note: '3 blocks from west gate. Indoor pool, breakfast included.', kind: 'hotel', label: '9' },
+    { lat: 44.4605, lng: -110.8281, day: 'DAY 10 ICON', title: 'Old Faithful', note: 'Out the door by 7am to beat crowds. Time the eruption.', kind: 'attraction', label: '★' },
+    { lat: 43.4980, lng: -112.0471, day: 'NIGHTS 11 & 12', title: 'Hampton Inn Idaho Falls', note: 'On the river, pool. Big Jud\u2019s for the famous 1-pound burger.', kind: 'hotel', label: '11' },
+    { lat: 43.1718, lng: -113.4821, day: 'DAY 12 PARK', title: 'Craters of the Moon', note: 'Apollo astronauts trained here. Lava tubes, Inferno Cone.', kind: 'attraction', label: '★' },
+    { lat: 44.5148, lng: -109.1015, day: 'NIGHT 13', title: 'Cody Cowboy Village', note: 'Log cabins, walk to rodeo grounds. Cody Nite Rodeo at 8pm.', kind: 'hotel', label: '13' },
+    { lat: 41.6830, lng: -83.6203, day: 'NIGHT 15', title: 'Hampton Inn Toledo-West', note: '740-mile day. Tony Packo\u2019s for Hungarian hot dogs.', kind: 'hotel', label: '15' },
+    { lat: 40.2454, lng: -75.6496, day: 'DAY 16 HOME', title: 'Pottstown, PA', note: 'Mission complete. State count: 43. To go: 7.', kind: 'start', label: 'F' }
   ];
+
+  var visitedStates = ['Pennsylvania','Ohio','Indiana','Illinois','Wisconsin','Minnesota','South Dakota','North Dakota','Montana','Wyoming','Idaho'];
 
   var colorMap = { hotel: '#b54820', attraction: '#c8932a', start: '#3d6b3d' };
+
   var container = document.getElementById('trip-map');
   if (!container) return;
+
   container.style.position = 'relative';
 
-  var svgNS = 'http://www.w3.org/2000/svg';
-  var svg = document.createElementNS(svgNS, 'svg');
-  svg.setAttribute('viewBox', '0 0 980 460');
-  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  var width = 1100;
+  var height = 620;
 
-  var states = [
-    { abbr: 'WA', visited: false, d: 'M 80 80 L 175 75 L 178 130 L 85 138 Z', cx: 130, cy: 105 },
-    { abbr: 'OR', visited: false, d: 'M 85 138 L 178 130 L 175 195 L 88 200 Z', cx: 130, cy: 165 },
-    { abbr: 'CA', visited: false, d: 'M 88 200 L 175 195 L 195 280 L 175 340 L 130 320 L 105 260 Z', cx: 145, cy: 265 },
-    { abbr: 'NV', visited: false, d: 'M 175 195 L 230 188 L 245 290 L 195 280 Z', cx: 210, cy: 240 },
-    { abbr: 'ID', visited: true, d: 'M 178 130 L 235 122 L 240 188 L 175 195 Z M 235 122 L 215 75 L 195 75 L 200 100 L 220 110 Z', cx: 205, cy: 175 },
-    { abbr: 'MT', visited: true, d: 'M 178 75 L 320 70 L 325 145 L 235 152 L 230 122 L 178 128 Z', cx: 250, cy: 110 },
-    { abbr: 'WY', visited: true, d: 'M 235 152 L 325 145 L 330 220 L 240 225 Z', cx: 282, cy: 188 },
-    { abbr: 'UT', visited: false, d: 'M 230 225 L 290 222 L 295 290 L 245 290 L 240 250 Z', cx: 263, cy: 255 },
-    { abbr: 'AZ', visited: false, d: 'M 195 280 L 295 285 L 305 365 L 215 365 Z', cx: 252, cy: 325 },
-    { abbr: 'CO', visited: false, d: 'M 290 222 L 380 218 L 385 290 L 295 290 Z', cx: 338, cy: 255 },
-    { abbr: 'NM', visited: false, d: 'M 295 290 L 385 290 L 390 365 L 305 365 Z', cx: 345, cy: 328 },
-    { abbr: 'ND', visited: true, d: 'M 320 70 L 425 65 L 430 130 L 325 132 Z', cx: 375, cy: 100 },
-    { abbr: 'SD', visited: true, d: 'M 325 132 L 430 130 L 435 200 L 330 205 Z', cx: 380, cy: 168 },
-    { abbr: 'NE', visited: false, d: 'M 330 205 L 435 200 L 440 250 L 335 252 Z', cx: 385, cy: 226 },
-    { abbr: 'KS', visited: false, d: 'M 335 252 L 440 250 L 445 305 L 380 305 Z', cx: 390, cy: 278 },
-    { abbr: 'OK', visited: false, d: 'M 380 305 L 445 305 L 450 360 L 410 360 L 395 340 Z', cx: 425, cy: 332 },
-    { abbr: 'TX', visited: false, d: 'M 305 365 L 450 360 L 470 410 L 425 445 L 360 430 L 320 400 Z', cx: 395, cy: 405 },
-    { abbr: 'MN', visited: true, d: 'M 425 65 L 510 60 L 510 145 L 430 145 Z', cx: 470, cy: 105 },
-    { abbr: 'IA', visited: false, d: 'M 430 145 L 510 145 L 515 205 L 435 200 Z', cx: 472, cy: 175 },
-    { abbr: 'MO', visited: false, d: 'M 435 200 L 515 205 L 525 285 L 445 285 L 440 250 Z', cx: 478, cy: 245 },
-    { abbr: 'AR', visited: false, d: 'M 445 285 L 525 285 L 530 345 L 460 350 L 450 320 Z', cx: 488, cy: 318 },
-    { abbr: 'LA', visited: false, d: 'M 460 350 L 530 345 L 545 410 L 470 410 L 450 380 Z', cx: 498, cy: 380 },
-    { abbr: 'WI', visited: true, d: 'M 510 60 L 580 75 L 590 145 L 510 145 Z', cx: 547, cy: 110 },
-    { abbr: 'IL', visited: false, d: 'M 515 145 L 590 145 L 600 250 L 555 270 L 525 250 L 525 205 Z', cx: 565, cy: 205 },
-    { abbr: 'MI', visited: false, d: 'M 580 75 L 660 80 L 685 165 L 605 175 L 590 145 Z', cx: 625, cy: 125 },
-    { abbr: 'IN', visited: true, d: 'M 600 175 L 660 175 L 665 245 L 605 250 L 600 220 Z', cx: 630, cy: 213 },
-    { abbr: 'OH', visited: true, d: 'M 660 175 L 740 175 L 745 245 L 665 245 Z', cx: 702, cy: 210 },
-    { abbr: 'KY', visited: false, d: 'M 605 250 L 745 245 L 740 285 L 600 285 Z', cx: 670, cy: 268 },
-    { abbr: 'TN', visited: false, d: 'M 525 285 L 740 285 L 735 320 L 530 322 Z', cx: 632, cy: 302 },
-    { abbr: 'PA', visited: true, d: 'M 750 175 L 870 175 L 870 215 L 745 215 Z', cx: 810, cy: 195 },
-    { abbr: 'NY', visited: false, d: 'M 720 130 L 870 130 L 870 175 L 750 175 L 740 155 Z', cx: 805, cy: 152 },
-    { abbr: 'WV', visited: false, d: 'M 745 215 L 800 215 L 810 260 L 745 260 Z', cx: 775, cy: 240 },
-    { abbr: 'VA', visited: false, d: 'M 800 215 L 880 215 L 880 260 L 810 260 Z', cx: 845, cy: 238 },
-    { abbr: 'NC', visited: false, d: 'M 740 285 L 880 260 L 885 305 L 745 310 Z', cx: 815, cy: 290 },
-    { abbr: 'SC', visited: false, d: 'M 745 310 L 855 305 L 850 345 L 770 345 Z', cx: 800, cy: 326 },
-    { abbr: 'GA', visited: false, d: 'M 700 320 L 770 345 L 770 395 L 700 400 L 685 360 Z', cx: 730, cy: 365 },
-    { abbr: 'FL', visited: false, d: 'M 700 400 L 800 395 L 825 445 L 760 450 L 720 430 Z', cx: 760, cy: 425 },
-    { abbr: 'AL', visited: false, d: 'M 620 320 L 700 320 L 695 400 L 620 400 Z', cx: 660, cy: 360 },
-    { abbr: 'MS', visited: false, d: 'M 545 322 L 620 322 L 620 400 L 545 410 Z', cx: 583, cy: 365 },
-    { abbr: 'NJ', visited: false, d: 'M 870 175 L 895 180 L 895 215 L 870 215 Z', cx: 882, cy: 198 },
-    { abbr: 'MD', visited: false, d: 'M 855 215 L 895 218 L 895 235 L 855 235 Z', cx: 875, cy: 225 },
-    { abbr: 'ME', visited: false, d: 'M 875 80 L 925 70 L 935 130 L 905 135 Z', cx: 905, cy: 105 },
-    { abbr: 'VT', visited: false, d: 'M 870 110 L 895 105 L 895 135 L 870 135 Z', cx: 882, cy: 122 },
-    { abbr: 'NH', visited: false, d: 'M 895 105 L 920 105 L 925 140 L 895 135 Z', cx: 910, cy: 122 },
-    { abbr: 'MA', visited: false, d: 'M 870 138 L 925 140 L 925 158 L 870 158 Z', cx: 895, cy: 148 },
-    { abbr: 'CT', visited: false, d: 'M 870 158 L 905 158 L 905 175 L 870 175 Z', cx: 887, cy: 166 }
-  ];
+  var svg = d3.select(container).append('svg')
+    .attr('viewBox', '0 0 ' + width + ' ' + height)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
 
-  var statesG = document.createElementNS(svgNS, 'g');
-  states.forEach(function(s) {
-    var p = document.createElementNS(svgNS, 'path');
-    p.setAttribute('d', s.d);
-    p.setAttribute('class', s.visited ? 'state-shape visited' : 'state-shape');
-    statesG.appendChild(p);
+  var tooltip = d3.select(container).append('div')
+    .attr('class', 'map-tooltip')
+    .style('opacity', 0)
+    .style('display', 'none');
+
+  var projection = d3.geoAlbersUsa().scale(1400).translate([width / 2, height / 2]);
+  var pathGen = d3.geoPath(projection);
+
+  d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json').then(function(us) {
+    var statesFeature = topojson.feature(us, us.objects.states);
+
+    svg.append('g').selectAll('path')
+      .data(statesFeature.features)
+      .join('path')
+        .attr('d', pathGen)
+        .attr('class', function(d) {
+          return visitedStates.indexOf(d.properties.name) >= 0 ? 'state-shape visited' : 'state-shape';
+        });
+
+    var stateLabels = {
+      'Pennsylvania': 'PA', 'Ohio': 'OH', 'Indiana': 'IN', 'Illinois': 'IL',
+      'Wisconsin': 'WI', 'Minnesota': 'MN', 'Iowa': 'IA',
+      'South Dakota': 'SD', 'North Dakota': 'ND',
+      'Montana': 'MT', 'Wyoming': 'WY', 'Idaho': 'ID',
+      'Nebraska': 'NE', 'Michigan': 'MI', 'New York': 'NY'
+    };
+
+    svg.append('g').selectAll('text')
+      .data(statesFeature.features.filter(function(d) { return stateLabels[d.properties.name]; }))
+      .join('text')
+        .attr('class', 'state-label')
+        .attr('transform', function(d) { return 'translate(' + pathGen.centroid(d) + ')'; })
+        .text(function(d) { return stateLabels[d.properties.name]; });
+
+    var projected = stops.map(function(s) {
+      var p = projection([s.lng, s.lat]);
+      return p ? { x: p[0], y: p[1], data: s } : null;
+    }).filter(Boolean);
+
+    var lineGen = d3.line().x(function(d) { return d.x; }).y(function(d) { return d.y; }).curve(d3.curveCatmullRom.alpha(0.5));
+
+    svg.append('path')
+      .attr('class', 'route-line')
+      .attr('d', lineGen(projected));
+
+    var pinGroup = svg.append('g').selectAll('g')
+      .data(projected)
+      .join('g')
+        .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+
+    pinGroup.append('circle')
+      .attr('class', 'route-pin')
+      .attr('r', 13)
+      .attr('fill', function(d) { return colorMap[d.data.kind]; })
+      .on('mouseenter', function(event, d) {
+        tooltip.style('display', 'block')
+          .style('opacity', 1)
+          .html('<div class="map-tooltip-day">' + d.data.day + '</div>' +
+                '<div class="map-tooltip-title">' + d.data.title + '</div>' +
+                '<div class="map-tooltip-note">' + d.data.note + '</div>');
+      })
+      .on('mousemove', function(event) {
+        var rect = container.getBoundingClientRect();
+        var x = event.clientX - rect.left + 14;
+        var y = event.clientY - rect.top + 14;
+        tooltip.style('left', x + 'px').style('top', y + 'px');
+      })
+      .on('mouseleave', function() {
+        tooltip.style('opacity', 0).style('display', 'none');
+      });
+
+    pinGroup.append('text')
+      .attr('class', 'route-pin-label')
+      .text(function(d) { return d.data.label; });
+
+  }).catch(function(err) {
+    console.error('Map load failed:', err);
+    container.innerHTML = '<div style="padding:60px 20px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map could not load. The full route is detailed in the table above.</div>';
   });
-  svg.appendChild(statesG);
-
-  var labelsG = document.createElementNS(svgNS, 'g');
-  states.forEach(function(s) {
-    var t = document.createElementNS(svgNS, 'text');
-    t.setAttribute('x', s.cx);
-    t.setAttribute('y', s.cy + 3);
-    t.setAttribute('class', 'state-label');
-    t.textContent = s.abbr;
-    labelsG.appendChild(t);
-  });
-  svg.appendChild(labelsG);
-
-  var routePath = document.createElementNS(svgNS, 'path');
-  var d = 'M ' + stops[0].x + ' ' + stops[0].y;
-  for (var i = 1; i < stops.length; i++) {
-    var prev = stops[i - 1];
-    var cur = stops[i];
-    var midX = (prev.x + cur.x) / 2;
-    var midY = (prev.y + cur.y) / 2 - 8;
-    d += ' Q ' + midX + ' ' + midY + ' ' + cur.x + ' ' + cur.y;
-  }
-  routePath.setAttribute('d', d);
-  routePath.setAttribute('class', 'route-line');
-  svg.appendChild(routePath);
-
-  var tooltip = document.createElement('div');
-  tooltip.className = 'map-tooltip';
-  tooltip.style.opacity = '0';
-  tooltip.style.display = 'none';
-  container.appendChild(tooltip);
-
-  stops.forEach(function(s) {
-    var g = document.createElementNS(svgNS, 'g');
-    g.setAttribute('transform', 'translate(' + s.x + ',' + s.y + ')');
-
-    var c = document.createElementNS(svgNS, 'circle');
-    c.setAttribute('r', '14');
-    c.setAttribute('fill', colorMap[s.kind]);
-    c.setAttribute('class', 'route-pin');
-    g.appendChild(c);
-
-    var t = document.createElementNS(svgNS, 'text');
-    t.setAttribute('class', 'route-pin-label');
-    t.textContent = s.label;
-    g.appendChild(t);
-
-    g.addEventListener('mouseenter', function() {
-      tooltip.style.display = 'block';
-      tooltip.style.opacity = '1';
-      tooltip.innerHTML = '<div class="map-tooltip-day">' + s.day + '</div>' +
-                          '<div class="map-tooltip-title">' + s.title + '</div>' +
-                          '<div class="map-tooltip-note">' + s.note + '</div>';
-    });
-    g.addEventListener('mousemove', function(event) {
-      var rect = container.getBoundingClientRect();
-      tooltip.style.left = (event.clientX - rect.left + 14) + 'px';
-      tooltip.style.top = (event.clientY - rect.top + 14) + 'px';
-    });
-    g.addEventListener('mouseleave', function() {
-      tooltip.style.opacity = '0';
-      tooltip.style.display = 'none';
-    });
-
-    svg.appendChild(g);
-  });
-
-  container.appendChild(svg);
 })();
 </script>
 
