@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Great 5-State Run · June 13–28, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<style>
+  :root {
+    --paper: #f1e9d8;
+    --paper-dark: #e3d6b8;
+    --ink: #1a1410;
+    --rust: #b54820;
+    --rust-deep: #7a2d10;
+    --sky: #2d5d7b;
+    --gold: #c8932a;
+    --green: #3d6b3d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    font-size: 19px;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(181, 72, 32, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 60%, rgba(45, 93, 123, 0.05) 0%, transparent 50%);
+  }
+
+  .hero { min-height: 100vh; padding: 40px 24px 60px; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 4px double var(--ink); }
+  .stamp-row { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--rust-deep); }
+  .stamp { border: 2px solid var(--rust-deep); padding: 6px 12px; transform: rotate(-2deg); }
+  .stamp.right { transform: rotate(1.5deg); }
+  .hero-title { font-family: 'Bungee', sans-serif; font-size: clamp(48px, 12vw, 140px); line-height: 0.88; letter-spacing: -0.02em; text-transform: uppercase; margin: 40px 0 20px; }
+  .hero-title .accent { color: var(--rust); display: inline-block; transform: rotate(-3deg); }
+  .hero-sub { font-style: italic; font-size: clamp(20px, 3vw, 28px); max-width: 700px; color: var(--rust-deep); margin-bottom: 30px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 24px; padding-top: 24px; border-top: 1px solid var(--ink); }
+  .meta-cell { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .meta-cell strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 22px; text-transform: none; letter-spacing: 0; color: var(--rust); margin-top: 4px; font-weight: 600; }
+  .crew-list { margin-top: 6px; font-family: 'Cormorant Garamond', serif; font-size: 18px; text-transform: none; color: var(--ink); }
+
+  .states-banner { background: var(--ink); color: var(--paper); padding: 30px 24px; }
+  .states-track { display: flex; gap: 60px; justify-content: center; flex-wrap: wrap; align-items: center; }
+  .state-pill { font-family: 'Bungee', sans-serif; font-size: clamp(18px, 3vw, 32px); text-transform: uppercase; position: relative; }
+  .state-pill::after { content: '✦'; color: var(--rust); margin-left: 60px; font-size: 0.7em; }
+  .state-pill:last-child::after { display: none; }
+  .state-num { color: var(--gold); font-size: 0.6em; vertical-align: super; margin-right: 4px; }
+
+  .budget-banner { background: var(--green); color: var(--paper); padding: 60px 24px; text-align: center; }
+  .budget-banner h2 { font-family: 'Bungee', sans-serif; font-size: clamp(20px, 3vw, 28px); margin-bottom: 8px; opacity: 0.9; }
+  .budget-total { font-family: 'Bungee', sans-serif; font-size: clamp(60px, 12vw, 120px); color: var(--gold); line-height: 1; margin: 12px 0 8px; }
+  .budget-banner .sub { font-style: italic; font-size: 18px; opacity: 0.85; }
+  .budget-mini-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; max-width: 800px; margin: 40px auto 0; padding-top: 30px; border-top: 1px dashed rgba(241, 233, 216, 0.4); }
+  .budget-mini { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.85; }
+  .budget-mini strong { display: block; font-family: 'Bungee', sans-serif; font-size: 28px; color: var(--gold); text-transform: none; margin-top: 8px; letter-spacing: 0; }
+
+  .intro { max-width: 800px; margin: 0 auto; padding: 80px 24px; text-align: center; }
+  .intro h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); color: var(--rust); margin-bottom: 24px; line-height: 1; }
+  .intro p { font-size: 22px; margin-bottom: 18px; }
+  .intro .lead { font-size: 26px; font-style: italic; color: var(--rust-deep); }
+
+  .route-overview { background: var(--paper-dark); padding: 60px 24px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+  .route-inner { max-width: 1200px; margin: 0 auto; }
+  .route-overview h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); text-align: center; margin-bottom: 8px; }
+  .route-overview .sub { text-align: center; font-style: italic; margin-bottom: 40px; color: var(--rust-deep); font-size: 20px; }
+  .route-table-wrap { overflow-x: auto; border: 2px solid var(--ink); }
+  .route-table { width: 100%; min-width: 720px; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--paper); }
+  .route-table th { background: var(--ink); color: var(--paper); padding: 12px 10px; text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; white-space: nowrap; }
+  .route-table td { padding: 12px 10px; border-bottom: 1px dashed var(--ink); vertical-align: top; }
+  .route-table tr:last-child td { border-bottom: none; }
+  .route-table .day-cell { font-weight: 700; color: var(--rust); white-space: nowrap; }
+  .route-table .miles { text-align: right; color: var(--sky); font-weight: 700; }
+  .route-table .cost { text-align: right; color: var(--green); font-weight: 700; white-space: nowrap; }
+  .totals-row td { border-top: 3px double var(--ink) !important; background: var(--paper-dark); font-weight: 700; }
+
+  .days-section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
+  .days-section > h2 { font-family: 'Bungee', sans-serif; font-size: clamp(32px, 6vw, 56px); text-align: center; margin-bottom: 60px; line-height: 1; }
+  .days-section > h2 .ampersand { color: var(--rust); font-style: italic; font-family: 'Cormorant Garamond', serif; font-weight: 400; }
+  .day-card { background: var(--paper); border: 2px solid var(--ink); margin-bottom: 50px; box-shadow: 8px 8px 0 var(--ink); transition: transform 0.2s ease; }
+  .day-card:hover { transform: translate(-2px, -2px); box-shadow: 12px 12px 0 var(--ink); }
+  .day-card.feature { background: linear-gradient(135deg, var(--paper) 0%, var(--paper-dark) 100%); }
+  .day-header { display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; padding: 24px 30px; border-bottom: 2px solid var(--ink); background: var(--ink); color: var(--paper); }
+  .day-num { font-family: 'Bungee', sans-serif; font-size: 36px; color: var(--gold); line-height: 1; }
+  .day-num small { display: block; font-size: 11px; letter-spacing: 0.15em; color: var(--paper); margin-top: 4px; }
+  .day-title { font-family: 'Bungee', sans-serif; font-size: clamp(20px, 3vw, 32px); line-height: 1; }
+  .day-title .date { display: block; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 6px; text-transform: uppercase; }
+  .day-route { font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: right; line-height: 1.6; text-transform: uppercase; letter-spacing: 0.08em; }
+  .day-route .from-to { color: var(--paper); opacity: 0.7; }
+  .day-route .miles-big { font-family: 'Bungee', sans-serif; font-size: 24px; color: var(--gold); margin-top: 6px; letter-spacing: 0; }
+  .day-body { padding: 30px; }
+  .day-body p { margin-bottom: 16px; font-size: 19px; }
+  .stops { list-style: none; margin: 24px 0; }
+  .stops li { padding: 14px 0 14px 36px; border-top: 1px dashed var(--ink); position: relative; }
+  .stops li:last-child { border-bottom: 1px dashed var(--ink); }
+  .stops li::before { content: '◆'; position: absolute; left: 8px; top: 14px; color: var(--rust); font-size: 14px; }
+  .stops li.quirky::before { content: '★'; color: var(--gold); }
+  .stops .label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--rust-deep); margin-right: 10px; background: var(--paper-dark); padding: 2px 8px; border: 1px solid var(--rust-deep); }
+  .stops strong { font-size: 21px; font-weight: 600; color: var(--ink); }
+  .stops .desc { margin-top: 4px; color: var(--ink); font-style: italic; }
+
+  .logistics-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid var(--ink); margin-top: 24px; }
+  .logi-block { padding: 20px 22px; border-right: 1px dashed var(--ink); }
+  .logi-block:last-child { border-right: none; }
+  .logi-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rust-deep); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .logi-label::before { content: ''; width: 16px; height: 1px; background: var(--rust-deep); }
+  .logi-name { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
+  .logi-detail { font-size: 16px; font-style: italic; opacity: 0.8; line-height: 1.3; }
+  .logi-cost { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); font-weight: 700; margin-top: 10px; letter-spacing: 0.05em; }
+
+  .day-img { width: 100%; height: 280px; object-fit: cover; border-bottom: 2px solid var(--ink); display: block; filter: contrast(1.05) saturate(0.9); }
+  .kid-tip { background: var(--paper-dark); border-left: 4px solid var(--gold); padding: 14px 18px; margin-top: 20px; font-style: italic; font-size: 17px; }
+  .kid-tip::before { content: 'TIP FOR PHOENIX & SAGAN '; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-style: normal; letter-spacing: 0.15em; color: var(--rust-deep); display: block; margin-bottom: 4px; }
+  .day-cost-strip { background: var(--ink); color: var(--paper); padding: 14px 30px; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; }
+  .day-cost-strip .total { font-family: 'Bungee', sans-serif; font-size: 22px; color: var(--gold); letter-spacing: 0; }
+
+  .budget-detail { background: var(--ink); color: var(--paper); padding: 80px 24px; }
+  .budget-detail-inner { max-width: 1100px; margin: 0 auto; }
+  .budget-detail h2 { font-family: 'Bungee', sans-serif; font-size: clamp(32px, 6vw, 56px); margin-bottom: 12px; text-align: center; color: var(--gold); line-height: 1; }
+  .budget-detail .lede { text-align: center; font-style: italic; font-size: 20px; margin-bottom: 50px; opacity: 0.85; max-width: 700px; margin-left: auto; margin-right: auto; }
+  .budget-cats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 50px; }
+  .budget-cat { background: rgba(241, 233, 216, 0.05); border: 1px solid rgba(241, 233, 216, 0.2); padding: 24px; }
+  .budget-cat h3 { font-family: 'Bungee', sans-serif; font-size: 16px; color: var(--gold); margin-bottom: 16px; line-height: 1; }
+  .budget-cat-total { font-family: 'Bungee', sans-serif; font-size: 32px; color: var(--paper); margin-bottom: 16px; line-height: 1; }
+  .budget-cat ul { list-style: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .budget-cat li { padding: 6px 0; border-bottom: 1px dashed rgba(241, 233, 216, 0.15); display: flex; justify-content: space-between; gap: 10px; }
+  .budget-cat li:last-child { border-bottom: none; }
+  .budget-cat li span:last-child { color: var(--gold); font-weight: 700; white-space: nowrap; }
+  .budget-notes { border-top: 1px dashed rgba(241, 233, 216, 0.3); padding-top: 30px; margin-top: 20px; font-style: italic; text-align: center; opacity: 0.85; font-size: 17px; max-width: 800px; margin-left: auto; margin-right: auto; }
+
+  .counter-section { background: var(--rust-deep); color: var(--paper); padding: 80px 24px; text-align: center; }
+  .counter-section h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); margin-bottom: 40px; color: var(--gold); }
+  .counter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto; }
+  .counter-cell { border: 2px solid var(--paper); padding: 30px 20px; }
+  .counter-num { font-family: 'Bungee', sans-serif; font-size: 72px; color: var(--gold); line-height: 1; }
+  .counter-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 12px; }
+
+  .notes { padding: 80px 24px; max-width: 1000px; margin: 0 auto; }
+  .notes h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); margin-bottom: 40px; text-align: center; }
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+  .note-card { background: var(--paper); border: 2px solid var(--ink); padding: 24px; box-shadow: 6px 6px 0 var(--rust); }
+  .note-card h3 { font-family: 'Bungee', sans-serif; font-size: 18px; color: var(--rust); margin-bottom: 16px; line-height: 1.1; }
+  .note-card ul { list-style: none; }
+  .note-card li { padding: 6px 0 6px 20px; position: relative; font-size: 17px; }
+  .note-card li::before { content: '→'; position: absolute; left: 0; color: var(--rust); font-weight: 700; }
+
+  footer { background: var(--rust-deep); color: var(--paper); text-align: center; padding: 50px 24px; font-family: 'Bungee', sans-serif; font-size: clamp(20px, 4vw, 36px); line-height: 1.2; }
+  footer .small { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; text-transform: none; margin-top: 20px; opacity: 0.85; letter-spacing: 0; }
+
+  /* MAP SECTION */
+  .map-section { background: var(--paper-dark); padding: 60px 24px; border-bottom: 2px solid var(--ink); }
+  .map-inner { max-width: 1200px; margin: 0 auto; }
+  .map-section h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); text-align: center; margin-bottom: 8px; }
+  .map-section .sub { text-align: center; font-style: italic; margin-bottom: 30px; color: var(--rust-deep); font-size: 20px; }
+  .map-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 24px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .map-legend-item { display: flex; align-items: center; gap: 8px; }
+  .map-legend-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); }
+  .legend-hotel { background: var(--rust); }
+  .legend-attraction { background: var(--gold); }
+  .legend-start { background: var(--green); }
+  #trip-map { width: 100%; height: 600px; border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); background: #f0e6d0; }
+  .leaflet-popup-content-wrapper { border-radius: 0; border: 2px solid var(--ink); background: var(--paper); }
+  .leaflet-popup-content { font-family: 'Cormorant Garamond', serif; margin: 14px 16px; line-height: 1.4; }
+  .leaflet-popup-content .popup-day { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--rust-deep); margin-bottom: 4px; }
+  .leaflet-popup-content .popup-title { font-family: 'Bungee', sans-serif; font-size: 14px; line-height: 1.1; margin-bottom: 6px; color: var(--ink); }
+  .leaflet-popup-content .popup-note { font-size: 14px; font-style: italic; color: var(--ink); }
+  .leaflet-popup-tip { background: var(--paper); border: 2px solid var(--ink); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-title, .hero-sub, .meta-grid { animation: fadeUp 0.8s ease backwards; }
+  .hero-sub { animation-delay: 0.2s; }
+  .meta-grid { animation-delay: 0.4s; }
+
+  @media (max-width: 800px) {
+    .logistics-grid { grid-template-columns: 1fr; }
+    .logi-block { border-right: none; border-bottom: 1px dashed var(--ink); }
+    .logi-block:last-child { border-bottom: none; }
+  }
+  @media (max-width: 700px) {
+    body { font-size: 17px; }
+    .day-header { grid-template-columns: 1fr; gap: 12px; padding: 20px; }
+    .day-route { text-align: left; }
+    .day-body { padding: 20px; }
+    .day-cost-strip { padding: 12px 20px; flex-direction: column; gap: 6px; align-items: flex-start; }
+    .stamp-row { flex-direction: column; gap: 8px; }
+    .stamp.right { transform: rotate(-1deg); }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="stamp-row">
+    <span class="stamp">★ Family Expedition №39–43 ★</span>
+    <span class="stamp right">June 13 → June 28, 2026</span>
+  </div>
+  <div>
+    <h1 class="hero-title">The Great<br><span class="accent">Five-State</span><br>Run</h1>
+    <p class="hero-sub">A two-week loop from Pottstown to the wide-open West &mdash; geysers, granite presidents, lava fields, pitchfork steaks, and the lonesome road in between.</p>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-cell">Departing<strong>Pottstown, PA</strong></div>
+    <div class="meta-cell">The Crew<span class="crew-list">You · Gina · Phoenix (10) · Sagan (7)</span></div>
+    <div class="meta-cell">Total Distance<strong>~4,400 miles</strong></div>
+    <div class="meta-cell">Mission<strong>States 39 → 43</strong></div>
+  </div>
+</section>
+
+<section class="states-banner">
+  <div class="states-track">
+    <span class="state-pill"><span class="state-num">39</span>S. Dakota</span>
+    <span class="state-pill"><span class="state-num">40</span>N. Dakota</span>
+    <span class="state-pill"><span class="state-num">41</span>Montana</span>
+    <span class="state-pill"><span class="state-num">42</span>Idaho</span>
+    <span class="state-pill"><span class="state-num">43</span>Wyoming</span>
+  </div>
+</section>
+
+<section class="budget-banner">
+  <h2>The Bottom Line</h2>
+  <div class="budget-total">$7,425</div>
+  <div class="sub">All-in for four people, sixteen days. Roughly $464/day.</div>
+  <div class="budget-mini-grid">
+    <div class="budget-mini">Lodging<strong>$2,860</strong></div>
+    <div class="budget-mini">Food<strong>$1,950</strong></div>
+    <div class="budget-mini">Gas<strong>$925</strong></div>
+    <div class="budget-mini">Activities<strong>$890</strong></div>
+    <div class="budget-mini">Buffer<strong>$800</strong></div>
+  </div>
+</section>
+
+<section class="intro">
+  <h2>The Plan, Honestly</h2>
+  <p class="lead">Pottstown to the Black Hills is roughly 1,700 miles. Round-trip, that&rsquo;s about five travel days no matter how you slice it.</p>
+  <p>So this trip is a clockwise loop &mdash; out via I-80 to South Dakota, north into the prairies, west across Big Sky country, down through Yellowstone (which spans MT/WY/ID), and back through Wyoming and the long road home. Long driving days at the bookends, slower days in the middle where the good stuff lives.</p>
+  <p style="margin-top: 24px; color: var(--rust-deep); font-style: italic;">Two boys. Five new state pins. One big circle. A reasonable hotel budget.</p>
+</section>
+
+<section class="route-overview">
+  <div class="route-inner">
+    <h2>The Route at a Glance</h2>
+    <p class="sub">Sixteen days, fifteen nights, one big loop &mdash; with daily costs.</p>
+    <div class="route-table-wrap">
+      <table class="route-table">
+        <thead>
+          <tr><th>Day</th><th>Date</th><th>Route</th><th>Sleeps</th><th class="miles">Mi</th><th class="cost">Day $</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="day-cell">1</td><td>Sat 6/13</td><td>Pottstown → Cleveland</td><td>Hampton Inn Cleveland W.</td><td class="miles">420</td><td class="cost">$310</td></tr>
+          <tr><td class="day-cell">2</td><td>Sun 6/14</td><td>Cleveland → Madison</td><td>Best Western Madison</td><td class="miles">510</td><td class="cost">$320</td></tr>
+          <tr><td class="day-cell">3</td><td>Mon 6/15</td><td>Madison → Mitchell, SD</td><td>AmericInn Mitchell</td><td class="miles">530</td><td class="cost">$310</td></tr>
+          <tr><td class="day-cell">4</td><td>Tue 6/16</td><td>Mitchell → Wall (Badlands)</td><td>Best Western Plains, Wall</td><td class="miles">270</td><td class="cost">$340</td></tr>
+          <tr><td class="day-cell">5</td><td>Wed 6/17</td><td>Black Hills full day</td><td>Roosevelt Inn, Keystone</td><td class="miles">90</td><td class="cost">$370</td></tr>
+          <tr><td class="day-cell">6</td><td>Thu 6/18</td><td>Black Hills → Medora</td><td>Badlands Motel, Medora</td><td class="miles">320</td><td class="cost">$430</td></tr>
+          <tr><td class="day-cell">7</td><td>Fri 6/19</td><td>Theodore Roosevelt NP day</td><td>Badlands Motel, Medora</td><td class="miles">60</td><td class="cost">$540</td></tr>
+          <tr><td class="day-cell">8</td><td>Sat 6/20</td><td>Medora → Bozeman</td><td>Holiday Inn Express Bozeman</td><td class="miles">490</td><td class="cost">$370</td></tr>
+          <tr><td class="day-cell">9</td><td>Sun 6/21</td><td>Bozeman → W. Yellowstone</td><td>Kelly Inn West Yellowstone</td><td class="miles">90</td><td class="cost">$455</td></tr>
+          <tr><td class="day-cell">10</td><td>Mon 6/22</td><td>Yellowstone &mdash; Geysers</td><td>Kelly Inn West Yellowstone</td><td class="miles">100</td><td class="cost">$420</td></tr>
+          <tr><td class="day-cell">11</td><td>Tue 6/23</td><td>Yellowstone → Idaho Falls</td><td>Hampton Inn Idaho Falls</td><td class="miles">170</td><td class="cost">$355</td></tr>
+          <tr><td class="day-cell">12</td><td>Wed 6/24</td><td>Craters of the Moon day trip</td><td>Hampton Inn Idaho Falls</td><td class="miles">180</td><td class="cost">$315</td></tr>
+          <tr><td class="day-cell">13</td><td>Thu 6/25</td><td>Idaho Falls → Cody, WY</td><td>Cody Cowboy Village Resort</td><td class="miles">340</td><td class="cost">$520</td></tr>
+          <tr><td class="day-cell">14</td><td>Fri 6/26</td><td>Cody → Mitchell, SD</td><td>AmericInn Mitchell</td><td class="miles">600</td><td class="cost">$340</td></tr>
+          <tr><td class="day-cell">15</td><td>Sat 6/27</td><td>Mitchell → Toledo</td><td>Hampton Inn Toledo W.</td><td class="miles">740</td><td class="cost">$340</td></tr>
+          <tr><td class="day-cell">16</td><td>Sun 6/28</td><td>Toledo → home</td><td>Home sweet home</td><td class="miles">490</td><td class="cost">$190</td></tr>
+          <tr class="totals-row"><td colspan="4">DAILY SUBTOTAL</td><td class="miles">4,400</td><td class="cost">$6,125</td></tr>
+          <tr class="totals-row"><td colspan="5">+ Pre-trip (parks pass, supplies, oil change)</td><td class="cost">$300</td></tr>
+          <tr class="totals-row"><td colspan="5">+ Buffer (~15%) for souvenirs, surprises, ice cream</td><td class="cost">$1,000</td></tr>
+          <tr class="totals-row"><td colspan="5"><strong>GRAND TOTAL</strong></td><td class="cost"><strong>$7,425</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top: 20px; font-size: 16px; font-style: italic; text-align: center; color: var(--rust-deep);">Daily totals include lodging, food (3 meals + snacks for 4), fuel, activities, and incidentals.</p>
+  </div>
+</section>
+
+<section class="map-section">
+  <div class="map-inner">
+    <h2>The Route, on a Map</h2>
+    <p class="sub">Tap any pin for details. The dashed line follows our 16-day clockwise loop.</p>
+    <div class="map-legend">
+      <div class="map-legend-item"><div class="map-legend-dot legend-start"></div>Start &amp; Finish</div>
+      <div class="map-legend-item"><div class="map-legend-dot legend-hotel"></div>Hotel / Overnight</div>
+      <div class="map-legend-item"><div class="map-legend-dot legend-attraction"></div>Major Attraction</div>
+    </div>
+    <div id="trip-map"></div>
+  </div>
+</section>
+
+<section class="days-section">
+  <h2>The Days, <span class="ampersand">in detail</span></h2>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">1<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">SAT · JUNE 13</span>Punching West</div>
+      <div class="day-route"><div class="from-to">Pottstown → Cleveland</div><div class="miles-big">420 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>On the road by 7am. Today is about putting Pennsylvania behind you. I-76 west, I-80 across, dinner in Cleveland.</p>
+      <ul class="stops">
+        <li class="quirky"><span class="label">QUICK STOP</span><strong>Flight 93 National Memorial &mdash; Shanksville, PA</strong><div class="desc">An hour off the route, but profound. Phoenix is old enough to grasp the story; the field of wildflowers tells it for Sagan. Free.</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Hampton Inn Cleveland-Westlake</div><div class="logi-detail">Free hot breakfast, indoor pool. Easy on/off I-90.</div><div class="logi-cost">~$165</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">West Side Market</div><div class="logi-detail">Iconic 1912 food hall. Pierogi, Polish boys, no behaving required.</div><div class="logi-cost">~$60</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, lunch, snacks</div><div class="logi-detail">2 fill-ups, road lunch, snack stash.</div><div class="logi-cost">~$85</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 1 Total</span><span class="total">$310</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">2<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">SUN · JUNE 14</span>Through the Heartland</div>
+      <div class="day-route"><div class="from-to">Cleveland → Madison</div><div class="miles-big">510 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Long day across Indiana and Illinois. Skirt Chicago on I-80 and aim for Madison.</p>
+      <ul class="stops">
+        <li class="quirky"><span class="label">LEG STRETCH</span><strong>RV/MH Hall of Fame &mdash; Elkhart, IN</strong><div class="desc">Right off I-80. Weirdly fascinating. The boys will be debating which one to live in for 200 miles. ~$10/adult, kids free.</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Best Western Plus InnTowner Madison</div><div class="logi-detail">Solid family rooms near campus. Pool, breakfast included.</div><div class="logi-cost">~$170</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Babcock Hall Dairy Store</div><div class="logi-detail">UW campus dairy &mdash; ice cream from cows three buildings away. Cheap deli for dinner first.</div><div class="logi-cost">~$55</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, breakfast, lunch, museum</div><div class="logi-detail">2 fill-ups, RV museum tickets, road meals.</div><div class="logi-cost">~$95</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 2 Total</span><span class="total">$320</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">3<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">MON · JUNE 15</span>Crossing Into the West</div>
+      <div class="day-route"><div class="from-to">Madison → Mitchell, SD</div><div class="miles-big">530 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Terrain finally changes. Cross the Mississippi at La Crosse, push through Minnesota, roll into South Dakota by late afternoon. <strong>State #39 in the bag.</strong></p>
+      <ul class="stops">
+        <li class="quirky"><span class="label">★ ABSURD</span><strong>Corn Palace &mdash; Mitchell, SD</strong><div class="desc">A Moorish-revival auditorium covered in murals made entirely of corn cobs. Re-decorated every year. Free. Insane. Perfect.</div></li>
+      </ul>
+      <div class="kid-tip">Tell them tomorrow they&rsquo;ll see dinosaurs (Wall Drug) and a moonscape (Badlands). Bedtime in Mitchell is locked in.</div>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">AmericInn by Wyndham Mitchell</div><div class="logi-detail">Indoor pool. Important after a 530-mile day.</div><div class="logi-cost">~$155</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Chef Louie&rsquo;s Steak House</div><div class="logi-detail">Mitchell institution since 1953. Burgers for boys, steak for you.</div><div class="logi-cost">~$80</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, breakfast, lunch</div><div class="logi-detail">3 fill-ups today, road meals.</div><div class="logi-cost">~$75</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 3 Total</span><span class="total">$310</span></div>
+  </div>
+
+  <div class="day-card feature">
+    <div class="day-header">
+      <div class="day-num">4<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">TUE · JUNE 16</span>Mars on Earth</div>
+      <div class="day-route"><div class="from-to">Mitchell → Wall, SD</div><div class="miles-big">270 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Easier driving day on purpose. Stop at the absurd, then go feel small in the Badlands.</p>
+      <ul class="stops">
+        <li class="quirky"><span class="label">★ ICONIC</span><strong>Wall Drug Store</strong><div class="desc">Roadside institution since 1931. Free ice water, 5&cent; coffee, giant T-Rex, jackalope photo op. Free to wander.</div></li>
+        <li><span class="label">PARK</span><strong>Badlands National Park &mdash; Loop Road</strong><div class="desc">31-mile Badlands Loop (Hwy 240). Pinnacles Overlook + the Door Trail (¾-mi boardwalk). Covered by your annual pass.</div></li>
+        <li><span class="label">SCIENCE</span><strong>Minuteman Missile NHS</strong><div class="desc">Real Cold War missile silo and launch facility. Free. 30 min for Phoenix.</div></li>
+      </ul>
+      <div class="kid-tip">Get the boys their first Junior Ranger badges at Badlands. They&rsquo;ll want to collect them at every park &mdash; lean into it. By Yellowstone they&rsquo;ll be feral for them.</div>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Best Western Plains, Wall</div><div class="logi-detail">Walking distance to Wall Drug. Pool. <strong>Books up &mdash; reserve now.</strong></div><div class="logi-cost">~$190</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Cactus Café + Wall Drug</div><div class="logi-detail">Lunch at Wall Drug (the donuts!), dinner across the street.</div><div class="logi-cost">~$85</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, snacks, breakfast</div><div class="logi-detail">2 fill-ups, hotel breakfast.</div><div class="logi-cost">~$65</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 4 Total</span><span class="total">$340</span></div>
+  </div>
+
+  <div class="day-card feature">
+    <div class="day-header">
+      <div class="day-num">5<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">WED · JUNE 17</span>Granite Faces &amp; Bison Jams</div>
+      <div class="day-route"><div class="from-to">Black Hills loop day</div><div class="miles-big">~90 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Move base to Keystone in the morning, full day in the Black Hills. The centerpiece of South Dakota.</p>
+      <ul class="stops">
+        <li><span class="label">ICON</span><strong>Mount Rushmore National Memorial</strong><div class="desc">Free entry, $10 to park. Walk the half-mile Presidential Trail. Try Jefferson&rsquo;s ice cream recipe at Carver&rsquo;s Café.</div></li>
+        <li><span class="label">DRIVE</span><strong>Iron Mountain Road &amp; Needles Highway</strong><div class="desc">Pigtail bridges, one-lane tunnels framed around Rushmore. The boys will lose it. $20/vehicle Custer SP entry.</div></li>
+        <li><span class="label">WILDLIFE</span><strong>Custer State Park &mdash; Wildlife Loop</strong><div class="desc">18 mi of bison, prairie dogs, &ldquo;begging burros,&rdquo; pronghorn. Late afternoon = best wildlife.</div></li>
+        <li class="quirky"><span class="label">★ EXTRA</span><strong>Crazy Horse Memorial</strong><div class="desc">Massive in-progress carving that dwarfs Rushmore. $30/carload.</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Roosevelt Inn, Keystone</div><div class="logi-detail">Kids stay free. Indoor pool, breakfast, walking distance to town.</div><div class="logi-cost">~$215</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Powder House Lodge, Keystone</div><div class="logi-detail">Buffalo meatloaf, hand-cut steaks, kids menu. Local since &lsquo;72.</div><div class="logi-cost">~$85</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Parking, Crazy Horse, Custer, gas</div><div class="logi-detail">$10 + $30 + $20 + lunch + gas.</div><div class="logi-cost">~$70</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 5 Total</span><span class="total">$370</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">6<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">THU · JUNE 18</span>Devils Tower &amp; the Northern Push</div>
+      <div class="day-route"><div class="from-to">Black Hills → Medora, ND</div><div class="miles-big">320 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Detour west into Wyoming for Devils Tower (a bonus brush with WY before the &ldquo;real&rdquo; Wyoming days), then north into <strong>state #40 &mdash; North Dakota.</strong></p>
+      <ul class="stops">
+        <li class="quirky"><span class="label">★ ICONIC</span><strong>Devils Tower NM &mdash; Wyoming</strong><div class="desc">America&rsquo;s first national monument. The 1.3-mi paved Tower Trail loops the base. Watch climbers like ants. Show them &ldquo;Close Encounters&rdquo; in the car.</div></li>
+        <li class="quirky"><span class="label">★ ROADSIDE</span><strong>Enchanted Highway &mdash; Regent, ND</strong><div class="desc">A 32-mile country road off I-94 dotted with the world&rsquo;s largest scrap-metal sculptures. &ldquo;Geese in Flight&rdquo; is taller than a 10-story building.</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Badlands Motel, Medora</div><div class="logi-detail">Run by the Roosevelt Foundation. Walk to everything. <strong>Book early &mdash; 155-person town.</strong></div><div class="logi-cost">~$273</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Boots Bar &amp; Grill, Medora</div><div class="logi-detail">Casual western pub. Save the splurge for tomorrow night.</div><div class="logi-cost">~$80</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, breakfast, lunch</div><div class="logi-detail">3 fill-ups, road food.</div><div class="logi-cost">~$77</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 6 Total</span><span class="total">$430</span></div>
+  </div>
+
+  <div class="day-card feature">
+    <div class="day-header">
+      <div class="day-num">7<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">FRI · JUNE 19</span>The Park You&rsquo;ve Never Heard Of</div>
+      <div class="day-route"><div class="from-to">Medora &amp; TRNP</div><div class="miles-big">~60 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Theodore Roosevelt NP is one of America&rsquo;s least-visited and most underrated parks. Rolling badlands, wild horses, bison herds, almost no crowds. Then a special evening &mdash; the centerpiece splurge of the trip.</p>
+      <ul class="stops">
+        <li><span class="label">PARK</span><strong>TRNP &mdash; South Unit Loop</strong><div class="desc">36-mile scenic drive. Wind Canyon, Boicourt Overlook, prairie dog towns (Sagan&rsquo;s favorite, guaranteed). Covered by parks pass.</div></li>
+        <li class="quirky"><span class="label">★ DINNER + SHOW</span><strong>Pitchfork Steak Fondue + Medora Musical</strong><div class="desc">12-oz strip steaks dunked on pitchforks into oil, all-you-can-eat sides, then the 60-year-old outdoor musical under the stars. The 2026 bundle is <strong>$89.95/adult</strong>; kids 12 &amp; under eat free at the Pitchfork all summer. Splurge night, totally worth it.</div></li>
+      </ul>
+      <div class="kid-tip">Wild horses live in the South Unit. First boy to spot one wins shotgun for tomorrow.</div>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Badlands Motel (night 2)</div><div class="logi-detail">Stay put &mdash; saves an unpack/repack.</div><div class="logi-cost">~$273</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Pitchfork Fondue + Musical (×2 adults)</div><div class="logi-detail">Bundle at $89.95 each, kids&rsquo; hotdog meals free. Plus breakfast at Farmhouse Cafe.</div><div class="logi-cost">~$220</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Lunch, gas, souvenirs</div><div class="logi-detail">In-park lunch + a couple Junior Ranger souvenirs.</div><div class="logi-cost">~$47</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 7 Total</span><span class="total">$540</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">8<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">SAT · JUNE 20</span>Big Sky, Big Drive</div>
+      <div class="day-route"><div class="from-to">Medora → Bozeman</div><div class="miles-big">490 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>I-94 west into <strong>state #41 &mdash; Montana.</strong> Longest stretch of pure sky on the trip. Endless. Stop often.</p>
+      <ul class="stops">
+        <li><span class="label">HISTORY</span><strong>Pompeys Pillar NM &mdash; near Billings</strong><div class="desc">A 150-ft sandstone outcrop where William Clark carved his signature in 1806. Only physical evidence of the Lewis &amp; Clark expedition still in place. Free.</div></li>
+        <li class="quirky"><span class="label">★ DETOUR</span><strong>Little Bighorn Battlefield</strong><div class="desc">If energy permits. Custer&rsquo;s Last Stand. Heavy but the markers showing where each soldier fell make it real for kids. $25/vehicle (or pass).</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Holiday Inn Express Bozeman</div><div class="logi-detail">Easy off I-90, indoor pool, free breakfast.</div><div class="logi-cost">~$210</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">MacKenzie River Pizza Co.</div><div class="logi-detail">Bozeman favorite. The boys can build their own pies.</div><div class="logi-cost">~$70</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, lunch, breakfast</div><div class="logi-detail">3 fill-ups, road meals.</div><div class="logi-cost">~$90</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 8 Total</span><span class="total">$370</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">9<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">SUN · JUNE 21</span>Dinosaurs &amp; the Approach</div>
+      <div class="day-route"><div class="from-to">Bozeman → W. Yellowstone</div><div class="miles-big">90 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Easy day. Bozeman in the morning, slow drive south to Yellowstone&rsquo;s west gate.</p>
+      <ul class="stops">
+        <li><span class="label">MUST</span><strong>Museum of the Rockies &mdash; Bozeman</strong><div class="desc">One of the world&rsquo;s great dinosaur museums. The largest T. rex skull ever found is here. Plan 3 hours. ~$20/adult, $14/kid.</div></li>
+        <li><span class="label">DRIVE</span><strong>US-191 South along the Gallatin River</strong><div class="desc">Used as the river in &ldquo;A River Runs Through It.&rdquo; Stop at any pullout. Throw rocks.</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Kelly Inn West Yellowstone</div><div class="logi-detail">Family suites, indoor pool, hot tub, included breakfast. 3 blocks from west gate. <strong>Book 6+ months out for June.</strong></div><div class="logi-cost">~$285</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Wild West Pizzeria, W. Yellowstone</div><div class="logi-detail">Big slices, casual. Save fancier for tomorrow.</div><div class="logi-cost">~$70</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Museum tix, gas, groceries</div><div class="logi-detail">Museum entry + stock the cooler at Market Place for park lunches.</div><div class="logi-cost">~$100</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 9 Total</span><span class="total">$455</span></div>
+  </div>
+
+  <div class="day-card feature">
+    <div class="day-header">
+      <div class="day-num">10<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">MON · JUNE 22</span>Yellowstone &mdash; Lower Loop</div>
+      <div class="day-route"><div class="from-to">West Yellowstone base</div><div class="miles-big">~100 mi in-park</div></div>
+    </div>
+    <div class="day-body">
+      <p>Out the door by 7am. Yellowstone gets stupid-busy by 10. Good news: from West Entrance you&rsquo;re straight to the geysers.</p>
+      <ul class="stops">
+        <li><span class="label">ICON</span><strong>Old Faithful + Upper Geyser Basin</strong><div class="desc">Time the eruption (~94 min), then walk boardwalks to Castle, Grand, Riverside &mdash; less crowded, often more dramatic than Old Faithful itself.</div></li>
+        <li><span class="label">JAW-DROP</span><strong>Grand Prismatic Spring</strong><div class="desc">Hike the short Fairy Falls trail to the overlook for the famous aerial view. Boardwalk view is fine; overlook is unforgettable.</div></li>
+        <li><span class="label">WILDLIFE</span><strong>Hayden Valley (evening)</strong><div class="desc">Bison herds, often elk, sometimes wolves at dusk. Bring binoculars.</div></li>
+      </ul>
+      <div class="kid-tip">Pack your own lunch from yesterday&rsquo;s grocery run. In-park food is brutal and lines worse. Cooler in the trunk = the move.</div>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Kelly Inn (night 2)</div><div class="logi-detail">Stay put. Best base for the park.</div><div class="logi-cost">~$285</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Cooler lunch + Madison Crossing dinner</div><div class="logi-detail">Pack lunch from cooler. Dinner at Madison Crossing Lounge in town &mdash; a local favorite.</div><div class="logi-cost">~$85</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, breakfast, snacks</div><div class="logi-detail">Park entry covered by your pass.</div><div class="logi-cost">~$50</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 10 Total</span><span class="total">$420</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">11<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">TUE · JUNE 23</span>Yellowstone&rsquo;s Backside → Idaho</div>
+      <div class="day-route"><div class="from-to">W. Yellowstone → Idaho Falls</div><div class="miles-big">170 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>One more morning in Yellowstone (Mammoth Hot Springs if you didn&rsquo;t hit it &mdash; the travertine terraces are otherworldly), then west into <strong>state #42 &mdash; Idaho.</strong></p>
+      <ul class="stops">
+        <li class="quirky"><span class="label">★ HIDDEN</span><strong>Upper &amp; Lower Mesa Falls</strong><div class="desc">The last major undisturbed waterfall in the Columbia River system. Often called the most beautiful waterfall in Idaho. Boardwalks get you right up to it.</div></li>
+        <li><span class="label">DINNER</span><strong>Idaho Falls Riverwalk</strong><div class="desc">Surprisingly lovely greenbelt. Boys burn off energy after a car day.</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Hampton Inn Idaho Falls</div><div class="logi-detail">Reliable, on the river, pool. Easy 2-night base.</div><div class="logi-cost">~$175</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Big Jud&rsquo;s, Idaho Falls</div><div class="logi-detail">Famous 1-pound burger if you dare. Kid burgers under $10.</div><div class="logi-cost">~$70</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, breakfast, snacks</div><div class="logi-detail">2 fill-ups, hotel breakfast.</div><div class="logi-cost">~$110</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 11 Total</span><span class="total">$355</span></div>
+  </div>
+
+  <div class="day-card feature">
+    <div class="day-header">
+      <div class="day-num">12<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">WED · JUNE 24</span>Walking on the Moon</div>
+      <div class="day-route"><div class="from-to">Idaho Falls → Craters &amp; back</div><div class="miles-big">~180 mi RT</div></div>
+    </div>
+    <div class="day-body">
+      <p>Day trip to Craters of the Moon. Apollo astronauts trained here for moonwalks. It looks like nowhere else on Earth.</p>
+      <ul class="stops">
+        <li><span class="label">PARK</span><strong>Craters of the Moon &mdash; 7-mi loop</strong><div class="desc">Hike Inferno Cone (0.4 mi steep but quick &mdash; massive views), then explore lava tubes (free permit at visitor center, bring headlamps). Only park with a Lunar Ranger badge.</div></li>
+        <li class="quirky"><span class="label">★ ATOMIC</span><strong>EBR-1 Atomic Museum &mdash; Arco</strong><div class="desc">World&rsquo;s first nuclear power plant. Arco was first town ever lit by atomic energy. Free tour, real reactor you can touch.</div></li>
+      </ul>
+      <div class="kid-tip">Lava tube caving is a trip highlight. Indian Tunnel is the family-friendly one &mdash; bring layers, it&rsquo;s 40&deg;F inside even in June.</div>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Hampton Inn Idaho Falls (night 2)</div><div class="logi-detail">Same base.</div><div class="logi-cost">~$175</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Pickle&rsquo;s Place, Arco + Idaho Brewing Co.</div><div class="logi-detail">Lunch in Arco at the famous &ldquo;Atomic Burger.&rdquo; Dinner back in Idaho Falls.</div><div class="logi-cost">~$80</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, breakfast, snacks</div><div class="logi-detail">Park entry covered by pass.</div><div class="logi-cost">~$60</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 12 Total</span><span class="total">$315</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">13<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">THU · JUNE 25</span>Through Yellowstone to Cody</div>
+      <div class="day-route"><div class="from-to">Idaho Falls → Cody, WY</div><div class="miles-big">340 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Re-enter Yellowstone via the south, drive east-to-west across Sylvan Pass, and exit into <strong>state #43 &mdash; Wyoming proper</strong> &mdash; Cody, founded by Buffalo Bill himself.</p>
+      <ul class="stops">
+        <li><span class="label">PARK</span><strong>Yellowstone Lake &amp; Fishing Bridge</strong><div class="desc">Largest high-elevation lake in North America. Calm morning water. Skip rocks.</div></li>
+        <li><span class="label">DRIVE</span><strong>Buffalo Bill Cody Scenic Byway</strong><div class="desc">Teddy Roosevelt called it &ldquo;the 50 most beautiful miles in America.&rdquo; Massive cliffs, the Wapiti Valley.</div></li>
+        <li class="quirky"><span class="label">★ NIGHT OUT</span><strong>Cody Nite Rodeo</strong><div class="desc">Every night June&ndash;August. Bull riding, barrel racing, bronc-busting under the lights. ~$25/adult, $15/kid. The boys will talk about this for years.</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Cody Cowboy Village Resort</div><div class="logi-detail">Individual log cabins, walk to rodeo grounds. June rates run high.</div><div class="logi-cost">~$295</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Proud Cut Saloon, Cody</div><div class="logi-detail">Cody steak night. Mounted heads, kid-friendly, real-deal western.</div><div class="logi-cost">~$95</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Rodeo (×4), gas, lunch</div><div class="logi-detail">$80 rodeo + 2 fill-ups + lunch.</div><div class="logi-cost">~$130</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 13 Total</span><span class="total">$520</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">14<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">FRI · JUNE 26</span>The Long Eastward Pull</div>
+      <div class="day-route"><div class="from-to">Cody → Mitchell, SD</div><div class="miles-big">600 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Big day. Get rolling early. Cross Wyoming, cut the corner of South Dakota. Audiobook day &mdash; one the whole car can love (try <em>The Wild Robot</em> or <em>Pax</em>).</p>
+      <ul class="stops">
+        <li><span class="label">QUICK</span><strong>Buffalo Bill Center of the West (morning)</strong><div class="desc">If you have any morning to spare: five museums in one. Firearms museum and Plains Indian museum are world-class. ~$28/adult.</div></li>
+      </ul>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">AmericInn Mitchell (return visit)</div><div class="logi-detail">Familiar territory. Pool again.</div><div class="logi-cost">~$155</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Pizza Ranch, Mitchell</div><div class="logi-detail">Buffet. Fast. Kids eat free with adult Sunday-Tuesday.</div><div class="logi-cost">~$55</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Buffalo Bill, gas, lunch</div><div class="logi-detail">3 fill-ups today, museum tix, road lunch.</div><div class="logi-cost">~$130</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 14 Total</span><span class="total">$340</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">15<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">SAT · JUNE 27</span>Across Five States in a Day</div>
+      <div class="day-route"><div class="from-to">Mitchell → Toledo</div><div class="miles-big">740 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>Hardest driving day of the trip but also the proudest: SD → MN → WI → IL → IN → OH in one shot. Pure I-90/I-80. No real stops &mdash; this is a pizza-and-a-pool-night kind of day.</p>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Hampton Inn Toledo-West</div><div class="logi-detail">Reliable, indoor pool. Park, swim, collapse.</div><div class="logi-cost">~$155</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Tony Packo&rsquo;s, Toledo</div><div class="logi-detail">Hungarian hot dog institution made famous by M*A*S*H. Open late.</div><div class="logi-cost">~$60</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas (×4), breakfast, lunch</div><div class="logi-detail">Big driving day = big gas day.</div><div class="logi-cost">~$125</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 15 Total</span><span class="total">$340</span></div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div class="day-num">16<br><small>OF 16</small></div>
+      <div class="day-title"><span class="date">SUN · JUNE 28</span>Home</div>
+      <div class="day-route"><div class="from-to">Toledo → Pottstown</div><div class="miles-big">490 mi</div></div>
+    </div>
+    <div class="day-body">
+      <p>The home stretch. Sleep in, easy breakfast, and roll into the driveway by evening with five new pins on the map.</p>
+    </div>
+    <div class="logistics-grid">
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Home sweet home</div><div class="logi-detail">Own bed. Glorious.</div><div class="logi-cost">$0</div></div>
+      <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Breakfast + road lunch</div><div class="logi-detail">Hotel breakfast. Late lunch somewhere on the PA Turnpike.</div><div class="logi-cost">~$75</div></div>
+      <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Gas, tolls</div><div class="logi-detail">2 fill-ups, PA Turnpike tolls.</div><div class="logi-cost">~$115</div></div>
+    </div>
+    <div class="day-cost-strip"><span>Day 16 Total</span><span class="total">$190</span></div>
+  </div>
+
+</section>
+
+<section class="budget-detail">
+  <div class="budget-detail-inner">
+    <h2>Where the Money Goes</h2>
+    <p class="lede">A breakdown of the $7,425 estimate. Built on real June 2026 hotel rates and a family-of-four eating well but not extravagantly.</p>
+
+    <div class="budget-cats">
+      <div class="budget-cat">
+        <h3>Lodging</h3>
+        <div class="budget-cat-total">$2,860</div>
+        <ul>
+          <li><span>3 highway overnights (Cleveland, Madison, Toledo)</span><span>$490</span></li>
+          <li><span>2 Mitchell stays (out + back)</span><span>$310</span></li>
+          <li><span>Wall, SD (1 night)</span><span>$190</span></li>
+          <li><span>Keystone, SD (1 night)</span><span>$215</span></li>
+          <li><span>Medora, ND (2 nights)</span><span>$546</span></li>
+          <li><span>Bozeman, MT (1 night)</span><span>$210</span></li>
+          <li><span>West Yellowstone (2 nights)</span><span>$570</span></li>
+          <li><span>Idaho Falls (2 nights)</span><span>$350</span></li>
+          <li><span>Cody, WY (1 night)</span><span>$295</span></li>
+        </ul>
+      </div>
+
+      <div class="budget-cat">
+        <h3>Food</h3>
+        <div class="budget-cat-total">$1,950</div>
+        <ul>
+          <li><span>Hotel breakfasts (10 included)</span><span>$0</span></li>
+          <li><span>Restaurant dinners (~$75 avg ×15)</span><span>$1,125</span></li>
+          <li><span>Pitchfork Fondue + Musical splurge</span><span>$220</span></li>
+          <li><span>Road lunches &amp; quick stops (~$30 ×16)</span><span>$480</span></li>
+          <li><span>Snacks, drinks, cooler stocking</span><span>$125</span></li>
+        </ul>
+      </div>
+
+      <div class="budget-cat">
+        <h3>Gas</h3>
+        <div class="budget-cat-total">$925</div>
+        <ul>
+          <li><span>~4,400 miles total</span><span></span></li>
+          <li><span>Estimated 25 mpg average</span><span></span></li>
+          <li><span>~176 gallons @ ~$3.40/gal avg</span><span>$600</span></li>
+          <li><span>Rocky Mountain premium ($4+/gal)</span><span>$200</span></li>
+          <li><span>Tolls (PA Turnpike, IL, IN, OH)</span><span>$125</span></li>
+        </ul>
+      </div>
+
+      <div class="budget-cat">
+        <h3>Activities &amp; Entry</h3>
+        <div class="budget-cat-total">$890</div>
+        <ul>
+          <li><span>America the Beautiful Annual Pass</span><span>$80</span></li>
+          <li><span>Mt. Rushmore parking</span><span>$10</span></li>
+          <li><span>Crazy Horse Memorial</span><span>$30</span></li>
+          <li><span>Custer State Park entry</span><span>$20</span></li>
+          <li><span>Pitchfork + Musical (×2 adults, kids free)</span><span>$180</span></li>
+          <li><span>Museum of the Rockies (family)</span><span>$70</span></li>
+          <li><span>Cody Nite Rodeo (×4)</span><span>$80</span></li>
+          <li><span>Buffalo Bill Center of the West</span><span>$85</span></li>
+          <li><span>RV Hall, Atomic Museum, Corn Palace</span><span>$25</span></li>
+          <li><span>Junior Ranger badges &amp; books</span><span>$60</span></li>
+          <li><span>Souvenirs, mini-golf, treats</span><span>$250</span></li>
+        </ul>
+      </div>
+
+      <div class="budget-cat">
+        <h3>Pre-Trip + Buffer</h3>
+        <div class="budget-cat-total">$800</div>
+        <ul>
+          <li><span>Oil change, tire check, fluids</span><span>$120</span></li>
+          <li><span>Cooler, headlamps, supplies</span><span>$80</span></li>
+          <li><span>Bear spray (rent in W. Yellowstone)</span><span>$50</span></li>
+          <li><span>Buffer (~10%) for surprises</span><span>$550</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="budget-notes">Costs assume 2 queen beds (or 1 king + sleeper) with free breakfast wherever possible. Yellowstone-area lodging in June is the priciest segment and books out 6+ months ahead &mdash; lock those in first.</p>
+  </div>
+</section>
+
+<section class="counter-section">
+  <h2>Mission Status After June 28</h2>
+  <div class="counter-grid">
+    <div class="counter-cell"><div class="counter-num">43</div><div class="counter-label">States visited</div></div>
+    <div class="counter-cell"><div class="counter-num">7</div><div class="counter-label">To go</div></div>
+    <div class="counter-cell"><div class="counter-num">6</div><div class="counter-label">Years for Phoenix to hit 50</div></div>
+    <div class="counter-cell"><div class="counter-num">9</div><div class="counter-label">Years for Sagan to hit 50</div></div>
+  </div>
+</section>
+
+<section class="notes">
+  <h2>Logistics &amp; Pro-Tips</h2>
+  <div class="notes-grid">
+    <div class="note-card">
+      <h3>Book These Now</h3>
+      <ul>
+        <li>West Yellowstone lodging (Kelly Inn or similar) &mdash; June fills 6+ months ahead</li>
+        <li>Medora, ND (Badlands Motel or Rough Riders) &mdash; tiny town, fills fast</li>
+        <li>Pitchfork Fondue + Medora Musical bundle ($89.95/adult, kids 12 &amp; under eat free)</li>
+        <li>America the Beautiful Pass ($80 &mdash; pays for itself by Yellowstone)</li>
+        <li>Cody Nite Rodeo tickets</li>
+      </ul>
+    </div>
+    <div class="note-card">
+      <h3>Pack for Real</h3>
+      <ul>
+        <li>Layers &mdash; Yellowstone can be 35&deg;F at sunrise, 80&deg;F by 2pm</li>
+        <li>Headlamps for everyone (Craters of the Moon caves)</li>
+        <li>Binoculars, even cheap ones, for wildlife</li>
+        <li>A real cooler &mdash; in-park food is awful and overpriced</li>
+        <li>Bear spray for Yellowstone hikes (rent in West Yellowstone, ~$10/day)</li>
+        <li>Junior Ranger habit: ask at every visitor center</li>
+      </ul>
+    </div>
+    <div class="note-card">
+      <h3>Driving Realities</h3>
+      <ul>
+        <li>Cell service vanishes in Yellowstone, TRNP, and big stretches of MT/WY &mdash; download offline maps</li>
+        <li>Gas up at every half-tank in WY/MT/SD; some stretches go 80+ mi between stations</li>
+        <li>Mountain gas runs ~$4+/gal vs $3.20-3.50 in the Midwest</li>
+        <li>Watch for wildlife at dawn and dusk, especially in Yellowstone &amp; TRNP</li>
+      </ul>
+    </div>
+    <div class="note-card">
+      <h3>Where to Save / Splurge</h3>
+      <ul>
+        <li><strong>Save:</strong> Pack lunches from grocery stores &mdash; saves ~$200 over the trip</li>
+        <li><strong>Save:</strong> Hotel breakfast at Hampton/Holiday Inn = no breakfast budget</li>
+        <li><strong>Splurge:</strong> Pitchfork + Musical (Day 7) &mdash; once-in-a-lifetime</li>
+        <li><strong>Splurge:</strong> Cody Nite Rodeo (Day 13) &mdash; the boys will remember it forever</li>
+        <li><strong>Skip:</strong> Helicopter tours over Yellowstone ($400+/family) &mdash; the boardwalks are better</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Five states. Two boys. One big loop.<br>
+  Let&rsquo;s go.
+  <div class="small">An itinerary subject to spontaneous detours, bison-related delays, and ice cream stops.</div>
+</footer>
+
+<script>
+(function() {
+  // Bail safely if Leaflet failed to load (offline, blocked CDN, etc.)
+  if (typeof L === 'undefined') {
+    var mapEl = document.getElementById('trip-map');
+    if (mapEl) {
+      mapEl.innerHTML = '<div style="padding:40px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map requires an internet connection to load.</div>';
+    }
+    return;
+  }
+
+  try {
+    // Initialize map centered on the western portion of the trip
+    const map = L.map('trip-map', { scrollWheelZoom: false }).setView([44.5, -100.5], 5);
+
+  // Use a clean, paper-like tile layer that matches the page aesthetic
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 18
+  }).addTo(map);
+
+  // Custom markers (colored circles with day numbers)
+  function makeIcon(color, label) {
+    return L.divIcon({
+      className: 'custom-pin',
+      html: `<div style="background:${color};width:30px;height:30px;border-radius:50%;border:2px solid #1a1410;display:flex;align-items:center;justify-content:center;color:#1a1410;font-family:'Bungee',sans-serif;font-size:12px;box-shadow:2px 2px 0 #1a1410;">${label}</div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
+      popupAnchor: [0, -17]
+    });
+  }
+
+  // All stops in chronological order
+  const stops = [
+    { lat: 40.2454, lng: -75.6496, day: 'DAY 1 START', title: 'Pottstown, PA', note: 'Home base. On the road by 7am.', color: '#3d6b3d', label: 'S' },
+    { lat: 41.4653, lng: -81.9491, day: 'NIGHT 1', title: 'Hampton Inn Cleveland-Westlake', note: 'Free hot breakfast, indoor pool. Dinner at West Side Market.', color: '#b54820', label: '1' },
+    { lat: 43.0724, lng: -89.4277, day: 'NIGHT 2', title: 'Best Western Madison', note: 'Stop at the RV Hall of Fame en route. Babcock Hall ice cream.', color: '#b54820', label: '2' },
+    { lat: 43.7149, lng: -98.0252, day: 'DAY 3 STOP', title: '★ Corn Palace, Mitchell', note: 'Free. Insane. Walls of corn cobs, redecorated yearly.', color: '#c8932a', label: '★' },
+    { lat: 43.6958, lng: -98.0176, day: 'NIGHT 3', title: 'AmericInn Mitchell', note: 'Indoor pool. Chef Louie\'s Steak House for dinner.', color: '#b54820', label: '3' },
+    { lat: 43.9929, lng: -102.2415, day: 'DAY 4 STOP', title: '★ Wall Drug Store', note: '5¢ coffee, giant T-Rex, jackalope photos. Roadside legend since 1931.', color: '#c8932a', label: '★' },
+    { lat: 43.7491, lng: -101.9417, day: 'DAY 4 PARK', title: '★ Badlands National Park', note: 'First Junior Ranger badges! Drive the 31-mi loop.', color: '#c8932a', label: '★' },
+    { lat: 43.9895, lng: -102.2386, day: 'NIGHT 4', title: 'Best Western Plains, Wall', note: 'Walking distance to Wall Drug. Pool. Books up — reserve now.', color: '#b54820', label: '4' },
+    { lat: 43.8803, lng: -103.4538, day: 'DAY 5 ICON', title: '★ Mount Rushmore', note: 'Free entry, $10 parking. Try Jefferson\'s ice cream at Carver\'s Café.', color: '#c8932a', label: '★' },
+    { lat: 43.8876, lng: -103.4253, day: 'NIGHT 5', title: 'Roosevelt Inn, Keystone', note: 'Kids stay free. Indoor pool, full breakfast.', color: '#b54820', label: '5' },
+    { lat: 44.5902, lng: -104.7146, day: 'DAY 6 STOP', title: '★ Devils Tower', note: 'America\'s first national monument. 1.3-mi loop trail at the base.', color: '#c8932a', label: '★' },
+    { lat: 46.9124, lng: -103.5208, day: 'NIGHTS 6 & 7', title: 'Badlands Motel, Medora', note: 'Walk to everything in this 155-person town. 2-night stay.', color: '#b54820', label: '6' },
+    { lat: 46.9164, lng: -103.5258, day: 'DAY 7 PARK', title: '★ Theodore Roosevelt NP', note: 'Wild horses, bison, almost no crowds. + Pitchfork Fondue & Musical at night!', color: '#c8932a', label: '★' },
+    { lat: 45.7129, lng: -111.0686, day: 'NIGHT 8', title: 'Holiday Inn Express Bozeman', note: 'Stop at Pompeys Pillar (Lewis & Clark) along I-94.', color: '#b54820', label: '8' },
+    { lat: 45.6607, lng: -111.0482, day: 'DAY 9 STOP', title: '★ Museum of the Rockies', note: 'World\'s largest T. rex skull. The boys won\'t want to leave.', color: '#c8932a', label: '★' },
+    { lat: 44.6574, lng: -111.1015, day: 'NIGHTS 9 & 10', title: 'Kelly Inn West Yellowstone', note: '3 blocks from west gate. Indoor pool, breakfast included. 2-night stay.', color: '#b54820', label: '9' },
+    { lat: 44.4605, lng: -110.8281, day: 'DAY 10 ICON', title: '★ Old Faithful & Geyser Basin', note: 'Out the door by 7am to beat crowds. Time the eruption (~94 min).', color: '#c8932a', label: '★' },
+    { lat: 44.5251, lng: -110.8383, day: 'DAY 10', title: '★ Grand Prismatic Spring', note: 'Hike Fairy Falls trail to the OVERLOOK for the famous aerial view.', color: '#c8932a', label: '★' },
+    { lat: 44.1873, lng: -111.3261, day: 'DAY 11 STOP', title: '★ Upper Mesa Falls', note: 'Last major undisturbed waterfall in the Columbia River system.', color: '#c8932a', label: '★' },
+    { lat: 43.4980, lng: -112.0471, day: 'NIGHTS 11 & 12', title: 'Hampton Inn Idaho Falls', note: 'On the river, pool. Big Jud\'s for the famous 1-pound burger. 2-night stay.', color: '#b54820', label: '11' },
+    { lat: 43.1718, lng: -113.4821, day: 'DAY 12 PARK', title: '★ Craters of the Moon', note: 'Apollo astronauts trained here. Lava tubes, Inferno Cone, Lunar Ranger badge.', color: '#c8932a', label: '★' },
+    { lat: 44.5148, lng: -109.1015, day: 'NIGHT 13', title: 'Cody Cowboy Village', note: 'Log cabins, walk to rodeo grounds. Proud Cut Saloon for steak.', color: '#b54820', label: '13' },
+    { lat: 44.5135, lng: -109.0883, day: 'DAY 13 NIGHT', title: '★ Cody Nite Rodeo', note: 'Bull riding, barrel racing under the lights. The boys will talk about this for years.', color: '#c8932a', label: '★' },
+    { lat: 43.6958, lng: -98.0176, day: 'NIGHT 14', title: 'AmericInn Mitchell (return)', note: 'Familiar. Pizza Ranch — kids eat free Sun-Tue.', color: '#b54820', label: '14' },
+    { lat: 41.6830, lng: -83.6203, day: 'NIGHT 15', title: 'Hampton Inn Toledo-West', note: '740-mile day. Pool, collapse. Tony Packo\'s for Hungarian hot dogs.', color: '#b54820', label: '15' },
+    { lat: 40.2454, lng: -75.6496, day: 'DAY 16 HOME', title: 'Pottstown, PA 🏁', note: 'Mission complete. State count: 43. To go: 7.', color: '#3d6b3d', label: 'F' }
+  ];
+
+  // Add all markers with popups
+  stops.forEach(s => {
+    L.marker([s.lat, s.lng], { icon: makeIcon(s.color, s.label) })
+      .addTo(map)
+      .bindPopup(`<div class="popup-day">${s.day}</div><div class="popup-title">${s.title}</div><div class="popup-note">${s.note}</div>`);
+  });
+
+  // Draw the route line connecting all stops in order
+  const routeLine = stops.map(s => [s.lat, s.lng]);
+  L.polyline(routeLine, {
+    color: '#7a2d10',
+    weight: 3,
+    opacity: 0.7,
+    dashArray: '8, 8'
+  }).addTo(map);
+
+  // Fit map to show all points with padding
+  const group = L.featureGroup(stops.map(s => L.marker([s.lat, s.lng])));
+  map.fitBounds(group.getBounds(), { padding: [40, 40] });
+  } catch (err) {
+    console.error('Map init failed:', err);
+    var mapEl = document.getElementById('trip-map');
+    if (mapEl) {
+      mapEl.innerHTML = '<div style="padding:40px;text-align:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#7a2d10;">Map could not load. The full route is detailed in the table above.</div>';
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
