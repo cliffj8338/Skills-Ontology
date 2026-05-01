@@ -77,13 +77,21 @@
   .route-overview h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); text-align: center; margin-bottom: 8px; }
   .route-overview .sub { text-align: center; font-style: italic; margin-bottom: 40px; color: var(--rust-deep); font-size: 20px; }
   .route-table-wrap { overflow-x: auto; border: 2px solid var(--ink); }
-  .route-table { width: 100%; min-width: 720px; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--paper); }
+  .route-table { width: 100%; min-width: 880px; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--paper); }
   .route-table th { background: var(--ink); color: var(--paper); padding: 12px 10px; text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; white-space: nowrap; }
   .route-table td { padding: 12px 10px; border-bottom: 1px dashed var(--ink); vertical-align: top; }
   .route-table tr:last-child td { border-bottom: none; }
   .route-table .day-cell { font-weight: 700; color: var(--rust); white-space: nowrap; }
   .route-table .miles { text-align: right; color: var(--sky); font-weight: 700; }
   .route-table .cost { text-align: right; color: var(--green); font-weight: 700; white-space: nowrap; }
+  .route-table .status { text-align: center; white-space: nowrap; }
+  .route-table .status-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+  .route-table .status-pill.booked { background: #2d5f3f; color: #d4e8c8; }
+  .route-table .status-pill.pending { background: #efd9aa; color: #7a2d10; }
+  .route-table .status-pill.activity { background: #b8c4dc; color: #1a2240; }
+  .route-table .status-pill.home { background: var(--ink); color: var(--paper); }
+  .route-table .conf { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink); white-space: nowrap; }
+  .route-table .conf.dash { color: #c9b890; }
   .totals-row td { border-top: 3px double var(--ink) !important; background: var(--paper-dark); font-weight: 700; }
 
   .days-section { padding: 80px 24px; max-width: 1100px; margin: 0 auto; }
@@ -359,33 +367,33 @@
 <section class="route-overview">
   <div class="route-inner">
     <h2>The Route at a Glance</h2>
-    <p class="sub">Sixteen days, fifteen nights, one big loop &mdash; with daily costs.</p>
+    <p class="sub">Sixteen days, fifteen nights, one big loop &mdash; with daily costs and live booking status.</p>
     <div class="route-table-wrap">
       <table class="route-table">
         <thead>
-          <tr><th>Day</th><th>Date</th><th>Route</th><th>Sleeps</th><th class="miles">Mi</th><th class="cost">Day $</th></tr>
+          <tr><th>Day</th><th>Date</th><th>Route</th><th>Sleeps</th><th class="miles">Mi</th><th class="cost">Day $</th><th class="status">Status</th><th>Conf #</th></tr>
         </thead>
         <tbody>
-          <tr><td class="day-cell">1</td><td>Sat 6/13</td><td>Pottstown → Cleveland</td><td>Hampton Inn Cleveland W.</td><td class="miles">420</td><td class="cost">$310</td></tr>
-          <tr><td class="day-cell">2</td><td>Sun 6/14</td><td>Cleveland → Madison</td><td>Best Western Madison</td><td class="miles">510</td><td class="cost">$320</td></tr>
-          <tr><td class="day-cell">3</td><td>Mon 6/15</td><td>Madison → Mitchell, SD</td><td>AmericInn Mitchell</td><td class="miles">530</td><td class="cost">$310</td></tr>
-          <tr><td class="day-cell">4</td><td>Tue 6/16</td><td>Mitchell → Wall (Badlands)</td><td>Best Western Plains, Wall</td><td class="miles">270</td><td class="cost">$340</td></tr>
-          <tr><td class="day-cell">5</td><td>Wed 6/17</td><td>Black Hills full day</td><td>Roosevelt Inn, Keystone</td><td class="miles">90</td><td class="cost">$370</td></tr>
-          <tr><td class="day-cell">6</td><td>Thu 6/18</td><td>Black Hills → Medora</td><td>ElkHorn Quarters, Medora</td><td class="miles">320</td><td class="cost">$411</td></tr>
-          <tr><td class="day-cell">7</td><td>Fri 6/19</td><td>Theodore Roosevelt NP day</td><td>ElkHorn Quarters, Medora</td><td class="miles">60</td><td class="cost">$521</td></tr>
-          <tr><td class="day-cell">8</td><td>Sat 6/20</td><td>Medora → Bozeman</td><td>Holiday Inn Express Bozeman</td><td class="miles">490</td><td class="cost">$370</td></tr>
-          <tr><td class="day-cell">9</td><td>Sun 6/21</td><td>Bozeman → W. Yellowstone</td><td>One Horse Motel</td><td class="miles">90</td><td class="cost">$390</td></tr>
-          <tr><td class="day-cell">10</td><td>Mon 6/22</td><td>Yellowstone &mdash; Geysers</td><td>One Horse Motel</td><td class="miles">100</td><td class="cost">$355</td></tr>
-          <tr><td class="day-cell">11</td><td>Tue 6/23</td><td>Yellowstone → Idaho Falls</td><td>Hampton Inn Idaho Falls</td><td class="miles">170</td><td class="cost">$355</td></tr>
-          <tr><td class="day-cell">12</td><td>Wed 6/24</td><td>Craters of the Moon day trip</td><td>Hampton Inn Idaho Falls</td><td class="miles">180</td><td class="cost">$315</td></tr>
-          <tr><td class="day-cell">13</td><td>Thu 6/25</td><td>Idaho Falls → Cody, WY</td><td>Cody Cowboy Village Resort</td><td class="miles">340</td><td class="cost">$520</td></tr>
-          <tr><td class="day-cell">14</td><td>Fri 6/26</td><td>Cody → Sioux Falls (via NE)</td><td>Hampton Inn Sioux Falls</td><td class="miles">760</td><td class="cost">$400</td></tr>
-          <tr><td class="day-cell">15</td><td>Sat 6/27</td><td>Sioux Falls → Toledo</td><td>Hampton Inn Toledo W.</td><td class="miles">670</td><td class="cost">$340</td></tr>
-          <tr><td class="day-cell">16</td><td>Sun 6/28</td><td>Toledo → home</td><td>Home sweet home</td><td class="miles">490</td><td class="cost">$190</td></tr>
-          <tr class="totals-row"><td colspan="4">DAILY SUBTOTAL</td><td class="miles">4,400</td><td class="cost">$6,125</td></tr>
-          <tr class="totals-row"><td colspan="5">+ Pre-trip (parks pass, supplies, oil change)</td><td class="cost">$300</td></tr>
-          <tr class="totals-row"><td colspan="5">+ Buffer (~15%) for souvenirs, surprises, ice cream</td><td class="cost">$1,000</td></tr>
-          <tr class="totals-row"><td colspan="5"><strong>GRAND TOTAL</strong></td><td class="cost"><strong>$7,302</strong></td></tr>
+          <tr><td class="day-cell">1</td><td>Sat 6/13</td><td>Pottstown → Cleveland</td><td>Hampton Inn Cleveland W.</td><td class="miles">420</td><td class="cost">$310</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">2</td><td>Sun 6/14</td><td>Cleveland → Madison</td><td>Best Western Madison</td><td class="miles">510</td><td class="cost">$320</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">3</td><td>Mon 6/15</td><td>Madison → Mitchell, SD</td><td>AmericInn Mitchell</td><td class="miles">530</td><td class="cost">$310</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">4</td><td>Tue 6/16</td><td>Mitchell → Wall (Badlands)</td><td>Best Western Plains, Wall</td><td class="miles">270</td><td class="cost">$340</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">5</td><td>Wed 6/17</td><td>Black Hills full day</td><td>Roosevelt Inn, Keystone</td><td class="miles">90</td><td class="cost">$370</td><td class="status"><span class="status-pill booked">✓ Booked</span></td><td class="conf">72073868300517</td></tr>
+          <tr><td class="day-cell">6</td><td>Thu 6/18</td><td>Black Hills → Medora</td><td>ElkHorn Quarters, Medora</td><td class="miles">320</td><td class="cost">$411</td><td class="status"><span class="status-pill booked">✓ Booked</span></td><td class="conf">336386039</td></tr>
+          <tr><td class="day-cell">7</td><td>Fri 6/19</td><td>Theodore Roosevelt NP day</td><td>ElkHorn Quarters, Medora</td><td class="miles">60</td><td class="cost">$521</td><td class="status"><span class="status-pill booked">✓ Booked</span></td><td class="conf">336386039</td></tr>
+          <tr><td class="day-cell">8</td><td>Sat 6/20</td><td>Medora → Bozeman</td><td>Holiday Inn Express Bozeman</td><td class="miles">490</td><td class="cost">$370</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">9</td><td>Sun 6/21</td><td>Bozeman → W. Yellowstone</td><td>One Horse Motel</td><td class="miles">90</td><td class="cost">$390</td><td class="status"><span class="status-pill booked">✓ Booked</span></td><td class="conf">—</td></tr>
+          <tr><td class="day-cell">10</td><td>Mon 6/22</td><td>Yellowstone &mdash; Geysers</td><td>One Horse Motel</td><td class="miles">100</td><td class="cost">$355</td><td class="status"><span class="status-pill booked">✓ Booked</span></td><td class="conf">—</td></tr>
+          <tr><td class="day-cell">11</td><td>Tue 6/23</td><td>Yellowstone → Idaho Falls</td><td>Hampton Inn Idaho Falls</td><td class="miles">170</td><td class="cost">$355</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">12</td><td>Wed 6/24</td><td>Craters of the Moon day trip</td><td>Hampton Inn Idaho Falls</td><td class="miles">180</td><td class="cost">$315</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">13</td><td>Thu 6/25</td><td>Idaho Falls → Cody, WY</td><td>Cody Cowboy Village Resort</td><td class="miles">340</td><td class="cost">$520</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">14</td><td>Fri 6/26</td><td>Cody → Sioux Falls (via NE)</td><td>Hampton Inn Sioux Falls</td><td class="miles">760</td><td class="cost">$400</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">15</td><td>Sat 6/27</td><td>Sioux Falls → Toledo</td><td>Hampton Inn Toledo W.</td><td class="miles">670</td><td class="cost">$340</td><td class="status"><span class="status-pill pending">Pending</span></td><td class="conf dash">—</td></tr>
+          <tr><td class="day-cell">16</td><td>Sun 6/28</td><td>Toledo → home</td><td>Home sweet home</td><td class="miles">490</td><td class="cost">$190</td><td class="status"><span class="status-pill home">Home</span></td><td class="conf dash">—</td></tr>
+          <tr class="totals-row"><td colspan="4">DAILY SUBTOTAL</td><td class="miles">4,400</td><td class="cost">$6,125</td><td colspan="2"></td></tr>
+          <tr class="totals-row"><td colspan="5">+ Pre-trip (parks pass, supplies, oil change)</td><td class="cost">$300</td><td colspan="2"></td></tr>
+          <tr class="totals-row"><td colspan="5">+ Buffer (~15%) for souvenirs, surprises, ice cream</td><td class="cost">$1,000</td><td colspan="2"></td></tr>
+          <tr class="totals-row"><td colspan="5"><strong>GRAND TOTAL</strong></td><td class="cost"><strong>$7,302</strong></td><td colspan="2"></td></tr>
         </tbody>
       </table>
     </div>
