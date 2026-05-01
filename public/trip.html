@@ -254,6 +254,23 @@
   .ranger-tally { text-align: center; margin-top: 24px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; color: var(--rust-deep); }
   .ranger-tally strong { font-family: 'Bungee', sans-serif; font-style: normal; color: var(--ink); }
 
+  /* STARGAZING */
+  .stars-section { background: linear-gradient(180deg, #0d1426 0%, #1a2240 100%); color: var(--paper); padding: 60px 24px; border-bottom: 2px solid var(--ink); position: relative; overflow: hidden; }
+  .stars-section::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(1px 1px at 20% 30%, #fff8d0 50%, transparent), radial-gradient(1px 1px at 80% 20%, #fff8d0 50%, transparent), radial-gradient(1px 1px at 35% 70%, #fff8d0 50%, transparent), radial-gradient(2px 2px at 60% 50%, #fff8d0 50%, transparent), radial-gradient(1px 1px at 90% 80%, #fff8d0 50%, transparent), radial-gradient(1px 1px at 15% 85%, #fff8d0 50%, transparent), radial-gradient(2px 2px at 50% 15%, #fff8d0 50%, transparent), radial-gradient(1px 1px at 75% 65%, #fff8d0 50%, transparent); opacity: 0.5; pointer-events: none; }
+  .stars-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+  .stars-section h2 { font-family: 'Bungee', sans-serif; font-size: clamp(28px, 5vw, 44px); text-align: center; margin-bottom: 8px; color: var(--gold); }
+  .stars-section .sub { text-align: center; font-style: italic; margin-bottom: 36px; color: #d8d2c0; font-size: 18px; }
+  .stars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .star-night { background: rgba(244, 232, 208, 0.06); border: 1px solid rgba(244, 232, 208, 0.25); padding: 20px; border-radius: 4px; backdrop-filter: blur(2px); }
+  .star-night .when { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 6px; text-transform: uppercase; }
+  .star-night .where { font-family: 'Bungee', sans-serif; font-size: 16px; line-height: 1.15; color: var(--paper); margin-bottom: 8px; }
+  .star-night .moon-line { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b8c4dc; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed rgba(244, 232, 208, 0.2); }
+  .star-night .targets { font-size: 14px; line-height: 1.5; color: var(--paper); }
+  .star-night .targets strong { color: var(--gold); display: block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; margin-bottom: 2px; font-family: 'JetBrains Mono', monospace; }
+  .star-night.marquee { background: rgba(232, 192, 92, 0.12); border-color: var(--gold); }
+  .star-night.marquee .when { color: var(--paper); }
+  .stars-tip { text-align: center; margin-top: 28px; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; color: #d8d2c0; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+
   /* BREAKDOWN / CONTINGENCY */
   .breakdown-callout { background: var(--rust-deep); color: var(--paper); padding: 28px; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
   .breakdown-callout h3 { font-family: 'Bungee', sans-serif; font-size: 16px; color: var(--gold); margin-bottom: 14px; line-height: 1.2; }
@@ -496,7 +513,7 @@
       </ul>
     </div>
     <div class="logistics-grid">
-      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Roosevelt Inn, Keystone</div><div class="logi-detail">Kids stay free. Indoor pool, breakfast, walking distance to town.</div><div class="logi-cost">~$215</div></div>
+      <div class="logi-block"><div class="logi-label">SLEEP</div><div class="logi-name">Roosevelt Inn, Keystone</div><div class="logi-detail">✓ Booked via Expedia (itin #72073868300517). Standard Double, 2 queens, kids stay free, indoor pool, free breakfast, walking distance to town.</div><div class="logi-cost">~$215</div></div>
       <div class="logi-block"><div class="logi-label">EAT</div><div class="logi-name">Powder House Lodge, Keystone</div><div class="logi-detail">Buffalo meatloaf, hand-cut steaks, kids menu. Local since &lsquo;72.</div><div class="logi-cost">~$85</div></div>
       <div class="logi-block"><div class="logi-label">+ THE REST</div><div class="logi-name">Parking, Crazy Horse, Custer, gas</div><div class="logi-detail">$10 + $30 + $20 + lunch + gas.</div><div class="logi-cost">~$70</div></div>
     </div>
@@ -794,6 +811,52 @@
   </div>
 </section>
 
+<section class="stars-section">
+  <div class="stars-inner">
+    <h2>The Stargazing Plan</h2>
+    <p class="sub">Telescope nights, ranked. The first week of the trip is moonless &mdash; rare and valuable. Use it.</p>
+    <div class="stars-grid">
+
+      <div class="star-night">
+        <div class="when">DAY 4 · TUE 6/16 · WALL, SD</div>
+        <div class="where">Badlands Country</div>
+        <div class="moon-line">🌑 1% waxing crescent · sets 21:08 · effectively MOONLESS</div>
+        <div class="targets">Badlands NP earned official Dark Sky designation in 2025. Walk 5 minutes from the Best Western parking lot for a true horizon-to-horizon view.<strong>Eyes</strong>Milky Way core rising in the SE around 22:30. Summer Triangle (Vega, Deneb, Altair) overhead.<strong>Telescope</strong>M13 globular cluster in Hercules · Ring Nebula M57 in Lyra · Albireo (the gold/blue double star).</div>
+      </div>
+
+      <div class="star-night marquee">
+        <div class="when">★ DAY 5 · WED 6/17 · KEYSTONE, SD</div>
+        <div class="where">The Marquee Night</div>
+        <div class="moon-line">🌒 4% waxing crescent · sets 21:32</div>
+        <div class="targets">Rare west-sky planet alignment in evening twilight: <strong>Mercury + Venus + Jupiter + thin crescent moon</strong> all within a few degrees. Look WNW about 30 min after sunset (~21:00 MT).<strong>Telescope</strong>Jupiter's 4 Galilean moons. Venus showing a phase. Mercury (rare to catch). Then once full dark hits ~22:00: M51 Whirlpool Galaxy in Ursa Major, M81/M82 galaxy pair.<strong>Bonus</strong>Boys can spot Polaris and find their way home from anywhere on Earth — start the lesson here.</div>
+      </div>
+
+      <div class="star-night">
+        <div class="when">DAYS 6-7 · THU-FRI 6/18-19 · MEDORA, ND</div>
+        <div class="where">Theodore Roosevelt Country</div>
+        <div class="moon-line">🌒 14-22% crescent · sets ~23:30</div>
+        <div class="targets">TRNP is also a designated Dark Sky park. Walk to the bluff above ElkHorn Quarters or drive 5 min into TRNP after dinner.<strong>Eyes</strong>Scorpius low in the south &mdash; one of the few constellations that actually looks like its name.<strong>Telescope</strong>Saturn rises after midnight (Day 7) &mdash; rings visible. M22 globular cluster. Lagoon Nebula M8 in Sagittarius (a true Milky Way gem).</div>
+      </div>
+
+      <div class="star-night">
+        <div class="when">DAYS 9-10 · SUN-MON 6/21-22 · YELLOWSTONE</div>
+        <div class="where">Highest Elevation of the Trip</div>
+        <div class="moon-line">🌓 50% first quarter · sets ~midnight (early Day 10)</div>
+        <div class="targets">West Yellowstone sits at 6,667 ft &mdash; thinner air = sharper stars. Walk 2 blocks from One Horse Motel to the open lot at the edge of town. <strong>Wait until after midnight</strong> when the moon sets.<strong>Telescope</strong>Saturn rising in the SE. M51, M101 spiral galaxies overhead. M13 globular at its best.<strong>Bonus</strong>Possible Northern Lights at this latitude/elevation if there's a coronal mass ejection &mdash; check spaceweather.com that morning.</div>
+      </div>
+
+      <div class="star-night">
+        <div class="when">DAY 13 · THU 6/25 · CODY, WY</div>
+        <div class="where">Wyoming High Desert</div>
+        <div class="moon-line">🌖 78% gibbous · up most of the night · BRIGHT</div>
+        <div class="targets">Moon dominates this night &mdash; lean into it instead of fighting it.<strong>Telescope</strong>Lunar terminator (the line between light and shadow) is where craters look 3D. Tycho, Copernicus, the Apennine Mountains. Jupiter still up early evening.<strong>Eyes</strong>If anyone's still up after the rodeo, Saturn is well-placed in the SE around 23:00.</div>
+      </div>
+
+    </div>
+    <p class="stars-tip">Pack a red-light headlamp (preserves night vision), a star atlas or the SkySafari app, and a folding camp chair. The boys will remember a meteor over the Badlands longer than they'll remember most museums.</p>
+  </div>
+</section>
+
 <section class="cheatsheet-section">
   <div class="cheatsheet-inner">
     <h2>Glove-Box Cheat Sheet</h2>
@@ -813,7 +876,7 @@
         <tr><td><span class="cs-night">Sun 6/14</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 2</span></td><td><span class="cs-name">Best Western Plus InnTowner Madison</span><span class="cs-addr">2424 University Ave, Madison, WI 53726</span></td><td><span class="cs-phone">608-233-8778</span></td><td>~$170 · Near campus &amp; Babcock Hall</td></tr>
         <tr><td><span class="cs-night">Mon 6/15</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 3</span></td><td><span class="cs-name">AmericInn by Wyndham Mitchell</span><span class="cs-addr">1421 S Burr St, Mitchell, SD 57301</span></td><td><span class="cs-phone">605-996-9700</span></td><td>~$155 · Indoor pool</td></tr>
         <tr><td><span class="cs-night">Tue 6/16</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 4</span></td><td><span class="cs-name">Best Western Plains Motel, Wall</span><span class="cs-addr">712 Glenn St, Wall, SD 57790</span></td><td><span class="cs-phone">605-279-2145</span></td><td>~$185 · Walk to Wall Drug · BOOKS UP</td></tr>
-        <tr><td><span class="cs-night">Wed 6/17</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 5</span></td><td><span class="cs-name">Roosevelt Inn, Keystone</span><span class="cs-addr">206 Cemetery Rd, Keystone, SD 57751</span></td><td><span class="cs-phone">605-666-4599</span></td><td>~$215 · Kids stay free, pool</td></tr>
+        <tr><td><span class="cs-night">Wed 6/17</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 5</span></td><td><span class="cs-name">Roosevelt Inn, Keystone</span><span class="cs-addr">206 Cemetery Rd, Keystone, SD 57751</span></td><td><span class="cs-phone">605-666-4599</span></td><td>~$215 · ✓ BOOKED · Expedia itin #72073868300517</td></tr>
         <tr><td><span class="cs-night">Thu–Fri 6/18–19</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHTS 6 &amp; 7</span></td><td><span class="cs-name">ElkHorn Quarters, Medora</span><span class="cs-addr">400 E River Rd S, Medora, ND 58645</span></td><td><span class="cs-phone">800-633-6721</span></td><td>~$508 (2 nts) · ✓ BOOKED · Conf #336386039 · Family Unit</td></tr>
         <tr><td><span class="cs-night">Sat 6/20</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHT 8</span></td><td><span class="cs-name">Holiday Inn Express &amp; Suites Bozeman West</span><span class="cs-addr">2305 Catron St, Bozeman, MT 59718</span></td><td><span class="cs-phone">406-582-4995</span></td><td>~$195 · Pool, hot tub, breakfast</td></tr>
         <tr><td><span class="cs-night">Sun–Mon 6/21–22</span><br><span style="font-size:11px;color:var(--rust-deep);font-family:'JetBrains Mono',monospace;">NIGHTS 9 &amp; 10</span></td><td><span class="cs-name">One Horse Motel</span><span class="cs-addr">216 Dunraven St, West Yellowstone, MT 59758</span></td><td><span class="cs-phone">406-646-7735</span></td><td>~$440 (2 nts) · Self check-in · 5 min walk to gate · pack sleep masks</td></tr>
@@ -874,6 +937,7 @@
           <li>Spotify/Apple Music: download playlists &amp; an audiobook for the long drives</li>
           <li>Pack the cooler box: snacks, breakfast bars, electrolyte packets</li>
           <li>Buy bear spray (or rent in West Yellowstone)</li>
+          <li>Telescope kit: scope + tripod, eyepieces, red-light headlamp, folding camp chair, SkySafari app downloaded with offline data</li>
           <li>Print the Glove-Box Cheat Sheet above</li>
         </ul>
       </div>
